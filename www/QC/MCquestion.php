@@ -1,7 +1,7 @@
 <?php
 
 // 장비 점검 리스트와 관련 데이터를 불러오는 코드
-include $_SERVER['DOCUMENT_ROOT'] . "/qc/load_DB.php";
+include getDocumentRoot() . "/qc/load_DB.php";
 
 $terms = ['주간', '1개월', '2개월', '6개월'];
 $question_headers = ['장비 이름 (주기)', '점검 문항'];

@@ -18,8 +18,8 @@ ini_set('display_errors','1');  // 화면에 warning 없애기
 
 ?>
  
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/common.php' ?>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/common.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
 
   
 <title> 현장소장 Voc </title> 
@@ -43,7 +43,7 @@ ini_set('display_errors','1');  // 화면에 warning 없애기
    $num="";
     
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
 if($mode=='modify')

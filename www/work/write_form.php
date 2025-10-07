@@ -1,7 +1,7 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
+require_once(includePath('session.php'));
  
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+include getDocumentRoot() . '/load_header.php';
  if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
 		 sleep(1);
 	          header("Location:" . $WebSite . "login/login_form.php"); 
@@ -114,7 +114,7 @@ else
 include 'request.php';  
   
  // 재질 배열 추출 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
    
 // 소장 VOC 가져오기

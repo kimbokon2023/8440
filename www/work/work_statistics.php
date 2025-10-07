@@ -1,4 +1,4 @@
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/session.php';
+<?php include getDocumentRoot() . '/session.php';
 
  if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
           /*   alert("관리자 승인이 필요합니다."); */
@@ -9,7 +9,7 @@
 
 $title_message = "JAMB 제조 통계";
  ?>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
 
 <!-- Link to consolidated dashboard style -->
 <link rel="stylesheet" href="../css/dashboard-style.css">
@@ -203,7 +203,7 @@ body {
 
 <body>
 
-<? require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>
+<? require_once(includePath('myheader.php')); ?>
 
  <?php
 
@@ -576,7 +576,7 @@ if($item_sel==='년도비교')
 <div class="row">
 	<div class="d-flex mt-1 mb-2 justify-content-center align-items-center ">
 	<!-- 기간설정 칸 -->
-	 <?php include $_SERVER['DOCUMENT_ROOT'] . '/setdate.php' ?>
+	 <?php include getDocumentRoot() . '/setdate.php' ?>
 	</div>
 </div>
 <div class="d-flex justify-content-center align-items-center ">

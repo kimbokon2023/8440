@@ -1,5 +1,5 @@
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/session.php';   
+<?php include getDocumentRoot() . '/session.php';   
 
-include $_SERVER['DOCUMENT_ROOT'] . '/QC/prod_jamb_sub.php';    
+include getDocumentRoot() . '/QC/prod_jamb_sub.php';    
 
 ?> 

@@ -1,5 +1,5 @@
 <?php 
-include $_SERVER['DOCUMENT_ROOT'] . '/session.php';
+include getDocumentRoot() . '/session.php';
  
 $menu=$_REQUEST["menu"]; 
    
@@ -15,11 +15,11 @@ $title_message = '원자재 내역 추적';
          exit;
    }    
    
-	include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+	include getDocumentRoot() . '/load_header.php';
    
  ?>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/common/modal.php'; ?>
+<?php include getDocumentRoot() . '/common/modal.php'; ?>
 
 <title> <?=$title_message?>  </title>
 

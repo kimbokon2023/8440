@@ -1,9 +1,9 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php'; // 세션 파일 포함
+require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
 	
 header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문  
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
 
  function trans_date($tdate) {

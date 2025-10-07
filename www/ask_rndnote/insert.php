@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php';
+require_once getDocumentRoot() . '/session.php';
 header("Content-Type: application/json");
 
 $mode = $_REQUEST["mode"] ?? 'insert';
@@ -27,7 +27,7 @@ $data = [
 
 $contents = json_encode($data, JSON_UNESCAPED_UNICODE);
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
 if ($mode === "modify") {
@@ -65,7 +65,7 @@ if ($mode === "modify") {
     $status = 'send';
 	
     // JSON에서 결재라인 정보 가져오기
-    $jsonString = file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/member/Company_approvalLine_.json');
+    $jsonString = file_get_contents(getDocumentRoot() . '/member/Company_approvalLine_.json');
     $approvalLines = json_decode($jsonString, true);
 
     // 결재라인 기본값 설정

@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php'; // 세션 파일 포함
+require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
  
  if(!isset($_SESSION["level"]) || $level>8) {
           /*   alert("관리자 승인이 필요합니다."); */
@@ -21,7 +21,7 @@ $today = date("Y-m-d");
 <meta property="og:description" content="정확한 업무처리를 위한 필수사이트!">
 <meta property="og:image" content="https://8440.co.kr/img/miraethumbnail.jpg"> 
 
- <?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+ <?php include getDocumentRoot() . '/load_header.php' ?>
 
 <title> 미래기업 안전보건 </title>  
 
@@ -30,7 +30,7 @@ $today = date("Y-m-d");
 <body>
 
   
-<? include $_SERVER['DOCUMENT_ROOT'] . '/myheader.php'; ?>   
+<? include getDocumentRoot() . '/myheader.php'; ?>   
     
 <div class="container mb-3"  >
 	<div class="card">

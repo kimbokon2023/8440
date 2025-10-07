@@ -1,4 +1,4 @@
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/session.php';   
+<?php include getDocumentRoot() . '/session.php';   
 
  if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
           /*   alert("관리자 승인이 필요합니다."); */
@@ -11,7 +11,7 @@ $title_message = "본천장/LC 제조통계";
    
  ?>
  
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
 
 <title>  <?=$title_message?></title>
 
@@ -159,7 +159,7 @@ canvas {
 		 
 <body>
 
-  <?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>   
+  <?php require_once(includePath('myheader.php')); ?>   
 
  <?php 
  
@@ -537,7 +537,7 @@ if($item_sel=='1년~2년전 년도비교')
 <div class="row"> 		  
 	<div class="d-flex mt-1 mb-2 justify-content-center align-items-center "> 		
 	<!-- 기간설정 칸 -->
-	 <?php include $_SERVER['DOCUMENT_ROOT'] . '/setdate.php' ?>
+	 <?php include getDocumentRoot() . '/setdate.php' ?>
 	</div>
 </div>
     

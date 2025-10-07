@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php"); 	
+require_once(includePath('session.php')); 	
 header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문
 
 isset($_REQUEST["num"])  ? $num=$_REQUEST["num"] :   $num='';

@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php';
+require_once getDocumentRoot() . '/session.php';
 header("Content-Type: application/json");
 
 $num = $_REQUEST["num"] ?? '';
@@ -9,7 +9,7 @@ $secondTime = $_REQUEST["secondTime"] ?? '';
 
 $e_confirm = "최장중 이사 " . $firstTime . "!소현철 대표 " . $secondTime ;
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
 try {

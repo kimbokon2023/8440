@@ -1,4 +1,4 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/session.php');
+<?php require_once(includePath('session.php'));
 
 $mcno=$_REQUEST["mcname"];
  
@@ -6,7 +6,7 @@ $mcno=$_REQUEST["mcname"];
  $title_message = '미래기업 고객만족 품질경영';        
  ?>
    
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
  
 <title> <?=$title_message?> </title>  
  
@@ -14,9 +14,9 @@ $mcno=$_REQUEST["mcname"];
 
 <body>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . "/common/modal.php"; ?>
+<?php include getDocumentRoot() . "/common/modal.php"; ?>
    
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>   
+<?php require_once(includePath('myheader.php')); ?>   
 
 <?php
 
@@ -28,7 +28,7 @@ $mcno=$_REQUEST["mcname"];
          exit;
 }  
 							                	
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect(); 
 
 // 배열로 장비점검리스트 불러옴

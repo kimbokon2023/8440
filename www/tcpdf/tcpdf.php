@@ -19007,14 +19007,14 @@ Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value:
                     $imgsrc = substr($imgsrc, 7);
                     $type = TCPDF_IMAGES::getImageFileType($imgsrc);
                 } else {
-					if (($imgsrc[0] === '/') AND !empty($_SERVER['DOCUMENT_ROOT']) AND ($_SERVER['DOCUMENT_ROOT'] != '/')) {
+					if (($imgsrc[0] === '/') AND !empty(getDocumentRoot()) AND (getDocumentRoot() != '/')) {
 						// fix image path
-						$findroot = strpos($imgsrc, $_SERVER['DOCUMENT_ROOT']);
+						$findroot = strpos($imgsrc, getDocumentRoot());
 						if (($findroot === false) OR ($findroot > 1)) {
-							if (substr($_SERVER['DOCUMENT_ROOT'], -1) == '/') {
-								$imgsrc = substr($_SERVER['DOCUMENT_ROOT'], 0, -1).$imgsrc;
+							if (substr(getDocumentRoot(), -1) == '/') {
+								$imgsrc = substr(getDocumentRoot(), 0, -1).$imgsrc;
 							} else {
-								$imgsrc = $_SERVER['DOCUMENT_ROOT'].$imgsrc;
+								$imgsrc = getDocumentRoot().$imgsrc;
 							}
 						}
 						$imgsrc = urldecode($imgsrc);
@@ -24418,13 +24418,13 @@ Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value:
 							// replace relative path with full server path
 							$img = $this->svgdir.'/'.$img;
 						}
-						if (($img[0] == '/') AND !empty($_SERVER['DOCUMENT_ROOT']) AND ($_SERVER['DOCUMENT_ROOT'] != '/')) {
-							$findroot = strpos($img, $_SERVER['DOCUMENT_ROOT']);
+						if (($img[0] == '/') AND !empty(getDocumentRoot()) AND (getDocumentRoot() != '/')) {
+							$findroot = strpos($img, getDocumentRoot());
 							if (($findroot === false) OR ($findroot > 1)) {
-								if (substr($_SERVER['DOCUMENT_ROOT'], -1) == '/') {
-									$img = substr($_SERVER['DOCUMENT_ROOT'], 0, -1).$img;
+								if (substr(getDocumentRoot(), -1) == '/') {
+									$img = substr(getDocumentRoot(), 0, -1).$img;
 								} else {
-									$img = $_SERVER['DOCUMENT_ROOT'].$img;
+									$img = getDocumentRoot().$img;
 								}
 							}
 						}

@@ -5,7 +5,7 @@
  */
 
 // DOCUMENT_ROOT가 설정되지 않은 경우 현재 디렉토리 사용
-$docRoot = $_SERVER['DOCUMENT_ROOT'] ?? dirname(__FILE__);
+$docRoot = getDocumentRoot() ?? dirname(__FILE__);
 
 // file_api.php가 있는지 확인
 if (!file_exists(__DIR__ . '/file_api.php')) {

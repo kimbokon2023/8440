@@ -1,8 +1,8 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/session.php');
+<?php require_once(includePath('session.php'));
    // 첫 화면 표시 문구   
 $title_message = '출하검사서';
  ?> 
- <?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?> 
+ <?php include getDocumentRoot() . '/load_header.php' ?> 
 <title>  <?=$title_message?>  </title> 
 <style>
 	.table-hover tbody tr:hover {
@@ -11,7 +11,7 @@ $title_message = '출하검사서';
 </style>  
 </head>  	 
 <body>
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>    
+<?php require_once(includePath('myheader.php')); ?>    
  <?php
  
  if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
@@ -23,7 +23,7 @@ $title_message = '출하검사서';
    
 $tablename = "p_inspection";
      
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
     	 
  if(isset($_REQUEST["mode"]))

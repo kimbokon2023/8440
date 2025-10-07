@@ -9,7 +9,7 @@ if(isset($_SESSION["DB"]))
  
 header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문  
  
-include $_SERVER['DOCUMENT_ROOT'] . '/common.php';
+include getDocumentRoot() . '/common.php';
 
 $date = date('Y-m-d H:i:s'); // 현재 시간
 

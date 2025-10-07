@@ -19,7 +19,7 @@ ini_set('display_errors','1');  // 화면에 warning 없애기
 
  ?>
  
- <?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+ <?php include getDocumentRoot() . '/load_header.php' ?>
  
 <title>  <?=$title_message?>  </title>
 

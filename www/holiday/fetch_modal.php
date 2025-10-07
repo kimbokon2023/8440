@@ -1,11 +1,11 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");  
+require_once(includePath('session.php'));  
 
 $mode = isset($_POST['mode']) ? $_POST['mode'] : '';
 $num = isset($_POST['num']) ? $_POST['num'] : '';
 
 $tablename = 'holiday';
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
 if ($mode === 'update' && $num) {

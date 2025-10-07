@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php'; // 세션 파일 포함
+require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
 
 $check = isset($_COOKIE['check']) ? $_COOKIE['check'] : 'false';
 $lastdate = isset($_COOKIE['lastdate']) ? $_COOKIE['lastdate'] : 'false';
@@ -10,7 +10,7 @@ if($user_name=='소현철' ||$user_name=='김보곤' ||$user_name=='최장중' |
 ?>
 
 <?php 
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+include getDocumentRoot() . '/load_header.php';
  if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
 		 sleep(1);
 	          header("Location:" . $WebSite . "login/login_form.php"); 
@@ -21,7 +21,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
 <?php
 										  
 isset($_REQUEST["num"])  ? $num=$_REQUEST["num"] :   $num=''; 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
 
  try{

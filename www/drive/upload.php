@@ -1,6 +1,6 @@
 <?php
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
+require_once getDocumentRoot() . '/vendor/autoload.php';
 
 session_start();
 
@@ -21,7 +21,7 @@ if (isset($_GET['code'])) {
 $client->addScope(Google_Service_Drive::DRIVE);
 
 // 토큰 파일 경로 설정
-$tokenFile = $_SERVER['DOCUMENT_ROOT'] . '/tokens/token.json';
+$tokenFile = getDocumentRoot() . '/tokens/token.json';
 
 if (file_exists($tokenFile)) {
     $accessToken = json_decode(file_get_contents($tokenFile), true);
@@ -104,7 +104,7 @@ try {
     }
 
     // /imgwork 폴더에서 모든 파일을 Google Drive의 '미래기업/imgwork'로 업로드
-    $imgworkPath = $_SERVER['DOCUMENT_ROOT'] . '/imgwork';
+    $imgworkPath = getDocumentRoot() . '/imgwork';
     $files = scandir($imgworkPath);
 
     echo "<h2>Google Drive에 파일 업로드:</h2>";

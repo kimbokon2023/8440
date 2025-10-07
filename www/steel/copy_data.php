@@ -11,7 +11,7 @@ session_start();
    
    ?>
    
-   <?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+   <?php include getDocumentRoot() . '/load_header.php' ?>
  
 <title> 미래기업 원자재 입출고 자료복사 </title> 
  
@@ -19,7 +19,7 @@ session_start();
  
  <body>
    
-  <?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>   
+  <?php require_once(includePath('myheader.php')); ?>   
 
 <?php	
    

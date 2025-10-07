@@ -8,7 +8,7 @@ $Transtodate=strtotime($todate);
 $Transtodate=date("Y-m-d",$Transtodate);
 
 $readIni = array();   // 환경파일 불러오기
-$readIni = parse_ini_file($_SERVER['DOCUMENT_ROOT'] . "/steel/settings.ini",false);	
+$readIni = parse_ini_file(getDocumentRoot() . "/steel/settings.ini",false);	
 			  					   
 $PO=$readIni['PO'];
 $CR=$readIni['CR'];

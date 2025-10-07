@@ -1,11 +1,11 @@
 ﻿<?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
+require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
   // 첫 화면 표시 문구
  $title_message = '공지사항';    
  $menu=$_REQUEST["menu"] ?? '';   
 ?>
    
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+<?php include getDocumentRoot() . '/load_header.php';
 
 	 if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
 			 sleep(1);
@@ -20,7 +20,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/load_GoogleDrive.php'; // 세션 등 
 
 <body>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . "/common/modal.php"; ?>
+<?php include getDocumentRoot() . "/common/modal.php"; ?>
     
  <?php
  
@@ -29,7 +29,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/load_GoogleDrive.php'; // 세션 등 
  $tablename=$_REQUEST["tablename"];
  $menu=$_REQUEST["menu"];   // no  이면 화면에 메뉴 안보임
    
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
  
  try{
@@ -87,7 +87,7 @@ $pdo = db_connect();
 $id=$num;  
 $author_id = $item_id  ;
   
-require_once $_SERVER['DOCUMENT_ROOT'] . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
+require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
 ?> 
 
 <form  id="board_form" name="board_form" method="post" enctype="multipart/form-data"> 

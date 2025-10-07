@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");  
+require_once(includePath('session.php'));  
 
 if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
     sleep(1);
@@ -7,7 +7,7 @@ if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
     exit;
 }  
  
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+include getDocumentRoot() . '/load_header.php';
 $title_message = '경동화물/택배'; 
 ?>
  
@@ -18,7 +18,7 @@ $title_message = '경동화물/택배';
 <body>         
 <?php
 $header = isset($_REQUEST['header']) ? $_REQUEST['header'] : '';  
-require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php');
+require_once(includePath('myheader.php'));
 
 $search = isset($_REQUEST['search']) ? $_REQUEST['search'] : '';  
 $mode = isset($_REQUEST["mode"]) ? $_REQUEST["mode"] : '';
@@ -37,7 +37,7 @@ if ($fromdate === "" || $fromdate === null || $todate === "" || $todate === null
     $todate = $currentDate; // 현재 날짜
 }
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
 $order = " ORDER BY registedate DESC ";

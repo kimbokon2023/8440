@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");  
+require_once(includePath('session.php'));  
 
 if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
     sleep(1);
@@ -7,7 +7,7 @@ if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
     exit;
 }
 
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+include getDocumentRoot() . '/load_header.php';
 
  $num=$_REQUEST["num"] ?? '';
 
@@ -55,7 +55,7 @@ $sanitized = preg_replace('/[\/\\\:\*\?\"\<\>\|\#\,]/', '', $original);
  } 
  
 $tmp = explode(",", $arr[0]);  
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';  
+include getDocumentRoot() . '/load_header.php';  
 ?>
 
 <link rel="stylesheet" type="text/css" href="../css/common.css?v=<?php echo time(); ?>">

@@ -18,7 +18,7 @@ $today = date("Y-m-d");
 echo "<script>var today = '$today';</script>";
 ?>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
   
 <title> 미래기업 jamb 공사 스케줄 </title>
    
@@ -38,7 +38,7 @@ echo "<script>var today = '$today';</script>";
 <body>
    
 
-<? include $_SERVER['DOCUMENT_ROOT'] . '/myheader.php'; ?>   
+<? include getDocumentRoot() . '/myheader.php'; ?>   
 
 
 <div class="card mt-2 mb-2">	

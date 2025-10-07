@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
+require_once(includePath('session.php'));
 
 $tablename = 'work';
 
@@ -8,7 +8,7 @@ $num = $_REQUEST["num"] ?? "";
 $page = $_REQUEST["page"] ?? 1;
 $option = $_REQUEST["option"] ?? "";
 
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';    	  
+include getDocumentRoot() . '/load_header.php';    	  
 require_once("../lib/mydb.php");
 $pdo = db_connect();
 
@@ -24,7 +24,7 @@ try {
         $row = $stmh->fetch(PDO::FETCH_ASSOC);
     }
 
-    include $_SERVER['DOCUMENT_ROOT'] . '/work/_row.php'; 
+    include getDocumentRoot() . '/work/_row.php'; 
 
     // customer 필드 가져오기 (Json형태의 값)
     $customer_data = isset($row["customer"]) ? $row["customer"] : '{}';

@@ -1,4 +1,4 @@
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/session.php';   
+<?php include getDocumentRoot() . '/session.php';   
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -27,7 +27,7 @@ try {
         $author_id = $author['author_id'];
 
         // Read and decode the JSON file
-        $jsonString = file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/member/Company_approvalLine_.json');
+        $jsonString = file_get_contents(getDocumentRoot() . '/member/Company_approvalLine_.json');
         $approvalLines = json_decode($jsonString, true);
 
         $e_line_id = '';

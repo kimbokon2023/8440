@@ -43,7 +43,7 @@ $pdo = db_connect();
 
 	?>	
 
- <?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?> 
+ <?php include getDocumentRoot() . '/load_header.php' ?> 
 
 </head>
 

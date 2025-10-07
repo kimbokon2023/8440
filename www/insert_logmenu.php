@@ -3,14 +3,14 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
+require_once(includePath('session.php'));
 header("Content-Type: application/json");
 
 $menu = isset($_REQUEST['menu']) ? $_REQUEST['menu'] : '';
 
 $tablename = 'logdata_menu';
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect(); 
 
 $saveName =  $_SESSION["name"] ?? '' ;

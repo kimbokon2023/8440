@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
+require_once(includePath('session.php'));
 
 $WebSite = "https://8440.co.kr/";	
 
@@ -13,7 +13,7 @@ $title_message = '원자재 입출고';
 
 ?> 
  
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
  
 <title> <?=$title_message?> </title> 
  
@@ -40,7 +40,7 @@ th, td {
    
 
  // 철판종류에 대한 추출부분
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
   
    try{

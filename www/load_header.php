@@ -1,13 +1,13 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
+require_once(includePath('session.php'));
 
 // header('Cache-Control: no cache');
 // 자바스크립트 자동 업데이트를 위한 version 설정
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/common.php");
+require_once(includePath('common.php'));
 
 $now = date("Y-m-d",time()) ;  
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
 // 필요한 데이터를 담을 배열 초기화

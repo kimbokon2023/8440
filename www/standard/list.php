@@ -22,11 +22,11 @@ $title_message = '규격 관리';
          exit;
    }    
    
-	include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+	include getDocumentRoot() . '/load_header.php';
    
  ?>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/common/modal.php'; ?>
+<?php include getDocumentRoot() . '/common/modal.php'; ?>
 
 <title> <?=$title_message?>  </title>
 
@@ -77,7 +77,7 @@ isset($_REQUEST["text3"])  ? $text3 = $_REQUEST["text3"] :   $text3="";
  
 
 	  
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
 
 	 

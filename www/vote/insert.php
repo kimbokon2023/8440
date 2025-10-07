@@ -32,7 +32,7 @@ $searchtext = $_REQUEST["searchtext"] ?? "";
 $deadline = $_REQUEST["deadline"] ?? "";
 
         
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
     
  if ($mode=="modify"){

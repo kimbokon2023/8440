@@ -1,9 +1,9 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
 // 기초 자료를 불러오는 코드
-include $_SERVER['DOCUMENT_ROOT'] . "/qc/load_DB.php";
+include getDocumentRoot() . "/qc/load_DB.php";
 ?>
 
 <div class="container">

@@ -10,7 +10,7 @@
    } 
  ?>
  
- <?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+ <?php include getDocumentRoot() . '/load_header.php' ?>
  
  <title> 시공소장 시공비 결산자료 </title> 
  </head>

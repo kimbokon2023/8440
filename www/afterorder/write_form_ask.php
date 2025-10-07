@@ -1,13 +1,13 @@
-<?php include $_SERVER['DOCUMENT_ROOT'] . "/session.php";  
+<?php include getDocumentRoot() . "/session.php";  
 
  if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
 		 sleep(1);
 	          header("Location:" . $WebSite . "login/login_form.php"); 
          exit;
    }    
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';							  
+include getDocumentRoot() . '/load_header.php';							  
 isset($_REQUEST["num"])  ? $num=$_REQUEST["num"] :   $num=''; 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
  
  if($user_name=='소현철' || $user_name=='김보곤' || $user_name=='최장중' || $user_name=='이경묵'   || $user_name=='소민지'  )
@@ -118,7 +118,7 @@ try{
 
 <div class="container " style="width:380px;">    
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/common/modal.php'; ?>
+<?php include getDocumentRoot() . '/common/modal.php'; ?>
 
 		
 			<div class="card">

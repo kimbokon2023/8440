@@ -1,4 +1,4 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/session.php');
+<?php require_once(includePath('session.php'));
 
 if(!isset($_SESSION["level"]) || $_SESSION["level"]>8) {
 		 sleep(1);
@@ -6,14 +6,14 @@ if(!isset($_SESSION["level"]) || $_SESSION["level"]>8) {
          exit;
    }  
    
-include $_SERVER['DOCUMENT_ROOT'] . "/common.php";
+include getDocumentRoot() . "/common.php";
  
     // 첫 화면 표시 문구
  $title_message = '외주발주 관리'; 
  
  ?>
 
- <?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+ <?php include getDocumentRoot() . '/load_header.php' ?>
 
 <title> <?=$title_message?> </title>
 			
@@ -211,7 +211,7 @@ if($mode!=='search')
 
 <div class="container-fluid" >  		  
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/common/modal.php'; ?>
+<?php include getDocumentRoot() . '/common/modal.php'; ?>
 								
 <div class="card" >  		  
 <div class="card-body" >  	 

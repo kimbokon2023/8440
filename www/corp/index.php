@@ -1,6 +1,6 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php'; // 세션 파일 포함
-require_once($_SERVER['DOCUMENT_ROOT'] . '/lib/mydb.php');
+require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
+require_once(includePath('lib/mydb.php'));
 
 // 첫 화면 표시 문구
 $title_message = '거래처 조회'; 
@@ -13,7 +13,7 @@ if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
     exit;
 }
 
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';   
+include getDocumentRoot() . '/load_header.php';   
 ?>
 <title> <?=$title_message?> </title>
 <!-- Tabulator CSS and JS -->
@@ -21,7 +21,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
 <script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.2.1/dist/js/tabulator.min.js"></script>
 
 <body>		 
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>   
+<?php require_once(includePath('myheader.php')); ?>   
 
 <style>
 /* Light mode styles */

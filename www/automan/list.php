@@ -1,4 +1,4 @@
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/session.php';   
+<?php include getDocumentRoot() . '/session.php';   
 
  if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {          
 		 sleep(1);
@@ -7,13 +7,13 @@
  }    
 ?>
  
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
 
 <title> 전산실장 정산 </title> 
 </head>
 <body>
  
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>   
+<?php require_once(includePath('myheader.php')); ?>   
  
 <?php 
  $search=$_REQUEST["search"] ?? '';
@@ -21,7 +21,7 @@
  
  $list=$_REQUEST["list"] ?? 0 ;
   
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();  
  
  $page = $_REQUEST["page"] ?? 1;  // 페이지 번호

@@ -1,9 +1,9 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");  
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('session.php'));  
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/annualleave/load_DB.php");
+require_once(includePath('annualleave/load_DB.php'));
 
 header("Content-Type: application/json");
 

@@ -4,7 +4,7 @@ header("Content-Type: application/json");  //json을 사용하기 위해 필요�
 
 isset($_REQUEST["e_num"])  ? $e_num = $_REQUEST["e_num"] :   $e_num=""; 
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
 
 $num_arr= array();

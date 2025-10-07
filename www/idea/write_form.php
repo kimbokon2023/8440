@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");  
+require_once(includePath('session.php'));  
 	
 $menu=$_REQUEST["menu"];
 $title_message = '개선을 위한 제안하기 ';   
@@ -8,7 +8,7 @@ print $level;
 
 ?>
   
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+<?php include getDocumentRoot() . '/load_header.php';
 	 if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
 			 sleep(1);
 			 header("Location:https://8440.co.kr/login/login_form.php"); 
@@ -27,10 +27,10 @@ print $level;
   
 </head> 
 <body>   
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/common/modal.php'); ?>   
+<?php require_once(includePath('common/modal.php')); ?>   
 <?php	   									  
 isset($_REQUEST["num"])  ? $num=$_REQUEST["num"] :   $num=''; 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
 
  try{

@@ -5,7 +5,7 @@
  * 이 파일은 file_api.php의 기능을 테스트하기 위한 엔드포인트입니다.
  */
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/file_api.php';
+require_once getDocumentRoot() . '/file_api.php';
 
 header('Content-Type: application/json; charset=utf-8');
 

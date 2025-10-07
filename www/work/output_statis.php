@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");  	
+require_once(includePath('session.php'));  	
 
  if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
 		 sleep(1);
@@ -13,7 +13,7 @@ $readIni = array();   // 환경파일 불러오기
 $readIni = parse_ini_file("./estimate.ini",false);	
 ?>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
 
 <!-- Highcharts 라이브러리 -->
 <script src="https://code.highcharts.com/highcharts.js"></script>
@@ -344,7 +344,7 @@ body {
 </style> 
 </head>		 
 <body>
-  <?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>   
+  <?php require_once(includePath('myheader.php')); ?>   
  <?php 
  
   if(isset($_REQUEST["load_confirm"]))   // 초기 당월 차트보이도록 변수를 저장하고 다시 부르면 실행되지 않도록 하기 위한 루틴
@@ -794,7 +794,7 @@ $chart_sel = 'bar';  // 바차트 선택
 <div class="row"> 		  
 	<div class="d-flex mt-1 mb-2 justify-content-center align-items-center "> 		
 	<!-- 기간설정 칸 -->
-	 <?php include $_SERVER['DOCUMENT_ROOT'] . '/setdate.php' ?>
+	 <?php include getDocumentRoot() . '/setdate.php' ?>
 	</div>
 </div>
 

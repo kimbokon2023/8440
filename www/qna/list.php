@@ -1,4 +1,4 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/session.php'); 
+<?php require_once(includePath('session.php')); 
 
 if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
 	sleep(1);
@@ -6,7 +6,7 @@ if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
 	exit;
 }   
 
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+include getDocumentRoot() . '/load_header.php';
 
 // 첫 화면 표시 문구
 $title_message = '자료실';   
@@ -15,7 +15,7 @@ $title_message = '자료실';
 <title>  <?=$title_message?>  </title> 
 </head>  
 <body> 
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>   
+<?php require_once(includePath('myheader.php')); ?>   
 <?php
  if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
           /*   alert("관리자 승인이 필요합니다."); */
@@ -29,7 +29,7 @@ $menu = isset($_REQUEST['menu']) ? $_REQUEST['menu'] : '';
 
 $tablename = "qna";
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 	 
  if(isset($_REQUEST["page"])) // $_REQUEST["page"]값이 없을 때에는 1로 지정 

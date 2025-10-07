@@ -11,7 +11,7 @@ $Employee = 17; // 직원수
 
 ?>
   
- <?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+ <?php include getDocumentRoot() . '/load_header.php' ?>
  
 <link rel="stylesheet" href="./css/style.css">
 

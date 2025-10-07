@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
+require_once(includePath('session.php'));
  
 // 모바일 사용여부 확인하는 루틴
 $mAgent = array("iPhone","iPod","Android","Blackberry", 
@@ -38,7 +38,7 @@ isset($_REQUEST["HomeAddress"]) ? $HomeAddress=$_REQUEST["HomeAddress"] : $HomeA
 $rnd = rand(1, 10);
 $imgsrc = 'img/homepage/' . $rnd . '.png';
 
-$root_dir = $_SERVER['DOCUMENT_ROOT'] ;
+$root_dir = getDocumentRoot() ;
 $version = '1';
 ?>
 <!DOCTYPE html>
@@ -1380,28 +1380,28 @@ $version = '1';
             </div>
             <div class="col-lg-6 col-md-6 align-self-top mb-30 ">            
                 <div class="d-flex flex-column mt-3 mb-1 justify-content-center align-items-top">                                        
-					<?php include $_SERVER['DOCUMENT_ROOT'] . '/QC/rate_badAllexcept.php' ?>  					                
-					<?php include $_SERVER['DOCUMENT_ROOT'] . '/QC/rate_badDetailexcept.php' ?>   
+					<?php include getDocumentRoot() . '/QC/rate_badAllexcept.php' ?>  					                
+					<?php include getDocumentRoot() . '/QC/rate_badDetailexcept.php' ?>   
                 </div>
             </div>
             <div class="col-lg-6 col-md-6 align-self-center mb-30 ">    
 					<h5 class="fs-4 fw-bold text-center"> (모델구분 : 쟘) 불량율 </h5>  			
                 <div class="d-flex flex-column mt-3 mb-1 justify-content-center align-items-center">                                        
-					<?php include $_SERVER['DOCUMENT_ROOT'] . '/QC/rate_badAllJamb.php' ?>   
-					 <?php include $_SERVER['DOCUMENT_ROOT'] . '/QC/rate_badDetailJamb.php' ?>   
+					<?php include getDocumentRoot() . '/QC/rate_badAllJamb.php' ?>   
+					 <?php include getDocumentRoot() . '/QC/rate_badDetailJamb.php' ?>   
 					</div>
             </div>
             <div class="col-lg-6 col-md-6 align-self-center mb-30 ">    
 					<h5 class="fs-4 fw-bold text-center"> (모델구분 : 천장) 불량율  </h5>  			
                 <div class="d-flex flex-column mt-3 mb-1 justify-content-center align-items-center">                                        
-					<?php include $_SERVER['DOCUMENT_ROOT'] . '/QC/rate_badAllJamb.php' ?>  
-					<?php include $_SERVER['DOCUMENT_ROOT'] . '/QC/rate_badDetailCeiling.php' ?>   					
+					<?php include getDocumentRoot() . '/QC/rate_badAllJamb.php' ?>  
+					<?php include getDocumentRoot() . '/QC/rate_badDetailCeiling.php' ?>   					
 				</div>
             </div>
             <div class="col-lg-6 col-md-6 align-self-center mb-30 ">    
 					<h5 class="fs-4 fw-bold text-center"> 불량 점유율 월별 비교  </h5>  			
                 <div class="d-flex flex-column mt-3 mb-1 justify-content-center align-items-center">                                        
-					<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_errorstatistics.php' ?>  
+					<?php include getDocumentRoot() . '/load_errorstatistics.php' ?>  
 				</div>
             </div>
             

@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
+require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
 
 if (!isset($_SESSION["level"]) || $_SESSION["level"] > 8) {
     sleep(1);
@@ -9,7 +9,7 @@ if (!isset($_SESSION["level"]) || $_SESSION["level"] > 8) {
 
 $title_message = '외주발주 관리 등록/수정';
 
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+include getDocumentRoot() . '/load_header.php';
 ?>
 
 <title> <?= $title_message ?> </title>
@@ -78,7 +78,7 @@ if (!empty($firstord) && $whichcompany != $firstord) {
 
 // 초기 프로그램은 $num사용 이후 $id로 수정중임  
 $id=$num;    
-require_once $_SERVER['DOCUMENT_ROOT'] . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
+require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
 ?>
  
    
@@ -98,7 +98,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/load_GoogleDriveSecond.php'; // attac
 	<input type="hidden" id="tablename" name="tablename" value="<?=$tablename?>" >			  								
 
 	
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/common/modal.php'; ?>	
+<?php include getDocumentRoot() . '/common/modal.php'; ?>	
 	
   <!-- 전화번호 Modal -->
   <div class="modal fade" id="Modal_tel" role="dialog">

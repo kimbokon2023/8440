@@ -1,11 +1,11 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");  
+require_once(includePath('session.php'));  
 
 $title_message = '공 사 완 료 확 인 서'; 
 $tablename = 'work'; 
 ?>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php'; ?>
+<?php include getDocumentRoot() . '/load_header.php'; ?>
 
 <title> <?=$title_message?> </title>
 
@@ -29,7 +29,7 @@ th, td {
 
 $num = isset($_REQUEST['num']) ? $_REQUEST['num'] : '';  
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 try {
     $sql = "SELECT * FROM $DB.$tablename WHERE num = ? ";
@@ -41,7 +41,7 @@ try {
         print "검색결과가 없습니다.<br>";
     } else {
         $row = $stmh->fetch(PDO::FETCH_ASSOC);  
-		include $_SERVER['DOCUMENT_ROOT'] . '/work/_row.php'; 
+		include getDocumentRoot() . '/work/_row.php'; 
         
         // customer 필드 가져오기 (Json형태의 값)
         $customer_data = $row["customer"];

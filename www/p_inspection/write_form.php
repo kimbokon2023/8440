@@ -13,7 +13,7 @@ if(isset($_SESSION["DB"]))
    
 ?>
    
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
 
  
 <title> <?=$title_message?> </title>  
@@ -22,7 +22,7 @@ if(isset($_SESSION["DB"]))
 
 <body>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . "/common/modal.php"; ?>
+<?php include getDocumentRoot() . "/common/modal.php"; ?>
  
 <?php
 
@@ -41,7 +41,7 @@ isset($_REQUEST["upfilename"])  ? $upfilename=$_REQUEST["upfilename"] :   $upfil
 isset($_REQUEST["tablename"])  ? $tablename=$_REQUEST["tablename"] :  $tablename=''; 
 isset($_REQUEST["savetitle"])  ? $savetitle=$_REQUEST["savetitle"] :  $savetitle='';   // log기록 저장 타이틀
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
     
   if(isset($_REQUEST["mode"]))  //수정 버튼을 클릭해서 호출했는지 체크

@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/QC/func_badAllexcept.php';
+require_once getDocumentRoot() . '/QC/func_badAllexcept.php';
 ?>
 
 <div class="card">         

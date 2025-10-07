@@ -3,7 +3,7 @@
  * Google Drive 파일 관리 API 모듈
  * 
  * 사용법:
- * 1. require_once $_SERVER['DOCUMENT_ROOT'] . '/file_api.php';
+ * 1. require_once getDocumentRoot() . '/file_api.php';
  * 2. $fileManager = new GoogleDriveFileManager();
  * 3. $fileManager->uploadFiles($files, $options);
  * 4. $fileManager->getFiles($options);
@@ -11,7 +11,7 @@
  */
 
 // DOCUMENT_ROOT가 설정되지 않은 경우 현재 디렉토리 사용
-$docRoot = $_SERVER['DOCUMENT_ROOT'] ?? dirname(__FILE__);
+$docRoot = getDocumentRoot() ?? dirname(__FILE__);
 require_once $docRoot . '/session.php';
 require_once $docRoot . '/vendor/autoload.php';
 require_once $docRoot . '/lib/mydb.php';

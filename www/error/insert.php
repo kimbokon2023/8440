@@ -1,4 +1,4 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/session.php'); 
+<?php require_once(includePath('session.php')); 
   
 print $_FILES['mainBefore']['name'];
   

@@ -1,12 +1,12 @@
 <?php
 error_reporting(E_ERROR | E_PARSE);
 ini_set('display_errors', 0);
-require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php'; // 세션 파일 포함
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
-require_once($_SERVER['DOCUMENT_ROOT'] . '/lib/mydb.php');
+require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
+require_once getDocumentRoot() . '/vendor/autoload.php';
+require_once(includePath('lib/mydb.php'));
 
 // 서비스 계정 JSON 파일 경로
-$serviceAccountKeyFile = $_SERVER['DOCUMENT_ROOT'] . '/tokens/mytoken.json';	
+$serviceAccountKeyFile = getDocumentRoot() . '/tokens/mytoken.json';	
 
 // Google Drive 클라이언트 설정
 $client = new Google_Client();
@@ -48,7 +48,7 @@ $mode = $_REQUEST["mode"] ?? '';
 $search = $_REQUEST["search"] ?? ''; 
 ?> 
  
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php'; ?> 
+<?php include getDocumentRoot() . '/load_header.php'; ?> 
  
 <title> <?=$title_message?>  </title>  
  
@@ -95,7 +95,7 @@ $search = $_REQUEST["search"] ?? '';
 $tablename = 'phomi_estimate';
 if(!$chkMobile) 
 { 	
-	require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); 
+	require_once(includePath('myheader.php')); 
 }
 
 // 모바일이면 특정 CSS 적용

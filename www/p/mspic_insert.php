@@ -1,10 +1,10 @@
 <?php
 session_start();
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
+require_once getDocumentRoot() . '/vendor/autoload.php';
 include "../php/common.php";
 
 // Google Drive 서비스 계정 인증 설정
-putenv('GOOGLE_APPLICATION_CREDENTIALS=' . $_SERVER['DOCUMENT_ROOT'] . '/tokens/mytoken.json');
+putenv('GOOGLE_APPLICATION_CREDENTIALS=' . getDocumentRoot() . '/tokens/mytoken.json');
 $client = new Google_Client();
 $client->useApplicationDefaultCredentials();
 $client->setScopes([Google_Service_Drive::DRIVE]);
@@ -15,7 +15,7 @@ $service = new Google_Service_Drive($client);
 
 // 로그 기록을 위한 함수
 function logMessage($message) {
-    $logFile = $_SERVER['DOCUMENT_ROOT'] . '/logs/upload_debug.log';
+    $logFile = getDocumentRoot() . '/logs/upload_debug.log';
     $timestamp = date("Y-m-d H:i:s");
     file_put_contents($logFile, "[$timestamp] $message\n", FILE_APPEND);
 }
@@ -86,7 +86,7 @@ $countfiles = count($_FILES[$filechoice]['name']);
 $response = []; // JSON 응답 데이터 초기화
 
 // /temp/ 디렉토리 생성 확인 및 설정
-$tempDir = $_SERVER['DOCUMENT_ROOT'] . '/temp/';
+$tempDir = getDocumentRoot() . '/temp/';
 if (!file_exists($tempDir)) {
     mkdir($tempDir, 0755, true); // 디렉토리 생성
 }

@@ -1,6 +1,6 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . '/session.php');
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+require_once(includePath('session.php'));
+include getDocumentRoot() . '/load_header.php';
 ?>
 <title>Jamb Front Log</title>
 <!-- Tabulator CSS -->
@@ -252,7 +252,7 @@ body {
 </head>
 
 <body>
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>
+<?php require_once(includePath('myheader.php')); ?>
 <?php
 ini_set('display_errors','1');
 $readIni = array();
@@ -279,7 +279,7 @@ $company2=$_REQUEST["company2"];
 if(isset($_REQUEST["workersel"]))
 $workersel=$_REQUEST["workersel"];
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
 switch($cursort)

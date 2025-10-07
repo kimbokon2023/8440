@@ -1,6 +1,6 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php"); 
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ;
+require_once(includePath('session.php')); 
+include getDocumentRoot() . '/load_header.php' ;
 
 $search = isset($_REQUEST['search']) ? $_REQUEST['search'] : '';  
 $option = $_REQUEST['option'] ?? '';

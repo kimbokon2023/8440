@@ -43,7 +43,7 @@
    
  ?>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
 
  <title> 시공전후 사진등록/수정/삭제 </title>
  </head>

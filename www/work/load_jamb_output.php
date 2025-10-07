@@ -1,7 +1,7 @@
  <?php
 
 $readIni = array();   // 환경파일 불러오기
-$readIni = parse_ini_file($_SERVER['DOCUMENT_ROOT'] . "/work/estimate.ini",false);	
+$readIni = parse_ini_file(getDocumentRoot() . "/work/estimate.ini",false);	
 	
 $sql="select * from mirae8440.work WHERE workday = CURDATE() - INTERVAL 1 DAY " ;
 

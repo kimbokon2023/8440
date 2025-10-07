@@ -1,8 +1,8 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
+require_once(includePath('session.php'));
 $title_message = '설치·검수 완료 확인서';
 $tablename = 'work';
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+include getDocumentRoot() . '/load_header.php';
 ?>
 <title><?= $title_message ?></title>
 <style>
@@ -52,7 +52,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
 <body>
 <?php
 $num = $_REQUEST['num'] ?? '';
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
 try {
@@ -66,7 +66,7 @@ try {
         echo "검색결과가 없습니다.";
     } else {
         $row = $stmh->fetch(PDO::FETCH_ASSOC);
-        include $_SERVER['DOCUMENT_ROOT'] . '/work/_row.php';
+        include getDocumentRoot() . '/work/_row.php';
 
         $customer = json_decode($row['customer'], true);
         $jobno = $customer['pjnum'] ?? '';

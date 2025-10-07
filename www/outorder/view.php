@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
+require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
 
 if(!isset($_SESSION["level"]) || $_SESSION["level"]>8) {
 		 sleep(1);
@@ -7,14 +7,14 @@ if(!isset($_SESSION["level"]) || $_SESSION["level"]>8) {
          exit;
    }  
    
-include $_SERVER['DOCUMENT_ROOT'] . "/common.php";
+include getDocumentRoot() . "/common.php";
  
     // 첫 화면 표시 문구
  $title_message = '외주발주 수주내역'; 
  
  ?>
 
- <?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+ <?php include getDocumentRoot() . '/load_header.php' ?>
 
 <title> <?=$title_message?> </title>
 
@@ -43,7 +43,7 @@ include $_SERVER['DOCUMENT_ROOT'] . "/common.php";
  $find=$_REQUEST["find"];      // 검색항목
  $tablename=$_REQUEST["tablename"] ?? 'outorder' ;
 	 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
  
  try{
@@ -101,7 +101,7 @@ $pdo = db_connect();
 $id=$num;  
 $author_id = $item_id  ;
   
-require_once $_SERVER['DOCUMENT_ROOT'] . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
+require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
 ?> 
 
 <form  name="board_form" id="board_form"  method="post" enctype="multipart/form-data"  onkeydown="return captureReturnKey(event)">   
@@ -125,7 +125,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/load_GoogleDriveSecond.php'; // attac
     <input id="session_level" name="session_level" type="hidden" value='<?=$_SESSION["level"]?>'>		   
 	<input type="hidden" id="strtmp" name="strtmp" value="<?=$strtmp?>">
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/common/modal.php'; ?>
+<?php include getDocumentRoot() . '/common/modal.php'; ?>
 
 <div class="container-fluid">	  
 <div class="card p-1 m-1">	

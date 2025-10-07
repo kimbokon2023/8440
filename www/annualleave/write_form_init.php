@@ -1,5 +1,5 @@
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/session.php';  ?>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/session.php';  ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
  
  <style>
 .table-bordered,

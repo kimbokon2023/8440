@@ -1,16 +1,16 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/session.php');
+<?php require_once(includePath('session.php'));
   // 첫 화면 표시 문구
  $title_message = 'QC 공정표';   
 ?>
    
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?> 
+<?php include getDocumentRoot() . '/load_header.php' ?> 
 <title> <?=$title_message?> </title>   
 </head> 
 <body>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . "/common/modal.php"; ?>
+<?php include getDocumentRoot() . "/common/modal.php"; ?>
    
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>   
+<?php require_once(includePath('myheader.php')); ?>   
 
 <?php
 
@@ -23,7 +23,7 @@
    
 $tablename = "p_qccontrol";
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 	 
 if(isset($_REQUEST["mode"]))

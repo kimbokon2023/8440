@@ -1,11 +1,11 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php'; // 세션 파일 포함
+require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
 
  $eworks_level= $_SESSION["eworks_level"];	
  
 isset($_REQUEST["selnum"]) ? $selnum=$_REQUEST["selnum"] : $selnum='';  
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
 
 // 결재라인을 잡으려면 배열저장
@@ -65,7 +65,7 @@ function countEworksStatus($pdo, $user_id, $viewCondition, $isApprover) {
         $stmh->execute();
 
         while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-            include $_SERVER['DOCUMENT_ROOT'] . "/eworks/_row.php";
+            include getDocumentRoot() . "/eworks/_row.php";
             
 			 if($isApprover) 
 			  {

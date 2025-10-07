@@ -29,7 +29,7 @@ $user_name = $_SESSION["name"];
  ?>
 
 
- <?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+ <?php include getDocumentRoot() . '/load_header.php' ?>
  
  
  <title> 미래기업 Jamb 수주 </title>
@@ -121,7 +121,7 @@ text-decoration:none;
 
 <body>
 
-  <?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>   
+  <?php require_once(includePath('myheader.php')); ?>   
 
 
  <?php

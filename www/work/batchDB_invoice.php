@@ -1,10 +1,10 @@
 <?php 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");  
+require_once(includePath('session.php'));  
 
 $title_message = 'jamb 출고증 일괄처리';
 ?>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+<?php include getDocumentRoot() . '/load_header.php';
  if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
           /*   alert("관리자 승인이 필요합니다."); */
 		 sleep(1);
@@ -50,7 +50,7 @@ if($todate=="")
   else
    $num="";
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
   
 $outputdate = date("Y-m-d", time());
@@ -93,7 +93,7 @@ $sql="select * from mirae8440.work where endworkday between date('$fromdate') an
 	  
 while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {	
 
-     include $_SERVER['DOCUMENT_ROOT'] . '/work/_row.php';
+     include getDocumentRoot() . '/work/_row.php';
 
 	     switch ($worker) {
 			case   "김운호"      : $workertel =  "010-9322-7626" ; break;

@@ -1,5 +1,5 @@
 <?php 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");   
+require_once(includePath('session.php'));   
 
 header("Content-Type: application/json");
 
@@ -7,7 +7,7 @@ $mode = $_POST["mode"] ?? '';
 $num = $_POST["num"] ?? '';
 $cabledone = $_POST["cabledone"] ?? '';
 
-include $_SERVER['DOCUMENT_ROOT'] . '/ceiling/_requestDB.php';
+include getDocumentRoot() . '/ceiling/_requestDB.php';
 require_once("../lib/mydb.php");
 $pdo = db_connect();
 

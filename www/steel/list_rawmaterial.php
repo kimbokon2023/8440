@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-$root_dir = $_SERVER['DOCUMENT_ROOT'] ;
+$root_dir = getDocumentRoot() ;
 
 $level= $_SESSION["level"];
 $user_name= $_SESSION["name"];

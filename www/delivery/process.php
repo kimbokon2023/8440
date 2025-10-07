@@ -1,12 +1,12 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");  
+require_once(includePath('session.php'));  
 
 $tablename = $_REQUEST['tablename'] ?? 'delivery';  
 $mode = $_REQUEST['mode'] ?? '';  
 
 header("Content-Type: application/json");  // JSON 응답 설정
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
  
 include "_request.php";

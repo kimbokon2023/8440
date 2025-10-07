@@ -1,4 +1,4 @@
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/session.php';   
+<?php include getDocumentRoot() . '/session.php';   
 
 header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문  
 

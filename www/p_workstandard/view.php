@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
+require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
 
 if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
 	sleep(1);
@@ -11,7 +11,7 @@ if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
 $title_message = '작업표준서';
    
  ?>
-  <?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?> 
+  <?php include getDocumentRoot() . '/load_header.php' ?> 
   
 <title>  <?=$title_message?>  </title> 
 
@@ -38,7 +38,7 @@ $title_message = '작업표준서';
  $page=$_REQUEST["page"];   //페이지번호
  $tablename=$_REQUEST["tablename"];   //페이지번호
  
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
  
  try{
@@ -82,7 +82,7 @@ $pdo = db_connect();
 $id=$num;  
 $author_id = $item_id  ;
   
-require_once $_SERVER['DOCUMENT_ROOT'] . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
+require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
 ?> 
 
 

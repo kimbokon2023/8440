@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php'; // 세션 파일 포함
+require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
 ?>
 
 <div id="eworks_list" style="height:520px;" class="mb-1">		
@@ -11,7 +11,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php'; // 세션 파일 포함
 	<table class="table table-hover table-sm" id="myEworks_Table" >	
 
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
 	// 결재라인을 잡으려면 배열저장
 	$eworks_level_arr = array();
@@ -308,7 +308,7 @@ else
 				$start_num = 0;	
 				while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
 
-					include $_SERVER['DOCUMENT_ROOT'] . "/eworks/_row.php";						
+					include getDocumentRoot() . "/eworks/_row.php";						
 						
 				switch ($status) {					
 					   case 'draft' :

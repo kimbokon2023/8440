@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
+require_once(includePath('session.php'));
 
 $menu=$_REQUEST["menu"] ?? ''; 
    
@@ -15,11 +15,11 @@ $title_message = '원자재 가격 설정';
          exit;
    }    
 
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';   
+include getDocumentRoot() . '/load_header.php';   
    
  ?>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/common/modal.php'; ?>
+<?php include getDocumentRoot() . '/common/modal.php'; ?>
 
 <title> <?=$title_message?>  </title>
 
@@ -73,7 +73,7 @@ $sql="select * from ".$DB.".steelsource";
 	   
 ?>
 
-  <?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+  <?php include getDocumentRoot() . '/load_header.php' ?>
 
 <form id="board_form" method="post" enctype="multipart/form-data"  >		
 	<input type="hidden" id="SelectWork" name="SelectWork" value="<?=$SelectWork?>"> 

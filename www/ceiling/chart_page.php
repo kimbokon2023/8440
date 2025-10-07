@@ -1,6 +1,6 @@
 <?php
 
-$fileName = $_SERVER['DOCUMENT_ROOT'] . "/ceiling/gridData.json";
+$fileName = getDocumentRoot() . "/ceiling/gridData.json";
 
 // 파일의 내용을 불러오기
 if (file_exists($fileName)) 

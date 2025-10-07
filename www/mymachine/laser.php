@@ -26,7 +26,7 @@ if(!isset($level) || $level > 8) {
    
    ?>
    
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
  
 <title> <?=$title_message?> </title>   
 
@@ -34,7 +34,7 @@ if(!isset($level) || $level > 8) {
  
 <body>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . "/common/modal.php"; ?>
+<?php include getDocumentRoot() . "/common/modal.php"; ?>
 
 <?php
  // 모바일이면 특정 CSS 적용
@@ -58,7 +58,7 @@ if ($chkMobile) {
     </style>';
 }
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect(); 
 
 // 배열로 장비점검리스트 불러옴

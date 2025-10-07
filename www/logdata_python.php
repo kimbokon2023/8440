@@ -1,6 +1,6 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");   
+<?php require_once(includePath('session.php'));   
    
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();  
 
 	// 기간을 정하는 구간	 
@@ -12,12 +12,12 @@ $pdo = db_connect();
 	$counter=0;	
 ?>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
 	<title> 자동작도 실행기록 </title>	
 </head> 
  		 
 <body>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/myheader.php'; ?>  
+<?php include getDocumentRoot() . '/myheader.php'; ?>  
 
 <?php  
 $search=$_REQUEST["search"];

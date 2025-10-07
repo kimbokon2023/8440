@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");  	
+require_once(includePath('session.php'));  	
   
  if(!isset($_SESSION["level"]) || $level>=5) {
 		 sleep(1);
@@ -12,7 +12,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
  
 ?>   
    
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
 
 <title> <?=$title_message?> </title> 
  

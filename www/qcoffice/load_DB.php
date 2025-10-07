@@ -16,7 +16,7 @@ $check9_arr = array();
 $check10_arr = array();
 $writer_arr = array();
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect(); 
 
 // 자료읽기

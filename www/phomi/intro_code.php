@@ -1,14 +1,14 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/session.php'); 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+<?php require_once(includePath('session.php')); 
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();  
 ?>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
 <title>포미스톤 코드별 질감,제품명,사이즈</title>
 </head>
 
 <body class="p-4">
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>
+<?php require_once(includePath('myheader.php')); ?>
 
 <div class="container-fluid mt-4">
   <h5 class="mb-4 fw-bold text-center">포미스톤 코드별 질감, 제품명, 사이즈 </h5>

@@ -8,7 +8,7 @@
          exit;
    } 
  
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ;
+include getDocumentRoot() . '/load_header.php' ;
  
 $user_name= $_SESSION["name"];
 $user_id= $_SESSION["userid"];
@@ -218,7 +218,7 @@ $employees = [
 </head>
 <body>
 
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?> 
+<?php require_once(includePath('myheader.php')); ?> 
 
 <div class="gift-draw-container">
 	<div class="container">

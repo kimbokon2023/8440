@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php'; // 세션 파일 포함
+require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
    
     if(isset($_REQUEST["check"])) 
 	 $check=$_REQUEST["check"]; 
@@ -12,7 +12,7 @@ $URLsave = "https://8440.co.kr/ceiling/showhole.php";
 	
  ?>
   
-  <?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+  <?php include getDocumentRoot() . '/load_header.php' ?>
 
 <title>미래기업 조명천장 홀타공</title>
 </head>

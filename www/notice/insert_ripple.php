@@ -1,6 +1,6 @@
 ﻿<?php
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");  
+require_once(includePath('session.php'));  
   
   $num=$_REQUEST["num"]; 
   $page=$_REQUEST["page"];

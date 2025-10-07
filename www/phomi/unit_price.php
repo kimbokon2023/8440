@@ -3,13 +3,13 @@
 // 1. unit_price.php - 데이터 목록 조회 페이지
 // =================================================================================
 ?>
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/session.php');
+<?php require_once(includePath('session.php'));
 
 // --- 페이지 설정 ---
 $title_message = '포미스톤 단가표';
 $tablename = "phomi_unitprice";
 ?>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
 
 <title> <?= $title_message ?> </title>
 <style>
@@ -46,7 +46,7 @@ $tablename = "phomi_unitprice";
 </head>
 
 <body>
-  <?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>
+  <?php require_once(includePath('myheader.php')); ?>
 
   <?php
   // // --- 권한 확인 ---
@@ -55,7 +55,7 @@ $tablename = "phomi_unitprice";
   //   exit;
   // }
 
-  require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+  require_once(includePath('lib/mydb.php'));
   $pdo = db_connect();
 
   // --- 검색 처리 ---

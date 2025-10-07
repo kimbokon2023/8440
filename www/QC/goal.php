@@ -1,11 +1,11 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
+require_once(includePath('session.php'));
 
 // 첫 화면 표시 문구
 $title_message = '품질방침/품질목표';
 ?>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?> 
+<?php include getDocumentRoot() . '/load_header.php' ?> 
 
 <title> <?=$title_message?> </title> 
 
@@ -16,11 +16,11 @@ $title_message = '품질방침/품질목표';
 <?php 
 $header = isset($_REQUEST["header"]) ? $_REQUEST["header"] : "";
 if($header !=='header')
-	require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); 
+	require_once(includePath('myheader.php')); 
 
 ?>   
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . "/common/modal.php"; ?>
+<?php include getDocumentRoot() . "/common/modal.php"; ?>
 
 <?php
 if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
@@ -29,7 +29,7 @@ if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
     exit;
 }
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();    
 
 $tablename = "iso";  
@@ -144,10 +144,10 @@ $currentYear = date("Y");
 </div>  
 <div class="row mt-3 mb-1 justify-content-center align-items-top">
 		<div class="col-sm-6">
-	        <?php include $_SERVER['DOCUMENT_ROOT'] . '/QC/prod_jamb.php' ?>   
+	        <?php include getDocumentRoot() . '/QC/prod_jamb.php' ?>   
 		</div>
 		<div class="col-sm-6">
-	        <?php include $_SERVER['DOCUMENT_ROOT'] . '/QC/prod_ceiling.php' ?>   
+	        <?php include getDocumentRoot() . '/QC/prod_ceiling.php' ?>   
 		</div>
 </div>
 
@@ -156,10 +156,10 @@ $currentYear = date("Y");
 </div>  
 <div class="row mt-3 mb-1 justify-content-center align-items-top">
 		<div class="col-sm-6">
-			<?php include $_SERVER['DOCUMENT_ROOT'] . '/QC/rate_badAll.php' ?>   
+			<?php include getDocumentRoot() . '/QC/rate_badAll.php' ?>   
 		</div>
 		<div class="col-sm-6">		
-	        <?php include $_SERVER['DOCUMENT_ROOT'] . '/QC/rate_badDetail.php' ?>   
+	        <?php include getDocumentRoot() . '/QC/rate_badDetail.php' ?>   
 		</div>
 </div>
 
@@ -168,10 +168,10 @@ $currentYear = date("Y");
 </div>  
 <div class="row mt-3 mb-1 justify-content-center align-items-top">
 		<div class="col-sm-6">
-			<?php include $_SERVER['DOCUMENT_ROOT'] . '/QC/rate_badAllexcept.php' ?>   
+			<?php include getDocumentRoot() . '/QC/rate_badAllexcept.php' ?>   
 		</div>
 		<div class="col-sm-6">		
-	        <?php include $_SERVER['DOCUMENT_ROOT'] . '/QC/rate_badDetailexcept.php' ?>   
+	        <?php include getDocumentRoot() . '/QC/rate_badDetailexcept.php' ?>   
 		</div>
 </div>
 
@@ -180,10 +180,10 @@ $currentYear = date("Y");
 </div>  
 <div class="row mt-3 mb-1 justify-content-center align-items-top">
 		<div class="col-sm-6">
-			<?php include $_SERVER['DOCUMENT_ROOT'] . '/QC/rate_badAllJamb.php' ?>   
+			<?php include getDocumentRoot() . '/QC/rate_badAllJamb.php' ?>   
 		</div>
 		<div class="col-sm-6">		
-	        <?php include $_SERVER['DOCUMENT_ROOT'] . '/QC/rate_badDetailJamb.php' ?>   
+	        <?php include getDocumentRoot() . '/QC/rate_badDetailJamb.php' ?>   
 		</div>
 </div>
 
@@ -192,10 +192,10 @@ $currentYear = date("Y");
 </div>  
 <div class="row mt-3 mb-1 justify-content-center align-items-top">
 		<div class="col-sm-6">
-			<?php include $_SERVER['DOCUMENT_ROOT'] . '/QC/rate_badAllCeiling.php' ?>   
+			<?php include getDocumentRoot() . '/QC/rate_badAllCeiling.php' ?>   
 		</div>
 		<div class="col-sm-6">		
-	        <?php include $_SERVER['DOCUMENT_ROOT'] . '/QC/rate_badDetailCeiling.php' ?>   
+	        <?php include getDocumentRoot() . '/QC/rate_badDetailCeiling.php' ?>   
 		</div>
 </div>
 
@@ -216,7 +216,7 @@ $currentYear = date("Y");
 		  </div>
 	<div id="NGlist">	  
 		<div class="col-sm-12"> 
-			<?php include $_SERVER['DOCUMENT_ROOT'] . '/QC/rate_badList.php' ?>    
+			<?php include getDocumentRoot() . '/QC/rate_badList.php' ?>    
 		</div>
 	</div>
 
@@ -229,7 +229,7 @@ $currentYear = date("Y");
 		  </div>
 	<div id="NGreportlist">	  
 		<div class="col-sm-12"> 
-			<?php include $_SERVER['DOCUMENT_ROOT'] . '/QC/NGreport.php' ?>    
+			<?php include getDocumentRoot() . '/QC/NGreport.php' ?>    
 		</div>
 	</div>
 
@@ -242,7 +242,7 @@ $currentYear = date("Y");
 		  </div>
 	<div id="FixNGList">	  
 		<div class="col-sm-12"> 
-			<?php include $_SERVER['DOCUMENT_ROOT'] . '/QC/FixNGactivity.php' ?>    
+			<?php include getDocumentRoot() . '/QC/FixNGactivity.php' ?>    
 		</div>
 	</div>
 
@@ -255,7 +255,7 @@ $currentYear = date("Y");
 		  </div>
 	<div id="MCactivity">	  
 		<div class="col-sm-12"> 
-			<?php include $_SERVER['DOCUMENT_ROOT'] . '/QC/MCactivity.php' ?>    
+			<?php include getDocumentRoot() . '/QC/MCactivity.php' ?>    
 		</div>
 	</div>
 
@@ -267,7 +267,7 @@ $currentYear = date("Y");
 		  </div>
 	<div id="MCquestion">	  
 		<div class="col-sm-12"> 
-			<?php include $_SERVER['DOCUMENT_ROOT'] . '/QC/MCquestion.php' ?>    
+			<?php include getDocumentRoot() . '/QC/MCquestion.php' ?>    
 		</div>
 	</div>
 

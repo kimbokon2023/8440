@@ -1,4 +1,4 @@
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/session.php';   
+<?php include getDocumentRoot() . '/session.php';   
 
  if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {          
 		 sleep(1);
@@ -7,7 +7,7 @@
  }  
  ?>
  
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
 
 <?php  
 // // ctrl shift R 키를 누르지 않고 cache를 새로고침하는 구문....
@@ -19,7 +19,7 @@
 
 //header("Refresh:0");  // reload refresh   
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 	
 // 배열로 기본정보 불러옴
@@ -37,10 +37,10 @@ $pdo = db_connect();
 
 <body>
 
-<?php if( $menu!=='no')  require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>    
+<?php if( $menu!=='no')  require_once(includePath('myheader.php')); ?>    
 
  <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
 if (isset($_REQUEST["search"])) {

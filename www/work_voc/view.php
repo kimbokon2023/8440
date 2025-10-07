@@ -1,4 +1,4 @@
-﻿<?php include $_SERVER['DOCUMENT_ROOT'] . '/session.php';   
+﻿<?php include getDocumentRoot() . '/session.php';   
 
 // 첫 화면 표시 문구
 $title_message = 'JAMB 수주'; 
@@ -7,7 +7,7 @@ $title_message = 'JAMB 수주';
 		  header("Location:" . $WebSite . "login/login_form.php"); 
          exit;
 }   
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';   
+include getDocumentRoot() . '/load_header.php';   
  ?>
   
 <title> 현장소장 Voc </title> 
@@ -16,7 +16,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
  
 <body>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/common/modal.php'; ?>  
+<?php include getDocumentRoot() . '/common/modal.php'; ?>  
   
   
  <?php
@@ -26,7 +26,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
  $num=$_REQUEST["num"];
  $page=$_REQUEST["page"];   //페이지번호
    
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
  
  try{

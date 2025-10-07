@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");  
+require_once(includePath('session.php'));  
 $title_message = '(스크린) 견적 산출내역서 '; 
 $title_message_sub = '견 적 서 (스크린)' ; 
 $tablename = 'estimate'; 
@@ -7,7 +7,7 @@ $item ='(스크린) 견적 산출내역서 ';
 $emailTitle ='견적서';   
 $subTitle = '자동방화셔터 스크린인정제품';
 ?>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/' . $tablename . '/common/estimate_head.php'; ?> <!-- head 정보 불러오기  -->
+<?php include getDocumentRoot() . '/' . $tablename . '/common/estimate_head.php'; ?> <!-- head 정보 불러오기  -->
 	
 <?php
 // 전체 SET 내역 표시 일련번호, 종류, 부호, 제품명, 오픈사이즈 등 전체금액 나오는 부분
@@ -1816,7 +1816,7 @@ if($option == 'option') {
 </div>
 
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/estimate/common/lastJS.php'; ?> <!--마지막에 추가되는 견적관련 JS  -->
+<?php include getDocumentRoot() . '/estimate/common/lastJS.php'; ?> <!--마지막에 추가되는 견적관련 JS  -->
 
 </body>
 </html>
@@ -2580,7 +2580,7 @@ $(document).ready(function() {
 
 <!-- estimate_head.php 참고 -->
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';   ?>
+<?php include getDocumentRoot() . '/load_header.php';   ?>
 <title> <?=$title_message?> </title>
 <link rel="stylesheet" href="css/style.css?v=<?=time()?>">
 </head>
@@ -2588,8 +2588,8 @@ $(document).ready(function() {
 <?php
 $num = isset($_REQUEST['num']) ? $_REQUEST['num'] : '';  
 $option = isset($_REQUEST['option']) ? $_REQUEST['option'] : '';   // 견적서와 산출서의 다른점을 표현하는 것
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
-require_once($_SERVER['DOCUMENT_ROOT'] . "/estimate/fetch_unitprice.php");
+require_once(includePath('lib/mydb.php'));
+require_once(includePath('estimate/fetch_unitprice.php'));
 $pdo = db_connect();
 	try {
 		$sql = "select * from {$DB}.{$tablename} where num = ? ";

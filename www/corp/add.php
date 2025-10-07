@@ -1,6 +1,6 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php';
-require_once($_SERVER['DOCUMENT_ROOT'] . '/lib/mydb.php');
+require_once getDocumentRoot() . '/session.php';
+require_once(includePath('lib/mydb.php'));
 
 $title_message = '거래처 추가';
 ?>
@@ -12,7 +12,7 @@ if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
     exit;
 }
 
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';   
+include getDocumentRoot() . '/load_header.php';   
 ?>
 <title> <?=$title_message?> </title>
 <body>

@@ -1,11 +1,11 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php'; // 세션 파일 포함
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/php/common.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/mydb.php';
+require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
+require_once getDocumentRoot() . '/vendor/autoload.php';
+require_once getDocumentRoot() . '/php/common.php';
+require_once getDocumentRoot() . '/lib/mydb.php';
 
 // Google Drive 서비스 계정 인증 설정
-putenv('GOOGLE_APPLICATION_CREDENTIALS=' . $_SERVER['DOCUMENT_ROOT'] . '/tokens/mytoken.json');
+putenv('GOOGLE_APPLICATION_CREDENTIALS=' . getDocumentRoot() . '/tokens/mytoken.json');
 $client = new Google_Client();
 $client->useApplicationDefaultCredentials();
 $client->setScopes([Google_Service_Drive::DRIVE]);
@@ -103,7 +103,7 @@ if ($method === 'POST') {
 
             if ($isImage) {
                 // 이미지인 경우 압축 처리
-                $tempDir = $_SERVER['DOCUMENT_ROOT'] . '/temp/';
+                $tempDir = getDocumentRoot() . '/temp/';
                 if (!file_exists($tempDir)) {
                     mkdir($tempDir, 0755, true);
                 }

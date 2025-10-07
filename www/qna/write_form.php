@@ -1,12 +1,12 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
+require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
 
 if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
 	sleep(1);
 	header("Location:" . $WebSite . "login/login_form.php"); 
 	exit;
 }   
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php'; 
+include getDocumentRoot() . '/load_header.php'; 
 $title_message = '자료실';   
 ?>  
 
@@ -14,7 +14,7 @@ $title_message = '자료실';
 </head> 
  
  <body>   
-  <?php require_once($_SERVER['DOCUMENT_ROOT'] . '/common/modal.php'); ?>       
+  <?php require_once(includePath('common/modal.php')); ?>       
 <?php  
 isset($_REQUEST["id"])  ? $id=$_REQUEST["id"] :   $id=''; 
 isset($_REQUEST["fileorimage"])  ? $fileorimage=$_REQUEST["fileorimage"] :   $fileorimage=''; // file or image
@@ -33,7 +33,7 @@ isset($_REQUEST["savetitle"])  ? $savetitle=$_REQUEST["savetitle"] :  $savetitle
   else
    $num="";
           
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
   if ($mode=="modify"){
@@ -60,7 +60,7 @@ $pdo = db_connect();
 
 // 초기 프로그램은 $num사용 이후 $id로 수정중임  
 $id=$num;    
-require_once $_SERVER['DOCUMENT_ROOT'] . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
+require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
 ?>
  
 <form  id="board_form" name="board_form" method="post" enctype="multipart/form-data"> 

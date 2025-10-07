@@ -1,12 +1,12 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");  
+require_once(includePath('session.php'));  
 
 if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
     sleep(1);
     header("Location:" . $WebSite . "login/login_form.php");
     exit;
 }   
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+include getDocumentRoot() . '/load_header.php';
 $title_message = '일정표 휴일'; 
 ?>
  
@@ -34,7 +34,7 @@ $title_message = '일정표 휴일';
 $header = isset($_REQUEST['header']) ? $_REQUEST['header'] : '';  
 
 if ($header == 'header')
-    require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php');
+    require_once(includePath('myheader.php'));
 
 function checkNull($strtmp) {
     return ($strtmp !== null && trim($strtmp) !== '');
@@ -45,7 +45,7 @@ $mode = isset($_REQUEST["mode"]) ? $_REQUEST["mode"] : '';
 
 $tablename = 'holiday';
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
  
 $order = " ORDER BY registedate DESC, num desc ";

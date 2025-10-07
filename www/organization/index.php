@@ -17,7 +17,7 @@ header ("Pragma: no-cache"); // HTTP/1.0
 header("Expires: 0"); // rfc2616 - Section 14.21   
 //header("Refresh:0");  // reload refresh   
 
-include $_SERVER['DOCUMENT_ROOT'] . "/common.php";
+include getDocumentRoot() . "/common.php";
 
  ?>
 

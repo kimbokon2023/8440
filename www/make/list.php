@@ -1,4 +1,4 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/session.php');	
+<?php require_once(includePath('session.php'));	
   
  if(!isset($_SESSION["level"]) || $level>=5) {
 		 sleep(1);
@@ -11,7 +11,7 @@
    
  ?>
  
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
 
 <title> <?=$title_message?> </title>  
  
@@ -19,7 +19,7 @@
 
 <body>
    
-<? require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>   
+<? require_once(includePath('myheader.php')); ?>   
 
 <?php
   
@@ -119,7 +119,7 @@ $nowday=date("Y-m-d");   // 현재일자 변수지정
 <div class="row"> 		  
 	<div class="d-flex mt-1 mb-2 justify-content-center align-items-center "> 		
 	<!-- 기간설정 칸 -->
-	 <?php include $_SERVER['DOCUMENT_ROOT'] . '/setdate.php' ?>
+	 <?php include getDocumentRoot() . '/setdate.php' ?>
 	&nbsp;
 	<button type="button" class="btn btn-dark  btn-sm me-2" id="writeBtn"> <i class="bi bi-pencil"></i>  신규 </button> 
 	</div>

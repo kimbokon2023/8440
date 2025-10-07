@@ -1,7 +1,7 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php'; // 세션 파일 포함
+require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
 
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+include getDocumentRoot() . '/load_header.php';
 
 if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
 	sleep(1);
@@ -14,7 +14,7 @@ if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
  </head>
  <body>
 
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>   
+<?php require_once(includePath('myheader.php')); ?>   
 
  <?php
 if(isset($_REQUEST["search"]))   //목록표에 제목,이름 등 나오는 부분
@@ -27,7 +27,7 @@ if(isset($_REQUEST["list"]))   //목록표에 제목,이름 등 나오는 부분
 else
 	  $list=0;
   
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
   
  // $find="firstord";	    //검색할때 고정시킬 부분 저장 ex) 전체/공사담당/건설사 등
@@ -197,7 +197,7 @@ $nowday=date("Y-m-d");   // 현재일자 변수지정
     <div class="d-flex mb-1 mt-1 justify-content-center align-items-center">  			
 		▷ <?= $total_row ?> &nbsp;&nbsp;
 		<!-- 기간설정 칸 -->
-		 <?php include $_SERVER['DOCUMENT_ROOT'] . '/setdate.php' ?>		
+		 <?php include getDocumentRoot() . '/setdate.php' ?>		
 		<?php
 		   if(isset($_SESSION["userid"]) &&  $user_name==='조경임' ||  $user_name==='김보곤'  ||  $user_name==='소민지'  )
 		   {

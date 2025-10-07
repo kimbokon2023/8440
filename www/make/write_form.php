@@ -1,4 +1,4 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/session.php');	
+<?php require_once(includePath('session.php'));	
   
 // 첫 화면 표시 문구
 $title_message = '도장 발주';
@@ -11,7 +11,7 @@ $title_message = '도장 발주';
    }
 ?>
    
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?> 
+<?php include getDocumentRoot() . '/load_header.php' ?> 
   
 <title>  <?=$title_message?>  </title> 
  

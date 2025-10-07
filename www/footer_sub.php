@@ -1,7 +1,7 @@
 
 <?php
 
-$root_dir = $_SERVER['DOCUMENT_ROOT'] ;
+$root_dir = getDocumentRoot() ;
 include $root_dir . '/footer.php';
 
 ?>

@@ -1,4 +1,4 @@
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/session.php';   
+<?php include getDocumentRoot() . '/session.php';   
 
  if(!isset($_SESSION["level"]) || $level>=5) {
 		 sleep(1);
@@ -9,7 +9,7 @@
 $titlemsg	= '원자재(철판) 발주';	
 ?>
   
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ; ?>
+<?php include getDocumentRoot() . '/load_header.php' ; ?>
 
 <title> <?=$titlemsg?> </title>
 
@@ -28,11 +28,11 @@ th, td {
  
 <body>
    
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/common/modal.php'; ?>
+<?php include getDocumentRoot() . '/common/modal.php'; ?>
 
 
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();   
    
  include "../load_company.php";

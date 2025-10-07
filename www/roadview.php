@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
+require_once(includePath('session.php'));
 
  if(!isset($_SESSION["level"]) || $level>7) {	     
 		 sleep(1);
@@ -14,7 +14,7 @@ $APIKEY = "2ddb841648d38606331320046099cf67";
 
  ?>
  
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
 
 <!-- 카카오맵에 필요한 3가지 API -->
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<?=$APIKEY?>&libraries=LIBRARY"></script>

@@ -1,9 +1,9 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php'; // 세션 파일 포함
+require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
 
 ?>
   
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+<?php include getDocumentRoot() . '/load_header.php';
 if(!isset($_SESSION["level"]) ) {	          
 		 $_SESSION["url"]='https://8440.co.kr/absent_office/index.php?user_name=' . $user_name; 	
 		 sleep(1);
@@ -14,7 +14,7 @@ if(!isset($_SESSION["level"]) ) {
 
 <title> 사무실 근태 </title>	
 <body>                
-<?php if( $menu!=='no')  require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>    
+<?php if( $menu!=='no')  require_once(includePath('myheader.php')); ?>    
 
 <?php
 if($user_name=='소현철' || $user_name=='김보곤' || $user_name=='최장중' || $user_name=='이경묵' || $user_name=='소민지' )
@@ -24,7 +24,7 @@ isset($_REQUEST["num"])  ? $num=$_REQUEST["num"] :   $num='';
 isset($_REQUEST["year"])  ? $year=$_REQUEST["year"] :   $year = date("Y");
 isset($_REQUEST["month"])  ? $month=$_REQUEST["month"] :  $month =date("m");
 	  
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
 
 // 배열로 기본정보 불러옴

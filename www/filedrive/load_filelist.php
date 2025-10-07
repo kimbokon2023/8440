@@ -1,12 +1,12 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/mydb.php';
+require_once getDocumentRoot() . '/session.php';
+require_once getDocumentRoot() . '/vendor/autoload.php';
+require_once getDocumentRoot() . '/lib/mydb.php';
 $pdo = db_connect();
 
 // Google Drive 클라이언트 설정
 $client = new Google_Client();
-$client->setAuthConfig($_SERVER['DOCUMENT_ROOT'] . '/tokens/mytoken.json');
+$client->setAuthConfig(getDocumentRoot() . '/tokens/mytoken.json');
 $client->addScope(Google_Service_Drive::DRIVE);
 $service = new Google_Service_Drive($client);
 

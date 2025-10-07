@@ -50,7 +50,7 @@ isset($_REQUEST["displaySelect"])  ? $displaySelect = $_REQUEST["displaySelect"]
  			  $memo=$_REQUEST["memo"];
 			  $which=$_REQUEST["which"];					  
 			  
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
      

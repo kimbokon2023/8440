@@ -25,7 +25,7 @@ $jsonData = json_decode(file_get_contents("php://input"), true);
 $num = $jsonData['num']; // num 값을 가져옵니다.
 $data = $jsonData['data']; // columns 데이터를 가져옵니다.
 		  
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
 
     try {

@@ -1,6 +1,6 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('session.php'));
+require_once(includePath('lib/mydb.php'));
 
 $WebSite = "http://8440.co.kr/";
 $num = isset($_REQUEST["num"]) ? $_REQUEST["num"] : "";

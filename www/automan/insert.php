@@ -1,4 +1,4 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/session.php');	
+<?php require_once(includePath('session.php'));	
 
 $which = $_REQUEST["which"] ?? '';
 $search_opt = $_REQUEST["search_opt"] ?? '';
@@ -17,7 +17,7 @@ $writer = $_REQUEST["writer"] ?? '';
 $amount = $_REQUEST["amount"] ?? '';
 $memo = $_REQUEST["memo"] ?? '';
 			  
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
      
  if ($mode=="modify"){

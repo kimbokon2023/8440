@@ -25,7 +25,7 @@ error_reporting(E_ALL);
 
 ?> 
  
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
  
 <title> JAMB 외주단가 </title> 
 

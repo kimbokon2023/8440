@@ -14,7 +14,7 @@ if(!isset($_SESSION["level"]) ) {
 }   
 ?>
   
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
  
  <link  rel="stylesheet" type="text/css" href="../css/common.css">
  <link  rel="stylesheet" type="text/css" href="../css/outorder.css">
@@ -28,7 +28,7 @@ if(!isset($_SESSION["level"]) ) {
   <a href="../index.php"><img src="../img/toplogo.jpg" style="width:100%;" ></a>	
 </div>
 
-  <?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>   
+  <?php require_once(includePath('myheader.php')); ?>   
 
 </div>  
 

@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
+require_once(includePath('session.php'));
 
 // 단가 정보 로드 (estimate.ini)
 $readIni = parse_ini_file("./work/estimate.ini", false);

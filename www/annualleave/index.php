@@ -1,4 +1,4 @@
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/session.php';    
+<?php include getDocumentRoot() . '/session.php';    
 if(!isset($_SESSION["name"]) ) {	          
 		 $_SESSION["url"]='https://8440.co.kr/annualleave/index.php?user_name=' . $user_name; 	
 		 sleep(1);
@@ -8,17 +8,17 @@ if(!isset($_SESSION["name"]) ) {
 $title_message = '직원 연차'; 
 
 ?> 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
 <title> <?=$title_message?> </title>
 </head>
 <body>
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>   
+<?php require_once(includePath('myheader.php')); ?>   
 
 <?php  
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();		
 // 배열로 기본정보 불러옴
-include $_SERVER['DOCUMENT_ROOT'] . '/annualleave/load_DB.php';
+include getDocumentRoot() . '/annualleave/load_DB.php';
 
   if($user_name=='소현철' || $user_name=='김보곤' || $user_name=='최장중' || $user_name=='이경묵' || $user_name=='소민지')
 	  $admin = 1;

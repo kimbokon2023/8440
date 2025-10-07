@@ -4,7 +4,7 @@
 // 3. unit_price_process.php - 데이터 처리 (백엔드)
 // =================================================================================
 ?>
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/session.php');
+<?php require_once(includePath('session.php'));
 
 // --- 권한 확인 ---
 if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
@@ -22,7 +22,7 @@ if (empty($tablename) || empty($mode)) {
     exit;
 }
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
 try {

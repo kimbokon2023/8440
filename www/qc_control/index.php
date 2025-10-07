@@ -39,7 +39,7 @@ $number = (float)str_replace(',', '', $num);
 return $number;
 }
 	  
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
 // 배열로 기본정보 불러옴
 include "../absent/load_DB.php";

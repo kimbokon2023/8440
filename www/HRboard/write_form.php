@@ -1,13 +1,13 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
+require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
 
 $title_message = '인사/교육/총무';
 ?>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?> 
+<?php include getDocumentRoot() . '/load_header.php' ?> 
 <title> <?=$title_message?> </title>  
 </head>
 <body>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/common/modal.php'; ?>
+<?php include getDocumentRoot() . '/common/modal.php'; ?>
 <?php
  if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
           /*   alert("관리자 승인이 필요합니다."); */
@@ -33,7 +33,7 @@ isset($_REQUEST["savetitle"])  ? $savetitle=$_REQUEST["savetitle"] :  $savetitle
   else
    $num="";
           
-   require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+   require_once(includePath('lib/mydb.php'));
    $pdo = db_connect();
    
 
@@ -63,7 +63,7 @@ isset($_REQUEST["savetitle"])  ? $savetitle=$_REQUEST["savetitle"] :  $savetitle
 
 // 초기 프로그램은 $num사용 이후 $id로 수정중임  
 $id=$num;    
-require_once $_SERVER['DOCUMENT_ROOT'] . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
+require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
 ?>
  
 <form  id="board_form" name="board_form" method="post" enctype="multipart/form-data"> 

@@ -1,12 +1,12 @@
 <?php
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
+require_once getDocumentRoot() . '/vendor/autoload.php';
 
 session_start();
 
 $client = new Google_Client();
 
-$credentialsPath = $_SERVER['DOCUMENT_ROOT'] . '/config/google_drive_credentials.php';
+$credentialsPath = getDocumentRoot() . '/config/google_drive_credentials.php';
 $clientId = getenv('GOOGLE_DRIVE_CLIENT_ID') ?: null;
 $clientSecret = getenv('GOOGLE_DRIVE_CLIENT_SECRET') ?: null;
 $redirectUri = getenv('GOOGLE_DRIVE_REDIRECT_URI') ?: null;
@@ -31,7 +31,7 @@ $client->setClientSecret($clientSecret);
 $client->setRedirectUri($redirectUri);
 $client->addScope(Google_Service_Drive::DRIVE);
 
-$tokenFile = $_SERVER['DOCUMENT_ROOT'] . '/tokens/token.json';
+$tokenFile = getDocumentRoot() . '/tokens/token.json';
 
 if (file_exists($tokenFile)) {
     $accessToken = json_decode(file_get_contents($tokenFile), true);
@@ -97,7 +97,7 @@ try {
         echo "폴더 '미래기업'이 생성되었습니다. 폴더 ID: " . $folderId . "<br>";
     }
 
-    $filePath = $_SERVER['DOCUMENT_ROOT'] . '/index2.php';
+    $filePath = getDocumentRoot() . '/index2.php';
     $fileName = 'index2.php';
     $existingFiles = $service->files->listFiles([
         'q' => "name='$fileName' and '$folderId' in parents and trashed=false",

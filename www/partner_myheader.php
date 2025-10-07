@@ -1,7 +1,7 @@
 
 <?php
 
-$root_dir = $_SERVER['DOCUMENT_ROOT'] ;
+$root_dir = getDocumentRoot() ;
 
 
 // 모바일 사용여부 확인하는 루틴

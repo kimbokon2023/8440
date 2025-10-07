@@ -16,7 +16,7 @@ $title_message = '사무실 (주간,정기) 점검';
    
 ?>
    
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
  
 <title> <?=$title_message?> </title>  
  
@@ -24,7 +24,7 @@ $title_message = '사무실 (주간,정기) 점검';
 
 <body>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . "/common/modal.php"; ?>
+<?php include getDocumentRoot() . "/common/modal.php"; ?>
 
 <?php
  
@@ -37,7 +37,7 @@ $title_message = '사무실 (주간,정기) 점검';
 }  
    
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect(); 
 
 // 배열로 장비점검리스트 불러옴

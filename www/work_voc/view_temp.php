@@ -29,7 +29,7 @@ for($i=0; $i<sizeof($mAgent); $i++){
 }
 ?>
  
-  <?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+  <?php include getDocumentRoot() . '/load_header.php' ?>
   
 <title> 현장소장 Voc </title> 
  
@@ -37,7 +37,7 @@ for($i=0; $i<sizeof($mAgent); $i++){
  
 <body>
 
-<?php include  $_SERVER['DOCUMENT_ROOT'] . '/common/modal.php'; ?>  
+<?php include  getDocumentRoot() . '/common/modal.php'; ?>  
   
  <?php 
    
@@ -46,7 +46,7 @@ for($i=0; $i<sizeof($mAgent); $i++){
  $num=$_REQUEST["num"];
  $page=$_REQUEST["page"];   //페이지번호
    
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
  
  try{

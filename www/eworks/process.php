@@ -1,6 +1,6 @@
 <?php
 
-include $_SERVER['DOCUMENT_ROOT'] . '/common.php';
+include getDocumentRoot() . '/common.php';
 
 if(!isset($_SESSION))      
 		session_start(); 

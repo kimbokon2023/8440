@@ -1,20 +1,20 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/session_header.php'); 
+<?php require_once(includePath('session_header.php')); 
 
 if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
 	sleep(1);
 	header("Location:" . $WebSite . "login/login_form.php"); 
 	exit;
 }   
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+include getDocumentRoot() . '/load_header.php';
 $title_message = '위험성 평가 자료실';   
 $tablename = "RiskAssessment";    
 ?>     
 <title>  <?=$title_message?>  </title>  
 </head>  
 <body>
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>   
+<?php require_once(includePath('myheader.php')); ?>   
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
 	 
   if(isset($_REQUEST["mode"]))

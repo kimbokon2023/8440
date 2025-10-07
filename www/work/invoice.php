@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");  
+require_once(includePath('session.php'));  
 
 if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
     sleep(1);
@@ -7,7 +7,7 @@ if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
     exit;
 }
 
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+include getDocumentRoot() . '/load_header.php';
   
  $num=$_REQUEST["num"];
  $secondord=$_REQUEST["secondord"];

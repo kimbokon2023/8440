@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php'; // 세션 파일 포함
+require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
       
  $mcno=$_REQUEST["mcname"];
  
@@ -14,7 +14,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php'; // 세션 파일 포함
 
  ?>
  
- <?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?> 
+ <?php include getDocumentRoot() . '/load_header.php' ?> 
 
 <meta property="og:type" content="미래기업 통합정보시스템">
 <meta property="og:title" content="위험성평가 전산시스템">
@@ -40,7 +40,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php'; // 세션 파일 포함
 
 <body id="page-top">
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/myheader.php'; ?>   
+<?php include getDocumentRoot() . '/myheader.php'; ?>   
 	
 	<!-- Related items section-->
 	<section class="py-5 bg-light">
@@ -59,7 +59,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php'; // 세션 파일 포함
 	</div>
 		
 <?
-	require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+	require_once(includePath('lib/mydb.php'));
 	$pdo = db_connect();
 ?>		
 		

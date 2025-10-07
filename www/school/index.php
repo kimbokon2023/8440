@@ -1,5 +1,5 @@
 <?php
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php'; 
+include getDocumentRoot() . '/load_header.php'; 
 ?>
 <!DOCTYPE html>
 <html lang="ko">

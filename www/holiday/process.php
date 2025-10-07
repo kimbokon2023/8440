@@ -1,12 +1,12 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
+require_once(includePath('session.php'));
 
 $tablename = 'holiday';
 $mode = isset($_REQUEST['mode']) ? $_REQUEST['mode'] : '';
 
 header("Content-Type: application/json");  // Use JSON content type
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
 include "_request.php";

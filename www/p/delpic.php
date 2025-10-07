@@ -5,10 +5,10 @@ header("Content-Type: application/json"); // JSON 응답 설정
 isset($_REQUEST["picname"]) ? $picname = $_REQUEST["picname"] : $picname = '';
 
 require_once("../lib/mydb.php");
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
+require_once getDocumentRoot() . '/vendor/autoload.php';
 
 // Google Drive 서비스 계정 설정
-putenv('GOOGLE_APPLICATION_CREDENTIALS=' . $_SERVER['DOCUMENT_ROOT'] . '/tokens/mytoken.json');
+putenv('GOOGLE_APPLICATION_CREDENTIALS=' . getDocumentRoot() . '/tokens/mytoken.json');
 $client = new Google_Client();
 $client->useApplicationDefaultCredentials();
 $client->setScopes([Google_Service_Drive::DRIVE]);

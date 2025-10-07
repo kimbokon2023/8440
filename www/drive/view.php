@@ -1,6 +1,6 @@
 <?php
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
+require_once getDocumentRoot() . '/vendor/autoload.php';
 
 session_start();
 
@@ -12,7 +12,7 @@ $client->setRedirectUri('https://8440.co.kr/drive/view.php'); // 리디렉션 UR
 $client->addScope(Google_Service_Drive::DRIVE);
 
 // 토큰 파일 경로 설정
-$tokenFile = $_SERVER['DOCUMENT_ROOT'] . '/tokens/token.json';
+$tokenFile = getDocumentRoot() . '/tokens/token.json';
 
 if (file_exists($tokenFile)) {
     $accessToken = json_decode(file_get_contents($tokenFile), true);

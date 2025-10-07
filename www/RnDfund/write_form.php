@@ -1,4 +1,4 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/session_header.php'); 
+<?php require_once(includePath('session_header.php')); 
 
 if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
 	sleep(1);
@@ -6,7 +6,7 @@ if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
 	exit;
 }   
 
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';   
+include getDocumentRoot() . '/load_header.php';   
   
 $title_message = '연구전담부서 운영비';  
   
@@ -36,7 +36,7 @@ $callback=$_REQUEST["callback"];  // 출고현황에서 체크번호
   else
    $regist_state="1";
       
-  require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+  require_once(includePath('lib/mydb.php'));
   $pdo = db_connect();    
   
   if ($mode=="modify"){

@@ -1928,12 +1928,12 @@ class TCPDF_STATIC {
 		if ((strlen($file) > 1)
 		    && ($file[0] === '/')
 		    && ($file[1] !== '/')
-		    && !empty($_SERVER['DOCUMENT_ROOT'])
-		    && ($_SERVER['DOCUMENT_ROOT'] !== '/')
+		    && !empty(getDocumentRoot())
+		    && (getDocumentRoot() !== '/')
 		) {
-		    $findroot = strpos($file, $_SERVER['DOCUMENT_ROOT']);
+		    $findroot = strpos($file, getDocumentRoot());
 		    if (($findroot === false) || ($findroot > 1)) {
-			$alt[] = htmlspecialchars_decode(urldecode($_SERVER['DOCUMENT_ROOT'].$file));
+			$alt[] = htmlspecialchars_decode(urldecode(getDocumentRoot().$file));
 		    }
 		}
 		//
@@ -1951,14 +1951,14 @@ class TCPDF_STATIC {
 		//
 		if (preg_match('%^(https?)://%', $url)
 		    && empty($_SERVER['HTTP_HOST'])
-		    && empty($_SERVER['DOCUMENT_ROOT'])
+		    && empty(getDocumentRoot())
 		) {
 			$urldata = parse_url($url);
 			if (empty($urldata['query'])) {
 				$host = $protocol.'://'.$_SERVER['HTTP_HOST'];
 				if (strpos($url, $host) === 0) {
 				    // convert URL to full server path
-				    $tmp = str_replace($host, $_SERVER['DOCUMENT_ROOT'], $url);
+				    $tmp = str_replace($host, getDocumentRoot(), $url);
 				    $alt[] = htmlspecialchars_decode(urldecode($tmp));
 				}
 			}

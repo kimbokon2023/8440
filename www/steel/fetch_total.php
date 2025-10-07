@@ -1,7 +1,7 @@
 <?php
 header("Content-Type: application/json; charset=utf-8");
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
 $item = trim($_POST['item'] ?? '');

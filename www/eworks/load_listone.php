@@ -4,7 +4,7 @@ header("Content-Type: application/json");  //json을 사용하기 위해 필요�
 
 isset($_REQUEST["e_num"]) ? $e_num = $_REQUEST["e_num"] :   $e_num=""; 
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
 
  try{
@@ -17,7 +17,7 @@ $pdo = db_connect();
 	  $eworks_item = '일반';
      }   else    {      
 		while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-			include $_SERVER['DOCUMENT_ROOT'] . "/eworks/_row.php";		
+			include getDocumentRoot() . "/eworks/_row.php";		
             if($eworks_item==='연차')
                 $contents = urldecode($contents);			
 		}

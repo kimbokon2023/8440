@@ -8,7 +8,7 @@ isset($_REQUEST["content"])  ? $content = $_REQUEST["content"] : $content="";
 $company .= '_' . $content;
 
 // 데이터베이스 접속 설정
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
 try {

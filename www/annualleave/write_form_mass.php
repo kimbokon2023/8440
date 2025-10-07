@@ -1,5 +1,5 @@
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/session.php';  ?>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/session.php';  ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
  
  <style>
 .table-bordered,
@@ -37,7 +37,7 @@ $tablename = "eworks";
 
 isset($_REQUEST["num"])  ? $num=$_REQUEST["num"] :   $num=''; 
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
 
  try{

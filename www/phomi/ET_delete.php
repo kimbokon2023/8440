@@ -2,8 +2,8 @@
 error_reporting(E_ERROR | E_PARSE);
 ini_set('display_errors', 0);
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
-require_once($_SERVER['DOCUMENT_ROOT'] . '/lib/mydb.php');
+require_once(includePath('session.php'));
+require_once(includePath('lib/mydb.php'));
 
 header('Content-Type: application/json');
 

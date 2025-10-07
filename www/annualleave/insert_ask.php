@@ -87,7 +87,7 @@ if ($mode == "insert") {
         $pdo->beginTransaction();
 
         // Read and decode the JSON file
-        $jsonString = file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/member/Company_approvalLine_.json');
+        $jsonString = file_get_contents(getDocumentRoot() . '/member/Company_approvalLine_.json');
         $approvalLines = json_decode($jsonString, true);
 
         // Default values for e_line_id and e_line

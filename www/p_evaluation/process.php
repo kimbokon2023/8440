@@ -16,7 +16,7 @@ if((int)$num == 0)
 
 // var_dump($order_prod_des);
               
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
 
 include "_request.php";

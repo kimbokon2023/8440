@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");  
+require_once(includePath('session.php'));  
 
  if(!isset($_SESSION["level"]) || $level>=5) {
 		 sleep(1);
@@ -12,7 +12,7 @@ $title_message = "원자재 구매"  ;
 ?>
   
   
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
 
 
 <title> <?=$title_message?> </title>
@@ -31,18 +31,18 @@ th, td {
 </head>
 
 <body>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/common/modal.php'; ?>
+<?php include getDocumentRoot() . '/common/modal.php'; ?>
 
 <?php
 
-require_once($_SERVER['DOCUMENT_ROOT'] . '/lib/mydb.php');
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
   
 include '_request.php';	
 
 
  // 철판종류에 대한 추출부분
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
   
 // JSON 파일 읽기

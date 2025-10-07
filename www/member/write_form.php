@@ -1,18 +1,18 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");  
+require_once(includePath('session.php'));  
 
 $check = isset($_COOKIE['check']) ? $_COOKIE['check'] : 'false';
 $lastdate = isset($_COOKIE['lastdate']) ? $_COOKIE['lastdate'] : 'false';
 
 ?>
   
- <?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+ <?php include getDocumentRoot() . '/load_header.php' ?>
  
  <?php
 
 										  
 isset($_REQUEST["id"])  ? $id=$_REQUEST["id"] :   $id=''; 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
 
 	

@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");  
+require_once(includePath('session.php'));  
 
 $tablename = isset($_REQUEST['tablename']) ? $_REQUEST['tablename'] : 'todos';  
 $mode = isset($_REQUEST['mode']) ? $_REQUEST['mode'] : '';  
@@ -7,10 +7,10 @@ $num = isset($_REQUEST['num']) ? $_REQUEST['num'] : '';
 
 header("Content-Type: application/json");  // Use JSON content type
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
-include $_SERVER['DOCUMENT_ROOT'] . "/todo/_request.php"; // Ensure this file properly sets all needed variables
+include getDocumentRoot() . "/todo/_request.php"; // Ensure this file properly sets all needed variables
 
 if ($mode == "update") {
     $update_log = date("Y-m-d H:i:s") . " - " . $_SESSION["name"] . " " . $update_log . "&#10";

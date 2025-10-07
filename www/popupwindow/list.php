@@ -1,14 +1,14 @@
 <?php 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
+require_once(includePath('session.php'));
 $title_message = '팝업창 관리';
 ?>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
 <title> <?=$title_message?> </title> 
 </head> 
  <body>   
 
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php');
-  require_once($_SERVER['DOCUMENT_ROOT'] . '/common/modal.php'); 
+<?php require_once(includePath('myheader.php'));
+  require_once(includePath('common/modal.php')); 
 
  if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
           /*   alert("관리자 승인이 필요합니다."); */
@@ -19,7 +19,7 @@ $title_message = '팝업창 관리';
    
 $tablename = "popupwindow";
   
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 	 
  if(isset($_REQUEST["page"])) // $_REQUEST["page"]값이 없을 때에는 1로 지정 

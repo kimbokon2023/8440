@@ -14,7 +14,7 @@ if(!isset($_SESSION["level"]) ) {
 }   
 ?>
   
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
  
  <link rel="stylesheet" type="text/css" href="../css/oem.css">
 
@@ -24,7 +24,7 @@ if(!isset($_SESSION["level"]) ) {
  
 <body>
 
-  <?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>   
+  <?php require_once(includePath('myheader.php')); ?>   
 
  <?php
  

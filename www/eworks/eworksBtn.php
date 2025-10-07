@@ -1,4 +1,4 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php"); 
+<?php require_once(includePath('session.php')); 
  
 require_once("eworksmydb.php");
 
@@ -91,7 +91,7 @@ isset($_REQUEST["done"])  ? $done = $_REQUEST["done"] :   $done="";
 
 $myTurn = false ; // 현재 결재 차례임
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
 try {
@@ -101,7 +101,7 @@ try {
      $stmh->execute();   
 
     $row = $stmh->fetch(PDO::FETCH_ASSOC) ;
-    include $_SERVER['DOCUMENT_ROOT'] . "/eworks/_row.php";
+    include getDocumentRoot() . "/eworks/_row.php";
 
     $arr = explode("!", $e_line_id);
     $approval_time = explode("!", $e_confirm_id);

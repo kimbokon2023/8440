@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
 $options = ["설계", "레이져", "V컷", "절곡", "개발품"]; // '소장', '기타', '소재', '업체', '운반중' 제거

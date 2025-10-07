@@ -1,4 +1,4 @@
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/session.php';   
+<?php include getDocumentRoot() . '/session.php';   
 
 // 첫 화면 표시 문구
 $title_message = 'JAMB 수주'; 
@@ -7,15 +7,15 @@ $title_message = 'JAMB 수주';
 		  header("Location:" . $WebSite . "login/login_form.php"); 
          exit;
 }   
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';   
+include getDocumentRoot() . '/load_header.php';   
  ?>
  
 <title> <?=$title_message?> </title>
 <link rel="stylesheet" href="<?$root_dir?>/work/css/style.css">
 
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>   
+<?php require_once(includePath('myheader.php')); ?>   
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/work_voc/load_workvoc.php'; ?>   
+<?php include getDocumentRoot() . '/work_voc/load_workvoc.php'; ?>   
 
 <?php 
 include "request.php"; 	 
@@ -73,7 +73,7 @@ $company1 = $_REQUEST["company1"] ?? null;
 $company2 = $_REQUEST["company2"] ?? null;
 $workersel = $_REQUEST["workersel"] ?? null;
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
 $now = date("Y-m-d");

@@ -8,7 +8,7 @@ isset($_REQUEST["mode"])  ? $mode = $_REQUEST["mode"] : $mode="";
 
 include '_request.php';
 			  
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
      
  if ($mode=="modify"){      

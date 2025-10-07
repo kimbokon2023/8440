@@ -5,7 +5,7 @@
  ?>
 
 
- <?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+ <?php include getDocumentRoot() . '/load_header.php' ?>
 
  <title> TKE 엑셀 양식 일괄등록 </title> 
  </head>

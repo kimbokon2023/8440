@@ -1,11 +1,11 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/session.php'); ?> 
+<?php require_once(includePath('session.php')); ?> 
    
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
 		
 <title> 품질불량 관리기법/교육 </title> <div id="cookiedisplay"> </div>
 	    
 </head>			
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/myheader.php'; ?>  
+<?php include getDocumentRoot() . '/myheader.php'; ?>  
 
 <?php   
 if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {          

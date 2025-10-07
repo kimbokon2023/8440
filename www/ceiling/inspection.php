@@ -9,7 +9,7 @@ if(isset($_SESSION["DB"]))
  
 $title_message = '조명천장 검사서';
 
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+include getDocumentRoot() . '/load_header.php';
  
   if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
           /*   alert("관리자 승인이 필요합니다."); */

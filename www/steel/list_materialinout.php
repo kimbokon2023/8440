@@ -14,7 +14,7 @@ ini_set('display_errors','1');
 $titlemessage = '원자재 기간별 수불보고서';
  ?>
    
- <?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+ <?php include getDocumentRoot() . '/load_header.php' ?>
   
 <title>  <?=$titlemessage?> </title> 
  </head>
@@ -240,7 +240,7 @@ $output_sum=array();
 	<div class="row"> 		  
 		<div class="d-flex mt-1 mb-2 justify-content-center align-items-center "> 		
 		<!-- 기간설정 칸 -->
-		 <?php include $_SERVER['DOCUMENT_ROOT'] . '/setdate.php' ?>
+		 <?php include getDocumentRoot() . '/setdate.php' ?>
 		  &nbsp;&nbsp; <button  type="button" class="btn btn-danger btn-sm" id="downloadcsvBtn"> CSV파일 다운로드 </button>
 		</div>
 	</div>	  

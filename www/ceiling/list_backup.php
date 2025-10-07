@@ -1,10 +1,10 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php'; // 세션 파일 포함
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
-require_once($_SERVER['DOCUMENT_ROOT'] . '/lib/mydb.php');
+require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
+require_once getDocumentRoot() . '/vendor/autoload.php';
+require_once(includePath('lib/mydb.php'));
 
 // 서비스 계정 JSON 파일 경로
-$serviceAccountKeyFile = $_SERVER['DOCUMENT_ROOT'] . '/tokens/mytoken.json';	
+$serviceAccountKeyFile = getDocumentRoot() . '/tokens/mytoken.json';	
 
 // Google Drive 클라이언트 설정
 $client = new Google_Client();
@@ -46,11 +46,11 @@ $title_message = 'EL Ceiling 수주';
          exit;
    }
 
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';   
+include getDocumentRoot() . '/load_header.php';   
  ?>
 <title> <?=$title_message?> </title>
 <body>		 
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>   
+<?php require_once(includePath('myheader.php')); ?>   
 <style>
 @keyframes marquee {
   0% { transform: translateX(100%); }
@@ -215,7 +215,7 @@ function check_in_range($start_date, $end_date, $user_date)
   return (($user_ts >= $start_ts) && ($user_ts <= $end_ts));
 }	  
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
 // /////////////////////////첨부파일 있는 것 불러오기 

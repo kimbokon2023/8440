@@ -1,11 +1,11 @@
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/session.php';   
+<?php include getDocumentRoot() . '/session.php';   
  if(!isset($_SESSION["level"]) || $level>=5) {
 		 sleep(1);
          header ("Location:" . $WebSite . "login/logout.php");
          exit;
  } 
 ?> 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php'; ?>
+<?php include getDocumentRoot() . '/load_header.php'; ?>
 <title> 본천장/LC Front Log</title>
 <!-- Dashboard CSS -->
 <link rel="stylesheet" href="../css/dashboard-style.css" type="text/css" />
@@ -396,7 +396,7 @@ body {
 }
 </style>
 </head>
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>   
+<?php require_once(includePath('myheader.php')); ?>   
 <?php
 $readIni = array();   // 환경파일 불러오기
 $readIni = parse_ini_file("./estimate.ini",false);	

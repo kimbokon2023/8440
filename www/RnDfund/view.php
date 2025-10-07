@@ -1,4 +1,4 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/session_header.php'); 
+<?php require_once(includePath('session_header.php')); 
 
 if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
 	sleep(1);
@@ -6,7 +6,7 @@ if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
 	exit;
 }   
 
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php'; 
+include getDocumentRoot() . '/load_header.php'; 
 // 첫 화면 표시 문구
 $title_message = '연구전담부서 운영비';   
  
@@ -18,7 +18,7 @@ else
 if(isset($_REQUEST["tablename"]))  //수정 버튼을 클릭해서 호출했는지 체크
    $tablename=$_REQUEST["tablename"];
       
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
     try{

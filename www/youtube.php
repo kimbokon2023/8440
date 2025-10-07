@@ -1,8 +1,8 @@
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/session.php';   
+<?php include getDocumentRoot() . '/session.php';   
 
 $title_message = '미래기업 추억 사진 영상'; 
  
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?> 
+include getDocumentRoot() . '/load_header.php' ?> 
  
 <meta property="og:type" content="미래기업 유튜브">
 <meta property="og:title" content="미래기업 추억">
@@ -18,7 +18,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
 
 <body>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/myheader.php'; ?>   
+<?php include getDocumentRoot() . '/myheader.php'; ?>   
 
 <!-- background: -webkit-linear-gradient(left, #33156d 0%,#f282bc 100%); /* Chrome10-25,Safari5.1-6 */  -->
 <style>

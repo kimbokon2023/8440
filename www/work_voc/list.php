@@ -1,7 +1,7 @@
-﻿<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/session.php');
+﻿<?php require_once(includePath('session.php'));
  ?>
 
- <?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+ <?php include getDocumentRoot() . '/load_header.php' ?>
 
 <!-- Link to consolidated dashboard style -->
 <link rel="stylesheet" href="../css/dashboard-style.css">
@@ -292,7 +292,7 @@ body {
 
 <body>
 
-<? require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>
+<? require_once(includePath('myheader.php')); ?>
 
 <form id="board_form" name="board_form"  method="post" action="list.php?mode=search&search=<?=$search?>&find=<?=$find?>">
 
@@ -304,7 +304,7 @@ body {
 </div>
 <?php
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
  if(isset($_REQUEST["page"])) // $_REQUEST["page"]값이 없을 때에는 1로 지정

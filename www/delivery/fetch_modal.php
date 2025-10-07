@@ -1,11 +1,11 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");  
+require_once(includePath('session.php'));  
 
 $mode = $_POST['mode'] ?? '';
 $num = $_POST['num'] ?? '';
 
 $tablename = 'delivery';
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
 $title_message = ($mode === 'update') ? '경동화물/택배 정보 수정' : (($mode === 'copy') ? '경동화물/택배 정보 복사' : '경동화물/택배 정보 신규 등록');

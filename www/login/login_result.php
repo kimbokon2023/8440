@@ -37,7 +37,7 @@ $pw=$_REQUEST["upw"];
 $id=$_REQUEST["uid"];
 $pw=$_REQUEST["upw"];
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
 try{
@@ -81,7 +81,7 @@ history.back();
 	
  	
 $data=date("Y-m-d H:i:s") . " - " . $_SESSION["userid"] . " - " . $_SESSION["name"] ;	
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 $pdo->beginTransaction();
 $sql = "insert into ".$DB.".logdata(data) values(?) " ;

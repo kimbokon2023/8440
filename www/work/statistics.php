@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");  
+require_once(includePath('session.php'));  
 
  if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
           /*   alert("관리자 승인이 필요합니다."); */
@@ -14,7 +14,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
 ?>
    
    
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
 
 <title> <?=$title_message?> </title>
 
@@ -232,7 +232,7 @@ body {
 
 <body>
 
-  <?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>
+  <?php require_once(includePath('myheader.php')); ?>
 
  <?php
  
@@ -378,7 +378,7 @@ $workerNum = count($worker_arr); // 소장8명 명단
 <div class="row">
 	<div class="d-flex mt-1 mb-2 justify-content-center align-items-center">
 	<!-- 기간설정 칸 -->
-	 <?php include $_SERVER['DOCUMENT_ROOT'] . '/setdate.php' ?>
+	 <?php include getDocumentRoot() . '/setdate.php' ?>
 	</div>
 </div>
 

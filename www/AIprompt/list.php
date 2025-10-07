@@ -1,10 +1,10 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/session.php');
+<?php require_once(includePath('session.php'));
    
 // 첫 화면 표시 문구
 $title_message = 'AI prompt';
    
 ?>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?> 
+<?php include getDocumentRoot() . '/load_header.php' ?> 
   
 <title>  <?=$title_message?>  </title> 
 
@@ -18,7 +18,7 @@ $title_message = 'AI prompt';
  
 <body>
 
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>   
+<?php require_once(includePath('myheader.php')); ?>   
 
 <?php
 
@@ -29,7 +29,7 @@ $title_message = 'AI prompt';
          exit;
    }  
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	  
  
 $tablename = "AIprompt";  

@@ -11,7 +11,7 @@ isset($_REQUEST["steelspec"])  ? $steelspec=$_REQUEST["steelspec"] :   $steelspe
 // take는 사급자재업체명 기록필드
 isset($_REQUEST["steeltake"])  ? $steeltake=$_REQUEST["steeltake"] :   $steeltake=''; 
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
 // 기존의 자료에 없으면 추가해주기

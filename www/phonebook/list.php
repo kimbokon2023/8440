@@ -17,7 +17,7 @@ if(isset($_SESSION["DB"]))
 ?>
 
 
- <?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+ <?php include getDocumentRoot() . '/load_header.php' ?>
 
 
 <title> 연락처 검색 </title>
@@ -117,7 +117,7 @@ $belongstr=$_REQUEST["belongstr"];
 $tablename = 'phonebook';
  
 	  
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
 
   // $find="unitper";	    //검색할때 고정시킬 부분 저장 ex) 전체/공사담당/건설사 등

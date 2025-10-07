@@ -12,7 +12,7 @@ header("Content-Type: application/json");  //json을 사용하기 위해 필요�
    
   $num=$_REQUEST["num"];
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
  
    $upload_dir = '../uploads/'; ;   //물리적 저장위치   

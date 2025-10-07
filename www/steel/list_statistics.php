@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
+require_once(includePath('session.php'));
 
  if(!isset($_SESSION["level"]) || $level>=5) {
 		 sleep(1);
@@ -9,7 +9,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
 $title_message = "원자재 입출고 차트";
 ?>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>   
+<?php include getDocumentRoot() . '/load_header.php' ?>   
 
 <title> <?=$title_message?> </title> 
 <style>    	
@@ -58,7 +58,7 @@ if ($todate === '') {
 $Transtodate   = date('Y-m-d', strtotime($todate . '+1 days'));
 
 // DB 연결
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 // steelsource 테이블 조회
 $sql = "SELECT * FROM mirae8440.steelsource";

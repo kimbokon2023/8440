@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");  
+require_once(includePath('session.php'));  
 
 header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문
 
@@ -41,7 +41,7 @@ $exclude_molding = $_REQUEST["exclude_molding"] ?? '0';
 // 기타비용 자동산출 체크박스 처리
 $etc_autocheck = $_REQUEST["etc_autocheck"] ?? '0';
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
 // 현재 시간

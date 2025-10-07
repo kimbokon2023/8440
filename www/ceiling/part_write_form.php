@@ -1,4 +1,4 @@
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/session.php';   
+<?php include getDocumentRoot() . '/session.php';   
  
  if(!isset($_SESSION["level"]) || $level>5) {
 		 sleep(1);
@@ -10,7 +10,7 @@ ini_set('display_errors','1');  // 화면에 warning 없애기
 
 ?> 
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
  
 <title> 조명천장 부자재 </title> 
 </head>
@@ -22,7 +22,7 @@ ini_set('display_errors','1');  // 화면에 warning 없애기
 isset($_REQUEST["mode"])  ? $mode = $_REQUEST["mode"] : $mode="";   
 isset($_REQUEST["num"])  ? $num = $_REQUEST["num"] : $num="";   
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();   
 
 // 부품명 배열 저장

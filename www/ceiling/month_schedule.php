@@ -1,4 +1,4 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");   
+<?php require_once(includePath('session.php'));   
    
 if(isset($_REQUEST["check"])) 
 	 $check=$_REQUEST["check"]; 
@@ -16,7 +16,7 @@ $title_message = '천장(ceiling) 스케줄';
 echo "<script>var today = '$today';</script>";
 ?>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
 
 <title> <?=$title_message?> </title>
 

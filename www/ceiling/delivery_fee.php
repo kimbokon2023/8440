@@ -9,7 +9,7 @@ if(isset($_SESSION["DB"]))
 
 ?>
  
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+<?php include getDocumentRoot() . '/load_header.php';
  if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
           /*   alert("관리자 승인이 필요합니다."); */
 		 sleep(1);
@@ -193,7 +193,7 @@ $all_sum=$sum1 + $sum2 + $sum3;
 			<div class="row"> 		  
 				<div class="d-flex mt-1 mb-2 justify-content-center align-items-center "> 		
 				<!-- 기간설정 칸 -->
-				 <?php include $_SERVER['DOCUMENT_ROOT'] . '/setdate.php' ?>
+				 <?php include getDocumentRoot() . '/setdate.php' ?>
 				</div>
 			</div>			
 			

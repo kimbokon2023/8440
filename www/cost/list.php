@@ -1,8 +1,8 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php"); 
+require_once(includePath('session.php')); 
 $title_message = '2년간 원자재 단가 추이';
 ?> 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?> 
+<?php include getDocumentRoot() . '/load_header.php' ?> 
 <title> <?=$title_message?>  </title>  
 </head> 
  <body>
@@ -153,7 +153,7 @@ $item_arr = array();
 		for ($i = 23; $i >= 0; $i--) {
 			array_push($item_arr,' ');
 			while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-				include $_SERVER['DOCUMENT_ROOT'] . '/request/_row.php';				  
+				include getDocumentRoot() . '/request/_row.php';				  
 				
 				array_push($item_arr,$steel_item);
 				
@@ -222,7 +222,7 @@ $item_arr = array();
 			<i class="bi bi-caret-right"></i>  <span id="total_row" > </span>  건  	
 				&nbsp; 	&nbsp; 	
 					<!-- 기간설정 칸 -->
-					 <?php include $_SERVER['DOCUMENT_ROOT'] . '/setdate.php' ?>			
+					 <?php include getDocumentRoot() . '/setdate.php' ?>			
 					 
 		</div>		
 	
@@ -437,7 +437,7 @@ try{
 		  
 	       while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
 
-             	include $_SERVER['DOCUMENT_ROOT'] . '/request/_row.php';				  
+             	include getDocumentRoot() . '/request/_row.php';				  
 			  	
 		    	$temp_arr = explode("*", $spec);
 			

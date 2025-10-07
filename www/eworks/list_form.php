@@ -15,7 +15,7 @@
                         <div class="card-body">
 							<div id="eworksNavContainer">
 							<!-- nav 리스트 가져오기 -->
-							<?php   include $_SERVER['DOCUMENT_ROOT'] . "/eworks_nav.php"; ?>
+							<?php   include getDocumentRoot() . "/eworks_nav.php"; ?>
 							</div>
 							<div class="d-flex mt-2 mb-1 justify-content-center" >								
 								<button class="btn btn-dark btn-sm me-2" type="button" id="E_searchAllBtn" > 전체 </button>
@@ -26,7 +26,7 @@
 								<button class="btn btn-dark btn-sm  me-2" type="button" onclick="viewEworks_detail('',1);" > <i class="bi bi-pencil-square"></i> 작성 </button>
 							</div>	
 							<div class="row" >							
-								 <?php include $_SERVER['DOCUMENT_ROOT'] . "/eworks/list.php"; ?>
+								 <?php include getDocumentRoot() . "/eworks/list.php"; ?>
 							</div>
                         </div>
                 </div>

@@ -1,4 +1,4 @@
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/session.php';   
+<?php include getDocumentRoot() . '/session.php';   
 
 if (!isset($_SESSION["level"]) || $level > 8) {
     $_SESSION["url"] = 'https://8440.co.kr/request_etc/list.php'; 		   
@@ -10,7 +10,7 @@ if (!isset($_SESSION["level"]) || $level > 8) {
 $title_message = '재료분리대 출고사진';   
 ?> 
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php'; ?> 
+<?php include getDocumentRoot() . '/load_header.php'; ?> 
  
 <title> <?=$title_message?>  </title>  
  
@@ -58,7 +58,7 @@ $title_message = '재료분리대 출고사진';
 
 <?php
 if (!$chkMobile) { 	
-	require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); 
+	require_once(includePath('myheader.php')); 
 }
 
 if ($chkMobile) {
@@ -76,7 +76,7 @@ if ($chkMobile) {
 }
 
 include "_request.php"; 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
 // ///////////////////////// 첨부파일 있는 것 불러오기 
@@ -105,7 +105,7 @@ if ($fromdate === "" || $fromdate === null || $todate === "" || $todate === null
     $Transtodate = $todate;
 }
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	  
 
 if(isset($_REQUEST["mode"]))

@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . '/session.php');
+require_once(includePath('session.php'));
 if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) 
 {
 	/*   alert("관리자 승인이 필요합니다."); */
@@ -8,11 +8,11 @@ if(!isset($_SESSION["level"]) || $_SESSION["level"]>5)
 	exit;
 }  
 ?>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?> 
+<?php include getDocumentRoot() . '/load_header.php' ?> 
 <title> 시공소장 시공비 </title> 
 </head> 
 <body>
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>   
+<?php require_once(includePath('myheader.php')); ?>   
 <?php 
 $recordDate = $_REQUEST["recordDate"] ?? date("Y-m-d");
 $check = $_REQUEST["check"] ?? $_POST["check"];

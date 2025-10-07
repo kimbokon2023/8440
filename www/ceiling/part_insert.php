@@ -11,7 +11,7 @@ isset($_REQUEST["num"])  ? $num = $_REQUEST["num"] : $num="";
 $tablename = 'part';
 $itemCount = 20 ;
 		  
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
      
 

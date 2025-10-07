@@ -1,13 +1,13 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");  
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php require_once(includePath('session.php'));  
+include getDocumentRoot() . '/load_header.php' ?>
 <title> 메뉴접속 로그인 기록 </title>	
 </head> 
  		 
 <body>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/myheader.php'; ?>  
+<?php include getDocumentRoot() . '/myheader.php'; ?>  
 
 <?php     
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();  
 
 // 기간을 정하는 구간	 

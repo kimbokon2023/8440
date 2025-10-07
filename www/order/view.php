@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
+require_once(includePath('session.php'));
 
 if(!isset($_SESSION["level"]) || $level>5) {
     $_SESSION["url"]='https://8440.co.kr/order/view.php';
@@ -8,10 +8,10 @@ if(!isset($_SESSION["level"]) || $level>5) {
     exit;
 }
 
-include $_SERVER['DOCUMENT_ROOT'] . "/common.php";
-require_once($_SERVER['DOCUMENT_ROOT'] . '/lib/mydb.php');
+include getDocumentRoot() . "/common.php";
+require_once(includePath('lib/mydb.php'));
 
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+include getDocumentRoot() . '/load_header.php';
 
 // ID 확인
 $id = isset($_REQUEST["id"]) ? (int)$_REQUEST["id"] : 0;
@@ -101,7 +101,7 @@ $title_message = '구매발주서 상세보기';
     </style>
 </head>
 <body>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/myheader.php'; ?>
+<?php include getDocumentRoot() . '/myheader.php'; ?>
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">

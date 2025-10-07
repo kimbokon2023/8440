@@ -1,11 +1,11 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
+require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
     // 첫 화면 표시 문구
  $title_message = '안전보건';
    
  ?>
  
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+<?php include getDocumentRoot() . '/load_header.php';
 	 if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
 			 sleep(1);
 			 header("Location:" . $WebSite . "login/login_form.php"); 
@@ -17,7 +17,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/load_GoogleDrive.php'; // 세션 등 
 
 <body>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . "/common/modal.php"; ?>
+<?php include getDocumentRoot() . "/common/modal.php"; ?>
     
 <?php
  
@@ -25,7 +25,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/load_GoogleDrive.php'; // 세션 등 
  $page=$_REQUEST["page"];   //페이지번호
  $tablename=$_REQUEST["tablename"];  
  
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
  
  try{
@@ -75,9 +75,9 @@ $pdo = db_connect();
 $id=$num;  
 $author_id = $item_id  ;
   
-require_once $_SERVER['DOCUMENT_ROOT'] . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
+require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
 
-$URLsave = $_SERVER['DOCUMENT_ROOT'] . "/s_board/viewoutput.php?tablename=s_board&num=" . $num;	
+$URLsave = getDocumentRoot() . "/s_board/viewoutput.php?tablename=s_board&num=" . $num;	
 ?> 
 
 <form  id="board_form" name="board_form" method="post" enctype="multipart/form-data"> 

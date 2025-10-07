@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");  
+require_once(includePath('session.php'));  
 
 $title_message = '포미스톤 수주'; 
 $title_message_sub = '수 주 서 (포미스톤)' ; 
@@ -10,7 +10,7 @@ $subTitle = '포미스톤 제품';
 $payment_account = '중소기업은행 339-084210-01-012 ㈜ 미래기업';
 
 ?>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php'; ?> 
+<?php include getDocumentRoot() . '/load_header.php'; ?> 
 
 <title> <?=$title_message?>  </title>
 

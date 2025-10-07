@@ -18,7 +18,7 @@ $title_message = 'jamb 그리기'   ;
 ?>
 
  
- <?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+ <?php include getDocumentRoot() . '/load_header.php' ?>
  	 
 	<script src="https://bossanova.uk/jexcel/v3/jexcel.js"></script>
 	<script src="https://bossanova.uk/jsuites/v2/jsuites.js"></script>
@@ -33,11 +33,11 @@ $title_message = 'jamb 그리기'   ;
 </head>
  
  <body>   
-  <? require_once($_SERVER['DOCUMENT_ROOT'] . '/common/modal.php'); ?>   
+  <? require_once(includePath('common/modal.php')); ?>   
   
   <?php
   if( $menu!=='no') 
-		require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>   
+		require_once(includePath('myheader.php')); ?>   
    
 
 <?php

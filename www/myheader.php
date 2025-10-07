@@ -1,4 +1,4 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php"); ?>
+<?php require_once(includePath('session.php')); ?>
 
 <form id="eworks_board_form" name="eworks_board_form" method="post" enctype="multipart/form-data" >	    
 	<input type="hidden" id="eworksPage" name="eworksPage" value="<?= isset($eworksPage) ? $eworksPage : '' ?>" > 
@@ -641,8 +641,8 @@
 </div>  	  
 <?php 
 	// 전자결재 관련 모달
-	include $_SERVER['DOCUMENT_ROOT'] . "/eworks/list_form.php" ;   
-	include $_SERVER['DOCUMENT_ROOT'] .  "/eworks/write_form.php" ;   
+	include getDocumentRoot() . "/eworks/list_form.php" ;   
+	include getDocumentRoot() .  "/eworks/write_form.php" ;   
 ?>
 	<div class="d-flex" >
 		<div class="sideEworksBanner" style="display:none;">

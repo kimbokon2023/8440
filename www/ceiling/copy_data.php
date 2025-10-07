@@ -17,7 +17,7 @@ if(isset($_SESSION["DB"]))
    
 ?>
 
- <?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+ <?php include getDocumentRoot() . '/load_header.php' ?>
  
  
 <script src="../js/calinseung.js"></script>    
@@ -93,7 +93,7 @@ if(isset($_SESSION["DB"]))
 
 
 // 첨부 이미지에 대한 부분
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
  
  // 이미지 이미 있는 것 불러오기 

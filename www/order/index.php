@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
+require_once(includePath('session.php'));
 
 if(!isset($_SESSION["level"]) || $level>5) {
     $_SESSION["url"]='https://8440.co.kr/order/index.php';
@@ -8,8 +8,8 @@ if(!isset($_SESSION["level"]) || $level>5) {
     exit;
 }
 
-include $_SERVER['DOCUMENT_ROOT'] . "/common.php";
-require_once($_SERVER['DOCUMENT_ROOT'] . '/lib/mydb.php');
+include getDocumentRoot() . "/common.php";
+require_once(includePath('lib/mydb.php'));
 
 // 첫 화면 표시 문구
 $title_message = '구매발주서 관리';
@@ -17,7 +17,7 @@ $title_message = '구매발주서 관리';
 $page = $_REQUEST["page"] ?? '';
 $scale = $_REQUEST["scale"] ?? '';
 
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+include getDocumentRoot() . '/load_header.php';
 
 // 데이터베이스 연결
 try {
@@ -286,7 +286,7 @@ $orders = $stmt->fetchAll();
     </style>
 </head>
 <body>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/myheader.php'; ?>
+<?php include getDocumentRoot() . '/myheader.php'; ?>
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">

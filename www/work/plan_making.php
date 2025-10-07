@@ -17,7 +17,7 @@ $WebSite = "https://8440.co.kr/";
 		  header("Location:" . $WebSite . "login/login_form.php"); 
          exit;
    }    
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+include getDocumentRoot() . '/load_header.php';
    
  ?>
  

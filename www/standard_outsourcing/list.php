@@ -22,11 +22,11 @@ $title_message = '사급업체';
          exit;
    }    
    
-	include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+	include getDocumentRoot() . '/load_header.php';
    
  ?>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/common/modal.php'; ?>
+<?php include getDocumentRoot() . '/common/modal.php'; ?>
 
 <title> <?=$title_message?>  </title>
 
@@ -51,7 +51,7 @@ if(isset($_REQUEST["search"]))   //목록표에 제목,이름 등 나오는 부�
 ini_set('display_errors','1');  // 화면에 warning 없애기	
  
 	  
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
 	 
   if(isset($_REQUEST["mode"]))

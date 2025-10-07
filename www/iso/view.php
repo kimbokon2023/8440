@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
+require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
 
 if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
 	sleep(1);
@@ -9,7 +9,7 @@ if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
 
 // 첫 화면 표시 문구
 $title_message = 'ISO 9001/14001';
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php'; 
+include getDocumentRoot() . '/load_header.php'; 
     
 ?>
    
@@ -19,7 +19,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
 
 <body>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . "/common/modal.php"; ?>
+<?php include getDocumentRoot() . "/common/modal.php"; ?>
     
 <?php
 
@@ -74,7 +74,7 @@ $tablename=$_REQUEST["tablename"];   //DB 이름
 $id=$num;  
 $author_id = $item_id  ;
   
-require_once $_SERVER['DOCUMENT_ROOT'] . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
+require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
 ?> 
 
 

@@ -1,12 +1,12 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
+require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
 
 // 첫 화면 표시 문구
 $title_message = 'AI prompt';
     
 ?>
    
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+<?php include getDocumentRoot() . '/load_header.php';
 
 	 if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
 			 sleep(1);
@@ -17,7 +17,7 @@ $title_message = 'AI prompt';
 <title> <?=$title_message?> </title>   
 </head> 
 <body>
-<?php include $_SERVER['DOCUMENT_ROOT'] . "/common/modal.php"; ?>
+<?php include getDocumentRoot() . "/common/modal.php"; ?>
     
 <?php
  
@@ -25,7 +25,7 @@ $title_message = 'AI prompt';
  $page=$_REQUEST["page"];   //페이지번호
  $tablename=$_REQUEST["tablename"];   //페이지번호
    
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
   
  
@@ -78,7 +78,7 @@ $id=$num;
 $id=$num;  
 $author_id = $item_id  ;
   
-require_once $_SERVER['DOCUMENT_ROOT'] . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
+require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
 ?> 
 
 <form  id="board_form" name="board_form" method="post" enctype="multipart/form-data"> 

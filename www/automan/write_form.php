@@ -1,4 +1,4 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/session.php');	
+<?php require_once(includePath('session.php'));	
 
  if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
           /*   alert("관리자 승인이 필요합니다."); */
@@ -7,11 +7,11 @@
          exit;
  } 
 ?>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
 <title> 전산실장 정산 </title> 
 </head>
 <body>
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>   
+<?php require_once(includePath('myheader.php')); ?>   
 
 <?php
 
@@ -64,7 +64,7 @@ $todate=$_REQUEST["todate"] ?? '';
 
  $year=$_REQUEST["year"] ?? '';   // 년도 체크박스
        
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();  
   
   if ($mode=="modify"){

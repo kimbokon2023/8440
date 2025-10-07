@@ -1,10 +1,10 @@
-﻿<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/session.php');
+﻿<?php require_once(includePath('session.php'));
    
 // 첫 화면 표시 문구
 $title_message = '공지사항';
 
 ?>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?> 
+<?php include getDocumentRoot() . '/load_header.php' ?> 
   
 <title>  <?=$title_message?>  </title> 
 <style>
@@ -14,7 +14,7 @@ $title_message = '공지사항';
 </style>  
 </head>  
 <body>
-  <?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>   
+  <?php require_once(includePath('myheader.php')); ?>   
 
 <?php
 
@@ -27,7 +27,7 @@ $title_message = '공지사항';
 
 $tablename = "notice";
   
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 	 
 	 

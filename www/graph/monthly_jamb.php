@@ -2,14 +2,14 @@
 // ───────────────────────────────────────────────────────────
 // JAMB 수주현황 분석 (수주금액 / 발주처순위 / 업체별 월별수주금액)
 // ───────────────────────────────────────────────────────────
-include $_SERVER['DOCUMENT_ROOT'] . '/session.php';
+include getDocumentRoot() . '/session.php';
 if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
     sleep(1);
     header("Location:" . $WebSite . "login/login_form.php");
     exit;
 }
 $title_message = "JAMB 수주현황 분석";
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+include getDocumentRoot() . '/load_header.php';
 
 // ── 1) 기간 계산: start, end 둘 다 있으면 그대로, 하나만 있으면 12개월 보정 ──
 if (!empty($_GET['start']) && !empty($_GET['end'])) {
@@ -256,7 +256,7 @@ for ($dt = clone $startDate; $dt <= $endDate; $dt->modify('+1 month')) {
 </head>
 <body>
 <?php if($_GET['header']=='header'){
-        include $_SERVER['DOCUMENT_ROOT'] . '/myheader.php';
+        include getDocumentRoot() . '/myheader.php';
 } ?>
 <div id="loadingOverlay">
   <div class="spinner">
@@ -303,7 +303,7 @@ for ($dt = clone $startDate; $dt <= $endDate; $dt->modify('+1 month')) {
         $stmt->execute(['from'=>$from,'to'=>$to]);
         $rev = 0;
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-          include $_SERVER['DOCUMENT_ROOT'].'/work/_row.php';
+          include getDocumentRoot().'/work/_row.php';
           $rev += intval($widejamb)*$price_wide
                 + intval($normaljamb)*$price_normal
                 + intval($smalljamb)*$price_small;
@@ -355,7 +355,7 @@ for ($dt = clone $startDate; $dt <= $endDate; $dt->modify('+1 month')) {
         'to'  =>$endDate  ->format('Y-m-t'),
       ]);
       while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        include $_SERVER['DOCUMENT_ROOT'].'/work/_row.php';
+        include getDocumentRoot().'/work/_row.php';
         $rev = intval($widejamb)*$price_wide
              + intval($normaljamb)*$price_normal
              + intval($smalljamb)*$price_small;
@@ -413,7 +413,7 @@ for ($dt = clone $startDate; $dt <= $endDate; $dt->modify('+1 month')) {
         'to'  =>$endDate  ->format('Y-m-t'),
       ]);
       while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        include $_SERVER['DOCUMENT_ROOT'].'/work/_row.php';
+        include getDocumentRoot().'/work/_row.php';
         $rev = intval($widejamb)*$price_wide
              + intval($normaljamb)*$price_normal
              + intval($smalljamb)*$price_small;
@@ -452,7 +452,7 @@ foreach ($top20keys as $vendor) {
     foreach ($rows as $r) {
       // 여기가 핵심! include 전에 $row 에 덮어써 줍니다.
       $row = $r;
-      include $_SERVER['DOCUMENT_ROOT'].'/work/_row.php';
+      include getDocumentRoot().'/work/_row.php';
       $sum += intval($widejamb)*$price_wide
             + intval($normaljamb)*$price_normal
             + intval($smalljamb)*$price_small;

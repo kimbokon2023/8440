@@ -1,4 +1,4 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/session_header.php'); 
+<?php require_once(includePath('session_header.php')); 
 
 header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문 받는측에서 필요한 정보임 ajax로 보내는 쪽에서 type : json
 
@@ -20,7 +20,7 @@ if(isset($_REQUEST["tablename"]))  //수정 버튼을 클릭해서 호출했는�
 
 include '_request.php';
 			  
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
      

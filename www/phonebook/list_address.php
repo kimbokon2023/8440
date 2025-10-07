@@ -14,7 +14,7 @@ if(isset($_SESSION["DB"]))
          exit;
    }  
 ?>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
 <title> 주소 검색 </title>
 <style>
 	@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css");
@@ -102,7 +102,7 @@ ini_set('display_errors','1');  // 화면에 warning 없애기
 
 $tablename = 'ceiling';
  	  
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
 
   // $find="unitper";	    //검색할때 고정시킬 부분 저장 ex) 전체/공사담당/건설사 등

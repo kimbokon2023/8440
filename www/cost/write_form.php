@@ -306,7 +306,7 @@ $sql="select * from mirae8440.steelspec";
      $titlemsg	= '원자재 단가 등록';	
 
 ?> 
- <?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+ <?php include getDocumentRoot() . '/load_header.php' ?>
   
 <title> 원자재 발주 </title>
 

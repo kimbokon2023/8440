@@ -1,5 +1,5 @@
 <?php 
-include $_SERVER['DOCUMENT_ROOT'] . '/session.php';
+include getDocumentRoot() . '/session.php';
 
  if(!isset($_SESSION["level"]) || $level>=5) {
 		 sleep(1);
@@ -15,7 +15,7 @@ $menu=$_REQUEST["menu"];
 
  ?>
   
- <?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?> 
+ <?php include getDocumentRoot() . '/load_header.php' ?> 
 
 <title> 원자재 현황 </title>
 
@@ -26,7 +26,7 @@ $menu=$_REQUEST["menu"];
 <?php include "../common/modal.php"; ?>
 
  
-<?  if($navibar!='1' && $menu !== "no") include $_SERVER['DOCUMENT_ROOT'] . '/myheader.php'; ?>       
+<?  if($navibar!='1' && $menu !== "no") include getDocumentRoot() . '/myheader.php'; ?>       
    
 <style>
     	

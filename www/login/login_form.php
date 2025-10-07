@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php"); 
+require_once(includePath('session.php')); 
 
 $id=$_REQUEST["uid"];
 $pw=$_REQUEST["upw"];

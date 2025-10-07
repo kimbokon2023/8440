@@ -1,7 +1,7 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php'; // 세션 파일 포함
-require_once($_SERVER['DOCUMENT_ROOT'] . '/lib/mydb.php');
-include $_SERVER['DOCUMENT_ROOT'] . "/common.php";
+require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
+require_once(includePath('lib/mydb.php'));
+include getDocumentRoot() . "/common.php";
 
 // AJAX 요청 여부 확인
 $is_ajax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';

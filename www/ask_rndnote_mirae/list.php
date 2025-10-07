@@ -1,10 +1,10 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php'; // 세션 파일 포함
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
-require_once($_SERVER['DOCUMENT_ROOT'] . '/lib/mydb.php');
+require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
+require_once getDocumentRoot() . '/vendor/autoload.php';
+require_once(includePath('lib/mydb.php'));
 
 // 서비스 계정 JSON 파일 경로
-$serviceAccountKeyFile = $_SERVER['DOCUMENT_ROOT'] . '/tokens/mytoken.json';	
+$serviceAccountKeyFile = getDocumentRoot() . '/tokens/mytoken.json';	
 
 // Google Drive 클라이언트 설정
 $client = new Google_Client();
@@ -44,7 +44,7 @@ function getThumbnail($fileId, $service) {
 $title_message = '개발프로젝트 연구노트';      
 ?> 
  
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php'; ?> 
+<?php include getDocumentRoot() . '/load_header.php'; ?> 
  
 <title> <?=$title_message?>  </title>  
  
@@ -92,7 +92,7 @@ $title_message = '개발프로젝트 연구노트';
 $tablename = 'eworks';
  if(!$chkMobile) 
 { 	
-	require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); 
+	require_once(includePath('myheader.php')); 
 }
 
  // 모바일이면 특정 CSS 적용
@@ -110,7 +110,7 @@ if ($chkMobile) {
     </style>';
 }
   
-include $_SERVER['DOCUMENT_ROOT'] .'/eworks/_request.php';
+include getDocumentRoot() .'/eworks/_request.php';
 	  
 $pdo = db_connect();
 // 현재 날짜
@@ -255,7 +255,7 @@ th {
         $start_num = $total_row - ($page - 1) * $scale;
 	
       while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-       		 include $_SERVER['DOCUMENT_ROOT'] .'/eworks/_row.php';					 			 
+       		 include getDocumentRoot() .'/eworks/_row.php';					 			 
 		echo '<tr style="cursor:pointer;" data-id="'.  $num . '" onclick="redirectToView(' . $num . ')">';
       ?>
 		 <td class="text-center"><?= $start_num ?></td>           

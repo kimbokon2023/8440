@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
+require_once(includePath('session.php'));
 
 // 파라미터
 $search         = $_REQUEST['search']         ?? '';
@@ -26,7 +26,7 @@ if ($todate === '') {
 $Transtodate   = date('Y-m-d', strtotime($todate . '+1 days'));
 
 // DB 연결
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 // steelsource 테이블 조회
 $sql = "SELECT * FROM mirae8440.steelsource";

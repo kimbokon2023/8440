@@ -1,4 +1,4 @@
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/session.php';   
+<?php include getDocumentRoot() . '/session.php';   
    
 if(!isset($_SESSION["level"]) || $level>=8) {
 	 echo "<script> alert('관리자 승인이 필요합니다.') </script>";

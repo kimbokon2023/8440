@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
+require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
 	
 if(!isset($_SESSION["level"]) || $level>8) {
           /*   alert("관리자 승인이 필요합니다."); */
@@ -13,8 +13,8 @@ $titlemsg	= '부자재 구매';
  
 ?>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/common.php' ?>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php'; ?>
+<?php include getDocumentRoot() . '/common.php' ?>
+<?php include getDocumentRoot() . '/load_header.php'; ?>
   
 <title> <?=$titlemsg?> </title>
 
@@ -36,7 +36,7 @@ $titlemsg	= '부자재 구매';
 
 <body>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . "/common/modal.php"; ?>
+<?php include getDocumentRoot() . "/common/modal.php"; ?>
    
 <?php
    
@@ -161,7 +161,7 @@ $callback=$_REQUEST["callback"];  // 출고현황에서 체크번호
 
 // 초기 프로그램은 $num사용 이후 $id로 수정중임  
 $id=$num;    
-require_once $_SERVER['DOCUMENT_ROOT'] . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
+require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
 
 ?>
 

@@ -1,10 +1,10 @@
-﻿<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/session.php'); 
+﻿<?php require_once(includePath('session.php')); 
 
 $title_message= "투표" ;
 
 ?>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+<?php include getDocumentRoot() . '/load_header.php';
  if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
           /*   alert("관리자 승인이 필요합니다."); */
 		 sleep(1);
@@ -37,7 +37,7 @@ $num = isset($_REQUEST["num"]) ? $_REQUEST["num"] : "";
 $num_Array=array();     
 $piclist_Array=array();  	  
 		  
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
 
   if ($mode=="modify"){

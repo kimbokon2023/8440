@@ -1,4 +1,4 @@
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/session.php';   
+<?php include getDocumentRoot() . '/session.php';   
 
 header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문  
   
@@ -39,7 +39,7 @@ $data = array(
 
 $contents = json_encode($data, JSON_UNESCAPED_UNICODE);
   
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
      
  if ($mode=="modify"){
@@ -96,7 +96,7 @@ else if ($mode == "copy" || $mode == "insert") {
     $registdate = date("Y-m-d H:i:s");
 
     // JSON에서 결재라인 정보 가져오기
-    $jsonString = file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/member/Company_approvalLine_.json');
+    $jsonString = file_get_contents(getDocumentRoot() . '/member/Company_approvalLine_.json');
     $approvalLines = json_decode($jsonString, true);
 
     // 결재라인 기본값 설정

@@ -35,7 +35,7 @@ function echo_null($str) {
 }
  ?>
  
- <?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+ <?php include getDocumentRoot() . '/load_header.php' ?>
  
 <title>  <?=$title_message?>  </title>
 </head>

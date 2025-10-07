@@ -1,6 +1,6 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php'; // 세션 파일 포함
-require_once($_SERVER['DOCUMENT_ROOT'] . '/lib/mydb.php');
+require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
+require_once(includePath('lib/mydb.php'));
 
 // 헤더 설정 - JSON 응답
 header('Content-Type: application/json');

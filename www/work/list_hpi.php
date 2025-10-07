@@ -1,4 +1,4 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/session.php');
+<?php require_once(includePath('session.php'));
    
 if(isset($_REQUEST["check"])) 
 	 $check=$_REQUEST["check"]; 
@@ -8,7 +8,7 @@ if($check==null)
 		$check='1';
  ?>
  
- <?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+ <?php include getDocumentRoot() . '/load_header.php' ?>
 
  <title> 발주처별 HPI 정보 </title>
 

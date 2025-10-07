@@ -5,13 +5,13 @@
  * 이 파일은 file_api.php와 file_manager.js를 사용하는 방법을 보여줍니다.
  */
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/load_GoogleDrive.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/file_api.php';
+require_once getDocumentRoot() . '/load_GoogleDrive.php';
+require_once getDocumentRoot() . '/file_api.php';
 
 $title_message = 'Google Drive 파일 관리 API 데모';
 ?>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/common.php' ?>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php'; ?>
+<?php include getDocumentRoot() . '/common.php' ?>
+<?php include getDocumentRoot() . '/load_header.php'; ?>
 <title><?=$title_message?></title>
 </head>
 
@@ -50,7 +50,7 @@ $title_message = 'Google Drive 파일 관리 API 데모';
 
 <body>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . "/common/modal.php"; ?>
+<?php include getDocumentRoot() . "/common/modal.php"; ?>
 
 <div class="container-fluid mt-4">
     <div class="row">

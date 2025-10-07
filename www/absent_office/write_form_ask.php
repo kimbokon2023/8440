@@ -1,11 +1,11 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php'; // 세션 파일 포함
+require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
 
 $check = isset($_COOKIE['check']) ? $_COOKIE['check'] : 'false';
 $lastdate = isset($_COOKIE['lastdate']) ? $_COOKIE['lastdate'] : 'false';
 ?>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
 
 <?php
 
@@ -17,7 +17,7 @@ $lastdate = isset($_COOKIE['lastdate']) ? $_COOKIE['lastdate'] : 'false';
    }
 										  
 isset($_REQUEST["num"])  ? $num=$_REQUEST["num"] :   $num=''; 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
 
  try{

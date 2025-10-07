@@ -1,6 +1,6 @@
 <?php
 
-include $_SERVER['DOCUMENT_ROOT'] . '/session.php';   
+include getDocumentRoot() . '/session.php';   
  
   if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {          		 
 		 sleep(1);
@@ -10,7 +10,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/session.php';
    
  ?> 
  
- <?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?> 
+ <?php include getDocumentRoot() . '/load_header.php' ?> 
  <title>  쟘 일괄처리 </title>  
  </head>
  

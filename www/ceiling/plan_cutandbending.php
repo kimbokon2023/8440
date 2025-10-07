@@ -11,7 +11,7 @@ $user_id= $_SESSION["userid"];
 
 ?>
    
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
 
 <title> 가공일정 </title> 
  

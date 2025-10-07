@@ -1,15 +1,15 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/session.php'); ?>
+<?php require_once(includePath('session.php')); ?>
 <?php
 $title_message = '부적합 보고 및 대책';
 $admin_name= $_SESSION["name"];
 ?>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
 <title> <?=$title_message?> </title> 
 </head>
 <body>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/common/modal.php'; ?>
+<?php include getDocumentRoot() . '/common/modal.php'; ?>
 
 <?php
  if(!isset($_SESSION["level"]) || $_SESSION["level"]>8) {

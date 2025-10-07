@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");  
+require_once(includePath('session.php'));  
 
 $tablename = isset($_REQUEST['tablename']) ? $_REQUEST['tablename'] : '';  
 $mode = isset($_REQUEST['mode']) ? $_REQUEST['mode'] : '';  
@@ -8,7 +8,7 @@ $update_log = isset($_REQUEST['update_log']) ? $_REQUEST['update_log'] : ''; // 
 
 header("Content-Type: application/json");  
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
 
 if (isset($_REQUEST["checkarr"])) {

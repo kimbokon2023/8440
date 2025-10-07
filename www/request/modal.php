@@ -2,13 +2,13 @@
 <?php
   
    
- // include $_SERVER['DOCUMENT_ROOT'] . "/load_company.php";
+ // include getDocumentRoot() . "/load_company.php";
  
  // $companycount = count($suply_company_arr);   
  // // var_dump($suply_company_arr);
  // // 납품업체 숫자 넘겨줌 
  
-// include $_SERVER['DOCUMENT_ROOT'] . '_request.php';
+// include getDocumentRoot() . '_request.php';
   
 // $callback=$_REQUEST["callback"];  // 출고현황에서 체크번호
   
@@ -66,7 +66,7 @@
  
 // //  철판리스트 뽑기 
    
-  // require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+  // require_once(includePath('lib/mydb.php'));
   // $pdo = db_connect();	
   
 

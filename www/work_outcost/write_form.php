@@ -125,7 +125,7 @@ if($todate=="")
 // var_dump($steelitem_arr);
 
 ?> 
- <?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+ <?php include getDocumentRoot() . '/load_header.php' ?>
   
 <title> 외주단가 자료등록 </title>
 

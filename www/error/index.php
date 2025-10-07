@@ -1,12 +1,12 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/session.php'); ?> 
+<?php require_once(includePath('session.php')); ?> 
    
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
 		
 <title> 부적합 품질경영 </title> <div id="cookiedisplay"> </div>
 	    
 </head>			
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/myheader.php'; ?>  
+<?php include getDocumentRoot() . '/myheader.php'; ?>  
 <?php   
 if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
           /*   alert("관리자 승인이 필요합니다."); */

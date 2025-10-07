@@ -2,7 +2,7 @@
 // ───────────────────────────────────────────────────────────
 // monthly_ceiling.php: 조명천장/본천장 수주통계 (원 단위 표시)
 // ───────────────────────────────────────────────────────────
-include $_SERVER['DOCUMENT_ROOT'] . '/session.php';
+include getDocumentRoot() . '/session.php';
 if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
     sleep(1);
     header("Location:" . $WebSite . "login/login_form.php");
@@ -11,7 +11,7 @@ if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
 $title_message = "조명천장/본천장 수주현황 분석";
 
 // 단가 파일 읽기
-$readIni = parse_ini_file($_SERVER['DOCUMENT_ROOT'] . "/ceiling/estimate.ini", false);
+$readIni = parse_ini_file(getDocumentRoot() . "/ceiling/estimate.ini", false);
 
 // ── 1) 기간 계산 (start, end 둘 다 있으면 그대로, 하나만 있으면 12개월 보정) ──
 if (!empty($_GET['start']) && !empty($_GET['end'])) {
@@ -54,7 +54,7 @@ function calc_rev(array $row, array $units): int {
     ) * 1000;
 }
  
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+include getDocumentRoot() . '/load_header.php';
 ?>
 <!DOCTYPE html>
 <html lang="ko">
@@ -416,7 +416,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
 </head>
 <body>
 <?php if($_GET['header']=='header'){
-        include $_SERVER['DOCUMENT_ROOT'] . '/myheader.php';
+        include getDocumentRoot() . '/myheader.php';
 } ?>
 <div id="loadingOverlay">
   <div class="spinner">

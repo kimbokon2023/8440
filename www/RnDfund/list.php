@@ -1,4 +1,4 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/session_header.php'); 
+<?php require_once(includePath('session_header.php')); 
 
 if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
 	sleep(1);
@@ -6,7 +6,7 @@ if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
 	exit;
 }   
 
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+include getDocumentRoot() . '/load_header.php';
   
 // 첫 화면 표시 문구
 $title_message = '연구전담부서 운영비';  
@@ -17,7 +17,7 @@ $tablename ='RnDfund';
  </head>
  <body>
 
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>   
+<?php require_once(includePath('myheader.php')); ?>   
 
  <?php
 if(isset($_REQUEST["search"]))   //목록표에 제목,이름 등 나오는 부분
@@ -30,7 +30,7 @@ if(isset($_REQUEST["list"]))   //목록표에 제목,이름 등 나오는 부분
 else
 	  $list=0;
   
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
   
  
@@ -173,7 +173,7 @@ $nowday=date("Y-m-d");   // 현재일자 변수지정
     <div class="d-flex mb-1 mt-1 justify-content-center align-items-center">  			
 		▷ <?= $total_row ?> &nbsp;&nbsp;
 		<!-- 기간설정 칸 -->
-		 <?php include $_SERVER['DOCUMENT_ROOT'] . '/setdate.php' ?>		
+		 <?php include getDocumentRoot() . '/setdate.php' ?>		
 		<?php
 		   if(isset($_SESSION["userid"]) &&  ( $user_name==='소현철' ||  $user_name==='소민지' ||  $user_name==='김보곤')   )
 		   {
@@ -261,7 +261,7 @@ $nowday=date("Y-m-d");   // 현재일자 변수지정
 	</form>	 
 	
 <div class="container-fluid">
-	<? require_once($_SERVER['DOCUMENT_ROOT'] . '/footer_sub.php'); ?>
+	<? require_once(includePath('footer_sub.php')); ?>
 </div>
 	 
 <script> 

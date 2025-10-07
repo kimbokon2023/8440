@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");  
+require_once(includePath('session.php'));  
 
  if(!isset($_SESSION["level"]) || $level>5) {
 	     $_SESSION["url"]='https://8440.co.kr/request/list.php' ; 		   
@@ -8,13 +8,13 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
          exit;
    }   
 
-include $_SERVER['DOCUMENT_ROOT'] . "/common.php";
+include getDocumentRoot() . "/common.php";
  
 $page = $_REQUEST["page"] ?? '';
 $scale = $_REQUEST["scale"] ?? '';
 ?> 
  
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ; ?>  
+<?php include getDocumentRoot() . '/load_header.php' ; ?>  
 
 <title> 원자재 구매&입출고 </title> 
 
@@ -60,10 +60,10 @@ th {
 </style> 
 </head>
 <body>		 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/myheader.php'; ?>    
+<?php include getDocumentRoot() . '/myheader.php'; ?>    
 <?php 
 include "_request.php"; 	  
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
 
 $Bigsearch = isset($_REQUEST["Bigsearch"]) ? $_REQUEST["Bigsearch"] : '';

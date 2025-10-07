@@ -1,12 +1,12 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
+require_once(includePath('session.php'));
 
 // 단가 정보 로드 (estimate.ini)
 // (estimate.ini 파일에는 bon_unit_12, lc_unit_12, bon_unit_13to17, lc_unit_13to17 등의 키가 있어야 합니다)
 $readIni = parse_ini_file("./ceiling/estimate.ini", false);
 
 // DB 연결
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
 // 날짜범위 설정: 오늘부터 12개월 전까지

@@ -1,12 +1,12 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
+require_once(includePath('session.php'));
 
 header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문  
 
 $id=$_REQUEST["uid"];
 $pw=$_REQUEST["upw"];
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
 
 $error='';
@@ -49,7 +49,7 @@ else
 }
   	 	
 $data=date("Y-m-d H:i:s") . " - " . $_SESSION["userid"] . " - " . $_SESSION["name"] ;	
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 $pdo->beginTransaction();
 $sql = "insert into ".$DB.".logdata(data) values(?) " ;

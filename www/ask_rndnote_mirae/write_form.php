@@ -1,9 +1,9 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함	
+require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함	
 $title_message = '개발프로젝트 연구노트';   
 ?>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/common.php' ?>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php'; ?>  
+<?php include getDocumentRoot() . '/common.php' ?>
+<?php include getDocumentRoot() . '/load_header.php'; ?>  
 <title> <?=$titlemsg?> </title>
 </head>
 <style>
@@ -22,7 +22,7 @@ $title_message = '개발프로젝트 연구노트';
 
 <body>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . "/common/modal.php"; ?>
+<?php include getDocumentRoot() . "/common/modal.php"; ?>
    
 <?php   
 
@@ -45,7 +45,7 @@ $indate=date("Y-m-d") ?? '' ;
     if($count<1){  
       print "결과가 없습니다.<br>";
      }else{		 
- 		include  $_SERVER['DOCUMENT_ROOT'] . '/eworks/_row.php';	
+ 		include  getDocumentRoot() . '/eworks/_row.php';	
 		// 전자결재의 정보를 다시 변환해 준다.		
 		$mytitle = $outworkplace ?? '';
 		$content = $al_content ?? '';
@@ -79,7 +79,7 @@ $indate=date("Y-m-d") ?? '' ;
     if($count<1){  
       print "결과가 없습니다.<br>";
      }else{
-		 include $_SERVER['DOCUMENT_ROOT'] .'/eworks/_row.php';		
+		 include getDocumentRoot() .'/eworks/_row.php';		
 		// 전자결재의 정보를 다시 변환해 준다.		
 		$mytitle = $outworkplace ?? '';
 		$content = $al_content ?? '';
@@ -100,7 +100,7 @@ $indate=date("Y-m-d") ?? '' ;
   
 // 초기 프로그램은 $num사용 이후 $id로 수정중임  
 $id=$num;    
-require_once $_SERVER['DOCUMENT_ROOT'] . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
+require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
 ?>
 
 <form id="board_form" name="board_form" method="post"  onkeydown="return captureReturnKey(event)"  >	

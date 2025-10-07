@@ -1,7 +1,7 @@
 
  <?php
 	  
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
    
  // 기간을 정하는 구간
@@ -28,7 +28,7 @@ include '_row.php';
 		 
 ?>
 	
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>	
+<?php include getDocumentRoot() . '/load_header.php' ?>	
    
    
  <title>  생산순서 변경하기 </title> 

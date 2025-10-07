@@ -18,7 +18,7 @@ if(!isset($_SESSION["level"]) || $_SESSION["level"]>8) {
  
  ?>
 
- <?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+ <?php include getDocumentRoot() . '/load_header.php' ?>
 
 <title> <?=$title_message?> </title>
 
@@ -147,7 +147,7 @@ $material_arr = array('','304 Hair Line 1.2T','304 HL 1.2T','304 Mirror 1.2T','3
 $id=$num;  
   
 // 첨부 파일에 대한 읽어오는 부분
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
  
 // 첨부파일 있는 것 불러오기 

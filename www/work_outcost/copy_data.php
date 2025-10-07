@@ -307,7 +307,7 @@ $steelnum=''; // 공금가액 초기화
 
 ?>
 
- <?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+ <?php include getDocumentRoot() . '/load_header.php' ?>
   
 <title> 원자재 발주 </title>
 

@@ -1,15 +1,15 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/session.php');
+<?php require_once(includePath('session.php'));
 
 // Remove checkbox dependencies for improved UX
 $Allmonth = isset($_COOKIE['Allmonth']) ? $_COOKIE['Allmonth'] : 'false';   
 
 $title_message = '원자재 부적합 통계 ';
  ?>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>  
+<?php include getDocumentRoot() . '/load_header.php' ?>  
 <title> <?= $title_message?> </title>  
 <body>
 
-<? include $_SERVER['DOCUMENT_ROOT'] . '/myheader.php'; ?>   
+<? include getDocumentRoot() . '/myheader.php'; ?>   
 	
  <?php    
  if(!isset($_SESSION["level"]) || $level>5) {
@@ -19,7 +19,7 @@ $title_message = '원자재 부적합 통계 ';
          exit;
    }
     
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
  
 isset($_REQUEST["tabName"])  ? $tabName=$_REQUEST["tabName"] :  $tabName='';   // 신규데이터에 생성할때 임시저장키  
@@ -392,7 +392,7 @@ if($item_sel=='년도비교')
 <div class="row"> 		  
 	<div class="d-flex mt-1 mb-2 justify-content-center align-items-center "> 		
 	<!-- 기간설정 칸 -->
-	 <?php include $_SERVER['DOCUMENT_ROOT'] . '/setdate.php' ?>
+	 <?php include getDocumentRoot() . '/setdate.php' ?>
 	</div>
 </div>
 

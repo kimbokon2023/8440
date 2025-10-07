@@ -4,11 +4,11 @@
 @set_time_limit(120);
 
 // /pdf/estimate_pdf.php (PHP 7.3)
-require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/mydb.php';
+require_once getDocumentRoot() . '/session.php';
+require_once getDocumentRoot() . '/lib/mydb.php';
 
 // Dompdf 오토로드 (_dompdf 격리 설치)
-$dompdfAutoload = $_SERVER['DOCUMENT_ROOT'] . '/_dompdf/vendor/autoload.php';
+$dompdfAutoload = getDocumentRoot() . '/_dompdf/vendor/autoload.php';
 if (!is_file($dompdfAutoload)) {
     http_response_code(500);
     exit('Dompdf autoload를 찾을 수 없습니다. _dompdf/vendor/autoload.php 경로를 확인하세요.');

@@ -1,7 +1,7 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php'; // 세션 파일 포함
+require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
+require_once getDocumentRoot() . '/vendor/autoload.php';
 require_once("../lib/mydb.php");
 $pdo = db_connect();
 
@@ -12,9 +12,9 @@ if (!class_exists('Google_Client') && !class_exists('\Google\Client')) {
 
 
 // 서비스 계정 JSON 파일 경로
-$serviceAccountKeyFile = $_SERVER['DOCUMENT_ROOT'] . '/tokens/mytoken.json';
+$serviceAccountKeyFile = getDocumentRoot() . '/tokens/mytoken.json';
 
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+include getDocumentRoot() . '/load_header.php' ?>
  
 <style> 
 #panel, #flip {
@@ -94,7 +94,7 @@ $picNum=0;
 $picData=array(); 
 
 // 서비스 계정 JSON 파일 경로
-$serviceAccountKeyFile = $_SERVER['DOCUMENT_ROOT'] . '/tokens/mytoken.json';
+$serviceAccountKeyFile = getDocumentRoot() . '/tokens/mytoken.json';
 
 // Google Drive 클라이언트 설정 
 $client = new Google_Client();

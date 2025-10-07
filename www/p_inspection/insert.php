@@ -15,7 +15,7 @@ if(isset($_SESSION["DB"]))
          exit;
    } 
 
-include $_SERVER['DOCUMENT_ROOT'] . '/common.php';
+include getDocumentRoot() . '/common.php';
 
 
   // 임시저장된 첨부파일을 확정하기 위해 검사하기  
@@ -38,7 +38,7 @@ isset($_REQUEST["timekey"])  ? $timekey=$_REQUEST["timekey"] :  $timekey='';   /
 // 기본 항목 불러옴
 include '_request.php';
         
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
     
  if ($mode=="modify"){              

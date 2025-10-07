@@ -1,10 +1,10 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php'; // 세션 파일 포함
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
-require_once($_SERVER['DOCUMENT_ROOT'] . '/lib/mydb.php');
+require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
+require_once getDocumentRoot() . '/vendor/autoload.php';
+require_once(includePath('lib/mydb.php'));
 
 // 서비스 계정 JSON 파일 경로
-$serviceAccountKeyFile = $_SERVER['DOCUMENT_ROOT'] . '/tokens/mytoken.json';
+$serviceAccountKeyFile = getDocumentRoot() . '/tokens/mytoken.json';
  
 $menu=$_REQUEST["menu"]; 
    
@@ -20,11 +20,11 @@ $title_message = '본천장&조명천장 수주내역';
          exit;
    }    
 
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';   
+include getDocumentRoot() . '/load_header.php';   
    
  ?>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/common/modal.php'; ?>
+<?php include getDocumentRoot() . '/common/modal.php'; ?>
 
 <title> <?=$title_message?>  </title>
 
@@ -233,7 +233,7 @@ $pdo = db_connect();
 $WrappicNum=0; 
 
 // 서비스 계정 JSON 파일 경로
-$serviceAccountKeyFile = $_SERVER['DOCUMENT_ROOT'] . '/tokens/mytoken.json';
+$serviceAccountKeyFile = getDocumentRoot() . '/tokens/mytoken.json';
 
 // Google Drive 클라이언트 설정
 $client = new Google_Client();

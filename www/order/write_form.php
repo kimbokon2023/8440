@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
+require_once(includePath('session.php'));
 
 if(!isset($_SESSION["level"]) || $level>5) {
     $_SESSION["url"]='https://8440.co.kr/order/write_form.php';
@@ -8,10 +8,10 @@ if(!isset($_SESSION["level"]) || $level>5) {
     exit;
 }
 
-include $_SERVER['DOCUMENT_ROOT'] . "/common.php";
-require_once($_SERVER['DOCUMENT_ROOT'] . '/lib/mydb.php');
+include getDocumentRoot() . "/common.php";
+require_once(includePath('lib/mydb.php'));
 
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+include getDocumentRoot() . '/load_header.php';
 
 // 모드 확인 (새로 작성 또는 수정)
 $mode = isset($_REQUEST["mode"]) ? $_REQUEST["mode"] : "";
@@ -360,7 +360,7 @@ body {
 
 </head>
 <body>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/myheader.php'; ?>
+<?php include getDocumentRoot() . '/myheader.php'; ?>
 
 <div class="order-container">
     <div class="order-header">

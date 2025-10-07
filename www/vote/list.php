@@ -1,11 +1,11 @@
 ﻿<?php 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
+require_once(includePath('session.php'));
    // 첫 화면 표시 문구
  $title_message = '투표'; 
  ?>
  
 <?php 
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+include getDocumentRoot() . '/load_header.php';
  if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
 		 $_SESSION["url"]='https://8440.co.kr/vote/list.php'; 	 
 		 sleep(1);
@@ -28,13 +28,13 @@ include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
     <!-- 모바일 환경일 때 보이는 버튼 -->	         
 <?php else: ?>
     <!-- PC 환경일 때 보이는 버튼 -->	
-		<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>   
+		<?php require_once(includePath('myheader.php')); ?>   
 <?php endif; ?>		
 
 <?php 
 $tablename = "vote";
   
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
 	 
   if(isset($_REQUEST["mode"]))

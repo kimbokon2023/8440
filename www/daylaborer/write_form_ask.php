@@ -1,8 +1,8 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php'; // 세션 파일 포함  
+require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함  
  ?>
  
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
   
 <?php 
   if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
@@ -13,7 +13,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php'; // 세션 파일 포함
    }  
 										  
 isset($_REQUEST["num"])  ? $num=$_REQUEST["num"] :   $num=''; 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
 
 $writtenarr = array();

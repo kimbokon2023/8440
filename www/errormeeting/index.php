@@ -1,7 +1,7 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/session.php');
+<?php require_once(includePath('session.php'));
 $menu=$_REQUEST["menu"] ?? '';
 ?>  
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
     
 <title> 품질분임조 </title> 
 
@@ -57,9 +57,9 @@ $menu=$_REQUEST["menu"] ?? '';
 </head>
  
  <body>   
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/common/modal.php'); ?>   
+<?php require_once(includePath('common/modal.php')); ?>   
 <?php   if( $menu!=='no') 
-	require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>   
+	require_once(includePath('myheader.php')); ?>   
 
 <?php	   
 if(!isset($_SESSION["level"]) ) {	          
@@ -71,7 +71,7 @@ if(!isset($_SESSION["level"]) ) {
 if($user_name=='소현철' ||$user_name=='김보곤' ||$user_name=='최장중' ||$user_name=='이경묵')
 	  $admin = 1;
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
 
 $ip_address = $_SERVER["REMOTE_ADDR"];

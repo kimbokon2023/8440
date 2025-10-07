@@ -1,6 +1,6 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php';
-require_once($_SERVER['DOCUMENT_ROOT'] . '/lib/mydb.php');
+require_once getDocumentRoot() . '/session.php';
+require_once(includePath('lib/mydb.php'));
 
 // JSON 응답 헤더 설정
 header('Content-Type: application/json; charset=utf-8');

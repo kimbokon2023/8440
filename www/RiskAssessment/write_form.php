@@ -1,12 +1,12 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
+require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
 
 if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
 	sleep(1);
 	header("Location:" . $WebSite . "login/login_form.php"); 
 	exit;
 }
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php'; 
+include getDocumentRoot() . '/load_header.php'; 
   
 // 첫 화면 표시 문구
 $title_message = '위험성 평가 자료실';   
@@ -14,7 +14,7 @@ $title_message = '위험성 평가 자료실';
 <title> <?=$title_message?> </title>  
 </head>
 <body>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/common/modal.php'; ?>
+<?php include getDocumentRoot() . '/common/modal.php'; ?>
 
 <?php
 
@@ -31,7 +31,7 @@ if(isset($_REQUEST["mode"]))  //수정 버튼을 클릭해서 호출했는지 �
 else
 	$mode="";
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
 
   if ($mode=="modify"){
@@ -60,7 +60,7 @@ $pdo = db_connect();
   
 // 초기 프로그램은 $num사용 이후 $id로 수정중임  
 $id=$num;    
-require_once $_SERVER['DOCUMENT_ROOT'] . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
+require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
 ?>
  
 <form  id="board_form" name="board_form" method="post" enctype="multipart/form-data"> 

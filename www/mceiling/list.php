@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php'; // 세션 파일 포함
+require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
 
 if(!isset($_SESSION["level"]) || $level>6) {
 	  /*   alert("관리자 승인이 필요합니다."); */
@@ -9,7 +9,7 @@ if(!isset($_SESSION["level"]) || $level>6) {
 }        
 ?>   
  
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?> 
+<?php include getDocumentRoot() . '/load_header.php' ?> 
 <link rel="stylesheet" type="text/css" href="../css/dashboard-style.css">
 
 
@@ -102,7 +102,7 @@ function is_valid_etc_value($val) {
  
 $search = $_REQUEST["search"] ?? '';
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
 $mode = $_REQUEST["mode"] ?? '';
@@ -221,7 +221,7 @@ $sqlMain = $sql;
 <form id="board_form" name="board_form" method="post" action="list.php?mode=search">  		
 <div class="container-fluid">
 <div  class="row d-flex">
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/ceiling/chart_page.php' ?> 
+<?php include getDocumentRoot() . '/ceiling/chart_page.php' ?> 
 
 <div class="col-sm-8 mt-1 mb-2">
 <div  class="card">
@@ -345,7 +345,7 @@ function processDate($date, $condition, $types, $type) {
 					
 				   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
 					  
-					include $_SERVER['DOCUMENT_ROOT'] . '/ceiling/_row.php';
+					include getDocumentRoot() . '/ceiling/_row.php';
 					  
 					  $date_font="black";  // 현재일자 Red 색상으로 표기
 					  if($nowday==$orderday) {

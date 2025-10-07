@@ -20231,10 +20231,10 @@ Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value:
 			case 'img': {
 				if (isset($tag['attribute']['src'])) {
 					// replace relative path with real server path
-					if (($tag['attribute']['src'][0] == '/') AND ($_SERVER['DOCUMENT_ROOT'] != '/')) {
-						$findroot = strpos($tag['attribute']['src'], $_SERVER['DOCUMENT_ROOT']);
+					if (($tag['attribute']['src'][0] == '/') AND (getDocumentRoot() != '/')) {
+						$findroot = strpos($tag['attribute']['src'], getDocumentRoot());
 						if (($findroot === false) OR ($findroot > 1)) {
-							$tag['attribute']['src'] = $_SERVER['DOCUMENT_ROOT'].$tag['attribute']['src'];
+							$tag['attribute']['src'] = getDocumentRoot().$tag['attribute']['src'];
 						}
 					}
 					$tag['attribute']['src'] = urldecode($tag['attribute']['src']);
@@ -25461,11 +25461,11 @@ Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value:
 						// replace relative path with full server path
 						$img = $this->svgdir.'/'.$img;
 					}
-					if (($img{0} == '/') AND ($_SERVER['DOCUMENT_ROOT'] != '/')) {
-						$findroot = strpos($img, $_SERVER['DOCUMENT_ROOT']);
+					if (($img{0} == '/') AND (getDocumentRoot() != '/')) {
+						$findroot = strpos($img, getDocumentRoot());
 						if (($findroot === false) OR ($findroot > 1)) {
 							// replace relative path with full server path
-							$img = $_SERVER['DOCUMENT_ROOT'].$img;
+							$img = getDocumentRoot().$img;
 						}
 					}
 					$img = urldecode($img);

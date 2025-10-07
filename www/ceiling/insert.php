@@ -606,7 +606,7 @@ for($i=0;$i<count($WrappicData);$i++) {
 
   if ($mode!="modify"){
 	  
-	 require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+	 require_once(includePath('lib/mydb.php'));
 	$pdo = db_connect();
  
 	 try{

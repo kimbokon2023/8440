@@ -1,12 +1,12 @@
 ﻿<?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php'; // 세션 파일 포함
+require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
 
   // 첫 화면 표시 문구
  $title_message = '협력업체 평가표';     
    
 ?>
    
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
 <link rel="stylesheet" type="text/css" href="./background.css">   
  
 <title> <?=$title_message?> </title>  
@@ -15,7 +15,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php'; // 세션 파일 포함
 
 <body>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . "/common/modal.php"; ?>
+<?php include getDocumentRoot() . "/common/modal.php"; ?>
 
 <?php
 
@@ -42,7 +42,7 @@ if((int)$num > 0 )
   
 isset($_REQUEST["tablename"]) ? $tablename=$_REQUEST["tablename"] :  $tablename=''; 
  
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
 if($mode!=='copy')

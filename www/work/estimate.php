@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-$root_dir = $_SERVER['DOCUMENT_ROOT'] ;
+$root_dir = getDocumentRoot() ;
 
 ini_set('display_errors','0');  // 화면에 warning 없애기	
 
@@ -28,7 +28,7 @@ $init_read = parse_ini_file("./estimate.ini",false);
 
 										  
 isset($_REQUEST["num"])  ? $num=$_REQUEST["num"] :   $num=''; 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
 	
@@ -110,7 +110,7 @@ else // 값이 존재하면 수정모드
 
 ?>  
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
 <title>JAMB 단가</title>
 <!-- Dashboard CSS -->
 <link rel="stylesheet" href="/css/dashboard-style.css" type="text/css" />

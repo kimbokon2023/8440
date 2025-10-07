@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
+require_once(includePath('session.php'));
 
 $title_message = '공 사 완 료 확 인 서';
 $tablename = 'work';
@@ -10,11 +10,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['recordIds'])) {
     die('Invalid request.');
 }
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 ?>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php'; ?>
+<?php include getDocumentRoot() . '/load_header.php'; ?>
 
 <title> <?=$title_message?> </title>
 
@@ -63,7 +63,7 @@ $pdo = db_connect();
                 print "검색결과가 없습니다.<br>";
             } else {
                 $row = $stmh->fetch(PDO::FETCH_ASSOC);
-                include $_SERVER['DOCUMENT_ROOT'] . '/work/_row.php';
+                include getDocumentRoot() . '/work/_row.php';
 				
 			
 

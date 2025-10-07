@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
+require_once(includePath('session.php'));
 
 $WebSite = "http://8440.co.kr/";
 
@@ -26,7 +26,7 @@ isset($_REQUEST["ceilingcode"])  ? $ceilingcode = $_REQUEST["ceilingcode"] : $ce
 
 include '__request.php';	// __ 언더바 두개임 주의
 			  
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
      
  if ($mode=="modify"){

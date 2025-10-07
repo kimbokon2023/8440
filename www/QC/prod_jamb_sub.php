@@ -10,7 +10,7 @@ $sum1 = 0;
 $sum2 = 0;
 $sum3 = 0;
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();  
 
 $sql = "SELECT * FROM mirae8440.work WHERE workday BETWEEN date('$fromdate') AND date('$Transtodate')";

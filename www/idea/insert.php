@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");  
+require_once(includePath('session.php'));  
 	  
 print $_FILES['mainBefore']['name'];
   
@@ -25,7 +25,7 @@ $newfilename = '';
 if($filedelete=='before')
 	$delfile = " filename=? ";   // before
 	
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
 
 		try{		 

@@ -1,11 +1,11 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/session.php');
+<?php require_once(includePath('session.php'));
 
    // 첫 화면 표시 문구   
 $title_message = '작업표준서';
 
  ?>
  
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?> 
+<?php include getDocumentRoot() . '/load_header.php' ?> 
   
 <title>  <?=$title_message?>  </title> 
 
@@ -19,7 +19,7 @@ $title_message = '작업표준서';
  	 
 <body>
 
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>   
+<?php require_once(includePath('myheader.php')); ?>   
  
 <?php
 
@@ -32,7 +32,7 @@ $title_message = '작업표준서';
 
 $tablename = "p_workstandard";
  
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
 	 
   if(isset($_REQUEST["mode"]))

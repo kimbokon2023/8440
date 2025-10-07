@@ -1,11 +1,11 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
+require_once(includePath('session.php'));
 	
 $title_message = 'jamb 수주내역';  
 ?>    
  
 <?php 
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+include getDocumentRoot() . '/load_header.php';
 
  if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
 	sleep(1);
@@ -16,7 +16,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
 <title> <?=$title_message?> </title>
 <body>
 </head>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/common/modal.php'; ?>
+<?php include getDocumentRoot() . '/common/modal.php'; ?>
 <?php
   
  if($user_name==='이미래' || $user_name==='김보곤'  || $user_name==='최장중' )
@@ -28,9 +28,9 @@ include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
  
  include 'request.php';
  
-$file_dir = $_SERVER['DOCUMENT_ROOT'] . '/uploads/'; 
+$file_dir = getDocumentRoot() . '/uploads/'; 
  
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
 try {
@@ -173,7 +173,7 @@ $image_url = isset($customer_object->image_url) ? $customer_object->image_url : 
 
 $URLsave = "https://8440.co.kr/loadpic.php?num=" . $num;
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
  
  // 실측서 이미지 이미 있는 것 불러오기 

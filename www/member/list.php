@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");  
+require_once(includePath('session.php'));  
 
  if(!isset($_SESSION["level"]) || $level>5) {
           /*   alert("관리자 승인이 필요합니다."); */
@@ -9,13 +9,13 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
    }   
  ?>
  
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
   
 <title> 미래기업 회원관리 </title> 
 	 
 <body>
 
-<? include $_SERVER['DOCUMENT_ROOT'] . '/myheader.php'; ?>   
+<? include getDocumentRoot() . '/myheader.php'; ?>   
 
 
     <style>
@@ -46,7 +46,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
      
 $tablename = "member";
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 	 
  if(isset($_REQUEST["page"])) // $_REQUEST["page"]값이 없을 때에는 1로 지정 

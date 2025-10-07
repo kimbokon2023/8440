@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
+require_once(includePath('session.php'));
 
  if(!isset($_SESSION["level"]) && $_SESSION["level"]==20) {
 	// 포미스톤 레벨 20부여
@@ -15,7 +15,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
 
 ini_set('display_errors','1');  // 화면에 warning 없애기	 0 나오기 1
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/load_header.php");
+require_once(includePath('load_header.php'));
 // 택배화물 수는 기본 0
 $delivery_count_today = 0;
 ?>
@@ -213,7 +213,7 @@ $delivery_count_today = 0;
 </style>
 </head> 
 
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>
+<?php require_once(includePath('myheader.php')); ?>
 	
 <?php
  	
@@ -1249,8 +1249,8 @@ $tablename = 'popupwindow';
 			</div>
 		<div class="modern-card-body">		   
 				<?php $option = "option";
-					include $_SERVER['DOCUMENT_ROOT'] . '/QC/rate_badAll.php';?>   
-				<?php include $_SERVER['DOCUMENT_ROOT'] . '/QC/rate_badDetail.php'; ?>   			        
+					include getDocumentRoot() . '/QC/rate_badAll.php';?>   
+				<?php include getDocumentRoot() . '/QC/rate_badDetail.php'; ?>   			        
 		</div>   
 		</div>               
 		

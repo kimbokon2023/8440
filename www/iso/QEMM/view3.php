@@ -7,8 +7,8 @@ if(isset($_SESSION["DB"]))
  $user_name= $_SESSION["name"];
  $user_id= $_SESSION["userid"];	
  
-include  $_SERVER['DOCUMENT_ROOT'] . '/load_header.php'; 
-include  $_SERVER['DOCUMENT_ROOT'] . '/myheader.php'; 
+include  getDocumentRoot() . '/load_header.php'; 
+include  getDocumentRoot() . '/myheader.php'; 
 $tablename=$_REQUEST["tablename"];   //table 이름
 ?>   
 <title>  환경절차서 제,개정 이력  </title>

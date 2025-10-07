@@ -1,5 +1,5 @@
 <?php
-include $_SERVER['DOCUMENT_ROOT'] . '/session.php';
+include getDocumentRoot() . '/session.php';
 
 if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
     header("Location:" . $_SESSION["WebSite"] . "login/login_form.php");
@@ -7,7 +7,7 @@ if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
 }
 ?>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php'; ?>
+<?php include getDocumentRoot() . '/load_header.php'; ?>
 
 <title>출고일 기준 미청구리스트</title>
 </head>
@@ -50,7 +50,7 @@ try {
 
         $row['material'] = implode('', array_slice($row, array_search('material1', array_keys($row)), 6));
 
-        include $_SERVER['DOCUMENT_ROOT'] . '/work/_row.php';
+        include getDocumentRoot() . '/work/_row.php';
         $customer_data = $row["customer"];
         $customer_object = json_decode($customer_data, true);
         if ($customer_object === null || empty($customer_object['image_url'])) {

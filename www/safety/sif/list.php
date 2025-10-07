@@ -1,15 +1,15 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php'; // 세션 파일 포함
+require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
 	
 $page_title = "안전보건 정보마당";   
 
 ?>
   
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?> 
+<?php include getDocumentRoot() . '/load_header.php' ?> 
 <title> 사고사망 핵심유험요인(SIF) 평가표(제조업) </title>  
 </head>  
 <body>
-<? include $_SERVER['DOCUMENT_ROOT'] . '/myheader.php'; ?>   
+<? include getDocumentRoot() . '/myheader.php'; ?>   
  
 <?php
   
@@ -22,7 +22,7 @@ $page_title = "안전보건 정보마당";
    
 $tablename = "s_sif";  
   
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
   $pdo = db_connect();
 	 
  

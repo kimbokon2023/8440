@@ -2,7 +2,7 @@
 session_start();
 header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문        
 $num=$_REQUEST["num"];   
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();   
    
    $num=$_REQUEST["num"];

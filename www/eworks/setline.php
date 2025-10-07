@@ -9,8 +9,8 @@ if(isset($_SESSION["DB"]))
  
 $e_line_id = isset($_GET['e_line_id']) ? $_GET['e_line_id'] : ''; 
 
-include $_SERVER['DOCUMENT_ROOT'] . '/common.php';
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+include getDocumentRoot() . '/common.php';
+require_once(includePath('lib/mydb.php'));
 
 $_SESSION["partsep"] = ''; 
 $pdo = db_connect();
@@ -48,7 +48,7 @@ $approvalData = getApprovalData($pdo);
 
 $title_message = "결재라인 지정";
 
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+include getDocumentRoot() . '/load_header.php';
 
 
 // JSON 파일 경로

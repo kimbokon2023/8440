@@ -126,3 +126,33 @@ function getEnvironmentInfo() {
     ];
 }
 
+/**
+ * 환경별 Document Root 경로 반환
+ * @return string Document Root 경로
+ */
+function getDocumentRoot() {
+    // 물리 경로는 실행 파일 기준으로 계산하면 서버 구조(/www/<폴더명>)에도 안전하다
+    $root = realpath(__DIR__ . '/..');
+    return $root !== false ? $root : (__DIR__ . '/..');
+}
+
+/**
+ * 환경별 절대 경로 생성
+ * @param string $path 상대 경로
+ * @return string 절대 경로
+ */
+function absolutePath($path = '') {
+    $root = getDocumentRoot();
+    $path = ltrim($path, '/');
+    return $path ? $root . '/' . $path : $root;
+}
+
+/**
+ * 환경별 require/include 경로 생성
+ * @param string $path 상대 경로
+ * @return string include용 절대 경로
+ */
+function includePath($path) {
+    return absolutePath($path);
+}
+

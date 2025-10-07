@@ -3,8 +3,8 @@
 // 2. unit_price_form.php - 데이터 입력/수정/삭제 폼 페이지
 // =================================================================================
 ?>
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/session.php');
-include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
+<?php require_once(includePath('session.php'));
+include getDocumentRoot() . '/load_header.php';
 
 // --- 기본 변수 설정 ---
 $tablename = isset($_REQUEST["tablename"]) ? $_REQUEST["tablename"] : "";
@@ -15,7 +15,7 @@ $page_title = ($mode == "edit") ? "단가 정보 수정" : (($mode == "copy") ? 
 $row = []; // 데이터 배열 초기화
 
 if ($mode == "edit" && !empty($num)) {
-  require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+  require_once(includePath('lib/mydb.php'));
   $pdo = db_connect();
   try {
     $sql = "SELECT * FROM mirae8440.{$tablename} WHERE num = :num";

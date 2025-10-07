@@ -1,6 +1,6 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/session.php'); 
+<?php require_once(includePath('session.php')); 
    
-require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();  
 
 // 기간을 정하는 구간	 
@@ -12,12 +12,12 @@ $nowday=date("Y-m-d");   // 현재일자 변수지정
 $counter=0;	
 ?>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
 <title> 시스템 로그인 기록 </title>	
 </head> 
  		 
 <body>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/myheader.php'; ?>  
+<?php include getDocumentRoot() . '/myheader.php'; ?>  
 
 <?php  
 $search=$_REQUEST["search"];
