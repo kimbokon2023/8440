@@ -50,10 +50,10 @@ jobs:
           password:   ${{ secrets.FTP_PASSWORD }}   # FTP 비밀번호
           protocol:   ftp                          
           port:       ${{ secrets.FTP_PORT }}       # FTP 포트
-          server-dir: ${{ secrets.FTP_REMOTE_DIR }}/ # 웹 호스팅 루트 경로 (슬래시 필수)
+          server-dir: ${{ secrets.FTP_REMOTE_DIR }} # 웹 호스팅 루트 경로 (슬래시 필수)
           local-dir:  "./www/"
           log-level:  verbose                       # 상세 로그로 디버깅 
-          dry-run:    false                         # 실제 배포 실행
+          dry-run:    false                        # 실제 배포 실행
           exclude: |
             **/.git/**
             **/.git*
