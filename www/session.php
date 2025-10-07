@@ -1,4 +1,11 @@
 <?php
+/**
+ * 세션 관리 및 환경별 설정
+ */
+
+// 환경별 설정 로드
+require_once __DIR__ . '/config/environment.php';
+
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
@@ -9,8 +16,9 @@ $user_name = $_SESSION['name']    ?? null;
 $user_id   = $_SESSION['userid']  ?? null;
 $hp        = $_SESSION['hp']      ?? null;
 
-$WebSite  = 'https://8440.co.kr/';
-$root_dir = 'https://8440.co.kr';
+// 환경별 URL 설정 (로컬/서버 자동 구분)
+$WebSite  = getBaseUrl() . '/';
+$root_dir = getBaseUrl();
 $version  = '13';
 
 $expiryTime    = (int)ini_get('session.gc_maxlifetime');
