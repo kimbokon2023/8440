@@ -1,0 +1,35 @@
+-- 구매발주서(Purchase Order) 테이블 생성 SQL
+-- 미래기업 ERP 시스템용
+
+CREATE TABLE `order` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `order_no` VARCHAR(50) DEFAULT NULL COMMENT '발주서 번호',
+    `issue_date` DATE NOT NULL COMMENT '발주일자',
+    `supplier_code` VARCHAR(50) DEFAULT NULL COMMENT '등록번호',
+    `supplier_name` VARCHAR(255) NOT NULL COMMENT '상호',
+    `supplier_address` TEXT DEFAULT NULL COMMENT '주소',
+    `business_type` VARCHAR(100) DEFAULT NULL COMMENT '업태',
+    `business_item` VARCHAR(100) DEFAULT NULL COMMENT '종목',
+    `supplier_phone` VARCHAR(50) DEFAULT NULL COMMENT '전화번호',
+    `supplier_fax` VARCHAR(50) DEFAULT NULL COMMENT '팩스번호',
+    `contact_name` VARCHAR(100) DEFAULT NULL COMMENT '거래처명',
+    `phone` VARCHAR(50) DEFAULT NULL COMMENT '전화번호',
+    `fax` VARCHAR(50) DEFAULT NULL COMMENT '팩스번호',
+    `order_items` TEXT DEFAULT NULL COMMENT '발주 품목 (JSON 형태)',
+    `subtotal` DECIMAL(15,2) DEFAULT 0.00 COMMENT '합계',
+    `delivery_date` DATE DEFAULT NULL COMMENT '납기일자',
+    `delivery_location` VARCHAR(255) DEFAULT NULL COMMENT '납품장소',
+    `payment_terms` VARCHAR(255) DEFAULT NULL COMMENT '결제조건',
+    `note` TEXT DEFAULT NULL COMMENT '비고',
+    `status` VARCHAR(50) DEFAULT 'draft' COMMENT '상태 (draft, sent, completed)',
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '최초저장시간',
+    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '업데이트시간',
+    `is_deleted` TINYINT(1) DEFAULT 0 COMMENT '삭제여부 (0:정상, 1:삭제)',
+    PRIMARY KEY (`id`),
+    KEY `idx_order_no` (`order_no`),
+    KEY `idx_issue_date` (`issue_date`),
+    KEY `idx_supplier_name` (`supplier_name`),
+    KEY `idx_status` (`status`),
+    KEY `idx_is_deleted` (`is_deleted`),
+    KEY `idx_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='구매발주서 테이블';

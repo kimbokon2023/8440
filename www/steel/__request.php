@@ -1,0 +1,36 @@
+<?php
+$num = isset($_REQUEST["num"]) ? $_REQUEST["num"] : null;
+$outdate = isset($_REQUEST["outdate"]) ? $_REQUEST["outdate"] : null;
+$indate = isset($_REQUEST["indate"]) ? $_REQUEST["indate"] : null;
+$outworkplace = isset($_REQUEST["outworkplace"]) ? $_REQUEST["outworkplace"] : null;
+$item = isset($_REQUEST["item"]) ? $_REQUEST["item"] : null;
+$spec = isset($_REQUEST["spec"]) ? $_REQUEST["spec"] : null;
+$steelnum = isset($_REQUEST["steelnum"]) ? $_REQUEST["steelnum"] : null;
+$company = isset($_REQUEST["company"]) ? $_REQUEST["company"] : null;
+$comment = isset($_REQUEST["comment"]) ? $_REQUEST["comment"] : null;
+$which = isset($_REQUEST["which"]) ? $_REQUEST["which"] : null;
+$model = isset($_REQUEST["model"]) ? $_REQUEST["model"] : null;
+$first_writer = isset($_REQUEST["first_writer"]) ? $_REQUEST["first_writer"] : null;
+$update_log = isset($_REQUEST["update_log"]) ? $_REQUEST["update_log"] : null;
+$search_opt = isset($_REQUEST["search_opt"]) ? $_REQUEST["search_opt"] : null;
+$bad_choice = isset($_REQUEST["bad_choice"]) ? $_REQUEST["bad_choice"] : null;
+$used_width_1 = isset($_REQUEST["used_width_1"]) ? $_REQUEST["used_width_1"] : null;
+$used_width_2 = isset($_REQUEST["used_width_2"]) ? $_REQUEST["used_width_2"] : null;
+$used_width_3 = isset($_REQUEST["used_width_3"]) ? $_REQUEST["used_width_3"] : null;
+$used_width_4 = isset($_REQUEST["used_width_4"]) ? $_REQUEST["used_width_4"] : null;
+$used_width_5 = isset($_REQUEST["used_width_5"]) ? $_REQUEST["used_width_5"] : null;
+$used_length_1 = isset($_REQUEST["used_length_1"]) ? $_REQUEST["used_length_1"] : null;
+$used_length_2 = isset($_REQUEST["used_length_2"]) ? $_REQUEST["used_length_2"] : null;
+$used_length_3 = isset($_REQUEST["used_length_3"]) ? $_REQUEST["used_length_3"] : null;
+$used_length_4 = isset($_REQUEST["used_length_4"]) ? $_REQUEST["used_length_4"] : null;
+$used_length_5 = isset($_REQUEST["used_length_5"]) ? $_REQUEST["used_length_5"] : null;
+$used_num_1 = isset($_REQUEST["used_num_1"]) ? $_REQUEST["used_num_1"] : null;
+$used_num_2 = isset($_REQUEST["used_num_2"]) ? $_REQUEST["used_num_2"] : null;
+$used_num_3 = isset($_REQUEST["used_num_3"]) ? $_REQUEST["used_num_3"] : null;
+$used_num_4 = isset($_REQUEST["used_num_4"]) ? $_REQUEST["used_num_4"] : null;
+$used_num_5 = isset($_REQUEST["used_num_5"]) ? $_REQUEST["used_num_5"] : null;
+$supplier = isset($_REQUEST["supplier"]) ? $_REQUEST["supplier"] : null;
+$method = isset($_REQUEST["method"]) ? $_REQUEST["method"] : null;
+$bonDone = isset($_REQUEST["bonDone"]) ? $_REQUEST["bonDone"] : null;
+$lcDone = isset($_REQUEST["lcDone"]) ? $_REQUEST["lcDone"] : null;
+?>

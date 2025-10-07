@@ -1,0 +1,106 @@
+* {
+    margin: 0;
+    padding : 0;
+}
+
+ul {
+    list-style-type: none;
+}
+
+body {
+
+    height : 100%;
+    overflow: hidden;
+
+}
+
+.total {
+	float:flex;
+	width:1500px;
+    height:auto;
+	margin-left:7px;
+	margin-right:5px;
+}
+
+.total .leftsection{
+	padding-top:10px;
+	width:30%;	
+	height:30px;
+/*	border-bottom:solid 1px #dddddd; */
+}
+
+.total .wrapper{
+	width:auto;
+	padding-left:10px; 
+/*	padding-top:20px;   */
+}
+
+.game-text {
+    display : flex;
+    justify-content: top;
+    align-items : center;
+    flex-direction : column;
+    position : fixed;
+    width : 100%;
+    height : 100%;
+    background : rgba(0,0,0,0.7);
+    left: 0;
+    top: 0;
+    color: #fff;
+    font-size: 50px;
+}
+
+.game-text > button {
+    padding : 0.5rem 1rem;
+    color : #fff;
+    background : salmon;
+    border: none;
+    cursor : pointer;
+}
+
+.score {
+    text-align : center;
+    font-size : 36px;
+    margin-bottom: 2rem;
+}
+
+.playground > ul{
+    /*  border: 1px solid #333; */
+     width : 300px;
+     margin: 0 auto;  /* 가운데 정렬하는 기술 */
+
+}
+
+.playground > ul > li{
+    width : 100%;
+    height: 25px;
+    
+}
+.playground > ul > li > ul{
+    display : flex;  
+
+}
+.playground > ul > li > ul > li{
+    width : 25px;
+    height: 25px;
+    outline: 1px solid #ccc;
+}
+
+.tree {
+    background: #67c23a;
+}
+.bar {
+    background: salmon;
+}
+.zee {
+    background: #e6a23c;
+}
+.elLeft {
+    background: #8e44ad;
+}
+.elRight {
+    background: #16a085;
+}
+.square {
+    background: blue;
+}

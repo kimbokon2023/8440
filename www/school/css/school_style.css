@@ -1,0 +1,24 @@
+/* school 전용 스타일 */
+.sidebar {
+  background-color: #f8f9fa;
+  height: 100%;
+  border-right: 1px solid #ddd;
+}
+
+.sidebar h5 {
+  font-weight: bold;
+  margin-top: 20px;
+}
+
+.sidebar .nav-link {
+  font-weight: 600;
+  color: #333;
+}
+
+.sidebar .nav-link:hover {
+  color: #007bff;
+}
+
+.sidebar ul {
+  padding-left: 10px;
+}

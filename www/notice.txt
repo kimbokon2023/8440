@@ -1,0 +1,2 @@
+Hello Autohotkey, I'm Gon.
+오토핫키 서버연결 테스트

@@ -1,0 +1,1102 @@
+[
+  {
+    "title": "SQL 퀴즈",
+    "questions": [
+      {
+        "question": "SQL에서 데이터를 삭제할 때 사용하는 명령은?",
+        "choices": [
+          "REMOVE",
+          "DELETE",
+          "DROP",
+          "CLEAR"
+        ],
+        "correctAnswer": "DELETE"
+      },
+      {
+        "question": "권한을 회수할 때 사용하는 명령은?",
+        "choices": [
+          "TAKE",
+          "REMOVE",
+          "REVOKE",
+          "CANCEL"
+        ],
+        "correctAnswer": "REVOKE"
+      },
+      {
+        "question": "SQL에서 테이블의 구조를 보는 명령은?",
+        "choices": [
+          "VIEW",
+          "LOOK",
+          "DESC",
+          "SHOW"
+        ],
+        "correctAnswer": "DESC"
+      },
+      {
+        "question": "SQL에서 테이블의 구조를 보는 명령은?",
+        "choices": [
+          "VIEW",
+          "LOOK",
+          "DESC",
+          "SHOW"
+        ],
+        "correctAnswer": "DESC"
+      },
+      {
+        "question": "SQL에서 데이터를 삭제할 때 사용하는 명령은?",
+        "choices": [
+          "REMOVE",
+          "DELETE",
+          "DROP",
+          "CLEAR"
+        ],
+        "correctAnswer": "DELETE"
+      }
+    ]
+  },
+  {
+    "title": "SQL 퀴즈",
+    "questions": [
+      {
+        "question": "내림차순 정렬 키워드는?",
+        "choices": [
+          "DESC",
+          "DOWN",
+          "DECREASE",
+          "LAST"
+        ],
+        "correctAnswer": "DESC"
+      },
+      {
+        "question": "SQL에서 기본키를 설정할 때 사용하는 키워드는?",
+        "choices": [
+          "KEY",
+          "ID",
+          "PRIMARY KEY",
+          "UNIQUE"
+        ],
+        "correctAnswer": "PRIMARY KEY"
+      },
+      {
+        "question": "SQL에서 테이블 목록을 보는 명령은?",
+        "choices": [
+          "LIST TABLES",
+          "SHOW TABLES",
+          "SHOW TB",
+          "GET TABLES"
+        ],
+        "correctAnswer": "SHOW TABLES"
+      },
+      {
+        "question": "외래키를 설정할 때 사용하는 키워드는?",
+        "choices": [
+          "FOREIGN KEY",
+          "OUTER KEY",
+          "REFERENCE",
+          "CONNECT"
+        ],
+        "correctAnswer": "FOREIGN KEY"
+      },
+      {
+        "question": "데이터베이스를 생성하는 명령은?",
+        "choices": [
+          "NEW DATABASE",
+          "MAKE DATABASE",
+          "CREATE DATABASE",
+          "INIT DB"
+        ],
+        "correctAnswer": "CREATE DATABASE"
+      }
+    ]
+  },
+  {
+    "title": "SQL 퀴즈",
+    "questions": [
+      {
+        "question": "SQL에서 기본키를 설정할 때 사용하는 키워드는?",
+        "choices": [
+          "KEY",
+          "ID",
+          "PRIMARY KEY",
+          "UNIQUE"
+        ],
+        "correctAnswer": "PRIMARY KEY"
+      },
+      {
+        "question": "SQL에서 데이터베이스 목록을 보는 명령은?",
+        "choices": [
+          "LIST DB",
+          "SHOW DATABASES",
+          "SHOW DBS",
+          "GET DB"
+        ],
+        "correctAnswer": "SHOW DATABASES"
+      },
+      {
+        "question": "SQL에서 데이터베이스 목록을 보는 명령은?",
+        "choices": [
+          "LIST DB",
+          "SHOW DATABASES",
+          "SHOW DBS",
+          "GET DB"
+        ],
+        "correctAnswer": "SHOW DATABASES"
+      },
+      {
+        "question": "SQL에서 테이블 목록을 보는 명령은?",
+        "choices": [
+          "LIST TABLES",
+          "SHOW TABLES",
+          "SHOW TB",
+          "GET TABLES"
+        ],
+        "correctAnswer": "SHOW TABLES"
+      },
+      {
+        "question": "외래키를 설정할 때 사용하는 키워드는?",
+        "choices": [
+          "FOREIGN KEY",
+          "OUTER KEY",
+          "REFERENCE",
+          "CONNECT"
+        ],
+        "correctAnswer": "FOREIGN KEY"
+      }
+    ]
+  },
+  {
+    "title": "SQL 퀴즈",
+    "questions": [
+      {
+        "question": "SQL에서 테이블 목록을 보는 명령은?",
+        "choices": [
+          "LIST TABLES",
+          "SHOW TABLES",
+          "SHOW TB",
+          "GET TABLES"
+        ],
+        "correctAnswer": "SHOW TABLES"
+      },
+      {
+        "question": "그룹별 조건을 지정할 때 사용하는 키워드는?",
+        "choices": [
+          "WHERE",
+          "HAVING",
+          "GROUP BY",
+          "CHECK"
+        ],
+        "correctAnswer": "HAVING"
+      },
+      {
+        "question": "그룹별 조건을 지정할 때 사용하는 키워드는?",
+        "choices": [
+          "WHERE",
+          "HAVING",
+          "GROUP BY",
+          "CHECK"
+        ],
+        "correctAnswer": "HAVING"
+      },
+      {
+        "question": "결과를 정렬할 때 사용하는 SQL 키워드는?",
+        "choices": [
+          "SORT",
+          "ORDER BY",
+          "GROUP",
+          "ALIGN"
+        ],
+        "correctAnswer": "ORDER BY"
+      },
+      {
+        "question": "데이터베이스를 생성하는 명령은?",
+        "choices": [
+          "NEW DATABASE",
+          "MAKE DATABASE",
+          "CREATE DATABASE",
+          "INIT DB"
+        ],
+        "correctAnswer": "CREATE DATABASE"
+      }
+    ]
+  },
+  {
+    "title": "SQL 퀴즈",
+    "questions": [
+      {
+        "question": "SQL에서 테이블을 삭제하는 명령은?",
+        "choices": [
+          "DELETE",
+          "CLEAR",
+          "DROP",
+          "REMOVE"
+        ],
+        "correctAnswer": "DROP"
+      },
+      {
+        "question": "내림차순 정렬 키워드는?",
+        "choices": [
+          "DESC",
+          "DOWN",
+          "DECREASE",
+          "LAST"
+        ],
+        "correctAnswer": "DESC"
+      },
+      {
+        "question": "SQL에서 데이터를 삭제할 때 사용하는 명령은?",
+        "choices": [
+          "REMOVE",
+          "DELETE",
+          "DROP",
+          "CLEAR"
+        ],
+        "correctAnswer": "DELETE"
+      },
+      {
+        "question": "중복을 제거하고 조회할 때 사용하는 키워드는?",
+        "choices": [
+          "REMOVE",
+          "FILTER",
+          "UNIQUE",
+          "DISTINCT"
+        ],
+        "correctAnswer": "DISTINCT"
+      },
+      {
+        "question": "모든 데이터를 선택하는 SELECT 구문은?",
+        "choices": [
+          "SELECT ALL",
+          "SELECT *",
+          "SELECT EVERYTHING",
+          "SELECT %%"
+        ],
+        "correctAnswer": "SELECT *"
+      }
+    ]
+  },
+  {
+    "title": "SQL 퀴즈",
+    "questions": [
+      {
+        "question": "SQL에서 사용자를 생성하는 명령은?",
+        "choices": [
+          "NEW USER",
+          "CREATE USER",
+          "MAKE USER",
+          "ADD USER"
+        ],
+        "correctAnswer": "CREATE USER"
+      },
+      {
+        "question": "외래키를 설정할 때 사용하는 키워드는?",
+        "choices": [
+          "FOREIGN KEY",
+          "OUTER KEY",
+          "REFERENCE",
+          "CONNECT"
+        ],
+        "correctAnswer": "FOREIGN KEY"
+      },
+      {
+        "question": "SQL에서 사용자를 생성하는 명령은?",
+        "choices": [
+          "NEW USER",
+          "CREATE USER",
+          "MAKE USER",
+          "ADD USER"
+        ],
+        "correctAnswer": "CREATE USER"
+      },
+      {
+        "question": "SQL에서 테이블을 생성하는 명령은?",
+        "choices": [
+          "NEW TABLE",
+          "CREATE",
+          "MAKE",
+          "ADD TABLE"
+        ],
+        "correctAnswer": "CREATE"
+      },
+      {
+        "question": "결과를 정렬할 때 사용하는 SQL 키워드는?",
+        "choices": [
+          "SORT",
+          "ORDER BY",
+          "GROUP",
+          "ALIGN"
+        ],
+        "correctAnswer": "ORDER BY"
+      }
+    ]
+  },
+  {
+    "title": "SQL 퀴즈",
+    "questions": [
+      {
+        "question": "SQL에서 데이터를 삽입할 때 사용하는 명령은?",
+        "choices": [
+          "INSERT",
+          "ADD",
+          "PUT",
+          "UPDATE"
+        ],
+        "correctAnswer": "INSERT"
+      },
+      {
+        "question": "권한을 부여할 때 사용하는 명령은?",
+        "choices": [
+          "ALLOW",
+          "GRANT",
+          "GIVE",
+          "PERMIT"
+        ],
+        "correctAnswer": "GRANT"
+      },
+      {
+        "question": "SQL에서 그룹별 집계를 위한 키워드는?",
+        "choices": [
+          "ORDER",
+          "GROUP BY",
+          "SORT",
+          "COLLECT"
+        ],
+        "correctAnswer": "GROUP BY"
+      },
+      {
+        "question": "SQL에서 기본키를 설정할 때 사용하는 키워드는?",
+        "choices": [
+          "KEY",
+          "ID",
+          "PRIMARY KEY",
+          "UNIQUE"
+        ],
+        "correctAnswer": "PRIMARY KEY"
+      },
+      {
+        "question": "SQL에서 테이블을 삭제하는 명령은?",
+        "choices": [
+          "DELETE",
+          "CLEAR",
+          "DROP",
+          "REMOVE"
+        ],
+        "correctAnswer": "DROP"
+      }
+    ]
+  },
+  {
+    "title": "SQL 퀴즈",
+    "questions": [
+      {
+        "question": "SQL에서 데이터를 수정할 때 사용하는 명령은?",
+        "choices": [
+          "MODIFY",
+          "EDIT",
+          "CHANGE",
+          "UPDATE"
+        ],
+        "correctAnswer": "UPDATE"
+      },
+      {
+        "question": "권한을 부여할 때 사용하는 명령은?",
+        "choices": [
+          "ALLOW",
+          "GRANT",
+          "GIVE",
+          "PERMIT"
+        ],
+        "correctAnswer": "GRANT"
+      },
+      {
+        "question": "모든 데이터를 선택하는 SELECT 구문은?",
+        "choices": [
+          "SELECT ALL",
+          "SELECT *",
+          "SELECT EVERYTHING",
+          "SELECT %%"
+        ],
+        "correctAnswer": "SELECT *"
+      },
+      {
+        "question": "중복을 제거하고 조회할 때 사용하는 키워드는?",
+        "choices": [
+          "REMOVE",
+          "FILTER",
+          "UNIQUE",
+          "DISTINCT"
+        ],
+        "correctAnswer": "DISTINCT"
+      },
+      {
+        "question": "오름차순 정렬 키워드는?",
+        "choices": [
+          "ASC",
+          "UP",
+          "INCREASE",
+          "FIRST"
+        ],
+        "correctAnswer": "ASC"
+      }
+    ]
+  },
+  {
+    "title": "SQL 퀴즈",
+    "questions": [
+      {
+        "question": "오름차순 정렬 키워드는?",
+        "choices": [
+          "ASC",
+          "UP",
+          "INCREASE",
+          "FIRST"
+        ],
+        "correctAnswer": "ASC"
+      },
+      {
+        "question": "SQL에서 사용자를 생성하는 명령은?",
+        "choices": [
+          "NEW USER",
+          "CREATE USER",
+          "MAKE USER",
+          "ADD USER"
+        ],
+        "correctAnswer": "CREATE USER"
+      },
+      {
+        "question": "SQL에서 그룹별 집계를 위한 키워드는?",
+        "choices": [
+          "ORDER",
+          "GROUP BY",
+          "SORT",
+          "COLLECT"
+        ],
+        "correctAnswer": "GROUP BY"
+      },
+      {
+        "question": "SQL에서 사용자를 생성하는 명령은?",
+        "choices": [
+          "NEW USER",
+          "CREATE USER",
+          "MAKE USER",
+          "ADD USER"
+        ],
+        "correctAnswer": "CREATE USER"
+      },
+      {
+        "question": "권한을 회수할 때 사용하는 명령은?",
+        "choices": [
+          "TAKE",
+          "REMOVE",
+          "REVOKE",
+          "CANCEL"
+        ],
+        "correctAnswer": "REVOKE"
+      }
+    ]
+  },
+  {
+    "title": "SQL 퀴즈",
+    "questions": [
+      {
+        "question": "오름차순 정렬 키워드는?",
+        "choices": [
+          "ASC",
+          "UP",
+          "INCREASE",
+          "FIRST"
+        ],
+        "correctAnswer": "ASC"
+      },
+      {
+        "question": "중복을 제거하고 조회할 때 사용하는 키워드는?",
+        "choices": [
+          "REMOVE",
+          "FILTER",
+          "UNIQUE",
+          "DISTINCT"
+        ],
+        "correctAnswer": "DISTINCT"
+      },
+      {
+        "question": "그룹별 조건을 지정할 때 사용하는 키워드는?",
+        "choices": [
+          "WHERE",
+          "HAVING",
+          "GROUP BY",
+          "CHECK"
+        ],
+        "correctAnswer": "HAVING"
+      },
+      {
+        "question": "SQL에서 데이터베이스 목록을 보는 명령은?",
+        "choices": [
+          "LIST DB",
+          "SHOW DATABASES",
+          "SHOW DBS",
+          "GET DB"
+        ],
+        "correctAnswer": "SHOW DATABASES"
+      },
+      {
+        "question": "권한을 회수할 때 사용하는 명령은?",
+        "choices": [
+          "TAKE",
+          "REMOVE",
+          "REVOKE",
+          "CANCEL"
+        ],
+        "correctAnswer": "REVOKE"
+      }
+    ]
+  },
+  {
+    "title": "SQL 퀴즈",
+    "questions": [
+      {
+        "question": "결과를 정렬할 때 사용하는 SQL 키워드는?",
+        "choices": [
+          "SORT",
+          "ORDER BY",
+          "GROUP",
+          "ALIGN"
+        ],
+        "correctAnswer": "ORDER BY"
+      },
+      {
+        "question": "SQL에서 테이블의 구조를 보는 명령은?",
+        "choices": [
+          "VIEW",
+          "LOOK",
+          "DESC",
+          "SHOW"
+        ],
+        "correctAnswer": "DESC"
+      },
+      {
+        "question": "테이블에 컬럼을 추가할 때 사용하는 명령은?",
+        "choices": [
+          "ALTER TABLE",
+          "MODIFY TABLE",
+          "ADD COLUMN",
+          "INSERT COLUMN"
+        ],
+        "correctAnswer": "ALTER TABLE"
+      },
+      {
+        "question": "SQL에서 데이터를 삽입할 때 사용하는 명령은?",
+        "choices": [
+          "INSERT",
+          "ADD",
+          "PUT",
+          "UPDATE"
+        ],
+        "correctAnswer": "INSERT"
+      },
+      {
+        "question": "중복을 제거하고 조회할 때 사용하는 키워드는?",
+        "choices": [
+          "REMOVE",
+          "FILTER",
+          "UNIQUE",
+          "DISTINCT"
+        ],
+        "correctAnswer": "DISTINCT"
+      }
+    ]
+  },
+  {
+    "title": "SQL 퀴즈",
+    "questions": [
+      {
+        "question": "테이블에 컬럼을 추가할 때 사용하는 명령은?",
+        "choices": [
+          "ALTER TABLE",
+          "MODIFY TABLE",
+          "ADD COLUMN",
+          "INSERT COLUMN"
+        ],
+        "correctAnswer": "ALTER TABLE"
+      },
+      {
+        "question": "SQL에서 그룹별 집계를 위한 키워드는?",
+        "choices": [
+          "ORDER",
+          "GROUP BY",
+          "SORT",
+          "COLLECT"
+        ],
+        "correctAnswer": "GROUP BY"
+      },
+      {
+        "question": "SQL에서 데이터를 조회할 때 사용하는 명령은?",
+        "choices": [
+          "GET",
+          "FETCH",
+          "SELECT",
+          "SHOW"
+        ],
+        "correctAnswer": "SELECT"
+      },
+      {
+        "question": "권한을 부여할 때 사용하는 명령은?",
+        "choices": [
+          "ALLOW",
+          "GRANT",
+          "GIVE",
+          "PERMIT"
+        ],
+        "correctAnswer": "GRANT"
+      },
+      {
+        "question": "SQL에서 테이블을 삭제하는 명령은?",
+        "choices": [
+          "DELETE",
+          "CLEAR",
+          "DROP",
+          "REMOVE"
+        ],
+        "correctAnswer": "DROP"
+      }
+    ]
+  },
+  {
+    "title": "SQL 퀴즈",
+    "questions": [
+      {
+        "question": "권한을 회수할 때 사용하는 명령은?",
+        "choices": [
+          "TAKE",
+          "REMOVE",
+          "REVOKE",
+          "CANCEL"
+        ],
+        "correctAnswer": "REVOKE"
+      },
+      {
+        "question": "SQL에서 테이블의 구조를 보는 명령은?",
+        "choices": [
+          "VIEW",
+          "LOOK",
+          "DESC",
+          "SHOW"
+        ],
+        "correctAnswer": "DESC"
+      },
+      {
+        "question": "SQL에서 테이블을 삭제하는 명령은?",
+        "choices": [
+          "DELETE",
+          "CLEAR",
+          "DROP",
+          "REMOVE"
+        ],
+        "correctAnswer": "DROP"
+      },
+      {
+        "question": "NULL 값을 체크할 때 사용하는 조건은?",
+        "choices": [
+          "= NULL",
+          "IS NULL",
+          "NULL()",
+          "EQUAL NULL"
+        ],
+        "correctAnswer": "IS NULL"
+      },
+      {
+        "question": "NULL 값을 체크할 때 사용하는 조건은?",
+        "choices": [
+          "= NULL",
+          "IS NULL",
+          "NULL()",
+          "EQUAL NULL"
+        ],
+        "correctAnswer": "IS NULL"
+      }
+    ]
+  },
+  {
+    "title": "SQL 퀴즈",
+    "questions": [
+      {
+        "question": "SQL에서 데이터를 수정할 때 사용하는 명령은?",
+        "choices": [
+          "MODIFY",
+          "EDIT",
+          "CHANGE",
+          "UPDATE"
+        ],
+        "correctAnswer": "UPDATE"
+      },
+      {
+        "question": "테이블에 컬럼을 추가할 때 사용하는 명령은?",
+        "choices": [
+          "ALTER TABLE",
+          "MODIFY TABLE",
+          "ADD COLUMN",
+          "INSERT COLUMN"
+        ],
+        "correctAnswer": "ALTER TABLE"
+      },
+      {
+        "question": "SQL에서 데이터를 삽입할 때 사용하는 명령은?",
+        "choices": [
+          "INSERT",
+          "ADD",
+          "PUT",
+          "UPDATE"
+        ],
+        "correctAnswer": "INSERT"
+      },
+      {
+        "question": "SQL에서 테이블을 생성하는 명령은?",
+        "choices": [
+          "NEW TABLE",
+          "CREATE",
+          "MAKE",
+          "ADD TABLE"
+        ],
+        "correctAnswer": "CREATE"
+      },
+      {
+        "question": "SQL에서 테이블 목록을 보는 명령은?",
+        "choices": [
+          "LIST TABLES",
+          "SHOW TABLES",
+          "SHOW TB",
+          "GET TABLES"
+        ],
+        "correctAnswer": "SHOW TABLES"
+      }
+    ]
+  },
+  {
+    "title": "SQL 퀴즈",
+    "questions": [
+      {
+        "question": "SQL에서 데이터를 조회할 때 사용하는 명령은?",
+        "choices": [
+          "GET",
+          "FETCH",
+          "SELECT",
+          "SHOW"
+        ],
+        "correctAnswer": "SELECT"
+      },
+      {
+        "question": "조건에 맞는 데이터를 조회할 때 사용하는 키워드는?",
+        "choices": [
+          "WHERE",
+          "IF",
+          "FILTER",
+          "HAVING"
+        ],
+        "correctAnswer": "WHERE"
+      },
+      {
+        "question": "SQL에서 데이터베이스 목록을 보는 명령은?",
+        "choices": [
+          "LIST DB",
+          "SHOW DATABASES",
+          "SHOW DBS",
+          "GET DB"
+        ],
+        "correctAnswer": "SHOW DATABASES"
+      },
+      {
+        "question": "내림차순 정렬 키워드는?",
+        "choices": [
+          "DESC",
+          "DOWN",
+          "DECREASE",
+          "LAST"
+        ],
+        "correctAnswer": "DESC"
+      },
+      {
+        "question": "SQL에서 데이터를 삽입할 때 사용하는 명령은?",
+        "choices": [
+          "INSERT",
+          "ADD",
+          "PUT",
+          "UPDATE"
+        ],
+        "correctAnswer": "INSERT"
+      }
+    ]
+  },
+  {
+    "title": "SQL 퀴즈",
+    "questions": [
+      {
+        "question": "SQL에서 테이블을 생성하는 명령은?",
+        "choices": [
+          "NEW TABLE",
+          "CREATE",
+          "MAKE",
+          "ADD TABLE"
+        ],
+        "correctAnswer": "CREATE"
+      },
+      {
+        "question": "SQL에서 데이터를 삭제할 때 사용하는 명령은?",
+        "choices": [
+          "REMOVE",
+          "DELETE",
+          "DROP",
+          "CLEAR"
+        ],
+        "correctAnswer": "DELETE"
+      },
+      {
+        "question": "SQL에서 데이터를 수정할 때 사용하는 명령은?",
+        "choices": [
+          "MODIFY",
+          "EDIT",
+          "CHANGE",
+          "UPDATE"
+        ],
+        "correctAnswer": "UPDATE"
+      },
+      {
+        "question": "결과를 정렬할 때 사용하는 SQL 키워드는?",
+        "choices": [
+          "SORT",
+          "ORDER BY",
+          "GROUP",
+          "ALIGN"
+        ],
+        "correctAnswer": "ORDER BY"
+      },
+      {
+        "question": "외래키를 설정할 때 사용하는 키워드는?",
+        "choices": [
+          "FOREIGN KEY",
+          "OUTER KEY",
+          "REFERENCE",
+          "CONNECT"
+        ],
+        "correctAnswer": "FOREIGN KEY"
+      }
+    ]
+  },
+  {
+    "title": "SQL 퀴즈",
+    "questions": [
+      {
+        "question": "SQL에서 그룹별 집계를 위한 키워드는?",
+        "choices": [
+          "ORDER",
+          "GROUP BY",
+          "SORT",
+          "COLLECT"
+        ],
+        "correctAnswer": "GROUP BY"
+      },
+      {
+        "question": "조건에 맞는 데이터를 조회할 때 사용하는 키워드는?",
+        "choices": [
+          "WHERE",
+          "IF",
+          "FILTER",
+          "HAVING"
+        ],
+        "correctAnswer": "WHERE"
+      },
+      {
+        "question": "데이터베이스를 생성하는 명령은?",
+        "choices": [
+          "NEW DATABASE",
+          "MAKE DATABASE",
+          "CREATE DATABASE",
+          "INIT DB"
+        ],
+        "correctAnswer": "CREATE DATABASE"
+      },
+      {
+        "question": "SQL에서 데이터를 조회할 때 사용하는 명령은?",
+        "choices": [
+          "GET",
+          "FETCH",
+          "SELECT",
+          "SHOW"
+        ],
+        "correctAnswer": "SELECT"
+      },
+      {
+        "question": "모든 데이터를 선택하는 SELECT 구문은?",
+        "choices": [
+          "SELECT ALL",
+          "SELECT *",
+          "SELECT EVERYTHING",
+          "SELECT %%"
+        ],
+        "correctAnswer": "SELECT *"
+      }
+    ]
+  },
+  {
+    "title": "SQL 퀴즈",
+    "questions": [
+      {
+        "question": "데이터베이스를 생성하는 명령은?",
+        "choices": [
+          "NEW DATABASE",
+          "MAKE DATABASE",
+          "CREATE DATABASE",
+          "INIT DB"
+        ],
+        "correctAnswer": "CREATE DATABASE"
+      },
+      {
+        "question": "SQL에서 기본키를 설정할 때 사용하는 키워드는?",
+        "choices": [
+          "KEY",
+          "ID",
+          "PRIMARY KEY",
+          "UNIQUE"
+        ],
+        "correctAnswer": "PRIMARY KEY"
+      },
+      {
+        "question": "SQL에서 테이블을 생성하는 명령은?",
+        "choices": [
+          "NEW TABLE",
+          "CREATE",
+          "MAKE",
+          "ADD TABLE"
+        ],
+        "correctAnswer": "CREATE"
+      },
+      {
+        "question": "조건에 맞는 데이터를 조회할 때 사용하는 키워드는?",
+        "choices": [
+          "WHERE",
+          "IF",
+          "FILTER",
+          "HAVING"
+        ],
+        "correctAnswer": "WHERE"
+      },
+      {
+        "question": "오름차순 정렬 키워드는?",
+        "choices": [
+          "ASC",
+          "UP",
+          "INCREASE",
+          "FIRST"
+        ],
+        "correctAnswer": "ASC"
+      }
+    ]
+  },
+  {
+    "title": "SQL 퀴즈",
+    "questions": [
+      {
+        "question": "그룹별 조건을 지정할 때 사용하는 키워드는?",
+        "choices": [
+          "WHERE",
+          "HAVING",
+          "GROUP BY",
+          "CHECK"
+        ],
+        "correctAnswer": "HAVING"
+      },
+      {
+        "question": "테이블에 컬럼을 추가할 때 사용하는 명령은?",
+        "choices": [
+          "ALTER TABLE",
+          "MODIFY TABLE",
+          "ADD COLUMN",
+          "INSERT COLUMN"
+        ],
+        "correctAnswer": "ALTER TABLE"
+      },
+      {
+        "question": "NULL 값을 체크할 때 사용하는 조건은?",
+        "choices": [
+          "= NULL",
+          "IS NULL",
+          "NULL()",
+          "EQUAL NULL"
+        ],
+        "correctAnswer": "IS NULL"
+      },
+      {
+        "question": "SQL에서 데이터를 수정할 때 사용하는 명령은?",
+        "choices": [
+          "MODIFY",
+          "EDIT",
+          "CHANGE",
+          "UPDATE"
+        ],
+        "correctAnswer": "UPDATE"
+      },
+      {
+        "question": "NULL 값을 체크할 때 사용하는 조건은?",
+        "choices": [
+          "= NULL",
+          "IS NULL",
+          "NULL()",
+          "EQUAL NULL"
+        ],
+        "correctAnswer": "IS NULL"
+      }
+    ]
+  },
+  {
+    "title": "SQL 퀴즈",
+    "questions": [
+      {
+        "question": "내림차순 정렬 키워드는?",
+        "choices": [
+          "DESC",
+          "DOWN",
+          "DECREASE",
+          "LAST"
+        ],
+        "correctAnswer": "DESC"
+      },
+      {
+        "question": "SQL에서 데이터를 조회할 때 사용하는 명령은?",
+        "choices": [
+          "GET",
+          "FETCH",
+          "SELECT",
+          "SHOW"
+        ],
+        "correctAnswer": "SELECT"
+      },
+      {
+        "question": "모든 데이터를 선택하는 SELECT 구문은?",
+        "choices": [
+          "SELECT ALL",
+          "SELECT *",
+          "SELECT EVERYTHING",
+          "SELECT %%"
+        ],
+        "correctAnswer": "SELECT *"
+      },
+      {
+        "question": "권한을 부여할 때 사용하는 명령은?",
+        "choices": [
+          "ALLOW",
+          "GRANT",
+          "GIVE",
+          "PERMIT"
+        ],
+        "correctAnswer": "GRANT"
+      },
+      {
+        "question": "조건에 맞는 데이터를 조회할 때 사용하는 키워드는?",
+        "choices": [
+          "WHERE",
+          "IF",
+          "FILTER",
+          "HAVING"
+        ],
+        "correctAnswer": "WHERE"
+      }
+    ]
+  }
+]

@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>미래기업 업무용 웹사이트 매뉴얼</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .ppt-container {
+            width: 90%;
+            max-width: 850px;
+            height: 95vh;
+            background: white;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .slide.active {
+            display: flex;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .slide-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px 40px;
+            text-align: left;
+            flex-shrink: 0;
+        }
+
+        .slide-title {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .slide-subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .slide-content {
+            flex-grow: 1;
+            padding: 30px 40px;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+        }
+        
+        .title-slide-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: #ffffff;
+        }
+        
+        h3.content-title {
+            font-size: 1.5em;
+            color: #1d3557;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #1d3557;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .info-card {
+            background: #ffffff;
+            border-left: 5px solid #007bff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .info-card h4 {
+            font-size: 1.15em;
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+
+        .info-card ul {
+            list-style-position: inside;
+            padding-left: 5px;
+            color: #495057;
+        }
+        
+        .info-card li {
+            margin-bottom: 5px;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+        .nav-btn {
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            cursor: pointer;
+            font-size: 1.5em;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .nav-btn:hover { transform: scale(1.1); }
+        .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: scale(1); }
+
+        .slide-counter {
+            position: fixed;
+            top: 20px;
+            right: 30px;
+            background: rgba(44, 62, 80, 0.85);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .home-btn {
+            text-decoration: none;
+            color: white;
+            background-color: #007bff;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease;
+        }
+        .home-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-counter">
+        <span><span id="currentSlide">1</span> / <span id="totalSlides">7</span></span>
+        <a href="index.php" class="home-btn">🏠 Home</a>
+    </div>
+
+    <div class="ppt-container">
+        <div class="slide active">
+             <div class="slide-header">
+                <div class="slide-title">(주)미래기업 업무용 웹사이트</div>
+                <div class="slide-subtitle">주요 메뉴 설명서</div>
+            </div>
+            <div class="slide-content title-slide-content">
+                <div style="font-size: 5em; margin-bottom: 30px;">🌐</div>
+                <div style="font-size: 2.5em; font-weight: bold; color: #2c3e50; margin-bottom: 20px;">
+                    (주)미래기업 
+                </div>
+                <div style="font-size: 1.5em; color: #6c757d;">미래기업 프로그램 연구소 </div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-header">
+                <div class="slide-title">목차</div>
+                <div class="slide-subtitle">Contents</div>
+            </div>
+            <div class="slide-content">
+                <ol style="list-style: none; padding-top: 10px;">
+                    <li class="info-card" onclick="goToSlide(2)" style="cursor: pointer;"><h4>1. 초기화면 (Dashboard)</h4></li>
+                    <li class="info-card" onclick="goToSlide(3)" style="cursor: pointer;"><h4>2. 수주 관리 및 분석</h4></li>
+                    <li class="info-card" onclick="goToSlide(4)" style="cursor: pointer;"><h4>3. 자재 관리 (구매/재고)</h4></li>
+                    <li class="info-card" onclick="goToSlide(5)" style="cursor: pointer;"><h4>4. 품질 및 장비 관리</h4></li>
+                    <li class="info-card" onclick="goToSlide(6)" style="cursor: pointer;"><h4>5. 게시판 및 기타 기능</h4></li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-header">
+                <div class="slide-title">초기화면 (Dashboard)</div>
+                <div class="slide-subtitle">전체 현황 실시간 공유 및 모니터링</div>
+            </div>
+            <div class="slide-content">
+                <h3 class="content-title">주요 공유 정보</h3>
+                <div class="grid-container">
+                    <div class="info-card">
+                        <h4>일일 현황 </h4>
+                        <ul>
+                            <li>금일/전일 출고 현황 </li>
+                            <li>매출 및 접수 내역 </li>
+                            <li>구매/외주 요청 및 입고 현황 </li>
+                            <li>원자재/부자재 미입고 현황 </li>
+                        </ul>
+                    </div>
+                    <div class="info-card">
+                        <h4>일정 및 공지 </h4>
+                        <ul>
+                            <li>회사 주요 일정표 공유 </li>
+                            <li>공지사항 및 휴가자 현황 </li>
+                            <li>일일 식사 선택 기능 </li>
+                        </ul>
+                    </div>
+                    <div class="info-card">
+                        <h4>통계 및 점검 </h4>
+                        <ul>
+                            <li>월별 부적합 점유율/비용 그래프 </li>
+                            <li>장비 및 사무실 정기점검 현황 </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-header">
+                <div class="slide-title">수주 관리 및 분석</div>
+                <div class="slide-subtitle">체계적인 수주 관리와 데이터 기반 분석</div>
+            </div>
+            <div class="slide-content">
+                 <div class="grid-container">
+                    <div class="info-card">
+                        <h4>수주 관리 기능 </h4>
+                        <ul>
+                            <li>발주처 자료 등록, 수정, 삭제 </li>
+                            <li>발주정보와 사진(포장, 검사, 시공) 연동 </li>
+                            <li>출고증, 거래명세서 등 출력물 생성 </li>
+                            <li>자체 검사서 양식 및 소요 자재 연동 관리 </li>
+                        </ul>
+                    </div>
+                    <div class="info-card">
+                        <h4>스케줄 및 통계 </h4>
+                        <ul>
+                            <li>납기 누락 방지를 위한 스케줄 관리 </li>
+                            <li>발주부터 납품까지 모든 과정 모니터링 </li>
+                            <li>출고, 매출, 불량 현황 등 조건별 통계 시각화 </li>
+                            <li>담당자 맞춤형 월간 캘린더 구현 </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="slide">
+            <div class="slide-header">
+                <div class="slide-title">자재 관리 (구매/재고)</div>
+                <div class="slide-subtitle">정확한 자재 구매, 입출고 및 재고 관리</div>
+            </div>
+            <div class="slide-content">
+                <div class="grid-container">
+                    <div class="info-card">
+                        <h4>원자재 구매 및 입출고 </h4>
+                        <ul>
+                            <li>자재명, 공급처 등 기준정보(DB) 구축 </li>
+                            <li>원자재 구매 요청 및 결재 기능 </li>
+                            <li>사급 및 일반 자재 입고/출고 관리 </li>
+                            <li>모든 거래에 대한 로그(Log) 기록 </li>
+                        </ul>
+                    </div>
+                    <div class="info-card">
+                        <h4>재고 및 통계 </h4>
+                        <ul>
+                            <li>원자재(철판) 종류별 실시간 재고 현황 파악 </li>
+                            <li>원자재 수불 현황 및 통계 그래프 제공 </li>
+                            <li>항목별 입출고 상세 내역 추적 기능 </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-header">
+                <div class="slide-title">품질 및 장비 관리</div>
+                <div class="slide-subtitle">ISO 요구사항 충족 및 스마트한 현장 관리</div>
+            </div>
+            <div class="slide-content">
+                <div class="grid-container">
+                    <div class="info-card">
+                        <h4>품질(부적합) 관리 </h4>
+                        <ul>
+                            <li>부적합 발생 시 이력 등록 및 보고서 생성 </li>
+                            <li>원인 분석 및 개선 대책 관리 </li>
+                            <li>부적합 현황 및 비용 통계 제공 </li>
+                            <li>작업표준서, QC 공정표 등 품질 문서 연동 </li>
+                        </ul>
+                    </div>
+                    <div class="info-card">
+                        <h4>장비 점검 자동화 </h4>
+                        <ul>
+                            <li>QR코드 연동으로 점검 편의성 및 접근성 향상 </li>
+                            <li>주간/월간 등 주기별 체계적 점검 시스템 구현 </li>
+                            <li>점검 문항 커스터마이징 가능 </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-header">
+                <div class="slide-title">게시판 및 기타 기능</div>
+                <div class="slide-subtitle">원활한 사내 소통과 편리한 관리 기능</div>
+            </div>
+            <div class="slide-content">
+                <div class="grid-container">
+                    <div class="info-card">
+                        <h4>소통 및 공유 </h4>
+                        <ul>
+                            <li>공지사항, 자료실 등 목적별 사내 게시판 생성 및 운영 </li>
+                        </ul>
+                    </div>
+                    <div class="info-card">
+                        <h4>인사 및 관리 </h4>
+                        <ul>
+                            <li>직원 연차 신청 및 관리 기능 </li>
+                            <li>회원 정보 관리 및 업무별 접근 권한 부여 </li>
+                        </ul>
+                    </div>
+                </div>
+                 <div class="info-card" style="margin-top: 20px; border-color: #e63946;">
+                    <h4 style="color: #e63946;">문의처</h4>
+                    <ul>
+                        <li><strong>Website:</strong> 8440.CO.KR </li>
+                        <li><strong>Phone:</strong> 010-5123-8210 </li>
+                        <li><strong>E-mail:</strong> MIRAE@8440.CO.KR </li>
+                        <li><strong>Address:</strong> 경기도 김포시 양촌읍 흥신로 220-27 </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-btn" id="prevBtn" onclick="previousSlide()">‹</button>
+        <button class="nav-btn" id="nextBtn" onclick="nextSlide()">›</button>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        // 전체 슬라이드 수 설정
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(index) {
+            // 인덱스 범위 확인
+            if (index >= totalSlides) {
+                index = totalSlides - 1;
+            }
+            if (index < 0) {
+                index = 0;
+            }
+            currentSlideIndex = index;
+
+            // 모든 슬라이드 숨기기 및 현재 슬라이드 표시
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlideIndex].classList.add('active');
+            
+            // 페이지 카운터 업데이트
+            document.getElementById('currentSlide').textContent = currentSlideIndex + 1;
+            
+            // 네비게이션 버튼 활성/비활성
+            document.getElementById('prevBtn').disabled = currentSlideIndex === 0;
+            document.getElementById('nextBtn').disabled = currentSlideIndex === totalSlides - 1;
+        }
+
+        function nextSlide() {
+            showSlide(currentSlideIndex + 1);
+        }
+
+        function previousSlide() {
+            showSlide(currentSlideIndex - 1);
+        }
+
+        function goToSlide(index) {
+            showSlide(index);
+        }
+
+        // 키보드 네비게이션
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                nextSlide();
+            }
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                previousSlide();
+            }
+        });
+
+        // 초기 슬라이드 표시
+        showSlide(0);
+    </script>
+</body>
+</html>

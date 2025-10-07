@@ -1,0 +1,213 @@
+/* @end */
+.img{
+    position: absolute;
+    background-image: url(http://8440.co.kr/p_evaluation/img/background.jpg);                                                               
+    width: 1000px;
+    height: 1280px;
+    /* background-size: cover; */
+}
+
+.img .content{
+     position: absolute;
+	 top:0px;
+	 left:0px;
+     font-size:1rem;
+     color: black;     
+     text-align: left;
+}
+
+
+#outlineprint {     /* 화면출력 전체사이즈  */ 
+	width:1000px;
+	height:1340px;	
+	float:left;
+}
+
+#row1 {     /* 화면 출력 1행  */ 
+	width:450px;
+	height:50px;
+	float:left;
+	margin-left:165px;
+	margin-top:145px; 
+    font-size:16px;	
+}
+
+#row2 {    
+	width:450px;
+	height:50px;
+	float:left;
+	margin-left:165px;
+	margin-top:-13px; 
+    font-size:16px;	
+}
+
+
+#row3 {    
+	width:450px;
+	height:50px;
+	float:left;
+	margin-left:165px;
+	margin-top:-10px; 
+    font-size:16px;	
+}
+
+
+#row4 {    
+	width:1000px;
+	height:50px;
+	float:left;
+	margin-left:875px;
+	margin-top:50px; 
+    font-size:16px;	
+}
+
+#row5 {    
+	width:1000px;
+	height:50px;
+	float:left;
+	margin-left:875px;
+	margin-top:15px; 
+    font-size:16px;	
+}
+
+
+#row6 {    
+	width:1000px;
+	height:50px;
+	float:left;
+	margin-left:875px;
+	margin-top:25px; 
+    font-size:16px;	
+}
+
+
+#row7 {    
+	width:1000px;
+	height:50px;
+	float:left;
+	margin-left:875px;
+	margin-top:35px; 
+    font-size:16px;	
+}
+
+#row8 {    
+	width:1000px;
+	height:50px;
+	float:left;
+	margin-left:875px;
+	margin-top:55px; 
+    font-size:16px;	
+}
+
+#row9 {    
+	width:1000px;
+	height:50px;
+	float:left;
+	margin-left:875px;
+	margin-top:55px; 
+    font-size:16px;	
+}
+
+#row10 {    
+	width:1000px;
+	height:50px;
+	float:left;
+	margin-left:875px;
+	margin-top:35px; 
+    font-size:16px;	
+}
+
+#row11 {    
+	width:1000px;
+	height:50px;
+	float:left;
+	margin-left:875px;
+	margin-top:35px; 
+    font-size:16px;	
+}
+
+#row12 {    
+	width:1000px;
+	height:50px;
+	float:left;
+	margin-left:875px;
+	margin-top:55px; 
+    font-size:16px;	
+}
+
+#row13 {    
+	width:1000px;
+	height:50px;
+	float:left;
+	margin-left:875px;
+	margin-top:55px; 
+    font-size:16px;	
+}
+
+#row14 {    /*합계 */
+	width:1000px;
+	height:50px;
+	float:left;
+	margin-left:690px;
+	margin-top:5px; 
+    font-size:16px;	
+}
+
+#row15 {    /*결재라인 */
+	width:1000px;
+	height:50px;
+	float:left;
+	margin-left:640px;
+	margin-top:-1050px; 
+    font-size:16px;	
+}
+
+
+#row16 {    	
+	width:1000px;
+	height:50px;
+	float:left;
+	margin-left:760px;
+	margin-top:-1050px; 
+    font-size:16px;	
+}
+
+#row17 {    	
+	width:1000px;
+	height:50px;
+	float:left;
+	margin-left:880px;
+	margin-top:-1050px; 
+    font-size:16px;	
+}
+
+
+#row18 {    /*결재라인 */
+	width:1000px;
+	height:50px;
+	float:left;
+	margin-left:640px;
+	margin-top:-1008px; 
+    font-size:10px;	
+}
+
+
+#row19 {    	
+	width:1000px;
+	height:50px;
+	float:left;
+	margin-left:760px;
+	margin-top:-1008px; 
+    font-size:10px;	
+}
+
+#row20 {    	
+	width:1000px;
+	height:50px;
+	float:left;
+	margin-left:880px;
+	margin-top:-1008px; 
+    font-size:10px;	
+}
+
+

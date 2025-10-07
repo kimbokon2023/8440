@@ -1,0 +1,3232 @@
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <meta http-equiv="Content-Script-Type" content="text/javascript">
+    <meta http-equiv="Content-Style-Type" content="text/css">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <title> 26도 감성조명 라이트패널 자동견적 </title>
+    <!--<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">-->
+    <!--<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">-->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/jquery-form@4.3.0/dist/jquery.form.min.js"></script>
+
+<style type="text/css">
+
+@charset "utf-8";
+
+*,
+*::before,
+*::after {
+  /* 테두리를 기준으로 크기를 정합니다. */
+  box-sizing: border-box;
+}
+
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+    display: block;
+}
+
+html {
+
+    /* `font` 속성 리셋 */
+    font-size                  : 14px;
+    /* 기본 글골 사이즈 정의            : 16x => 1rem */
+    font-weight                : normal;
+    line-height                : 1.5;
+    /* 단위 쓰지 말것 */
+    background-color           : #fff;
+    color                      : #4d5058;
+    /* 글꼴 크기 조정을 방지 */
+    -webkit-text-size-adjust   : 100%;
+    /* 폰트를 부드럽게 */
+    -webkit-font-smoothing     : antialiased;
+    -moz-osx-font-smoothing    : grayscale;
+    /* 웹킷 마음대로 눌림 하이라이트 막음 */
+    -webkit-tap-highlight-color: transparent;
+}
+
+body { margin: 0; }
+ol, ul { list-style: none; }
+a { color: inherit; text-decoration: none; }
+blockquote, q { quotes: none; }
+blockquote:before, blockquote:after,
+q:before, q:after {	content: ''; content: none; }
+table {	border-collapse: collapse; border-spacing: 0; }
+
+/* 텍스트 마우스 드래그시 색상 변경방법 */
+::selection,
+::-moz-selection {
+  /* background : #39f;
+  color      : #fff;
+  text-shadow: none; */
+}
+
+span, label { display: inline-block; }
+
+a:active,
+a:hover { outline: none; }
+
+button { cursor: pointer; border: 0px; }
+button:active { outline: none; }
+
+img { max-width: 100%; }
+
+img {image-rendering: -webkit-optimize-contrast; 
+
+transform: translateZ(0);  
+backface-visibility: hidden;}
+textarea, select, input, a, button {outline: none;}
+textarea:focus, select:focus, input:focus {outline: none;}
+a, button {-webkit-tap-highlight-color:rgba(0, 0, 0, 0);}
+#Index {overflow:hidden;position:absolute;left:-9999px;width:0;height:1px;margin:0;padding:0;} 
+.ir_pm {display:block;overflow:hidden;font-size:0px;line-height:0;text-indent:-9999px}
+.ir_wa {display:block;overflow:hidden;position:relative;width:100%;height:100%;z-index:-1}
+.screen_out {display:block;overflow:hidden;position:absolute;left:-9999px;width:1px;height:1px;font-size:0;line-height:0;text-indent:-9999px}
+.screen_hide {font-size:0;line-height:0;visibility:hidden}
+.blind_r {position:absolute; top:0; right:0; width:40px; height:100%;
+background-image: -webkit-gradient(to left,#fff,rgba(255,255,255,0));
+background-image: -webkit-linear-gradient(to left,#fff,rgba(255,255,255,0));
+background-image: linear-gradient(to left,#fff,rgba(255,255,255,0)); z-index:3}  
+
+input[type=text], input[type=number], input[type=tel], input[type=password] { padding: 0 10px; height: 30px; line-height: 30px; border: 1px solid #cbcbcb; color: #252525; font-size: 18px; background-color: #FFF; border-radius: 5px; appearance: none; -webkit-appearance: none; }
+textarea { padding: 10px; font-size: 16px; border: 1px solid #cbcbcb; color: #252525; border-radius: 5px; }
+
+select {
+	padding: 0 10px; height: 30px; line-height: 30px; font-size: 16px; border: 1px solid #cbcbcb; color: #252525; border-radius: 5px;
+	-webkit-appearance: none;
+	-moz-appearance: none; 
+	appearance: none;
+
+    background-size: 15px;
+}
+.select_r {	
+    background-size: 15px;
+}
+
+.w_short {text-overflow:ellipsis; overflow:hidden; white-space:nowrap; vertical-align:middle;} 
+.lword  {/*width:150px;*/ overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }  
+.hr_line {margin-top:30px;background:none;border:none;border-top:1px solid #ddd;font-size:0;line-height:0;}
+.w_brek {word-break:keep-all}
+
+.f_l {float:left !important;}
+.f_r {float:right !important;}
+.fl_no{float:none!important;}
+.bx_siz{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;-o-box-sizing:border-box;-ms-box-sizing:border-box;box-sizing:border-box;}
+
+.mjcl_b {clear:both;width:0;height:0;font-size:0;line-height:0}
+.d_show {display:inline-block}
+.d_hide {display:none;}
+.visi{visibility:visible}
+.visi_no{visibility:hidden}
+.oflo_auto{overflow:auto!important;}
+.oflo_x{overflow-x:scroll!important;}
+.oflo_y{overflow-y:scroll!important;}
+.oflo_hid{overflow: hidden}
+
+.align_lft {text-align:left!important;}
+.align_cen {text-align:center!important;}
+.align_rgt {text-align:right!important;}
+.valign_top {vertical-align:top!important;}
+.valign_mid {vertical-align:middle!important;}
+.valign_bot {vertical-align:bottom!important;}
+.align_just{text-align: justify!important;-moz-text-align-last: justify!important;text-align-last: justify!important;}
+
+.cls {content:''; display:block; clear:both}
+.posi_fix {position:fixed !important; height:100%; }
+.posi_rel {position:relative}
+.posi_abs {position:absolute;}
+.noline {border-bottom:none}
+.t-under {text-decoration:underline}
+.under_line {text-decoration:underline}
+.m_pointer{ cursor:pointer}
+
+.input1 {padding:3px;border:1px #CCC solid; background:#FFF; color:#333}
+
+.log_input {padding:3px;border:1px #CCC solid; background:#FFF; color:#333}
+
+.spbox {display:inline-block; vertical-align:middle}
+.spbox_b{display:block}
+
+.chbox {border:1px #666 solid!important}
+
+.ic_divi { display:inline-block; opacity: 0.9; width:1px; height:10px; margin:0 10px; background:#CCC; vertical-align:middle }
+
+.number {vertical-align:middle}
+.number0 {font:bold 0.75em Arial!important}
+.number1 {font:bold 0.875em Arial!important}
+.number2 {font:bold 1em Arial!important}
+.number3 {font:bold 1.125em Arial!important}
+.number4 {font:bold 1.25em Arial!important}
+.number5 {font:bold 1.4em Arial!important}
+.number6 {font:bold 1.5em Arial!important}
+.number7 {font:bold 1.6em Arial!important}
+.number8 {font:bold 28px Arial!important}
+.number9 {font:bold 30px Arial!important}
+.number10 {font:bold 32px Arial!important}
+.number11 {font:bold 36px Arial!important}
+
+.ln13{line-height:1.3!important}
+.ln14{line-height:1.4!important}
+.ln15{line-height:1.5!important}
+.ln16{line-height:1.6!important}
+.ln17{line-height:1.7!important}
+.ln18{line-height:1.8!important}
+.ln19{line-height:1.9!important}
+.ln20{line-height:2.0!important}
+
+.t10{font-size:0.625em!important;}
+.t11{font-size:0.7em!important;}
+.t12{font-size:0.75em!important;} 
+.t13{font-size:0.8em!important;}
+.t14{font-size:0.875em;}
+.t15{font-size:0.95em;}
+.t16{font-size:1em!important;}
+.t17{font-size:1.05em;}
+.t18{font-size:1.125em;}
+.t19{font-size:1.2em;}
+.t20{font-size:1.25em;}
+.t22{font-size:1.4em;}
+.t24{font-size:1.5em;}
+.t26{font-size:1.6em;}
+.t28{font-size:1.8em;}
+.t220{font-size:2.2em;}
+.t240{font-size:2.4em;}
+.t260{font-size:2.6em;}
+.t300{font-size:3em;}
+
+.f10px { font-size: 10px !important; }
+.f11px { font-size: 11px !important; }
+.f12px { font-size: 12px !important; }
+.f13px { font-size: 13px !important; }
+.f14px { font-size: 14px !important; }
+.f15px { font-size: 15px !important; }
+.f16px { font-size: 16px !important; }
+.f17px { font-size: 17px !important; }
+.f18px { font-size: 18px !important; }
+.f19px { font-size: 19px !important; }
+.f20px { font-size: 20px !important; }
+.f21px { font-size: 21px !important; }
+.f22px { font-size: 22px !important; }
+.f23px { font-size: 23px !important; }
+.f24px { font-size: 24px !important; }
+.f25px { font-size: 25px !important; }
+.f26px { font-size: 26px !important; }
+.f27px { font-size: 27px !important; }
+.f28px { font-size: 28px !important; }
+.f29px { font-size: 29px !important; }
+.f30px { font-size: 30px !important; }
+.f31px { font-size: 31px !important; }
+.f32px { font-size: 32px !important; }
+.f33px { font-size: 33px !important; }
+.f34px { font-size: 34px !important; }
+.f35px { font-size: 35px !important; }
+.f36px { font-size: 36px !important; }
+.f37px { font-size: 37px !important; }
+.f38px { font-size: 38px !important; }
+.f39px { font-size: 39px !important; }
+.f40px { font-size: 40px !important; }
+
+.fw1{font-weight:100!important;}
+.fw2{font-weight:200!important;}
+.fw3{font-weight:300!important;}
+.fw4{font-weight:400!important;}
+.fw5{font-weight:500!important;}
+.fw6{font-weight:600!important;}
+.fw7{font-weight:700!important;}
+.fw8{font-weight:800!important;}
+.fw9{font-weight:900!important;}
+.strong {font-weight:bold}
+.fw_no {font-weight:normal!important;}
+.fsty_i {font-style:italic}
+
+
+.t1vw{font-size:1vw;}
+.t2vw{font-size:2vw;} 
+.t3vw{font-size:3vw;}
+.t4vw{font-size:4vw;}
+.t5vw{font-size:5vw;}
+.t6vw{font-size:6vw;}
+.t7vw{font-size:7vw;}
+.t8vw{font-size:8vw;}
+.t9vw{font-size:9vw;}
+.t10vw{font-size:10vw;}
+
+
+.h_wd1{width:1px!important;}
+.h_wd2{width:2px!important;}
+.h_wd3{width:3px!important;}
+.h_wd4{width:4px!important;}
+.h_wd5{width:5px!important;}
+.h_wd6{width:6px!important;}
+.h_wd7{width:7px!important;}
+.h_wd8{width:8px!important;}
+.h_wd9{width:9px!important;}
+.h_wd10{width:10px!important;}
+.h_wd15{width:15px!important;}
+.h_wd20{width:20px!important;}
+.h_wd25{width:25px!important;}
+.h_wd30{width:30px!important;}
+.h_wd35{width:35px!important;}
+.h_wd40{width:40px!important;}
+.h_wd45{width:45px!important;}
+.h_wd50{width:50px!important;}
+.h_wd55{width:55px!important;}
+.h_wd60{width:60px!important;}
+.h_wd65{width:65px!important;}
+.h_wd70{width:70px!important;}
+.h_wd75{width:75px!important;}
+.h_wd80{width:80px!important;}
+.h_wd90{width:90px!important;}
+.h_wd100{width:100px!important;}
+.h_wd110{width:110px!important;}
+.h_wd120{width:120px!important;}
+.h_wd125{width:125px!important;}
+.h_wd130{width:130px!important;}
+.h_wd135{width:135px!important;}
+.h_wd140{width:140px!important;}
+.h_wd145{width:145px!important;}
+.h_wd150{width:150px!important;}
+.h_wd160{width:160px!important;}
+.h_wd180{width:180px!important;}
+.h_wd200{width:200px!important;}
+
+.v_hg1{height:1px!important;}
+.v_hg2{height:2px!important;}
+.v_hg3{height:3px!important;}
+.v_hg4{height:4px!important;}
+.v_hg5{height:5px!important;}
+.v_hg6{height:6px!important;}
+.v_hg7{height:7px!important;}
+.v_hg8{height:8px!important;}
+.v_hg9{height:9px!important;}
+.v_hg10{height:10px!important;}
+.v_hg15{height:15px!important;}
+.v_hg20{height:20px!important;}
+.v_hg25{height:25px!important;}
+.v_hg30{height:30px!important;}
+.v_hg35{height:35px!important;}
+.v_hg40{height:40px!important;}
+.v_hg45{height:45px!important;}
+.v_hg50{height:50px!important;}
+.v_hg55{height:55px!important;}
+.v_hg80{height:80px!important;}
+.v_hg90{height:90px!important;}
+.v_hg100{height:100px!important;}
+.v_hg110{height:110px!important;}
+.v_hg120{height:120px!important;}
+.v_hg150{height:150px!important;}
+.v_hg180{height:180px!important;}
+.v_hg200{height:200px!important;}
+
+
+.keyf01 {color:#d82424; font-weight:bold} 
+.keyf0_1 {color:#d82424!important}
+.keyf02 {color:#ff6410; font-weight:bold} 
+.keyf0_2 {color:#ff6410!important}
+.keyf03 {color:#fff000; font-weight:bold} 
+.keyf0_3 {color:#fff000!important}
+.keyf04 {color:#009933; font-weight:bold} 
+.keyf0_4 {color:#009933!important}
+.keyf05 {color:#0099ff; font-weight:bold} 
+.keyf0_5 {color:#0099ff!important}
+.keyf0_51 {color:#1f4ca7!important} 
+.keyf06 {color:#4375c1; font-weight:bold}
+.keyf0_6 {color:#4375c1!important}
+.keyf07 {color:#9900cc; font-weight:bold} 
+.keyf0_7 {color:#9900cc!important}
+.keyf08 {color:#000; font-weight:bold}    
+.keyf0_8 {color:#000!important}
+.keyf09 {color:#FFF; font-weight:bold}    
+.keyf0_9 {color:#FFF!important}
+.keyf10 {color:#aaaaaa; font-weight:bold} 
+.keyf0_10 {color:#aaaaaa!important}
+.keyf11 {font-weight:bold}   
+.keyf12 {color:#2af7ff; font-weight:normal; text-decoration:underline}  
+.keyf0_12 {color:#2af7ff; font-weight:bold}
+
+.bg_c01 {background-color:#d82424;} 
+.bg_c02 {background-color:#ff6410;} 
+.bg_c03 {background-color:#fff000;} 
+.bg_c04 {background-color:#009933;}
+.bg_c05 {background-color:#0099ff;}
+.bg_c06 {background-color:#4375c1;}
+.bg_c07 {background-color:#9900cc;} 
+.bg_c08 {background-color:#000;}    
+.bg_c09 {background-color:#FFF;}    
+.bg_c10 {background-color:#777;}    
+.bg_c11 {background-color:#383838;}  
+.bgimg_none {background-image:none!important} 
+.bgcol_none {background-color:none!important} 
+
+.t_bd0{border-top:0!important}		
+.b_bd0{border-bottom:0!important}	
+
+.bder_c0{border:none!important}
+
+.bder_c1 {border:1px #d82424 solid;} 
+.bder_tc1 {border-top:1px #d82424 solid;}
+.bder_bc1 {border-bottom:1px #d82424 solid;}
+
+.bder_c2 {border:1px #ff6410 solid;} 
+.bder_tc2 {border-top:1px #ff6410 solid;} 
+.bder_bc2 {border-bottom:1px #ff6410 solid;} 
+
+.bder_c3 {border:1px #fff000 solid;}
+.bder_tc3 {border-top:1px #fff000 solid;}
+.bder_bc3 {border-bottom:1px #fff000 solid;}
+
+.bder_c4 {border:1px #009933 solid;}
+.bder_tc4 {border-top:1px #009933 solid;}
+.bder_bc4 {border-bottom:1px #009933 solid;}
+
+.bder_c5 {border:1px #0099ff solid;}
+.bder_tc5 {border-top:1px #0099ff solid;}
+.bder_bc5 {border-bottom:1px #0099ff solid;}
+
+.bder_c6 {border:1px #4375c1 solid;}
+.bder_tc6 {border-top:1px #4375c1 solid;}
+.bder_bc6 {border-bottom:1px #4375c1 solid;}
+
+.bder_c7 {border:1px #9900cc solid;} 
+.bder_tc7 {border-top:1px #9900cc solid;}
+.bder_bc7 {border-bottom:1px #9900cc solid;}
+
+.bder_c8 {border:1px #000 solid;}    
+.bder_tc8 {border-top:1px #000 solid;}
+.bder_bc8 {border-bottom:1px #000 solid;}
+
+.bder_c9 {border:1px #FFF solid;}   
+.bder_tc9 {border-top:1px #FFF solid;}
+.bder_bc9 {border-bottom:1px #FFF solid;}
+
+.bder_c10 {border:1px #e0e0e0 solid;}  
+.bder_tc10 {border-top:1px #e0e0e0 solid;}
+.bder_bc10 {border-bottom:1px #e0e0e0 solid;}
+
+.bbBtn {
+	display: inline-block;
+	padding: 6px 18px;
+	margin: 0 .5em .5em;
+	font-family:Verdana, Geneva, sans-serif;
+	font-size: 11px;
+	line-height: 20px;
+	text-decoration:none!important;
+	text-align: center;
+	vertical-align: middle;
+	cursor: pointer;
+	-webkit-border-radius: 3px;
+	   -moz-border-radius: 3px;
+	        border-radius: 3px;
+	-webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+	   -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+	        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+	background-color: #cdcfd0;
+	border:1px solid #cdcfd0;
+	color: #fff; 
+}
+.bbBtn:hover{
+	border-bottom-color:rgba(0,0,0,.15);
+	-webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 0px 7px rgba(0, 0, 0, 0.25);
+	   -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 0px 7px rgba(0, 0, 0, 0.25);
+	        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 0px 7px rgba(0, 0, 0, 0.25);
+}
+.bbBtn.active,
+.bbBtn:active {
+	margin-top:1px;
+	padding-bottom:5px;
+	-webkit-box-shadow: inset 0 0px 4px rgba(0, 0, 0, 0.12);
+	   -moz-box-shadow: inset 0 0px 4px rgba(0, 0, 0, 0.12);
+	        box-shadow: inset 0 0px 4px rgba(0, 0, 0, 0.12);
+}
+
+.bbBtn-gradient{
+	background-image: -moz-linear-gradient(top,  rgba(255,255,255,0.21) 0%, rgba(255,255,255,0) 100%);
+	background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,0.21)), color-stop(100%,rgba(255,255,255,0)));
+	background-image: -webkit-linear-gradient(top,  rgba(255,255,255,0.21) 0%,rgba(255,255,255,0) 100%);
+	background-image: -o-linear-gradient(top,  rgba(255,255,255,0.21) 0%,rgba(255,255,255,0) 100%);
+	background-image: -ms-linear-gradient(top,  rgba(255,255,255,0.21) 0%,rgba(255,255,255,0) 100%);
+	background-image: linear-gradient(to bottom,  rgba(255,255,255,0.21) 0%,rgba(255,255,255,0) 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#36ffffff', endColorstr='#00ffffff',GradientType=0 );
+}
+
+.bbBtn-green{background-color: #95be69;	border:1px solid #95be69;}
+.bbBtn-blue{background-color: #3b77c9;border:0px solid #175aa5;}
+.bbBtn-pink{background-color: #ef717d;border:1px solid #ef717d;}
+.bbBtn-violet{background-color: #9388cf;border:1px solid #9388cf;}
+.bbBtn-yellow{background-color: #f9a161;border:1px solid #f9a161;}
+
+.mjshow {display:inline;color:#000; font-family:Arial; font-weight:bold;}
+.mjdeco {color:#F00; font-family:Arial; font-weight:bold;}
+
+.ma_auto{ margin:0 auto!important;}
+.mt0 {margin:0px!important}
+.mt5 {margin:5px!important}
+.mt10 {margin:10px!important}
+.mt15 {margin:15px!important}
+.mt20 {margin:20px!important}
+.mt30 {margin:30px!important}
+.mt40 {margin:40px!important}
+.mt50 {margin:50px!important}
+
+.top_mt0 {margin-top:0px!important}
+.top_mt1 {margin-top:1px!important}
+.top_mt2 {margin-top:2px!important}
+.top_mt3 {margin-top:3px!important}
+.top_mt4 {margin-top:4px!important}
+.top_mt5 {margin-top:5px!important}
+.top_mt6 {margin-top:6px!important}
+.top_mt7 {margin-top:7px!important}
+.top_mt8 {margin-top:8px!important}
+.top_mt9 {margin-top:9px!important}
+.top_mt10 {margin-top:10px!important}
+.top_mt15 {margin-top:15px!important}
+.top_mt20 {margin-top:20px!important}
+.top_mt25 {margin-top:25px!important}
+.top_mt30 {margin-top:30px!important}
+.top_mt35 {margin-top:35px!important}
+.top_mt40 {margin-top:40px!important}
+.top_mt50 {margin-top:50px!important}
+.top_mt60 {margin-top:60px!important}
+.top_mt70 {margin-top:70px!important}
+.top_mt80 {margin-top:80px!important}
+.top_mt120 {margin-top:120px!important}
+
+.right_mt0 {margin-right:0px!important}
+.right_mt1 {margin-right:1px!important}
+.right_mt2 {margin-right:2px!important}
+.right_mt3 {margin-right:3px!important}
+.right_mt4 {margin-right:4px!important}
+.right_mt5 {margin-right:5px!important}
+.right_mt6 {margin-right:6px!important}
+.right_mt7 {margin-right:7px!important}
+.right_mt8 {margin-right:8px!important}
+.right_mt9 {margin-right:9px!important}
+.right_mt10 {margin-right:10px!important}
+.right_mt15 {margin-right:15px!important}
+.right_mt20 {margin-right:20px!important}
+.right_mt25 {margin-right:25px!important}
+.right_mt30 {margin-right:30px!important}
+.right_mt35 {margin-right:35px!important}
+.right_mt40 {margin-right:40px!important}
+.right_mt50 {margin-right:50px!important}
+.right_mt60 {margin-right:60px!important}
+.right_mt70 {margin-right:70px!important}
+.right_mt80 {margin-right:80px!important}
+.right_mt90 {margin-right:90px!important}
+.right_mt100 {margin-right:100px!important}
+
+.bottom_mt0 {margin-bottom:0!important}
+.bottom_mt1 {margin-bottom:1px!important}
+.bottom_mt2 {margin-bottom:2px!important}
+.bottom_mt3 {margin-bottom:3px!important}
+.bottom_mt4 {margin-bottom:4px!important}
+.bottom_mt5 {margin-bottom:5px!important}
+.bottom_mt6 {margin-bottom:6px!important}
+.bottom_mt7 {margin-bottom:7px!important}
+.bottom_mt8 {margin-bottom:8px!important}
+.bottom_mt9 {margin-bottom:9px!important}
+.bottom_mt10 {margin-bottom:10px!important}
+.bottom_mt11 {margin-bottom:11px!important}
+.bottom_mt12 {margin-bottom:12px!important}
+.bottom_mt13 {margin-bottom:13px!important}
+.bottom_mt14 {margin-bottom:14px!important}
+.bottom_mt15 {margin-bottom:15px!important}
+.bottom_mt20 {margin-bottom:20px!important}
+.bottom_mt25 {margin-bottom:25px!important}
+.bottom_mt30 {margin-bottom:30px!important}
+.bottom_mt35 {margin-bottom:35px!important}
+.bottom_mt40 {margin-bottom:40px!important}
+.bottom_mt45 {margin-bottom:45px!important}
+.bottom_mt50 {margin-bottom:50px!important}
+.bottom_mt120 {margin-bottom:120px!important}
+
+.left_mt0 {margin-left:0px!important}
+.left_mt1 {margin-left:1px!important}
+.left_mt2 {margin-left:2px!important}
+.left_mt3 {margin-left:3px!important}
+.left_mt4 {margin-left:4px!important}
+.left_mt5 {margin-left:5px!important}
+.left_mt10 {margin-left:10px!important}
+.left_mt15 {margin-left:15px!important}
+.left_mt20 {margin-left:20px!important}
+.left_mt25 {margin-left:25px!important}
+.left_mt30 {margin-left:30px!important}
+.left_mt35 {margin-left:35px!important}
+.left_mt40 {margin-left:40px!important}
+.left_mt45 {margin-left:45px!important}
+.left_mt50 {margin-left:50px!important}
+.left_mt55 {margin-left:55px!important}
+.left_mt60 {margin-left:60px!important}
+.left_mt65 {margin-left:65px!important}
+.left_mt70 {margin-left:70px!important}
+.left_mt80 {margin-left:80px!important}
+.left_mt90 {margin-left:90px!important}
+.left_mt100 {margin-left:100px!important}
+
+.pt0 {padding:0px!important}
+.pt4 {padding:4px!important}
+.pt5 {padding:5px!important}
+.pt8 {padding:8px!important}
+.pt10 {padding:10px!important}
+.pt15 {padding:15px!important}
+.pt20 {padding:20px!important}
+.pt30 {padding:30px!important}
+.pt40 {padding:40px!important}
+
+.top_pt0 {padding-top:0px!important}
+.top_pt1 {padding-top:1px!important}
+.top_pt2 {padding-top:2px!important}
+.top_pt3 {padding-top:3px!important}
+.top_pt4 {padding-top:4px!important}
+.top_pt5 {padding-top:5px!important}
+.top_pt6 {padding-top:6px!important}
+.top_pt7 {padding-top:7px!important}
+.top_pt8 {padding-top:8px!important}
+.top_pt9 {padding-top:9px!important}
+.top_pt10 {padding-top:10px!important}
+.top_pt15 {padding-top:15px!important}
+.top_pt20 {padding-top:20px!important}
+.top_pt25 {padding-top:25px!important}
+.top_pt30 {padding-top:30px!important}
+.top_pt35 {padding-top:35px!important}
+.top_pt40 {padding-top:40px!important}
+.top_pt45 {padding-top:45px!important}
+.top_pt50 {padding-top:50px!important}
+.top_pt55 {padding-top:55px!important}
+.top_pt60 {padding-top:60px!important}
+.top_pt65 {padding-top:65px!important}
+.top_pt70 {padding-top:70px!important}
+
+.right_pt0 {padding-right:0px!important}
+.right_pt1 {padding-right:1px!important}
+.right_pt2 {padding-right:2px!important}
+.right_pt3 {padding-right:3px!important}
+.right_pt4 {padding-right:4px!important}
+.right_pt5 {padding-right:5px!important}
+.right_pt6 {padding-right:6px!important}
+.right_pt7 {padding-right:7px!important}
+.right_pt8 {padding-right:8px!important}
+.right_pt9 {padding-right:9px!important}
+.right_pt10 {padding-right:10px!important}
+.right_pt15 {padding-right:15px!important}
+.right_pt20 {padding-right:20px!important}
+.right_pt30 {padding-right:30px!important}
+.right_pt40 {padding-right:40px!important}
+.right_pt50 {padding-right:50px!important}
+
+.bottom_pt0 {padding-bottom:0px!important}
+.bottom_pt1 {padding-bottom:1px!important}
+.bottom_pt2 {padding-bottom:2px!important}
+.bottom_pt3 {padding-bottom:3px!important}
+.bottom_pt4 {padding-bottom:4px!important}
+.bottom_pt5 {padding-bottom:5px!important}
+.bottom_pt6 {padding-bottom:6px!important}
+.bottom_pt7 {padding-bottom:7px!important}
+.bottom_pt8 {padding-bottom:8px!important}
+.bottom_pt9 {padding-bottom:9px!important}
+.bottom_pt10 {padding-bottom:10px!important}
+.bottom_pt15 {padding-bottom:15px!important}
+.bottom_pt20 {padding-bottom:20px!important}
+.bottom_pt30 {padding-bottom:30px!important}
+.bottom_pt40 {padding-bottom:40px!important}
+.bottom_pt50 {padding-bottom:50px!important}
+
+.left_pt0 {padding-left:0px!important}
+.left_pt5 {padding-left:5px!important}
+.left_pt10 {padding-left:10px!important}
+.left_pt15 {padding-left:15px!important}
+.left_pt20 {padding-left:20px!important}
+.left_pt25 {padding-left:25px!important}
+.left_pt30 {padding-left:30px!important}
+.left_pt35 {padding-left:35px!important}
+.left_pt40 {padding-left:40px!important}
+.left_pt45 {padding-left:45px!important}
+.left_pt50 {padding-left:50px!important}
+.left_pt55 {padding-left:55px!important}
+.left_pt60 {padding-left:60px!important}
+.left_pt70 {padding-left:70px!important}
+.left_pt100 {padding-left:100px!important}
+.left_pt150 {padding-left:150px!important}
+
+
+.paginate{ padding:15px 0; text-align:center; background:#000}
+.paginate *{ margin:0; padding:0;}
+.paginate a,
+.paginate strong{ _position:relative; margin-left:-7px; font-weight:bold; display:inline-block; padding:3px 8px 1px 7px; color:#fff; border-left:1px solid #ccc; border-right:1px solid #ccc; text-decoration:none; line-height:normal; font:bold 12px 돋움, Dotum, 굴림, Gulim, AppleGothic, Sans-serif; background:#000;}
+.paginate strong{ color:#ff8600 !important;}
+.paginate a:hover{ background:#000; }
+.paginate a.pre{ padding:3px 8px 1px 16px; background:url('/images/bu_pg1_l1.gif') no-repeat 8px 6px !important; border:none; font-weight:normal; }
+.paginate a.pre_end{ padding:3px 8px 1px 16px; background:url('/images/bu_pg1_l2.gif') no-repeat 4px 6px !important; border:none; border-right:1px solid #ccc; font-weight:normal;}
+.paginate a.next{ padding:3px 16px 1px 8px; background:url('/images/bu_pg1_r1.gif') no-repeat 37px 6px !important; border:none; font-weight:normal; }
+.paginate a.next_end{ padding:3px 16px 1px 8px; background:url('/images/bu_pg1_r2.gif') no-repeat 37px 6px !important; border:none; border-left:1px solid #ccc; font-weight:normal;}
+
+.w_01 {width:1%!important}
+.w_02 {width:2%!important}
+.w_03 {width:3%!important}
+.w_04 {width:4%!important}
+.w_05 {width:5%!important}
+.w_06 {width:6%!important}
+.w_07 {width:7%!important}
+.w_08 {width:8%!important}
+.w_09 {width:9%!important}
+.w_10 {width:10%!important}
+.w_11 {width:11%!important}
+.w_12 {width:12%!important}
+.w_13 {width:13%!important}
+.w_14 {width:14%!important}
+.w_15 {width:15%!important}
+.w_16 {width:16%!important}
+.w_17 {width:17%!important}
+.w_18 {width:18%!important}
+.w_19 {width:19%!important}
+.w_20 {width:20%!important}
+.w_21 {width:21%!important}
+.w_22 {width:22%!important}
+.w_23 {width:23%!important}
+.w_24 {width:24%!important}
+.w_25 {width:25%!important}
+.w_26 {width:26%!important}
+.w_27 {width:27%!important}
+.w_28 {width:28%!important}
+.w_29 {width:29%!important}
+.w_30 {width:30%!important}
+.w_31 {width:31%!important}
+.w_32 {width:32%!important}
+.w_33 {width:33.333%!important}
+.w_34 {width:34%!important}
+.w_35 {width:35%!important}
+.w_36 {width:36%!important}
+.w_37 {width:37%!important}
+.w_38 {width:38%!important}
+.w_39 {width:39%!important}
+.w_40 {width:40%!important}
+.w_41 {width:41%!important}
+.w_42 {width:42%!important}
+.w_43 {width:43%!important}
+.w_44 {width:44%!important}
+.w_45 {width:45%!important}
+.w_46 {width:46%!important}
+.w_47 {width:47%!important}
+.w_48 {width:48%!important}
+.w_49 {width:49%!important}
+.w_50 {width:50%!important}
+.w_55 {width:55%!important}
+.w_60 {width:60%!important}
+.w_65 {width:65%!important}
+.w_70 {width:70%!important}
+.w_75 {width:75%!important}
+.w_80 {width:80%!important}
+.w_85 {width:85%!important}
+.w_86 {width:86%!important}
+.w_87 {width:87%!important}
+.w_88 {width:88%!important}
+.w_89 {width:89%!important}
+.w_90 {width:90%!important}
+.w_91 {width:91%!important}
+.w_92 {width:92%!important}
+.w_93 {width:93%!important}
+.w_94 {width:94%!important}
+.w_95 {width:95%!important}
+.w_100 {width:100%!important; margin-left:0}
+
+.top_fix { position:fixed; top:0; width:100%; }
+.bot_fix { position:fixed; bottom:0; width:100%; border-top: 1px #f1f1f1 solid !important; }
+.h100_fix { position:fixed!important; height:100vh; }
+
+.tpx01 {top:1px!important}
+.tpx02 {top:2px!important}
+.tpx03 {top:3px!important}
+.tpx04 {top:4px!important}
+.tpx05 {top:5px!important}
+.tpx12 {top:12px!important}
+.tpx15 {top:15px!important}
+.top00 {top:0!important}
+.top05 {top:5%!important}
+.top10 {top:10%!important}
+.top15 {top:15%!important}
+.top20 {top:20%!important}
+.top25 {top:25%!important}
+.top30 {top:30%!important}
+.top55 {top:55%!important}
+.top70 {top:70%!important}
+
+.rpx01 {right:1px!important}
+.rpx02 {right:2px!important}
+.rpx03 {right:3px!important}
+.rpx04 {right:4px!important}
+.rpx05 {right:5px!important}
+.rpx15 {right:15px!important
+}
+.right00 {right:0!important}
+.right05 {right:5%!important}
+.right10 {right:10%!important}
+.right11 {right:11%!important}
+.right12 {right:12%!important}
+.right13 {right:13%!important}
+.right14 {right:14%!important}
+.right15 {right:15%!important}
+.right20 {right:20%!important}
+.right25 {right:25%!important}
+.right30 {right:30%!important}
+
+.bottom00 {bottom:0!important}
+.bottom05 {bottom:5%!important}
+.bottom10 {bottom:10%!important}
+.bottom15 {bottom:15%!important}
+.bottom20 {bottom:20%!important}
+.bottom25 {bottom:25%!important}
+
+.lpx01 {left:1px!important}
+.lpx02 {left:2px!important}
+.lpx03 {left:3px!important}
+.lpx04 {left:4px!important}
+.lpx05 {left:5px!important}
+.left00 {left:0!important}
+.left05 {left:5%!important}
+.left10 {left:10%!important}
+.left15 {left:15%!important}
+.left20 {left:20%!important}
+.left25 {left:25%!important}
+
+
+.child_height { *zoom:1;}
+.child_height:after { content: ""; clear: both; display: block; }
+
+.br1px { -webkit-border-radius:1px; -moz-border-radius:1px; -o-border-radius:1px; -ms-border-radius:1px; border-radius:1px; }
+.br2px { -webkit-border-radius:2px; -moz-border-radius:2px; -o-border-radius:2px; -ms-border-radius:2px; border-radius:2px; }
+.br3px { -webkit-border-radius:3px; -moz-border-radius:3px; -o-border-radius:3px; -ms-border-radius:3px; border-radius:3px!important; }
+.br4px { -webkit-border-radius:4px; -moz-border-radius:4px; -o-border-radius:4px; -ms-border-radius:4px; border-radius:4px!important; }
+.br5px { -webkit-border-radius:5px; -moz-border-radius:5px; -o-border-radius:5px; -ms-border-radius:5px; border-radius:5px!important; }
+.br6px { -webkit-border-radius:6px; -moz-border-radius:6px; -o-border-radius:6px; -ms-border-radius:6px; border-radius:6px; }
+.br7px { -webkit-border-radius:7px; -moz-border-radius:7px; -o-border-radius:7px; -ms-border-radius:7px; border-radius:7px; }
+.br8px { -webkit-border-radius:8px; -moz-border-radius:8px; -o-border-radius:8px; -ms-border-radius:8px; border-radius:8px; }
+.br9px { -webkit-border-radius:9px; -moz-border-radius:9px; -o-border-radius:9px; -ms-border-radius:9px; border-radius:9px; }
+.br10px { -webkit-border-radius:10px; -moz-border-radius:10px; -o-border-radius:10px; -ms-border-radius:10px; border-radius:10px; }
+.br50pc { -webkit-border-radius:50%; -moz-border-radius:50%; -o-border-radius:50%; -ms-border-radius:50%; border-radius:50%; }
+
+.opacity01 { opacity: 0.1!important; }
+.opacity02 { opacity: 0.2!important; }
+.opacity03 { opacity: 0.3!important; }
+.opacity04 { opacity: 0.4!important; }
+.opacity05 { opacity: 0.5!important; }
+.opacity06 { opacity: 0.6!important; }
+.opacity07 { opacity: 0.7!important; }
+.opacity08 { opacity: 0.8!important; }
+.opacity087 { opacity: 0.87!important; }
+.opacity09 { opacity: 0.9!important; }
+.opacity10 { opacity: 1!important; }
+
+.underline { padding-bottom: 1px; border-bottom: 1px solid rgba(51, 51, 51, 1); /*rgba(55, 112, 201, 0.5);*/ }
+
+
+@charset "utf-8";
+[ng\:cloak], [ng-cloak], .ng-cloak {
+ display: none;
+}
+td {
+ border:1px solid #aaa;
+}
+
+
+body{
+font-family: "Helvetica Nene", Helvetica, Arial, "malgun gothic", sans-serif;
+/* font-family: 'Nanum Myeongjo', serif; */
+font-size:14px;
+font-weight:750;
+line-height:220%
+}
+.height{    
+    min-height: 60vh;
+}
+
+h1,h2,h3,h4,h5,h6 {margin: 0;}
+ul, ol {margin: 0; padding: 0; list-style: none;}
+a {text-decoration: none;}
+a {color: gray;}
+
+.color-red {color:red}
+.color-green {color:green}
+.color-black {color:black}
+.color-blue {color:blue}
+.color-purple {color:purple}
+.color-brown {color:brown}
+
+.bold {font-weight:bold;}
+
+.limit {overflow: hidden; margin: 0 auto; padding: 0 1%; width: 100%;}
+.header-logo {padding: 5px 0;}
+
+.list-header {padding: 1px 0;}
+.list-row {display: table; width: 100%;border-bottom: 1px solid #eee; font-size: 15px; }
+.list-row--header {padding: 2px ; border-top: 1px solid #333;font-weight: normal; }
+.list-link {display: table; width: 100%; }
+.list-link:hover {background: #ddd; }
+.list-cell {display: table-cell; padding: 6px 4px;text-align: left; vertical-align: middle;}
+.list-cell--10 {width: 10px;}
+.list-cell--20 {width: 20px;}
+.list-cell--30 {width: 30px;}
+.list-cell--40 {width: 40px;}
+.list-cell--50 {width: 50px;}
+.list-cell--60 {width: 60px;}
+.list-cell--70 {width: 70px;}
+.list-cell--80 {width: 80px;}
+.list-cell--90 {width: 90px;}
+.list-cell--100 {width: 100px;}
+.list-cell--110 {width: 110px;}
+.list-cell--120 {width: 120px;}
+.list-cell--130 {width: 130px;}
+.list-cell--140 {width: 140px;}
+.list-cell--150 {width: 150px;}
+.list-cell--160 {width: 160px;}
+.list-cell--170 {width: 170px;}
+.list-cell--180 {width: 180px;}
+.list-cell--190 {width: 190px;}
+.list-cell--200 {width: 200px;}
+.list-cell--210 {width: 210px;}
+.list-cell--220 {width: 220px;}
+.list-cell--230 {width: 230px;}
+.list-cell--240 {width: 240px;}
+.list-cell--250 {width: 250px;}
+.list-cell--260 {width: 260px;}
+.list-cell--270 {width: 270px;}
+.list-cell--280 {width: 280px;}
+.list-cell--290 {width: 290px;}
+.list-cell--300 {width: 300px;}
+.list-cell--310 {width: 310px;}
+.list-cell--320 {width: 320px;}
+.list-cell--330 {width: 330px;}
+.list-cell--340 {width: 340px;}
+.list-cell--350 {width: 350px;}
+.list-cell--360 {width: 360px;}
+.list-cell--370 {width: 370px;}
+.list-cell--380 {width: 380px;}
+.list-cell--390 {width: 390px;}
+.list-cell--400 {width: 400px;}
+.list-cell--500 {width: 500px;}
+.list-cell--550 {width: 550px;}
+.list-cell--600 {width: 600px;}
+.list-cell--700 {width: 700px;}
+.list-cell--750 {width: 750px;}
+
+.list-cell span {display: block;}
+
+.ui-button {text-align: right;}
+.ui-button a {display: inline-block; background: #eee; font-size: 12px; color: #aaa; padding: 10px 20px; border-radius: 5px;}
+
+.section-index {margin-top: 50px;}
+.section-index__title {padding: 5px 0;font-size: 18px;}
+
+.form-unit {}
+.form-unit--ib {display: inline-block; margin-right: 20px;}
+.work-order {margin-top: 20px; padding: 10px; border: 1px solid #000;}
+.work-gubun {border-bottom: 1px solid #000;}
+
+.component {padding: 10px;border: 1px solid #eee;}
+
+.nav-group {overflow: hidden;}
+.nav-item {float: left; margin-right: 15px;}
+
+.main {}
+.main__title {padding: 30px 0;}
+.section__title {}
+.sort {padding: 20px; border: 1px solid #eee; box-sizing: border-box;}
+.sort__item {display: inline-block; margin-right: 20px;}
+
+.pagenation {padding: 30px 0;text-align: center;}
+.pagenation__arrow {display: inline-block;}
+.pagenation__group {display: inline-block; margin: 0 30px;}
+.pagenation__item {display: inline-block; margin: 0 10px;}
+
+.footer {padding: 50px 0;}
+@media screen and (max-width: 1279px) {}
+@media screen and (min-width: 1280px) {}
+
+#loading { width: 100%; height: 100%; top: 0px; left: 0px; position: fixed; display: block; opacity: 0.7; background-color: #fff; z-index: 99; text-align: center; }
+#loading-image { position: absolute; top: 50%; left: 50%; z-index: 100;  text-align: center;}
+
+.blink_me {
+  animation: blinker 3.5s linear infinite;
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
+
+		#container { background: #f7f5de; width: 100%; max-width: 860px; margin: 0 auto; padding-bottom: 50px; }
+
+		/* #header { background: #2e427b; color: #fff; padding: 20px 15px; position: relative; }
+		#header h3 { font-size: 18px; font-weight: bold; }
+		#header p { font-size: 12px; margin-top: 10px; }
+		#header span { font-size: 12px; position: absolute; right: 30px; bottom: 20px; } */
+		#header img { width: 100%; }
+		#contents { background: #f7f5de; padding-bottom: 50px; }
+		#contents > div { padding: 15px; }
+		#contents > div > p { margin-bottom: 10px; color: #222; font-weight: bold; font-size: 18px; }
+		#contents > div > form > p { margin-bottom: 10px; color: #222; font-weight: bold; font-size: 18px; }
+		.line { border-top: 1px dotted #cbcbcb; margin: 0px 15px; padding: 0px !important; }
+
+		#contents .con_1 { padding: 30px 15px 15px 15px; }
+		.con_1 ul li { float: left; width: calc(25% - 11.25px); margin-left: 15px; text-align: center; background: #fff; height: 40px; line-height: 40px; font-weight: 500; cursor: pointer; font-size: 16px; -webkit-border-radius:3px; -moz-border-radius:3px; -o-border-radius:3px; -ms-border-radius:3px; border-radius:3px!important; }
+		.con_1 ul li:first-child,
+		.con_1 ul li:nth-child(5), 
+		.con_1 ul li:nth-child(9) { margin-left: 0px; }
+		.con_1 ul li:nth-child(n+5) { margin-top: 15px; }
+		.con_1 .con1_type li.select { width: calc(25% - 1.25px); background: #555; color: #fff; }
+
+		.con_2 { padding: 15px; }
+		.con_2 > ul > li:first-child { width: 50%; }
+		.con_2 > ul > li:last-child { width: 50%; }
+		.con_2 .con2_typeinfo { width: 100%; height: 310px; position: relative; }
+		.con_2 .con2_typeinfo li { float: left; position: absolute; width: 100%; height: 100%; text-align: left; display: none; font-size: 18px; font-weight: 500; }
+		.con_2 .con2_typeinfo li:nth-child(1) { background: none; opacity: 1; }
+		.con_2 .con2_typeinfo li:nth-child(2) { background: none; }
+		.con_2 .con2_typeinfo li:nth-child(3) { background: none; }
+		.con_2 .con2_typeinfo li:nth-child(4) { background: none; }
+		.con_2 .con2_typeinfo li:nth-child(5) { background: none; }
+		.con_2 .con2_typeinfo li:nth-child(6) { background: none; }
+		.con_2 .con2_typeinfo li:nth-child(7) { background: none; }
+		.con_2 .con2_typeinfo li:nth-child(8) { background: none; }
+		.con_2 .con2_typeinfo li img { max-width: 100%; height: 310px; line-height: 0; vertical-align: top; }
+		.con_2 .con2_size { padding: 0px 15px 0px 30px; }
+		.con_2 .con2_size li { border-bottom: 1px solid #ddd; padding: 10.5px 0px; font-size: 16px; }
+		.con_2 .con2_size li:last-child { margin-bottom: 0px; }
+		.con_2 .con2_size li > span:first-child { width: 90px; font-weight: bold; }
+		.con_2 .con2_size li > span:last-child { width: 50px; font-weight: bold; }
+		.con_2 .con2_size li > input { width: 125px; text-align: right; }
+		.con_2 .con2_size li > select { width: 125px; }
+
+		.con_2 .con2_option { margin-top: 0px; }
+		.con_2 .con2_option_chk { margin: 0px; padding: 0px; }
+		.con_2 .con2_option_chk li { float: left; position: relative; width: calc(20% - 12px); margin-left: 15px; }
+		.con_2 .con2_option_chk li:first-child { margin-left: 0px; }
+		.con_2 .con2_option_chk li > input { position: absolute; opacity: 0; cursor: pointer; }
+		.con_2 .con2_option_chk li > label { width: 100%; height: 40px; line-height: 40px; text-align: center; background: #fff; -webkit-border-radius:3px; -moz-border-radius:3px; -o-border-radius:3px; -ms-border-radius:3px; border-radius:3px!important; font-size: 16px; font-weight: 500; }
+		.con_2 .con2_option_info1 { border: 1px solid #cbcbcb; width: 100%; height: 100px; line-height: 100px; background: rgba(255,255,255,0.6); font-size: 14px; text-align: center; }
+		.con_2 .con2_option_chk li > input[type="checkbox"]:checked + label { background: #555; color: #fff; }
+		.con_2 .con2_option_chk .notSelOption { position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.2); display: none; z-index: 2; }
+		.con_2 .con2_option_chk .btn_option5 { line-height:35px; }
+		.con_2 .con2_option_chk .btn_option5 > span { position: relative; width: 100%; }
+		.con_2 .con2_option_chk .btn_option5 > span > span { width:100%;text-align:center;font-size:12px;position:absolute;bottom:-2px;left:0px;line-height:12px; }
+
+		.con_2 .con2_option .con2_option_info2 { font-size: 16px; width: 100%; min-height: 150px; position: relative; margin-top: 15px; }
+		.con_2 .con2_option .con2_option_info2 li { float: left; width: 100%; height: 100%; text-align: center; display:none; margin-bottom: 15px; border: 1px solid #ccc; }
+		.con_2 .con2_option .con2_option_info2 li:nth-child(1) { border: 0px solid #cbcbcb; width: 100%; height: 100px; line-height: 100px; background: rgba(255,255,255,1); font-size: 14px; text-align: center; display: block; }
+		.con_2 .con2_option .con2_option_info2 li:nth-child(2) { background: lightyellow; }
+		.con_2 .con2_option .con2_option_info2 li:nth-child(3) { background: lightpink; }
+		.con_2 .con2_option .con2_option_info2 li:nth-child(4) { background: lightgreen; }
+		.con_2 .con2_option .con2_option_info2 li:nth-child(5) { background: lightseagreen; }
+		.con_2 .con2_option .con2_option_info2 li:nth-child(6) { background: lightslategrey; }
+		.con_2 .con2_option .con2_option_info2 li:nth-child(7) { background: lightsalmon; }
+		.con_2 .con2_option .con2_option_info2 li:nth-child(8) { background: lightskyblue; }
+		.option_sub_info { width: 100%; background: #fff; *zoom: 1; padding: 15px 30px; border-bottom: 1px dotted #ccc; }
+		.option_sub_info:after { display: block; content: ""; clear: both; }
+		.option_sub_info > span { height: 30px; line-height: 30px; }
+		.option_sub_info > span:first-child { float: left; width: 100px; text-align: left; font-weight: 500; }
+		.option_sub_info .btn_op_detail { font-size: 16px; float: left; margin-left: 15px; width: 80px; text-align: center; height: 30px; line-height: 30px; background: #eee; }
+		.option_sub_info .option_price { float: right; color: red; text-align: right; }
+		.option_sub_info select { width: 180px; float: left; margin-left: 15px; color: #333; }
+		.option_sub_info select#itemOptionSub1 { width: 285px;}
+		.option_sub_info select#itemOptionSub2 { width: 345px;}
+		.option_sub_info select#itemOptionSub5 { width: 270px;}
+		.option_sub_img { width: 100%; display: none; }
+		.option_sub_img > img { max-width: 100%; line-height: 0; vertical-align: top; }
+
+		.con_2 .con2_btn { text-align: center; padding: 30px; }
+		.con_2 .con2_btn .btn_selend { background: #2e427b; color: #fff; width: 150px; height: 50px; text-align: center; border: none; font-size: 16px; font-weight:500; }
+
+		.con_3 table { width: 100%; }
+		.con_3 .con3_thead { overflow-x: auto; }
+		.con_3 .con3_thead table { /*width: calc(100% - 30px); max-width: 970px;*/ width: 100%; max-width: 990px; }
+		.con_3 .con3_thead table th { font-size: 14px; background: #d9e3ff; font-weight: bold; padding: 10px 5px; }
+		.con_3 .con3_tbody { height: 200px; overflow-y: auto; overflow-x: auto; }
+		.con_3 .con3_tbody table { /*width: calc(100% - 30px); max-width: 970px;*/ width: 100%; max-width: 990px; }
+		.con_3 .con3_tbody table tbody { min-height: 200px; }
+		.con_3 .con3_tbody table td { font-size: 14px; padding: 5px; background: #fff; text-align: center; vertical-align: middle; }
+		.con_3 .con3_tbody table td:nth-child(4),
+
+		.con_3 .con3_tbody table td:nth-child(8),
+		.con_3 .con3_tbody table td:nth-child(9) { text-align: right; padding-right: 10px; } */
+		.con_3 .con3_tbody .estiItemChk { width: 15px; height: 15px; vertical-align: middle; }
+		.con_3 .con3_del { background: #555; padding: 10px 15px; }
+		.con_3 .con3_del button { background: #fff; border: 0px; font-size: 14px; margin-right:5px; }
+
+		.con_3 .con3_total { background: #fff; border: 3px solid #2e427b; margin-top: 15px; padding: 15px; }
+		.con_3 .con3_total .con3_total_l { width: 70%; }
+		.con_3 .con3_total .con3_total_l h3 { font-size: 24px; font-weight: bold; color: #000; }
+		.con_3 .con3_total .con3_total_l p { font-size: 12px; color: #000; }
+		.con_3 .con3_total .con3_total_l ul { margin-top: 10px; list-style-type: disc; padding-left: 15px; }
+		.con_3 .con3_total .con3_total_l ul li { font-size: 16px; color: #000; }
+		.con_3 .con3_total .con3_total_r { width: 30%; font-size: 14px; }
+		.con_3 .con3_total .con3_total_r ul { margin-top: 11px; }
+		.con_3 .con3_total .con3_total_r ul li { *zoom: 1; margin-bottom: 5px; }
+		.con_3 .con3_total .con3_total_r ul li:after { content: ""; clear: both; display: block; }
+		.con_3 .con3_total .con3_total_r ul li span { float: right; height: 30px; line-height: 30px; margin-left: 5px; font-weight: bold; }
+		.con_3 .con3_total .con3_total_r ul li span:first-child { width: 20px; }
+		.con_3 .con3_total .con3_total_r ul li input { float: right; text-align: right; width: 120px; margin-left: 5px; font-weight: bold; background: #f3f3f3; }
+		.con_3 .con3_total .con3_total_r ul li:last-child { margin: 0px; }
+		.con_3 .con3_total .con3_total_r .total_price { color: #000; font-size: 16px; }
+		.con_3 .con3_total .con3_total_r .pay_qty { color: red; font-size: 16px; }
+
+		.con_4 .con4_custinfo { padding: 15px; background: #fff; }
+		.con_4 .con4_custinfo p { font-size: 14px; color: red; margin-bottom: 10px; }
+		.con_4 .con4_custinfo ul { width: calc(50% - 7.5px); }
+		.con_4 .con4_custinfo ul li { margin-bottom: 10px; width: 100%; }
+		.con_4 .con4_custinfo ul li:last-child { margin-bottom: 0px; }
+		.con_4 .con4_custinfo ul li input { width: 100%; }
+		.con_4 .con4_custinfo textarea { resize: none; width: calc(50% - 7.5px); margin-left: 15px; height: 110px; }
+
+		.con_4 .con4_info h5 { font-size: 19px; font-weight: 500; color: red; }
+		.con_4 .con4_info ul { margin-top: 10px; }
+		.con_4 .con4_info ul li { font-size: 17px; color: #000; }
+
+		.con_4 .con4_agree { margin-top: 25px; }
+		.con_4 .con4_agree .agree_btn { text-align: center; font-size: 16px; font-weight: 500; color: #000; }
+		.con_4 .con4_agree .agree_btn .btn_agree { background: #555; color: #fff; font-size: 14px; padding: 5px 10px; margin-left: 15px; }
+		.con_4 .con4_agree #agree_contents textarea { background: #ddd; width: 100%; height: 100%; resize: none; padding: 15px; font-size: 13px; word-break: keep-all; letter-spacing: 0px; }
+		.con_4 .btn_wrap { text-align: center; margin-top: 50px; }
+		.con_4 .btn_wrap .btn_send { background: rgb(50, 117, 112); color: #fff; text-align: center; padding: 15px 25px; font-size: 20px; font-weight: 500; }
+
+		/* 레이어 */
+		.layer-box { position: relative; max-width: 1000px; margin: 0; padding: 0 0 5px 0; background: #fefdf8; border: 0px #bdbdbd solid; border-radius: 8px; -webkit-border-radius: 8px; -moz-border-radius: 8px; -o-border-radius: 8px; -ms-border-radius: 8px; }
+		.layer-box h3 { padding: 15px 20px; color: #FFF; font-size: 1.2em; background: rgb(5, 117, 112); /*#34559c;*/ font-weight: normal;
+			text-align: center; margin-top: -10px; border-top-left-radius: 8px; border-top-right-radius: 8px; -webkit-border-top-left-radius: 8px; -webkit-border-top-right-radius: 8px; }
+		.layer-box .close {	position: absolute;	top: 0px; right: 10px; display: block; width: 50px; height: 50px; background: url(./images/btn_close.png) center center no-repeat; background-size: 23px; margin-top: -10px; }
+		.layer-box .layer_img { width: 100%; max-height: 800px; overflow-y: auto; overflow-x: hidden; }
+		.layer-box .layer_img img { width: 100%; max-width: 100%; }
+
+		.footer_img_box {
+			text-align: center;
+			width: 100%;
+			margin-top: 10px;
+		}
+
+		/* 타블렛 스타일 */
+		@media screen and (max-width:1023px) {
+		}
+
+		/* 모바일 스타일 */
+		@media screen and (max-width: 767px) {
+			/* 1. 판종류 메뉴 */
+			.con_1 ul li { width: calc(33.3% - 6px); margin-left: 9px; }
+			.con_1 ul li:nth-child(4), 
+			.con_1 ul li:nth-child(7) { margin-left: 0px; }
+			.con_1 ul li:nth-child(5), 
+			.con_1 ul li:nth-child(9) { margin-left: 9px; }
+			.con_1 ul li:nth-child(n+4) { margin-top: 9px; }
+
+			/* 2. 판재 이미지 및 사이즈 입력 폼 */
+			.con_2 > ul > li:first-child { width: 100%; }
+			.con_2 > ul > li:last-child { width: 100%; }
+			.con_2 .con2_typeinfo { height: auto; }
+			.con_2 .con2_typeinfo li { height: auto; position: unset; }
+			.con_2 .con2_typeinfo li img { width: 100%; max-width: 100%; height: auto; }
+			.con_2 .con2_size { padding-top: 15px; }
+			.con_2 .con2_option_chk li { width: calc(33.3% - 8px); margin-left: 12px; }
+			.con_2 .con2_option_chk li:nth-child(4) { margin-left: 0px; margin-top: 12px; }
+			.con_2 .con2_option_chk li:nth-child(5) { margin-top: 12px; }
+			.con_2 .con2_option_chk li > label { font-size: 12px; }
+			.con_2 .con2_option .con2_option_info2 { margin-top: 10px; }
+			.option_sub_info > span.option_tit { display: none; }
+			.option_sub_info select { width: calc(100% - 190px); }
+
+			/* 총 결제금액 안내 폼 */
+			.con_3 .con3_total .con3_total_l { width: 100%; }
+			.con_3 .con3_total .con3_total_r { width: 100%; margin-top: 15px; }
+			.con_3 .con3_total .con3_total_r ul li span { width: 80px; text-align: right; }
+			.con_3 .con3_total .con3_total_r ul li input { margin-left: 15px; width: calc(100% - 125px); }
+
+			/* 수취인 정보 입력 폼 */
+			.con_4 .con4_custinfo ul { width: 100%; }
+			.con_4 .con4_custinfo textarea { width: 100%; margin-left: 0px; margin-top: 10px; }
+		}
+	</style>
+</head>
+<body marginwidth="0" marginheight="0" style="">
+	<div id="wrap">
+		<div id="container">
+			<div id="header" class="child_height">				
+	
+				<!-- 타이틀 로고 상품 -->
+				
+				<img src="https://blogfiles.pstatic.net/MjAyMzAzMjBfMjkw/MDAxNjc5MjgxNDYyMDMw.6Z3c-nvIIpCgc-tB57oTW1mciVX6b_GGCRcN0Imd1fYg.BqpiVXdo1HvOx8DG-8GaORxNyrf37FOXMsJPenS6Okog.JPEG.idharpp/%EB%9D%BC%EC%9D%B4%ED%8A%B8%ED%8C%A8%EB%84%90_top%ED%99%94%EB%A9%B4.jpg/%EB%9D%BC%EC%9D%B4%ED%8A%B8%ED%8C%A8%EB%84%90+top%ED%99%94%EB%A9%B4.jpg" />  <br> <br>
+				
+			</div>
+			<div id="contents">
+			  <br><br><br><br>
+				<div class="con_1">
+					<h2> 1. 주문하실 라이트패널의 규격을 클릭해 주세요! </h2>
+					<br>
+					<ul class="con1_type child_height">
+					    <input hidden id="itemType" name="itemType" value=1 >
+						<li class="itemType1"  style="width:300px;" onclick="javascript:selItemType('1');">SMPS 외장형(SMPS포함)-두께18mm</li>
+						<li class="itemType2"  style="width:300px;" onclick="javascript:selItemType('2');">SMPS 내장형(SMPS포함)-두께40mm</li>
+					
+						</ul>
+
+				</div>
+				<div class="line"></div>
+				<br>
+				<div class="con_2">
+					<h2> 2. 라이트패널의 두께와 크기를 순서대로 입력해주세요. </h2> 
+					<h2> (※순서 중요 - 위에서 아래로 내려가며 선택) </h2>		
+					<br>
+					
+					<ul class="child_height">
+						<li class="f_l">
+							<ul class="con2_typeinfo child_height">						
+								<li class="itemTypeImg1" style="display: none;"><img src="https://blogfiles.pstatic.net/MjAyMzAzMjBfMjkz/MDAxNjc5Mjk3NjExNjg5.JuvNqgbl5yjMyJUPciyQn3gWP6hYHrEtfQA0qWTqvh8g.bNA1u0ohtZkbXDutxMdWuRBIyIA6Q9_NF9-mgOjRZu0g.JPEG.idharpp/%EB%9D%BC%EC%9D%B4%ED%8A%B8%ED%8C%A8%EB%84%90_%ED%86%B5%ED%95%A9_%EB%91%90%EA%BB%9818_%28%EC%8B%A0%ED%98%95%EC%9D%B8%EA%B2%83%EC%9D%84_%EC%A0%9C%EB%AA%A9%EB%8B%A4%EB%A5%B4%EA%B2%8C_%EC%A0%9C%EC%9E%91%29.jpg/%EB%9D%BC%EC%9D%B4%ED%8A%B8%ED%8C%A8%EB%84%90+%ED%86%B5%ED%95%A9+%EB%91%90%EA%BB%9818+%28%EC%8B%A0%ED%98%95%EC%9D%B8%EA%B2%83%EC%9D%84+%EC%A0%9C%EB%AA%A9%EB%8B%A4%EB%A5%B4%EA%B2%8C+%EC%A0%9C%EC%9E%91%29.jpg" alt="SMPS 외장형(SMPS포함)-두께18mm"></li>
+								<li class="itemTypeImg2" style="display: none;"><img src="https://blogfiles.pstatic.net/MjAyMzAzMjBfOSAg/MDAxNjc5Mjk3NjIwNDUz.iKKTcuKbJWTwGQnHcnMGEb8lxN4pLTNQoN7Y6yHPznAg.tU9ZkpevuCrU5JGUgBtGrPrD-F_XfM9xPMaa6vFJLdEg.JPEG.idharpp/%EB%9D%BC%EC%9D%B4%ED%8A%B8%ED%8C%A8%EB%84%90_%ED%86%B5%ED%95%A9%ED%98%95%28%EC%8B%A0%ED%98%95-%EC%A0%80%EA%B0%80%ED%98%95%28smps%EB%82%B4%EC%9E%A5%ED%98%95%29-%EB%91%90%EA%BB%9840.jpg/%EB%9D%BC%EC%9D%B4%ED%8A%B8%ED%8C%A8%EB%84%90+%ED%86%B5%ED%95%A9%ED%98%95%28%EC%8B%A0%ED%98%95-%EC%A0%80%EA%B0%80%ED%98%95%28smps%EB%82%B4%EC%9E%A5%ED%98%95%29-%EB%91%90%EA%BB%9840.jpg" alt="SMPS 내장형(SMPS포함)-두께40mm"></li>
+						
+							</ul>
+						</li>
+						<li class="f_l">
+							<ul class="con2_size">
+								<li>
+									<span>색상</span>																		
+									<select id="itemColor" class="select_r" dir="rtl" >
+									<option value="">선택</option><option value="투명">투명</option><option value="광확산">광확산</option><option value="유백">유백</option></select>
+								</li>
+
+								<li>
+									<span>가로</span>
+									<input type="number" name="" id="itemWidth" min="0" onkeyup="onlyNumber(this);" onfocusout="sizeValidChk('width');">
+									<span>mm</span>
+								</li>
+								<li>
+									<span>세로</span>
+									<input type="number" name="" id="itemHeight" min="0" onkeyup="onlyNumber(this);" onfocusout="sizeValidChk('height');">
+									<span>mm</span>
+								</li>
+								<li>
+									<span>수량</span>
+									<input type="number" name="" id="itemQty" min="0" onkeyup="onlyNumber(this); itemCalc();" onfocusout="itemCalc();">
+									<span>EA</span>
+								</li>
+								<li>
+									<span style="color:red;" ;="">총 주문금액</span>
+									<input type="text" name="itemPrice" value="0" id="itemPrice" readonly="" style="background:rgba(255,255,255,0.5);">
+									<span style="color:red;">원</span>
+								</li>
+							</ul>
+						</li>
+					</ul>
+					
+					<div class="con2_btn">
+						<button type="button" class="btn_selend br15px" style="width:250px;" onclick="putItemInfo();"> 견적서 리스트 담기</button>
+					</div>
+				</div><!--con_2-->
+
+				<div class="line"></div>
+				<div class="con_3">
+					<form id="EstiForm" name="EstiForm" method="post" >		
+
+					
+					<h3>3. 주문하실 견적서를 확인한 뒤 견적서를 전송해주세요. (하단버튼)</h3>
+						<div>
+							<div class="con3_thead">
+								<table>
+									<colgroup>
+										<col width="5%">
+										<col width="30%">																				
+										<col width="10%">
+										<col width="15%">
+										<col width="10%">
+										<col width="15%">
+										<col width="15%">
+									</colgroup>
+									<thead>
+										<tr>
+											<th>선택</th>
+											<th>제품명</th>											
+											<th>색상</th>
+											<th>주문크기</th>
+											<th>수량</th>
+											<th>금액</th>											
+											<th>총금액</th>
+										</tr>
+									</thead>
+								</table>
+							</div>
+							<div class="con3_tbody">
+								<table>
+									<colgroup>										
+										<col width="5%">
+										<col width="30%">																				
+										<col width="10%">
+										<col width="15%">
+										<col width="10%">
+										<col width="15%">
+										<col width="15%">
+									</colgroup>
+									<tbody id="esti_list"></tbody>
+								</table>
+							</div>
+							<div class="con3_del">
+								<ul class="child_height">
+									<li class="f_l">
+										<button type="button" class="br2px" onclick="delItem();">선택삭제</button>
+										<button type="button" class="br2px" onclick="delItemAll();">전체삭제</button>
+									</li>
+									<li class="f_l"></li>
+									<li class="f_l"></li>
+								</ul>
+							</div>
+						</div>
+						<div class="con3_total child_height">
+							<div class="f_l con3_total_l">
+								<h3>총 구매하기 결재금액</h3>
+								<ul>
+									<li><span class="standardPrice">100</span>원단위 결제금액에서 <span style="font-weight:bold;"><span style="color:red;">결제수량</span>대로 수량을 동일하게 입력하여 구매하시면 됩니다.</span></li>
+									<li class="top_mt5 strong">가로 + 세로 사이즈가 1,400mm를 초과하는 주문상품은 포장비가 <span class="deliveryFee">10,000</span>원 추가 발생합니다.</li>
+									<li> 위의 표를 보고 이해가 너무 어려우시면 <br> 꼭 고객센터 상담 후 결제해 주세요. 부탁드립니다^^</li>
+								</ul>
+							</div>
+							<div class="f_r con3_total_r">
+								<ul>
+									<li>
+										<span>원</span>
+										<input type="text" value="" id="TotalEstiPrice1" readonly="">
+										<input type="hidden" name="TotalEstiPrice" value="0" id="TotalEstiPrice" readonly="">
+										<span class="total_tit">총견적금액</span>
+									</li>
+									<!-- <li>
+										<span>원</span>
+										<input type="text" value="" id="DeliveryFee1" readonly />
+										<input type="hidden" name="DeliveryFee" value="" id="DeliveryFee" readonly />
+										<span class="total_tit">배송비</span>
+									</li> -->
+									<li>
+										<span>원</span>
+										<input type="text" value="" id="PackingFee1" readonly="">
+										<input type="hidden" name="PackingFee" value="0" id="PackingFee" readonly="">
+										<span class="total_tit">포장비</span>
+									</li>
+									<li class="total_price">
+										<span>원</span>
+										<input type="text" value="" id="TotalPrice1" readonly="">
+										<input type="hidden" name="TotalPrice" value="0" id="TotalPrice" readonly="">
+										<span class="total_tit">총결제금액</span>
+									</li>
+									<li class="pay_qty">
+										<span>개</span>
+										<input type="text" value="" id="TotalQty1" readonly="">
+										<input type="hidden" name="TotalQty" value="0" id="TotalQty" readonly="">
+										<span class="total_tit">N구매하기</span>
+									</li>
+								</ul>
+							</div>
+						</div>
+						<input type="hidden" name="TotalItemCount" value="" id="TotalItemCount">
+						<input type="hidden" name="CustName" value="" id="CustName">
+						<input type="hidden" name="CustHP" value="" id="CustHP">
+						<input type="hidden" name="CustEmail" value="" id="CustEmail">
+						<input type="hidden" name="CustMsg" value="" id="CustMsg">						
+						<input type="hidden" name="Market" value="네이버스마트 스토어 26도 감성조명 라이트패널 견적요청">
+					</form>
+				</div><!--con_3-->
+				<div class="line"></div>
+				<div class="con_4">
+					<div class="con4_custinfo">
+						<p>[주의] 주문시 수취인 성함과 동일하게 작성해주셔야 확인이 가능합니다.</p>
+						<div class="child_height">
+							<ul class="f_l">
+								<li><input type="text" id="cust_name" placeholder="수취인명" maxlength="20"></li>
+								<li><input type="text" id="cust_hp" placeholder="수취인 연락처 ('-'제외하고 숫자만 입력요함^^)" maxlength="11" onkeyup="onlyNumber(this);"></li>
+								<li><input type="text" id="cust_email" placeholder="수취인 이메일" maxlength="100"></li>
+							</ul>
+							<textarea name="" id="cust_msg" maxlength="500" rows="5" class="f_r" placeholder="[요청사항] 주문과 관련된 사항은 톡톡문의 또는 1:1 문의 게시판으로 올려주시면 빠른 견적이 가능합니다."></textarea>
+						</div>
+					</div>
+					<br>
+					<div class="con4_info top_mt30">
+						<div>
+							<h2>[필도] 주문하시기 전 반드시 확인 후 결제를 진행해 주세요!</h2>
+							<ul>
+								<li style="color:red;">- 판매자에게 견적서를 전송해주신 뒤 결제수량대로 네이버쇼핑에서 주문해주시면 됩니다.</li>
+								<li>- 제작 상품은 주문과 동시에 원소재를 재단하여 제작되기 때문에 <span style="color:red;">교환/환불/취소</span>가 불가합니다.</li>								
+								<li>- 제작사이즈를 입력하실 때에는 반드시 <span style="color:red;">mm 단위로 입력</span>해 주시기 바랍니다.(100cm → 1000mm)</li>
+							</ul>
+						</div>
+					</div>
+					<div class="footer_img_box">
+					<!-- 결재안내부분 이미지 -->
+						<img src="https://postfiles.pstatic.net/MjAyMzAzMjBfMTI3/MDAxNjc5Mjc0NzIyNzA5.lq-Y-m4Vhsn8tJ3G3MXMad6JonsnJ2zGAzpr0BpnhcQg.2aFf9Xb86CMPZ0GyEQgi0NGHjeSVo5gHAcuuxoX2pf8g.JPEG.idharpp/footer.jpg?type=w966" alt="결재 안내부분 설명">
+					</div>
+					<!-- 개인정보 취급방침 -->
+					<div class="con4_agree">
+						<div>
+							<div class="agree_btn">
+								<label>
+									<input type="checkbox" id="agree_chk" name="agree_chk" value="">
+									<span>위 사항을 확인했습니다. 개인정보 취급방침에 동의합니다.</span>
+								</label>
+								<a href="javascript:viewAgree();" class="btn_agree br3px">전문보기</a>
+							</div>
+							<div id="agree_contents" style="margin-top: 20px; display: none; height:600px;">
+								<textarea cols="30" rows="10"> '26도 감성조명'은 고객님들의 개인정보를 매우 소중하게 생각하며 다음과 같은 개인정보취급방침을 시행하고 있습니다.
+이 개인정보취금방침은 관련 법률 또는 지침의 변경, 회사정책의 변화에 따라 달라질 수 있으니, 고객님께서는 아크릴에이스 방문시 수시로 확인하여 주시기 바랍니다.
+
+'아크릴에이스' (이하 '회사')는 고객님의 개인정보를 중요시하며, "정보통신망 이용촉진 및 정보보호"에 관한 법류을 준수하고 있습니다.
+회사는 개인정보취급방침을 통하여 고객님께서 제공하시는 개인정보가 어떠한 용도와 방식으로 이용되고 있으며, 개인정보
+보호를 위해 어떠한 조치가 취해지고 있는지 알려드립니다.
+회사는 개인정보 취급방침을 개정하는 경우 웹사이트 공지사항 (또는 개별공지)를 통하여 공지할 것입니다.
+본 방침은 2023년 03월 20일부터 시행됩니다.
+
+
+
+1. 수집하는 개인정보의 항목 및 방법
+
+회사는 회원가입, 상담, 서비스 신청 등등을 위해 아래와 같은 개인정보를 수집하고 있습니다.
+
+* 수집항목 : 이름, 성별, 로그인ID, 비밀번호, 자택 전화번호, 자택주소, 휴대전화번호, 이메일, 직업, 신용카드정보, 은행계좌 정보, 서비스 이용기록, 접속 로그, 쿠키, 접속 IP정보, 결제기록, 관심상품, 접속경로
+* 개인정보 수집방법 : 홈페이지 (회원가입, 물품구매)
+
+
+
+2. 개인정보의 수집 및 이용목적
+
+회사는 수집한 개인정보를 다음의 목적을 위해 활용합니다.
+
+* 서비스 제공에 과한 계약 이행 및 서비스 제공에 따른 요금정산 - 콘텐츠 제공, 구매 및 요금 결제, 물품배송 또는 청구지 등 발송, 금융거래 본인 인증 및 금융 서비스, 요금 추심
+* 회원관리- 회원제 서비스 이용에 따른 본인확인, 개인식별, 불량회원의 부정 이용 방지와 비인가 사용방지, 불만처리 등 민원처리, 고지사항 전달
+* 마케팅 및 광고에 활용- 이벤트 등 광고성 정보전달
+
+
+
+3. 개인정보의 보유 및 이용기간
+
+원칙적으로 개인정보 수집 및 이용목적이 달성된 후에는 해당 정보를 지체없이 파기합니다.
+단, 관계법령의 규정에 희아혀 보존 할 필요가 있는 경우, 회사는 아래와 같이 관계법령에서 정한 일정한 기간동안 회원정보를 보관합니다.
+
+* 보존항목 : 이름, 성별, 로그인ID, 자택 전화번호, 휴대전화번호, 신용카드정보, 은행계좌 정보
+* 보존근거 : 전자상거래등에서의 소비자보호에 관한 법률, 신용정보의 이용 및 보호에 관한 법률
+* 보존기간 : 3개월
+
+
+
+4. 개인정보의 파기 절차 및 방법
+
+회사는 원칙적으로 개인정보 수집 및 이용목적이 달성된 후에는 해당 정보를 지체없이 파기합니다. 파기절차 및 방법은 다음과 같습니다.
+
+* 파기절차 : 회원밍 ㅣ회원가입 등을 위해 입력하신 정보는 목적이 달성된 후 별도의 DB로 옮겨져 (종이의 경우 별도의 서류함) 내부 방침 및 기타 관련 법령에 의한 정보보호 사유에 따라 (보유 및 이용기간 참조) 일정기간 저장된 후 파기되어 집니다. 별도 DB로 옮겨진 개인정보는 법률에 의한 경우가 아니고서는 보유되어지는 이외의 다른 목적으로 이용되지 않습니다.
+* 파기방법 : 전자적 파일형태로 저장되 개인정보는 기록을 재생할 수 없는 기술적 방법을 사용하여 삭제됩니다.
+
+
+
+5. 개인정보 제공동의
+
+회사는 회사는 이용자의 개인정보를 원칙적으로 외부에 제공하지 않습니다. 다만, 아래의 경우에는 예외로 합니다.
+
+- 이용자들이 사전에 동의한 경우
+- 법령의 규정에 의거하거나, 수사 목적으로 법령에 정해진 절차와 방법에 따라 수사기관의 요구가 있는 경우
+
+
+
+6. 수집한 개인정보의 취급위탁
+
+회사는 고객님의 동의없이 고객님의 정보를 외부 업체에 위탁하지 않습니다.
+향후 그러한 필요가 생길 경우, 위탁 대상자와 위탁 업무 내용에 대해 고객님에게 통지하고 필요한 경우 사전 동의를 받도록 하겠습니다.
+
+* 수탁자 : NICE평가정(주) - 수탁범위 : 실명/본인인증, 아이핀 제공
+* 수탁자 : KCP, LG U+ - 수탁범위 : 상품구매에 필요한 신용카드, 현금결제등의 결제정보 전송
+* 수탁자 : CJ대한통운택배, 경동택배 - 수탁범위 : 상품의 배송업무 처리
+
+
+
+7. 이용자 및 법정대리인의 권리와 그 행사방법
+
+이용자 및 법정 대리인은 등록되어 있는 자신 혹은 당해 만 14세 미만 아동의 개인정보를 조회하거나 수정할 수 있으며 가입해지를 요청할 수 있습니다. 이용자 혹은 만 14세 미만 아동의 개인정보 조회 및 수정을 위해서는 '개인정보변경' (또는 '회원정보수정' 등)을 가입해지(동의철회)를 위해서는 "회원탈퇴"를 클릭하여 본인절차를 거치신 후 직접 열람, 정정 또는 탈퇴가 가능합니다. 혹은 개인정보관리책임자에게 서면, 전화 또는 이메일로 연락하시면 지체없이 조치하겠습니다. 귀하가 개인정보의 오류에 대한 정정을 요청하신 경우에는 정정을 완료하기전까지 당해 개인정보를 이용 또는 제공하지 않습니다. 또한 잘못된 개인정보를 제3자에게 이미 제공한 경우에는 정정 처리결과를 제 3자에게 지체없이 통보하여 정정이 이루어지도록 하겠습니다. 이용자 혹은 법정 대리인의 요청에 의해 해지 또는 삭제된 개인정보는 수닙하는 개인정보의 보유 및 이용기간에 명시된 바에 따라 처리하고 그 외의 용도로 열람 또는 이용 할 수 없도록 처리하고 있습니다.
+
+
+
+8. 개인정보수집장치의 설치,운영,거부에 관한 사항
+
+회사는 귀하의 정보를 수시로 저장하고 찾아내는 '쿠키(Cookie)'등을 운영합니다. 쿠키란 "회사"의 웹사이트를 운용하는데 이용되는 서버가
+귀하의 브라우저에 보내는 아주 작은 텍스트 파일로서 귀하의 컴퓨터 하드디스크에 저장됩니다. 회사는 다음과 같은 목적을 위해 쿠키를 사용합니다.
+단, 귀하께서 쿠키 설치를 거부하였을 경우, 서비스 제공에 어려움이 있을 수 있습니다.
+
+* 쿠키 등 사용목적
+- 회원과 비회원의 접속 빈도나 방문 시간등을 분석, 이용자의 취향과 관심분야를 파악 및 자취 추적, 각종 이벤트 참여 정보 및 방문 횟수 파악등을 통한 타겟 마케팅 및 개인 맞춤 서비스 제공
+- 귀하는 쿠키 설치에 대한 선택권을 가지고 있습니다. 따라서, 귀하는 웹브라우저에서 옵션을 설정하여 모든 쿠키를 허용하거나, 저장될 때마다 확인을 거치거나, 아니면 모든 쿠키의 저장을 거부할 수 있습니다.
+* 설정방법 : - (예: 인터넷 익스플로어의 경우 웹브라우저 상단의 도구 메뉴 &gt; 인터넷 옵션 &gt; 개인정보 클릭)
+
+
+
+9. 개인정보에 관한 민원서비스
+
+회사는 고객의 개인정보와 관련한 불만을 처리하기 위하여 아래와 같은 관련 부서 및 개인정보 관리책임자를 지정하고 있습니다.
+
+* 고객서비스 담당부서 : 고객관리팀
+* 담당자 : 안병길
+* 전화번호 : 010-9846-9000
+* 이메일 : idharpp@naver.com
+
+
+귀하께서는 회사의 서비스를 이용하시며 발생하는 모든 개인정보보호 관련 민원을 개인정보관리책임자 또는 담당부서로 신고하실 수 있습니다.
+회사는 이용자들의 신고사항에 대해 신속하게 충분한 답변을 드릴것입니다. 기타 개인정보침해에 대한 신고나 상담이 필요하신 경우에는 아래 기관에 문의하시기 바랍니다.
+
+1. 개인분쟁조정위원회 (www.1336.or.kr/1336)
+2. 정보보호마크인증위원회 (www.erprivacy.or.kr/02-580-0533~4)
+3. 대검찰청 인터넷범죄수사센터 (http://icic.soop.go.kr/02-3480-3360)
+4. 경찰청 사이버테러대응센터 (www.ctrc.go.kr/02-392-0330)
+
+
+
+10. 기타 개인정보 취급에 관한 방침
+
+2006년 09월 25일부터 적용되는 개정 주민등록법에 의하면 타인의 주민등록번호를 도용하여 온라인 회원가입을 하는 등 타인의 주민등록번호를 부정사용하는 자는 3년 이하의 징역 또는 1천만원 이하의 벌금형에 처해질 수 있습니다. 따라서 타인의 주민등록번호를 도용하여 회원가입을 사히려는 분들 또는 회원으로 가입하신 분들은 즉시 도용행위를 중단해 주실 것을 부탁드립니다.
+																		</textarea>
+							</div>
+						</div>
+					</div>
+					<!-- 개인정보 취급방침 내용 -->
+					<div class="btn_wrap">
+						<button type="button" class="btn_send br5px" onclick="sendEstimate();">견적서 전송하기</button>
+					</div>
+				</div><!--con_4-->
+			</div><!--contents-->
+			<p>
+			<br>
+			<br>
+			<br>
+			</p>
+			<img src="https://postfiles.pstatic.net/MjAyMzAzMjBfMTE4/MDAxNjc5MzAwODkwNTEx.SYAWZJSwWIR5skw9Ti14kWJSRH0Ig5BmIWTYAO4GaT8g.Pt_pzN583sWpactGnkRzTOIXRinE1AOYrZWY9-g4SSMg.GIF.idharpp/26%EB%8F%84_%EA%B0%90%EC%84%B1%EC%A1%B0%EB%AA%85_%EB%9D%BC%EC%9D%B4%ED%8A%B8%ED%8C%A8%EB%84%90_(860_%C3%97_1200px).gif?type=w966" />  <br> <br>
+				
+				<img src="https://postfiles.pstatic.net/MjAyMzAzMjBfMTA2/MDAxNjc5Mjc4MTA2OTMz.91cOvaC4eaXQlhICwyASFrkxOPyvYOjB6eHIexgt7Ygg.mH978v2sUkyehguNhbG7t-RAKMFI-kf1sA10s8TQquYg.JPEG.idharpp/%EA%B0%84%ED%8E%B8%ED%95%9C_%EC%B6%9C%EB%A0%A5%EB%AC%BC%EC%A0%80%EC%9E%A5.jpg?type=w966" />  <br> <br>
+				<img src="https://postfiles.pstatic.net/MjAyMzAzMjBfODAg/MDAxNjc5Mjc4MTU2NTEz.yh2FnvWRZ9gLua5LfiqAMOjoRkcMmV4T7BuYTYjKIogg.jSfUFzXp0UBG-PEaREP-ALKMT5q2e_jv_LKdMa9WLGMg.GIF.idharpp/%EA%B0%84%ED%8E%B8%ED%95%9C-%EC%B6%9C%EB%A0%A5%EB%AC%BC-%EA%B5%90%EC%B2%B4.gif?type=w966" />  <br> <br>
+				<img src="https://postfiles.pstatic.net/MjAyMzAzMjBfNDEg/MDAxNjc5Mjc4MTg2ODk4.sNcKT8ChM0fPjcAlPLI78nxB8c9OPn43d5QkeP-3ZFgg.seomz5AjV1_l4XihkDsqsWVHg_dE_whJFDlrb_8XKyIg.JPEG.idharpp/1.jpg?type=w966" />  <br> <br>
+				<img src="https://postfiles.pstatic.net/MjAyMzAzMjBfMTY2/MDAxNjc5Mjc4MjIyODEz.0B6G9T7oTndDqzFer9sb3tpX8j9RtOKzzJfb6VOEGWog.eqlA-Y7B2pQEy8AcO79N7oirog19ObU0b9NzANduI5Mg.JPEG.idharpp/2.jpg?type=w966" />  <br> <br>
+				<img src="https://postfiles.pstatic.net/MjAyMzAzMjBfMjcw/MDAxNjc5Mjc4MzI1MzM4.Y8c4xXHGyo0rHxw1FipCxaceaxdkvEMB41mrz1ZobJ0g.hqW9yZE34DEJ5lrkb3b1lrfHvEyswaW20hmtrVn7hPgg.PNG.idharpp/%EC%A1%B0%EB%A6%BD%EC%88%9C%EC%84%9C_%EA%B3%BC%EC%A0%95_%EC%84%A4%EC%A0%95_26%EB%8F%84_%EA%B0%90%EC%84%B1%EC%A1%B0%EB%AA%85_%EB%9D%BC%EC%9D%B4%ED%8A%B8%ED%8C%A8%EB%84%90_(860_%C3%97_2000px).png?type=w966" />  <br> <br>
+				
+				<!-- 인테리어 라이트패널 -->
+				<img src="https://postfiles.pstatic.net/MjAyMzAzMjFfMTIx/MDAxNjc5MzUyNzM3MzEw.AAKRw1LFMAyS6LNQtj7RN62Ehw3-u5CVlnqvOHiAUiMg.OFhFSbyB-CQspBOuNELGsM-NY_Rwa8_H50SyMce8zl0g.JPEG.idharpp/4.jpg?type=w966" />  <br> <br>
+				<!-- 인테리어 액자상단 프레임표시하는 gif파일  -->
+				<img src="https://postfiles.pstatic.net/MjAyMzAzMjFfNjYg/MDAxNjc5MzUyOTU5ODMx.NqPK2zd5anJcnTcrvkOSIjYAZKJNRwSCqSMkepX1zZog.UBplAimnK8nyiME_Y3BASjjXFGxrZsLuryniziL8G7Ug.GIF.idharpp/6.gif?type=w966" />  <br> <br>
+				<img src="https://postfiles.pstatic.net/MjAyMzAzMjBfNTgg/MDAxNjc5Mjc4NDg1NjI4.YbV-VBjtVqcGmG8QYTTCDa5IJdn7BT0BUGKe30QfbN4g.7fUzqJeJUeZ7YfCLq9G-dFHHYMNPM3jF8fzUD3An7rkg.JPEG.idharpp/A0%EB%B6%80%ED%84%B0A5%EA%B9%8C%EC%A7%80_%EC%9A%A9%EC%A7%80%ED%81%AC%EA%B8%B0_%ED%91%9C%EC%8B%9C.jpg?type=w966" />  <br> <br>
+				
+				<img src="https://postfiles.pstatic.net/MjAyMzAzMjBfMTYy/MDAxNjc5Mjc4NTM0Mjcx.qsV74xpGGsG3jLvOjP0VCraPB5iCP1SAeWy7KusdsTYg.EUkXsv5KH1EBflOnlrsqrW3xkX0CWaS6Qk_yxXDFN-gg.JPEG.idharpp/%EB%9D%BC%EC%9D%B4%ED%8A%B8%ED%8C%A8%EB%84%90%ED%81%AC%EA%B8%B0__860px).jpg?type=w966" />  <br> <br>
+				<!-- 일반형 패널 -->
+				<img src="https://blogfiles.pstatic.net/MjAyMzAzMjBfMTEx/MDAxNjc5MzAyNzc4MzY5.VHx1PDBwZddaZirZ-aSt6BpaBHFVa_BUuXDdorDwMAYg.jdOrsgVC6hV0BlX8tfvkkiDWkXgqsna-Ob-53f_higYg.JPEG.idharpp/%EC%9D%BC%EB%B0%98%ED%98%95_%ED%8C%A8%EB%84%90.jpg/%EC%9D%BC%EB%B0%98%ED%98%95+%ED%8C%A8%EB%84%90.jpg" />  <br> <br>				
+							
+			
+			
+			<img src="https://postfiles.pstatic.net/MjAyMzAzMjBfMTU5/MDAxNjc5Mjc4NTc2MTAx.Xk4GeK8m9-iDw_Al4LIT4Iltj8cfAaZ_jrMm58qIUEYg.EogbunvCgRwtp6wF-9mnBBDJ04YM2YTSVHL6-gbOi_og.GIF.idharpp/led%ED%8C%A8%EB%84%90-%EC%9B%80%EC%A7%81%EC%9D%B4%EB%8A%94-%EC%9D%B4%EB%AF%B8%EC%A7%80.gif?type=w966" />
+			<img src="https://postfiles.pstatic.net/MjAyMzAzMjBfMjY3/MDAxNjc5Mjc4NjI4Mjgy.nHTHblLI4Vcoy9iyy23zWf8aE_AdsxRYEM1XHmRZsdQg.CJETK5AIzcfkqxby_6ZPjSBjPHpzHxZ279iBDYtGqVwg.JPEG.idharpp/%EB%9D%BC%EC%9D%B4%ED%8A%B8%ED%8C%A8%EB%84%90%EC%A0%84%EC%9B%90%EC%84%A0%EC%97%90_%EB%8C%80%ED%95%9C_%EC%84%A4%EB%AA%85%EC%9E%90%EB%A3%8C.jpg?type=w966" />
+			<img src="https://postfiles.pstatic.net/MjAyMzAzMjBfNDAg/MDAxNjc5Mjc4NzA5Njk4.zByAF6TPibHbdJVjXf3UYydbr7ol6mpfly4v3RSG7BIg.oksrVFn2eLTRi8ZoPlzJPnhhrzLG7yv3Yq04ryifGO8g.PNG.idharpp/%EC%B6%9C%EB%A0%A5%EB%AC%BC%EB%94%94%EC%9E%90%EC%9D%B8%EC%95%88%EB%82%B4.png?type=w966" />
+			<img src="https://postfiles.pstatic.net/MjAyMzAzMjBfMTE2/MDAxNjc5Mjc4NzU2NzA0.7NS7ZPf0FFZBWJnO9XXIGQGXCWEojxq3IISFGK8CDA8g.GlV-5cKgqOcWK02nuq9GPSDPSVWBwtGmPYfngxsJadAg.JPEG.idharpp/%EA%B5%AC%EB%A7%A4%EC%A0%84_%EA%BC%AD_%EC%9D%BD%EC%96%B4%EC%A3%BC%EC%84%B8%EC%9A%94.jpg?type=w966" />
+			<img src="https://postfiles.pstatic.net/MjAyMzAzMjBfMjg3/MDAxNjc5MzAwOTA2MzU1.X4MLEBGiFe-BbOxxcUcIu7_vqKyl3FqD6JuoGhqx3WQg.66X7YkaWEvpLgtAK_5sITpx5vvKBQ2SEZORzk-yotVQg.GIF.idharpp/26%EB%8F%84_%EA%B0%90%EC%84%B1%EC%A1%B0%EB%AA%85_%EB%9D%BC%EC%9D%B4%ED%8A%B8%ED%8C%A8%EB%84%90_(860_%C3%97_1200px)_%ED%95%98%EB%8B%A8%EC%9B%80%EC%A7%A4.gif?type=w966" />
+			
+			
+			
+		</div><!--container-->
+	</div>
+
+</body>
+	  
+</html>
+
+
+
+
+
+
+
+<script type="text/javascript">
+	/* 기본 값 설정 시작 */
+	var itemTypeNameArr = new Array();
+	itemTypeNameArr[0] = "";
+	itemTypeNameArr[1] = "SMPS 외장형(SMPS포함)-두께18mm";
+	itemTypeNameArr[2] = "SMPS 내장형(SMPS포함)-두께40mm";
+	
+	//1:구멍가공, 2:모서리라운드, 3:45도 면취, 4:불광	
+	var isItemOptionArr = new Array();
+	isItemOptionArr[0] = 0;
+	isItemOptionArr[1] = 0;
+	isItemOptionArr[2] = 0;
+	isItemOptionArr[3] = 0;
+	isItemOptionArr[4] = 0;
+	isItemOptionArr[5] = 0;
+	var itemOptionNameArr = new Array();
+	itemOptionNameArr[0] = "가공옵션미선택";
+	itemOptionNameArr[1] = "구멍가공";
+	itemOptionNameArr[2] = "모서리라운드";
+	itemOptionNameArr[3] = "45도 면취";
+	itemOptionNameArr[4] = "불광";
+	itemOptionNameArr[5] = "레이저가공";	
+	
+	
+	var itemType = "";
+	var itemColor = "";
+	var itemWidth = "";
+	var itemHeight = "";
+	var itemQty = "";
+	var itemPrice = 0;	
+	var itemTotalPrice = 0;
+	var totalItemCount = 0;
+	/* 기본 값 설정 끝 */
+
+	$(function(){		
+			selItemType("1");		
+	});
+
+	// 판 종류 선택
+function selItemType(type) {
+
+         $('#itemType').val(type);
+         let itemType = parseInt($('#itemType').val());
+		 		 
+		// 아크릴 및 무광아크릴 활성화
+		if(Number(type)<1) itemType=1;
+		
+		if(itemType == 1 || itemType == 2  ) {
+			// 기존 선택되어있던 제품스펙 초기화
+			// 변수데이터 초기화			
+			itemColor = "";
+			itemWidth = "";
+			itemHeight = "";
+			itemQty = "";
+			itemPrice = 0;
+			itemTotalPrice = 0;
+			
+			// 사이즈, 수량, 금액 초기화
+			$("#itemWidth").val("");
+			$("#itemHeight").val("");
+			$("#itemQty").val("");
+			$("#itemPrice").val("0");
+			
+          for(i=1;i<itemTypeNameArr.length;i++) {         
+				$(".itemType"+i).removeClass("select");
+				$(".itemTypeImg"+i).css({display: "none"});
+			}
+			
+			$(".itemType"+itemType).addClass("select");
+			$(".itemTypeImg"+itemType).css({display: "block"});
+			getColor();
+
+			// 현재 담겨있는 제품이 있다면 전체 삭제
+			$("#esti_list > tr").remove();
+			resetTotalPriceCalc();
+		} else {
+			alert("준비중입니다.");
+		}
+		
+	}
+
+	// 판 종류 선택시 색상 정보 가져오기
+	function getColor() {    
+    	var Type = $("#itemType").val();    	
+    	var $target = $("#itemColor");
+		
+		let result = [];
+			
+	//  배열 칼라 선언
+	
+	      result = ["화이트(white)","블랙(black)","실버(silver)"];
+		  
+		  console.log("itemType : " + Type );
+		  console.log(result);
+				
+		$("#itemType").val(Type);
+		
+                var colors = result;
+				$("#itemColor option").remove();
+				$target.append("<option value=''>선택</option>");
+				if (colors.length > 0) {
+					$(colors).each(function(i) {
+                        $target.append(
+                            "<option value='" + colors[i] + "'>" + colors[i] + "</option>"
+                        );
+					});
+				
+				}
+
+	}
+
+
+	function sizeValidChk(sizeType) {
+	  
+		itemType = parseInt($("#itemType").val());  
+	
+		var _width = 0;
+		var _height = 0;
+
+				if(sizeType == "width") {
+					_width = $("#itemWidth").val();					
+						if(parseInt(_width) < 1 || parseInt(_width) > 1800) {
+							alert(itemTypeNameArr[itemType] + " " + " 가로 사이즈는 1mm ~ 1800mm만 입력 가능합니다.");
+							$("#itemWidth").val("");
+							$("#itemPrice").val("0");
+							itemWidth = 0;
+							itemPrice = 0;
+							$("#itemWidth").focus();
+							return false;
+						} else {
+							itemCalc();
+						}
+						
+				} else if(sizeType == "height") {
+					_height = $("#itemHeight").val();					
+						if(parseInt(_height) < 1 || parseInt(_height) > 1800) {
+							alert(itemTypeNameArr[itemType] + " " + " 세로 사이즈는 1mm ~ 1800mm만 입력 가능합니다.");
+							$("#itemHeight").val("");
+							$("#itemPrice").val("0");
+							itemHeight = 0;
+							itemPrice = 0;
+							$("#itemHeight").focus();
+							return false;
+						} else {
+							itemCalc();
+						}
+					} 
+		}
+
+	// 제품스펙 입력 및 선택
+	function itemCalc() {
+	
+	itemType = parseInt($("#itemType").val());  
+	
+		if (itemType == 0) {
+			alert("1번 주문하실 종류를 선택해 주세요.");
+			return false;
+		}
+		itemColor = $("#itemColor").val();
+		itemWidth = $("#itemWidth").val();
+		itemHeight = $("#itemHeight").val();
+		itemQty = $("#itemQty").val();
+		
+		
+		// 헤베. 제곱미터를 낸 후 계산값이 달라진다.
+		 squareMeter = (parseInt(itemWidth) * parseInt(itemHeight)) / 1000000 ;		
+		
+		console.log(itemColor);
+		console.log(itemWidth);
+		console.log(itemHeight);
+		console.log(itemQty);
+		console.log(squareMeter);
+		
+		// 계산하기
+		if ( parseInt(itemWidth) != 0 && parseInt(itemHeight) != 0 && parseInt(itemQty) != 0 ) 
+		 {
+			// 종류별 가격지정
+			// 기본적으로 두께 * 가로 * 세로 * 요율 로 구성 * 수량			
+
+		// 1헤베 이상일때와 아닐때의 단가가 다른다.
+
+				if(itemType == 1) {
+							// 1헤베 이상일때와 아닐때의 단가가 다른다.
+							if(squareMeter < 1)
+								 price =  (parseInt(itemWidth)*2 + parseInt(itemHeight) * 2 )  * 50 ;
+								 else
+								   price =  squareMeter  * 187000 ;
+							}
+				if(itemType == 2) {
+							// 1헤베 이상일때와 아닐때의 단가가 다른다.
+							if(squareMeter < 1)
+								 price =  (parseInt(itemWidth)*2 + parseInt(itemHeight) * 2 )  * 55 ;
+								 else
+								   price =  squareMeter  * 230000 ;
+								   
+					 }
+					 
+			 
+			 
+					if (price !== 0) {
+						itemPrice = parseInt(price) * parseInt(itemQty);
+
+						// NaN 방지
+						if (isNaN(itemPrice)) {
+								  itemPrice = 0;
+								}								
+						
+						$("#itemPrice").val(addComma(String(itemPrice)));
+
+						
+						
+					} else {
+						$("#itemPrice").val("0");
+					}			
+		
+		} 
+		else {
+			$("#itemPrice").val("0");
+			itemPrice = 0;
+			return false;
+		}
+	
+	
+	}
+
+	// 현재 사이트를 불러온 부모사이트의 iframe 높이를 보내준다.
+	function postMsgHeight() {
+		var height = $("#wrap").height(); 
+		window.parent.postMessage({ height: height }, '*'); 
+		// console.log("전송할 높이 : "+height);
+	}
+
+	// 제품담은 후 아이템 초기화
+	function resetItem() {
+		// 변수데이터 초기화
+		
+		itemColor = "";
+		itemWidth = "";
+		itemHeight = "";
+		itemQty = "";
+		itemPrice = 0;
+		itemTotalPrice = 0;
+
+		// 사이즈, 수량, 금액 초기화
+		$("#itemWidth").val("");
+		$("#itemHeight").val("");
+		$("#itemQty").val("");
+		$("#itemPrice").val("0");
+
+		// 색상 초기화
+		$("#itemColor").val("");
+		$("#itemType").val("1");
+
+	}
+
+	// 제품담기
+	function putItemInfo() {
+		if (itemColor == "") {
+			alert("색상을 선택해 주세요.");
+			return false;
+		}
+
+		if (itemWidth == "" || parseInt(itemWidth) == 0) {
+			alert("가로 사이즈를 입력해 주세요.");
+			return false;
+		}
+		if (itemHeight == "" || parseInt(itemHeight) == 0) {
+			alert("세로 사이즈를 입력해 주세요.");
+			return false;
+		}
+		if (itemQty == "" || parseInt(itemQty) == 0) {
+			alert("수량을 입력해 주세요.");
+			return false;
+		}
+		
+
+		// 판매자 전송을 위해 제품 담기
+		var itemOptionStr = "";
+		var itemOptionStrDiv = "";
+		var itemOptionStr1 = "";
+		var itemOptionStr2 = "";
+		var itemOptionStr3 = "";
+		var itemOptionStr4 = "";
+		var itemOptionStr5 = "";
+		for (i=1;i<=isItemOptionArr.length;i++) {
+			if (parseInt(isItemOptionArr[i]) == 1) {
+				if (itemOptionStr != "") {
+					itemOptionStrDiv = "/";
+				}
+				if (isItemOptionArr[1] == 1 && i == 1) {
+					itemOptionStr += itemOptionStrDiv + itemOptionNameArr[i] + "-" + $("#itemOptionSub1").val();
+					itemOptionStr1 = itemOptionNameArr[i] + "-" + $("#itemOptionSub1").val();
+				} else if (isItemOptionArr[2] == 1 && i == 2) {
+					itemOptionStr += itemOptionStrDiv + itemOptionNameArr[i] + "-" + $("#itemOptionSub2").val();
+					itemOptionStr2 = itemOptionNameArr[i] + "-" + $("#itemOptionSub2").val();
+				} else if (isItemOptionArr[3] == 1 && i == 3) {
+					itemOptionStr += itemOptionStrDiv + itemOptionNameArr[i];
+					itemOptionStr3 = itemOptionNameArr[i];
+				} else if (isItemOptionArr[4] == 1 && i == 4) {
+					itemOptionStr += itemOptionStrDiv + itemOptionNameArr[i];
+					itemOptionStr4 = itemOptionNameArr[i];
+				} else if (isItemOptionArr[5] == 1 && i == 5) {
+					itemOptionStr += itemOptionStrDiv + itemOptionNameArr[i] + "-" + $("#itemOptionSub5").val();
+					itemOptionStr5 = itemOptionNameArr[i] + "-" + $("#itemOptionSub5").val();
+				}
+			}
+		}
+
+
+		if (itemQty == "") {
+			itemQty = 0;
+		}
+
+		// 총금액 (제품금액+가공옵션)
+		itemTotalPrice = itemPrice;
+		var putNum = parseInt($(".estiItemChk").length) + 1;
+		var putStr = '';
+		putStr += '<tr class="estiItem'+putNum+'">';
+		putStr += '<td><input type="checkbox" name="estiItemChk" value="'+putNum+'" class="estiItemChk estiItemChk'+putNum+'" /></td>';
+		putStr += '<td>'+itemTypeNameArr[itemType]+'<input type="hidden" name="ItemTypeList" value="'+itemTypeNameArr[itemType]+'" /></td>';
+		putStr += '<td>'+itemColor+'<input type="hidden" name="ItemColorList" value="'+itemColor+'" /></td>';
+		putStr += '<td>';
+		putStr += '/가로'+itemWidth+'mm/세로'+itemHeight+'mm';		
+		putStr += '<input type="hidden" name="ItemWidthList" value="'+itemWidth+'" />';
+		putStr += '<input type="hidden" name="ItemHeightList" value="'+itemHeight+'" />';
+		putStr += '</td>';
+		putStr += '<td>'+itemQty+'개<input type="hidden" name="ItemQtyList" value="'+itemQty+'" /></td>';
+		putStr += '<td>'+addComma(String(itemPrice))+'원<input type="hidden" name="ItemPriceList" value="'+itemPrice+'" /></td>';		
+		putStr += '<td>'+addComma(String(itemTotalPrice))+'원<input type="hidden" name="ItemTotalPriceList" value="'+itemTotalPrice+'" /></td>';
+		putStr += '</tr>';
+		
+		// 제품 전송 폼에 넣기
+		$("#esti_list").append(putStr);
+
+		// 전송할 총 아이템종류 갯수 담기
+		totalItemCount = putNum;
+
+		// 총 결제금액 계산
+		totalPriceCalc();
+
+		// 선택한 제품 초기화
+		resetItem();
+	}
+
+	// 총 결제금액 계산
+	function totalPriceCalc() {
+		var totalEstiPrice = 0;	// 총견적금액
+		var totalQty = 0;		// 총제품수량
+		var marketPayQty = 0;	// 결제수량
+		var deliveryFee = 0;	// 배송비
+		var packingFee = 0;		// 포장비
+		var totalPrice = 0;		// 총결제금액
+		var isItemSizeLimit = 0	// 포장비 대상 여부 1/0
+
+		// 총견적금액 계산
+		for (i=0;i<$("#esti_list input[name='ItemTotalPriceList']").length;i++) {
+			totalEstiPrice = parseInt(totalEstiPrice) + parseInt($("#esti_list input[name='ItemTotalPriceList']").eq(i).val());
+			totalQty = parseInt(totalQty) + parseInt($("#esti_list input[name='ItemQtyList']").eq(i).val());
+			if (parseInt($("#esti_list input[name='ItemWidthList']").eq(i).val()) + parseInt($("#esti_list input[name='ItemHeightList']").eq(i).val()) > 1500) {
+				isItemSizeLimit = 1;
+			}
+		}
+
+		console.log("isItemSizeLimit = " + isItemSizeLimit);
+		console.log("totalEstiPrice = " + totalEstiPrice);
+		console.log("packingFee = " + packingFee);
+		console.log("totalQty N 구매수량 = " + totalQty);
+		// 총결제금액 계산
+		totalPrice = totalEstiPrice+deliveryFee+packingFee;
+
+		// 결제수량 계산(아크릴은 1,000원 단위 / 무광아크릴은 1,500원 단위 / 폴리카보네이트는 100원 단위)
+		
+		marketPayQty = totalPrice / 1000;
+		
+
+		// NaN 방지
+		if (isNaN(totalPrice)) {
+				  totalPrice = 0;
+				}
+
+		$("#TotalEstiPrice").val(totalEstiPrice);
+		$("#TotalQty").val(marketPayQty);
+		$("#PackingFee").val(packingFee);
+		$("#TotalPrice").val(totalPrice);
+		$("#TotalEstiPrice1").val(addComma(String(totalEstiPrice)));
+		$("#TotalQty1").val(addComma(String(marketPayQty)));
+		$("#PackingFee1").val(addComma(String(packingFee)));
+		$("#TotalPrice1").val(addComma(String(totalPrice)));
+	}
+
+	// 담은 상품 전체삭제 시
+	function resetTotalPriceCalc() {
+		$("#TotalEstiPrice").val("0");
+		$("#TotalQty").val("0");
+		$("#PackingFee").val("0");
+		$("#TotalPrice").val("0");
+		$("#TotalEstiPrice1").val("0");
+		$("#TotalQty1").val("0");
+		$("#PackingFee1").val("0");
+		$("#TotalPrice1").val("0");
+	}
+
+	// 담은 제품 선택 삭제
+	function delItem() {
+		var estiItemChkList = $("input[type=checkbox][name=estiItemChk]:checked");
+		if(estiItemChkList.length > 0) {
+			for (var i=0; i<estiItemChkList.length; i++) {
+				$(".estiItem" + estiItemChkList[i].value).remove();
+			}
+			// 총 결제금액 계산
+			totalPriceCalc();
+		}
+	}
+
+	// 담은 제품 전체 삭제
+	function delItemAll() {
+		if (confirm("담겨있는 모든 제품을 삭제 하시겠습니까?")) {
+			$("#esti_list > tr").remove();
+			resetTotalPriceCalc();
+		}
+	}
+
+	function viewAgree() {
+		if ($("#agree_contents").css("display") == "none") {
+			$("#agree_contents").show();	
+		} else {
+			$("#agree_contents").hide();
+		}
+	}
+
+	function sendEstimate() {
+		// 전송할 데이터 체크
+		if ($("#TotalQty1").val() == "" || $("#TotalQty1").val() == "0") {
+			alert("담겨있는 제품정보가 없습니다.");
+			return false;
+		}
+		if ($("#TotalPrice1").val() == "" || $("#TotalPrice1").val() == "0") {
+			alert("담겨있는 제품정보가 없습니다.");
+			return false;
+		}
+		if ($("#cust_name").val() == "") {
+			alert("수취인명을 입력해 주세요.");
+			$("#cust_name").focus();
+			return false;
+		}
+		if ($("#cust_hp").val() == "") {
+			alert("수취인 연락처를 입력해 주세요.");
+			$("#cust_hp").focus();
+			return false;
+		}
+		if ($("#cust_email").val() == "") {
+			alert("수취인 이메일을 입력해 주세요.");
+			$("#cust_email").focus();
+			return false;
+		}
+		if (!($("#agree_chk").is(":checked"))) {
+			alert("개인정보 취급방침을 동의해 주세요.");
+			return false;
+		}
+		// 수취인정보 전송 폼에 담기
+		$("#TotalItemCount").val(totalItemCount);
+		$("#CustName").val($("#cust_name").val());
+		$("#CustHP").val($("#cust_hp").val());
+		$("#CustEmail").val($("#cust_email").val());
+		$("#CustMsg").val($("#cust_msg").val());
+		// $("#RegRefer").val(document.referrer);
+		
+		// 구글 스프레드시트에 넣어주기 (컬럼명 전부)		
+		
+		if (confirm("판매자에게 견적을 전송 하시겠습니까?")) {
+			$('#EstiForm').ajaxForm({
+				beforeSend: function(){
+				},
+				type: "POST",
+				url: "https://script.google.com/macros/s/AKfycbx4qDH5ak_Rzgags4-J4gtAkifR7cKB1pS3GiMxynz59MAUxeYkMb-jcK1EO5LygTEezw/exec",
+				data: $("#EstiForm").serialize(),				
+				crossDomain: true,
+				success: function(result){
+				    console.log($("#EstiForm").serialize());
+				    console.log('result');
+				    console.log(result);
+					
+					if (result != "") {
+						alert("견적서 전송이 완료되었습니다! (견적서는 메일에서 확인해주세요)\n결제는 네이버 구매하기를 눌러 상품 수량 " + $("#TotalQty1").val() + "개를 선택하여 금액 " + $("#TotalPrice1").val() + "원에 맞춰 구매하시면 됩니다.");
+					} else {
+						alert("오류가 발생하였습니다. 잠시 후 다시 이용해주세요.\n\n지속적인 오류 발생시 판매자에게 문의 부탁드립니다.");
+					}
+					self.location.reload();
+				},
+				error: function(){
+					alert("오류가 발생하였습니다. 잠시 후 다시 이용해주세요.\n\n지속적인 오류 발생시 판매자에게 문의 부탁드립니다.");
+				},
+				complete: function () {
+				}
+			}).submit();
+		} // end of if statement
+	}
+
+	// 세자리 콤마 찍기
+	function addComma(val) {
+		value = val.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        return value;
+	}
+
+	// 콤마 제거
+	function delComma(val) {
+		value = val.replace(/[^\d]+/g, "");
+        return value;
+	}
+	
+	
+function showLayer(layerID, layerHeight) {
+	//안드로이드 전용..
+	/*try{
+		hideSlideLayer();
+	} catch(e){}*/
+
+	var innerLayer = $("#" + layerID);
+
+	//백그라운드에서의 움직임을 방지
+	$("body").css({ "overflow-y": "hidden" });
+
+	if ($("#backgroundLayer").length == 0) {
+		$("body").append($("<div/>").attr("id","backgroundLayer")
+									.css({"position":"fixed"
+									, "background": "#000"
+									, "width": "100%"
+									, "height": "100%"
+									, "top":0
+									, "left":0
+									, "-ms-filter":"\"progid:DXImageTransform.Microsoft.Alpha(opacity=30)\""
+									, "filter":"progid:DXImageTransform.Microsoft.Alpha(opacity=30)"
+									, "opacity":"0.7"
+									, "-moz-opacity":"0.7"
+									, "z-index": "9000"
+									, "overflow": "hidden"
+									, "display": "none"
+									})
+		);
+	}
+
+	var border = parseInt(innerLayer.css("border-left-width")) + parseInt(innerLayer.css("border-right-width"));
+	if (border == null)
+		border = 0;
+
+	var width = innerLayer.width() + border;
+	var marginLeft = width / 2;
+	var height, marginTop;
+
+	if (layerHeight != null) {
+		if (layerHeight.toString().indexOf("%") > -1)
+			height = $(window).height() * (layerHeight.split("%")[0] / 100)
+		else
+			height = layerHeight;
+	} else {
+		innerLayer.css("height", "auto");
+		height = innerLayer.height() + 3;
+	}
+
+	marginTop = height / 2
+
+	innerLayer.css({
+		"position": "fixed"
+		, "display": "none"
+		, "background": "#FFF"
+		, "width": width + "px"
+		, "height": height + "px"
+		, "left": "50%"
+		, "top": "50%"
+		, "margin-left": -marginLeft + "px"
+		, "margin-top": -marginTop + "px"
+		// , "overflow": "hidden"
+		, "-webkit-overflow-scrolling": "touch"
+		, "z-index": "9001"
+	});
+
+	$("#backgroundLayer").show();
+	innerLayer.show();
+
+	//안드로이드에서 레이어 셋팅
+	try {
+		innerLayer.addClass("set_dialog_layer");
+		Android.setWebPageLayer(true);
+	} catch (e) {}
+}
+
+function hideLayer(layerID) {
+	var innerLayer = $("#" + layerID);
+	$("#backgroundLayer").hide();
+	innerLayer.hide();
+	$("body").css({ "overflow-y": "auto" });
+
+	//안드로이드에서 레이어 셋팅
+	try {
+		innerLayer.removeClass("set_dialog_layer");
+		Android.setWebPageLayer(false);
+	} catch (e) { }
+}
+
+function getLayerTop(height){
+	var innerHeight = ($(window).height() - height)/2;
+	if (innerHeight < 0)
+		innerHeight = 10;
+	var top = $(window).scrollTop() + innerHeight;
+	
+	return top;
+}
+
+function getObjTop(objID){
+	var height = $("#" + objID).height()
+	return getLayerTop(height);
+}
+
+/* 콤마 허용 */
+function onlyMoney(obj) {
+	var oElement = obj;
+	var charChk;
+
+	for (var i = 0; i < oElement.value.length; i++) {
+		charChk = oElement.value.charCodeAt(i);
+		if ((charChk > 57 || charChk < 48) && charChk != 44 && charChk != 45) {
+			alert("공백없이 숫자로만 입력해주세요.");
+			oElement.value = oElement.value.substring(0, i);
+			oElement.focus();
+			return;
+		} else {
+			if (charChk == 45 && i != 0 ) {
+				alert("음수표시( - )는 첫 자리수에만 올 수 있습니다.");
+				oElement.value = oElement.value.substring(0, i);
+				oElement.focus();
+				return;
+			}
+		}
+	}
+	
+	obj.value = obj.value.split(",").join("").money();
+}
+
+/* 소숫점 허용 */
+/*function onlyFloat(obj) {
+	var oElement = obj;
+	var charChk;
+
+	for (var i = 0; i < oElement.value.length; i++) {
+		charChk = oElement.value.charCodeAt(i);
+		if ((charChk > 57 || charChk < 48) && charChk != 46) {
+			alert("공백없이 숫자로만 입력해주세요.");
+			oElement.value = oElement.value.substring(0, i);
+			oElement.focus();
+			return;
+		}
+	}
+}*/
+
+function onlyFloat() {
+	var oElement = (arguments[0] != null) ? arguments[0] : this;
+	var charChk, point = 0;
+
+	var firstCharCode = oElement.value.charCodeAt(0);	//첫째자리
+
+	for (var i = 0; i < oElement.value.length; i++) {
+		var error = false;
+		charChk = oElement.value.charCodeAt(i);
+
+		if (charChk == 46) {	//소숫점
+			point++;
+		}
+
+		if (i > 0) {
+			var secondCharCode = oElement.value.charCodeAt(1);	//둘째자리
+
+			switch (firstCharCode) {
+				case 48:	//첫째자리가 0인경우
+					if (secondCharCode != 46) {
+						alert("소수점을 입력해주세요.");
+						error = true;
+					}
+					break;
+				case 45:	//첫째자리가 음수(-)인경우
+					if (secondCharCode == 46) {	//둘째자리가 소수점인경우
+						alert("0 다음에 소수점을 입력할 수 있습니다.");
+						error = true;
+					} else {
+						if (i > 1) {
+							if (secondCharCode == 48) {	//둘째자리가 0인경우
+								if (oElement.value.charCodeAt(2) != 46) {
+									alert("소수점을 입력해주세요.");
+									error = true;
+								}
+							}
+						}
+					}
+					break;
+			}
+
+			if (point > 1) {
+				alert("이미 소수점이 입력되었습니다.");
+				error = true;
+			} else {
+				if (!error) {
+					if ((charChk > 57 || charChk < 48) && charChk != 46) {
+						alert("공백없이 숫자로만 입력해주세요.");
+						error = true;
+					}
+				}
+			}
+		} else {
+			if ((firstCharCode > 57 || firstCharCode < 48) && firstCharCode != 45) {
+				alert("공백없이 숫자로만 입력해주세요.");
+				error = true;
+			}
+		}
+
+		if (error) {
+			oElement.value = oElement.value.substring(0, i);
+			oElement.focus();
+			return;
+		}
+	}
+}
+
+function onlyNumber() {
+	var oElement = (arguments[0] != null) ? arguments[0] : this;
+	var charChk;
+
+	for (var i = 0; i < oElement.value.length; i++) {
+		charChk = oElement.value.charCodeAt(i);
+		if (charChk > 57 || charChk < 48) {
+			alert("공백없이 숫자로만 입력해주세요.");
+			oElement.value = oElement.value.substring(0, i);
+			oElement.focus();
+			return;
+		}
+	}
+}
+	
+function autoHeight(obj, defaultHeight){
+	var height = obj.scrollHeight;
+	var thisObjHeight = 115;	//기본 높이값
+	
+	if (defaultHeight != null)
+		thisObjHeight = defaultHeight;
+	
+	if (height > thisObjHeight)
+		$(obj).css("height",obj.scrollHeight + "px");
+	else
+		$(obj).css("height",thisObjHeight + "px");
+}
+	
+function ContentHeightCK(objID){
+	var content = $("#" + objID);
+	
+	if (content.css("height").toLowerCase().replace("px","") < content.attr("scrollHeight"))
+		content.css("height",content.attr("scrollHeight") + "px");
+}
+	
+var maxTable = 0;
+function autoScroll(tableID){
+	var s_Table = $("#" + tableID).html().toLowerCase().split("</table>");
+	$("#" + tableID + "_view").empty();
+	
+	for( var i=0;i<s_Table.length;i++){
+		if (s_Table[i] != ""){
+			$("#" + tableID + "_view").append(s_Table[i] + "</table>")
+			window.setTimeout("fadeTable("+i+", '" + tableID + "')", (i*2000));
+		}
+	}
+	maxTable = s_Table.length;
+}
+
+function fadeTable(i, tableID){
+	if (i != 0 && i%3 == 0){
+		$("#" + tableID + "_view table").each(function(e){
+			if (e < i)
+				$(this).css("display","none");
+		})
+	}
+		
+	$($("#" + tableID + "_view table")[i]).fadeIn("slow");
+	
+	if ((maxTable-2) == i){
+		window.setTimeout("autoScroll('" + tableID + "')", 2000);
+	}
+}
+
+function fGetXY(aTag){ 
+	var oTmp = aTag; 
+	var pt = new Point(0,0); 
+	do { 
+			pt.x += oTmp.offsetLeft; 
+			pt.y += oTmp.offsetTop; 
+			oTmp = oTmp.offsetParent; 
+	} while(oTmp.tagName!="BODY" && oTmp.tagName!="HTML"); 
+	return pt; 
+}
+
+function Point(iX, iY){ 
+	this.x = iX; 
+	this.y = iY; 
+}
+
+//글쓰기 체크
+function max_write(maxByte, obj) {
+	var temp;
+	var maxLen = maxByte;
+
+	var len = obj.value.length;
+
+	for (i = 0; i < len; i++) {
+		temp = obj.value.charAt(i);
+
+		if (escape(temp).length > 4)
+			maxLen -= 2;
+		else
+			maxLen--;
+
+		if (maxLen < 0) {
+			alert("내용은 영문 " + maxByte + "자, 한글 " + maxByte / 2 + "자 이내로 작성하셔야 합니다.");
+			obj.value = obj.value.substring(0, i);
+			obj.focus();
+			break;
+		}
+	}
+}
+
+//길이체크
+function maxlength_check(maxlen, obj, returnYN) {
+	var len = obj.value.length;
+	var result;
+	
+	if (len > maxlen){
+		alert(maxlen + "자 이상 작성하실 수 없습니다.");
+		obj.value = obj.value.substring(0,maxlen);
+		result = false;
+	} else
+		result = true;
+		
+	if (returnYN != null && returnYN)
+		return result;
+}
+
+//pos.x x좌표, pos.y y좌표
+function cfGetEventPosition(evt) {
+	var e = evt || window.event;
+	var b = document.body;
+	var scroll = cfGetScrollOffset();
+	var pos = {
+ 			x : e.pageX || e.clientX+scroll.x-b.clientLeft,
+			y : e.pageY || e.clientY+scroll.y-b.clientTop
+		}
+	return pos;
+}
+
+function cfGetScrollOffset(win) {
+	if (!win) win = self;
+	var x = win.pageXOffset || win.document.body.scrollLeft || document.documentElement.scrollLeft || 0;
+	var y = win.pageYOffset || win.document.body.scrollTop || document.documentElement.scrollTop || 0;
+	return { x:x, y:y };
+}
+
+	
+// 가로, 세로 최대 사이즈 설정
+//classObj class명
+//maxWidth, maxHeight	: 가로 * 세로 최대값
+var errorCnt = 0;	//Error횟수
+function imageResize(classObj, maxWidth, maxHeight){
+	$("." + classObj).each(function(i){
+		errorCnt = 0;
+		obj = $(this)
+		setImageSize(obj, maxWidth, maxHeight);
+	});
+}
+
+function setImageSize(obj, maxWidth, maxHeight){
+	var width = obj.width();
+	var height = obj.height();
+	var resizeWidth, resizeHeight;
+
+	// 가로나 세로의 길이가 최대 사이즈보다 크면 실행  
+	if (width > maxWidth || height > maxHeight){
+		// 가로가 세로보다 크면 가로는 최대사이즈로, 세로는 비율 맞춰 리사이즈
+		if(width > height){
+			resizeWidth = maxWidth;
+			resizeHeight = parseInt(Math.round(parseFloat(height * resizeWidth) / parseFloat(width)));
+			
+			if (resizeHeight > maxHeight){
+				resizeHeight = maxHeight;
+				resizeWidth = parseInt(Math.round(parseFloat(width * resizeHeight) / parseFloat(height)));
+			}
+		// 세로가 가로보다 크면 세로는 최대사이즈로, 가로는 비율 맞춰 리사이즈
+		}else{
+			resizeHeight = maxHeight;
+			resizeWidth = parseInt(Math.round(parseFloat(width * resizeHeight) / parseFloat(height)));
+			
+			if (resizeWidth > maxWidth){
+				resizeWidth = maxWidth;
+				resizeHeight = parseInt(Math.round(parseFloat(height * resizeWidth) / parseFloat(width)));
+			}
+		}
+	// 최대사이즈보다 작으면 원본 그대로
+	}else{
+		resizeWidth = width;
+		resizeHeight = height;
+	}
+
+	var maxErrorCnt = 3;
+	//이미지 사이즈가 정상적으로 처리되지 않으면 1초 후 반복( 최대3회 )
+	if ((resizeWidth < 50 || resizeHeight < 50) && errorCnt < maxErrorCnt){
+		errorCnt++;
+		window.setTimeout(function(){
+				setImageSize(obj, maxWidth, maxHeight);
+			},1000);
+	}else
+		obj.css({"width":resizeWidth, "height":resizeHeight}).show();
+}
+	
+//Width만 리사이즈		
+var _complate = true;
+var _errorCount = 0;
+
+function imageResizeWidth(classObj, maxWidth){
+	
+	var imgs = new Array();
+	$("." + classObj).each(function(idx){
+		var obj = $(this);
+		
+		var tmpImage = new Image();
+		tmpImage.src = obj.attr("src");
+		
+		var width = obj.width();
+		var height = obj.height();
+		var resizeWidth, resizeHeight;
+		imgs[idx] = false;
+
+		if (width > maxWidth){
+			resizeWidth = maxWidth;
+			resizeHeight = parseInt(Math.round(parseFloat(height * resizeWidth) / parseFloat(width)));
+		} else {
+			resizeWidth = width;
+			resizeHeight = height;
+		}
+		
+		//var li = $("<li/>").text((idx+1).toString() + ". width : " + width + ", " + "height : " + height + ", resizeWidth : " + resizeWidth + ", " + "resizeHeight : " + resizeHeight );
+		//$("#debug").append(li);
+		
+		if (resizeWidth > 200){
+			imgs[idx] = true;
+			obj.css({"width":resizeWidth, "height":resizeHeight}).show();
+		}
+	});
+	
+	_complate = true;
+	for( i=0; i < imgs.length; i++){
+		if (!imgs[i])
+			_complate = false;
+	}
+		
+	if ( !_complate && _errorCount < 2){
+		_errorCount++;
+		window.setTimeout("imageResizeWidth('" + classObj + "', " + maxWidth + ")",200);
+	}
+}
+
+//마우스 우측버튼 금지
+function rightMouse() {
+	if (event.button == 2 || event.button == 3) {  
+		//alert("마우스 오른쪽 버튼을 사용하실수 없습니다.");
+		return false;  
+	}
+	return true;  
+}
+function rightMouseDenial(){
+	document.oncontextmenu = new Function('return false');
+	document.ondragstart = new Function('return false');
+	document.onselectstart = new Function('return false');
+	
+	document.onmousedown = rightMouse;
+
+	//ImageToolBox 금지
+	$("img").each(function(){
+		$(this).attr("galleryImg",false);
+	});
+}
+
+function char_filter(obj){
+	var filterchar= ";$%'\"<>+\\-:=";
+	var len = obj.value.length;
+	var temp;
+	
+	if ( !$(obj).attr("readonly") ){
+		for (i = 0; i < len; i++) {
+			temp = obj.value.charAt(i);
+			if (filterchar.indexOf(temp) > -1){
+				alert("특수문자 [ " + temp + " ]은(는) 사용할수 없는 문자 입니다.");
+				obj.value = obj.value.substring(0, i);
+				obj.focus();
+				break;
+			}
+		}
+	}
+}
+
+//입력창 Text길이 체크
+function lengthCheck(length, obj, nextObjID){
+	if (obj.value.length >= length){
+		$("#" + nextObjID).focus();
+	}
+}
+
+//입력항목 검사
+function objValidate_mob(objID, alertMsg){
+	if ( $("#" + objID).val() == ""){
+		alert(alertMsg);
+		$("#" + objID).focus();
+		return true;
+	}
+	return false;
+}
+
+//입력항목 검사
+function objValidate(objID, alertMsg) {
+	if ($("#" + objID).val() == "") {
+		if (isApp && !isIOS)
+			showAndroidDialog(alertMsg, "$('#" + objID + "').focus()");
+		else {
+			alert(alertMsg);
+			$("#" + objID).focus();
+		}
+		return true;
+	}
+	return false;
+}
+
+//머니형태를 숫자 형태로
+function toNumber(val){
+	var reslut = 0;
+	if (val != null)
+		reslut = Number(val.toString().split(",").join(""));
+	return reslut;
+}
+
+//숫자인지 확인
+function isNumber(s) {
+  s += ''; // 문자열로 변환
+  s = s.replace(/^\s*|\s*$/g, ''); // 좌우 공백 제거
+  if (s == '' || isNaN(s)) return false;
+  return true;
+}
+
+//영문과 숫자만 가능
+function onlyEnglishNumber() {
+	var oElement = (arguments[0] != null) ? arguments[0] : this;
+	var charChk;
+
+	for (var i = 0; i < oElement.value.length; i++) {
+		charChk = oElement.value.charCodeAt(i);
+
+		if ((charChk < 65 || charChk > 90) && (charChk < 97 || charChk > 122) && (charChk > 57 || charChk < 48)) {
+			alert("영문과 숫자만 입력해주세요.");
+			oElement.value = oElement.value.substring(0, i);
+			oElement.focus();
+			return;
+		}
+	}
+}
+
+//한글만 안됨
+function onlyNotKorean() {
+	var oElement = (arguments[0] != null) ? arguments[0] : this;
+	var charChk;
+
+	for (var i = 0; i < oElement.value.length; i++) {
+		charChk = oElement.value.charCodeAt(i);
+
+		if (!(charChk > 31 && charChk < 127)) {
+			alert("한글은 사용할 수 없습니다.");
+			oElement.value = oElement.value.substring(0, i);
+			oElement.focus();
+			return;
+		}
+	}
+}
+
+//모바일 페이지 주소창 감추기
+function isUserAgent() {
+	var ua = navigator.userAgent;
+	if ((ua.match(/iPhone/i)) || (ua.match(/iPod/i)) || (ua.match(/iPad/i)) || (ua.match(/Android/i))) {
+		window.addEventListener("load", function () { setTimeout(scrollTo, 0, 0, 1); }, false);
+	}
+}
+
+
+/* 전화번호 자동 변환 시작*/
+function autoHypenPhone(str, field) {
+	var str;
+	str = checkDigit(str);
+	len = str.length;
+
+	if (len == 8) {
+		if (str.substring(0, 2) == 02) {
+			error_numbr(str, field);
+		} else {
+			field.value = phone_format(1, str);
+		}
+	} else if (len == 9) {
+		if (str.substring(0, 2) == 02) {
+			field.value = phone_format(2, str);
+		} else {
+			error_numbr(str, field);
+		}
+	} else if (len == 10) {
+		if (str.substring(0, 2) == 02) {
+			field.value = phone_format(2, str);
+		} else {
+			field.value = phone_format(3, str);
+		}
+	} else if (len == 11) {
+		if (str.substring(0, 2) == 02) {
+			error_numbr(str, field);
+		} else {
+			field.value = phone_format(3, str);
+		}
+	} else {
+		error_numbr(str, field);
+	}
+}
+function checkDigit(num) {
+	var Digit = "1234567890";
+	var string = num;
+	var len = string.length
+	var retVal = "";
+	for (i = 0; i < len; i++) {
+		if (Digit.indexOf(string.substring(i, i + 1)) >= 0) {
+			retVal = retVal + string.substring(i, i + 1);
+		}
+	}
+	return retVal;
+}
+function phone_format(type, num) {
+	if (type == 1) {
+		return num.replace(/([0-9]{4})([0-9]{4})/, "$1-$2");
+	} else if (type == 2) {
+		return num.replace(/([0-9]{2})([0-9]+)([0-9]{4})/, "$1-$2-$3");
+	} else {
+		return num.replace(/(^01.{1}|[0-9]{3})([0-9]+)([0-9]{4})/, "$1-$2-$3");
+	}
+}
+function error_numbr(str, field) {
+	if (field.value != "") {
+		alert("정상적인 번호가 아닙니다.");
+		field.value = "";
+		$(field).removeAttr("readonly");	//정상적인 번호가 아닐경우 읽기전용 해제
+		//
+		field.focus();
+		return;
+	}
+}
+function phoneNumberCheck(phone) {
+	var rgEx = /(01[016789])[-](\d{4}|\d{3})[-]\d{4}$/g;
+	var strValue = phone;
+	var chkFlg = rgEx.test(strValue);
+	if (!chkFlg) {
+		return false;
+	} else {
+		return true;
+	}
+}
+/* 전화번호 자동 변환 끝*/
+
+/* 값 찍어보기 */
+function printLog(tag, val) {
+	var log = $("<div/>").text(tag + " : " + val);
+	$("body").append(log);
+}
+
+/* 안드로이드 앱일경우 toast 메시지 발송 */
+function alertAndroid(msg) {
+	if (isApp && !isIOS)
+		Android.toast(1, msg);
+	else
+		alert(msg);
+}
+
+//부모의 iframe Height을 변경
+function resizeParent() {
+	if ($(parent.phoneFrame)[0] != null) {
+		hideMenuAndFooter();
+		var documentHeight = $("#wrap").height() + $(".footer").height();
+		parent.resizeHeight(documentHeight);
+	}
+}
+
+function hideMenuAndFooter() {
+	$(".footer, a.flick_home").hide();
+}
+
+//웹에서 네이티브 앱 실행
+function execApp(appScheme, playLink, appStoreLink) {
+	var frame_id = '__check_app__', $iframe = $('#' + frame_id), clickedAt = +new Date;
+
+	if (!$iframe[0]) $iframe = $('<iframe id="' + frame_id + '" />').hide().appendTo('body');
+	setTimeout(function () {
+		if (+new Date - clickedAt < 2000) {
+			var ua = navigator.userAgent.toLowerCase();
+			if (/android/.test(ua)) {
+				$iframe.attr('src', playLink);
+			} else if (/iphone|ipad/.test(ua)) {
+				$iframe.attr('src', appStoreLink);
+			}
+		}
+	}, 500);
+	$iframe.attr('src', appScheme);
+}
+
+//레이어 변경
+function layerChange(showID, hideID) {
+	$("#" + hideID).hide();
+	$("#" + showID).show();
+}
+
+
+//쿠키관련..
+function getCookie(cookieName) {
+	var search = cookieName + "=";
+	var cookie = document.cookie;
+
+	// 현재 쿠키가 존재할 경우
+	if (cookie.length > 0) {
+		// 해당 쿠키명이 존재하는지 검색한 후 존재하면 위치를 리턴.
+		startIndex = cookie.indexOf(cookieName);
+
+		// 만약 존재한다면
+		if (startIndex != -1) {
+			// 값을 얻어내기 위해 시작 인덱스 조절
+			startIndex += cookieName.length;
+
+			// 값을 얻어내기 위해 종료 인덱스 추출
+			endIndex = cookie.indexOf(";", startIndex);
+
+			// 만약 종료 인덱스를 못찾게 되면 쿠키 전체길이로 설정
+			if (endIndex == -1) endIndex = cookie.length;
+
+			// 쿠키값을 추출하여 리턴
+			return unescape(cookie.substring(startIndex + 1, endIndex));
+		}
+		else {
+			// 쿠키 내에 해당 쿠키가 존재하지 않을 경우
+			return false;
+		}
+	}
+	else {
+		// 쿠키 자체가 없을 경우
+		return false;
+	}
+}
+
+function setCookie(cookieName, cookieValue, expireDate) {
+	var today = new Date();
+	today.setDate(today.getDate() + parseInt(expireDate));
+	document.cookie = cookieName + "=" + escape(cookieValue) + "; path=/; expires=" + today.toGMTString() + ";";
+}
+
+function deleteCookie(cookieName) {
+	var expireDate = new Date();
+	//어제 날짜를 쿠키 소멸 날짜로 설정한다.
+	expireDate.setDate(expireDate.getDate() - 1);
+	document.cookie = cookieName + "= " + "; expires=" + expireDate.toGMTString() + "; path=/";
+}
+
+//바탕화면 투명..
+function bgTransparentLayer(layerID) {
+	showLayer(layerID);
+	$("#" + layerID).css("background-color", "transparent");
+}
+
+
+// 피플앱 오픈으로 인한 비활성 메뉴 안내 메시지
+function inactiveService(msg) {
+	if (msg == "" || msg == null) {
+		alertAndroid("해당 서비스는 피플앱이 종료된 이후 이용 가능합니다. 당분간 피플앱을 이용해 주세요.");
+	} else {
+		alertAndroid(msg);
+	}
+}
+function inactiveServiceUrl(msg, url) {
+	if (msg == "" || msg == null) {
+		alertAndroid("해당 서비스는 피플앱이 종료된 이후 이용 가능합니다. 당분간 피플앱을 이용해 주세요.");
+	} else {
+		alertAndroid(msg);
+	}
+	if (url == "" || url == null) {
+		history.back();
+	} else {
+		self.location.href = url;
+	}
+}
+// 피플앱 오픈으로 인한 비활성 메뉴 안내 메시지 끝
+
+
+
+// 팝업 두개 띄울 때 사용
+function showLayerSub(layerID, layerHeight) {
+	var innerLayer = $("#" + layerID);
+
+	//백그라운드에서의 움직임을 방지
+	$("body").css({ "overflow-y": "hidden" });
+
+	if ($("#backgroundLayerSub").length == 0) {
+		$("body").append($("<div/>").attr("id","backgroundLayerSub")
+									.css({"position":"fixed"
+									, "background": "#000"
+									, "width": "100%"
+									, "height": "100%"
+									, "top":0
+									, "left":0
+									, "-ms-filter":"\"progid:DXImageTransform.Microsoft.Alpha(opacity=30)\""
+									, "filter":"progid:DXImageTransform.Microsoft.Alpha(opacity=30)"
+									, "opacity":"0.7"
+									, "-moz-opacity":"0.7"
+									, "z-index": "9003"
+									, "overflow": "hidden"
+									, "display": "none"
+									})
+		);
+	}
+
+	var border = parseInt(innerLayer.css("border-left-width")) + parseInt(innerLayer.css("border-right-width"));
+	if (border == null)
+		border = 0;
+
+	var width = innerLayer.width() + border;
+	var marginLeft = width / 2;
+	var height, marginTop;
+
+	if (layerHeight != null) {
+		if (layerHeight.toString().indexOf("%") > -1)
+			height = $(window).height() * (layerHeight.split("%")[0] / 100)
+		else
+			height = layerHeight;
+	} else {
+		innerLayer.css("height", "auto");
+		height = innerLayer.height() + 3;
+	}
+
+	marginTop = height / 2
+
+	innerLayer.css({
+		"position": "fixed"
+		, "display": "none"
+		, "background": "#FFF"
+		, "width": width + "px"
+		, "height": height + "px"
+		, "left": "50%"
+		, "top": "50%"
+		, "margin-left": -marginLeft + "px"
+		, "margin-top": -marginTop + "px"
+		, "overflow": "hidden"
+		, "-webkit-overflow-scrolling": "touch"
+		, "z-index": "9004"
+	});
+
+	$("#backgroundLayerSub").show();
+	innerLayer.show();
+
+	//안드로이드에서 레이어 셋팅
+	try {
+		innerLayer.addClass("set_dialog_layer");
+		Android.setWebPageLayer(true);
+	} catch (e) {}
+}
+
+function hideLayerSub(layerID) {
+	var innerLayer = $("#" + layerID);
+	$("#backgroundLayerSub").hide();
+	innerLayer.hide();
+	$("body").css({ "overflow-y": "auto" });
+
+	//안드로이드에서 레이어 셋팅
+	try {
+		innerLayer.removeClass("set_dialog_layer");
+		Android.setWebPageLayer(false);
+	} catch (e) { }
+}
+
+
+// 마이클럽 회원 공지팝업 시작
+function showLayerClub(layerID, code) {
+	var innerLayer = $("#" + layerID + code);
+
+	//백그라운드에서의 움직임을 방지
+	$("body").css({ "overflow-y": "hidden" });
+
+	if ($("#backgroundLayerClub"+code).length == 0) {
+		$("body").append($("<div/>").attr("id","backgroundLayerClub"+code)
+									.css({"position":"fixed"
+									, "background": "#000"
+									, "width": "100%"
+									, "height": "100%"
+									, "top":0
+									, "left":0
+									, "-ms-filter":"\"progid:DXImageTransform.Microsoft.Alpha(opacity=30)\""
+									, "filter":"progid:DXImageTransform.Microsoft.Alpha(opacity=30)"
+									, "opacity":"0.7"
+									, "-moz-opacity":"0.7"
+									, "z-index": "9003"
+									, "overflow": "hidden"
+									, "display": "none"
+									})
+		);
+	}
+
+	var border = parseInt(innerLayer.css("border-left-width")) + parseInt(innerLayer.css("border-right-width"));
+	if (border == null)
+		border = 0;
+
+	var width = innerLayer.width() + border;
+	var marginLeft = width / 2;
+	var height, marginTop;
+
+	innerLayer.css("height", "auto");
+	height = innerLayer.height();
+
+	marginTop = height / 2
+
+	innerLayer.css({
+		"position": "fixed"
+		, "display": "none"
+		, "background": "#FFF"
+		, "width": width + "px"
+		, "height": height + "px"
+		, "left": "50%"
+		, "top": "50%"
+		, "margin-left": -marginLeft + "px"
+		, "margin-top": -marginTop + "px"
+		, "-webkit-overflow-scrolling": "touch"
+		, "z-index": "9004"
+	});
+
+	$("#backgroundLayerClub"+code).show();
+	innerLayer.show();
+
+	//안드로이드에서 레이어 셋팅
+	try {
+		innerLayer.addClass("set_dialog_layer");
+		Android.setWebPageLayer(true);
+	} catch (e) {}
+}
+
+function hideLayerClub(layerID, code) {
+	var innerLayer = $("#" + layerID + code);
+	$("#backgroundLayerClub"+code).hide();
+	innerLayer.hide();
+	$("body").css({ "overflow-y": "auto" });
+
+	//안드로이드에서 레이어 셋팅
+	try {
+		innerLayer.removeClass("set_dialog_layer");
+		Android.setWebPageLayer(false);
+	} catch (e) { }
+}
+// 마이클럽 회원 공지팝업 끝
+
+
+/* 로그 스크립트 시작 */
+function setAnalMemberLog(LogYN, LogType, SubType, Link, LinkType, Title, isRefresh) {
+	if (LogYN == "Y") {
+		$.ajax({
+			type: "POST",
+			url: "/mob/code_behind/setAnalMemberLog.asp",
+			data: "LogType="+LogType+"&SubType="+SubType,
+			success: function () {
+				if (Link != null && Link != "") {
+					if (LinkType == "openWindow") {
+						if (isRefresh != null && isRefresh != "") {
+							openWindow(Link, Title, isRefresh);
+						} else {
+							openWindow(Link, Title);
+						}
+					} else if (LinkType == "openWebBrowser") {
+						openWebBrowser(Link);
+					} else {
+						self.location.href = Link;
+					}
+				}
+			}
+		});
+	} else {
+		if (Link != null && Link != "") {
+			if (LinkType == "openWindow") {
+				if (isRefresh != null && isRefresh != "") {
+					openWindow(Link, Title, isRefresh);
+				} else {
+					openWindow(Link, Title);
+				}
+			} else if (LinkType == "openWebBrowser") {
+				openWebBrowser(Link);
+			} else {
+				self.location.href = Link;
+			}
+		}
+	}
+}
+/* 로그 스크립트 끝 */
+
+
+/* 로그인 체크 및 로그 저장 */
+// locationFilter(로그인필수여부, 맴버코드, 로그저장여부, 로그타입, 로그서브타입, 페이지이동주소, 새창열기함수명, 새창열기제목, 새창닫기새로고침여부)
+function locationFilter(LoginYN, MemCode, LogYN, LogType, SubType, Link, LinkType, Title, isRefresh) {
+	if (LoginYN == "Y" && (MemCode == "" || MemCode == null)) {
+		if (confirm("로그인이 필요한 서비스 입니다. 로그인 하시겠습니까?")) {
+			location.href = "/mob/login.asp";
+		}
+	} else {
+		if (LogYN == "Y") {
+			$.ajax({
+				type: "POST",
+				url: "/mob/code_behind/setAnalMemberLog.asp",
+				data: "LogType="+LogType+"&SubType="+SubType,
+				success: function () {
+					if (Link != null && Link != "") {
+						if (LinkType == "openWindow") {
+							if (isRefresh != null && isRefresh != "") {
+								openWindow(Link, Title, isRefresh);
+							} else {
+								openWindow(Link, Title);
+							}
+						} else if (LinkType == "openWebBrowser") {
+							openWebBrowser(Link);
+						} else {
+							location.href = Link;
+						}
+					}
+				}
+			});
+		} else {
+			if (Link != null && Link != "") {
+				if (LinkType == "openWindow") {
+					if (isRefresh != null && isRefresh != "") {
+						openWindow(Link, Title, isRefresh);
+					} else {
+						openWindow(Link, Title);
+					}
+				} else if (LinkType == "openWebBrowser") {
+					openWebBrowser(Link);
+				} else {
+					location.href = Link;
+				}
+			}
+		}
+	}
+}
+/* 로그인 체크 및 로그 저장 끝 */
+
+// 로그인 여부 체크 및 로그인 페이지 이동 옵션
+function loginFilter(Type) {
+	if (Type == "alert") {
+		alert("로그인이 필요한 서비스 입니다.");
+	} else {
+		if (confirm("로그인이 필요한 서비스 입니다. 로그인 하시겠습니까?")) {
+			location.href = "/mob/login.asp";
+		}
+	}
+}
+
+
+// 팝업 ESC로 닫기 용
+function hideLayerClass(layerClass) {
+	$("#backgroundLayer").hide();
+	$("." + layerClass).hide();
+	$("body").css({ "overflow-y": "auto" });
+}
+
+
+///////////////  팝업 시작
+// 창열기
+function openWin( winName ) {
+	var blnCookie = getCookie( winName );
+	//var obj = eval( "window." + winName );
+	if( !blnCookie ) {
+		if (winName == "popup_layer") {
+			showLayer(winName);
+		} else if (winName == "popup_layer_sub") {
+			showLayerSub(winName);
+		} else if (winName == "popup_slide") {
+			$("#popup_slide").show();
+			$("body").css({ "overflow-y": "hidden" });
+		} else if (winName == "banner_main") {
+			$("#banner_main").show();
+		} else {
+			showLayer(winName);
+		}
+		//    try {
+		// 		Android.setWebPageLayer(false);
+		// 	} catch (e) { }
+
+		//레이어 높에 리사이즈
+		if (winName != "banner_main") {
+			$("#"+winName).css({height:($("#"+winName+" > div").height()+$("#"+winName+" > img").height())+"px"});
+		}
+	}
+}
+// 창닫기
+function closeWin(winName, expiredays) { 
+	setCookie( winName, "done" , expiredays);
+	//eval( "window." + winName );
+	if (winName == "popup_layer") {
+		hideLayer(winName);
+	} else if (winName == "popup_layer_sub") {
+		hideLayerSub(winName);
+	} else if (winName == "popup_slide") {
+		$("#popup_slide").hide();
+		$("body").css({ "overflow-y": "auto" });
+	} else if (winName == "banner_main") {
+		$("#banner_main").hide();
+	} else {
+		hideLayer(winName);
+	}
+}
+function closeWinAt00(winName, expiredays) { 
+	setCookieAt00( winName, "done" , expiredays); 
+	var obj = eval( "window." + winName );
+	obj.style.display = "none";
+}
+// 쿠키 가져오기
+function getCookie( name ) {
+	var nameOfCookie = name + "=";
+	var x = 0;
+	while ( x <= document.cookie.length ) {
+		var y = (x+nameOfCookie.length);
+		if ( document.cookie.substring( x, y ) == nameOfCookie ) {
+			if ( (endOfCookie=document.cookie.indexOf( ";", y )) == -1 )
+				endOfCookie = document.cookie.length;
+			return unescape( document.cookie.substring( y, endOfCookie ) );
+		}
+		x = document.cookie.indexOf( " ", x ) + 1;
+		if ( x == 0 )
+			break;
+	}
+	return "";
+}
+
+// 24시간 기준 쿠키 설정하기
+// expiredays 후의 클릭한 시간까지 쿠키 설정
+function setCookie( name, value, expiredays ) { 
+	var todayDate = new Date(); 
+	todayDate.setDate( todayDate.getDate() + expiredays ); 
+	document.cookie = name + "=" + escape( value ) + "; path=/; expires=" + todayDate.toGMTString() + ";"
+}
+
+// 00:00 시 기준 쿠키 설정하기
+// expiredays 의 새벽  00:00:00 까지 쿠키 설정
+function setCookieAt00( name, value, expiredays ) {
+	var todayDate = new Date();
+	todayDate = new Date(parseInt(todayDate.getTime() / 86400000) * 86400000 + 54000000);
+	if ( todayDate > new Date() ) {
+		expiredays = expiredays - 1;
+	}
+	todayDate.setDate( todayDate.getDate() + expiredays );
+	document.cookie = name + "=" + escape( value ) + "; path=/; expires=" + todayDate.toGMTString() + ";"
+}
+///////////////  팝업 끝
+
+
+// 빌리보드 유튜브 보기 (PC용)
+function playYoutubeWeb(seq, YBMCode) {
+	var embed_url = "https://www.youtube.com/embed/"+seq;
+	if (seq == "") {
+		alert("유튜브 재생 시 필요한 데이터가 누락되었습니다.");
+		return false;
+	}
+	if (confirm("LTE, 5G 로 시청시 통신요금이 부과될 수 있습니다. Wi-Fi 연결을 확인 해 주시기 바랍니다.")) {
+		$.ajax({
+			type: "POST",
+			url: "/mob/youtube/code_behind/setYoutubeViewCount.asp",
+			data: "YBMCode="+YBMCode,
+			success: function() {
+				window.open('about:blank').location.href=embed_url;
+			},
+			error:function() {
+				window.open('about:blank').location.href=embed_url;
+			}
+		});
+	}
+}	
+	
+	
+</script>
+
+
+
+
+	  

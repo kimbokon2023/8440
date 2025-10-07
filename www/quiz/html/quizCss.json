@@ -1,0 +1,1102 @@
+[
+  {
+    "title": "CSS 퀴즈",
+    "questions": [
+      {
+        "question": "opacity 속성은 무엇을 설정하나요?",
+        "choices": [
+          "테두리",
+          "투명도",
+          "폰트 크기",
+          "정렬"
+        ],
+        "correctAnswer": "투명도"
+      },
+      {
+        "question": "블록 요소를 인라인으로 바꾸는 속성은?",
+        "choices": [
+          "position",
+          "display",
+          "float",
+          "align"
+        ],
+        "correctAnswer": "display"
+      },
+      {
+        "question": "블록 요소를 인라인으로 바꾸는 속성은?",
+        "choices": [
+          "position",
+          "display",
+          "float",
+          "align"
+        ],
+        "correctAnswer": "display"
+      },
+      {
+        "question": "CSS에서 float 속성은 어떤 기능?",
+        "choices": [
+          "정렬",
+          "투명도",
+          "폰트 설정",
+          "간격 조정"
+        ],
+        "correctAnswer": "정렬"
+      },
+      {
+        "question": "블록 요소를 인라인으로 바꾸는 속성은?",
+        "choices": [
+          "position",
+          "display",
+          "float",
+          "align"
+        ],
+        "correctAnswer": "display"
+      }
+    ]
+  },
+  {
+    "title": "CSS 퀴즈",
+    "questions": [
+      {
+        "question": "요소를 절대 위치로 지정하는 속성은?",
+        "choices": [
+          "position: absolute",
+          "float: right",
+          "display: block",
+          "align: center"
+        ],
+        "correctAnswer": "position: absolute"
+      },
+      {
+        "question": "CSS에서 색상을 지정할 수 있는 방법은?",
+        "choices": [
+          "id",
+          "class",
+          "color",
+          "href"
+        ],
+        "correctAnswer": "color"
+      },
+      {
+        "question": "ID 선택자는 어떤 기호로 시작하나요?",
+        "choices": [
+          "@",
+          ".",
+          "#",
+          "*"
+        ],
+        "correctAnswer": "#"
+      },
+      {
+        "question": "요소를 절대 위치로 지정하는 속성은?",
+        "choices": [
+          "position: absolute",
+          "float: right",
+          "display: block",
+          "align: center"
+        ],
+        "correctAnswer": "position: absolute"
+      },
+      {
+        "question": "CSS에서 링크 상태를 바꾸는 선택자는?",
+        "choices": [
+          ":hover",
+          "::before",
+          ":after",
+          ":active"
+        ],
+        "correctAnswer": ":hover"
+      }
+    ]
+  },
+  {
+    "title": "CSS 퀴즈",
+    "questions": [
+      {
+        "question": "요소의 높이를 설정하는 CSS 속성은?",
+        "choices": [
+          "length",
+          "top",
+          "height",
+          "padding"
+        ],
+        "correctAnswer": "height"
+      },
+      {
+        "question": "z-index 속성의 역할은?",
+        "choices": [
+          "배경색 설정",
+          "위치 조정",
+          "겹치는 순서 설정",
+          "폰트 크기"
+        ],
+        "correctAnswer": "겹치는 순서 설정"
+      },
+      {
+        "question": "opacity 속성은 무엇을 설정하나요?",
+        "choices": [
+          "테두리",
+          "투명도",
+          "폰트 크기",
+          "정렬"
+        ],
+        "correctAnswer": "투명도"
+      },
+      {
+        "question": "CSS에서 링크 상태를 바꾸는 선택자는?",
+        "choices": [
+          ":hover",
+          "::before",
+          ":after",
+          ":active"
+        ],
+        "correctAnswer": ":hover"
+      },
+      {
+        "question": "글꼴 크기를 지정하는 CSS 속성은?",
+        "choices": [
+          "font-family",
+          "font-weight",
+          "font-style",
+          "font-size"
+        ],
+        "correctAnswer": "font-size"
+      }
+    ]
+  },
+  {
+    "title": "CSS 퀴즈",
+    "questions": [
+      {
+        "question": "CSS에서 float 속성은 어떤 기능?",
+        "choices": [
+          "정렬",
+          "투명도",
+          "폰트 설정",
+          "간격 조정"
+        ],
+        "correctAnswer": "정렬"
+      },
+      {
+        "question": "CSS에서 요소의 테두리를 설정하는 속성은?",
+        "choices": [
+          "border",
+          "outline",
+          "margin",
+          "padding"
+        ],
+        "correctAnswer": "border"
+      },
+      {
+        "question": "HTML과 CSS를 연결하는 태그는?",
+        "choices": [
+          "<script>",
+          "<meta>",
+          "<link>",
+          "<style>"
+        ],
+        "correctAnswer": "<link>"
+      },
+      {
+        "question": "display: none의 의미는?",
+        "choices": [
+          "숨김",
+          "표시",
+          "중앙 정렬",
+          "블록화"
+        ],
+        "correctAnswer": "숨김"
+      },
+      {
+        "question": "전체 선택자는 어떤 기호를 사용하나요?",
+        "choices": [
+          "*",
+          ".",
+          "#",
+          "@"
+        ],
+        "correctAnswer": "*"
+      }
+    ]
+  },
+  {
+    "title": "CSS 퀴즈",
+    "questions": [
+      {
+        "question": "CSS에서 글자 굵기를 지정하는 속성은?",
+        "choices": [
+          "font-style",
+          "font-size",
+          "font-weight",
+          "font-family"
+        ],
+        "correctAnswer": "font-weight"
+      },
+      {
+        "question": "position: relative의 의미는?",
+        "choices": [
+          "정적 위치",
+          "절대 위치",
+          "기준 위치 기준 이동",
+          "무시 위치"
+        ],
+        "correctAnswer": "기준 위치 기준 이동"
+      },
+      {
+        "question": "display: none의 의미는?",
+        "choices": [
+          "숨김",
+          "표시",
+          "중앙 정렬",
+          "블록화"
+        ],
+        "correctAnswer": "숨김"
+      },
+      {
+        "question": "CSS에서 주석을 다는 방법은?",
+        "choices": [
+          "<!-- -->",
+          "//",
+          "/* */",
+          "#"
+        ],
+        "correctAnswer": "/* */"
+      },
+      {
+        "question": "글꼴을 설정하는 CSS 속성은?",
+        "choices": [
+          "font",
+          "font-weight",
+          "font-family",
+          "font-style"
+        ],
+        "correctAnswer": "font-family"
+      }
+    ]
+  },
+  {
+    "title": "CSS 퀴즈",
+    "questions": [
+      {
+        "question": "display: none의 의미는?",
+        "choices": [
+          "숨김",
+          "표시",
+          "중앙 정렬",
+          "블록화"
+        ],
+        "correctAnswer": "숨김"
+      },
+      {
+        "question": "요소를 절대 위치로 지정하는 속성은?",
+        "choices": [
+          "position: absolute",
+          "float: right",
+          "display: block",
+          "align: center"
+        ],
+        "correctAnswer": "position: absolute"
+      },
+      {
+        "question": "마진은 무엇을 조절하나요?",
+        "choices": [
+          "내부 여백",
+          "외부 여백",
+          "글꼴",
+          "선 두께"
+        ],
+        "correctAnswer": "외부 여백"
+      },
+      {
+        "question": "요소를 가운데 정렬할 때 사용하는 속성은?",
+        "choices": [
+          "align",
+          "margin",
+          "text-align",
+          "center"
+        ],
+        "correctAnswer": "text-align"
+      },
+      {
+        "question": "글꼴을 설정하는 CSS 속성은?",
+        "choices": [
+          "font",
+          "font-weight",
+          "font-family",
+          "font-style"
+        ],
+        "correctAnswer": "font-family"
+      }
+    ]
+  },
+  {
+    "title": "CSS 퀴즈",
+    "questions": [
+      {
+        "question": "클래스 선택자는 어떤 기호로 시작하나요?",
+        "choices": [
+          "#",
+          ".",
+          "*",
+          "@"
+        ],
+        "correctAnswer": "."
+      },
+      {
+        "question": "CSS에서 요소의 테두리를 설정하는 속성은?",
+        "choices": [
+          "border",
+          "outline",
+          "margin",
+          "padding"
+        ],
+        "correctAnswer": "border"
+      },
+      {
+        "question": "텍스트에 밑줄을 없애려면?",
+        "choices": [
+          "text-style: none",
+          "text-align: none",
+          "text-decoration: none",
+          "text-line: none"
+        ],
+        "correctAnswer": "text-decoration: none"
+      },
+      {
+        "question": "클래스 선택자는 어떤 기호로 시작하나요?",
+        "choices": [
+          "#",
+          ".",
+          "*",
+          "@"
+        ],
+        "correctAnswer": "."
+      },
+      {
+        "question": "마진은 무엇을 조절하나요?",
+        "choices": [
+          "내부 여백",
+          "외부 여백",
+          "글꼴",
+          "선 두께"
+        ],
+        "correctAnswer": "외부 여백"
+      }
+    ]
+  },
+  {
+    "title": "CSS 퀴즈",
+    "questions": [
+      {
+        "question": "텍스트에 밑줄을 없애려면?",
+        "choices": [
+          "text-style: none",
+          "text-align: none",
+          "text-decoration: none",
+          "text-line: none"
+        ],
+        "correctAnswer": "text-decoration: none"
+      },
+      {
+        "question": "배경색을 설정하는 속성은?",
+        "choices": [
+          "color",
+          "background-color",
+          "bg-color",
+          "font-color"
+        ],
+        "correctAnswer": "background-color"
+      },
+      {
+        "question": "ID 선택자는 어떤 기호로 시작하나요?",
+        "choices": [
+          "@",
+          ".",
+          "#",
+          "*"
+        ],
+        "correctAnswer": "#"
+      },
+      {
+        "question": "외곽선 스타일을 설정하는 CSS 속성은?",
+        "choices": [
+          "border-style",
+          "outline",
+          "box-style",
+          "line-type"
+        ],
+        "correctAnswer": "border-style"
+      },
+      {
+        "question": "외곽선 스타일을 설정하는 CSS 속성은?",
+        "choices": [
+          "border-style",
+          "outline",
+          "box-style",
+          "line-type"
+        ],
+        "correctAnswer": "border-style"
+      }
+    ]
+  },
+  {
+    "title": "CSS 퀴즈",
+    "questions": [
+      {
+        "question": "배경색을 설정하는 속성은?",
+        "choices": [
+          "color",
+          "background-color",
+          "bg-color",
+          "font-color"
+        ],
+        "correctAnswer": "background-color"
+      },
+      {
+        "question": "패딩은 무엇을 조절하나요?",
+        "choices": [
+          "글자 간격",
+          "외부 여백",
+          "내부 여백",
+          "줄 간격"
+        ],
+        "correctAnswer": "내부 여백"
+      },
+      {
+        "question": "CSS에서 글자 굵기를 지정하는 속성은?",
+        "choices": [
+          "font-style",
+          "font-size",
+          "font-weight",
+          "font-family"
+        ],
+        "correctAnswer": "font-weight"
+      },
+      {
+        "question": "패딩은 무엇을 조절하나요?",
+        "choices": [
+          "글자 간격",
+          "외부 여백",
+          "내부 여백",
+          "줄 간격"
+        ],
+        "correctAnswer": "내부 여백"
+      },
+      {
+        "question": "HTML과 CSS를 연결하는 태그는?",
+        "choices": [
+          "<script>",
+          "<meta>",
+          "<link>",
+          "<style>"
+        ],
+        "correctAnswer": "<link>"
+      }
+    ]
+  },
+  {
+    "title": "CSS 퀴즈",
+    "questions": [
+      {
+        "question": "요소의 높이를 설정하는 CSS 속성은?",
+        "choices": [
+          "length",
+          "top",
+          "height",
+          "padding"
+        ],
+        "correctAnswer": "height"
+      },
+      {
+        "question": "CSS에서 float 속성은 어떤 기능?",
+        "choices": [
+          "정렬",
+          "투명도",
+          "폰트 설정",
+          "간격 조정"
+        ],
+        "correctAnswer": "정렬"
+      },
+      {
+        "question": "요소를 가운데 정렬할 때 사용하는 속성은?",
+        "choices": [
+          "align",
+          "margin",
+          "text-align",
+          "center"
+        ],
+        "correctAnswer": "text-align"
+      },
+      {
+        "question": "CSS에서 글자 굵기를 지정하는 속성은?",
+        "choices": [
+          "font-style",
+          "font-size",
+          "font-weight",
+          "font-family"
+        ],
+        "correctAnswer": "font-weight"
+      },
+      {
+        "question": "외곽선 스타일을 설정하는 CSS 속성은?",
+        "choices": [
+          "border-style",
+          "outline",
+          "box-style",
+          "line-type"
+        ],
+        "correctAnswer": "border-style"
+      }
+    ]
+  },
+  {
+    "title": "CSS 퀴즈",
+    "questions": [
+      {
+        "question": "전체 선택자는 어떤 기호를 사용하나요?",
+        "choices": [
+          "*",
+          ".",
+          "#",
+          "@"
+        ],
+        "correctAnswer": "*"
+      },
+      {
+        "question": "패딩은 무엇을 조절하나요?",
+        "choices": [
+          "글자 간격",
+          "외부 여백",
+          "내부 여백",
+          "줄 간격"
+        ],
+        "correctAnswer": "내부 여백"
+      },
+      {
+        "question": "패딩은 무엇을 조절하나요?",
+        "choices": [
+          "글자 간격",
+          "외부 여백",
+          "내부 여백",
+          "줄 간격"
+        ],
+        "correctAnswer": "내부 여백"
+      },
+      {
+        "question": "글꼴 크기를 지정하는 CSS 속성은?",
+        "choices": [
+          "font-family",
+          "font-weight",
+          "font-style",
+          "font-size"
+        ],
+        "correctAnswer": "font-size"
+      },
+      {
+        "question": "HTML과 CSS를 연결하는 태그는?",
+        "choices": [
+          "<script>",
+          "<meta>",
+          "<link>",
+          "<style>"
+        ],
+        "correctAnswer": "<link>"
+      }
+    ]
+  },
+  {
+    "title": "CSS 퀴즈",
+    "questions": [
+      {
+        "question": "배경색을 설정하는 속성은?",
+        "choices": [
+          "color",
+          "background-color",
+          "bg-color",
+          "font-color"
+        ],
+        "correctAnswer": "background-color"
+      },
+      {
+        "question": "요소의 높이를 설정하는 CSS 속성은?",
+        "choices": [
+          "length",
+          "top",
+          "height",
+          "padding"
+        ],
+        "correctAnswer": "height"
+      },
+      {
+        "question": "position: relative의 의미는?",
+        "choices": [
+          "정적 위치",
+          "절대 위치",
+          "기준 위치 기준 이동",
+          "무시 위치"
+        ],
+        "correctAnswer": "기준 위치 기준 이동"
+      },
+      {
+        "question": "CSS에서 float 속성은 어떤 기능?",
+        "choices": [
+          "정렬",
+          "투명도",
+          "폰트 설정",
+          "간격 조정"
+        ],
+        "correctAnswer": "정렬"
+      },
+      {
+        "question": "블록 요소를 인라인으로 바꾸는 속성은?",
+        "choices": [
+          "position",
+          "display",
+          "float",
+          "align"
+        ],
+        "correctAnswer": "display"
+      }
+    ]
+  },
+  {
+    "title": "CSS 퀴즈",
+    "questions": [
+      {
+        "question": "배경색을 설정하는 속성은?",
+        "choices": [
+          "color",
+          "background-color",
+          "bg-color",
+          "font-color"
+        ],
+        "correctAnswer": "background-color"
+      },
+      {
+        "question": "CSS에서 색상을 지정할 수 있는 방법은?",
+        "choices": [
+          "id",
+          "class",
+          "color",
+          "href"
+        ],
+        "correctAnswer": "color"
+      },
+      {
+        "question": "z-index 속성의 역할은?",
+        "choices": [
+          "배경색 설정",
+          "위치 조정",
+          "겹치는 순서 설정",
+          "폰트 크기"
+        ],
+        "correctAnswer": "겹치는 순서 설정"
+      },
+      {
+        "question": "글꼴 크기를 지정하는 CSS 속성은?",
+        "choices": [
+          "font-family",
+          "font-weight",
+          "font-style",
+          "font-size"
+        ],
+        "correctAnswer": "font-size"
+      },
+      {
+        "question": "요소를 가운데 정렬할 때 사용하는 속성은?",
+        "choices": [
+          "align",
+          "margin",
+          "text-align",
+          "center"
+        ],
+        "correctAnswer": "text-align"
+      }
+    ]
+  },
+  {
+    "title": "CSS 퀴즈",
+    "questions": [
+      {
+        "question": "요소의 높이를 설정하는 CSS 속성은?",
+        "choices": [
+          "length",
+          "top",
+          "height",
+          "padding"
+        ],
+        "correctAnswer": "height"
+      },
+      {
+        "question": "클래스 선택자는 어떤 기호로 시작하나요?",
+        "choices": [
+          "#",
+          ".",
+          "*",
+          "@"
+        ],
+        "correctAnswer": "."
+      },
+      {
+        "question": "position: relative의 의미는?",
+        "choices": [
+          "정적 위치",
+          "절대 위치",
+          "기준 위치 기준 이동",
+          "무시 위치"
+        ],
+        "correctAnswer": "기준 위치 기준 이동"
+      },
+      {
+        "question": "글꼴을 설정하는 CSS 속성은?",
+        "choices": [
+          "font",
+          "font-weight",
+          "font-family",
+          "font-style"
+        ],
+        "correctAnswer": "font-family"
+      },
+      {
+        "question": "ID 선택자는 어떤 기호로 시작하나요?",
+        "choices": [
+          "@",
+          ".",
+          "#",
+          "*"
+        ],
+        "correctAnswer": "#"
+      }
+    ]
+  },
+  {
+    "title": "CSS 퀴즈",
+    "questions": [
+      {
+        "question": "텍스트에 밑줄을 없애려면?",
+        "choices": [
+          "text-style: none",
+          "text-align: none",
+          "text-decoration: none",
+          "text-line: none"
+        ],
+        "correctAnswer": "text-decoration: none"
+      },
+      {
+        "question": "글꼴을 설정하는 CSS 속성은?",
+        "choices": [
+          "font",
+          "font-weight",
+          "font-family",
+          "font-style"
+        ],
+        "correctAnswer": "font-family"
+      },
+      {
+        "question": "CSS에서 주석을 다는 방법은?",
+        "choices": [
+          "<!-- -->",
+          "//",
+          "/* */",
+          "#"
+        ],
+        "correctAnswer": "/* */"
+      },
+      {
+        "question": "z-index 속성의 역할은?",
+        "choices": [
+          "배경색 설정",
+          "위치 조정",
+          "겹치는 순서 설정",
+          "폰트 크기"
+        ],
+        "correctAnswer": "겹치는 순서 설정"
+      },
+      {
+        "question": "opacity 속성은 무엇을 설정하나요?",
+        "choices": [
+          "테두리",
+          "투명도",
+          "폰트 크기",
+          "정렬"
+        ],
+        "correctAnswer": "투명도"
+      }
+    ]
+  },
+  {
+    "title": "CSS 퀴즈",
+    "questions": [
+      {
+        "question": "CSS에서 요소의 테두리를 설정하는 속성은?",
+        "choices": [
+          "border",
+          "outline",
+          "margin",
+          "padding"
+        ],
+        "correctAnswer": "border"
+      },
+      {
+        "question": "CSS에서 링크 상태를 바꾸는 선택자는?",
+        "choices": [
+          ":hover",
+          "::before",
+          ":after",
+          ":active"
+        ],
+        "correctAnswer": ":hover"
+      },
+      {
+        "question": "opacity 속성은 무엇을 설정하나요?",
+        "choices": [
+          "테두리",
+          "투명도",
+          "폰트 크기",
+          "정렬"
+        ],
+        "correctAnswer": "투명도"
+      },
+      {
+        "question": "외곽선 스타일을 설정하는 CSS 속성은?",
+        "choices": [
+          "border-style",
+          "outline",
+          "box-style",
+          "line-type"
+        ],
+        "correctAnswer": "border-style"
+      },
+      {
+        "question": "요소를 절대 위치로 지정하는 속성은?",
+        "choices": [
+          "position: absolute",
+          "float: right",
+          "display: block",
+          "align: center"
+        ],
+        "correctAnswer": "position: absolute"
+      }
+    ]
+  },
+  {
+    "title": "CSS 퀴즈",
+    "questions": [
+      {
+        "question": "CSS에서 색상을 지정할 수 있는 방법은?",
+        "choices": [
+          "id",
+          "class",
+          "color",
+          "href"
+        ],
+        "correctAnswer": "color"
+      },
+      {
+        "question": "마진은 무엇을 조절하나요?",
+        "choices": [
+          "내부 여백",
+          "외부 여백",
+          "글꼴",
+          "선 두께"
+        ],
+        "correctAnswer": "외부 여백"
+      },
+      {
+        "question": "CSS에서 주석을 다는 방법은?",
+        "choices": [
+          "<!-- -->",
+          "//",
+          "/* */",
+          "#"
+        ],
+        "correctAnswer": "/* */"
+      },
+      {
+        "question": "마진은 무엇을 조절하나요?",
+        "choices": [
+          "내부 여백",
+          "외부 여백",
+          "글꼴",
+          "선 두께"
+        ],
+        "correctAnswer": "외부 여백"
+      },
+      {
+        "question": "텍스트에 밑줄을 없애려면?",
+        "choices": [
+          "text-style: none",
+          "text-align: none",
+          "text-decoration: none",
+          "text-line: none"
+        ],
+        "correctAnswer": "text-decoration: none"
+      }
+    ]
+  },
+  {
+    "title": "CSS 퀴즈",
+    "questions": [
+      {
+        "question": "클래스 선택자는 어떤 기호로 시작하나요?",
+        "choices": [
+          "#",
+          ".",
+          "*",
+          "@"
+        ],
+        "correctAnswer": "."
+      },
+      {
+        "question": "display: none의 의미는?",
+        "choices": [
+          "숨김",
+          "표시",
+          "중앙 정렬",
+          "블록화"
+        ],
+        "correctAnswer": "숨김"
+      },
+      {
+        "question": "전체 선택자는 어떤 기호를 사용하나요?",
+        "choices": [
+          "*",
+          ".",
+          "#",
+          "@"
+        ],
+        "correctAnswer": "*"
+      },
+      {
+        "question": "전체 선택자는 어떤 기호를 사용하나요?",
+        "choices": [
+          "*",
+          ".",
+          "#",
+          "@"
+        ],
+        "correctAnswer": "*"
+      },
+      {
+        "question": "HTML과 CSS를 연결하는 태그는?",
+        "choices": [
+          "<script>",
+          "<meta>",
+          "<link>",
+          "<style>"
+        ],
+        "correctAnswer": "<link>"
+      }
+    ]
+  },
+  {
+    "title": "CSS 퀴즈",
+    "questions": [
+      {
+        "question": "글꼴 크기를 지정하는 CSS 속성은?",
+        "choices": [
+          "font-family",
+          "font-weight",
+          "font-style",
+          "font-size"
+        ],
+        "correctAnswer": "font-size"
+      },
+      {
+        "question": "CSS에서 색상을 지정할 수 있는 방법은?",
+        "choices": [
+          "id",
+          "class",
+          "color",
+          "href"
+        ],
+        "correctAnswer": "color"
+      },
+      {
+        "question": "position: relative의 의미는?",
+        "choices": [
+          "정적 위치",
+          "절대 위치",
+          "기준 위치 기준 이동",
+          "무시 위치"
+        ],
+        "correctAnswer": "기준 위치 기준 이동"
+      },
+      {
+        "question": "CSS에서 글자 굵기를 지정하는 속성은?",
+        "choices": [
+          "font-style",
+          "font-size",
+          "font-weight",
+          "font-family"
+        ],
+        "correctAnswer": "font-weight"
+      },
+      {
+        "question": "CSS에서 링크 상태를 바꾸는 선택자는?",
+        "choices": [
+          ":hover",
+          "::before",
+          ":after",
+          ":active"
+        ],
+        "correctAnswer": ":hover"
+      }
+    ]
+  },
+  {
+    "title": "CSS 퀴즈",
+    "questions": [
+      {
+        "question": "CSS에서 요소의 테두리를 설정하는 속성은?",
+        "choices": [
+          "border",
+          "outline",
+          "margin",
+          "padding"
+        ],
+        "correctAnswer": "border"
+      },
+      {
+        "question": "z-index 속성의 역할은?",
+        "choices": [
+          "배경색 설정",
+          "위치 조정",
+          "겹치는 순서 설정",
+          "폰트 크기"
+        ],
+        "correctAnswer": "겹치는 순서 설정"
+      },
+      {
+        "question": "CSS에서 주석을 다는 방법은?",
+        "choices": [
+          "<!-- -->",
+          "//",
+          "/* */",
+          "#"
+        ],
+        "correctAnswer": "/* */"
+      },
+      {
+        "question": "요소를 가운데 정렬할 때 사용하는 속성은?",
+        "choices": [
+          "align",
+          "margin",
+          "text-align",
+          "center"
+        ],
+        "correctAnswer": "text-align"
+      },
+      {
+        "question": "ID 선택자는 어떤 기호로 시작하나요?",
+        "choices": [
+          "@",
+          ".",
+          "#",
+          "*"
+        ],
+        "correctAnswer": "#"
+      }
+    ]
+  }
+]

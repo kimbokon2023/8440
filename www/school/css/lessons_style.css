@@ -1,0 +1,59 @@
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  margin: 0;
+  padding: 20px 20px 20px 320px; /* 왼쪽 공간 확보를 320px로 증가 */
+}
+
+.toc {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  width: 240px;
+  background: #f8f9fa;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+
+  /* 추가되는 부분 👇 */
+  max-height: 90vh; /* 화면 높이의 90%까지만 */
+  overflow-y: auto; /* 세로 스크롤 활성화 */
+}
+
+.toc h2 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.toc ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.toc ul li {
+  margin-bottom: 8px;
+}
+
+.toc ul li a {
+  text-decoration: none;
+  color: #333;
+}
+
+.toc ul li a.active {
+  color: #007bff;
+  font-weight: bold;
+}
+
+.toc ul li a:hover {
+  text-decoration: underline;
+}
+
+h1, h2, h3 {
+  margin-top: 50px;
+}
+
+h2:first-of-type {
+  margin-top: 30px; /* 첫 번째 h2는 약간만 띄우기 */
+}

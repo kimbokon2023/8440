@@ -1,0 +1,1102 @@
+[
+  {
+    "title": "PHP 퀴즈",
+    "questions": [
+      {
+        "question": "PHP에서 문자열을 결합하는 연산자는?",
+        "choices": [
+          "+",
+          "&",
+          ".",
+          "::"
+        ],
+        "correctAnswer": "."
+      },
+      {
+        "question": "함수를 정의할 때 사용하는 키워드는?",
+        "choices": [
+          "func",
+          "define",
+          "function",
+          "method"
+        ],
+        "correctAnswer": "function"
+      },
+      {
+        "question": "count() 함수는 어떤 용도인가요?",
+        "choices": [
+          "합계 계산",
+          "배열 요소 수",
+          "최댓값",
+          "반복문 실행"
+        ],
+        "correctAnswer": "배열 요소 수"
+      },
+      {
+        "question": "페이지를 다른 곳으로 이동시키는 함수는?",
+        "choices": [
+          "redirect()",
+          "go_to()",
+          "header('Location:')",
+          "move()"
+        ],
+        "correctAnswer": "header('Location:')"
+      },
+      {
+        "question": "배열에서 값을 제거하는 함수는?",
+        "choices": [
+          "unset()",
+          "delete()",
+          "remove()",
+          "erase()"
+        ],
+        "correctAnswer": "unset()"
+      }
+    ]
+  },
+  {
+    "title": "PHP 퀴즈",
+    "questions": [
+      {
+        "question": "include와 require의 차이는?",
+        "choices": [
+          "동일하다",
+          "include는 오류 무시",
+          "require는 반복 가능",
+          "둘 다 HTML 출력"
+        ],
+        "correctAnswer": "include는 오류 무시"
+      },
+      {
+        "question": "PHP에서 배열을 만드는 함수는?",
+        "choices": [
+          "new Array()",
+          "array()",
+          "make_array()",
+          "arr()"
+        ],
+        "correctAnswer": "array()"
+      },
+      {
+        "question": "배열에서 값을 제거하는 함수는?",
+        "choices": [
+          "unset()",
+          "delete()",
+          "remove()",
+          "erase()"
+        ],
+        "correctAnswer": "unset()"
+      },
+      {
+        "question": "PHP에서 문자열을 결합하는 연산자는?",
+        "choices": [
+          "+",
+          "&",
+          ".",
+          "::"
+        ],
+        "correctAnswer": "."
+      },
+      {
+        "question": "PHP에서 주석을 다는 방법이 아닌 것은?",
+        "choices": [
+          "//",
+          "#",
+          "/* */",
+          "<!-- -->"
+        ],
+        "correctAnswer": "<!-- -->"
+      }
+    ]
+  },
+  {
+    "title": "PHP 퀴즈",
+    "questions": [
+      {
+        "question": "배열을 문자열로 바꾸는 함수는?",
+        "choices": [
+          "implode()",
+          "explode()",
+          "join()",
+          "merge()"
+        ],
+        "correctAnswer": "implode()"
+      },
+      {
+        "question": "form으로 전달된 값을 받는 전역 배열은?",
+        "choices": [
+          "$_POST",
+          "$_GET",
+          "$FORM",
+          "$_REQUEST"
+        ],
+        "correctAnswer": "$_POST"
+      },
+      {
+        "question": "파일을 읽기 위해 사용하는 함수는?",
+        "choices": [
+          "read()",
+          "fopen()",
+          "file_open()",
+          "open_file()"
+        ],
+        "correctAnswer": "fopen()"
+      },
+      {
+        "question": "문자열을 배열로 바꾸는 함수는?",
+        "choices": [
+          "explode()",
+          "implode()",
+          "split()",
+          "separate()"
+        ],
+        "correctAnswer": "explode()"
+      },
+      {
+        "question": "form으로 전달된 값을 받는 전역 배열은?",
+        "choices": [
+          "$_POST",
+          "$_GET",
+          "$FORM",
+          "$_REQUEST"
+        ],
+        "correctAnswer": "$_POST"
+      }
+    ]
+  },
+  {
+    "title": "PHP 퀴즈",
+    "questions": [
+      {
+        "question": "PHP에서 변수를 선언할 때 사용하는 기호는?",
+        "choices": [
+          "$",
+          "#",
+          "&",
+          "@"
+        ],
+        "correctAnswer": "$"
+      },
+      {
+        "question": "현재 날짜를 반환하는 함수는?",
+        "choices": [
+          "get_date()",
+          "today()",
+          "now()",
+          "date()"
+        ],
+        "correctAnswer": "date()"
+      },
+      {
+        "question": "echo의 역할은?",
+        "choices": [
+          "값을 더함",
+          "문자열 출력",
+          "조건 검사",
+          "배열 생성"
+        ],
+        "correctAnswer": "문자열 출력"
+      },
+      {
+        "question": "문자열의 길이를 구하는 함수는?",
+        "choices": [
+          "len()",
+          "strlen()",
+          "count()",
+          "size()"
+        ],
+        "correctAnswer": "strlen()"
+      },
+      {
+        "question": "변수의 자료형을 확인하는 함수는?",
+        "choices": [
+          "typeof()",
+          "gettype()",
+          "type()",
+          "checktype()"
+        ],
+        "correctAnswer": "gettype()"
+      }
+    ]
+  },
+  {
+    "title": "PHP 퀴즈",
+    "questions": [
+      {
+        "question": "현재 날짜를 반환하는 함수는?",
+        "choices": [
+          "get_date()",
+          "today()",
+          "now()",
+          "date()"
+        ],
+        "correctAnswer": "date()"
+      },
+      {
+        "question": "form으로 전달된 값을 받는 전역 배열은?",
+        "choices": [
+          "$_POST",
+          "$_GET",
+          "$FORM",
+          "$_REQUEST"
+        ],
+        "correctAnswer": "$_POST"
+      },
+      {
+        "question": "PHP 파일의 기본 확장자는?",
+        "choices": [
+          ".html",
+          ".js",
+          ".php",
+          ".py"
+        ],
+        "correctAnswer": ".php"
+      },
+      {
+        "question": "empty() 함수는 무엇을 확인하나요?",
+        "choices": [
+          "변수 초기화",
+          "변수 존재 여부",
+          "비어있는지 여부",
+          "배열 개수"
+        ],
+        "correctAnswer": "비어있는지 여부"
+      },
+      {
+        "question": "PHP에서 문자열을 결합하는 연산자는?",
+        "choices": [
+          "+",
+          "&",
+          ".",
+          "::"
+        ],
+        "correctAnswer": "."
+      }
+    ]
+  },
+  {
+    "title": "PHP 퀴즈",
+    "questions": [
+      {
+        "question": "헤더를 설정하는 함수는?",
+        "choices": [
+          "set_header()",
+          "header()",
+          "define_header()",
+          "send_header()"
+        ],
+        "correctAnswer": "header()"
+      },
+      {
+        "question": "GET 방식의 전역 배열은?",
+        "choices": [
+          "$_POST",
+          "$_DATA",
+          "$_GET",
+          "$REQUEST"
+        ],
+        "correctAnswer": "$_GET"
+      },
+      {
+        "question": "연관 배열에서 값을 얻는 방법은?",
+        "choices": [
+          "index",
+          "key",
+          "label",
+          "position"
+        ],
+        "correctAnswer": "key"
+      },
+      {
+        "question": "함수를 정의할 때 사용하는 키워드는?",
+        "choices": [
+          "func",
+          "define",
+          "function",
+          "method"
+        ],
+        "correctAnswer": "function"
+      },
+      {
+        "question": "문자열의 길이를 구하는 함수는?",
+        "choices": [
+          "len()",
+          "strlen()",
+          "count()",
+          "size()"
+        ],
+        "correctAnswer": "strlen()"
+      }
+    ]
+  },
+  {
+    "title": "PHP 퀴즈",
+    "questions": [
+      {
+        "question": "PHP에서 변수를 선언할 때 사용하는 기호는?",
+        "choices": [
+          "$",
+          "#",
+          "&",
+          "@"
+        ],
+        "correctAnswer": "$"
+      },
+      {
+        "question": "PHP 파일의 기본 확장자는?",
+        "choices": [
+          ".html",
+          ".js",
+          ".php",
+          ".py"
+        ],
+        "correctAnswer": ".php"
+      },
+      {
+        "question": "PHP에서 변수를 선언할 때 사용하는 기호는?",
+        "choices": [
+          "$",
+          "#",
+          "&",
+          "@"
+        ],
+        "correctAnswer": "$"
+      },
+      {
+        "question": "PHP 파일의 기본 확장자는?",
+        "choices": [
+          ".html",
+          ".js",
+          ".php",
+          ".py"
+        ],
+        "correctAnswer": ".php"
+      },
+      {
+        "question": "count() 함수는 어떤 용도인가요?",
+        "choices": [
+          "합계 계산",
+          "배열 요소 수",
+          "최댓값",
+          "반복문 실행"
+        ],
+        "correctAnswer": "배열 요소 수"
+      }
+    ]
+  },
+  {
+    "title": "PHP 퀴즈",
+    "questions": [
+      {
+        "question": "PHP에서 문자열을 결합하는 연산자는?",
+        "choices": [
+          "+",
+          "&",
+          ".",
+          "::"
+        ],
+        "correctAnswer": "."
+      },
+      {
+        "question": "include와 require의 차이는?",
+        "choices": [
+          "동일하다",
+          "include는 오류 무시",
+          "require는 반복 가능",
+          "둘 다 HTML 출력"
+        ],
+        "correctAnswer": "include는 오류 무시"
+      },
+      {
+        "question": "세션을 시작하는 함수는?",
+        "choices": [
+          "start_session()",
+          "begin()",
+          "session_start()",
+          "session()"
+        ],
+        "correctAnswer": "session_start()"
+      },
+      {
+        "question": "배열을 문자열로 바꾸는 함수는?",
+        "choices": [
+          "implode()",
+          "explode()",
+          "join()",
+          "merge()"
+        ],
+        "correctAnswer": "implode()"
+      },
+      {
+        "question": "문자열의 길이를 구하는 함수는?",
+        "choices": [
+          "len()",
+          "strlen()",
+          "count()",
+          "size()"
+        ],
+        "correctAnswer": "strlen()"
+      }
+    ]
+  },
+  {
+    "title": "PHP 퀴즈",
+    "questions": [
+      {
+        "question": "헤더를 설정하는 함수는?",
+        "choices": [
+          "set_header()",
+          "header()",
+          "define_header()",
+          "send_header()"
+        ],
+        "correctAnswer": "header()"
+      },
+      {
+        "question": "isset() 함수는 무엇을 확인하나요?",
+        "choices": [
+          "변수 정의 여부",
+          "변수 값 출력",
+          "변수 삭제",
+          "문자열 자르기"
+        ],
+        "correctAnswer": "변수 정의 여부"
+      },
+      {
+        "question": "문자열의 길이를 구하는 함수는?",
+        "choices": [
+          "len()",
+          "strlen()",
+          "count()",
+          "size()"
+        ],
+        "correctAnswer": "strlen()"
+      },
+      {
+        "question": "echo의 역할은?",
+        "choices": [
+          "값을 더함",
+          "문자열 출력",
+          "조건 검사",
+          "배열 생성"
+        ],
+        "correctAnswer": "문자열 출력"
+      },
+      {
+        "question": "GET 방식의 전역 배열은?",
+        "choices": [
+          "$_POST",
+          "$_DATA",
+          "$_GET",
+          "$REQUEST"
+        ],
+        "correctAnswer": "$_GET"
+      }
+    ]
+  },
+  {
+    "title": "PHP 퀴즈",
+    "questions": [
+      {
+        "question": "함수를 정의할 때 사용하는 키워드는?",
+        "choices": [
+          "func",
+          "define",
+          "function",
+          "method"
+        ],
+        "correctAnswer": "function"
+      },
+      {
+        "question": "함수를 정의할 때 사용하는 키워드는?",
+        "choices": [
+          "func",
+          "define",
+          "function",
+          "method"
+        ],
+        "correctAnswer": "function"
+      },
+      {
+        "question": "변수의 자료형을 확인하는 함수는?",
+        "choices": [
+          "typeof()",
+          "gettype()",
+          "type()",
+          "checktype()"
+        ],
+        "correctAnswer": "gettype()"
+      },
+      {
+        "question": "include와 require의 차이는?",
+        "choices": [
+          "동일하다",
+          "include는 오류 무시",
+          "require는 반복 가능",
+          "둘 다 HTML 출력"
+        ],
+        "correctAnswer": "include는 오류 무시"
+      },
+      {
+        "question": "배열을 문자열로 바꾸는 함수는?",
+        "choices": [
+          "implode()",
+          "explode()",
+          "join()",
+          "merge()"
+        ],
+        "correctAnswer": "implode()"
+      }
+    ]
+  },
+  {
+    "title": "PHP 퀴즈",
+    "questions": [
+      {
+        "question": "세션을 시작하는 함수는?",
+        "choices": [
+          "start_session()",
+          "begin()",
+          "session_start()",
+          "session()"
+        ],
+        "correctAnswer": "session_start()"
+      },
+      {
+        "question": "echo의 역할은?",
+        "choices": [
+          "값을 더함",
+          "문자열 출력",
+          "조건 검사",
+          "배열 생성"
+        ],
+        "correctAnswer": "문자열 출력"
+      },
+      {
+        "question": "PHP에서 주석을 다는 방법이 아닌 것은?",
+        "choices": [
+          "//",
+          "#",
+          "/* */",
+          "<!-- -->"
+        ],
+        "correctAnswer": "<!-- -->"
+      },
+      {
+        "question": "페이지를 다른 곳으로 이동시키는 함수는?",
+        "choices": [
+          "redirect()",
+          "go_to()",
+          "header('Location:')",
+          "move()"
+        ],
+        "correctAnswer": "header('Location:')"
+      },
+      {
+        "question": "isset() 함수는 무엇을 확인하나요?",
+        "choices": [
+          "변수 정의 여부",
+          "변수 값 출력",
+          "변수 삭제",
+          "문자열 자르기"
+        ],
+        "correctAnswer": "변수 정의 여부"
+      }
+    ]
+  },
+  {
+    "title": "PHP 퀴즈",
+    "questions": [
+      {
+        "question": "현재 날짜를 반환하는 함수는?",
+        "choices": [
+          "get_date()",
+          "today()",
+          "now()",
+          "date()"
+        ],
+        "correctAnswer": "date()"
+      },
+      {
+        "question": "변수의 자료형을 확인하는 함수는?",
+        "choices": [
+          "typeof()",
+          "gettype()",
+          "type()",
+          "checktype()"
+        ],
+        "correctAnswer": "gettype()"
+      },
+      {
+        "question": "연관 배열에서 값을 얻는 방법은?",
+        "choices": [
+          "index",
+          "key",
+          "label",
+          "position"
+        ],
+        "correctAnswer": "key"
+      },
+      {
+        "question": "헤더를 설정하는 함수는?",
+        "choices": [
+          "set_header()",
+          "header()",
+          "define_header()",
+          "send_header()"
+        ],
+        "correctAnswer": "header()"
+      },
+      {
+        "question": "PHP의 시작 태그는?",
+        "choices": [
+          "<script>",
+          "<?php",
+          "<?=",
+          "<php>"
+        ],
+        "correctAnswer": "<?php"
+      }
+    ]
+  },
+  {
+    "title": "PHP 퀴즈",
+    "questions": [
+      {
+        "question": "연관 배열에서 값을 얻는 방법은?",
+        "choices": [
+          "index",
+          "key",
+          "label",
+          "position"
+        ],
+        "correctAnswer": "key"
+      },
+      {
+        "question": "파일을 읽기 위해 사용하는 함수는?",
+        "choices": [
+          "read()",
+          "fopen()",
+          "file_open()",
+          "open_file()"
+        ],
+        "correctAnswer": "fopen()"
+      },
+      {
+        "question": "페이지를 다른 곳으로 이동시키는 함수는?",
+        "choices": [
+          "redirect()",
+          "go_to()",
+          "header('Location:')",
+          "move()"
+        ],
+        "correctAnswer": "header('Location:')"
+      },
+      {
+        "question": "문자열을 배열로 바꾸는 함수는?",
+        "choices": [
+          "explode()",
+          "implode()",
+          "split()",
+          "separate()"
+        ],
+        "correctAnswer": "explode()"
+      },
+      {
+        "question": "PHP에서 주석을 다는 방법이 아닌 것은?",
+        "choices": [
+          "//",
+          "#",
+          "/* */",
+          "<!-- -->"
+        ],
+        "correctAnswer": "<!-- -->"
+      }
+    ]
+  },
+  {
+    "title": "PHP 퀴즈",
+    "questions": [
+      {
+        "question": "isset() 함수는 무엇을 확인하나요?",
+        "choices": [
+          "변수 정의 여부",
+          "변수 값 출력",
+          "변수 삭제",
+          "문자열 자르기"
+        ],
+        "correctAnswer": "변수 정의 여부"
+      },
+      {
+        "question": "배열에서 값을 제거하는 함수는?",
+        "choices": [
+          "unset()",
+          "delete()",
+          "remove()",
+          "erase()"
+        ],
+        "correctAnswer": "unset()"
+      },
+      {
+        "question": "PHP의 시작 태그는?",
+        "choices": [
+          "<script>",
+          "<?php",
+          "<?=",
+          "<php>"
+        ],
+        "correctAnswer": "<?php"
+      },
+      {
+        "question": "PHP의 시작 태그는?",
+        "choices": [
+          "<script>",
+          "<?php",
+          "<?=",
+          "<php>"
+        ],
+        "correctAnswer": "<?php"
+      },
+      {
+        "question": "empty() 함수는 무엇을 확인하나요?",
+        "choices": [
+          "변수 초기화",
+          "변수 존재 여부",
+          "비어있는지 여부",
+          "배열 개수"
+        ],
+        "correctAnswer": "비어있는지 여부"
+      }
+    ]
+  },
+  {
+    "title": "PHP 퀴즈",
+    "questions": [
+      {
+        "question": "배열을 문자열로 바꾸는 함수는?",
+        "choices": [
+          "implode()",
+          "explode()",
+          "join()",
+          "merge()"
+        ],
+        "correctAnswer": "implode()"
+      },
+      {
+        "question": "페이지를 다른 곳으로 이동시키는 함수는?",
+        "choices": [
+          "redirect()",
+          "go_to()",
+          "header('Location:')",
+          "move()"
+        ],
+        "correctAnswer": "header('Location:')"
+      },
+      {
+        "question": "empty() 함수는 무엇을 확인하나요?",
+        "choices": [
+          "변수 초기화",
+          "변수 존재 여부",
+          "비어있는지 여부",
+          "배열 개수"
+        ],
+        "correctAnswer": "비어있는지 여부"
+      },
+      {
+        "question": "PHP에서 주석을 다는 방법이 아닌 것은?",
+        "choices": [
+          "//",
+          "#",
+          "/* */",
+          "<!-- -->"
+        ],
+        "correctAnswer": "<!-- -->"
+      },
+      {
+        "question": "문자열을 배열로 바꾸는 함수는?",
+        "choices": [
+          "explode()",
+          "implode()",
+          "split()",
+          "separate()"
+        ],
+        "correctAnswer": "explode()"
+      }
+    ]
+  },
+  {
+    "title": "PHP 퀴즈",
+    "questions": [
+      {
+        "question": "문자열을 배열로 바꾸는 함수는?",
+        "choices": [
+          "explode()",
+          "implode()",
+          "split()",
+          "separate()"
+        ],
+        "correctAnswer": "explode()"
+      },
+      {
+        "question": "count() 함수는 어떤 용도인가요?",
+        "choices": [
+          "합계 계산",
+          "배열 요소 수",
+          "최댓값",
+          "반복문 실행"
+        ],
+        "correctAnswer": "배열 요소 수"
+      },
+      {
+        "question": "PHP에서 배열을 만드는 함수는?",
+        "choices": [
+          "new Array()",
+          "array()",
+          "make_array()",
+          "arr()"
+        ],
+        "correctAnswer": "array()"
+      },
+      {
+        "question": "헤더를 설정하는 함수는?",
+        "choices": [
+          "set_header()",
+          "header()",
+          "define_header()",
+          "send_header()"
+        ],
+        "correctAnswer": "header()"
+      },
+      {
+        "question": "PHP에서 변수를 선언할 때 사용하는 기호는?",
+        "choices": [
+          "$",
+          "#",
+          "&",
+          "@"
+        ],
+        "correctAnswer": "$"
+      }
+    ]
+  },
+  {
+    "title": "PHP 퀴즈",
+    "questions": [
+      {
+        "question": "변수의 자료형을 확인하는 함수는?",
+        "choices": [
+          "typeof()",
+          "gettype()",
+          "type()",
+          "checktype()"
+        ],
+        "correctAnswer": "gettype()"
+      },
+      {
+        "question": "PHP 파일의 기본 확장자는?",
+        "choices": [
+          ".html",
+          ".js",
+          ".php",
+          ".py"
+        ],
+        "correctAnswer": ".php"
+      },
+      {
+        "question": "파일을 읽기 위해 사용하는 함수는?",
+        "choices": [
+          "read()",
+          "fopen()",
+          "file_open()",
+          "open_file()"
+        ],
+        "correctAnswer": "fopen()"
+      },
+      {
+        "question": "GET 방식의 전역 배열은?",
+        "choices": [
+          "$_POST",
+          "$_DATA",
+          "$_GET",
+          "$REQUEST"
+        ],
+        "correctAnswer": "$_GET"
+      },
+      {
+        "question": "include와 require의 차이는?",
+        "choices": [
+          "동일하다",
+          "include는 오류 무시",
+          "require는 반복 가능",
+          "둘 다 HTML 출력"
+        ],
+        "correctAnswer": "include는 오류 무시"
+      }
+    ]
+  },
+  {
+    "title": "PHP 퀴즈",
+    "questions": [
+      {
+        "question": "PHP에서 배열을 만드는 함수는?",
+        "choices": [
+          "new Array()",
+          "array()",
+          "make_array()",
+          "arr()"
+        ],
+        "correctAnswer": "array()"
+      },
+      {
+        "question": "echo의 역할은?",
+        "choices": [
+          "값을 더함",
+          "문자열 출력",
+          "조건 검사",
+          "배열 생성"
+        ],
+        "correctAnswer": "문자열 출력"
+      },
+      {
+        "question": "GET 방식의 전역 배열은?",
+        "choices": [
+          "$_POST",
+          "$_DATA",
+          "$_GET",
+          "$REQUEST"
+        ],
+        "correctAnswer": "$_GET"
+      },
+      {
+        "question": "form으로 전달된 값을 받는 전역 배열은?",
+        "choices": [
+          "$_POST",
+          "$_GET",
+          "$FORM",
+          "$_REQUEST"
+        ],
+        "correctAnswer": "$_POST"
+      },
+      {
+        "question": "PHP에서 배열을 만드는 함수는?",
+        "choices": [
+          "new Array()",
+          "array()",
+          "make_array()",
+          "arr()"
+        ],
+        "correctAnswer": "array()"
+      }
+    ]
+  },
+  {
+    "title": "PHP 퀴즈",
+    "questions": [
+      {
+        "question": "empty() 함수는 무엇을 확인하나요?",
+        "choices": [
+          "변수 초기화",
+          "변수 존재 여부",
+          "비어있는지 여부",
+          "배열 개수"
+        ],
+        "correctAnswer": "비어있는지 여부"
+      },
+      {
+        "question": "세션을 시작하는 함수는?",
+        "choices": [
+          "start_session()",
+          "begin()",
+          "session_start()",
+          "session()"
+        ],
+        "correctAnswer": "session_start()"
+      },
+      {
+        "question": "배열에서 값을 제거하는 함수는?",
+        "choices": [
+          "unset()",
+          "delete()",
+          "remove()",
+          "erase()"
+        ],
+        "correctAnswer": "unset()"
+      },
+      {
+        "question": "PHP의 시작 태그는?",
+        "choices": [
+          "<script>",
+          "<?php",
+          "<?=",
+          "<php>"
+        ],
+        "correctAnswer": "<?php"
+      },
+      {
+        "question": "현재 날짜를 반환하는 함수는?",
+        "choices": [
+          "get_date()",
+          "today()",
+          "now()",
+          "date()"
+        ],
+        "correctAnswer": "date()"
+      }
+    ]
+  },
+  {
+    "title": "PHP 퀴즈",
+    "questions": [
+      {
+        "question": "세션을 시작하는 함수는?",
+        "choices": [
+          "start_session()",
+          "begin()",
+          "session_start()",
+          "session()"
+        ],
+        "correctAnswer": "session_start()"
+      },
+      {
+        "question": "연관 배열에서 값을 얻는 방법은?",
+        "choices": [
+          "index",
+          "key",
+          "label",
+          "position"
+        ],
+        "correctAnswer": "key"
+      },
+      {
+        "question": "파일을 읽기 위해 사용하는 함수는?",
+        "choices": [
+          "read()",
+          "fopen()",
+          "file_open()",
+          "open_file()"
+        ],
+        "correctAnswer": "fopen()"
+      },
+      {
+        "question": "count() 함수는 어떤 용도인가요?",
+        "choices": [
+          "합계 계산",
+          "배열 요소 수",
+          "최댓값",
+          "반복문 실행"
+        ],
+        "correctAnswer": "배열 요소 수"
+      },
+      {
+        "question": "isset() 함수는 무엇을 확인하나요?",
+        "choices": [
+          "변수 정의 여부",
+          "변수 값 출력",
+          "변수 삭제",
+          "문자열 자르기"
+        ],
+        "correctAnswer": "변수 정의 여부"
+      }
+    ]
+  }
+]

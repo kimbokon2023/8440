@@ -1,0 +1,36 @@
+<?php
+$num = isset($row["num"]) ? $row["num"] : null;
+$outdate = isset($row["outdate"]) ? $row["outdate"] : null;
+$indate = isset($row["indate"]) ? $row["indate"] : null;
+$outworkplace = isset($row["outworkplace"]) ? $row["outworkplace"] : null;
+$item = isset($row["item"]) ? $row["item"] : null;
+$spec = isset($row["spec"]) ? $row["spec"] : null;
+$steelnum = isset($row["steelnum"]) ? $row["steelnum"] : null;
+$company = isset($row["company"]) ? $row["company"] : null;
+$comment = isset($row["comment"]) ? $row["comment"] : null;
+$which = isset($row["which"]) ? $row["which"] : null;
+$model = isset($row["model"]) ? $row["model"] : null;
+$first_writer = isset($row["first_writer"]) ? $row["first_writer"] : null;
+$update_log = isset($row["update_log"]) ? $row["update_log"] : null;
+$search_opt = isset($row["search_opt"]) ? $row["search_opt"] : null;
+$bad_choice = isset($row["bad_choice"]) ? $row["bad_choice"] : null;
+$used_width_1 = isset($row["used_width_1"]) ? $row["used_width_1"] : null;
+$used_width_2 = isset($row["used_width_2"]) ? $row["used_width_2"] : null;
+$used_width_3 = isset($row["used_width_3"]) ? $row["used_width_3"] : null;
+$used_width_4 = isset($row["used_width_4"]) ? $row["used_width_4"] : null;
+$used_width_5 = isset($row["used_width_5"]) ? $row["used_width_5"] : null;
+$used_length_1 = isset($row["used_length_1"]) ? $row["used_length_1"] : null;
+$used_length_2 = isset($row["used_length_2"]) ? $row["used_length_2"] : null;
+$used_length_3 = isset($row["used_length_3"]) ? $row["used_length_3"] : null;
+$used_length_4 = isset($row["used_length_4"]) ? $row["used_length_4"] : null;
+$used_length_5 = isset($row["used_length_5"]) ? $row["used_length_5"] : null;
+$used_num_1 = isset($row["used_num_1"]) ? $row["used_num_1"] : null;
+$used_num_2 = isset($row["used_num_2"]) ? $row["used_num_2"] : null;
+$used_num_3 = isset($row["used_num_3"]) ? $row["used_num_3"] : null;
+$used_num_4 = isset($row["used_num_4"]) ? $row["used_num_4"] : null;
+$used_num_5 = isset($row["used_num_5"]) ? $row["used_num_5"] : null;
+$supplier = isset($row["supplier"]) ? $row["supplier"] : null;
+$method = isset($row["method"]) ? $row["method"] : null;
+$bonDone = isset($row["bonDone"]) ? $row["bonDone"] : null;
+$lcDone = isset($row["lcDone"]) ? $row["lcDone"] : null;
+?>

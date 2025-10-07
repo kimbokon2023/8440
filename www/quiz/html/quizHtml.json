@@ -1,0 +1,1102 @@
+[
+  {
+    "title": "HTML 퀴즈",
+    "questions": [
+      {
+        "question": "<select> 태그는 무엇을 만들까요?",
+        "choices": [
+          "라디오 버튼",
+          "체크박스",
+          "드롭다운 목록",
+          "파일 업로드 창"
+        ],
+        "correctAnswer": "드롭다운 목록"
+      },
+      {
+        "question": "<form> 태그는 무엇을 위한 것인가요?",
+        "choices": [
+          "레이아웃 정의",
+          "사용자 입력 수집",
+          "이미지 삽입",
+          "테이블 생성"
+        ],
+        "correctAnswer": "사용자 입력 수집"
+      },
+      {
+        "question": "<style> 태그는 어떤 역할을 하나요?",
+        "choices": [
+          "링크 정의",
+          "자바스크립트 작성",
+          "CSS 작성",
+          "본문 입력"
+        ],
+        "correctAnswer": "CSS 작성"
+      },
+      {
+        "question": "<li> 태그는 어디에서 사용되나요?",
+        "choices": [
+          "표",
+          "목록 항목",
+          "본문",
+          "링크"
+        ],
+        "correctAnswer": "목록 항목"
+      },
+      {
+        "question": "<input type='text'>는 어떤 입력?",
+        "choices": [
+          "숫자",
+          "텍스트",
+          "날짜",
+          "파일"
+        ],
+        "correctAnswer": "텍스트"
+      }
+    ]
+  },
+  {
+    "title": "HTML 퀴즈",
+    "questions": [
+      {
+        "question": "<div> 태그의 역할은?",
+        "choices": [
+          "내용 그룹화",
+          "문단 구분",
+          "이미지 삽입",
+          "폼 제출"
+        ],
+        "correctAnswer": "내용 그룹화"
+      },
+      {
+        "question": "<title> 태그는 어떤 용도인가요?",
+        "choices": [
+          "본문 제목",
+          "탭 제목",
+          "링크 제목",
+          "표 제목"
+        ],
+        "correctAnswer": "탭 제목"
+      },
+      {
+        "question": "<head> 태그의 목적은?",
+        "choices": [
+          "본문 출력",
+          "스타일 정의",
+          "문서 메타 정보 정의",
+          "테이블 정의"
+        ],
+        "correctAnswer": "문서 메타 정보 정의"
+      },
+      {
+        "question": "<input type='radio'>의 특징은?",
+        "choices": [
+          "복수 선택 가능",
+          "단일 선택",
+          "파일 업로드",
+          "목록 정의"
+        ],
+        "correctAnswer": "단일 선택"
+      },
+      {
+        "question": "<html> 태그는 무엇을 의미하나요?",
+        "choices": [
+          "문단을 시작함",
+          "이미지를 삽입함",
+          "HTML 문서의 시작",
+          "링크를 만듦"
+        ],
+        "correctAnswer": "HTML 문서의 시작"
+      }
+    ]
+  },
+  {
+    "title": "HTML 퀴즈",
+    "questions": [
+      {
+        "question": "<ul> 태그는 무엇을 만드나요?",
+        "choices": [
+          "정의 목록",
+          "비순서 목록",
+          "테이블",
+          "제목"
+        ],
+        "correctAnswer": "비순서 목록"
+      },
+      {
+        "question": "<a> 태그는 어떤 요소를 생성하나요?",
+        "choices": [
+          "이미지",
+          "링크",
+          "표",
+          "목록"
+        ],
+        "correctAnswer": "링크"
+      },
+      {
+        "question": "<th> 태그의 기능은?",
+        "choices": [
+          "표 제목 셀",
+          "일반 셀",
+          "링크",
+          "버튼"
+        ],
+        "correctAnswer": "표 제목 셀"
+      },
+      {
+        "question": "<html> 태그는 무엇을 의미하나요?",
+        "choices": [
+          "문단을 시작함",
+          "이미지를 삽입함",
+          "HTML 문서의 시작",
+          "링크를 만듦"
+        ],
+        "correctAnswer": "HTML 문서의 시작"
+      },
+      {
+        "question": "<textarea> 태그는 어떤 용도인가요?",
+        "choices": [
+          "숫자 입력",
+          "한 줄 입력",
+          "여러 줄 입력",
+          "파일 선택"
+        ],
+        "correctAnswer": "여러 줄 입력"
+      }
+    ]
+  },
+  {
+    "title": "HTML 퀴즈",
+    "questions": [
+      {
+        "question": "<title> 태그는 어떤 용도인가요?",
+        "choices": [
+          "본문 제목",
+          "탭 제목",
+          "링크 제목",
+          "표 제목"
+        ],
+        "correctAnswer": "탭 제목"
+      },
+      {
+        "question": "<ol> 태그는 무엇을 만드나요?",
+        "choices": [
+          "비순서 목록",
+          "정의 목록",
+          "번호 목록",
+          "이미지 갤러리"
+        ],
+        "correctAnswer": "번호 목록"
+      },
+      {
+        "question": "<input type='text'>는 어떤 입력?",
+        "choices": [
+          "숫자",
+          "텍스트",
+          "날짜",
+          "파일"
+        ],
+        "correctAnswer": "텍스트"
+      },
+      {
+        "question": "<tr> 태그는 어떤 역할인가요?",
+        "choices": [
+          "표 셀",
+          "표 행",
+          "문단 구분",
+          "링크"
+        ],
+        "correctAnswer": "표 행"
+      },
+      {
+        "question": "<div> 태그의 역할은?",
+        "choices": [
+          "내용 그룹화",
+          "문단 구분",
+          "이미지 삽입",
+          "폼 제출"
+        ],
+        "correctAnswer": "내용 그룹화"
+      }
+    ]
+  },
+  {
+    "title": "HTML 퀴즈",
+    "questions": [
+      {
+        "question": "<table> 태그는 무엇을 생성하나요?",
+        "choices": [
+          "이미지",
+          "표",
+          "링크",
+          "메뉴"
+        ],
+        "correctAnswer": "표"
+      },
+      {
+        "question": "<img> 태그의 기능은?",
+        "choices": [
+          "링크 생성",
+          "이미지 삽입",
+          "문단 구분",
+          "테이블 생성"
+        ],
+        "correctAnswer": "이미지 삽입"
+      },
+      {
+        "question": "<style> 태그는 어떤 역할을 하나요?",
+        "choices": [
+          "링크 정의",
+          "자바스크립트 작성",
+          "CSS 작성",
+          "본문 입력"
+        ],
+        "correctAnswer": "CSS 작성"
+      },
+      {
+        "question": "<div> 태그의 역할은?",
+        "choices": [
+          "내용 그룹화",
+          "문단 구분",
+          "이미지 삽입",
+          "폼 제출"
+        ],
+        "correctAnswer": "내용 그룹화"
+      },
+      {
+        "question": "<th> 태그의 기능은?",
+        "choices": [
+          "표 제목 셀",
+          "일반 셀",
+          "링크",
+          "버튼"
+        ],
+        "correctAnswer": "표 제목 셀"
+      }
+    ]
+  },
+  {
+    "title": "HTML 퀴즈",
+    "questions": [
+      {
+        "question": "<meta charset='UTF-8'>의 의미는?",
+        "choices": [
+          "배경 설정",
+          "글자 인코딩 지정",
+          "링크 연결",
+          "이미지 삽입"
+        ],
+        "correctAnswer": "글자 인코딩 지정"
+      },
+      {
+        "question": "<script> 태그의 기능은?",
+        "choices": [
+          "CSS 삽입",
+          "자바스크립트 삽입",
+          "HTML 주석",
+          "문단 구분"
+        ],
+        "correctAnswer": "자바스크립트 삽입"
+      },
+      {
+        "question": "<span> 태그의 특징은?",
+        "choices": [
+          "인라인 요소",
+          "블록 요소",
+          "스크립트 삽입",
+          "목록 생성"
+        ],
+        "correctAnswer": "인라인 요소"
+      },
+      {
+        "question": "<table> 태그는 무엇을 생성하나요?",
+        "choices": [
+          "이미지",
+          "표",
+          "링크",
+          "메뉴"
+        ],
+        "correctAnswer": "표"
+      },
+      {
+        "question": "<p> 태그는 무엇을 위한 것인가요?",
+        "choices": [
+          "문단 구분",
+          "이미지 삽입",
+          "표 정의",
+          "링크 생성"
+        ],
+        "correctAnswer": "문단 구분"
+      }
+    ]
+  },
+  {
+    "title": "HTML 퀴즈",
+    "questions": [
+      {
+        "question": "<meta charset='UTF-8'>의 의미는?",
+        "choices": [
+          "배경 설정",
+          "글자 인코딩 지정",
+          "링크 연결",
+          "이미지 삽입"
+        ],
+        "correctAnswer": "글자 인코딩 지정"
+      },
+      {
+        "question": "<ul> 태그는 무엇을 만드나요?",
+        "choices": [
+          "정의 목록",
+          "비순서 목록",
+          "테이블",
+          "제목"
+        ],
+        "correctAnswer": "비순서 목록"
+      },
+      {
+        "question": "<script> 태그의 기능은?",
+        "choices": [
+          "CSS 삽입",
+          "자바스크립트 삽입",
+          "HTML 주석",
+          "문단 구분"
+        ],
+        "correctAnswer": "자바스크립트 삽입"
+      },
+      {
+        "question": "<li> 태그는 어디에서 사용되나요?",
+        "choices": [
+          "표",
+          "목록 항목",
+          "본문",
+          "링크"
+        ],
+        "correctAnswer": "목록 항목"
+      },
+      {
+        "question": "<img> 태그의 기능은?",
+        "choices": [
+          "링크 생성",
+          "이미지 삽입",
+          "문단 구분",
+          "테이블 생성"
+        ],
+        "correctAnswer": "이미지 삽입"
+      }
+    ]
+  },
+  {
+    "title": "HTML 퀴즈",
+    "questions": [
+      {
+        "question": "<title> 태그는 어떤 용도인가요?",
+        "choices": [
+          "본문 제목",
+          "탭 제목",
+          "링크 제목",
+          "표 제목"
+        ],
+        "correctAnswer": "탭 제목"
+      },
+      {
+        "question": "<select> 태그는 무엇을 만들까요?",
+        "choices": [
+          "라디오 버튼",
+          "체크박스",
+          "드롭다운 목록",
+          "파일 업로드 창"
+        ],
+        "correctAnswer": "드롭다운 목록"
+      },
+      {
+        "question": "<input type='radio'>의 특징은?",
+        "choices": [
+          "복수 선택 가능",
+          "단일 선택",
+          "파일 업로드",
+          "목록 정의"
+        ],
+        "correctAnswer": "단일 선택"
+      },
+      {
+        "question": "<meta charset='UTF-8'>의 의미는?",
+        "choices": [
+          "배경 설정",
+          "글자 인코딩 지정",
+          "링크 연결",
+          "이미지 삽입"
+        ],
+        "correctAnswer": "글자 인코딩 지정"
+      },
+      {
+        "question": "<ol> 태그는 무엇을 만드나요?",
+        "choices": [
+          "비순서 목록",
+          "정의 목록",
+          "번호 목록",
+          "이미지 갤러리"
+        ],
+        "correctAnswer": "번호 목록"
+      }
+    ]
+  },
+  {
+    "title": "HTML 퀴즈",
+    "questions": [
+      {
+        "question": "<li> 태그는 어디에서 사용되나요?",
+        "choices": [
+          "표",
+          "목록 항목",
+          "본문",
+          "링크"
+        ],
+        "correctAnswer": "목록 항목"
+      },
+      {
+        "question": "HTML 주석은 어떻게 작성하나요?",
+        "choices": [
+          "// 주석",
+          "/* 주석 */",
+          "<!-- 주석 -->",
+          "# 주석"
+        ],
+        "correctAnswer": "<!-- 주석 -->"
+      },
+      {
+        "question": "<table> 태그는 무엇을 생성하나요?",
+        "choices": [
+          "이미지",
+          "표",
+          "링크",
+          "메뉴"
+        ],
+        "correctAnswer": "표"
+      },
+      {
+        "question": "<li> 태그는 어디에서 사용되나요?",
+        "choices": [
+          "표",
+          "목록 항목",
+          "본문",
+          "링크"
+        ],
+        "correctAnswer": "목록 항목"
+      },
+      {
+        "question": "<script> 태그의 기능은?",
+        "choices": [
+          "CSS 삽입",
+          "자바스크립트 삽입",
+          "HTML 주석",
+          "문단 구분"
+        ],
+        "correctAnswer": "자바스크립트 삽입"
+      }
+    ]
+  },
+  {
+    "title": "HTML 퀴즈",
+    "questions": [
+      {
+        "question": "<input type='radio'>의 특징은?",
+        "choices": [
+          "복수 선택 가능",
+          "단일 선택",
+          "파일 업로드",
+          "목록 정의"
+        ],
+        "correctAnswer": "단일 선택"
+      },
+      {
+        "question": "<head> 태그의 목적은?",
+        "choices": [
+          "본문 출력",
+          "스타일 정의",
+          "문서 메타 정보 정의",
+          "테이블 정의"
+        ],
+        "correctAnswer": "문서 메타 정보 정의"
+      },
+      {
+        "question": "<form> 태그는 무엇을 위한 것인가요?",
+        "choices": [
+          "레이아웃 정의",
+          "사용자 입력 수집",
+          "이미지 삽입",
+          "테이블 생성"
+        ],
+        "correctAnswer": "사용자 입력 수집"
+      },
+      {
+        "question": "<head> 태그의 목적은?",
+        "choices": [
+          "본문 출력",
+          "스타일 정의",
+          "문서 메타 정보 정의",
+          "테이블 정의"
+        ],
+        "correctAnswer": "문서 메타 정보 정의"
+      },
+      {
+        "question": "<form> 태그는 무엇을 위한 것인가요?",
+        "choices": [
+          "레이아웃 정의",
+          "사용자 입력 수집",
+          "이미지 삽입",
+          "테이블 생성"
+        ],
+        "correctAnswer": "사용자 입력 수집"
+      }
+    ]
+  },
+  {
+    "title": "HTML 퀴즈",
+    "questions": [
+      {
+        "question": "<td> 태그는 어떤 역할인가요?",
+        "choices": [
+          "표 셀",
+          "표 제목",
+          "줄 바꿈",
+          "목록 항목"
+        ],
+        "correctAnswer": "표 셀"
+      },
+      {
+        "question": "<th> 태그의 기능은?",
+        "choices": [
+          "표 제목 셀",
+          "일반 셀",
+          "링크",
+          "버튼"
+        ],
+        "correctAnswer": "표 제목 셀"
+      },
+      {
+        "question": "<textarea> 태그는 어떤 용도인가요?",
+        "choices": [
+          "숫자 입력",
+          "한 줄 입력",
+          "여러 줄 입력",
+          "파일 선택"
+        ],
+        "correctAnswer": "여러 줄 입력"
+      },
+      {
+        "question": "<span> 태그의 특징은?",
+        "choices": [
+          "인라인 요소",
+          "블록 요소",
+          "스크립트 삽입",
+          "목록 생성"
+        ],
+        "correctAnswer": "인라인 요소"
+      },
+      {
+        "question": "<head> 태그의 목적은?",
+        "choices": [
+          "본문 출력",
+          "스타일 정의",
+          "문서 메타 정보 정의",
+          "테이블 정의"
+        ],
+        "correctAnswer": "문서 메타 정보 정의"
+      }
+    ]
+  },
+  {
+    "title": "HTML 퀴즈",
+    "questions": [
+      {
+        "question": "<td> 태그는 어떤 역할인가요?",
+        "choices": [
+          "표 셀",
+          "표 제목",
+          "줄 바꿈",
+          "목록 항목"
+        ],
+        "correctAnswer": "표 셀"
+      },
+      {
+        "question": "<select> 태그는 무엇을 만들까요?",
+        "choices": [
+          "라디오 버튼",
+          "체크박스",
+          "드롭다운 목록",
+          "파일 업로드 창"
+        ],
+        "correctAnswer": "드롭다운 목록"
+      },
+      {
+        "question": "<img> 태그의 기능은?",
+        "choices": [
+          "링크 생성",
+          "이미지 삽입",
+          "문단 구분",
+          "테이블 생성"
+        ],
+        "correctAnswer": "이미지 삽입"
+      },
+      {
+        "question": "<span> 태그의 특징은?",
+        "choices": [
+          "인라인 요소",
+          "블록 요소",
+          "스크립트 삽입",
+          "목록 생성"
+        ],
+        "correctAnswer": "인라인 요소"
+      },
+      {
+        "question": "<a> 태그는 어떤 요소를 생성하나요?",
+        "choices": [
+          "이미지",
+          "링크",
+          "표",
+          "목록"
+        ],
+        "correctAnswer": "링크"
+      }
+    ]
+  },
+  {
+    "title": "HTML 퀴즈",
+    "questions": [
+      {
+        "question": "HTML 주석은 어떻게 작성하나요?",
+        "choices": [
+          "// 주석",
+          "/* 주석 */",
+          "<!-- 주석 -->",
+          "# 주석"
+        ],
+        "correctAnswer": "<!-- 주석 -->"
+      },
+      {
+        "question": "<title> 태그는 어떤 용도인가요?",
+        "choices": [
+          "본문 제목",
+          "탭 제목",
+          "링크 제목",
+          "표 제목"
+        ],
+        "correctAnswer": "탭 제목"
+      },
+      {
+        "question": "<ul> 태그는 무엇을 만드나요?",
+        "choices": [
+          "정의 목록",
+          "비순서 목록",
+          "테이블",
+          "제목"
+        ],
+        "correctAnswer": "비순서 목록"
+      },
+      {
+        "question": "<style> 태그는 어떤 역할을 하나요?",
+        "choices": [
+          "링크 정의",
+          "자바스크립트 작성",
+          "CSS 작성",
+          "본문 입력"
+        ],
+        "correctAnswer": "CSS 작성"
+      },
+      {
+        "question": "<textarea> 태그는 어떤 용도인가요?",
+        "choices": [
+          "숫자 입력",
+          "한 줄 입력",
+          "여러 줄 입력",
+          "파일 선택"
+        ],
+        "correctAnswer": "여러 줄 입력"
+      }
+    ]
+  },
+  {
+    "title": "HTML 퀴즈",
+    "questions": [
+      {
+        "question": "<a> 태그는 어떤 요소를 생성하나요?",
+        "choices": [
+          "이미지",
+          "링크",
+          "표",
+          "목록"
+        ],
+        "correctAnswer": "링크"
+      },
+      {
+        "question": "<td> 태그는 어떤 역할인가요?",
+        "choices": [
+          "표 셀",
+          "표 제목",
+          "줄 바꿈",
+          "목록 항목"
+        ],
+        "correctAnswer": "표 셀"
+      },
+      {
+        "question": "<input type='text'>는 어떤 입력?",
+        "choices": [
+          "숫자",
+          "텍스트",
+          "날짜",
+          "파일"
+        ],
+        "correctAnswer": "텍스트"
+      },
+      {
+        "question": "<style> 태그는 어떤 역할을 하나요?",
+        "choices": [
+          "링크 정의",
+          "자바스크립트 작성",
+          "CSS 작성",
+          "본문 입력"
+        ],
+        "correctAnswer": "CSS 작성"
+      },
+      {
+        "question": "<input type='radio'>의 특징은?",
+        "choices": [
+          "복수 선택 가능",
+          "단일 선택",
+          "파일 업로드",
+          "목록 정의"
+        ],
+        "correctAnswer": "단일 선택"
+      }
+    ]
+  },
+  {
+    "title": "HTML 퀴즈",
+    "questions": [
+      {
+        "question": "<label> 태그는 무엇과 관련 있나요?",
+        "choices": [
+          "입력 필드",
+          "표",
+          "링크",
+          "이미지"
+        ],
+        "correctAnswer": "입력 필드"
+      },
+      {
+        "question": "<script> 태그의 기능은?",
+        "choices": [
+          "CSS 삽입",
+          "자바스크립트 삽입",
+          "HTML 주석",
+          "문단 구분"
+        ],
+        "correctAnswer": "자바스크립트 삽입"
+      },
+      {
+        "question": "<p> 태그는 무엇을 위한 것인가요?",
+        "choices": [
+          "문단 구분",
+          "이미지 삽입",
+          "표 정의",
+          "링크 생성"
+        ],
+        "correctAnswer": "문단 구분"
+      },
+      {
+        "question": "<p> 태그는 무엇을 위한 것인가요?",
+        "choices": [
+          "문단 구분",
+          "이미지 삽입",
+          "표 정의",
+          "링크 생성"
+        ],
+        "correctAnswer": "문단 구분"
+      },
+      {
+        "question": "<html> 태그는 무엇을 의미하나요?",
+        "choices": [
+          "문단을 시작함",
+          "이미지를 삽입함",
+          "HTML 문서의 시작",
+          "링크를 만듦"
+        ],
+        "correctAnswer": "HTML 문서의 시작"
+      }
+    ]
+  },
+  {
+    "title": "HTML 퀴즈",
+    "questions": [
+      {
+        "question": "<html> 태그는 무엇을 의미하나요?",
+        "choices": [
+          "문단을 시작함",
+          "이미지를 삽입함",
+          "HTML 문서의 시작",
+          "링크를 만듦"
+        ],
+        "correctAnswer": "HTML 문서의 시작"
+      },
+      {
+        "question": "<th> 태그의 기능은?",
+        "choices": [
+          "표 제목 셀",
+          "일반 셀",
+          "링크",
+          "버튼"
+        ],
+        "correctAnswer": "표 제목 셀"
+      },
+      {
+        "question": "<table> 태그는 무엇을 생성하나요?",
+        "choices": [
+          "이미지",
+          "표",
+          "링크",
+          "메뉴"
+        ],
+        "correctAnswer": "표"
+      },
+      {
+        "question": "<ol> 태그는 무엇을 만드나요?",
+        "choices": [
+          "비순서 목록",
+          "정의 목록",
+          "번호 목록",
+          "이미지 갤러리"
+        ],
+        "correctAnswer": "번호 목록"
+      },
+      {
+        "question": "<a> 태그는 어떤 요소를 생성하나요?",
+        "choices": [
+          "이미지",
+          "링크",
+          "표",
+          "목록"
+        ],
+        "correctAnswer": "링크"
+      }
+    ]
+  },
+  {
+    "title": "HTML 퀴즈",
+    "questions": [
+      {
+        "question": "<ol> 태그는 무엇을 만드나요?",
+        "choices": [
+          "비순서 목록",
+          "정의 목록",
+          "번호 목록",
+          "이미지 갤러리"
+        ],
+        "correctAnswer": "번호 목록"
+      },
+      {
+        "question": "<label> 태그는 무엇과 관련 있나요?",
+        "choices": [
+          "입력 필드",
+          "표",
+          "링크",
+          "이미지"
+        ],
+        "correctAnswer": "입력 필드"
+      },
+      {
+        "question": "<div> 태그의 역할은?",
+        "choices": [
+          "내용 그룹화",
+          "문단 구분",
+          "이미지 삽입",
+          "폼 제출"
+        ],
+        "correctAnswer": "내용 그룹화"
+      },
+      {
+        "question": "<td> 태그는 어떤 역할인가요?",
+        "choices": [
+          "표 셀",
+          "표 제목",
+          "줄 바꿈",
+          "목록 항목"
+        ],
+        "correctAnswer": "표 셀"
+      },
+      {
+        "question": "<tr> 태그는 어떤 역할인가요?",
+        "choices": [
+          "표 셀",
+          "표 행",
+          "문단 구분",
+          "링크"
+        ],
+        "correctAnswer": "표 행"
+      }
+    ]
+  },
+  {
+    "title": "HTML 퀴즈",
+    "questions": [
+      {
+        "question": "<textarea> 태그는 어떤 용도인가요?",
+        "choices": [
+          "숫자 입력",
+          "한 줄 입력",
+          "여러 줄 입력",
+          "파일 선택"
+        ],
+        "correctAnswer": "여러 줄 입력"
+      },
+      {
+        "question": "<p> 태그는 무엇을 위한 것인가요?",
+        "choices": [
+          "문단 구분",
+          "이미지 삽입",
+          "표 정의",
+          "링크 생성"
+        ],
+        "correctAnswer": "문단 구분"
+      },
+      {
+        "question": "<tr> 태그는 어떤 역할인가요?",
+        "choices": [
+          "표 셀",
+          "표 행",
+          "문단 구분",
+          "링크"
+        ],
+        "correctAnswer": "표 행"
+      },
+      {
+        "question": "<label> 태그는 무엇과 관련 있나요?",
+        "choices": [
+          "입력 필드",
+          "표",
+          "링크",
+          "이미지"
+        ],
+        "correctAnswer": "입력 필드"
+      },
+      {
+        "question": "<img> 태그의 기능은?",
+        "choices": [
+          "링크 생성",
+          "이미지 삽입",
+          "문단 구분",
+          "테이블 생성"
+        ],
+        "correctAnswer": "이미지 삽입"
+      }
+    ]
+  },
+  {
+    "title": "HTML 퀴즈",
+    "questions": [
+      {
+        "question": "HTML 주석은 어떻게 작성하나요?",
+        "choices": [
+          "// 주석",
+          "/* 주석 */",
+          "<!-- 주석 -->",
+          "# 주석"
+        ],
+        "correctAnswer": "<!-- 주석 -->"
+      },
+      {
+        "question": "<meta charset='UTF-8'>의 의미는?",
+        "choices": [
+          "배경 설정",
+          "글자 인코딩 지정",
+          "링크 연결",
+          "이미지 삽입"
+        ],
+        "correctAnswer": "글자 인코딩 지정"
+      },
+      {
+        "question": "HTML 주석은 어떻게 작성하나요?",
+        "choices": [
+          "// 주석",
+          "/* 주석 */",
+          "<!-- 주석 -->",
+          "# 주석"
+        ],
+        "correctAnswer": "<!-- 주석 -->"
+      },
+      {
+        "question": "<tr> 태그는 어떤 역할인가요?",
+        "choices": [
+          "표 셀",
+          "표 행",
+          "문단 구분",
+          "링크"
+        ],
+        "correctAnswer": "표 행"
+      },
+      {
+        "question": "<select> 태그는 무엇을 만들까요?",
+        "choices": [
+          "라디오 버튼",
+          "체크박스",
+          "드롭다운 목록",
+          "파일 업로드 창"
+        ],
+        "correctAnswer": "드롭다운 목록"
+      }
+    ]
+  },
+  {
+    "title": "HTML 퀴즈",
+    "questions": [
+      {
+        "question": "<span> 태그의 특징은?",
+        "choices": [
+          "인라인 요소",
+          "블록 요소",
+          "스크립트 삽입",
+          "목록 생성"
+        ],
+        "correctAnswer": "인라인 요소"
+      },
+      {
+        "question": "<ul> 태그는 무엇을 만드나요?",
+        "choices": [
+          "정의 목록",
+          "비순서 목록",
+          "테이블",
+          "제목"
+        ],
+        "correctAnswer": "비순서 목록"
+      },
+      {
+        "question": "<input type='text'>는 어떤 입력?",
+        "choices": [
+          "숫자",
+          "텍스트",
+          "날짜",
+          "파일"
+        ],
+        "correctAnswer": "텍스트"
+      },
+      {
+        "question": "<label> 태그는 무엇과 관련 있나요?",
+        "choices": [
+          "입력 필드",
+          "표",
+          "링크",
+          "이미지"
+        ],
+        "correctAnswer": "입력 필드"
+      },
+      {
+        "question": "<form> 태그는 무엇을 위한 것인가요?",
+        "choices": [
+          "레이아웃 정의",
+          "사용자 입력 수집",
+          "이미지 삽입",
+          "테이블 생성"
+        ],
+        "correctAnswer": "사용자 입력 수집"
+      }
+    ]
+  }
+]

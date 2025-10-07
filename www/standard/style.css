@@ -1,0 +1,77 @@
+
+.inputWrap {
+    position: relative;
+    height: 40px;
+    display: inline-block;
+ }
+
+  
+.inputWrap input {
+  padding-right: 30px;
+  height: inherit;
+}
+
+.inputWrap .btnClear {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 30px;
+  height: inherit;
+  background: url(https://img.icons8.com/pastel-glyph/2x/cancel.png) center center no-repeat;
+  background-size: 50%;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+
+.textareaWrap {
+    position: relative;
+    height: 40px;
+    display: inline-block;
+ }
+
+  
+.textareaWrap textarea {
+  padding-right: 30px;
+  height: inherit;
+}
+
+.textareaWrap .btnClearTextarea {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 30px;
+  height: inherit;
+  background: url(https://img.icons8.com/pastel-glyph/2x/cancel.png) center center no-repeat;
+  background-size: 50%;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+
+
+ /* 30 높이에 맞게 */
+.inputWrap30 {
+    position: relative;
+    height: 30px;
+    display: inline-block;
+ }
+
+
+.inputWrap30 input {
+  padding-right: 20px;
+  height: inherit;
+}
+
+.inputWrap30 .btnClear {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 30px;
+  height: inherit;
+  background: url(https://img.icons8.com/pastel-glyph/2x/cancel.png) center center no-repeat;
+  background-size: 50%;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}

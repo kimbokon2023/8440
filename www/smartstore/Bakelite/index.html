@@ -1,0 +1,2112 @@
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <meta http-equiv="Content-Script-Type" content="text/javascript">
+    <meta http-equiv="Content-Style-Type" content="text/css">    
+    <title> 26도 감성조명 베크라이트 자동견적 </title>
+    <!--<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">-->
+    <!--<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">-->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.min.js"></script>	
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" ></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" ></script>
+
+</head>
+
+<style>
+
+      input::placeholder {
+        color: gray;
+		font-size : 21px; 
+        font-weight: 100;
+        font-style: italic;
+      }
+	  
+      textarea::placeholder {
+	    font-size : 21px; 
+        color: gray;
+        font-weight: 100;
+        font-style: italic;
+      }
+</style>
+
+
+<body>
+   <div class="container-fluid" style="background-color: #f9f9ed; width:84%; height:100%" >			
+		<div class="d-flex  mt-1 mb-1 justify-content-center ">	
+			<img src="https://postfiles.pstatic.net/MjAyMzAzMjJfMTUz/MDAxNjc5NDU0NTA0MjI4.TkanopKIK2PZltuF3NFCEl1E4YmBO2_9lL7DQix6fe0g.QtGN2AOBLqAAd1JVCTfy4IMvTCirGsFgF0Sjf3nQ2KYg.JPEG.idharpp/%EB%9D%BC%EC%9D%B4%ED%8A%B8%ED%8C%A8%EB%84%90.jpg?type=w966" />
+	  </div>
+	  <div class="d-flex  mt-5 mb-5 justify-content-center ">	
+			<h3> 1. 주문하실 상품의 종류를 선택해 주세요 </h3>
+		</div>
+	  <div class="d-flex  mt-1 mb-1 p-2 m-2 justify-content-center ">			
+				<input hidden id="itemType" name="itemType" value=1 >
+				<button id="itemType1" class="btn btn-outline-dark btn-lg " type="button" onclick="javascript:selItemType('1');"><h3> 베크라이트 </h3>  </button>  &nbsp;&nbsp;
+				<button id="itemType2" class="btn btn-outline-dark btn-lg " type="button" onclick="javascript:selItemType('2');"><h3> 에폭시  </h3> </button>&nbsp;&nbsp;
+				<button id="itemType3" class="btn btn-outline-dark btn-lg " type="button" onclick="javascript:selItemType('3');"><h3> 아크릴  </h3> </button>&nbsp;&nbsp;
+				<button id="itemType4" class="btn btn-outline-dark btn-lg " type="button" onclick="javascript:selItemType('4');"><h3> PC(투명,광확산포함) </h3>  </button>				
+		</div>
+	  <div class="d-flex  mt-5 mb-1 p-2 m-2 justify-content-center ">
+					<h3> 2. 선택하신 상품의 두께와 크기를 순서대로 입력해주세요. </h3>
+		</div>
+	  <div class="d-flex  mt-1 mb-1 p-2 m-2 justify-content-center ">					
+				<h4> (※순서 중요 - 위에서 아래로 내려가며 선택) </h4>		   
+			</div>
+      
+				<div class="row d-flex  mt-1 mb-1 p-2 m-2 justify-content-center ">
+					<div class="col-sm-6 mb-1">
+								<li class="itemTypeImg1" style="display: none;"><img src="https://postfiles.pstatic.net/MjAyMzAzMjJfMjMw/MDAxNjc5NDUyMTgwMjQ2.KdR1gUlw_QyB2cMDBG0XV7dMgj3PNLeTZOzFZC7uF10g.5cg_5gn8r9A9srl9vJcJF032zfLXR5k2_ezj8S8AAXog.JPEG.idharpp/%EB%B2%A0%ED%81%AC%EB%9D%BC%EC%9D%B4%ED%8A%B8_%EA%B0%84%ED%8E%B8%EC%9D%B4%EB%AF%B8%EC%A7%80(%EC%84%A0%ED%83%9D)_%EC%82%AC%EC%9A%A9.jpg?type=w966" alt="베크라이트"  style="width:100%;"> </li>
+								<li class="itemTypeImg2" style="display: none;"><img src="https://postfiles.pstatic.net/MjAyMzAzMjJfMTI2/MDAxNjc5NDUyMjI1MDEz.l4mVjlIvDP2YZDd8jDoBTuz2e2ENUnvOZ36wpGQ-L70g.vL5Zj5GvGUS51RcDibtDU7s6Tt-_btz2AT6X5qXLelsg.JPEG.idharpp/%EC%97%90%ED%8F%AD%EC%8B%9C_%EA%B0%84%ED%8E%B8%EC%9D%B4%EB%AF%B8%EC%A7%80(%EC%84%A0%ED%83%9D)_%EC%82%AC%EC%9A%A9.jpg?type=w966" alt="에폭시"  style="width:100%;"></li> 
+								<li class="itemTypeImg3" style="display: none;"><img src="https://postfiles.pstatic.net/MjAyMzAzMjJfNDIg/MDAxNjc5NDUyMjU5MTI3.Aq1d8aV1TRRxJ88mSY2KAhQFY1qAH4YKLkrmZ8WC-WEg.588xG5vl4Sg_GtGQp5eMcpMnybb9QcHpRMsD6l1xs8Eg.JPEG.idharpp/%EC%95%84%ED%81%AC%EB%A6%B42_%EA%B0%84%ED%8E%B8%EC%9D%B4%EB%AF%B8%EC%A7%80(%EC%84%A0%ED%83%9D)_%EC%82%AC%EC%9A%A9.jpg?type=w966" alt="아크릴"  style="width:100%;"></li> 
+								<li class="itemTypeImg4" style="display: none;"><img src="https://postfiles.pstatic.net/MjAyMzAzMjJfMjYx/MDAxNjc5NDUyMzQzNzk2.5HRbFVASon13AGAJn1DWhLWFHMjIV8IkEWtMBUBlxxog.sPqVcF4WaKAtJyPcz5a6_IPbQprDvV2_-3bcxieYCp4g.JPEG.idharpp/PC_%EA%B0%84%ED%8E%B8%EC%9D%B4%EB%AF%B8%EC%A7%80(%EC%84%A0%ED%83%9D)_%EC%82%AC%EC%9A%A9.jpg?type=w966" alt="PC(투명,광확산포함)"  style="width:100%;"></li> 
+					</div>
+					<div class="col-sm-6 mb-1">  
+					
+						
+								<div class="input-group-text">
+									<span style="width:130px;" >선택하신 상품 </span>																		
+									<input type="text"  style="text-align:right;width:150px;" name="itemSelected" id="itemSelected"  readonly>	
+								</div>
+						
+								<div class="input-group-text" style="background-color:#f9f9ed" >
+									<span style="width:130px;" >색상 </span>																		
+									<select id="itemColor" style="width:150px;" dir="rtl" >
+									<option value="">선택</option><option value="투명">흑색</option><option value="광확산">백색</option></select>
+								</div>
+								<div class="input-group-text" style="background-color:#f9f9ed" >
+									<span style="width:130px;" >두께</span>
+									<input type="number"  style="text-align:right;width:150px;" name="itemThick" id="itemThick" min="0" onkeyup="onlyNumber(this);" onfocusout="sizeValidChk('Thick');">
+									<span>mm</span>
+								</div>
+								<div class="input-group-text" style="background-color:#f9f9ed" >
+									<span style="width:130px;" > 가로</span>
+									<input type="number"  style="text-align:right;width:150px;" name="itemWidth" id="itemWidth" min="0" onkeyup="onlyNumber(this);" onfocusout="sizeValidChk('width');">
+									<span>mm</span>
+								</div>
+								<div class="input-group-text" style="background-color:#f9f9ed" >
+									<span style="width:130px;" >세로</span>
+									<input type="number"  style="text-align:right;width:150px;" name="itemHeight" id="itemHeight" min="0" onkeyup="onlyNumber(this);" onfocusout="sizeValidChk('height');">
+									<span>mm</span>
+								</div>
+								<div class="input-group-text" style="background-color:#f9f9ed" >
+									<span style="width:130px;" >수량</span>
+									<input type="number"  style="text-align:right;width:150px;" name="itemQty" id="itemQty" min="0" onkeyup="onlyNumber(this); itemCalc();" onfocusout="itemCalc();">
+									<span>EA</span>
+								</div>
+								<div class="input-group-text" style="background-color:#f9f9ed" >
+									<span style="width:130px;" >총 주문금액</span> &nbsp;
+									<input type="text" name="itemPrice"  style="text-align:right;width:150px; background:rgba(255,255,255,0.5);" value="0" id="itemPrice" readonly>
+									<span style="color:red;">원</span>
+								</div>
+					</div>
+				</div>
+
+				<div class="row d-flex  mt-5 mb-1 p-2 m-2 justify-content-center ">
+                      
+						<button type="button" class="btn btn-primary btn-lg " onclick="putItemInfo();"><h3> 견적서 리스트 담기 </h3> </button>
+						
+					</div>
+
+				
+			<form id="EstiForm" name="EstiForm" method="post" >		
+
+						<div class="row d-flex  mt-5 mb-5 justify-content-center ">
+								<h3>3. 주문하실 견적서를 확인한 뒤 견적서를 전송해주세요.</h3>
+						</div>
+						<div class="row d-flex  mt-2 mb-1 p-2 m-2 justify-content-center ">
+						<table class="table">
+						  <thead class="thead-dark">
+							<tr>
+							  <th scope="col">선택</th>
+							  <th scope="col">제품명</th>
+							  <th scope="col">색상</th>
+							  <th scope="col">주문크기</th>
+							  <th scope="col">수량</th>
+							  <th scope="col">금액</th>
+							  <th scope="col">총금액</th>
+							</tr>
+						  </thead>
+						  <tbody id="esti_list">
+							
+						  </tbody>
+						</table>
+
+						</div>
+								
+						<div class="row d-flex  mt-5 mb-1 p-2 m-2 justify-content-center ">
+									<button type="button" class="btn btn-outline-dark btn-lg " onclick="delItem();">선택삭제</button> &nbsp;&nbsp;
+									<button type="button" class="btn btn-outline-dark btn-lg " onclick="delItemAll();">전체삭제</button>
+						</div>
+								
+						<div class="row d-flex  mt-5 mb-1 p-2 m-2 justify-content-center ">
+							<h3>총 구매하기 결재금액</h3>
+						</div>						
+						<div class="row d-flex  mt-1 mb-1 p-2 m-2 justify-content-center ">					
+						   <h4>
+								<span class="text-danger">100 or 1000</span>원단위 결제금액에서 <span style="font-weight:bold;"><span style="color:red;">결제수량</span>대로 수량을 동일하게 구매!</span>
+							</h4>							
+						</div>												
+						<div class="row d-flex  mt-1 mb-1 p-2 m-2 justify-content-center ">											
+							<h4>	견적서가 이해되지 않으면 고객센터 상담 후 결제해 주세요 </h4>
+						</div>						
+						<div class="row d-flex  mt-1 p-1 justify-content-center ">		
+							<div class="input-group-text" style="background-color:#f9f9ed;"  >
+                             <h3>
+							<span style="width:180px;" >총견적금액</span>  							
+									<input type="text" value="" id="TotalEstiPrice1" style="text-align:right;" readonly="">
+									<input type="hidden" name="TotalEstiPrice" value="0" id="TotalEstiPrice" readonly="">
+									<span>원</span>
+							</h3>
+							</div>	
+							</div>	
+						   <div class="row d-flex  p-1 justify-content-center ">						
+							<div class="input-group-text" style="background-color:#f9f9ed;" > 
+                             <h3>							
+							<span style="width:180px;" >포장비</span>  												
+									<input type="text" value="" id="PackingFee1"  style="text-align:right;" readonly="">
+									<input type="hidden" name="PackingFee" value="0" id="PackingFee" readonly="">							
+									<span>원</span>
+                              </h3>									
+							</div>	
+							</div>	
+						   <div class="row d-flex   p-1 justify-content-center ">											
+							<div class="input-group-text" style="background-color:#f9f9ed;" >  
+                             <h3>							
+							<span style="width:180px;" >총결제금액</span>    																			
+									<input type="text" value="" id="TotalPrice1"  style="text-align:right;" readonly="">
+									<input type="hidden" name="TotalPrice" value="0" id="TotalPrice" readonly="">
+									<span>원</span>
+                             </h3>									
+							</div>	
+							</div>	
+						   <div class="row d-flex  p-1  justify-content-center ">											
+							<div class="input-group-text" > 
+                             <h3>							
+							<span style="width:180px;" >N구매하기</span>     							
+									<input type="text" value="" id="TotalQty1"  style="text-align:right;" readonly="">
+									<input type="hidden" name="TotalQty" value="0" id="TotalQty" readonly="">							
+									<span>개</span>
+                             </h3>									
+						</div>
+					</div>
+								<input type="hidden" name="TotalItemCount" value="" id="TotalItemCount">
+								<input type="hidden" name="CustName" value="" id="CustName">
+								<input type="hidden" name="CustHP" value="" id="CustHP">
+								<input type="hidden" name="CustEmail" value="" id="CustEmail">
+								<input type="hidden" name="CustMsg" value="" id="CustMsg">						
+								<input type="hidden" name="Market" value="네이버스마트 스토어 26도 감성조명 베크라이트 등 합성수지 견적요청">
+			</form>
+			
+				   <div class="row d-flex  mt-2 mb-1 p-2 m-2 justify-content-center ">		
+                         <h3>				   
+						<span class="text-danger">[주의] 주문시 수취인 성함과 동일하게 작성 요청!</span>
+						</h3>
+					</div>	
+				   <div class="row d-flex  mt-1  justify-content-center ">																	
+							  <h3>
+								<input type="text" id="cust_name" size=20 placeholder="수취인명 ">
+								</h3>
+					</div>	
+				   <div class="row d-flex  mt-1  justify-content-center ">																	
+							  <h3>								
+								<input type="text"  id="cust_hp" size=20 placeholder="수취인 연락처 ('-'제외하고 숫자)"  onkeyup="onlyNumber(this);">
+					</div>	
+				   <div class="row d-flex  mt-1 justify-content-center ">																	
+							  <h3>								
+								<input type="text"  id="cust_email" size=20 placeholder="수취인 이메일 " >
+                             </h3>								
+					</div>	
+					
+				   <div class="row d-flex  mt-2 mb-5 justify-content-center ">								
+						<h3>							
+							<textarea  name="cust_msg" id="cust_msg" cols="30" rows="3" placeholder="[요청사항] 주문과 관련된 사항은 톡톡문의 or 1:1 문의 게시판 이용해주세요!"></textarea>
+						 </h3>							
+						</div>
+											
+					<div class="row d-flex  mt-1 mb-1 p-2 m-2 justify-content-center ">	
+				   
+							<h3>[필독] 주문하시기 전 반드시 확인 후 결제를 진행해 주세요!</h3>
+					</div>	
+				   <div class="row d-flex  mt-1 mb-1 p-2 m-2 justify-content-center ">																										
+						<h3> <span style="color:red;">- 판매자에게 견적서를 전송 후 결제수량 주문요청
+							</span>	
+						</h3>
+							
+					</div>	
+				   <div class="row d-flex  mt-1 mb-1 p-2 m-2 justify-content-center ">																										
+						<h4>
+						 - 주문과 동시에 소재를 재단/제작되기 때문에 <span style="color:red;">교환/환불/취소</span>가 불가함 
+						</h4>					
+					</div>	
+				   <div class="row d-flex  mt-1 mb-1 p-2 m-2 justify-content-center ">																																		
+ 						<h3> - 제작사이즈는 <span style="color:red;">mm 단위로 입력</span> 요청 (100cm → 1000mm) </h3>
+							
+					</div>
+				   <div class="row d-flex  mt-1 mb-1 p-2 m-2 justify-content-center ">	
+					<!-- 결재안내부분 이미지 -->
+						<img src="https://postfiles.pstatic.net/MjAyMzAzMjBfMTI3/MDAxNjc5Mjc0NzIyNzA5.lq-Y-m4Vhsn8tJ3G3MXMad6JonsnJ2zGAzpr0BpnhcQg.2aFf9Xb86CMPZ0GyEQgi0NGHjeSVo5gHAcuuxoX2pf8g.JPEG.idharpp/footer.jpg?type=w966" alt="결재 안내부분 설명">
+					</div>
+					<!-- 개인정보 취급방침 -->
+				   <div class="row d-flex  mt-1 mb-1 p-2 m-2 justify-content-center ">														
+								<label>									
+									<h4>
+									<input type="checkbox" id="agree_chk" name="agree_chk" value="">
+									<span>위 사항 확인. 개인정보 취급방침에 동의합니다.</span>
+									</h4>
+								</label>
+								&nbsp;&nbsp;&nbsp;								
+								<button type="button" onclick="javascript:viewAgree();" class="btn btn-dark btn-sm"> 전문보기</a>
+					</div>
+				   <div id="agree_contents" style="display:none; width:100%;height:400px;" >
+						<div class="mt-1 mb-1 p-2 m-2 justify-content-center">						
+								<textarea class="form-control" rows=15 > '26도 감성조명'은 고객님들의 개인정보를 매우 소중하게 생각하며 다음과 같은 개인정보취급방침을 시행하고 있습니다.
+이 개인정보취금방침은 관련 법률 또는 지침의 변경, 회사정책의 변화에 따라 달라질 수 있으니, 고객님께서는 아크릴에이스 방문시 수시로 확인하여 주시기 바랍니다.
+
+'아크릴에이스' (이하 '회사')는 고객님의 개인정보를 중요시하며, "정보통신망 이용촉진 및 정보보호"에 관한 법류을 준수하고 있습니다.
+회사는 개인정보취급방침을 통하여 고객님께서 제공하시는 개인정보가 어떠한 용도와 방식으로 이용되고 있으며, 개인정보
+보호를 위해 어떠한 조치가 취해지고 있는지 알려드립니다.
+회사는 개인정보 취급방침을 개정하는 경우 웹사이트 공지사항 (또는 개별공지)를 통하여 공지할 것입니다.
+본 방침은 2023년 03월 20일부터 시행됩니다.
+
+
+
+1. 수집하는 개인정보의 항목 및 방법
+
+회사는 회원가입, 상담, 서비스 신청 등등을 위해 아래와 같은 개인정보를 수집하고 있습니다.
+
+* 수집항목 : 이름, 성별, 로그인ID, 비밀번호, 자택 전화번호, 자택주소, 휴대전화번호, 이메일, 직업, 신용카드정보, 은행계좌 정보, 서비스 이용기록, 접속 로그, 쿠키, 접속 IP정보, 결제기록, 관심상품, 접속경로
+* 개인정보 수집방법 : 홈페이지 (회원가입, 물품구매)
+
+
+
+2. 개인정보의 수집 및 이용목적
+
+회사는 수집한 개인정보를 다음의 목적을 위해 활용합니다.
+
+* 서비스 제공에 과한 계약 이행 및 서비스 제공에 따른 요금정산 - 콘텐츠 제공, 구매 및 요금 결제, 물품배송 또는 청구지 등 발송, 금융거래 본인 인증 및 금융 서비스, 요금 추심
+* 회원관리- 회원제 서비스 이용에 따른 본인확인, 개인식별, 불량회원의 부정 이용 방지와 비인가 사용방지, 불만처리 등 민원처리, 고지사항 전달
+* 마케팅 및 광고에 활용- 이벤트 등 광고성 정보전달
+
+
+
+3. 개인정보의 보유 및 이용기간
+
+원칙적으로 개인정보 수집 및 이용목적이 달성된 후에는 해당 정보를 지체없이 파기합니다.
+단, 관계법령의 규정에 희아혀 보존 할 필요가 있는 경우, 회사는 아래와 같이 관계법령에서 정한 일정한 기간동안 회원정보를 보관합니다.
+
+* 보존항목 : 이름, 성별, 로그인ID, 자택 전화번호, 휴대전화번호, 신용카드정보, 은행계좌 정보
+* 보존근거 : 전자상거래등에서의 소비자보호에 관한 법률, 신용정보의 이용 및 보호에 관한 법률
+* 보존기간 : 3개월
+
+
+
+4. 개인정보의 파기 절차 및 방법
+
+회사는 원칙적으로 개인정보 수집 및 이용목적이 달성된 후에는 해당 정보를 지체없이 파기합니다. 파기절차 및 방법은 다음과 같습니다.
+
+* 파기절차 : 회원밍 ㅣ회원가입 등을 위해 입력하신 정보는 목적이 달성된 후 별도의 DB로 옮겨져 (종이의 경우 별도의 서류함) 내부 방침 및 기타 관련 법령에 의한 정보보호 사유에 따라 (보유 및 이용기간 참조) 일정기간 저장된 후 파기되어 집니다. 별도 DB로 옮겨진 개인정보는 법률에 의한 경우가 아니고서는 보유되어지는 이외의 다른 목적으로 이용되지 않습니다.
+* 파기방법 : 전자적 파일형태로 저장되 개인정보는 기록을 재생할 수 없는 기술적 방법을 사용하여 삭제됩니다.
+
+
+
+5. 개인정보 제공동의
+
+회사는 회사는 이용자의 개인정보를 원칙적으로 외부에 제공하지 않습니다. 다만, 아래의 경우에는 예외로 합니다.
+
+- 이용자들이 사전에 동의한 경우
+- 법령의 규정에 의거하거나, 수사 목적으로 법령에 정해진 절차와 방법에 따라 수사기관의 요구가 있는 경우
+
+
+
+6. 수집한 개인정보의 취급위탁
+
+회사는 고객님의 동의없이 고객님의 정보를 외부 업체에 위탁하지 않습니다.
+향후 그러한 필요가 생길 경우, 위탁 대상자와 위탁 업무 내용에 대해 고객님에게 통지하고 필요한 경우 사전 동의를 받도록 하겠습니다.
+
+* 수탁자 : NICE평가정(주) - 수탁범위 : 실명/본인인증, 아이핀 제공
+* 수탁자 : KCP, LG U+ - 수탁범위 : 상품구매에 필요한 신용카드, 현금결제등의 결제정보 전송
+* 수탁자 : CJ대한통운택배, 경동택배 - 수탁범위 : 상품의 배송업무 처리
+
+
+
+7. 이용자 및 법정대리인의 권리와 그 행사방법
+
+이용자 및 법정 대리인은 등록되어 있는 자신 혹은 당해 만 14세 미만 아동의 개인정보를 조회하거나 수정할 수 있으며 가입해지를 요청할 수 있습니다. 이용자 혹은 만 14세 미만 아동의 개인정보 조회 및 수정을 위해서는 '개인정보변경' (또는 '회원정보수정' 등)을 가입해지(동의철회)를 위해서는 "회원탈퇴"를 클릭하여 본인절차를 거치신 후 직접 열람, 정정 또는 탈퇴가 가능합니다. 혹은 개인정보관리책임자에게 서면, 전화 또는 이메일로 연락하시면 지체없이 조치하겠습니다. 귀하가 개인정보의 오류에 대한 정정을 요청하신 경우에는 정정을 완료하기전까지 당해 개인정보를 이용 또는 제공하지 않습니다. 또한 잘못된 개인정보를 제3자에게 이미 제공한 경우에는 정정 처리결과를 제 3자에게 지체없이 통보하여 정정이 이루어지도록 하겠습니다. 이용자 혹은 법정 대리인의 요청에 의해 해지 또는 삭제된 개인정보는 수닙하는 개인정보의 보유 및 이용기간에 명시된 바에 따라 처리하고 그 외의 용도로 열람 또는 이용 할 수 없도록 처리하고 있습니다.
+
+
+
+8. 개인정보수집장치의 설치,운영,거부에 관한 사항
+
+회사는 귀하의 정보를 수시로 저장하고 찾아내는 '쿠키(Cookie)'등을 운영합니다. 쿠키란 "회사"의 웹사이트를 운용하는데 이용되는 서버가
+귀하의 브라우저에 보내는 아주 작은 텍스트 파일로서 귀하의 컴퓨터 하드디스크에 저장됩니다. 회사는 다음과 같은 목적을 위해 쿠키를 사용합니다.
+단, 귀하께서 쿠키 설치를 거부하였을 경우, 서비스 제공에 어려움이 있을 수 있습니다.
+
+* 쿠키 등 사용목적
+- 회원과 비회원의 접속 빈도나 방문 시간등을 분석, 이용자의 취향과 관심분야를 파악 및 자취 추적, 각종 이벤트 참여 정보 및 방문 횟수 파악등을 통한 타겟 마케팅 및 개인 맞춤 서비스 제공
+- 귀하는 쿠키 설치에 대한 선택권을 가지고 있습니다. 따라서, 귀하는 웹브라우저에서 옵션을 설정하여 모든 쿠키를 허용하거나, 저장될 때마다 확인을 거치거나, 아니면 모든 쿠키의 저장을 거부할 수 있습니다.
+* 설정방법 : - (예: 인터넷 익스플로어의 경우 웹브라우저 상단의 도구 메뉴 &gt; 인터넷 옵션 &gt; 개인정보 클릭)
+
+
+
+9. 개인정보에 관한 민원서비스
+
+회사는 고객의 개인정보와 관련한 불만을 처리하기 위하여 아래와 같은 관련 부서 및 개인정보 관리책임자를 지정하고 있습니다.
+
+* 고객서비스 담당부서 : 고객관리팀
+* 담당자 : 안병길
+* 전화번호 : 010-9846-9000
+* 이메일 : idharpp@naver.com
+
+
+귀하께서는 회사의 서비스를 이용하시며 발생하는 모든 개인정보보호 관련 민원을 개인정보관리책임자 또는 담당부서로 신고하실 수 있습니다.
+회사는 이용자들의 신고사항에 대해 신속하게 충분한 답변을 드릴것입니다. 기타 개인정보침해에 대한 신고나 상담이 필요하신 경우에는 아래 기관에 문의하시기 바랍니다.
+
+1. 개인분쟁조정위원회 (www.1336.or.kr/1336)
+2. 정보보호마크인증위원회 (www.erprivacy.or.kr/02-580-0533~4)
+3. 대검찰청 인터넷범죄수사센터 (http://icic.soop.go.kr/02-3480-3360)
+4. 경찰청 사이버테러대응센터 (www.ctrc.go.kr/02-392-0330)
+
+
+
+10. 기타 개인정보 취급에 관한 방침
+
+2006년 09월 25일부터 적용되는 개정 주민등록법에 의하면 타인의 주민등록번호를 도용하여 온라인 회원가입을 하는 등 타인의 주민등록번호를 부정사용하는 자는 3년 이하의 징역 또는 1천만원 이하의 벌금형에 처해질 수 있습니다. 따라서 타인의 주민등록번호를 도용하여 회원가입을 사히려는 분들 또는 회원으로 가입하신 분들은 즉시 도용행위를 중단해 주실 것을 부탁드립니다.
+																		</textarea>
+						</div>					
+					</div>					
+					<!-- 개인정보 취급방침 내용 -->
+				   <div class="row d-flex  mt-5 mb-5 p-2 m-2 justify-content-center ">	
+				      <h2>
+						<button type="button" class="btn btn-success btn-lg" onclick="sendEstimate();">견적서 전송하기</button>
+						</h2>
+					</div>							        
+                       <!-- 하단 배송정보 안내 -->
+                        <img style="width:100%;" src="https://postfiles.pstatic.net/MjAyMzAzMjBfMTE2/MDAxNjc5Mjc4NzU2NzA0.7NS7ZPf0FFZBWJnO9XXIGQGXCWEojxq3IISFGK8CDA8g.GlV-5cKgqOcWK02nuq9GPSDPSVWBwtGmPYfngxsJadAg.JPEG.idharpp/%EA%B5%AC%EB%A7%A4%EC%A0%84_%EA%BC%AD_%EC%9D%BD%EC%96%B4%EC%A3%BC%EC%84%B8%EC%9A%94.jpg?type=w966" />
+			  <!--
+			<img src="https://postfiles.pstatic.net/MjAyMzAzMjBfMTU5/MDAxNjc5Mjc4NTc2MTAx.Xk4GeK8m9-iDw_Al4LIT4Iltj8cfAaZ_jrMm58qIUEYg.EogbunvCgRwtp6wF-9mnBBDJ04YM2YTSVHL6-gbOi_og.GIF.idharpp/led%ED%8C%A8%EB%84%90-%EC%9B%80%EC%A7%81%EC%9D%B4%EB%8A%94-%EC%9D%B4%EB%AF%B8%EC%A7%80.gif?type=w966" />
+			<img src="https://postfiles.pstatic.net/MjAyMzAzMjBfMjY3/MDAxNjc5Mjc4NjI4Mjgy.nHTHblLI4Vcoy9iyy23zWf8aE_AdsxRYEM1XHmRZsdQg.CJETK5AIzcfkqxby_6ZPjSBjPHpzHxZ279iBDYtGqVwg.JPEG.idharpp/%EB%9D%BC%EC%9D%B4%ED%8A%B8%ED%8C%A8%EB%84%90%EC%A0%84%EC%9B%90%EC%84%A0%EC%97%90_%EB%8C%80%ED%95%9C_%EC%84%A4%EB%AA%85%EC%9E%90%EB%A3%8C.jpg?type=w966" />
+			<img src="https://postfiles.pstatic.net/MjAyMzAzMjBfNDAg/MDAxNjc5Mjc4NzA5Njk4.zByAF6TPibHbdJVjXf3UYydbr7ol6mpfly4v3RSG7BIg.oksrVFn2eLTRi8ZoPlzJPnhhrzLG7yv3Yq04ryifGO8g.PNG.idharpp/%EC%B6%9C%EB%A0%A5%EB%AC%BC%EB%94%94%EC%9E%90%EC%9D%B8%EC%95%88%EB%82%B4.png?type=w966" />
+			<img src="https://postfiles.pstatic.net/MjAyMzAzMjBfMTE2/MDAxNjc5Mjc4NzU2NzA0.7NS7ZPf0FFZBWJnO9XXIGQGXCWEojxq3IISFGK8CDA8g.GlV-5cKgqOcWK02nuq9GPSDPSVWBwtGmPYfngxsJadAg.JPEG.idharpp/%EA%B5%AC%EB%A7%A4%EC%A0%84_%EA%BC%AD_%EC%9D%BD%EC%96%B4%EC%A3%BC%EC%84%B8%EC%9A%94.jpg?type=w966" />
+			<img src="https://postfiles.pstatic.net/MjAyMzAzMjBfMjg3/MDAxNjc5MzAwOTA2MzU1.X4MLEBGiFe-BbOxxcUcIu7_vqKyl3FqD6JuoGhqx3WQg.66X7YkaWEvpLgtAK_5sITpx5vvKBQ2SEZORzk-yotVQg.GIF.idharpp/26%EB%8F%84_%EA%B0%90%EC%84%B1%EC%A1%B0%EB%AA%85_%EB%9D%BC%EC%9D%B4%ED%8A%B8%ED%8C%A8%EB%84%90_(860_%C3%97_1200px)_%ED%95%98%EB%8B%A8%EC%9B%80%EC%A7%A4.gif?type=w966" />
+			-->
+						
+		</div><!--container-->	
+
+</body>
+	  
+</html>
+
+
+
+
+
+
+
+<script type="text/javascript">
+	/* 기본 값 설정 시작 */
+	var itemTypeNameArr = new Array();
+	itemTypeNameArr[0] = "";
+	itemTypeNameArr[1] = "베크라이트";
+	itemTypeNameArr[2] = "에폭시";
+	itemTypeNameArr[3] = "아크릴";
+	itemTypeNameArr[4] = "PC(투명,광확산포함)";
+	
+	//1:구멍가공, 2:모서리라운드, 3:45도 면취, 4:불광	
+	var isItemOptionArr = new Array();
+	isItemOptionArr[0] = 0;
+	isItemOptionArr[1] = 0;
+	isItemOptionArr[2] = 0;
+	isItemOptionArr[3] = 0;
+	isItemOptionArr[4] = 0;
+	isItemOptionArr[5] = 0;
+	var itemOptionNameArr = new Array();
+	itemOptionNameArr[0] = "가공옵션미선택";
+	itemOptionNameArr[1] = "구멍가공";
+	itemOptionNameArr[2] = "모서리라운드";
+	itemOptionNameArr[3] = "45도 면취";
+	itemOptionNameArr[4] = "불광";
+	itemOptionNameArr[5] = "레이저가공";	
+	
+	
+	var itemType = "";
+	var itemColor = "";
+	var itemWidth = "";
+	var itemHeight = "";
+	var itemQty = "";
+	var itemPrice = 0;	
+	var itemTotalPrice = 0;
+	var totalItemCount = 0;
+	/* 기본 값 설정 끝 */
+
+	$(function(){		
+			selItemType("1");		
+	});
+
+	// 판 종류 선택
+function selItemType(type) {
+
+         $('#itemType').val(type);
+         let itemType = parseInt($('#itemType').val());
+		 		 
+		// 아크릴 및 무광아크릴 활성화
+		if(Number(type)<1) itemType=1;
+		
+		if(itemType == 1 || itemType == 2 || itemType == 3 || itemType == 4  ) {
+			// 기존 선택되어있던 제품스펙 초기화
+			// 변수데이터 초기화			
+			itemColor = "";
+			itemWidth = "";
+			itemHeight = "";
+			itemQty = "";
+			itemPrice = 0;
+			itemTotalPrice = 0;
+			
+			// 사이즈, 수량, 금액 초기화
+			$("#itemWidth").val("");
+			$("#itemHeight").val("");
+			$("#itemQty").val("");
+			$("#itemPrice").val("0");
+			
+          for(i=1;i<itemTypeNameArr.length;i++) {         
+				$(".itemType"+i).removeClass("select");
+				$(".itemTypeImg"+i).css({display: "none"});
+			}
+			
+			$(".itemType"+itemType).addClass("select");
+			$(".itemTypeImg"+itemType).css({display: "block"});
+			
+			// 상품선택한 것 화면에 보여주기
+			$("#itemSelected").val(itemTypeNameArr[itemType]);
+			getColor();
+
+			<!-- // 현재 담겨있는 제품이 있다면 전체 삭제 -->
+			<!-- $("#esti_list > tr").remove(); -->
+			<!-- resetTotalPriceCalc(); -->
+		} else {
+			alert("준비중입니다.");
+		}
+		
+	}
+
+	// 판 종류 선택시 색상 정보 가져오기
+	function getColor() {    
+    	var Type = $("#itemType").val();    	
+    	var $target = $("#itemColor");
+		
+		let result = [];
+			
+	//  배열 칼라 선언
+	
+	      result = ["화이트(white)","블랙(black)"];
+		  
+		  console.log("itemType : " + Type );
+		  console.log(result);
+				
+		$("#itemType").val(Type);
+		
+                var colors = result;
+				$("#itemColor option").remove();
+				$target.append("<option value=''>선택</option>");
+				if (colors.length > 0) {
+					$(colors).each(function(i) {
+                        $target.append(
+                            "<option value='" + colors[i] + "'>" + colors[i] + "</option>"
+                        );
+					});
+				
+				}
+
+	}
+
+
+	function sizeValidChk(sizeType) {
+	  
+		itemType = parseInt($("#itemType").val());  
+	
+		var _width = 0;
+		var _height = 0;
+
+				if(sizeType == "width") {
+					_width = $("#itemWidth").val();					
+						if(parseInt(_width) < 1 || parseInt(_width) > 2400) {
+							alert(itemTypeNameArr[itemType] + " " + " 가로 사이즈는 1mm ~ 2400mm만 입력 가능합니다.");
+							$("#itemWidth").val("");
+							$("#itemPrice").val("0");
+							itemWidth = 0;
+							itemPrice = 0;
+							$("#itemWidth").focus();
+							return false;
+						} else {
+							itemCalc();
+						}
+						
+				} else if(sizeType == "height") {
+					_height = $("#itemHeight").val();					
+						if(parseInt(_height) < 1 || parseInt(_height) > 2400) {
+							alert(itemTypeNameArr[itemType] + " " + " 세로 사이즈는 1mm ~ 2400mm만 입력 가능합니다.");
+							$("#itemHeight").val("");
+							$("#itemPrice").val("0");
+							itemHeight = 0;
+							itemPrice = 0;
+							$("#itemHeight").focus();
+							return false;
+						} else {
+							itemCalc();
+						}
+					} 
+		}
+
+	// 제품스펙 입력 및 선택
+	function itemCalc() {
+	
+	itemType = parseInt($("#itemType").val());  
+	
+		if (itemType == 0) {
+			alert("1번 주문하실 종류를 선택해 주세요.");
+			return false;
+		}
+		itemThick = $("#itemThick").val();
+		itemColor = $("#itemColor").val();
+		itemWidth = $("#itemWidth").val();
+		itemHeight = $("#itemHeight").val();
+		itemQty = $("#itemQty").val();
+		
+		
+		// 헤베. 제곱미터를 낸 후 계산값이 달라진다.
+		 squareMeter = (parseInt(itemWidth) * parseInt(itemHeight)) / 1000000 ;		
+		
+		console.log(itemColor);
+		console.log(itemWidth);
+		console.log(itemHeight);
+		console.log(itemQty);
+		console.log(squareMeter);
+		
+		// 계산하기
+		if ( parseInt(itemWidth) != 0 && parseInt(itemHeight) != 0 && parseInt(itemQty) != 0 ) 
+		 {
+			// 종류별 가격지정
+			// 기본적으로 두께 * 가로 * 세로 * 요율 로 구성 * 수량			
+
+		// 1헤베 이상일때와 아닐때의 단가가 다른다.
+
+				if(itemType == 1) {
+	
+								 price =  parseInt(itemThick) * parseInt(itemWidth) * parseInt(itemHeight) / 90000 * 1500   ;
+								 
+							}
+				if(itemType == 2) {
+	
+								   	 price =  parseInt(itemThick) * parseInt(itemWidth) * parseInt(itemHeight) / 90000 * 3200   ;
+					 }
+					 
+				if(itemType == 3) {
+								 price =  parseInt(itemThick) * parseInt(itemWidth) * parseInt(itemHeight) / 90000 * 1000   ;
+								   
+					 }
+					 
+				if(itemType == 4) {
+								 price =  parseInt(itemThick) * parseInt(itemWidth) * parseInt(itemHeight) / 90000 * 1300   ;
+								   
+					 }
+					 
+			 
+			 
+					if (price !== 0) {
+						itemPrice = parseInt(price) * parseInt(itemQty);
+
+						// NaN 방지
+						if (isNaN(itemPrice)) {
+								  itemPrice = 0;
+								}								
+						
+						$("#itemPrice").val(addComma(String(itemPrice)));
+
+						
+						
+					} else {
+						$("#itemPrice").val("0");
+					}			
+		
+		} 
+		else {
+			$("#itemPrice").val("0");
+			itemPrice = 0;
+			return false;
+		}
+	
+	
+	}
+
+
+
+	// 제품담은 후 아이템 초기화
+	function resetItem() {
+		// 변수데이터 초기화
+		
+		itemColor = "";
+		itemThick = "";
+		itemWidth = "";
+		itemHeight = "";
+		itemQty = "";
+		itemPrice = 0;
+		itemTotalPrice = 0;
+
+		// 사이즈, 수량, 금액 초기화
+		$("#itemWidth").val("");
+		$("#itemThick").val("");
+		$("#itemHeight").val("");
+		$("#itemQty").val("");
+		$("#itemPrice").val("0");
+
+		// 색상 초기화
+		$("#itemColor").val("");
+		$("#itemType").val("1");
+
+	}
+
+	// 제품담기
+	function putItemInfo() {
+		if (itemColor == "") {
+			alert("색상을 선택해 주세요.");
+			return false;
+		}
+
+		if (itemThick == "" || parseInt(itemThick) == 0) {
+			alert("두께를 입력해 주세요.");
+			return false;
+		}
+		if (itemWidth == "" || parseInt(itemWidth) == 0) {
+			alert("가로 사이즈를 입력해 주세요.");
+			return false;
+		}
+		if (itemHeight == "" || parseInt(itemHeight) == 0) {
+			alert("세로 사이즈를 입력해 주세요.");
+			return false;
+		}
+		if (itemQty == "" || parseInt(itemQty) == 0) {
+			alert("수량을 입력해 주세요.");
+			return false;
+		}
+		
+		// 판매자 전송을 위해 제품 담기
+		var itemOptionStr = "";
+		var itemOptionStrDiv = "";
+		var itemOptionStr1 = "";
+		var itemOptionStr2 = "";
+		var itemOptionStr3 = "";
+		var itemOptionStr4 = "";
+		var itemOptionStr5 = "";
+		for (i=1;i<=isItemOptionArr.length;i++) {
+			if (parseInt(isItemOptionArr[i]) == 1) {
+				if (itemOptionStr != "") {
+					itemOptionStrDiv = "/";
+				}
+				if (isItemOptionArr[1] == 1 && i == 1) {
+					itemOptionStr += itemOptionStrDiv + itemOptionNameArr[i] + "-" + $("#itemOptionSub1").val();
+					itemOptionStr1 = itemOptionNameArr[i] + "-" + $("#itemOptionSub1").val();
+				} else if (isItemOptionArr[2] == 1 && i == 2) {
+					itemOptionStr += itemOptionStrDiv + itemOptionNameArr[i] + "-" + $("#itemOptionSub2").val();
+					itemOptionStr2 = itemOptionNameArr[i] + "-" + $("#itemOptionSub2").val();
+				} else if (isItemOptionArr[3] == 1 && i == 3) {
+					itemOptionStr += itemOptionStrDiv + itemOptionNameArr[i];
+					itemOptionStr3 = itemOptionNameArr[i];
+				} else if (isItemOptionArr[4] == 1 && i == 4) {
+					itemOptionStr += itemOptionStrDiv + itemOptionNameArr[i];
+					itemOptionStr4 = itemOptionNameArr[i];
+				} else if (isItemOptionArr[5] == 1 && i == 5) {
+					itemOptionStr += itemOptionStrDiv + itemOptionNameArr[i] + "-" + $("#itemOptionSub5").val();
+					itemOptionStr5 = itemOptionNameArr[i] + "-" + $("#itemOptionSub5").val();
+				}
+			}
+		}
+
+
+		if (itemQty == "") {
+			itemQty = 0;
+		}
+
+		// 총금액 (제품금액+가공옵션)
+		itemTotalPrice = itemPrice;
+		
+		itemThick = $("#itemThick").val();		 // 두께		
+		
+		var putNum = parseInt($(".estiItemChk").length) + 1;
+		var putStr = '';
+		putStr += '<tr class="estiItem'+putNum+'">';
+		putStr += '<td><input type="checkbox" name="estiItemChk" value="'+putNum+'" class="estiItemChk estiItemChk'+putNum+'" /></td>';
+		putStr += '<td>'+itemTypeNameArr[itemType]+'<input type="hidden" name="ItemTypeList" value="'+itemTypeNameArr[itemType]+'" /></td>';
+		putStr += '<td>'+itemColor+'<input type="hidden" name="ItemColorList" value="'+itemColor+'" /></td>';
+		putStr += '<td>';
+		putStr += '두께' + itemThick;
+		putStr += 'mm/가로' + itemWidth+'mm/세로'+itemHeight+'mm';		
+		putStr += '<input type="hidden" name="ItemWidthList" value="'+itemWidth+'" />';
+		putStr += '<input type="hidden" name="ItemHeightList" value="'+itemHeight+'" />';
+		putStr += '</td>';
+		putStr += '<td>'+itemQty+'개<input type="hidden" name="ItemQtyList" value="'+itemQty+'" /></td>';
+		putStr += '<td>'+addComma(String(itemPrice))+'원<input type="hidden" name="ItemPriceList" value="'+itemPrice+'" /></td>';		
+		putStr += '<td>'+addComma(String(itemTotalPrice))+'원<input type="hidden" name="ItemTotalPriceList" value="'+itemTotalPrice+'" /></td>';
+		putStr += '</tr>';
+		
+		// 제품 전송 폼에 넣기
+		$("#esti_list").append(putStr);
+
+		// 전송할 총 아이템종류 갯수 담기
+		totalItemCount = putNum;
+
+		// 총 결제금액 계산
+		totalPriceCalc();
+
+		// 선택한 제품 초기화
+		resetItem();
+	}
+
+	// 총 결제금액 계산
+	function totalPriceCalc() {
+		var totalEstiPrice = 0;	// 총견적금액
+		var totalQty = 0;		// 총제품수량
+		var marketPayQty = 0;	// 결제수량
+		var deliveryFee = 0;	// 배송비
+		var packingFee = 0;		// 포장비
+		var totalPrice = 0;		// 총결제금액
+		var isItemSizeLimit = 0	// 포장비 대상 여부 1/0
+
+		// 총견적금액 계산
+		for (i=0;i<$("#esti_list input[name='ItemTotalPriceList']").length;i++) {
+			totalEstiPrice = parseInt(totalEstiPrice) + parseInt($("#esti_list input[name='ItemTotalPriceList']").eq(i).val());
+			totalQty = parseInt(totalQty) + parseInt($("#esti_list input[name='ItemQtyList']").eq(i).val());
+			if (parseInt($("#esti_list input[name='ItemWidthList']").eq(i).val()) + parseInt($("#esti_list input[name='ItemHeightList']").eq(i).val()) > 1500) {
+				isItemSizeLimit = 1;
+			}
+		}
+
+		console.log("isItemSizeLimit = " + isItemSizeLimit);
+		console.log("totalEstiPrice = " + totalEstiPrice);
+		console.log("packingFee = " + packingFee);
+		console.log("totalQty N 구매수량 = " + totalQty);
+		// 총결제금액 계산
+		totalPrice = totalEstiPrice+deliveryFee+packingFee;
+
+		// 결제수량 계산(아크릴은 1,000원 단위 / 무광아크릴은 1,500원 단위 / 폴리카보네이트는 100원 단위)
+		
+		marketPayQty = totalPrice / 1000;
+		
+
+		// NaN 방지
+		if (isNaN(totalPrice)) {
+				  totalPrice = 0;
+				}
+
+		$("#TotalEstiPrice").val(totalEstiPrice);
+		$("#TotalQty").val(marketPayQty);
+		$("#PackingFee").val(packingFee);
+		$("#TotalPrice").val(totalPrice);
+		$("#TotalEstiPrice1").val(addComma(String(totalEstiPrice)));
+		$("#TotalQty1").val(addComma(String(marketPayQty)));
+		$("#PackingFee1").val(addComma(String(packingFee)));
+		$("#TotalPrice1").val(addComma(String(totalPrice)));
+	}
+
+	// 담은 상품 전체삭제 시
+	function resetTotalPriceCalc() {
+		$("#TotalEstiPrice").val("0");
+		$("#TotalQty").val("0");
+		$("#PackingFee").val("0");
+		$("#TotalPrice").val("0");
+		$("#TotalEstiPrice1").val("0");
+		$("#TotalQty1").val("0");
+		$("#PackingFee1").val("0");
+		$("#TotalPrice1").val("0");
+	}
+
+	// 담은 제품 선택 삭제
+	function delItem() {
+		var estiItemChkList = $("input[type=checkbox][name=estiItemChk]:checked");
+		if(estiItemChkList.length > 0) {
+			for (var i=0; i<estiItemChkList.length; i++) {
+				$(".estiItem" + estiItemChkList[i].value).remove();
+			}
+			// 총 결제금액 계산
+			totalPriceCalc();
+		}
+	}
+
+	// 담은 제품 전체 삭제
+	function delItemAll() {
+		if (confirm("담겨있는 모든 제품을 삭제 하시겠습니까?")) {
+			$("#esti_list > tr").remove();
+			resetTotalPriceCalc();
+		}
+	}
+
+	function viewAgree() {
+		if ($("#agree_contents").css("display") == "none") {
+			$("#agree_contents").show();	
+		} else {
+			$("#agree_contents").hide();
+		}
+	}
+
+	function sendEstimate() {
+		// 전송할 데이터 체크
+		if ($("#TotalQty1").val() == "" || $("#TotalQty1").val() == "0") {
+			alert("담겨있는 제품정보가 없습니다.");
+			return false;
+		}
+		if ($("#TotalPrice1").val() == "" || $("#TotalPrice1").val() == "0") {
+			alert("담겨있는 제품정보가 없습니다.");
+			return false;
+		}
+		if ($("#cust_name").val() == "") {
+			alert("수취인명을 입력해 주세요.");
+			$("#cust_name").focus();
+			return false;
+		}
+		if ($("#cust_hp").val() == "") {
+			alert("수취인 연락처를 입력해 주세요.");
+			$("#cust_hp").focus();
+			return false;
+		}
+		if ($("#cust_email").val() == "") {
+			alert("수취인 이메일을 입력해 주세요.");
+			$("#cust_email").focus();
+			return false;
+		}
+		if (!($("#agree_chk").is(":checked"))) {
+			alert("개인정보 취급방침을 동의해 주세요.");
+			return false;
+		}
+		// 수취인정보 전송 폼에 담기
+		$("#TotalItemCount").val(totalItemCount);
+		$("#CustName").val($("#cust_name").val());
+		$("#CustHP").val($("#cust_hp").val());
+		$("#CustEmail").val($("#cust_email").val());
+		$("#CustMsg").val($("#cust_msg").val());
+		// $("#RegRefer").val(document.referrer);
+		
+		// 구글 스프레드시트에 넣어주기 (컬럼명 전부)		
+		
+		if (confirm("판매자에게 견적을 전송 하시겠습니까?")) {
+			$('#EstiForm').ajaxForm({
+				beforeSend: function(){
+				},
+				type: "POST",
+				url: "https://script.google.com/macros/s/AKfycbx4qDH5ak_Rzgags4-J4gtAkifR7cKB1pS3GiMxynz59MAUxeYkMb-jcK1EO5LygTEezw/exec",
+				data: $("#EstiForm").serialize(),				
+				crossDomain: true,
+				success: function(result){
+				    console.log($("#EstiForm").serialize());
+				    console.log('result');
+				    console.log(result);
+					
+					if (result != "") {
+						alert("견적서 전송이 완료되었습니다! (견적서는 메일에서 확인해주세요)\n결제는 네이버 구매하기를 눌러 상품 수량 " + $("#TotalQty1").val() + "개를 선택하여 금액 " + $("#TotalPrice1").val() + "원에 맞춰 구매하시면 됩니다.");
+					} else {
+						alert("오류가 발생하였습니다. 잠시 후 다시 이용해주세요.\n\n지속적인 오류 발생시 판매자에게 문의 부탁드립니다.");
+					}
+					self.location.reload();
+				},
+				error: function(){
+					alert("오류가 발생하였습니다. 잠시 후 다시 이용해주세요.\n\n지속적인 오류 발생시 판매자에게 문의 부탁드립니다.");
+				},
+				complete: function () {
+				}
+			}).submit();
+		} // end of if statement
+	}
+
+	// 세자리 콤마 찍기
+	function addComma(val) {
+		value = val.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        return value;
+	}
+
+	// 콤마 제거
+	function delComma(val) {
+		value = val.replace(/[^\d]+/g, "");
+        return value;
+	}
+	
+	
+function showLayer(layerID, layerHeight) {
+	//안드로이드 전용..
+	/*try{
+		hideSlideLayer();
+	} catch(e){}*/
+
+	var innerLayer = $("#" + layerID);
+
+	//백그라운드에서의 움직임을 방지
+	$("body").css({ "overflow-y": "hidden" });
+
+	if ($("#backgroundLayer").length == 0) {
+		$("body").append($("<div/>").attr("id","backgroundLayer")
+									.css({"position":"fixed"
+									, "background": "#000"
+									, "width": "100%"
+									, "height": "100%"
+									, "top":0
+									, "left":0
+									, "-ms-filter":"\"progid:DXImageTransform.Microsoft.Alpha(opacity=30)\""
+									, "filter":"progid:DXImageTransform.Microsoft.Alpha(opacity=30)"
+									, "opacity":"0.7"
+									, "-moz-opacity":"0.7"
+									, "z-index": "9000"
+									, "overflow": "hidden"
+									, "display": "none"
+									})
+		);
+	}
+
+	var border = parseInt(innerLayer.css("border-left-width")) + parseInt(innerLayer.css("border-right-width"));
+	if (border == null)
+		border = 0;
+
+	var width = innerLayer.width() + border;
+	var marginLeft = width / 2;
+	var height, marginTop;
+
+	if (layerHeight != null) {
+		if (layerHeight.toString().indexOf("%") > -1)
+			height = $(window).height() * (layerHeight.split("%")[0] / 100)
+		else
+			height = layerHeight;
+	} else {
+		innerLayer.css("height", "auto");
+		height = innerLayer.height() + 3;
+	}
+
+	marginTop = height / 2
+
+	innerLayer.css({
+		"position": "fixed"
+		, "display": "none"
+		, "background": "#FFF"
+		, "width": width + "px"
+		, "height": height + "px"
+		, "left": "50%"
+		, "top": "50%"
+		, "margin-left": -marginLeft + "px"
+		, "margin-top": -marginTop + "px"
+		// , "overflow": "hidden"
+		, "-webkit-overflow-scrolling": "touch"
+		, "z-index": "9001"
+	});
+
+	$("#backgroundLayer").show();
+	innerLayer.show();
+
+	//안드로이드에서 레이어 셋팅
+	try {
+		innerLayer.addClass("set_dialog_layer");
+		Android.setWebPageLayer(true);
+	} catch (e) {}
+}
+
+function hideLayer(layerID) {
+	var innerLayer = $("#" + layerID);
+	$("#backgroundLayer").hide();
+	innerLayer.hide();
+	$("body").css({ "overflow-y": "auto" });
+
+	//안드로이드에서 레이어 셋팅
+	try {
+		innerLayer.removeClass("set_dialog_layer");
+		Android.setWebPageLayer(false);
+	} catch (e) { }
+}
+
+function getLayerTop(height){
+	var innerHeight = ($(window).height() - height)/2;
+	if (innerHeight < 0)
+		innerHeight = 10;
+	var top = $(window).scrollTop() + innerHeight;
+	
+	return top;
+}
+
+function getObjTop(objID){
+	var height = $("#" + objID).height()
+	return getLayerTop(height);
+}
+
+/* 콤마 허용 */
+function onlyMoney(obj) {
+	var oElement = obj;
+	var charChk;
+
+	for (var i = 0; i < oElement.value.length; i++) {
+		charChk = oElement.value.charCodeAt(i);
+		if ((charChk > 57 || charChk < 48) && charChk != 44 && charChk != 45) {
+			alert("공백없이 숫자로만 입력해주세요.");
+			oElement.value = oElement.value.substring(0, i);
+			oElement.focus();
+			return;
+		} else {
+			if (charChk == 45 && i != 0 ) {
+				alert("음수표시( - )는 첫 자리수에만 올 수 있습니다.");
+				oElement.value = oElement.value.substring(0, i);
+				oElement.focus();
+				return;
+			}
+		}
+	}
+	
+	obj.value = obj.value.split(",").join("").money();
+}
+
+/* 소숫점 허용 */
+/*function onlyFloat(obj) {
+	var oElement = obj;
+	var charChk;
+
+	for (var i = 0; i < oElement.value.length; i++) {
+		charChk = oElement.value.charCodeAt(i);
+		if ((charChk > 57 || charChk < 48) && charChk != 46) {
+			alert("공백없이 숫자로만 입력해주세요.");
+			oElement.value = oElement.value.substring(0, i);
+			oElement.focus();
+			return;
+		}
+	}
+}*/
+
+function onlyFloat() {
+	var oElement = (arguments[0] != null) ? arguments[0] : this;
+	var charChk, point = 0;
+
+	var firstCharCode = oElement.value.charCodeAt(0);	//첫째자리
+
+	for (var i = 0; i < oElement.value.length; i++) {
+		var error = false;
+		charChk = oElement.value.charCodeAt(i);
+
+		if (charChk == 46) {	//소숫점
+			point++;
+		}
+
+		if (i > 0) {
+			var secondCharCode = oElement.value.charCodeAt(1);	//둘째자리
+
+			switch (firstCharCode) {
+				case 48:	//첫째자리가 0인경우
+					if (secondCharCode != 46) {
+						alert("소수점을 입력해주세요.");
+						error = true;
+					}
+					break;
+				case 45:	//첫째자리가 음수(-)인경우
+					if (secondCharCode == 46) {	//둘째자리가 소수점인경우
+						alert("0 다음에 소수점을 입력할 수 있습니다.");
+						error = true;
+					} else {
+						if (i > 1) {
+							if (secondCharCode == 48) {	//둘째자리가 0인경우
+								if (oElement.value.charCodeAt(2) != 46) {
+									alert("소수점을 입력해주세요.");
+									error = true;
+								}
+							}
+						}
+					}
+					break;
+			}
+
+			if (point > 1) {
+				alert("이미 소수점이 입력되었습니다.");
+				error = true;
+			} else {
+				if (!error) {
+					if ((charChk > 57 || charChk < 48) && charChk != 46) {
+						alert("공백없이 숫자로만 입력해주세요.");
+						error = true;
+					}
+				}
+			}
+		} else {
+			if ((firstCharCode > 57 || firstCharCode < 48) && firstCharCode != 45) {
+				alert("공백없이 숫자로만 입력해주세요.");
+				error = true;
+			}
+		}
+
+		if (error) {
+			oElement.value = oElement.value.substring(0, i);
+			oElement.focus();
+			return;
+		}
+	}
+}
+
+function onlyNumber() {
+	var oElement = (arguments[0] != null) ? arguments[0] : this;
+	var charChk;
+
+	for (var i = 0; i < oElement.value.length; i++) {
+		charChk = oElement.value.charCodeAt(i);
+		if (charChk > 57 || charChk < 48) {
+			alert("공백없이 숫자로만 입력해주세요.");
+			oElement.value = oElement.value.substring(0, i);
+			oElement.focus();
+			return;
+		}
+	}
+}
+	
+function autoHeight(obj, defaultHeight){
+	var height = obj.scrollHeight;
+	var thisObjHeight = 115;	//기본 높이값
+	
+	if (defaultHeight != null)
+		thisObjHeight = defaultHeight;
+	
+	if (height > thisObjHeight)
+		$(obj).css("height",obj.scrollHeight + "px");
+	else
+		$(obj).css("height",thisObjHeight + "px");
+}
+	
+function ContentHeightCK(objID){
+	var content = $("#" + objID);
+	
+	if (content.css("height").toLowerCase().replace("px","") < content.attr("scrollHeight"))
+		content.css("height",content.attr("scrollHeight") + "px");
+}
+	
+var maxTable = 0;
+function autoScroll(tableID){
+	var s_Table = $("#" + tableID).html().toLowerCase().split("</table>");
+	$("#" + tableID + "_view").empty();
+	
+	for( var i=0;i<s_Table.length;i++){
+		if (s_Table[i] != ""){
+			$("#" + tableID + "_view").append(s_Table[i] + "</table>")
+			window.setTimeout("fadeTable("+i+", '" + tableID + "')", (i*2000));
+		}
+	}
+	maxTable = s_Table.length;
+}
+
+function fadeTable(i, tableID){
+	if (i != 0 && i%3 == 0){
+		$("#" + tableID + "_view table").each(function(e){
+			if (e < i)
+				$(this).css("display","none");
+		})
+	}
+		
+	$($("#" + tableID + "_view table")[i]).fadeIn("slow");
+	
+	if ((maxTable-2) == i){
+		window.setTimeout("autoScroll('" + tableID + "')", 2000);
+	}
+}
+
+function fGetXY(aTag){ 
+	var oTmp = aTag; 
+	var pt = new Point(0,0); 
+	do { 
+			pt.x += oTmp.offsetLeft; 
+			pt.y += oTmp.offsetTop; 
+			oTmp = oTmp.offsetParent; 
+	} while(oTmp.tagName!="BODY" && oTmp.tagName!="HTML"); 
+	return pt; 
+}
+
+function Point(iX, iY){ 
+	this.x = iX; 
+	this.y = iY; 
+}
+
+//글쓰기 체크
+function max_write(maxByte, obj) {
+	var temp;
+	var maxLen = maxByte;
+
+	var len = obj.value.length;
+
+	for (i = 0; i < len; i++) {
+		temp = obj.value.charAt(i);
+
+		if (escape(temp).length > 4)
+			maxLen -= 2;
+		else
+			maxLen--;
+
+		if (maxLen < 0) {
+			alert("내용은 영문 " + maxByte + "자, 한글 " + maxByte / 2 + "자 이내로 작성하셔야 합니다.");
+			obj.value = obj.value.substring(0, i);
+			obj.focus();
+			break;
+		}
+	}
+}
+
+//길이체크
+function maxlength_check(maxlen, obj, returnYN) {
+	var len = obj.value.length;
+	var result;
+	
+	if (len > maxlen){
+		alert(maxlen + "자 이상 작성하실 수 없습니다.");
+		obj.value = obj.value.substring(0,maxlen);
+		result = false;
+	} else
+		result = true;
+		
+	if (returnYN != null && returnYN)
+		return result;
+}
+
+//pos.x x좌표, pos.y y좌표
+function cfGetEventPosition(evt) {
+	var e = evt || window.event;
+	var b = document.body;
+	var scroll = cfGetScrollOffset();
+	var pos = {
+ 			x : e.pageX || e.clientX+scroll.x-b.clientLeft,
+			y : e.pageY || e.clientY+scroll.y-b.clientTop
+		}
+	return pos;
+}
+
+function cfGetScrollOffset(win) {
+	if (!win) win = self;
+	var x = win.pageXOffset || win.document.body.scrollLeft || document.documentElement.scrollLeft || 0;
+	var y = win.pageYOffset || win.document.body.scrollTop || document.documentElement.scrollTop || 0;
+	return { x:x, y:y };
+}
+
+	
+// 가로, 세로 최대 사이즈 설정
+//classObj class명
+//maxWidth, maxHeight	: 가로 * 세로 최대값
+var errorCnt = 0;	//Error횟수
+function imageResize(classObj, maxWidth, maxHeight){
+	$("." + classObj).each(function(i){
+		errorCnt = 0;
+		obj = $(this)
+		setImageSize(obj, maxWidth, maxHeight);
+	});
+}
+
+function setImageSize(obj, maxWidth, maxHeight){
+	var width = obj.width();
+	var height = obj.height();
+	var resizeWidth, resizeHeight;
+
+	// 가로나 세로의 길이가 최대 사이즈보다 크면 실행  
+	if (width > maxWidth || height > maxHeight){
+		// 가로가 세로보다 크면 가로는 최대사이즈로, 세로는 비율 맞춰 리사이즈
+		if(width > height){
+			resizeWidth = maxWidth;
+			resizeHeight = parseInt(Math.round(parseFloat(height * resizeWidth) / parseFloat(width)));
+			
+			if (resizeHeight > maxHeight){
+				resizeHeight = maxHeight;
+				resizeWidth = parseInt(Math.round(parseFloat(width * resizeHeight) / parseFloat(height)));
+			}
+		// 세로가 가로보다 크면 세로는 최대사이즈로, 가로는 비율 맞춰 리사이즈
+		}else{
+			resizeHeight = maxHeight;
+			resizeWidth = parseInt(Math.round(parseFloat(width * resizeHeight) / parseFloat(height)));
+			
+			if (resizeWidth > maxWidth){
+				resizeWidth = maxWidth;
+				resizeHeight = parseInt(Math.round(parseFloat(height * resizeWidth) / parseFloat(width)));
+			}
+		}
+	// 최대사이즈보다 작으면 원본 그대로
+	}else{
+		resizeWidth = width;
+		resizeHeight = height;
+	}
+
+	var maxErrorCnt = 3;
+	//이미지 사이즈가 정상적으로 처리되지 않으면 1초 후 반복( 최대3회 )
+	if ((resizeWidth < 50 || resizeHeight < 50) && errorCnt < maxErrorCnt){
+		errorCnt++;
+		window.setTimeout(function(){
+				setImageSize(obj, maxWidth, maxHeight);
+			},1000);
+	}else
+		obj.css({"width":resizeWidth, "height":resizeHeight}).show();
+}
+	
+//Width만 리사이즈		
+var _complate = true;
+var _errorCount = 0;
+
+function imageResizeWidth(classObj, maxWidth){
+	
+	var imgs = new Array();
+	$("." + classObj).each(function(idx){
+		var obj = $(this);
+		
+		var tmpImage = new Image();
+		tmpImage.src = obj.attr("src");
+		
+		var width = obj.width();
+		var height = obj.height();
+		var resizeWidth, resizeHeight;
+		imgs[idx] = false;
+
+		if (width > maxWidth){
+			resizeWidth = maxWidth;
+			resizeHeight = parseInt(Math.round(parseFloat(height * resizeWidth) / parseFloat(width)));
+		} else {
+			resizeWidth = width;
+			resizeHeight = height;
+		}
+		
+		//var li = $("<li/>").text((idx+1).toString() + ". width : " + width + ", " + "height : " + height + ", resizeWidth : " + resizeWidth + ", " + "resizeHeight : " + resizeHeight );
+		//$("#debug").append(li);
+		
+		if (resizeWidth > 200){
+			imgs[idx] = true;
+			obj.css({"width":resizeWidth, "height":resizeHeight}).show();
+		}
+	});
+	
+	_complate = true;
+	for( i=0; i < imgs.length; i++){
+		if (!imgs[i])
+			_complate = false;
+	}
+		
+	if ( !_complate && _errorCount < 2){
+		_errorCount++;
+		window.setTimeout("imageResizeWidth('" + classObj + "', " + maxWidth + ")",200);
+	}
+}
+
+//마우스 우측버튼 금지
+function rightMouse() {
+	if (event.button == 2 || event.button == 3) {  
+		//alert("마우스 오른쪽 버튼을 사용하실수 없습니다.");
+		return false;  
+	}
+	return true;  
+}
+function rightMouseDenial(){
+	document.oncontextmenu = new Function('return false');
+	document.ondragstart = new Function('return false');
+	document.onselectstart = new Function('return false');
+	
+	document.onmousedown = rightMouse;
+
+	//ImageToolBox 금지
+	$("img").each(function(){
+		$(this).attr("galleryImg",false);
+	});
+}
+
+function char_filter(obj){
+	var filterchar= ";$%'\"<>+\\-:=";
+	var len = obj.value.length;
+	var temp;
+	
+	if ( !$(obj).attr("readonly") ){
+		for (i = 0; i < len; i++) {
+			temp = obj.value.charAt(i);
+			if (filterchar.indexOf(temp) > -1){
+				alert("특수문자 [ " + temp + " ]은(는) 사용할수 없는 문자 입니다.");
+				obj.value = obj.value.substring(0, i);
+				obj.focus();
+				break;
+			}
+		}
+	}
+}
+
+//입력창 Text길이 체크
+function lengthCheck(length, obj, nextObjID){
+	if (obj.value.length >= length){
+		$("#" + nextObjID).focus();
+	}
+}
+
+//입력항목 검사
+function objValidate_mob(objID, alertMsg){
+	if ( $("#" + objID).val() == ""){
+		alert(alertMsg);
+		$("#" + objID).focus();
+		return true;
+	}
+	return false;
+}
+
+//입력항목 검사
+function objValidate(objID, alertMsg) {
+	if ($("#" + objID).val() == "") {
+		if (isApp && !isIOS)
+			showAndroidDialog(alertMsg, "$('#" + objID + "').focus()");
+		else {
+			alert(alertMsg);
+			$("#" + objID).focus();
+		}
+		return true;
+	}
+	return false;
+}
+
+//머니형태를 숫자 형태로
+function toNumber(val){
+	var reslut = 0;
+	if (val != null)
+		reslut = Number(val.toString().split(",").join(""));
+	return reslut;
+}
+
+//숫자인지 확인
+function isNumber(s) {
+  s += ''; // 문자열로 변환
+  s = s.replace(/^\s*|\s*$/g, ''); // 좌우 공백 제거
+  if (s == '' || isNaN(s)) return false;
+  return true;
+}
+
+//영문과 숫자만 가능
+function onlyEnglishNumber() {
+	var oElement = (arguments[0] != null) ? arguments[0] : this;
+	var charChk;
+
+	for (var i = 0; i < oElement.value.length; i++) {
+		charChk = oElement.value.charCodeAt(i);
+
+		if ((charChk < 65 || charChk > 90) && (charChk < 97 || charChk > 122) && (charChk > 57 || charChk < 48)) {
+			alert("영문과 숫자만 입력해주세요.");
+			oElement.value = oElement.value.substring(0, i);
+			oElement.focus();
+			return;
+		}
+	}
+}
+
+//한글만 안됨
+function onlyNotKorean() {
+	var oElement = (arguments[0] != null) ? arguments[0] : this;
+	var charChk;
+
+	for (var i = 0; i < oElement.value.length; i++) {
+		charChk = oElement.value.charCodeAt(i);
+
+		if (!(charChk > 31 && charChk < 127)) {
+			alert("한글은 사용할 수 없습니다.");
+			oElement.value = oElement.value.substring(0, i);
+			oElement.focus();
+			return;
+		}
+	}
+}
+
+//모바일 페이지 주소창 감추기
+function isUserAgent() {
+	var ua = navigator.userAgent;
+	if ((ua.match(/iPhone/i)) || (ua.match(/iPod/i)) || (ua.match(/iPad/i)) || (ua.match(/Android/i))) {
+		window.addEventListener("load", function () { setTimeout(scrollTo, 0, 0, 1); }, false);
+	}
+}
+
+
+/* 전화번호 자동 변환 시작*/
+function autoHypenPhone(str, field) {
+	var str;
+	str = checkDigit(str);
+	len = str.length;
+
+	if (len == 8) {
+		if (str.substring(0, 2) == 02) {
+			error_numbr(str, field);
+		} else {
+			field.value = phone_format(1, str);
+		}
+	} else if (len == 9) {
+		if (str.substring(0, 2) == 02) {
+			field.value = phone_format(2, str);
+		} else {
+			error_numbr(str, field);
+		}
+	} else if (len == 10) {
+		if (str.substring(0, 2) == 02) {
+			field.value = phone_format(2, str);
+		} else {
+			field.value = phone_format(3, str);
+		}
+	} else if (len == 11) {
+		if (str.substring(0, 2) == 02) {
+			error_numbr(str, field);
+		} else {
+			field.value = phone_format(3, str);
+		}
+	} else {
+		error_numbr(str, field);
+	}
+}
+function checkDigit(num) {
+	var Digit = "1234567890";
+	var string = num;
+	var len = string.length
+	var retVal = "";
+	for (i = 0; i < len; i++) {
+		if (Digit.indexOf(string.substring(i, i + 1)) >= 0) {
+			retVal = retVal + string.substring(i, i + 1);
+		}
+	}
+	return retVal;
+}
+function phone_format(type, num) {
+	if (type == 1) {
+		return num.replace(/([0-9]{4})([0-9]{4})/, "$1-$2");
+	} else if (type == 2) {
+		return num.replace(/([0-9]{2})([0-9]+)([0-9]{4})/, "$1-$2-$3");
+	} else {
+		return num.replace(/(^01.{1}|[0-9]{3})([0-9]+)([0-9]{4})/, "$1-$2-$3");
+	}
+}
+function error_numbr(str, field) {
+	if (field.value != "") {
+		alert("정상적인 번호가 아닙니다.");
+		field.value = "";
+		$(field).removeAttr("readonly");	//정상적인 번호가 아닐경우 읽기전용 해제
+		//
+		field.focus();
+		return;
+	}
+}
+function phoneNumberCheck(phone) {
+	var rgEx = /(01[016789])[-](\d{4}|\d{3})[-]\d{4}$/g;
+	var strValue = phone;
+	var chkFlg = rgEx.test(strValue);
+	if (!chkFlg) {
+		return false;
+	} else {
+		return true;
+	}
+}
+/* 전화번호 자동 변환 끝*/
+
+/* 값 찍어보기 */
+function printLog(tag, val) {
+	var log = $("<div/>").text(tag + " : " + val);
+	$("body").append(log);
+}
+
+/* 안드로이드 앱일경우 toast 메시지 발송 */
+function alertAndroid(msg) {
+	if (isApp && !isIOS)
+		Android.toast(1, msg);
+	else
+		alert(msg);
+}
+
+//부모의 iframe Height을 변경
+function resizeParent() {
+	if ($(parent.phoneFrame)[0] != null) {
+		hideMenuAndFooter();
+		var documentHeight = $("#wrap").height() + $(".footer").height();
+		parent.resizeHeight(documentHeight);
+	}
+}
+
+function hideMenuAndFooter() {
+	$(".footer, a.flick_home").hide();
+}
+
+//웹에서 네이티브 앱 실행
+function execApp(appScheme, playLink, appStoreLink) {
+	var frame_id = '__check_app__', $iframe = $('#' + frame_id), clickedAt = +new Date;
+
+	if (!$iframe[0]) $iframe = $('<iframe id="' + frame_id + '" />').hide().appendTo('body');
+	setTimeout(function () {
+		if (+new Date - clickedAt < 2000) {
+			var ua = navigator.userAgent.toLowerCase();
+			if (/android/.test(ua)) {
+				$iframe.attr('src', playLink);
+			} else if (/iphone|ipad/.test(ua)) {
+				$iframe.attr('src', appStoreLink);
+			}
+		}
+	}, 500);
+	$iframe.attr('src', appScheme);
+}
+
+//레이어 변경
+function layerChange(showID, hideID) {
+	$("#" + hideID).hide();
+	$("#" + showID).show();
+}
+
+
+//쿠키관련..
+function getCookie(cookieName) {
+	var search = cookieName + "=";
+	var cookie = document.cookie;
+
+	// 현재 쿠키가 존재할 경우
+	if (cookie.length > 0) {
+		// 해당 쿠키명이 존재하는지 검색한 후 존재하면 위치를 리턴.
+		startIndex = cookie.indexOf(cookieName);
+
+		// 만약 존재한다면
+		if (startIndex != -1) {
+			// 값을 얻어내기 위해 시작 인덱스 조절
+			startIndex += cookieName.length;
+
+			// 값을 얻어내기 위해 종료 인덱스 추출
+			endIndex = cookie.indexOf(";", startIndex);
+
+			// 만약 종료 인덱스를 못찾게 되면 쿠키 전체길이로 설정
+			if (endIndex == -1) endIndex = cookie.length;
+
+			// 쿠키값을 추출하여 리턴
+			return unescape(cookie.substring(startIndex + 1, endIndex));
+		}
+		else {
+			// 쿠키 내에 해당 쿠키가 존재하지 않을 경우
+			return false;
+		}
+	}
+	else {
+		// 쿠키 자체가 없을 경우
+		return false;
+	}
+}
+
+function setCookie(cookieName, cookieValue, expireDate) {
+	var today = new Date();
+	today.setDate(today.getDate() + parseInt(expireDate));
+	document.cookie = cookieName + "=" + escape(cookieValue) + "; path=/; expires=" + today.toGMTString() + ";";
+}
+
+function deleteCookie(cookieName) {
+	var expireDate = new Date();
+	//어제 날짜를 쿠키 소멸 날짜로 설정한다.
+	expireDate.setDate(expireDate.getDate() - 1);
+	document.cookie = cookieName + "= " + "; expires=" + expireDate.toGMTString() + "; path=/";
+}
+
+//바탕화면 투명..
+function bgTransparentLayer(layerID) {
+	showLayer(layerID);
+	$("#" + layerID).css("background-color", "transparent");
+}
+
+
+// 피플앱 오픈으로 인한 비활성 메뉴 안내 메시지
+function inactiveService(msg) {
+	if (msg == "" || msg == null) {
+		alertAndroid("해당 서비스는 피플앱이 종료된 이후 이용 가능합니다. 당분간 피플앱을 이용해 주세요.");
+	} else {
+		alertAndroid(msg);
+	}
+}
+function inactiveServiceUrl(msg, url) {
+	if (msg == "" || msg == null) {
+		alertAndroid("해당 서비스는 피플앱이 종료된 이후 이용 가능합니다. 당분간 피플앱을 이용해 주세요.");
+	} else {
+		alertAndroid(msg);
+	}
+	if (url == "" || url == null) {
+		history.back();
+	} else {
+		self.location.href = url;
+	}
+}
+// 피플앱 오픈으로 인한 비활성 메뉴 안내 메시지 끝
+
+// 팝업 두개 띄울 때 사용
+function showLayerSub(layerID, layerHeight) {
+	var innerLayer = $("#" + layerID);
+
+	//백그라운드에서의 움직임을 방지
+	$("body").css({ "overflow-y": "hidden" });
+
+	if ($("#backgroundLayerSub").length == 0) {
+		$("body").append($("<div/>").attr("id","backgroundLayerSub")
+									.css({"position":"fixed"
+									, "background": "#000"
+									, "width": "100%"
+									, "height": "100%"
+									, "top":0
+									, "left":0
+									, "-ms-filter":"\"progid:DXImageTransform.Microsoft.Alpha(opacity=30)\""
+									, "filter":"progid:DXImageTransform.Microsoft.Alpha(opacity=30)"
+									, "opacity":"0.7"
+									, "-moz-opacity":"0.7"
+									, "z-index": "9003"
+									, "overflow": "hidden"
+									, "display": "none"
+									})
+		);
+	}
+
+	var border = parseInt(innerLayer.css("border-left-width")) + parseInt(innerLayer.css("border-right-width"));
+	if (border == null)
+		border = 0;
+
+	var width = innerLayer.width() + border;
+	var marginLeft = width / 2;
+	var height, marginTop;
+
+	if (layerHeight != null) {
+		if (layerHeight.toString().indexOf("%") > -1)
+			height = $(window).height() * (layerHeight.split("%")[0] / 100)
+		else
+			height = layerHeight;
+	} else {
+		innerLayer.css("height", "auto");
+		height = innerLayer.height() + 3;
+	}
+
+	marginTop = height / 2
+
+	innerLayer.css({
+		"position": "fixed"
+		, "display": "none"
+		, "background": "#FFF"
+		, "width": width + "px"
+		, "height": height + "px"
+		, "left": "50%"
+		, "top": "50%"
+		, "margin-left": -marginLeft + "px"
+		, "margin-top": -marginTop + "px"
+		, "overflow": "hidden"
+		, "-webkit-overflow-scrolling": "touch"
+		, "z-index": "9004"
+	});
+
+	$("#backgroundLayerSub").show();
+	innerLayer.show();
+
+	//안드로이드에서 레이어 셋팅
+	try {
+		innerLayer.addClass("set_dialog_layer");
+		Android.setWebPageLayer(true);
+	} catch (e) {}
+}
+
+function hideLayerSub(layerID) {
+	var innerLayer = $("#" + layerID);
+	$("#backgroundLayerSub").hide();
+	innerLayer.hide();
+	$("body").css({ "overflow-y": "auto" });
+
+	//안드로이드에서 레이어 셋팅
+	try {
+		innerLayer.removeClass("set_dialog_layer");
+		Android.setWebPageLayer(false);
+	} catch (e) { }
+}
+
+
+// 마이클럽 회원 공지팝업 시작
+function showLayerClub(layerID, code) {
+	var innerLayer = $("#" + layerID + code);
+
+	//백그라운드에서의 움직임을 방지
+	$("body").css({ "overflow-y": "hidden" });
+
+	if ($("#backgroundLayerClub"+code).length == 0) {
+		$("body").append($("<div/>").attr("id","backgroundLayerClub"+code)
+									.css({"position":"fixed"
+									, "background": "#000"
+									, "width": "100%"
+									, "height": "100%"
+									, "top":0
+									, "left":0
+									, "-ms-filter":"\"progid:DXImageTransform.Microsoft.Alpha(opacity=30)\""
+									, "filter":"progid:DXImageTransform.Microsoft.Alpha(opacity=30)"
+									, "opacity":"0.7"
+									, "-moz-opacity":"0.7"
+									, "z-index": "9003"
+									, "overflow": "hidden"
+									, "display": "none"
+									})
+		);
+	}
+
+	var border = parseInt(innerLayer.css("border-left-width")) + parseInt(innerLayer.css("border-right-width"));
+	if (border == null)
+		border = 0;
+
+	var width = innerLayer.width() + border;
+	var marginLeft = width / 2;
+	var height, marginTop;
+
+	innerLayer.css("height", "auto");
+	height = innerLayer.height();
+
+	marginTop = height / 2
+
+	innerLayer.css({
+		"position": "fixed"
+		, "display": "none"
+		, "background": "#FFF"
+		, "width": width + "px"
+		, "height": height + "px"
+		, "left": "50%"
+		, "top": "50%"
+		, "margin-left": -marginLeft + "px"
+		, "margin-top": -marginTop + "px"
+		, "-webkit-overflow-scrolling": "touch"
+		, "z-index": "9004"
+	});
+
+	$("#backgroundLayerClub"+code).show();
+	innerLayer.show();
+
+	//안드로이드에서 레이어 셋팅
+	try {
+		innerLayer.addClass("set_dialog_layer");
+		Android.setWebPageLayer(true);
+	} catch (e) {}
+}
+
+function hideLayerClub(layerID, code) {
+	var innerLayer = $("#" + layerID + code);
+	$("#backgroundLayerClub"+code).hide();
+	innerLayer.hide();
+	$("body").css({ "overflow-y": "auto" });
+
+	//안드로이드에서 레이어 셋팅
+	try {
+		innerLayer.removeClass("set_dialog_layer");
+		Android.setWebPageLayer(false);
+	} catch (e) { }
+}
+// 마이클럽 회원 공지팝업 끝
+
+/* 로그 스크립트 시작 */
+function setAnalMemberLog(LogYN, LogType, SubType, Link, LinkType, Title, isRefresh) {
+	if (LogYN == "Y") {
+		$.ajax({
+			type: "POST",
+			url: "/mob/code_behind/setAnalMemberLog.asp",
+			data: "LogType="+LogType+"&SubType="+SubType,
+			success: function () {
+				if (Link != null && Link != "") {
+					if (LinkType == "openWindow") {
+						if (isRefresh != null && isRefresh != "") {
+							openWindow(Link, Title, isRefresh);
+						} else {
+							openWindow(Link, Title);
+						}
+					} else if (LinkType == "openWebBrowser") {
+						openWebBrowser(Link);
+					} else {
+						self.location.href = Link;
+					}
+				}
+			}
+		});
+	} else {
+		if (Link != null && Link != "") {
+			if (LinkType == "openWindow") {
+				if (isRefresh != null && isRefresh != "") {
+					openWindow(Link, Title, isRefresh);
+				} else {
+					openWindow(Link, Title);
+				}
+			} else if (LinkType == "openWebBrowser") {
+				openWebBrowser(Link);
+			} else {
+				self.location.href = Link;
+			}
+		}
+	}
+}
+/* 로그 스크립트 끝 */
+
+/* 로그인 체크 및 로그 저장 */
+// locationFilter(로그인필수여부, 맴버코드, 로그저장여부, 로그타입, 로그서브타입, 페이지이동주소, 새창열기함수명, 새창열기제목, 새창닫기새로고침여부)
+function locationFilter(LoginYN, MemCode, LogYN, LogType, SubType, Link, LinkType, Title, isRefresh) {
+	if (LoginYN == "Y" && (MemCode == "" || MemCode == null)) {
+		if (confirm("로그인이 필요한 서비스 입니다. 로그인 하시겠습니까?")) {
+			location.href = "/mob/login.asp";
+		}
+	} else {
+		if (LogYN == "Y") {
+			$.ajax({
+				type: "POST",
+				url: "/mob/code_behind/setAnalMemberLog.asp",
+				data: "LogType="+LogType+"&SubType="+SubType,
+				success: function () {
+					if (Link != null && Link != "") {
+						if (LinkType == "openWindow") {
+							if (isRefresh != null && isRefresh != "") {
+								openWindow(Link, Title, isRefresh);
+							} else {
+								openWindow(Link, Title);
+							}
+						} else if (LinkType == "openWebBrowser") {
+							openWebBrowser(Link);
+						} else {
+							location.href = Link;
+						}
+					}
+				}
+			});
+		} else {
+			if (Link != null && Link != "") {
+				if (LinkType == "openWindow") {
+					if (isRefresh != null && isRefresh != "") {
+						openWindow(Link, Title, isRefresh);
+					} else {
+						openWindow(Link, Title);
+					}
+				} else if (LinkType == "openWebBrowser") {
+					openWebBrowser(Link);
+				} else {
+					location.href = Link;
+				}
+			}
+		}
+	}
+}
+/* 로그인 체크 및 로그 저장 끝 */
+
+// 로그인 여부 체크 및 로그인 페이지 이동 옵션
+function loginFilter(Type) {
+	if (Type == "alert") {
+		alert("로그인이 필요한 서비스 입니다.");
+	} else {
+		if (confirm("로그인이 필요한 서비스 입니다. 로그인 하시겠습니까?")) {
+			location.href = "/mob/login.asp";
+		}
+	}
+}
+
+// 팝업 ESC로 닫기 용
+function hideLayerClass(layerClass) {
+	$("#backgroundLayer").hide();
+	$("." + layerClass).hide();
+	$("body").css({ "overflow-y": "auto" });
+}
+
+///////////////  팝업 시작
+// 창열기
+function openWin( winName ) {
+	var blnCookie = getCookie( winName );
+	//var obj = eval( "window." + winName );
+	if( !blnCookie ) {
+		if (winName == "popup_layer") {
+			showLayer(winName);
+		} else if (winName == "popup_layer_sub") {
+			showLayerSub(winName);
+		} else if (winName == "popup_slide") {
+			$("#popup_slide").show();
+			$("body").css({ "overflow-y": "hidden" });
+		} else if (winName == "banner_main") {
+			$("#banner_main").show();
+		} else {
+			showLayer(winName);
+		}
+		//    try {
+		// 		Android.setWebPageLayer(false);
+		// 	} catch (e) { }
+
+		//레이어 높에 리사이즈
+		if (winName != "banner_main") {
+			$("#"+winName).css({height:($("#"+winName+" > div").height()+$("#"+winName+" > img").height())+"px"});
+		}
+	}
+}
+// 창닫기
+function closeWin(winName, expiredays) { 
+	setCookie( winName, "done" , expiredays);
+	//eval( "window." + winName );
+	if (winName == "popup_layer") {
+		hideLayer(winName);
+	} else if (winName == "popup_layer_sub") {
+		hideLayerSub(winName);
+	} else if (winName == "popup_slide") {
+		$("#popup_slide").hide();
+		$("body").css({ "overflow-y": "auto" });
+	} else if (winName == "banner_main") {
+		$("#banner_main").hide();
+	} else {
+		hideLayer(winName);
+	}
+}
+
+function closeWinAt00(winName, expiredays) { 
+	setCookieAt00( winName, "done" , expiredays); 
+	var obj = eval( "window." + winName );
+	obj.style.display = "none";
+}
+
+// 쿠키 가져오기
+function getCookie( name ) {
+	var nameOfCookie = name + "=";
+	var x = 0;
+	while ( x <= document.cookie.length ) {
+		var y = (x+nameOfCookie.length);
+		if ( document.cookie.substring( x, y ) == nameOfCookie ) {
+			if ( (endOfCookie=document.cookie.indexOf( ";", y )) == -1 )
+				endOfCookie = document.cookie.length;
+			return unescape( document.cookie.substring( y, endOfCookie ) );
+		}
+		x = document.cookie.indexOf( " ", x ) + 1;
+		if ( x == 0 )
+			break;
+	}
+	return "";
+}
+
+// 24시간 기준 쿠키 설정하기
+// expiredays 후의 클릭한 시간까지 쿠키 설정
+function setCookie( name, value, expiredays ) { 
+	var todayDate = new Date(); 
+	todayDate.setDate( todayDate.getDate() + expiredays ); 
+	document.cookie = name + "=" + escape( value ) + "; path=/; expires=" + todayDate.toGMTString() + ";"
+}
+
+// 00:00 시 기준 쿠키 설정하기
+// expiredays 의 새벽  00:00:00 까지 쿠키 설정
+function setCookieAt00( name, value, expiredays ) {
+	var todayDate = new Date();
+	todayDate = new Date(parseInt(todayDate.getTime() / 86400000) * 86400000 + 54000000);
+	if ( todayDate > new Date() ) {
+		expiredays = expiredays - 1;
+	}
+	todayDate.setDate( todayDate.getDate() + expiredays );
+	document.cookie = name + "=" + escape( value ) + "; path=/; expires=" + todayDate.toGMTString() + ";"
+}
+///////////////  팝업 끝
+
+
+// 빌리보드 유튜브 보기 (PC용)
+function playYoutubeWeb(seq, YBMCode) {
+	var embed_url = "https://www.youtube.com/embed/"+seq;
+	if (seq == "") {
+		alert("유튜브 재생 시 필요한 데이터가 누락되었습니다.");
+		return false;
+	}
+	if (confirm("LTE, 5G 로 시청시 통신요금이 부과될 수 있습니다. Wi-Fi 연결을 확인 해 주시기 바랍니다.")) {
+		$.ajax({
+			type: "POST",
+			url: "/mob/youtube/code_behind/setYoutubeViewCount.asp",
+			data: "YBMCode="+YBMCode,
+			success: function() {
+				window.open('about:blank').location.href=embed_url;
+			},
+			error:function() {
+				window.open('about:blank').location.href=embed_url;
+			}
+		});
+	}
+}	
+	
+	
+</script>
+
+
+
+
+	  

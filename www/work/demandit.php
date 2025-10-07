@@ -1,0 +1,895 @@
+<?php
+ session_start();
+
+ $level= $_SESSION["level"];
+ ?>
+ 
+ <!DOCTYPE HTML>
+ <html>
+ <head>
+ <meta charset="UTF-8">
+ <link rel="stylesheet" type="text/css" href="../css/common.css">
+ <link rel="stylesheet" type="text/css" href="../css/steel.css"> 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<link rel="stylesheet" href="https://uicdn.toast.com/tui.pagination/latest/tui-pagination.css" />
+<script src="https://uicdn.toast.com/tui.pagination/latest/tui-pagination.js"></script>
+<link rel="stylesheet" href="https://uicdn.toast.com/tui-grid/latest/tui-grid.css"/>
+<script src="https://uicdn.toast.com/tui-grid/latest/tui-grid.js"></script>	
+
+<script src="https://code.highcharts.com/highcharts.js"></script>
+ <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">   <!--날짜 선택 창 UI 필요 -->
+    <!-- CSS only -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css">
+<!-- 화면에 UI창 알람창 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<!-- JavaScript Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script> 
+
+ <title> 시공완료일 미입력 / 사진 미등록 </title> 
+ </head>
+
+ <?php 
+ 
+ function conv_num($num) {
+$number = (int)str_replace(',', '', $num);
+return $number;
+}
+
+ if(isset($_REQUEST["recordDate"])) 
+	 $recordDate=$_REQUEST["recordDate"];
+   else
+     $recordDate=date("Y-m-d");
+ 
+ if(isset($_REQUEST["check"])) 
+	 $check=$_REQUEST["check"]; // 미출고 리스트 request 사용 페이지 이동버튼 누를시`
+   else
+     $check=$_POST["check"]; // 미출고 리스트 POST사용 
+ 
+  if(isset($_REQUEST["plan_output_check"])) 
+	 $plan_output_check=$_REQUEST["plan_output_check"]; // 미출고 리스트 request 사용 페이지 이동버튼 누를시`
+   else
+	if(isset($_POST["plan_output_check"]))   
+         $plan_output_check=$_POST["plan_output_check"]; // 미출고 리스트 POST사용  
+	 else
+		 $plan_output_check='0';
+ 
+ if(isset($_REQUEST["output_check"])) 
+	 $output_check=$_REQUEST["output_check"]; // 출고완료
+   else
+	if(isset($_POST["output_check"]))   
+         $output_check=$_POST["output_check"]; // 출고완료
+	 else
+		 $output_check='0';
+	 
+ if(isset($_REQUEST["team_check"])) 
+	 $team_check=$_REQUEST["team_check"]; // 시공팀미지정
+   else
+	if(isset($_POST["team_check"]))   
+         $team_check=$_POST["team_check"]; // 시공팀미지정
+	 else
+		 $team_check='0';	 
+	 
+ if(isset($_REQUEST["measure_check"])) 
+	 $measure_check=$_REQUEST["measure_check"]; // 미실측리스트
+   else
+	if(isset($_POST["measure_check"]))   
+         $measure_check=$_POST["measure_check"]; // 미실측리스트
+	 else
+		 $measure_check='0';		 
+  
+ if(isset($_REQUEST["page"])) // $_REQUEST["page"]값이 없을 때에는 1로 지정 
+ {
+    $page=$_REQUEST["page"];  // 페이지 번호
+ }
+  else
+  {
+    $page=1;	 
+  }
+  
+// print $output_check;
+  
+ $cursort=$_REQUEST["cursort"];    // 현재 정렬모드 지정
+ $sortof=$_REQUEST["sortof"];  // 클릭해서 넘겨준 값
+ $stable=$_REQUEST["stable"];    // 정렬모드 변경할지 안할지 결정  
+  
+  $sum=array(); 
+	 
+  if(isset($_REQUEST["mode"]))
+     $mode=$_REQUEST["mode"];
+  else 
+     $mode="";        
+ 
+ if(isset($_REQUEST["find"]))   //목록표에 제목,이름 등 나오는 부분
+ $find=$_REQUEST["find"];
+ 
+  
+ // 기간을 정하는 구간
+$fromdate=$_REQUEST["fromdate"];	 
+$todate=$_REQUEST["todate"];	 
+ 
+if($fromdate=="")
+{
+	$fromdate=substr(date("Y-m-d",time()),0,7) ;
+	$fromdate=$fromdate . "-01";
+}
+if($todate=="")
+{
+	$todate=substr(date("Y-m-d",time()),0,4) . "-12-31" ;
+	$Transtodate=strtotime($todate.'+1 days');
+	$Transtodate=date("Y-m-d",$Transtodate);
+}
+    else
+	{
+	$Transtodate=strtotime($todate);
+	$Transtodate=date("Y-m-d",$Transtodate);
+	}
+ 
+  if(isset($_REQUEST["search"]))   //
+ $search=$_REQUEST["search"];
+
+$orderby=" order by workday desc "; 
+	
+$now = date("Y-m-d");	 // 현재 날짜와 크거나 같으면 생산예정으로 구분		
+  
+  
+		  if($search==""){
+					 $sql="select * from mirae8440.work where (workday between date('$fromdate') and date('$Transtodate') ) and (filename1 is null  or filename2 is null or doneday is null ) and (workplacename Not like '%판매%' ) and (workplacename Not like '%불량%' ) and (workplacename Not like '%분실%' ) and (workplacename Not like '%누락%' )  and (workplacename Not like '%추가%' ) " . $orderby;  			
+			       }
+			 elseif($search!="")
+			    { 
+					  $sql ="select * from mirae8440.work where ((workplacename like '%$search%' )  or (firstordman like '%$search%' )  or (secondordman like '%$search%' )  or (chargedman like '%$search%' ) ";
+					  $sql .="or (delicompany like '%$search%' ) or (hpi like '%$search%' ) or (firstord like '%$search%' ) or (secondord like '%$search%' ) or (worker like '%$search%' ) or (memo like '%$search%' )) and ( (workday between date('$fromdate') and date('$Transtodate') ) and (filename1 is null  or filename2 is null or doneday is null )  and (workplacename Not like '%판매%' ) and (workplacename Not like '%불량%' ) and (workplacename Not like '%분실%' ) and (workplacename Not like '%누락%' )  and (workplacename Not like '%추가%' ) )" . $orderby;				  		  		   
+			     }    
+	  
+require_once("../lib/mydb.php");
+$pdo = db_connect();	  		  
+ 
+   $counter=0;
+   $workday_arr=array();
+   $workplacename_arr=array();
+   $firstord_arr=array();
+   $secondord_arr=array();
+   $worker_arr=array();
+
+   
+   $wide_arr=array();
+   $normal_arr=array();
+   $narrow_arr=array();
+   
+   $beforepic_arr=array();
+   $afterpic_arr=array();
+   $etc_arr=array();
+
+     
+   $num_arr=array();  // 일괄처리를 위한 번호 저장
+
+
+ try{  
+ 
+   // $sql="select * from mirae8440.work"; 		 
+   $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
+   $rowNum = $stmh->rowCount();  
+
+   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {	
+			  $num=$row["num"];
+			  $checkstep=$row["checkstep"];
+			  $workplacename=$row["workplacename"];
+			  $address=$row["address"];
+			  $firstord=$row["firstord"];
+			  $firstordman=$row["firstordman"];
+			  $firstordmantel=$row["firstordmantel"];
+			  $secondord=$row["secondord"];
+			  $secondordman=$row["secondordman"];
+			  $secondordmantel=$row["secondordmantel"];
+			  $chargedman=$row["chargedman"];
+			  $chargedmantel=$row["chargedmantel"];
+			  $orderday=$row["orderday"];
+			  $measureday=$row["measureday"];
+			  $drawday=$row["drawday"];
+			  $deadline=$row["deadline"];
+			  $workday=$row["workday"];
+			  $doneday=$row["doneday"];  // 시공완료일
+			  $workfeedate=$row["workfeedate"];  // 시공비지급일
+			  $worker=$row["worker"];
+			  $endworkday=$row["endworkday"];
+			  
+			  $widejamb=$row["widejamb"];
+			  $normaljamb=$row["normaljamb"];
+			  $smalljamb=$row["smalljamb"];
+			  
+			  $filename1=$row["filename1"];
+			  $filename2=$row["filename2"];
+			  
+			  if($filename1!=Null)
+			       $filename1='등록';
+					  
+			  if($filename2!=Null)
+			       $filename2='등록';
+			  
+			  $memo=$row["memo"];
+			  $regist_day=$row["regist_day"];
+			  $update_day=$row["update_day"];
+			  
+			  $demand=$row["demand"];  	   
+			  $startday=$row["startday"];
+			  $testday=$row["testday"];
+			  $hpi=$row["hpi"];	   
+			  $delicompany=$row["delicompany"];	   
+			  $delipay=$row["delipay"];	   
+	
+		      if($orderday!="0000-00-00" and $orderday!="1970-01-01"  and $orderday!="") $orderday = date("Y-m-d", strtotime( $orderday) );
+					else $orderday="";
+		      if($measureday!="0000-00-00" and $measureday!="1970-01-01" and $measureday!="")   $measureday = date("Y-m-d", strtotime( $measureday) );
+					else $measureday="";
+		      if($drawday!="0000-00-00" and $drawday!="1970-01-01" and $drawday!="")  $drawday = date("Y-m-d", strtotime( $drawday) );
+					else $drawday="";
+		      if($deadline!="0000-00-00" and $deadline!="1970-01-01" and $deadline!="")  $deadline = date("Y-m-d", strtotime( $deadline) );
+					else $deadline="";
+		      if($workday!="0000-00-00" and $workday!="1970-01-01"  and $workday!="")  $workday = date("Y-m-d", strtotime( $workday) );
+					else $workday="";					
+		      if($endworkday!="0000-00-00" and $endworkday!="1970-01-01" and $endworkday!="")  $endworkday = date("Y-m-d", strtotime( $endworkday) );
+					else $endworkday="";		      
+		      if($demand!="0000-00-00" and $demand!="1970-01-01" and $demand!="")  $demand = date("Y-m-d", strtotime( $demand) );
+					else $demand="";						
+		      if($startday!="0000-00-00" and $startday!="1970-01-01" and $startday!="")  $startday = date("Y-m-d", strtotime( $startday) );
+					else $startday="";	
+		      if($testday!="0000-00-00" and $testday!="1970-01-01" and $testday!="")  $testday = date("Y-m-d", strtotime( $testday) );
+					else $testday="";		
+		      if($doneday!="0000-00-00" and $doneday!="1970-01-01" and $doneday!="")  $doneday = date("Y-m-d", strtotime( $doneday) );
+					else $doneday="";	
+		      if($workfeedate!="0000-00-00" and $workfeedate!="1970-01-01" and $workfeedate!="")  $workfeedate = date("Y-m-d", strtotime( $workfeedate) );
+					else $workfeedate="";	
+		      if($recordDate!="0000-00-00" and $recordDate!="1970-01-01" and $recordDate!="")  $recordDate = date("Y-m-d", strtotime( $recordDate) );
+					else $recordDate="";						
+	   
+		   $workday_arr[$counter]=$workday;
+		   $doneday_arr[$counter]=$doneday;
+		   $workplacename_arr[$counter]=$workplacename;
+		   $address_arr[$counter]=$address;
+		   $secondord_arr[$counter]=$secondord;   
+		   $firstord_arr[$counter]=$firstord;   
+		   $worker_arr[$counter]=$worker;   
+		   $beforepic_arr[$counter]=$filename1;   
+		   $afterpic_arr[$counter]=$filename2;   
+		   $num_arr[$counter]=$num;   
+		   
+		   // 판매'란 단어 있으면 실측비 제외		   
+		   $findstr = '판매';
+		   $pos = stripos($workplacename, $findstr);			   
+						   	   
+		   $wide_arr[$counter] = 0;
+
+		   $normal_arr[$counter] = 0;
+
+		   $narrow_arr[$counter] = 0;
+
+   				 $workitem="";
+				 if($widejamb!="")   {
+						$wide_arr[$counter] = (int)$widejamb;
+													   
+								   
+									}
+				 if($normaljamb!="")   {
+						$normal_arr[$counter] = (int)$normaljamb;				
+							 
+							   					
+						}
+				 if($smalljamb!="") {
+						$narrow_arr[$counter] = (int)$smalljamb;	
+						}		   	    
+		        
+			   $counter++;	
+         }
+   } catch (PDOException $Exception) {
+    print "오류: ".$Exception->getMessage();
+}  
+
+?>		 
+<body >
+
+<div id="wrap">
+
+<div class="card-header">    
+ <h3> &nbsp; 시공완료일 미입력 / 사진 미등록	 &nbsp; &nbsp; 	<button  type="button" class="btn btn-secondary" id="refresh"> 새로고침 </button>	 &nbsp;
+ 
+ </h3>
+</div> 
+  
+   <div id="content" style="width:1850px;">			 
+   <form name="board_form" id="board_form"  method="post" action="demandit.php?mode=search&year=<?=$year?>&search=<?=$search?>&process=<?=$process?>&asprocess=<?=$asprocess?>&fromdate=<?=$fromdate?>&todate=<?=$todate?>&up_fromdate=<?=$up_fromdate?>&up_todate=<?=$up_todate?>&separate_date=<?=$separate_date?>&view_table=<?=$view_table?>">  
+   <div id="list_search" style="width:1800px;">
+   <span style="margin-left:20px;font-size:20px;color:red;"> (불량, 판매, 분실, 누락, 추가) 제외한 리스트 </span>
+   				<span style="margin-left:350px;color:grey;"> 작업소장 :  </span>
+	    <button type="button" class="btn btn-dark  btn-sm" onclick="List_name('')"> ALL </button> 				
+       <button type="button" class="btn btn-outline-secondary  btn-sm" onclick="List_name('추영덕')"> 추영덕 </button> 	   	  				
+       <button type="button" class="btn btn-outline-secondary  btn-sm" onclick="List_name('이만희')"> 이만희 </button> 	   	  				
+       <button type="button" class="btn btn-outline-secondary  btn-sm" onclick="List_name('김운호')"> 김운호 </button> 	   	  				
+       <button type="button" class="btn btn-outline-secondary  btn-sm" onclick="List_name('김상훈')"> 김상훈 </button> 	   	  				
+       <button type="button" class="btn btn-outline-secondary  btn-sm" onclick="List_name('유영')"> 유영 </button> 	   	  				
+       <button type="button" class="btn btn-outline-secondary  btn-sm" onclick="List_name('손상민')"> 손상민 </button> 	   	  				
+       <button type="button" class="btn btn-outline-secondary  btn-sm" onclick="List_name('조장우')"> 조장우 </button> 	   	  				
+       <button type="button" class="btn btn-outline-secondary  btn-sm" onclick="List_name('박철우')"> 박철우 </button> 	   
+		
+    <div class="input-group p-2 mb-2">
+		<button type="button" id="preyear" class="btn btn-secondary"   onclick='pre_year()' > 전년도 </button>  &nbsp;  	
+		<button type="button" id="three_month" class="btn btn-secondary"  onclick='three_month_ago()' > M-3월 </button> &nbsp;  	
+		<button type="button" id="prepremonth" class="btn btn-secondary"  onclick='prepre_month()' > 전전월 </button>	&nbsp;  
+		<button type="button" id="premonth" class="btn btn-secondary"  onclick='pre_month()' > 전월 </button>  &nbsp; 	
+		<button type="button" id="thismonth" class="btn btn-dark"  onclick='this_month()' > 당월 </button>	&nbsp;  	   
+		<button type="button" id="thisyear" class="btn btn-dark"  onclick='this_year()' > 당해년도 </button> &nbsp;  			
+       <span class='input-group-text align-items-center' style='width:400 px;'>  
+       <input type="date" id="fromdate" name="fromdate" size="12" value="<?=$fromdate?>" placeholder="기간 시작일">  &nbsp; 부터 &nbsp;  
+       <input type="date" id="todate" name="todate" size="12"  value="<?=$todate?>" placeholder="기간 끝">  &nbsp;  까지    </span>  &nbsp;
+	   <input type="text" name="search" id="search" value="<?=$search?>" onkeydown="JavaScript:SearchEnter();"> 
+		<button type="button" id="searchBtn" class="btn btn-dark"  > 검색 </button>	
+		<span style="margin-left:20px;font-size:20px;color:blue;"> ※ 출고 이후 시공완료일 미입력 및 시공사진 미 등록건 </span>
+       </div>
+	 <div id="grid" style="width:1870px;">  
+  </div>     
+	 </form>
+	 </div>   
+   </div> 	   
+  </div> <!-- end of wrap -->
+  
+   
+<script>
+
+$(document).ready(function(){
+	
+$("#searchBtn").click(function(){  document.getElementById('board_form').submit();   });		
+	
+ var arr1 = <?php echo json_encode($workday_arr);?> ;
+ var arr2 = <?php echo json_encode($doneday_arr);?> ;  
+ var arr3 = <?php echo json_encode($beforepic_arr);?> ;  
+ var arr4 = <?php echo json_encode($afterpic_arr);?> ;  
+ var arr5 = <?php echo json_encode($worker_arr);?> ; 
+ var arr6 = <?php echo json_encode($workplacename_arr);?> ;  
+ var arr7 = <?php echo json_encode($secondord_arr);?> ;   
+ var arr8= <?php echo json_encode($wide_arr);?> ;
+ var arr9= <?php echo json_encode($normal_arr);?> ;
+ var arr10= <?php echo json_encode($narrow_arr);?> ; 
+ var arr11 = <?php echo json_encode($num_arr);?> ;
+ 
+var num = <?php echo json_encode($num_arr);?> ;
+var numcopy = new Array(); ;
+ 
+ var total_sum=0; 
+ var count=0;  // 전체줄수 카운트 
+  
+ var rowNum = "<? echo $counter; ?>" ; 
+ 
+ const data = [];
+ const columns = [];	
+ const COL_COUNT = 11;
+
+ for(i=0;i<rowNum;i++) {			 
+		 row = { name: i };		 
+		 for (let k = 0; k < COL_COUNT; k++ ) {				
+				row[`col1`] = arr1[i] ;						 						
+				row[`col2`] = arr2[i] ;						 						
+				row[`col3`] = arr3[i] ;						 						
+				row[`col4`] = arr4[i] ;						 											 						
+				row[`col5`] = arr5[i] ;						 											 						
+				row[`col6`] = arr6[i] ;						 											 						
+				row[`col7`] = arr7[i] ;	
+                row[`col8`] =  (arr8[i] == 0) ? "" : comma(arr8[i]);				
+                row[`col9`] =  (arr9[i] == 0) ? "" : comma(arr9[i]);				
+                row[`col10`] =  (arr10[i] == 0) ? "" : comma(arr10[i]);								
+				row[`col11`] = arr11[i] ;						 											 						
+						}
+				data.push(row); 	 
+                numcopy[count] = num[i] ; 			 
+			    count++;					
+ }
+ 
+
+ class CustomTextEditor {
+	  constructor(props) {
+		const el = document.createElement('input');
+		const { maxLength } = props.columnInfo.editor.options;
+
+		el.type = 'text';
+		el.maxLength = maxLength;
+		el.value = String(props.value);
+
+		this.el = el;
+	  }
+
+	  getElement() {
+		return this.el;
+	  }
+
+	  getValue() {
+		return this.el.value;
+	  }
+
+	  mounted() {
+		this.el.select();
+	  }
+	}	
+
+const grid = new tui.Grid({
+	  el: document.getElementById('grid'),
+	  data: data,
+	  bodyHeight: 700,					  					
+	  columns: [ 				   
+		{
+		  header: '출고일',
+		  name: 'col1',
+		  sortingType: 'desc',
+		  sortable: true,
+		  width:90,	
+		  align: 'center'
+		},				   
+		{
+		  header: '시공완료일',
+		  name: 'col2',
+		  sortingType: 'desc',
+		  sortable: true,
+		  width:90,		
+		  align: 'center'
+		},					   
+		{
+		  header: '시공 전사진',
+		  name: 'col3',
+		  sortingType: 'desc',
+		  sortable: true,
+		  width:100,		
+		  align: 'center'
+		},					   
+		{
+		  header: '시공 후사진',
+		  name: 'col4',
+		  sortingType: 'desc',
+		  sortable: true,
+		  width:100,		
+		  align: 'center'
+		},			
+		{
+		  header: '시공소장',
+		  name: 'col5',
+		  sortingType: 'desc',
+		  sortable: true,		  
+		  width:80, 		
+		  align: 'center'
+		},			
+		{
+		  header: '현장명',
+		  name: 'col6',
+		  width:400,	
+		  align: 'left'
+		},
+		{
+		  header: '발주처',
+		  name: 'col7',
+		  width: 200,	
+		  align: 'center'
+		},
+			
+		{
+		  header: '막판',
+		  name: 'col8',
+		  width:30, 		
+		  align: 'center'
+		},			
+		{
+		  header: '막판무',
+		  name: 'col9',
+		  width:30,	 		
+		  align: 'center'
+		},			
+		{
+		  header: '쪽쟘',
+		  name: 'col10',
+		  width:30,	 		
+		  align: 'center'
+		},						
+		{
+		  header: 'N',
+		  name: 'col11',
+		  width:10,	 		
+		  align: 'right'
+		}			
+	  ],
+	columnOptions: {
+			resizable: true
+		  },
+	rowHeaders: ['rowNum','checkbox'],   // checkbox 형성
+		  pageOptions: {
+		useClient: false,
+		perPage: 20
+	  }	  
+	});		
+	
+var Grid = tui.Grid; // or require('tui-grid')
+Grid.applyTheme('default', {
+			  cell: {
+				normal: {
+				  background: '#fbfbfb',
+				  border: '#e0e0e0',
+				  showVerticalBorder: true
+				},
+				header: {
+				  background: '#eee',
+				  border: '#ccc',
+				  showVerticalBorder: true
+				},
+				rowHeader: {
+				  border: '#ccc',
+				  showVerticalBorder: true
+				},
+				editable: {
+				  background: '#fbfbfb'
+				},
+				selectedHeader: {
+				  background: '#d8d8d8'
+				},
+				focused: {
+				  border: '#418ed4'
+				},
+				disabled: {
+				  text: '#b0b0b0'
+				}
+			  }	
+	});	
+
+	
+grid.on('dblclick', (e) => {
+	
+    var link = 'http://8440.co.kr/work/view.php?num=' + numcopy[e.rowKey] ;
+   //  window.location.href = link;       //웹개발할때 숨쉬듯이 작성할 코드
+	
+   //  window.location.replace(link);     // 이전 페이지로 못돌아감
+   //  window.open(link);  	
+   if(numcopy[e.rowKey]>0)
+       window.open(link, "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=10,left=100,width=1600,height=900");
+	
+   console.log(e.rowKey);
+});	   
+   
+$("#refresh").click(function(){  location.reload();   });	          // refresh     
+
+$("#downloadcsvBtn").click(function(){  Do_gridexport();   });	          // CSV파일 클릭	
+
+});
+
+function comma(str) { 
+    str = String(str); 
+    return str.replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,'); 
+} 
+function uncomma(str) { 
+    str = String(str); 
+    return str.replace(/[^\d]+/g, ''); 
+}
+
+function  prepre_month(){    // 전전월
+			// document.getElementById('search').value=null; 
+			var today = new Date();
+			var dd = today.getDate();
+			var mm = today.getMonth()+1; //January is 0!
+			var yyyy = today.getFullYear();
+			if(dd<10) {
+				dd='0'+dd;
+			} 
+
+			mm=mm-2;  // 전전월
+			if(mm<1) {
+			  if(mm<0)					  
+				mm='11';
+			   else
+				mm='12';
+			} 
+			if(mm<10) {
+				mm='0'+mm;
+			} 
+			if(mm>=11) {       // 전전월은 11월
+				yyyy=yyyy-1;
+			} 
+
+
+			frompreyear = yyyy+'-' + mm+'-01';
+
+			var tmp=0;
+				  
+			switch (Number(mm)) {
+				
+				case 1 :
+				case 3 :
+				case 5 :
+				case 7 :
+				case 8 :
+				case 10 :
+				case 12 :
+				  tmp=31 ;
+				  break;
+				case 2 :   
+				   tmp=28;
+				   break;
+				case 4 :
+				case 6 :
+				case 9 :
+				case 11:
+				   tmp=30;
+				   break;
+			}  	  
+
+			topreyear = yyyy + '-' + mm + '-' + tmp ;
+
+				document.getElementById("fromdate").value = frompreyear;
+				document.getElementById("todate").value = topreyear;
+				document.getElementById('board_form').submit();  // form의 검색버튼 누른 효과 
+} 
+
+function pre_year(){   // 전년도 추출
+// document.getElementById('search').value=null; 
+var today = new Date();
+var dd = today.getDate();
+var mm = today.getMonth()+1; //January is 0!
+var yyyy = today.getFullYear();
+
+if(dd<10) {
+    dd='0'+dd;
+} 
+
+if(mm<10) {
+    mm='0'+mm;
+} 
+
+today = mm+'/'+dd+'/'+yyyy;
+yyyy=yyyy-1;
+frompreyear = yyyy+'-01-01';
+topreyear = yyyy+'-12-31';	
+
+    document.getElementById("fromdate").value = frompreyear;
+    document.getElementById("todate").value = topreyear;
+    document.getElementById('board_form').submit();  // form의 검색버튼 누른 효과 	
+}  
+
+function three_month_ago(){    // 석달전
+			// document.getElementById('search').value=null; 
+			var today = new Date();
+			var dd = today.getDate();
+			var mm = today.getMonth()+1; //January is 0!
+			var yyyy = today.getFullYear();
+			if(dd<10) {
+				dd='0'+dd;
+			} 
+
+			mm=mm-3;  // 전전전월
+			if(mm<-1) {
+				mm='11';
+			} 			
+			if(mm<1) {
+				mm='12';
+			} 
+			if(mm<10) {
+				mm='0'+mm;
+			} 
+			if(mm>=12) {
+				yyyy=yyyy-1;
+			} 
+
+
+			frompreyear = yyyy+'-' + mm+'-01';
+
+			var tmp=0;
+				  
+			switch (Number(mm)) {
+				
+				case 1 :
+				case 3 :
+				case 5 :
+				case 7 :
+				case 8 :
+				case 10 :
+				case 12 :
+				  tmp=31 ;
+				  break;
+				case 2 :   
+				   tmp=28;
+				   break;
+				case 4 :
+				case 6 :
+				case 9 :
+				case 11:
+				   tmp=30;
+				   break;
+			}  	  
+
+			topreyear = yyyy + '-' + mm + '-' + tmp ;
+
+				document.getElementById("fromdate").value = frompreyear;
+				document.getElementById("todate").value = topreyear;
+				document.getElementById('board_form').submit();  // form의 검색버튼 누른 효과 
+} 
+
+function pre_month(){    // 전월
+			// document.getElementById('search').value=null; 
+			var today = new Date();
+			var dd = today.getDate();
+			var mm = today.getMonth()+1; //January is 0!
+			var yyyy = today.getFullYear();
+			if(dd<10) {
+				dd='0'+dd;
+			} 
+
+			mm=mm-1;
+			if(mm<1) {
+				mm='12';
+			} 
+			if(mm<10) {
+				mm='0'+mm;
+			} 
+			if(mm>=12) {
+				yyyy=yyyy-1;
+			} 
+
+
+			frompreyear = yyyy+'-' + mm+'-01';
+
+			var tmp=0;
+				  
+			switch (Number(mm)) {
+				
+				case 1 :
+				case 3 :
+				case 5 :
+				case 7 :
+				case 8 :
+				case 10 :
+				case 12 :
+				  tmp=31 ;
+				  break;
+				case 2 :   
+				   tmp=28;
+				   break;
+				case 4 :
+				case 6 :
+				case 9 :
+				case 11:
+				   tmp=30;
+				   break;
+			}  	  
+
+			topreyear = yyyy + '-' + mm + '-' + tmp ;
+
+				document.getElementById("fromdate").value = frompreyear;
+				document.getElementById("todate").value = topreyear;
+				document.getElementById('board_form').submit();  // form의 검색버튼 누른 효과 
+} 
+
+function this_month(){   // 당해월
+// document.getElementById('search').value=null; 
+var today = new Date();
+var dd = today.getDate();
+var mm = today.getMonth()+1; //January is 0!
+var yyyy = today.getFullYear();
+
+if(dd<10) {
+    dd='0'+dd;
+} 
+
+if(mm<10) {
+    mm='0'+mm;
+} 
+
+frompreyear = yyyy+'-'+mm+'-01';
+
+var tmp=0;
+	  
+switch (Number(mm)) {
+	
+	case 1 :
+	case 3 :
+	case 5 :
+	case 7 :
+	case 8 :
+	case 10 :
+	case 12 :
+	  tmp=31 ;
+	  break;
+	case 2 :   
+	   tmp=28;
+	   break;
+	case 4 :
+	case 6 :
+	case 9 :
+	case 11:
+       tmp=30;
+	   break;
+		}  	  
+
+     topreyear = yyyy + '-' + mm + '-' + tmp ;
+
+    document.getElementById("fromdate").value = frompreyear;
+    document.getElementById("todate").value = topreyear;
+    document.getElementById('board_form').submit();  // form의 검색버튼 누른 효과 
+} 
+
+function this_year()  {   // 당해년도
+//		document.getElementById('search').value=null; 
+		var today = new Date();
+		var dd = today.getDate();
+		var mm = today.getMonth()+1; //January is 0!
+		var yyyy = today.getFullYear();
+
+		if(dd<10) {
+			dd = '0' + dd;
+		} 
+
+		if(mm<10) {
+			mm = '0' + mm;
+		} 
+
+		frompreyear = yyyy + '-01' + '-01';
+
+		var tmp=0;
+			  
+		switch (Number(mm)) {
+			
+			case 1 :
+			case 3 :
+			case 5 :
+			case 7 :
+			case 8 :
+			case 10 :
+			case 12 :
+			  tmp=31 ;
+			  break;
+			  
+			case 2 :   
+			   tmp=28;
+			   break;
+			   
+			case 4 :
+			case 6 :
+			case 9 :
+			case 11:
+	          tmp=30;
+			   break;
+				}  	  
+
+			 topreyear = yyyy + '-' + mm + '-' + dd ;
+
+			document.getElementById("fromdate").value = frompreyear;
+			document.getElementById("todate").value = topreyear;
+		    document.getElementById('board_form').submit();  // form의 검색버튼 누른 효과 
+} 
+
+function dis_text()
+{  
+		var dis_text = '<?php echo $jamb_total; ?>';
+		$("#dis_text").val(dis_text);
+}	
+
+function SearchEnter(){
+    if(event.keyCode == 13){
+		document.getElementById('board_form').submit(); 
+    }
+}
+
+function List_name(worker)
+{	
+		var worker; 				
+		var name='<?php echo $user_name; ?>' ;
+		 
+			$("#search").val(worker);	
+			$('#board_form').submit();		// 검색버튼 효과
+}
+
+function move_url(href)
+{
+	 var  search = "<? echo $search;  ?>" ; 
+	 if(search!='')
+        document.location.href = href;		 
+	   else
+		  alert('소장을 선택해 주세요');   
+	   
+}
+
+</script>
+
+  </html>
+
+</body>

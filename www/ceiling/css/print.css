@@ -1,0 +1,97 @@
+/* @end */
+.img{
+     position: absolute;
+    background-image: url(https://8440.co.kr/ceiling/img/millsheet.jpg);                                                               
+    width: 1300px;
+    height: 1840px;
+    /* background-size: cover; */
+}
+
+/* .img-cover{
+   position: absolute;
+   height: 100%;
+   width: 100%;
+   background-color: rgba(0, 0, 0, 0.4);                                                                 
+   z-index:1;
+} */
+
+.img .content{
+     position: absolute;
+	 top:0px;
+	 left:0px;
+     font-size:1rem;
+     color: black;     
+     text-align: left;
+}
+
+#outlineprint {     /* 화면출력 전체사이즈  */ 
+	width:1300px;
+	height:1840px;
+	float:left;
+}
+
+#row1 {     /* 화면 출력 1행  */ 
+	width:450px;
+	height:50px;
+	float:left;
+	margin-left:420px;
+	margin-top:445px; 
+    font-size:20px;	
+}
+
+#row2 {     /* 화면 출력 2행  */ 
+	width:450px;
+	height:45px;
+	float:left;
+	margin-left:420px;
+	margin-top:-5px; 
+    font-size:20px;	
+}
+#row3 {     /* 화면 출력 3행  */ 
+	width:450px;
+	height:50px;
+	float:left;
+	margin-left:420px;
+	margin-top:35px; 
+    font-size:20px;	
+}
+#row4 {     /* 화면 출력 4행  */ 
+	width:450px;
+	height:50px;
+	float:left;
+	margin-left:400px;
+	margin-top:0px; 
+    font-size:25px;	
+}
+
+#row5 {     /* 화면 출력 5행  */ 
+	width:1500px;
+	height:50px;
+	float:left;
+	margin-left:650px;
+	margin-top:75px; 
+    font-size:22px;	
+}
+
+#row6 {
+	width:1500px;
+	height:50px;
+	float:left;
+	margin-left:650px;
+	margin-top:205px; 
+    font-size:22px;	
+}
+
+#row7 {
+	width:1500px;
+	height:50px;
+	float:left;
+	margin-left:300px;
+	margin-top:320px; 
+    font-size:22px;	
+}
+
+/* clear 클래스가 선언되었을 때 "행 전환" 즉, float 속성이 적용된 요소들 아래로 내려가도록 하는 CSS는 다음과 같습니다: */
+.clear {
+    clear: both;
+}

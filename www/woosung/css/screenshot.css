@@ -1,0 +1,215 @@
+/* @end */
+.img{
+    position: absolute;
+    background-image: url(http://8440.co.kr/woosung/img/ordersheet.jpg);                                                               
+    width: 1250px;
+    height: 1800px;
+    /* background-size: cover; */
+}
+
+/* .img-cover{
+   position: absolute;
+   height: 100%;
+   width: 100%;
+   background-color: rgba(0, 0, 0, 0.4);                                                                 
+   z-index:1;
+} */
+
+.img .content{
+     position: absolute;
+	 top:0px;
+	 left:0px;
+     font-size:1rem;
+     color: black;     
+     text-align: left;
+}
+
+.button {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 3px 5px;
+  text-align: center;
+  font-weight:bold;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  margin: 1px 1px;
+  cursor: pointer;
+}
+.button:hover {
+  color: black;
+}
+
+.button2 {background-color: #008CBA;} /* Blue */
+.button3 {background-color: #f44336;} /* Red */ 
+.button4 {background-color: DodgerBlue;} /* DodgerBlue */ 
+.button5 {background-color: Tomato;} /* Black */
+.button6 {background-color: Orange;} /* Black */
+.button7 {background-color: Gray;} /* Black */
+.button8 {background-color: MediumSeaGreen;} /* MediumSeaGreen */
+
+#outlineprint {     /* 화면출력 전체사이즈  */ 
+	width:1300px;
+	height:1840px;
+	float:left;
+}
+
+#row1 {     /* 화면 출력 1행  */ 
+	width:120px;
+	height:50px;
+	float:left;
+	margin-left:670px;
+	margin-top:118px; 
+    font-size:30px;	
+	text-align:center;
+}
+
+#row2 {     /* 화면 출력 2행  수신처 업체명 */ 
+	width:420px;
+	height:45px;
+	float:left;
+	margin-left:220px;
+	margin-top:40px; 
+    font-size:25px;	
+	text-align:center;
+}
+
+
+#row3 {     /* 화면 출력 3행   현장명 */ 
+	width:420px;
+	height:45px;
+	float:left;
+	margin-left:220px;
+	margin-top:20px; 
+    font-size:25px;	
+	text-align:center;
+}
+
+
+#row4 {     /* 화면 출력 4행   발주일 */ 
+	width:420px;
+	height:45px;
+	float:left;
+	margin-left:220px;
+	margin-top:15px; 
+    font-size:25px;	
+	text-align:center;
+}
+
+
+#row5 {     /* 화면 출력 5행   납기일 */ 
+	width:420px;
+	height:45px;
+	float:left;
+	margin-left:220px;
+	margin-top:20px; 
+    font-size:25px;	
+	color:red;
+	text-align:center;
+}
+
+
+#row6 {     /* 화면 출력 6행   중간 공간 */ 
+	margin-top:80px;     	
+}
+
+#row7{     /*  세부내역 */ 
+	width:1195px;
+	height:35px;
+	float:left;
+	margin-left:10px;
+	margin-top:13px; 
+    font-size:18px;	
+	text-align:center;	
+}
+
+#row7 #col1{     
+	width:190px;	
+	float:left;
+	margin-left:20px;		
+}
+
+#row7 #col2{     
+	width:330px;	
+	float:left;
+	margin-left:10px;	
+	text-align:left;	    
+}
+
+#row7 #col3{     
+	width:80px;	
+	float:left;		
+	text-align:center;		
+}
+
+#row7 #col4{     
+	width:40px;	
+	float:left;	    	
+    font-size:14px;		
+}
+#row7 #col5{     
+	width:410px;	
+	float:left;	
+}
+#row7 #col6{     
+	width:100px;	
+	float:left;		
+}
+
+#row8 {     /* 화면 출력  중간 공간 */ 
+	margin-top:50px;     	
+}
+
+#row9{     /*  사양 */ 
+	width:1250px;
+	height:20px;
+	float:left;
+	margin-left:50px;
+	margin-top:8px; 
+    font-size:18px;	
+	text-align:left;	
+}
+
+#row9 #col1{     
+	width:610px;	
+	float:left;
+	margin-left:20px;		
+}
+
+#row9 #col2{     
+	width:570px;	
+	float:left;	
+	text-align:left;	 	
+}
+
+
+#row10{     /*  기타사항 */ 
+	width:1195px;
+	height:35px;
+	float:left;
+	margin-left:75px;
+	margin-top:47px; 
+    font-size:19px;	
+	text-align:left;	
+}
+
+
+
+
+
+
+
+
+
+#drawimg {
+	float:left;
+	width:700px;
+    height:100px;
+}
+#draw{
+	float:left;
+	width:1px;
+    height:1px;
+    font-size:10px;	
+}

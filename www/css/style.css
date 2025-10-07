@@ -1,0 +1,1064 @@
+h1,h2,h3,h4,h5,h6 {margin: 0;}
+ul, ol {margin: 0; padding: 0; list-style: none;}
+a {text-decoration: none;}
+a {color: gray;}
+
+.color-red {color:red}
+.color-green {color:green}
+.color-black {color:black}
+.color-blue {color:blue}
+.color-purple {color:purple}
+.color-brown {color:brown}
+
+.inputWrap {
+    position: relative;
+    height: 30px;
+    display: inline-block;
+ }
+
+  
+.inputWrap input {
+  padding-right: 30px;
+  height: inherit;
+}
+
+.inputWrap .btnClear {
+  position: absolute;  
+  top: 0;
+  right: 10px;
+  width: 30px;
+  height: inherit;
+  background: url(https://img.icons8.com/pastel-glyph/2x/cancel.png) center center no-repeat;
+  background-size: 50%;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+
+table th, 
+table td,
+.form-control
+ {
+  font-size: 13px; /* 원하는 폰트 크기로 설정 */
+  padding : 2px;
+}
+table td {
+   cursor: pointer;
+   font-family: 'Roboto', sans-serif;   
+}
+
+body {
+    font-size: 13px; /* 원하는 폰트 크기로 설정 */
+    padding: 5px;
+    font-family: 'Roboto', sans-serif;
+}
+
+
+
+ /* 30 높이에 맞게 */
+.inputWrap30 {
+    position: relative;
+    height: 30px;
+    display: inline-block;
+ }
+
+
+.inputWrap30 input {
+  padding-right: 20px;
+  height: inherit;
+}
+
+.inputWrap30 .btnClear {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 30px;
+  height: inherit;
+  background: url(https://img.icons8.com/pastel-glyph/2x/cancel.png) center center no-repeat;
+  background-size: 50%;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+
+#showdate {
+	display: inline-block;
+	position: relative;
+}
+		
+#showframe {
+	display: none;
+	position: absolute;
+	width: 530px;
+	z-index: 1000;
+}
+	
+.w-10 {
+    width: 10% !important;
+}	
+.w-15 {
+    width: 15% !important;
+}	
+.w-20 {
+    width: 20% !important;
+}	
+
+.modal .modal-full {
+    max-width: 95%;
+    max-height: 90vh; /* 모달 창의 최대 높이를 화면 높이의 90%로 설정합니다. */
+    height: 800px; /* 모달 창의 최소 높이를 설정합니다. */
+    overflow-y: auto; /* 세로 스크롤바가 필요한 경우 스크롤이 가능하도록 합니다. */
+}
+
+.modal .modal-fullsm {
+    max-width: 75%;
+    max-height: 90vh; /* 모달 창의 최대 높이를 화면 높이의 90%로 설정합니다. */
+    height: 700px; /* 모달 창의 최소 높이를 설정합니다. */
+    overflow-y: auto; /* 세로 스크롤바가 필요한 경우 스크롤이 가능하도록 합니다. */
+}
+
+ ::placeholder {
+    font-style: italic;
+    color: #b0c4de!important; /* Very light blue color */
+  }
+
+
+#myTable td, #myTable th {
+    border-color: lightgray;
+}
+
+#loadingIndicator {
+    position: fixed; /* 화면에 고정 */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* 반투명 배경 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loader {
+    border: 16px solid #f3f3f3; /* Light grey */
+    border-top: 16px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* Changed from 'auto' to 'hidden' to prevent closing on outside click */
+    background-color: rgba(0, 0, 0, 0.4);
+    padding-top: 80px;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 1200px;
+    animation: fadeIn 0.5s;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .modal-header {
+        background-color: #1f48d4;
+        color: white;
+        padding: 10px;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-title {
+        font-size: 18px;
+    }
+
+    .close {
+        color: white;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    .todo-close {
+        color: white;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: #bbb;
+        text-decoration: none;
+    }
+
+    .modal-body {
+        padding: 15px;
+    }
+	
+	.custom-card {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+
+.tooltip-inner {
+    background-color: black !important; /* 배경색 */
+    color: white !important; /* 글자색 */
+}
+.tooltip-arrow {
+    color: black !important; /* 화살표 색상 */
+} 
+
+/* 입력창에 대한 설계 */
+.ui-autocomplete {
+	max-height: 500px;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+.specialinputWrap {
+	position: relative;
+	display: inline-block;
+	width:100%;
+}
+
+.specialbtnClear {
+	position: absolute;
+	right: 10px;
+	top: 50%;
+	transform: translateY(-50%);
+	background: transparent;
+	border: none;
+	color: black;
+	cursor: pointer;
+}
+
+.specialbtnClear:before {
+	content: 'X';
+	font-size: 12px;
+}
+
+.specialbtnClear:hover {
+	color: black;
+}
+
+.btnClear_lot {
+	position: absolute;
+	right: 10px;
+	top: 50%;
+	transform: translateY(-50%);
+	background: transparent;
+	border: none;
+	color: black;
+	cursor: pointer;
+}
+
+.btnClear_lot:before {
+	content: 'X';
+	font-size: 12px;
+}
+
+.btnClear_lot:hover {
+	color: black;
+}
+
+/* 모달창 뒷배경이 침범하지 못하게 설정 */
+.modal-backdrop {
+	z-index: 0;
+}
+
+/* 오늘일때 배경을 주는 것 */
+.today-bg {
+    /*background-color: #AFFFEE !important;*/	   
+    border: 3px solid #008080 !important;
+}
+
+/* 전체 왼쪽 정렬 주는 것 */
+#todo-list td {
+    /*background-color: #AFFFEE !important;*/	   
+    text-align: left !important;
+}
+
+.red-day {
+    color: red !important;
+}
+
+.w5px {  
+  width: 5px;
+}
+.w10px {  
+  width: 10px;
+}
+.w15px {  
+  width: 15px;
+}
+.w20px {  
+  width: 20px;
+}
+.w25px {  
+  width: 25px;
+}
+.w30px {  
+  width: 30px;
+}
+.w35px {  
+  width: 35px;
+}
+.w40px {  
+  width: 40px;
+}
+.w45px {  
+  width: 45px;
+}
+.w50px {  
+  width: 50px;
+}
+.w55px {  
+  width: 55px;
+}
+.w60px {  
+  width: 60px;
+}
+.w65px {  
+  width: 65px;
+}
+.w70px {  
+  width: 70px;
+}
+.w75px {  
+  width: 75px;
+}
+.w80px {  
+  width: 80px;
+}
+.w85px {  
+  width: 85px;
+}
+.w90px {  
+  width: 90px;
+}
+.w95px {  
+  width: 95px;
+}
+.w100px {  
+  width: 100px;
+}
+.w105px {  
+  width: 105px;
+}
+.w110px {  
+  width: 110px;
+}
+.w115px {  
+  width: 115px;
+}
+.w120px {  
+  width: 120px;
+}
+.w125px {  
+  width: 125px;
+}
+.w130px {  
+  width: 130px;
+}
+.w135px {  
+  width: 135px;
+}
+.w140px {  
+  width: 140px;
+}
+.w145px {  
+  width: 145px;
+}
+.w150px {  
+  width: 150px;
+}
+.w155px {  
+  width: 155px;
+}
+.w160px {  
+  width: 160px;
+}
+.w165px {  
+  width: 165px;
+}
+.w170px {  
+  width: 170px;
+}
+.w175px {  
+  width: 175px;
+}
+.w180px {  
+  width: 180px;
+}
+.w185px {  
+  width: 185px;
+}
+.w190px {  
+  width: 190px;
+}
+.w195px {  
+  width: 195px;
+}
+.w200px {  
+  width: 200px;
+}
+.w205px {  
+  width: 205px;
+}
+.w210px {  
+  width: 210px;
+}
+.w215px {  
+  width: 215px;
+}
+.w220px {  
+  width: 220px;
+}
+.w225px {  
+  width: 225px;
+}
+.w230px {  
+  width: 230px;
+}
+.w235px {  
+  width: 235px;
+}
+.w240px {  
+  width: 240px;
+}
+.w245px {  
+  width: 245px;
+}
+.w250px {  
+  width: 250px;
+}
+.w255px {  
+  width: 255px;
+}
+.w260px {  
+  width: 260px;
+}
+.w265px {  
+  width: 265px;
+}
+.w270px {  
+  width: 270px;
+}
+.w275px {  
+  width: 275px;
+}
+.w280px {  
+  width: 280px;
+}
+.w285px {  
+  width: 285px;
+}
+.w290px {  
+  width: 290px;
+}
+.w295px {  
+  width: 295px;
+}
+.w300px {  
+  width: 300px;
+}
+.w305px {  
+  width: 305px;
+}
+.w310px {  
+  width: 310px;
+}
+.w315px {  
+  width: 315px;
+}
+.w320px {  
+  width: 320px;
+}
+.w325px {  
+  width: 325px;
+}
+.w330px {  
+  width: 330px;
+}
+.w335px {  
+  width: 335px;
+}
+.w340px {  
+  width: 340px;
+}
+.w345px {  
+  width: 345px;
+}
+.w350px {  
+  width: 350px;
+}
+.w355px {  
+  width: 355px;
+}
+.w360px {  
+  width: 360px;
+}
+.w365px {  
+  width: 365px;
+}
+.w370px {  
+  width: 370px;
+}
+.w375px {  
+  width: 375px;
+}
+.w380px {  
+  width: 380px;
+}
+.w385px {  
+  width: 385px;
+}
+.w390px {  
+  width: 390px;
+}
+.w395px {  
+  width: 395px;
+}
+.w400px {  
+  width: 400px;
+}
+.w405px {  
+  width: 405px;
+}
+.w410px {  
+  width: 410px;
+}
+.w415px {  
+  width: 415px;
+}
+.w420px {  
+  width: 420px;
+}
+.w425px {  
+  width: 425px;
+}
+.w430px {  
+  width: 430px;
+}
+.w435px {  
+  width: 435px;
+}
+.w440px {  
+  width: 440px;
+}
+.w445px {  
+  width: 445px;
+}
+.w450px {  
+  width: 450px;
+}
+.w455px {  
+  width: 455px;
+}
+.w460px {  
+  width: 460px;
+}
+.w465px {  
+  width: 465px;
+}
+.w470px {  
+  width: 470px;
+}
+.w475px {  
+  width: 475px;
+}
+.w480px {  
+  width: 480px;
+}
+.w485px {  
+  width: 485px;
+}
+.w490px {  
+  width: 490px;
+}
+.w495px {  
+  width: 495px;
+}
+.w500px {  
+  width: 500px;
+}
+.w505px {  
+  width: 505px;
+}
+.w510px {  
+  width: 510px;
+}
+.w515px {  
+  width: 515px;
+}
+.w520px {  
+  width: 520px;
+}
+.w525px {  
+  width: 525px;
+}
+.w530px {  
+  width: 530px;
+}
+.w535px {  
+  width: 535px;
+}
+.w540px {  
+  width: 540px;
+}
+.w545px {  
+  width: 545px;
+}
+.w550px {  
+  width: 550px;
+}
+.w555px {  
+  width: 555px;
+}
+.w560px {  
+  width: 560px;
+}
+.w565px {  
+  width: 565px;
+}
+.w570px {  
+  width: 570px;
+}
+.w575px {  
+  width: 575px;
+}
+.w580px {  
+  width: 580px;
+}
+.w585px {  
+  width: 585px;
+}
+.w590px {  
+  width: 590px;
+}
+.w595px {  
+  width: 595px;
+}
+.w600px {  
+  width: 600px;
+}
+.w605px {  
+  width: 605px;
+}
+.w610px {  
+  width: 610px;
+}
+.w615px {  
+  width: 615px;
+}
+.w620px {  
+  width: 620px;
+}
+.w625px {  
+  width: 625px;
+}
+.w630px {  
+  width: 630px;
+}
+.w635px {  
+  width: 635px;
+}
+.w640px {  
+  width: 640px;
+}
+.w645px {  
+  width: 645px;
+}
+.w650px {  
+  width: 650px;
+}
+.w655px {  
+  width: 655px;
+}
+.w660px {  
+  width: 660px;
+}
+.w665px {  
+  width: 665px;
+}
+.w670px {  
+  width: 670px;
+}
+.w675px {  
+  width: 675px;
+}
+.w680px {  
+  width: 680px;
+}
+.w685px {  
+  width: 685px;
+}
+.w690px {  
+  width: 690px;
+}
+.w695px {  
+  width: 695px;
+}
+.w700px {  
+  width: 700px;
+}
+.w705px {  
+  width: 705px;
+}
+.w710px {  
+  width: 710px;
+}
+.w715px {  
+  width: 715px;
+}
+.w720px {  
+  width: 720px;
+}
+.w725px {  
+  width: 725px;
+}
+.w730px {  
+  width: 730px;
+}
+.w735px {  
+  width: 735px;
+}
+.w740px {  
+  width: 740px;
+}
+.w745px {  
+  width: 745px;
+}
+.w750px {  
+  width: 750px;
+}
+.w755px {  
+  width: 755px;
+}
+.w760px {  
+  width: 760px;
+}
+.w765px {  
+  width: 765px;
+}
+.w770px {  
+  width: 770px;
+}
+.w775px {  
+  width: 775px;
+}
+.w780px {  
+  width: 780px;
+}
+.w785px {  
+  width: 785px;
+}
+.w790px {  
+  width: 790px;
+}
+.w795px {  
+  width: 795px;
+}
+.w800px {  
+  width: 800px;
+}
+.w805px {  
+  width: 805px;
+}
+.w810px {  
+  width: 810px;
+}
+.w815px {  
+  width: 815px;
+}
+.w820px {  
+  width: 820px;
+}
+.w825px {  
+  width: 825px;
+}
+.w830px {  
+  width: 830px;
+}
+.w835px {  
+  width: 835px;
+}
+.w840px {  
+  width: 840px;
+}
+.w845px {  
+  width: 845px;
+}
+.w850px {  
+  width: 850px;
+}
+.w855px {  
+  width: 855px;
+}
+.w860px {  
+  width: 860px;
+}
+.w865px {  
+  width: 865px;
+}
+.w870px {  
+  width: 870px;
+}
+.w875px {  
+  width: 875px;
+}
+.w880px {  
+  width: 880px;
+}
+.w885px {  
+  width: 885px;
+}
+.w890px {  
+  width: 890px;
+}
+.w895px {  
+  width: 895px;
+}
+.w900px {  
+  width: 900px;
+}
+.w905px {  
+  width: 905px;
+}
+.w910px {  
+  width: 910px;
+}
+.w915px {  
+  width: 915px;
+}
+.w920px {  
+  width: 920px;
+}
+.w925px {  
+  width: 925px;
+}
+.w930px {  
+  width: 930px;
+}
+.w935px {  
+  width: 935px;
+}
+.w940px {  
+  width: 940px;
+}
+.w945px {  
+  width: 945px;
+}
+.w950px {  
+  width: 950px;
+}
+.w955px {  
+  width: 955px;
+}
+.w960px {  
+  width: 960px;
+}
+.w965px {  
+  width: 965px;
+}
+.w970px {  
+  width: 970px;
+}
+.w975px {  
+  width: 975px;
+}
+.w980px {  
+  width: 980px;
+}
+.w985px {  
+  width: 985px;
+}
+.w990px {  
+  width: 990px;
+}
+.w995px {  
+  width: 995px;
+}
+.w1000px {  
+  width: 1000px;
+}
+
+.cursor-pointer{	
+	cursor : pointer;
+}
+
+
+/* 연한 핑크색 배경에 검정색 글씨 */
+.pinkblackBold {
+    background-color: #ffe4e1 !important; /* 연한 핑크색 (light pink) */
+    color: black !important;
+    font-weight: bold !important;
+}
+
+/* 연한 핑크색 배경에 붉은색 글씨 */
+.pinkredBold {
+    background-color: #ffe4e1 !important; /* 연한 핑크색 (light pink) */
+    color: red !important;
+    font-weight: bold !important;
+}
+
+/* 밝은 자홍색 배경에 검정 글씨 */
+.magentaBlackBold {
+    background-color: hsl(300, 50%, 90%) !important; /* 밝은 자홍색 */
+    color: black !important;
+    font-weight: bold !important;
+}
+
+/* 연한 갈색 배경에 검정 글씨 */
+.brownblackBold {
+    background-color: hsl(30, 38%, 85%) !important; /* 연한 갈색 */
+    color: black !important;
+    font-weight: bold !important;
+}
+
+/* 연한 갈색 배경에 붉은 글씨 */
+.brownredBold {
+    background-color: hsl(30, 38%, 85%) !important; /* 연한 갈색 */
+    color: red !important;
+    font-weight: bold !important;
+}
+
+/* 연한 청록색 배경에 검정 글씨 */
+.cyanBlackBold {
+    background-color: hsl(180, 60%, 90%) !important; /* 연한 청록색 */
+    color: black !important;
+    font-weight: bold !important;
+}
+
+/* 연한 청록색 배경에 파랑 글씨 */
+.cyanBlueBold {
+    background-color: hsl(180, 60%, 90%) !important; /* 연한 청록색 */
+    color: blue !important;
+    font-weight: bold !important;
+}
+
+/* 연한 라임색 배경에 검정 글씨 */
+.limeblackBold {
+    background-color: #f0fff0 !important; /* 연한 라임색 (light lime) */
+    color: black !important;
+    font-weight: bold !important;
+}
+
+/* 연한 라임색 배경에 초록 글씨 */
+.limegreenBold {
+    background-color: #f0fff0 !important; /* 연한 라임색 (light lime) */
+    color: green !important;
+    font-weight: bold !important;
+}
+
+/* 연한 금색 배경에 검정 글씨 */
+.goldblackBold {
+    background-color: hsl(50, 80%, 85%) !important; /* 연한 금색 */
+    color: black !important;
+    font-weight: bold !important;
+}
+
+/* 연한 금색 배경에 빨강 글씨 */
+.goldredBold {
+    background-color: hsl(50, 80%, 85%) !important; /* 연한 금색 */
+    color: red !important;
+    font-weight: bold !important;
+}
+
+/* 연한 은색 배경에 검정 글씨 */
+.silverblackBold {
+    background-color: hsl(0, 0%, 92%) !important; /* 연한 은색 */
+    color: black !important;
+    font-weight: bold !important;
+}
+
+/* 연한 보라핑크 배경에 검정 글씨 */
+.purplepinkBlackBold {
+    background-color: hsl(300, 40%, 90%) !important; /* 연한 보라핑크 */
+    color: black !important;
+    font-weight: bold !important;
+}
+
+/* 연한 파스텔 핑크 배경에 검정 글씨 */
+.pastelpinkBlackBold {
+    background-color: #ffdab9 !important; /* 연한 파스텔 핑크 */
+    color: black !important;
+    font-weight: bold !important;
+}
+
+/* 연한 올리브색 배경에 검정 글씨 */
+.oliveblackBold {
+    background-color: hsl(60, 30%, 85%) !important; /* 연한 올리브색 */
+    color: black !important;
+    font-weight: bold !important;
+}
+
+/* 연한 베이지색 배경에 검정 글씨 */
+.beigeblackBold {
+    background-color: #f5f5dc !important; /* 연한 베이지색 */
+    color: black !important;
+    font-weight: bold !important;
+}
+
+/* 연한 민트색 배경에 검정 글씨 */
+.mintblackBold {
+    background-color: #e0fff0 !important; /* 연한 민트색 */
+    color: black !important;
+    font-weight: bold !important;
+}
+
+/* 연한 민트색 배경에 초록 글씨 */
+.mintgreenBold {
+    background-color: #e0fff0 !important; /* 연한 민트색 */
+    color: green !important;
+    font-weight: bold !important;
+}
+
+/* 연한 살구색 배경에 검정 글씨 */
+.apricotblackBold {
+    background-color: #ffebcd !important; /* 연한 살구색 */
+    color: black !important;
+    font-weight: bold !important;
+}
+
+/* 연한 살구색 배경에 주황 글씨 */
+.apricotorangeBold {
+    background-color: #ffebcd !important; /* 연한 살구색 */
+    color: orange !important;
+    font-weight: bold !important;
+}
+
+
+.shadow-sm {
+    box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075);
+}

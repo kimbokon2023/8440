@@ -1,0 +1,42 @@
+UPDATE mirae8440.ceiling SET mainassembly_date = '0000-00-00' WHERE mainassembly_date IS NULL;
+UPDATE mirae8440.ceiling SET workday = '0000-00-00' WHERE workday IS NULL;
+SELECT mainassembly_date FROM `ceiling` order by num desc;
+
+UPDATE mirae8440.ceiling SET lcassembly_date = '0000-00-00' WHERE lcassembly_date IS NULL;
+SELECT lcassembly_date FROM `ceiling` order by num desc;
+
+UPDATE mirae8440.ceiling SET etcassembly_date = '0000-00-00' WHERE etcassembly_date IS NULL;
+UPDATE mirae8440.ceiling SET etcbending_date = '0000-00-00' WHERE etcbending_date IS NULL;
+UPDATE mirae8440.ceiling SET etcwelding_date = '0000-00-00' WHERE etcwelding_date IS NULL;
+UPDATE mirae8440.ceiling SET etcpainting_date = '0000-00-00' WHERE etcpainting_date IS NULL;
+UPDATE mirae8440.ceiling SET etclaser_date = '0000-00-00' WHERE etclaser_date IS NULL;
+
+UPDATE mirae8440.ceiling SET mainpainting_date = '0000-00-00' WHERE mainpainting_date IS NULL;
+SELECT mainpainting_date FROM `ceiling` order by num desc;
+
+UPDATE mirae8440.ceiling SET lcpainting_date = '0000-00-00' WHERE lcpainting_date IS NULL;
+SELECT lcpainting_date FROM `ceiling` order by num desc;
+
+UPDATE mirae8440.ceiling SET mainwelding_date = '0000-00-00' WHERE mainwelding_date IS NULL;
+SELECT mainwelding_date FROM `ceiling` order by num desc;
+
+UPDATE mirae8440.ceiling SET lcwelding_date = '0000-00-00' WHERE lcwelding_date IS NULL;
+SELECT lcwelding_date FROM `ceiling` order by num desc;
+
+UPDATE mirae8440.ceiling SET mainbending_date = '0000-00-00' WHERE mainbending_date IS NULL;
+SELECT mainbending_date FROM `ceiling` order by num desc;
+
+UPDATE mirae8440.ceiling SET lcbending_date = '0000-00-00' WHERE lcbending_date IS NULL;
+SELECT lcbending_date FROM `ceiling` order by num desc;
+
+UPDATE mirae8440.ceiling SET eunsung_laser_date = '0000-00-00' WHERE eunsung_laser_date IS NULL;
+SELECT mainlaser_date FROM `ceiling` order by num desc;
+
+UPDATE mirae8440.ceiling SET lclaser_date = '0000-00-00' WHERE lclaser_date IS NULL;
+SELECT lclaser_date FROM `ceiling` order by num desc;
+
+UPDATE mirae8440.ceiling SET deadline = '0000-00-00' WHERE deadline IS NULL;
+UPDATE mirae8440.ceiling SET deadline = workday WHERE date(workday) < '2021-01-01';
+UPDATE mirae8440.ceiling SET main_draw = workday WHERE date(workday) < '2021-01-25';
+UPDATE mirae8440.ceiling SET lc_draw = workday WHERE date(workday) < '2021-01-25';
+
