@@ -67,7 +67,7 @@ jobs:
             **/Thumbs.db            
             **/uploads/**
             **/storage/**
-            **/lib/**             
-            **/dbeditor/**             
-            **/bseditor/**             
-            **/bseditor/**             
+            **/lib/**
+            **/dbeditor/**
+            **/bseditor/**
+            **/__MACOSX/**
