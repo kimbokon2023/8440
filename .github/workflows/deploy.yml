@@ -32,6 +32,13 @@ jobs:
           echo "서버: ${{ secrets.FTP_SERVER }}"
           echo "사용자: ${{ secrets.FTP_USERNAME }}"
           echo "대상 경로: ${{ secrets.FTP_REMOTE_DIR }}"
+          echo "포트: ${{ secrets.FTP_PORT }}"
+          
+      - name: Test FTP connection manually
+        run: |
+          echo "FTP 연결 테스트를 위한 정보 출력:"
+          echo "FTP_REMOTE_DIR 값: '${{ secrets.FTP_REMOTE_DIR }}'"
+          echo "처리된 server-dir 값: '${{ endsWith(secrets.FTP_REMOTE_DIR, '/') && secrets.FTP_REMOTE_DIR || format('{0}/', secrets.FTP_REMOTE_DIR) }}'"
 
       - name: Deploy (FTP)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -43,9 +50,8 @@ jobs:
           password:   ${{ secrets.FTP_PASSWORD }}   # FTP 비밀번호
           protocol:   ftp                          
           port:       ${{ secrets.FTP_PORT }}       # FTP 포트
-          server-dir: ${{ endsWith(secrets.FTP_REMOTE_DIR, '/') && secrets.FTP_REMOTE_DIR || format('{0}/', secrets.FTP_REMOTE_DIR) }} # 웹 호스팅 루트 경로
+          server-dir: ${{ secrets.FTP_REMOTE_DIR }} # 웹 호스팅 루트 경로 (슬래시 자동 추가)
           local-dir:  "./www/"
-          state-name: "ftp-deploy-sync-state.json"  # 점파일 금지 서버 대응
           log-level:  verbose                       # 상세 로그로 디버깅 
           dry-run:    false                         # 실제 배포 실행
           exclude: |
