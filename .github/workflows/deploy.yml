@@ -73,3 +73,4 @@ jobs:
             **/__MACOSX/**
             **/_dompdf/**
             **/.well-known/**
+            **/0/**
