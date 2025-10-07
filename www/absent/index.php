@@ -2,6 +2,7 @@
 require_once $_SERVER['DOCUMENT_ROOT'] . '/session.php'; // 세션 파일 포함
 
 $tablename = "eworks";
+
 ?>
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/load_header.php';
@@ -25,7 +26,7 @@ isset($_REQUEST["year"])  ? $year=$_REQUEST["year"] :   $year = date("Y");
 isset($_REQUEST["month"])  ? $month=$_REQUEST["month"] :  $month =date("m");
  
 if($user_name=='소현철' ||$user_name=='김보곤' ||$user_name=='최장중' || $user_name=='이경묵' || $user_name=='소민지' )
-	$admin = 1;
+   	 $admin = 1;
 
 require_once($_SERVER['DOCUMENT_ROOT'] . "/lib/mydb.php");
 $pdo = db_connect();	
