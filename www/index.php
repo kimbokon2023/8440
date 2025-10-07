@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/common/functions.php';
 require_once(includePath('session.php'));
  
 // 모바일 사용여부 확인하는 루틴
