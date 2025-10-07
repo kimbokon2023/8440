@@ -1,4 +1,4 @@
-<?php
+<?php\nrequire_once __DIR__ . '/../common/functions.php';
 session_start();
 $DB = "mirae8440";
 $WebSite = "https://8440.co.kr/";

@@ -1,4 +1,4 @@
-<?php
+<?php\nrequire_once __DIR__ . '/../common/functions.php';
 session_start();
 header("Content-Type: application/json"); // JSON 응답을 위해 헤더 설정
 

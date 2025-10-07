@@ -1,4 +1,5 @@
-<?php require_once(includePath('session.php'));
+<?php\nrequire_once __DIR__ . '/../common/functions.php';
+require_once(includePath('session.php'));
 
  $mcno=$_REQUEST["mcname"];
     

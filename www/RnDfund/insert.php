@@ -1,4 +1,5 @@
-<?php require_once(includePath('session_header.php')); 
+<?php\nrequire_once __DIR__ . '/../common/functions.php';
+require_once(includePath('session_header.php')); 
 
 header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문 받는측에서 필요한 정보임 ajax로 보내는 쪽에서 type : json
 

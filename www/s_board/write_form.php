@@ -1,4 +1,4 @@
-<?php
+<?php\nrequire_once __DIR__ . '/../common/functions.php';
 require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
 $title_message = '안전보건';
 ?>

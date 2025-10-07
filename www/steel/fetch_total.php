@@ -1,4 +1,4 @@
-<?php
+<?php\nrequire_once __DIR__ . '/../common/functions.php';
 header("Content-Type: application/json; charset=utf-8");
 
 require_once(includePath('lib/mydb.php'));

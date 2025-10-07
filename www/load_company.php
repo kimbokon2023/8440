@@ -1,4 +1,4 @@
-<?php
+<?php\nrequire_once __DIR__ . '/common/functions.php';
 // 회사 이름을 추출하여 배열로 반환하는 함수
 function getCompanyArray($pdo, $tableName) {
 // 철판 발주처 DB 불러와서 배열저장 load_company.php 루트에 위치함

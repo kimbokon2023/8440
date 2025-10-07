@@ -1,4 +1,5 @@
-<?php include getDocumentRoot() . "/session.php";  
+<?php\nrequire_once __DIR__ . '/../common/functions.php';
+include getDocumentRoot() . "/session.php";  
  
 $e_line_id = isset($_GET['e_line_id']) ? $_GET['e_line_id'] : ''; 
 

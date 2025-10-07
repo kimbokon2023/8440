@@ -1,4 +1,4 @@
-<?php
+<?php\nrequire_once __DIR__ . '/../common/functions.php';
 require_once(includePath('session.php'));  
 
 $check = isset($_COOKIE['check']) ? $_COOKIE['check'] : 'false';

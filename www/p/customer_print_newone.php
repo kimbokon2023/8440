@@ -1,4 +1,4 @@
-<?php
+<?php\nrequire_once __DIR__ . '/../common/functions.php';
 require_once(includePath('session.php'));
 $title_message = '설치·검수 완료 확인서';
 $tablename = 'work';

@@ -1,5 +1,5 @@
-<?php
-    if(!isset($_SESSION)) 
+<?php\nrequire_once __DIR__ . '/../common/functions.php';
+if(!isset($_SESSION)) 
     { 
         session_start(); 
 		$level =$_SESSION["level"];

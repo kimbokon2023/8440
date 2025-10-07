@@ -1,4 +1,5 @@
-<?php require_once(includePath('session.php'));  
+<?php\nrequire_once __DIR__ . '/common/functions.php';
+require_once(includePath('session.php'));  
 include getDocumentRoot() . '/load_header.php' ?>
 <title> 메뉴접속 로그인 기록 </title>	
 </head> 

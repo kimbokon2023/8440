@@ -1,4 +1,4 @@
-<?php
+<?php\nrequire_once __DIR__ . '/../common/functions.php';
 require_once(includePath('session.php'));
 
 // 메인화면 우측에 플로팅되어 있는 숫자를 추출하는 부분

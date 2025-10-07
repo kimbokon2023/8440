@@ -1,4 +1,5 @@
-<?php include getDocumentRoot() . '/session.php';   
+<?php\nrequire_once __DIR__ . '/../common/functions.php';
+include getDocumentRoot() . '/session.php';   
 
 if (!isset($_SESSION["level"]) || $level > 8) {
     $_SESSION["url"] = 'https://8440.co.kr/request_etc/list.php'; 		   

@@ -1,5 +1,4 @@
-<?php
-
+<?php\nrequire_once __DIR__ . '/../common/functions.php';
 $num_arr = array();
 $checkdate_arr = array();
 $item_arr = array();

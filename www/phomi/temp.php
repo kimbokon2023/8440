@@ -1,4 +1,4 @@
-<?php
+<?php\nrequire_once __DIR__ . '/../common/functions.php';
 require_once(includePath('session.php'));  
 $title_message = '(스크린) 견적 산출내역서 '; 
 $title_message_sub = '견 적 서 (스크린)' ; 

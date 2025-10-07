@@ -1,5 +1,4 @@
-<?php
-   
+<?php\nrequire_once __DIR__ . '/../common/functions.php';
 $num=$_REQUEST["num"];	
 
 if(isset($_REQUEST["search"]))   //목록표에 제목,이름 등 나오는 부분

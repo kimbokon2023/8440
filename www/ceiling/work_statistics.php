@@ -1,4 +1,5 @@
-<?php include getDocumentRoot() . '/session.php';   
+<?php\nrequire_once __DIR__ . '/../common/functions.php';
+include getDocumentRoot() . '/session.php';   
 
  if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
           /*   alert("관리자 승인이 필요합니다."); */

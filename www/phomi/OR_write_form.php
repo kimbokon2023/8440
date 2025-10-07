@@ -1,4 +1,4 @@
-<?php
+<?php\nrequire_once __DIR__ . '/../common/functions.php';
 require_once(includePath('session.php'));  
 $title_message = '포미스톤 출고증'; 
 $title_message_sub = '출 고 요 청 서 (포미스톤)' ; 

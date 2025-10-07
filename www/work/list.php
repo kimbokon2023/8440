@@ -1,4 +1,5 @@
-<?php include getDocumentRoot() . '/session.php';   
+<?php\nrequire_once __DIR__ . '/../common/functions.php';
+include getDocumentRoot() . '/session.php';   
 
 // 첫 화면 표시 문구
 $title_message = 'JAMB 수주'; 

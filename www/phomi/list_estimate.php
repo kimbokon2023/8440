@@ -1,4 +1,4 @@
-<?php
+<?php\nrequire_once __DIR__ . '/../common/functions.php';
 error_reporting(E_ERROR | E_PARSE);
 ini_set('display_errors', 0);
 require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함

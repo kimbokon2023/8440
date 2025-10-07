@@ -1,4 +1,4 @@
-<?php   
+<?php\nrequire_once __DIR__ . '/../common/functions.php';
 /// 개별로 신청하는 것에 대한 DB처리 구간 ///
 /// 개별로 신청하는 것에 대한 DB처리 구간 ///
 

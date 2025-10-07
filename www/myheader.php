@@ -1,4 +1,5 @@
-<?php require_once(includePath('session.php')); ?>
+<?php\nrequire_once __DIR__ . '/common/functions.php';
+require_once(includePath('session.php')); ?>
 
 <form id="eworks_board_form" name="eworks_board_form" method="post" enctype="multipart/form-data" >	    
 	<input type="hidden" id="eworksPage" name="eworksPage" value="<?= isset($eworksPage) ? $eworksPage : '' ?>" > 

@@ -1,4 +1,5 @@
-<?php require_once(includePath('session.php')); ?>
+<?php\nrequire_once __DIR__ . '/../common/functions.php';
+require_once(includePath('session.php')); ?>
 <?php
 $title_message = '부적합 보고 및 대책';
 $admin_name= $_SESSION["name"];

@@ -1,5 +1,4 @@
-<?php
-
+<?php\nrequire_once __DIR__ . '/../common/functions.php';
 // 수정작업 2023년 7월 14일 UI 개선
 // 설계자 자동입력 수정 23/09/14
     if(!isset($_SESSION)) 

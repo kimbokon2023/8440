@@ -1,5 +1,4 @@
-<?php 
-
+<?php\nrequire_once __DIR__ . '/../common/functions.php';
 header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문
 
 isset($_REQUEST["e_num"])  ? $e_num = $_REQUEST["e_num"] :   $e_num=""; 

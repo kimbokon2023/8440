@@ -1,4 +1,5 @@
-<?php require_once(includePath('session_header.php')); 
+<?php\nrequire_once __DIR__ . '/../common/functions.php';
+require_once(includePath('session_header.php')); 
    
    // 첫 화면 표시 문구
 $title_message = '연구소';

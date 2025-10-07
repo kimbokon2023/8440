@@ -1,4 +1,4 @@
-<?php   
+<?php\nrequire_once __DIR__ . '/../common/functions.php';
 session_start();
 header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문        
 $num=$_REQUEST["num"];   

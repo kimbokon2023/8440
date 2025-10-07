@@ -1,3 +1,6 @@
+<?php
+require_once __DIR__ . '/../common/functions.php';
+?>
 ﻿<?php include getDocumentRoot() . '/session.php';   
 
 // 첫 화면 표시 문구

@@ -1,5 +1,4 @@
-<?php
-
+<?php\nrequire_once __DIR__ . '/../common/functions.php';
 // php warning 안나오게 하는 방법
 ini_set('display_errors', 'Off');
 

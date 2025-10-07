@@ -1,3 +1,6 @@
+<?php
+require_once __DIR__ . '/../common/functions.php';
+?>
  <?php
 require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
  

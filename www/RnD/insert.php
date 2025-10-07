@@ -1,4 +1,4 @@
-<?php
+<?php\nrequire_once __DIR__ . '/../common/functions.php';
 require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
    
 // 임시저장된 첨부파일을 확정하기 위해 검사하기  

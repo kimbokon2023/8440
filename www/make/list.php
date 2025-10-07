@@ -1,4 +1,5 @@
-<?php require_once(includePath('session.php'));	
+<?php\nrequire_once __DIR__ . '/../common/functions.php';
+require_once(includePath('session.php'));	
   
  if(!isset($_SESSION["level"]) || $level>=5) {
 		 sleep(1);

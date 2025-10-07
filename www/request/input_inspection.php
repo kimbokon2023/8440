@@ -1,4 +1,4 @@
-<?php
+<?php\nrequire_once __DIR__ . '/../common/functions.php';
 require_once(includePath('session.php')); 
  
    if(isset($_REQUEST["num"]))  //수정 버튼을 클릭해서 호출했는지 체크

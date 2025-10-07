@@ -1,4 +1,5 @@
-<?php include getDocumentRoot() . '/session.php';    
+<?php\nrequire_once __DIR__ . '/../common/functions.php';
+include getDocumentRoot() . '/session.php';    
 if(!isset($_SESSION["name"]) ) {	          
 		 $_SESSION["url"]='https://8440.co.kr/annualleave/index.php?user_name=' . $user_name; 	
 		 sleep(1);

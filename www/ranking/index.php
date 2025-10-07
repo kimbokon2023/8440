@@ -1,3 +1,6 @@
+<?php
+require_once __DIR__ . '/../common/functions.php';
+?>
  <?php
  session_start(); 
  
