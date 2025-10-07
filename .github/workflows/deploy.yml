@@ -1,4 +1,4 @@
-name: Deploy to j-techel.co.kr via FTP
+name: Deploy to 8440.co.kr via FTP
 on:
   push:
     branches: ["main"]
@@ -68,3 +68,6 @@ jobs:
             **/uploads/**
             **/storage/**
             **/lib/**             
+            **/dbeditor/**             
+            **/bseditor/**             
+            **/bseditor/**             
