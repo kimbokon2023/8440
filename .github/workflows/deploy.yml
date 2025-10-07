@@ -43,7 +43,7 @@ jobs:
           password:   ${{ secrets.FTP_PASSWORD }}   # FTP 비밀번호
           protocol:   ftp                          
           port:       ${{ secrets.FTP_PORT }}       # FTP 포트
-          server-dir: ${{ secrets.FTP_REMOTE_DIR }}/wwww/ # 웹 호스팅 루트 경로
+          server-dir: ${{ endsWith(secrets.FTP_REMOTE_DIR, '/') && secrets.FTP_REMOTE_DIR || format('{0}/', secrets.FTP_REMOTE_DIR) }} # 웹 호스팅 루트 경로
           local-dir:  "./www/"
           state-name: "ftp-deploy-sync-state.json"  # 점파일 금지 서버 대응
           log-level:  verbose                       # 상세 로그로 디버깅 
