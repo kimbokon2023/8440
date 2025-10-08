@@ -1,13 +1,13 @@
-name: Deploy to 8440.co.kr via SFTP
+name: Deploy to 8440.co.kr via FTP
 on:
   push:
     branches: ["main"]
 
 jobs:
-  sftp-deploy:
+  ftp-deploy:
     runs-on: ubuntu-latest
     concurrency:
-      group: sftp-deploy
+      group: ftp-deploy
       cancel-in-progress: true
 
     steps:
@@ -28,27 +28,27 @@ jobs:
         run: |
           find ./www -type d -empty -exec touch {}/.gitkeep \;
 
-      # SFTP 연결 정보 로그(민감정보는 출력하지 않음)
-      - name: Verify SFTP connection settings (safe log)
+      # FTP 연결 정보 로그(민감정보는 출력하지 않음)
+      - name: Verify FTP connection settings (safe log)
         run: |
           echo "Server: ${{ secrets.FTP_SERVER }}"
           echo "User:   ${{ secrets.FTP_USERNAME }}"
-          echo "Port:   ${{ secrets.FTP_PORT || '22' }}"
+          echo "Port:   ${{ secrets.FTP_PORT || '21' }}"
           echo "Dir:    ${{ secrets.FTP_REMOTE_DIR }}"
           # 끝 슬래시 강제 확인
           if [ -n "${{ secrets.FTP_REMOTE_DIR }}" ] && [ "${{ secrets.FTP_REMOTE_DIR }}" != */ ]; then
             echo "::warning::FTP_REMOTE_DIR should end with a slash. e.g. /www/"
           fi
 
-      # SFTP 배포
-      - name: Deploy (SFTP)
+      # FTP 배포
+      - name: Deploy (FTP)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server:     ${{ secrets.FTP_SERVER }}        # ex) 8440.co.kr
           username:   ${{ secrets.FTP_USERNAME }}      # ex) mirae8440
           password:   ${{ secrets.FTP_PASSWORD }}
-          protocol:   sftp                             # ← SFTP 사용
-          port:       ${{ secrets.FTP_PORT || 22 }}    # ← 22 (Secret 없으면 22 기본)
+          protocol:   ftp                              # ← FTP 사용 (Action 지원 프로토콜)
+          port:       ${{ secrets.FTP_PORT || 21 }}    # ← 21 (Secret 없으면 21 기본)
           server-dir: ${{ secrets.FTP_REMOTE_DIR }}    # ex) /www/ (슬래시 필수)
           local-dir:  "./www/"
           log-level:  verbose

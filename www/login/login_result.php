@@ -1,10 +1,16 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php require_once __DIR__ . '/../bootstrap.php';
+
 session_start();
 $DB = "mirae8440";
-$WebSite = "https://8440.co.kr/";
+$WebSite = getBaseUrl() . '/';
 
-$id=$_REQUEST["uid"];
-$pw=$_REQUEST["upw"];
+$id=$_REQUEST["uid"] ?? '';
+$pw=$_REQUEST["upw"] ?? '';
+
+if (empty($id) || empty($pw)) {
+    header('Location: ' . getBaseUrl() . '/login/login_form.php');
+    exit; 
+}
 
 ?>
 
@@ -28,10 +34,8 @@ $pw=$_REQUEST["upw"];
 
   </head>
 
-  <body cellpadding="0" cellspacing="0" width="100%" height="100%" align="center">
-	
-	
-	
+  <body cellpadding="0" cellspacing="0" width="100%" height="100%">
+		
 	<?php
 
 $id=$_REQUEST["uid"];
