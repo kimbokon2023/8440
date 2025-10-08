@@ -1,6 +1,8 @@
 <?php
-require_once getDocumentRoot() . '/QC/func_badAllexcept.php';
+require_once includePath('QC/func_badAllexcept.php');
 ?>
+
+<?php $option = isset($option) ? $option : ''; ?>
 
 <div class="card">         
 	<?php if($option =='option') : ?>	
@@ -13,7 +15,7 @@ require_once getDocumentRoot() . '/QC/func_badAllexcept.php';
 	</div>
 	<?php endif; ?>	
 	<?php if($option =='option') : ?>
-		<div class="card-body" style="padding:1;!important;">
+		<div class="card-body" style="padding:1!important;">
 	<?php else: ?>				
 		<div class="card-body">
 	<?php endif; ?>	

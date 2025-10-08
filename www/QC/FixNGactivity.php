@@ -1,4 +1,4 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php require_once __DIR__ . '/../bootstrap.php';
 require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 

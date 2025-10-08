@@ -1,4 +1,4 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php require_once __DIR__ . '/../bootstrap.php';
 require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
@@ -59,7 +59,7 @@ try {
 	<?php endif; ?>
 	</div>
 	<?php if($option =='option') : ?>
-		<div class="card-body" style="padding:1;!important;">
+		<div class="card-body" style="padding:1!important;">
 	<?php else: ?>				
 		<div class="card-body">
 	<?php endif; ?>			

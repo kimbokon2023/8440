@@ -1,12 +1,21 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php require_once __DIR__ . '/../bootstrap.php';
+
+if(session_status() == PHP_SESSION_NONE) {
+	session_start();
+}
+
+require_once(includePath('session.php'));
+
 require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
 
  $eworks_level= $_SESSION["eworks_level"];	
  
 isset($_REQUEST["selnum"]) ? $selnum=$_REQUEST["selnum"] : $selnum='';  
 
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();	
+if (!isset($pdo) || !$pdo) {
+    require_once includePath('lib/mydb.php');
+    $pdo = db_connect();
+}
 
 // 결재라인을 잡으려면 배열저장
 $eworks_level_arr = array(); 
@@ -65,7 +74,7 @@ function countEworksStatus($pdo, $user_id, $viewCondition, $isApprover) {
         $stmh->execute();
 
         while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-            include getDocumentRoot() . "/eworks/_row.php";
+            include includePath('eworks/_row.php');
             
 			 if($isApprover) 
 			  {

@@ -1,4 +1,4 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php require_once __DIR__ . '/../bootstrap.php';
 $num_arr = array();
 $checkdate_arr = array();
 $item_arr = array();
@@ -78,8 +78,9 @@ $questionstep_arr=array();
 	  $mcmaker_arr[$counter] = $row["mcmaker"];
 	  $mcmain_arr[$counter] = $row["mcmain"];
 	  $mcsub_arr[$counter] = $row["mcsub"];
-	  $qrcode_tmp = 'http://8440.co.kr/img/' . $qrcode . '.png' ;
-	  $qrcode_arr[$counter] = 'http://8440.co.kr/img/' . $qrcode . '.png' ;
+	  $qrcode_tmp = $row["qrcode"] ?? '';
+	  $qrcode = $qrcode_tmp;
+	  $qrcode_arr[$counter] = $qrcode_tmp;
       $questionstep_arr[$counter]=$row["questionstep"];	  	  
 	  
       $counter++;		 		
@@ -92,14 +93,10 @@ $questionstep_arr=array();
 // mcmain mcsub 찾아 정하기
 for($i=0;$i<count($mcmain_arr);$i++)
 {
-	if($mcno_arr[$i] == $mcno)
+	if($mcno_arr[$i] == $mcno ?? '')
 	{
 		$mcmain= $mcmain_arr[$i];
 		$mcsub= $mcsub_arr[$i];
-		// print '찾았다.';
 	}
-	// print $mcno_arr[$i];
 }
-
-
  ?>

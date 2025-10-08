@@ -1,5 +1,5 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-include getDocumentRoot() . '/session.php';   
+<?php require_once __DIR__ . '/../bootstrap.php';
+include includePath('session.php');   
 
  if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
           /*   alert("관리자 승인이 필요합니다."); */
@@ -12,12 +12,9 @@ $title_message = "본천장/LC 제조통계";
    
  ?>
  
-<?php include getDocumentRoot() . '/load_header.php' ?>
+<?php include includePath('load_header.php') ?>
 
 <title>  <?=$title_message?></title>
-
-<!-- Dashboard CSS -->
-<link rel="stylesheet" href="../css/dashboard-style.css" type="text/css" />
 
 <style>
 /* Light & Subtle Theme - Ceiling Work Statistics */
@@ -1011,11 +1008,11 @@ $('input[name="item_sel"]').change(function() {
 						options: {
 							responsive: false,
 							scales: {
-								yAxes: [{
+								y: {
 									ticks: {
 										beginAtZero: true
 									}
-								}]
+								}
 							},
 						}
 					});
@@ -1078,11 +1075,11 @@ $('input[name="item_sel"]').change(function() {
 						options: {
 							responsive: false,
 							scales: {
-								yAxes: [{
+								y: {
 									ticks: {
 										beginAtZero: true
 									}
-								}]
+								}
 							},
 						}
 					});	
@@ -1181,11 +1178,11 @@ if(item_type=='작년대비 월비교')
 						options: {
 							responsive: false,
 							scales: {
-								yAxes: [{
+								y: {
 									ticks: {
 										beginAtZero: true
 									}
-								}]
+								}
 							},
 						}
 					});	
@@ -1284,11 +1281,11 @@ if(item_type=='1년~2년전 년도비교')
 						options: {
 							responsive: false,
 							scales: {
-								yAxes: [{
+								y: {
 									ticks: {
 										beginAtZero: true
 									}
-								}]
+								}
 							},
 						}
 					});	

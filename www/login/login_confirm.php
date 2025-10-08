@@ -2,8 +2,8 @@
 
 header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문  
 
-$id=$_REQUEST["uid"];
-$pw=$_REQUEST["upw"];
+$id=$_REQUEST["uid"] ?? '';
+$pw=$_REQUEST["upw"] ?? '';
 
 require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
@@ -29,7 +29,9 @@ if($count<1)
 else
 {		
 	// 세션 시작	
-	session_start();
+    if(session_status() == PHP_SESSION_NONE) {
+		session_start();
+	}
 	
 	$DB = "mirae8440";
 	$WebSite = getBaseUrl() . '/';
@@ -62,9 +64,6 @@ $data = array(
 		"error" => $error,
 		"level" => $level
 );
-
 //json 출력
 echo(json_encode($data, JSON_UNESCAPED_UNICODE));	
-	
-
 ?>

@@ -108,7 +108,15 @@ upfile/
 
 # 기타 DB Editor 제외
 lib/
-dbeditor/               
+dbeditor/           
+vendor/
+jexcel/
+jqGrid/
+pdf/
+PHPExcel_1.8.0/
+plugin/
+snote/
+tcpdf/    
 _mirror_*.git/
 __pycache__/
 *.pyc

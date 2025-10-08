@@ -1,4 +1,4 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php require_once __DIR__ . '/../bootstrap.php';
 require_once(includePath('session.php'));
 
 // 첫 화면 표시 문구
@@ -14,7 +14,7 @@ $title_message = '품질방침/품질목표';
 <body>
 
 <?php 
-$header = isset($_REQUEST["header"]) ? $_REQUEST["header"] : "";
+$header = isset($_REQUEST["header"]) ? $_REQUEST["header"] : '';
 if($header !=='header')
 	require_once(includePath('myheader.php')); 
 
@@ -35,7 +35,7 @@ $pdo = db_connect();
 $tablename = "iso";  
 
 $mode = isset($_REQUEST["mode"]) ? $_REQUEST["mode"] : "";
-$search = isset($_REQUEST["search"]) ? $_REQUEST["search"] : "";
+$search = isset($_REQUEST["search"]) ? $_REQUEST["search"] : '';
 
 if ($mode == "search") {
     if (!$search) {
@@ -144,10 +144,10 @@ $currentYear = date("Y");
 </div>  
 <div class="row mt-3 mb-1 justify-content-center align-items-top">
 		<div class="col-sm-6">
-	        <?php include getDocumentRoot() . '/QC/prod_jamb.php' ?>   
+	        <?php include includePath('QC/prod_jamb.php') ?>   
 		</div>
 		<div class="col-sm-6">
-	        <?php include getDocumentRoot() . '/QC/prod_ceiling.php' ?>   
+	        <?php include includePath('QC/prod_ceiling.php') ?>   
 		</div>
 </div>
 
@@ -156,10 +156,10 @@ $currentYear = date("Y");
 </div>  
 <div class="row mt-3 mb-1 justify-content-center align-items-top">
 		<div class="col-sm-6">
-			<?php include getDocumentRoot() . '/QC/rate_badAll.php' ?>   
+			<?php include includePath('QC/rate_badAll.php') ?>   
 		</div>
 		<div class="col-sm-6">		
-	        <?php include getDocumentRoot() . '/QC/rate_badDetail.php' ?>   
+	        <?php include includePath('QC/rate_badDetail.php') ?>   
 		</div>
 </div>
 
@@ -168,10 +168,10 @@ $currentYear = date("Y");
 </div>  
 <div class="row mt-3 mb-1 justify-content-center align-items-top">
 		<div class="col-sm-6">
-			<?php include getDocumentRoot() . '/QC/rate_badAllexcept.php' ?>   
+			<?php include includePath('QC/rate_badAllexcept.php') ?>   
 		</div>
 		<div class="col-sm-6">		
-	        <?php include getDocumentRoot() . '/QC/rate_badDetailexcept.php' ?>   
+	        <?php include includePath('QC/rate_badDetailexcept.php') ?>   
 		</div>
 </div>
 
@@ -180,10 +180,10 @@ $currentYear = date("Y");
 </div>  
 <div class="row mt-3 mb-1 justify-content-center align-items-top">
 		<div class="col-sm-6">
-			<?php include getDocumentRoot() . '/QC/rate_badAllJamb.php' ?>   
+			<?php include includePath('QC/rate_badAllJamb.php') ?>   
 		</div>
 		<div class="col-sm-6">		
-	        <?php include getDocumentRoot() . '/QC/rate_badDetailJamb.php' ?>   
+	        <?php include includePath('QC/rate_badDetailJamb.php') ?>   
 		</div>
 </div>
 
@@ -192,10 +192,10 @@ $currentYear = date("Y");
 </div>  
 <div class="row mt-3 mb-1 justify-content-center align-items-top">
 		<div class="col-sm-6">
-			<?php include getDocumentRoot() . '/QC/rate_badAllCeiling.php' ?>   
+            <?php include includePath('QC/rate_badAllCeiling.php') ?>   
 		</div>
 		<div class="col-sm-6">		
-	        <?php include getDocumentRoot() . '/QC/rate_badDetailCeiling.php' ?>   
+	        <?php include includePath('QC/rate_badDetailCeiling.php') ?>   
 		</div>
 </div>
 
@@ -203,7 +203,7 @@ $currentYear = date("Y");
 <!-- 점유율 그래프 -->
 <div class="row mt-5 mb-5 justify-content-center align-items-top">
 		<div class="col-sm-12"> 
-			 <?php include "../load_errorstatistics.php";   ?>		  
+			 <?php include includePath('load_errorstatistics.php');   ?>		  
 		</div>
 
 </div>
@@ -216,7 +216,7 @@ $currentYear = date("Y");
 		  </div>
 	<div id="NGlist">	  
 		<div class="col-sm-12"> 
-			<?php include getDocumentRoot() . '/QC/rate_badList.php' ?>    
+			<?php include includePath('QC/rate_badList.php') ?>    
 		</div>
 	</div>
 
@@ -229,7 +229,7 @@ $currentYear = date("Y");
 		  </div>
 	<div id="NGreportlist">	  
 		<div class="col-sm-12"> 
-			<?php include getDocumentRoot() . '/QC/NGreport.php' ?>    
+			<?php include includePath('QC/NGreport.php') ?>    
 		</div>
 	</div>
 
@@ -242,7 +242,7 @@ $currentYear = date("Y");
 		  </div>
 	<div id="FixNGList">	  
 		<div class="col-sm-12"> 
-			<?php include getDocumentRoot() . '/QC/FixNGactivity.php' ?>    
+			<?php include includePath('QC/FixNGactivity.php') ?>    
 		</div>
 	</div>
 
@@ -255,7 +255,7 @@ $currentYear = date("Y");
 		  </div>
 	<div id="MCactivity">	  
 		<div class="col-sm-12"> 
-			<?php include getDocumentRoot() . '/QC/MCactivity.php' ?>    
+			<?php include includePath('QC/MCactivity.php') ?>    
 		</div>
 	</div>
 
@@ -267,7 +267,7 @@ $currentYear = date("Y");
 		  </div>
 	<div id="MCquestion">	  
 		<div class="col-sm-12"> 
-			<?php include getDocumentRoot() . '/QC/MCquestion.php' ?>    
+			<?php include includePath('QC/MCquestion.php') ?>    
 		</div>
 	</div>
 

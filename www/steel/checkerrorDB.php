@@ -1,7 +1,9 @@
 <?php
-session_start();
-require_once("./lib/mydb.php");
-$pdo = db_connect();  
+require_once __DIR__ . '/../bootstrap.php';
+if (!isset($pdo) || !$pdo) {
+    require_once includePath('lib/mydb.php');
+    $pdo = db_connect();
+}
 
 // 불량에 대한 정보를
 

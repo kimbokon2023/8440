@@ -1,5 +1,4 @@
-<?php\nrequire_once __DIR__ . '/common/functions.php';
-require_once(includePath('session.php'));
+<?php require_once __DIR__ . '/bootstrap.php';
 
 // header('Cache-Control: no cache');
 // 자바스크립트 자동 업데이트를 위한 version 설정
@@ -64,11 +63,11 @@ if($user_name=='소현철' || $user_name=='김보곤' || $user_name=='이경묵'
 <meta charset="UTF-8">
 <meta property="og:type" content="미래기업 통합정보시스템">
 <meta property="og:title" content="미래기업 통합정보시스템">
-<meta property="og:url" content="https://8440.co.kr">
+<meta property="og:url" content="<?= getBaseUrl() ?>">
 <meta property="og:description" content="정확한 업무처리 포탈!">
-<meta property="og:image" content="<?$root_dir?>/img/miraethumbnail.jpg"> 
+<meta property="og:image" content="<?= asset('img/miraethumbnail.jpg') ?>"> 
  
-<script src="<?$root_dir?>/js/jquery.min.js"></script>
+<script src="<?= asset('js/jquery.min.js') ?>"></script>
 
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap">
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
@@ -106,13 +105,13 @@ if($user_name=='소현철' || $user_name=='김보곤' || $user_name=='이경묵'
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-<link rel="stylesheet" href="<?$root_dir?>/css/style.css?version=<?=$version?>">
-<link rel="stylesheet" href="<?$root_dir?>/css/eworks.css?version=<?=$version?>">
-<script src="<?$root_dir?>/js/common.js?version=<?=$version?>"></script>
-<script src="<?$root_dir?>/js/typingscript.js"></script>  <!-- typingscript.js 포함  글자 움직이면서 써지는 루틴 -->
-<script src="<?$root_dir?>/js/calinseung.js?version=<?=$version?>"></script>
-<script src="<?$root_dir?>/js/date.js?version=<?=$version?>"></script>
-<script src="<?$root_dir?>/js/index.js?version=<?=$version?>"></script>
-<script src="<?$root_dir?>/js/todolist.js?version=<?=$version?>"></script>
-<script src="<?$root_dir?>/js/cookie.js?version=<?=$version?>"></script>
-<script src="<?$root_dir?>/js/log.js?version=<?=$version?>"></script>  <!-- 각 메뉴 방문기록 남김 -->
+<link rel="stylesheet" href="<?= asset('css/style.css?version=' . $version) ?>">
+<link rel="stylesheet" href="<?= asset('css/eworks.css?version=' . $version) ?>">
+<script src="<?= asset('js/common.js?version=' . $version) ?>"></script>
+<script src="<?= asset('js/typingscript.js') ?>"></script>  <!-- typingscript.js 포함  글자 움직이면서 써지는 루틴 -->
+<script src="<?= asset('js/calinseung.js?version=' . $version) ?>"></script>
+<script src="<?= asset('js/date.js?version=' . $version) ?>"></script>
+<script src="<?= asset('js/index.js?version=' . $version) ?>"></script>
+<script src="<?= asset('js/todolist.js?version=' . $version) ?>"></script>
+<script src="<?= asset('js/cookie.js?version=' . $version) ?>"></script>
+<script src="<?= asset('js/log.js?version=' . $version) ?>"></script>  <!-- 각 메뉴 방문기록 남김 -->

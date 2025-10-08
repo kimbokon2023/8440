@@ -1,4 +1,4 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php require_once __DIR__ . '/../bootstrap.php';
 header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문
 
 isset($_REQUEST["e_num"])  ? $e_num = $_REQUEST["e_num"] :   $e_num=""; 
@@ -30,7 +30,7 @@ $done_arr= array();
      // print "검색결과가 없습니다.<br>";
      }   else    {      
 		while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-			include "_row.php";
+			include includePath('eworks/_row.php');
 			array_push($num_arr, $e_num);
 			array_push($e_title_arr, $e_title);
 			array_push($contents_arr, $contents);

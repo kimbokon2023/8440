@@ -1,4 +1,4 @@
-<?php include getDocumentRoot() . '/session.php';   
+<?php include includePath('session.php');   
 
 $title_message = "실시간 본천장/LC 제조수량";
 
@@ -8,8 +8,7 @@ $todate = date("Y") . "-12-31";
 $Transtodate = date("Y-m-d", strtotime($todate . '+1 days'));
 
 $sum1 = 0;
-$sum2 = 0;
-$sum3 = 0;
+$sum2 = 0;  
 
 $sql = "SELECT * FROM mirae8440.ceiling WHERE workday BETWEEN date('$fromdate') AND date('$Transtodate')";
 
@@ -118,11 +117,9 @@ for ($month = 1; $month <= 12; $month++) {
         options: {
             responsive: false,
             scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    }
-                }]
+                y: {
+                    beginAtZero: true
+                }
             },
         }
     });

@@ -1,4 +1,6 @@
 <?php
+require_once(includePath('lib/mydb.php'));
+$pdo = db_connect();
 // SQL 쿼리를 작성하여 출고된 자재의 전체 생산 면적, 양산품 면적, 불량품 면적을 계산 (소장 제외)
 $sql_total_area = "
     SELECT 

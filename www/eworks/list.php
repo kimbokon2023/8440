@@ -1,4 +1,11 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php require_once __DIR__ . '/../bootstrap.php';
+
+if(session_status() == PHP_SESSION_NONE) {
+	session_start();
+}
+
+require_once(includePath('session.php'));
+
 require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
 ?>
 
@@ -11,7 +18,11 @@ require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
 	<table class="table table-hover table-sm" id="myEworks_Table" >	
 
 <?php
-require_once(includePath('lib/mydb.php'));
+if (!isset($pdo) || !$pdo) {
+    require_once includePath('lib/mydb.php');
+    $pdo = db_connect();
+}
+
 $pdo = db_connect();	
 	// 결재라인을 잡으려면 배열저장
 	$eworks_level_arr = array();

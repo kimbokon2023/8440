@@ -72,9 +72,17 @@ $questionstep_arr=array();
 		  $mcmaker_arr[$counter] = $row["mcmaker"];
 		  $mcmain_arr[$counter] = $row["mcmain"];
 		  $mcsub_arr[$counter] = $row["mcsub"];
-		  $qrcode = $row["qrcode"];
-		  $qrcode_tmp = 'https://8440.co.kr/img/' . $qrcode . '.png' ;
-		  $qrcode_arr[$counter] = 'https://8440.co.kr/img/' . $qrcode . '.png' ;
+		  $qrcode = $row["qrcode"] ?? '';
+		  // 환경에 따라 QR코드 이미지 경로를 다르게 설정 (로컬/서버)
+		  if (isset($_SERVER['HTTP_HOST']) && ($_SERVER['HTTP_HOST'] === 'localhost' || $_SERVER['HTTP_HOST'] === '127.0.0.1')) {
+		      // 로컬 개발 환경
+		      $qrcode_tmp = '/img/' . $qrcode . '.png';
+		      $qrcode_arr[$counter] = '/img/' . $qrcode . '.png';
+		  } else {
+		      // 운영 서버 환경
+		      $qrcode_tmp = 'https://8440.co.kr/img/' . $qrcode . '.png';
+		      $qrcode_arr[$counter] = 'https://8440.co.kr/img/' . $qrcode . '.png';
+		  }
 		  $questionstep_arr[$counter]=$row["questionstep"];	  	  
 	  
       $counter++;		 		
@@ -87,14 +95,10 @@ $questionstep_arr=array();
 // mcmain mcsub 찾아 정하기
 for($i=0;$i<count($mcmain_arr);$i++)
 {
-	if($mcno_arr[$i] == $mcno)
+	if($mcno_arr[$i] == $mcno ?? '')
 	{
 		$mcmain= $mcmain_arr[$i];
 		$mcsub= $mcsub_arr[$i];
-		// print '찾았다.';
 	}
-	 // print $mcno_arr[$i];
 }
-
-
  ?>

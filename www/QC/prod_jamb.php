@@ -1,5 +1,5 @@
-<?php include getDocumentRoot() . '/session.php';   
+<?php include includePath('session.php');   
 
-include getDocumentRoot() . '/QC/prod_jamb_sub.php';    
+include includePath('QC/prod_jamb_sub.php');    
 
 ?> 

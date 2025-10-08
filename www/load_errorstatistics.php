@@ -10,6 +10,8 @@ $Transtodate=date("Y-m-d",$Transtodate);
 $readIni = array();   // 환경파일 불러오기
 $readIni = parse_ini_file(getDocumentRoot() . "/steel/settings.ini",false);
 
+$header = $_REQUEST['header'] ?? 'false';
+
 $PO = isset($readIni['PO']) ? (int)str_replace(',', '', $readIni['PO']) : 0;
 $CR = isset($readIni['CR']) ? (int)str_replace(',', '', $readIni['CR']) : 0;
 $EGI = isset($readIni['EGI']) ? (int)str_replace(',', '', $readIni['EGI']) : 0;
@@ -34,6 +36,8 @@ $price_per_kg = [
     'I3HL304' => $I3HL304,
     'I3MR304' => $I3MR304
 ];
+
+$exclude_bad_choice = isset($exclude_bad_choice) ? $exclude_bad_choice : 'false';
 
 // 소장/기타/소재/업체 체크 제외인 경우
 if ($exclude_bad_choice !== 'false') {
@@ -273,6 +277,8 @@ echo '
     <div class="compact-subtitle">원자재 부적합 집계 현황</div>    
 </div>';
 
+$Allmonth = isset($Allmonth) ? $Allmonth : 'false';
+
 if ($Allmonth === 'true') {
     // 소장/업체 체크 제외인 경우
     if ($exclude_bad_choice === 'false') {
@@ -353,7 +359,9 @@ while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
 }
 
 ?>
-
+<?php
+    $header = isset($header) ? $header : 'false';
+?>
 <?php if($header == 'header') : // 초기화면에서 감춤 처리 ?>
 <!-- Compact Chart Containers for 3-Grid Layout -->
 <div class="compact-chart-container">

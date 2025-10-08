@@ -1,4 +1,4 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php require_once __DIR__ . '/../bootstrap.php';
 require_once(includePath('session.php'));
 
  if(!isset($_SESSION["level"]) || $level>=5) {
@@ -9,7 +9,7 @@ require_once(includePath('session.php'));
 $title_message = "원자재 입출고 차트";
 ?>
 
-<?php include getDocumentRoot() . '/load_header.php' ?>   
+<?php include includePath('load_header.php') ?>   
 
 <title> <?=$title_message?> </title> 
 <style>    	
@@ -615,11 +615,9 @@ $('input[name="chart_sel"]').change(function() {
 		options: {
 			responsive: false,
 			scales: {
-				yAxes: [{
-					ticks: {
-						beginAtZero: true
-					}
-				}]
+				y: {
+					beginAtZero: true
+				}
 			},
 		}
 	});

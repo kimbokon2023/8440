@@ -3,9 +3,12 @@
 // 점검일마다 자료를 생성해 주는 루틴입니다.
 // 점검일마다 자료를 생성해 주는 루틴입니다.
 
-session_start();
-require_once("./lib/mydb.php");
-$pdo = db_connect();  
+require_once __DIR__ . '/../bootstrap.php';
+// 보강: 부트스트랩에서 연결이 없을 때 재시도
+if (!isset($pdo) || !$pdo) {
+    require_once includePath('lib/mydb.php');
+    $pdo = db_connect();
+}
 
 // 배열로 장비점검리스트 불러옴
 
@@ -85,8 +88,8 @@ $questionstep_arr=array();
 	  $mcmaker_arr[$counter] = $row["mcmaker"];
 	  $mcmain_arr[$counter] = $row["mcmain"];
 	  $mcsub_arr[$counter] = $row["mcsub"];
-	  $qrcode_tmp = 'http://8440.co.kr/img/' . $qrcode . '.png' ;
-	  $qrcode_arr[$counter] = 'http://8440.co.kr/img/' . $qrcode . '.png' ;
+      $qrcode_tmp = asset('img/' . $row['qrcode'] . '.png');
+      $qrcode_arr[$counter] = $qrcode_tmp;
       $questionstep_arr[$counter]=$row["questionstep"];	  	  
 	  
       $counter++;		 		
@@ -96,16 +99,17 @@ $questionstep_arr=array();
 }	
 
 
-// mcmain mcsub 찾아 정하기
-for($i=0;$i<count($mcmain_arr);$i++)
-{
-	if($mcno_arr[$i] == $mcno)
-	{
-		$mcmain= $mcmain_arr[$i];
-		$mcsub= $mcsub_arr[$i];
-		// print '찾았다.';
-	}
-	// print $mcno_arr[$i];
+// mcmain mcsub 찾아 정하기 (요청값이 있을 때만 수행)
+if (isset($mcno)) {
+    for($i=0;$i<count($mcmain_arr);$i++)
+    {
+        if($mcno_arr[$i] == $mcno)
+        {
+            $mcmain= $mcmain_arr[$i];
+            $mcsub= $mcsub_arr[$i];
+            break;
+        }
+    }
 }
 
     
@@ -148,8 +152,8 @@ $qrcode_arr=array();
 	  $mcmaker_arr[$counter] = $row["mcmaker"];
 	  $mcmain_arr[$counter] = $row["mcmain"];
 	  $mcsub_arr[$counter] = $row["mcsub"];
-	  $qrcode_tmp = 'http://8440.co.kr/img/' . $qrcode . '.png' ;
-	  $qrcode_arr[$counter] = 'http://8440.co.kr/img/' . $qrcode . '.png' ;
+      $qrcode_tmp = asset('img/' . $qrcode . '.png');
+      $qrcode_arr[$counter] = $qrcode_tmp;
 	  // print $qrcode_tmp;
    
       $counter++;	

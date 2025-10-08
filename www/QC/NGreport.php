@@ -1,5 +1,5 @@
 <?php
-session_start();
+include includePath('session.php');
 
 if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
     sleep(1);

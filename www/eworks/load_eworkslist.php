@@ -1,10 +1,19 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php require_once __DIR__ . '/../bootstrap.php';
+
+if(session_status() == PHP_SESSION_NONE) {
+	session_start();
+}
+
 require_once(includePath('session.php'));
 
 // 메인화면 우측에 플로팅되어 있는 숫자를 추출하는 부분
 // 메인화면 우측에 플로팅되어 있는 숫자를 추출하는 부분
 
-require_once(includePath('lib/mydb.php'));
+if (!isset($pdo) || !$pdo) {
+    require_once includePath('lib/mydb.php');
+    $pdo = db_connect();
+}
+
 $pdo = db_connect();  
 
 // 결재라인을 설정하기 위해 사용자 정보를 배열에 저장

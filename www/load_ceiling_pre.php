@@ -1,5 +1,10 @@
-<?php\nrequire_once __DIR__ . '/common/functions.php';
-require_once(includePath('lib/mydb.php'));
+<?php require_once __DIR__ . '/common/functions.php';
+require_once __DIR__ . '/bootstrap.php';
+// 보강: 부트스트랩 단계에서 연결 실패 시 재시도
+if (!isset($pdo) || !$pdo) {
+    require_once includePath('lib/mydb.php');
+    $pdo = db_connect();
+}
 $pdo = db_connect();	
 
 $sum_ceiling = array();

@@ -1,4 +1,4 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php require_once __DIR__ . '/../bootstrap.php';
 require_once getDocumentRoot() . '/session.php';
 require_once(includePath('lib/mydb.php'));
 
@@ -16,7 +16,7 @@ try {
     $pdo = db_connect();
     
     // 거래처 번호 확인
-    $num = isset($_POST['num']) ? intval($_POST['num']) : 0;
+    $num = isset($_POST['num']) ? intval($_POST['num']) : '';
     
     if (!$num) {
         throw new Exception('잘못된 거래처 번호입니다.');

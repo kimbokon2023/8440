@@ -1,9 +1,9 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php require_once __DIR__ . '/../bootstrap.php';
 require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
 // 기초 자료를 불러오는 코드
-include getDocumentRoot() . "/qc/load_DB.php";
+include includePath("qc/load_DB.php");
 ?>
 
 <div class="container">
@@ -20,7 +20,8 @@ include getDocumentRoot() . "/qc/load_DB.php";
                     $mcmaker = $mcmaker_arr[$i];
                     $mcmain = $mcmain_arr[$i];
                     $mcsub = $mcsub_arr[$i];
-                    $qrcode = $qrcode_arr[$i];					
+                    $qrcode_tmp = $qrcode_arr[$i];
+                    $qrcode = $qrcode_tmp;					
                 ?>
                     <div class="col mb-2">
                         <div class="card h-100" onclick="choiceMC(<?= $num ?>, '<?= $mcmain ?>', '<?= $mcsub ?>', '<?= $mcno ?>');">
@@ -40,7 +41,7 @@ include getDocumentRoot() . "/qc/load_DB.php";
                                 </div>
                                 <div class="text-center">
                                     <span class="fw-bolder">
-                                        <img src="<?= $qrcode_tmp ?>" style="width:100%;height:100%;">
+                                        <img src="<?= $qrcode ?>" style="width:100%;height:100%;">
                                     </span>
                                 </div>
                             </div>

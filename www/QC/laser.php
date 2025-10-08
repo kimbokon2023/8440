@@ -1,4 +1,4 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php require_once __DIR__ . '/../bootstrap.php';
 if(!isset($_SESSION)) {
     session_start();
 }
@@ -26,7 +26,7 @@ if(!isset($level) || $level > 8) {
    
    ?>
    
-<?php include getDocumentRoot() . '/load_header.php' ?>
+<?php include includePath('load_header.php') ?>
  
 <title> <?=$title_message?> </title>   
 
@@ -34,7 +34,7 @@ if(!isset($level) || $level > 8) {
  
 <body>
 
-<?php include getDocumentRoot() . "/common/modal.php"; ?>
+<?php include includePath("common/modal.php"); ?>
 
 <?php
  // 모바일이면 특정 CSS 적용
@@ -62,7 +62,7 @@ require_once(includePath('lib/mydb.php'));
 $pdo = db_connect(); 
 
 // 배열로 장비점검리스트 불러옴
-include "load_DB.php";   
+include includePath("load_DB.php");   
 
  // $find="firstord";	    //검색할때 고정시킬 부분 저장 ex) 전체/공사담당/건설사 등
  if(isset($_REQUEST["page"])) // $_REQUEST["page"]값이 없을 때에는 1로 지정 
@@ -87,13 +87,13 @@ if(isset($_REQUEST["scale"])) // $_REQUEST["scale"]값이 없을 때에는 20로
   $first_num = ($page-1) * $scale;  // List에 표시되는 게시글의 첫 순번.
 	 
   if(isset($_REQUEST["mode"]))
-     $mode=$_REQUEST["mode"];
+     $mode=$_REQUEST["mode"] ?? '';
   else 
      $mode="";     
  
  // 기간을 정하는 구간
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];	 
+$fromdate=$_REQUEST["fromdate"] ?? '';
+$todate=$_REQUEST["todate"] ?? '';
 
 if($fromdate=="")	$fromdate="2010-01-01";
 

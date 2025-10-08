@@ -23,11 +23,17 @@ try {
 
 ?>
 
+<?php $option = isset($option) ? $option : ''; ?>
+
 <div class="card">
 	<div class="card-header text-center" style="background-color:#cfe2ff;">            
 	<h5>출고 자재 불량율</h5>
 	</div>
-	<div class="card-body">
+	<?php if($option =='option') : ?>
+		<div style="padding: 0.5rem;">	
+	<?php else: ?>
+		<div style="padding: 1rem;">
+	<?php endif; ?>
 		<table class="table table-bordered">
 			<thead class="table-primary">
 				<tr>

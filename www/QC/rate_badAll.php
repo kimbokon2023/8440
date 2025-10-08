@@ -98,6 +98,8 @@ try {
 }
 </style>
 
+<?php $option = isset($option) ? $option : ''; ?>
+
 <div class="modern-quality-card">
 	<?php if($option =='option') : ?>
 	<?php else: ?>
@@ -106,7 +108,7 @@ try {
 	</div>
 	<?php endif; ?>
 	<?php if($option =='option') : ?>
-		<div style="padding: 0.5rem;">
+		<div style="padding: 0.5rem;">	
 	<?php else: ?>
 		<div style="padding: 1rem;">
 	<?php endif; ?>

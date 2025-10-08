@@ -141,16 +141,23 @@
 		var scrollPos = $(document).scrollTop();
 		$('.nav a').each(function () {
 			var currLink = $(this);
-			var refElement = $(currLink.attr("href"));
-			if (refElement.length) { // 유효한 요소만 처리
-				if (
-					refElement.position().top <= scrollPos &&
-					refElement.position().top + refElement.height() > scrollPos
-				) {
-					$('.nav ul li a').removeClass("active");
-					currLink.addClass("active");
-				} else {
-					currLink.removeClass("active");
+			var href = currLink.attr("href");
+			if (href && href.startsWith('#') && href.length > 1) {
+				try {
+					var refElement = $(href);
+					if (refElement.length) {
+						if (
+							refElement.position().top <= scrollPos &&
+							refElement.position().top + refElement.height() > scrollPos
+						) {
+							$('.nav ul li a').removeClass("active");
+							currLink.addClass("active");
+						} else {
+							currLink.removeClass("active");
+						}
+					}
+				} catch (e) {
+					// console.error("Invalid selector:", href);
 				}
 			}
 		});

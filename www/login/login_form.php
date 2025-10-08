@@ -1,8 +1,8 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php require_once __DIR__ . '/../bootstrap.php';
 require_once(includePath('session.php')); 
 
-$id=$_REQUEST["uid"];
-$pw=$_REQUEST["upw"];
+$id=$_REQUEST["uid"] ?? '';
+$pw=$_REQUEST["upw"] ?? '';
 
 ?>
 
@@ -22,18 +22,15 @@ $pw=$_REQUEST["upw"];
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" ></script> 
 	
-	
 <link rel="icon" type="image/x-icon" href="../favicon.ico">   <!-- 33 x 33 -->
 <link rel="shortcut icon" type="image/png" href="../favicon.png">    <!-- 144 x 144 -->
 <link rel="apple-touch-icon" type="image/png" href="../favicon.png">
-
     <title>통합정보</title>
-
-  </head>
+</head>
  <style> 
-		  html,body {
-		  height: 100%;
-		}
+ 	html,body {
+		height: 100%;
+	}
 </style>
 <div class="container h-100">
     <div class="row d-flex justify-content-center align-items-center h-100">
@@ -62,8 +59,6 @@ $pw=$_REQUEST["upw"];
 			</div>		
 				<div class="col-1"></div>
 	  </div>
-
 	</div>	
-
 </body>
 </html>

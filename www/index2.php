@@ -1,5 +1,9 @@
-<?php\nrequire_once __DIR__ . '/common/functions.php';
+<?php require_once __DIR__ . '/bootstrap.php';
 require_once(includePath('session.php'));
+
+if(session_status() == PHP_SESSION_NONE) {
+	session_start();
+}
 
  if(!isset($_SESSION["level"]) && $_SESSION["level"]==20) {
 	// 포미스톤 레벨 20부여
@@ -290,12 +294,12 @@ $tablename = 'popupwindow';
 ?> 
 
 <?if($chkMobile) { ?>
-   <!--모바일 일때 -->
+   <!-- 모바일 일때
 <div class="container-xxl">    
 	<div class="d-flex mb-1 mt-2 justify-content-center">    
 	   <img src="./img/intrologo.png" style="width:100%;" ></a>	
 	</div>
-</div>
+</div> -->
 <?}?>
 
 <!-- 택배 알림 말풍선 -->
@@ -451,13 +455,13 @@ $tablename = 'popupwindow';
 				</label>
 			</div>
 			<?php endif; ?>
-			<button type="button" class="modern-toolbar-btn modern-toolbar-btn-info"
-					onclick="popupCenter('https://8440.co.kr/cost/calamount.php?menu=no', '', 1000, 800); return false;"
+            <button type="button" class="modern-toolbar-btn modern-toolbar-btn-info"
+                    onclick="popupCenter('<?= getBaseUrl() ?>/cost/calamount.php?menu=no', '', 1000, 800); return false;"
 					title="원자재 가격계산기">
 				<i class="bi bi-calculator-fill"></i>
 			</button>
-			<button type="button" class="modern-toolbar-btn modern-toolbar-btn-info"
-					onclick="popupCenter('https://8440.co.kr/cost/list.php?menu=no&firstItem=304 HL', '', 1600, 800); return false;"
+            <button type="button" class="modern-toolbar-btn modern-toolbar-btn-info"
+                    onclick="popupCenter('<?= getBaseUrl() ?>/cost/list.php?menu=no&firstItem=304 HL', '', 1600, 800); return false;"
 					title="원자재 가격동향">
 				<i class="bi bi-bar-chart-fill"></i>
 			</button>
@@ -466,8 +470,8 @@ $tablename = 'popupwindow';
 					title="원달러 환율">
 				<i class="bi bi-currency-dollar"></i>
 			</button>
-			<button type="button" class="modern-toolbar-btn modern-toolbar-btn-info"
-					onclick="popupCenter('https://8440.co.kr/ceiling/showcatalog.php', '', 1400, 900); return false;"
+            <button type="button" class="modern-toolbar-btn modern-toolbar-btn-info"
+                    onclick="popupCenter('<?= getBaseUrl() ?>/ceiling/showcatalog.php', '', 1400, 900); return false;"
 					title="천장 카다로그">
 				<i class="bi bi-journal-check"></i>
 			</button>
@@ -504,14 +508,14 @@ $tablename = 'popupwindow';
 	<div class="col-sm-4">
 		<div class="d-flex justify-content-end align-items-center">
 			<span style="font-size: 0.75rem; color: var(--dashboard-text-secondary); margin-right: 0.5rem;">코딩강의</span>
-			<button type="button" class="modern-toolbar-btn modern-toolbar-btn-primary"
-					onclick="popupCenter('https://8440.co.kr/school/index.php', '', 1920, 1080); return false;"
+            <button type="button" class="modern-toolbar-btn modern-toolbar-btn-primary"
+                    onclick="popupCenter('<?= getBaseUrl() ?>/school/index.php', '', 1920, 1080); return false;"
 					title="웹코딩 강좌">
 				<i class="bi bi-app-indicator"></i>
 			</button>
 			<span style="font-size: 0.75rem; color: var(--dashboard-text-secondary); margin: 0 0.5rem 0 1rem;">코딩퀴즈</span>
-			<button type="button" class="modern-toolbar-btn modern-toolbar-btn-primary"
-					onclick="popupCenter('https://8440.co.kr/quiz/index.php', '', 1920, 1080); return false;"
+            <button type="button" class="modern-toolbar-btn modern-toolbar-btn-primary"
+                    onclick="popupCenter('<?= getBaseUrl() ?>/quiz/index.php', '', 1920, 1080); return false;"
 					title="웹코딩 퀴즈">
 				<i class="bi bi-person-raised-hand"></i>
 			</button>

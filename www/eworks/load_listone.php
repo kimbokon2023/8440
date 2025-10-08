@@ -1,4 +1,4 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php require_once __DIR__ . '/../bootstrap.php';
 header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문
 
 isset($_REQUEST["e_num"]) ? $e_num = $_REQUEST["e_num"] :   $e_num=""; 
@@ -16,7 +16,7 @@ $pdo = db_connect();
 	  $eworks_item = '일반';
      }   else    {      
 		while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-			include getDocumentRoot() . "/eworks/_row.php";		
+			include includePath('eworks/_row.php');		
             if($eworks_item==='연차')
                 $contents = urldecode($contents);			
 		}

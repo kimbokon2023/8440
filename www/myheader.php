@@ -1,5 +1,4 @@
-<?php\nrequire_once __DIR__ . '/common/functions.php';
-require_once(includePath('session.php')); ?>
+<?php require_once __DIR__ . '/bootstrap.php'; ?>
 
 <form id="eworks_board_form" name="eworks_board_form" method="post" enctype="multipart/form-data" >	    
 	<input type="hidden" id="eworksPage" name="eworksPage" value="<?= isset($eworksPage) ? $eworksPage : '' ?>" > 
@@ -39,9 +38,9 @@ require_once(includePath('session.php')); ?>
   
 <div class="row d-flex">        
     <div class="col-sm-2 justify-content-center">        	
-		<a href="<?$root_dir?>/index.php">
+		<a href="<?= $root_dir ?>/index.php">
 			<?php //<img class="img-fluid" src="<?$root_dir /img/companylogo.jpg"> ?>            
-			<img src="<?$root_dir?>/img/mirae_logo.png" style="width:70%;"> &nbsp;	
+			<img src="<?= $root_dir ?>/img/mirae_logo.png" style="width:70%;"> &nbsp;	
 		</a>		
 	</div>
 <div class="col-sm-10 justify-content-center">     
@@ -49,7 +48,7 @@ require_once(includePath('session.php')); ?>
 	<div class="navbar-nav ">   
             <div class="nav-item" id="home-menu">
 			<!-- 드롭다운 메뉴-->
-			<a class="nav-link" href="<?$root_dir?>/index.php?home=1" title="mirae Homepage"  ><svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-house-check-fill" viewBox="0 0 16 16">
+			<a class="nav-link" href="<?= $root_dir ?>/index.php?home=1" title="mirae Homepage"  ><svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-house-check-fill" viewBox="0 0 16 16">
 			  <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L8 2.207l6.646 6.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.707 1.5Z"/>
 			  <path d="m8 3.293 4.712 4.712A4.5 4.5 0 0 0 8.758 15H3.5A1.5 1.5 0 0 1 2 13.5V9.293l6-6Z"/>
 			  <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm1.679-4.493-1.335 2.226a.75.75 0 0 1-1.174.144l-.774-.773a.5.5 0 0 1 .708-.707l.547.547 1.17-1.951a.5.5 0 1 1 .858.514Z"/>
@@ -143,8 +142,8 @@ require_once(includePath('session.php')); ?>
 				   <a class="dropdown-item " href="../qna/list.php">자료실</a>
 				   <a class="dropdown-item " href="../HRboard/list.php">인사/교육/총무</a>
 				   <a class="dropdown-item " href="../vote/list.php">투표</a>
-				   <a class="dropdown-item " href="https://8440.co.kr/school" target="_blank">  코딩강의 </a>	
-				   <a class="dropdown-item " href="https://8440.co.kr/quiz" target="_blank">  코딩퀴즈 </a>	
+                    <a class="dropdown-item " href="<?= getBaseUrl() ?>/school" target="_blank">  코딩강의 </a>	
+                    <a class="dropdown-item " href="<?= getBaseUrl() ?>/quiz" target="_blank">  코딩퀴즈 </a>	
 				   <a class="dropdown-item " href="https://www.youtube.com/watch?v=GjawjeSDRM0&list=PLS4D8xUyesvcgvy6d9vFjJpRiUFZblaai" target="_blank">  코딩팟 캐스트 </a>	
 				</div>				
 				<div class="col">

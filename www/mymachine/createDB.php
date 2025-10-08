@@ -1,7 +1,10 @@
 <?php
-session_start();
-require_once("./lib/mydb.php");
-$pdo = db_connect();
+require_once __DIR__ . '/../bootstrap.php';
+// 보강: 부트스트랩 단계에서 연결 실패 시 재시도
+if (!isset($pdo) || !$pdo) {
+    require_once includePath('lib/mydb.php');
+    $pdo = db_connect();
+}
 
 // 1) 장비 점검 리스트 읽기 (mymclist)
 $checkdate_arr = [];
@@ -146,7 +149,7 @@ $todayStr = date("Y-m-d");
       $('#fieldarr').val(fnArr.join(','));
       $('#arr').val(fvArr.join(','));
       $.ajax({
-        url: "../proDB_arr.php",
+        url: "<?= url('proDB_arr.php') ?>",
         type: "post",
         data: $("#Form1").serialize(),
         dataType: "json"

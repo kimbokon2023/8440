@@ -1,4 +1,4 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php require_once __DIR__ . '/../bootstrap.php';
 $title_message = "실시간 JAMB 제조수량";
 
 // 올해를 날자 기간으로 설정
@@ -131,11 +131,9 @@ for ($month = 1; $month <= 12; $month++) {
         options: {
             responsive: false,
             scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    }
-                }]
+                y: {
+                    beginAtZero: true
+                }
             },
         }
     });

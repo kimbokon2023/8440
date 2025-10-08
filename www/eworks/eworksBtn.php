@@ -1,4 +1,10 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php require_once __DIR__ . '/../bootstrap.php';
+
+if(session_status() == PHP_SESSION_NONE) {
+	session_start();
+}
+
+require_once __DIR__ . '/../common/functions.php';
 require_once(includePath('session.php')); 
  
 require_once("eworksmydb.php");
