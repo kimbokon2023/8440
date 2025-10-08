@@ -1,5 +1,4 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session.php'));
+<?php require_once __DIR__ . '/../bootstrap.php';
 
 header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문  
 

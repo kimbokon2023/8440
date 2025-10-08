@@ -1,6 +1,5 @@
 <?php
-require_once __DIR__ . '/common/functions.php';
-require_once(includePath('session.php'));
+require_once __DIR__ . '/bootstrap.php';
  
 // 모바일 사용여부 확인하는 루틴
 $mAgent = array("iPhone","iPod","Android","Blackberry", 

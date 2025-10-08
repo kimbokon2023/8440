@@ -1,4 +1,4 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php require_once __DIR__ . '/../common/functions.php';
 include getDocumentRoot() . '/session.php';   
 
 // 첫 화면 표시 문구
@@ -666,7 +666,7 @@ echo '<td class="text-center"><span class="'.$spanClass1.'">'.$materials1.'</spa
 
 
 
-<?php
+<?php require_once __DIR__ . '/../bootstrap.php';
 	$start_num--;
 	 } 
   } catch (PDOException $Exception) {

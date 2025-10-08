@@ -59,7 +59,7 @@ alert("아이디가 틀립니다!");
 history.back();
 </script>
 
-<?php
+<?php require_once __DIR__ . '/../bootstrap.php';
 }  elseif($pw!=$row["pass"]) {
     ?>
 <script>

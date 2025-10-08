@@ -1,14 +1,4 @@
-<?php
-/**
- * 환경 설정 테스트 페이지
- * 이 파일로 환경별 설정이 올바르게 작동하는지 확인할 수 있습니다.
- */
-
-require_once __DIR__ . '/common/functions.php';
-
-// 에러 표시 설정
-setupErrorReporting();
-?>
+<?php require_once __DIR__ . '/bootstrap.php'; ?>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
