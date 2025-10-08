@@ -1,6 +1,5 @@
 <?php
-  require_once("./lib/mydb.php");
-  $pdo = db_connect();	
+require_once __DIR__ . '/bootstrap.php';
   
   $page=1;	 
   

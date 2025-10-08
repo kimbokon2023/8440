@@ -1,9 +1,5 @@
 <?php require_once __DIR__ . '/../bootstrap.php';
 
-session_start();
-$DB = "mirae8440";
-$WebSite = getBaseUrl() . '/';
-
 $id=$_REQUEST["uid"] ?? '';
 $pw=$_REQUEST["upw"] ?? '';
 
@@ -38,12 +34,6 @@ if (empty($id) || empty($pw)) {
 		
 	<?php
 
-$id=$_REQUEST["uid"];
-$pw=$_REQUEST["upw"];
-
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();
-
 try{
     $sql="select * from mirae8440.member where id=?";
     $stmh=$pdo->prepare($sql);
@@ -63,7 +53,7 @@ alert("아이디가 틀립니다!");
 history.back();
 </script>
 
-<?php require_once __DIR__ . '/../bootstrap.php';
+<?php
 }  elseif($pw!=$row["pass"]) {
     ?>
 <script>
@@ -85,8 +75,6 @@ history.back();
 	
  	
 $data=date("Y-m-d H:i:s") . " - " . $_SESSION["userid"] . " - " . $_SESSION["name"] ;	
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();
 $pdo->beginTransaction();
 $sql = "insert into ".$DB.".logdata(data) values(?) " ;
 $stmh = $pdo->prepare($sql); 
@@ -94,12 +82,9 @@ $stmh->bindValue(1, $data, PDO::PARAM_STR);
 $stmh->execute();
 $pdo->commit(); 
 
-	// 로그인 성공 시 쿠키 설정
-	setcookie("showTodoView", "show", time() + 86400, "/"); // 1일 동안 유효
-	setcookie("showBoardView", "show", time() + 86400, "/"); // 1일 동안 유효
-
-print $_SESSION["url"];
-
+// 로그인 성공 시 쿠키 설정
+setcookie("showTodoView", "show", time() + 86400, "/"); // 1일 동안 유효
+setcookie("showBoardView", "show", time() + 86400, "/"); // 1일 동안 유효
 
 if(isset($_SESSION["url"])) {
     $redirectUrl = $_SESSION["url"];
@@ -162,7 +147,7 @@ if(isset($_SESSION["url"])) {
 	
 	   elseif ($_SESSION["name"]=="이경묵")
 	   {
-			   header ("Location:../index.php");
+			   header ("Location:../index2.php");
 				exit;  		   
 	   }	  
 	   elseif ($_SESSION["userid"]=='5438'||$_SESSION["userid"]=='5342'||$_SESSION["userid"]=='8210'||$_SESSION["userid"]=='6113')
@@ -181,7 +166,7 @@ if(isset($_SESSION["url"])) {
 				exit;  		   
 	   }	   
 		elseif($_SESSION["level"]<8) {
-			   header ("Location:../index.php");
+			   header ("Location:../index2.php");
 				exit;  
 				}
 }

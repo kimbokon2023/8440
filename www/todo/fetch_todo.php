@@ -1,7 +1,6 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session.php'));
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();
+<?php 
+header('Content-Type: application/json');
+require_once __DIR__ . '/../bootstrap.php';
 
 $month = $_POST['month'];
 $year = $_POST['year'];
@@ -206,6 +205,10 @@ try {
 
     echo(json_encode($response, JSON_UNESCAPED_UNICODE));
 } catch (PDOException $Exception) {
-    print "오류: " . $Exception->getMessage();
+    http_response_code(500); // Internal Server Error
+    echo json_encode([
+        'error' => 'Database error',
+        'message' => $Exception->getMessage()
+    ]);
 }
 ?>

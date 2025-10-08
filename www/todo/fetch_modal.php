@@ -1,4 +1,4 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php require_once __DIR__ . '/../bootstrap.php';
 require_once(includePath('session.php'));  
 
 $mode = isset($_POST['mode']) ? $_POST['mode'] : '';

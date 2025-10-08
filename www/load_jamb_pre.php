@@ -1,7 +1,6 @@
 <?php
+require_once __DIR__ . '/bootstrap.php';
 // 전일접수된 jamb 수량 및 매출가져오기
-require_once("./lib/mydb.php");
-$pdo = db_connect();
 
 // 현재 날짜에서 전날을 계산
 $yesterday = date("Y-m-d", strtotime("-1 day"));

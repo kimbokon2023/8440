@@ -1,19 +1,5 @@
 <?php require_once __DIR__ . '/../bootstrap.php';
 
-if(session_status() == PHP_SESSION_NONE) {
-	session_start();
-}
-
-require_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session.php')); 
- 
-require_once("eworksmydb.php");
-
-// MySQL 연결 오류 발생 시 스크립트 종료
-if (mysqli_connect_errno()) {
-  die("Failed to connect to MySQL: " . mysqli_connect_error());
-}
- 
 // 각 상황에 따른 버튼을 구현하기 위한 부분 결재상황별 버튼이 다르게 나와야 한다.
  
 // 함수 선언 문자열안에 문자열이 있는지 검사해서 결과값을 리턴하는 함수
@@ -34,13 +20,13 @@ isset($_REQUEST["done"])  ? $done = $_REQUEST["done"] :   $done="";
 <div class="row p-1 mt-1 mb-1 justify-content-center">
    <div class="d-flex justify-content-center mb-2"  id="comments-container">	
     <?php
-    $sql_ripple = "SELECT * FROM mirae8440.eworks_ripple WHERE parent=? AND is_deleted IS NULL "  ;
-    if ($stmt = mysqli_prepare($conn, $sql_ripple)) {
-        mysqli_stmt_bind_param($stmt, "s", $e_num);
-        mysqli_stmt_execute($stmt);
-        $result = mysqli_stmt_get_result($stmt);
+    try {
+        $sql_ripple = "SELECT * FROM mirae8440.eworks_ripple WHERE parent=? AND is_deleted IS NULL "  ;
+        $stmh = $pdo->prepare($sql_ripple);
+        $stmh->bindValue(1, $e_num, PDO::PARAM_STR);
+        $stmh->execute();
 
-        while ($row_ripple = mysqli_fetch_assoc($result)) {
+        while ($row_ripple = $stmh->fetch(PDO::FETCH_ASSOC)) {
             $ripple_num = $row_ripple["num"];
             $ripple_id = $row_ripple["author_id"];
             $ripple_nick = $row_ripple["author"];
@@ -65,7 +51,8 @@ isset($_REQUEST["done"])  ? $done = $_REQUEST["done"] :   $done="";
             </div>
             <?php
         }
-        mysqli_stmt_close($stmt);
+    } catch (PDOException $Exception) {
+        // print "오류: ".$Exception->getMessage();
     }
     ?>
 </div>
@@ -97,9 +84,6 @@ isset($_REQUEST["done"])  ? $done = $_REQUEST["done"] :   $done="";
 <?php
 
 $myTurn = false ; // 현재 결재 차례임
-
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();
 
 try {
      $sql = "select * from mirae8440.eworks where num=?";

@@ -1,13 +1,13 @@
 <?php
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 ?>
-﻿<?php require_once(includePath('session.php')); 
+<?php require_once(includePath('session.php')); 
 
 // 첫 화면 표시 문구
 $title_message = '우리의 당당한 투표!'; 
 ?>
   
-<?php include getDocumentRoot() . '/load_header.php';
+<?php include includePath('load_header.php');
 
  if(!isset($_SESSION["level"]) || $_SESSION["level"]>8) {          
 		 sleep(1);
@@ -28,11 +28,11 @@ $title_message = '우리의 당당한 투표!';
  </head> 
  
 <body>
-<?php include "../common/modal.php"; ?>
+<?php include includePath('modal.php'); ?>
 	 
  <?php
  
- $file_dir = '../uploads/'; 
+ $file_dir = includePath('uploads/'); 
   
  $num=$_REQUEST["num"];
  $page=$_REQUEST["page"];   //페이지번호

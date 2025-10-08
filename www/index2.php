@@ -1,9 +1,4 @@
 <?php require_once __DIR__ . '/bootstrap.php';
-require_once(includePath('session.php'));
-
-if(session_status() == PHP_SESSION_NONE) {
-	session_start();
-}
 
  if(!isset($_SESSION["level"]) && $_SESSION["level"]==20) {
 	// 포미스톤 레벨 20부여
@@ -16,8 +11,6 @@ if(session_status() == PHP_SESSION_NONE) {
 	     header("Location:" . $WebSite . "login/login_form.php"); 
          exit;
    }  
-
-ini_set('display_errors','1');  // 화면에 warning 없애기	 0 나오기 1
 
 require_once(includePath('load_header.php'));
 // 택배화물 수는 기본 0
@@ -703,8 +696,6 @@ $tablename = 'popupwindow';
 			<div style="padding: 0.1rem;">
 				<?php
 				// 금일 연차인 사람 나타내기
-				require_once("./lib/mydb.php");
-				$pdo = db_connect();
 				$now = date("Y-m-d",time()) ;
 
 				$sql = "SELECT * FROM mirae8440.eworks WHERE (al_askdatefrom <= CURDATE() AND al_askdateto >= CURDATE())  AND is_deleted IS NULL ";
@@ -2125,8 +2116,6 @@ $tablename = 'popupwindow';
 
 <?php   
 // 저녁식사요청
-   require_once("./lib/mydb.php");
-   $pdo = db_connect();   
    $now = date("Y-m-d",time()) ;  
    
    $lunch_done = '';  
@@ -2168,8 +2157,6 @@ $tablename = 'popupwindow';
 	  		
 <?php   
 // 품질불량 보고서 리스트 불러오기
-   require_once("./lib/mydb.php");
-   $pdo = db_connect();   
    $now = date("Y-m-d",time()) ;  
    
    $sql="select * from mirae8440.error where approve <> '처리완료' order by num desc" ;
@@ -2182,8 +2169,6 @@ $tablename = 'popupwindow';
 	           
 <?php   
 // 장비 미점검 리스트 불러오기
-   require_once("./lib/mydb.php");
-   $pdo = db_connect();   
    $now = date("Y-m-d",time()) ;  
    
    $sql="select * from mirae8440.mymclist where done is null order by num desc" ;
@@ -2195,8 +2180,6 @@ $tablename = 'popupwindow';
 				        
 <?php   
 // 사무실 미점검 리스트 불러오기
-   require_once("./lib/mydb.php");
-   $pdo = db_connect();   
    $now = date("Y-m-d",time()) ;  
    
    $sql="select * from mirae8440.myarealist where done is null order by num desc" ;

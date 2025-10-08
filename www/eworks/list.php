@@ -1,12 +1,4 @@
 <?php require_once __DIR__ . '/../bootstrap.php';
-
-if(session_status() == PHP_SESSION_NONE) {
-	session_start();
-}
-
-require_once(includePath('session.php'));
-
-require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
 ?>
 
 <div id="eworks_list" style="height:520px;" class="mb-1">		
@@ -18,12 +10,6 @@ require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
 	<table class="table table-hover table-sm" id="myEworks_Table" >	
 
 <?php
-if (!isset($pdo) || !$pdo) {
-    require_once includePath('lib/mydb.php');
-    $pdo = db_connect();
-}
-
-$pdo = db_connect();	
 	// 결재라인을 잡으려면 배열저장
 	$eworks_level_arr = array();
 	$part_arr = array();
@@ -324,10 +310,10 @@ else
 				switch ($status) {					
 					   case 'draft' :
 						  $statusStr = "작성";
-					   break;					
+					   break;					   
 					   case 'send' :
 						  $statusStr = "상신";
-					   break;					   
+					   break;					      
 					   case 'noend' :					      
 						  $statusStr = "미결";						  
 					   break;							

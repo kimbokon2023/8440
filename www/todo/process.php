@@ -1,4 +1,4 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php require_once __DIR__ . '/../bootstrap.php';
 require_once(includePath('session.php'));  
 
 $tablename = isset($_REQUEST['tablename']) ? $_REQUEST['tablename'] : 'todos';  
@@ -10,7 +10,7 @@ header("Content-Type: application/json");  // Use JSON content type
 require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
-include getDocumentRoot() . "/todo/_request.php"; // Ensure this file properly sets all needed variables
+include includePath('todo/_request.php'); // Ensure this file properly sets all needed variables
 
 if ($mode == "update") {
     $update_log = date("Y-m-d H:i:s") . " - " . $_SESSION["name"] . " " . $update_log . "&#10";

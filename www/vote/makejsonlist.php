@@ -1,11 +1,6 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php require_once __DIR__ . '/../bootstrap.php';
 if(!isset($_SESSION))      
-		session_start(); 
-if(isset($_SESSION["DB"]))
-		$DB = $_SESSION["DB"] ;	
- $level= $_SESSION["level"];
- $user_name= $_SESSION["name"];
- $user_id= $_SESSION["userid"];	
+		include includePath('session.php'); 
 
  if(!isset($_SESSION["level"]) || $_SESSION["level"]>10) {
           /*   alert("관리자 승인이 필요합니다."); */

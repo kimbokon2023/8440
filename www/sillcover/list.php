@@ -1,5 +1,5 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-include getDocumentRoot() . '/session.php';   
+<?php require_once __DIR__ . '/../bootstrap.php';
+include includePath('session.php');   
 
 if (!isset($_SESSION["level"]) || $level > 8) {
     $_SESSION["url"] = 'https://8440.co.kr/request_etc/list.php'; 		   
@@ -11,7 +11,7 @@ if (!isset($_SESSION["level"]) || $level > 8) {
 $title_message = '재료분리대 출고사진';   
 ?> 
 
-<?php include getDocumentRoot() . '/load_header.php'; ?> 
+<?php include includePath('load_header.php'); ?> 
  
 <title> <?=$title_message?>  </title>  
  

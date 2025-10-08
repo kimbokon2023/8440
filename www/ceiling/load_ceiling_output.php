@@ -1,4 +1,5 @@
- <?php
+<?php
+require_once __DIR__ . '/../bootstrap.php';
 
 $readIni = array();   // 환경파일 불러오기
 $readIni = parse_ini_file(getDocumentRoot() . "/ceiling/estimate.ini",false);	
