@@ -1,13 +1,13 @@
-name: Deploy to 8440.co.kr via FTP
+name: Deploy to 8440.co.kr via SFTP
 on:
   push:
     branches: ["main"]
 
 jobs:
-  ftp-deploy:
+  sftp-deploy:
     runs-on: ubuntu-latest
     concurrency:
-      group: ftp-deploy
+      group: sftp-deploy
       cancel-in-progress: true
 
     steps:
@@ -17,43 +17,42 @@ jobs:
           submodules: false
           fetch-depth: 1
 
+      # 배포 소스 확인 (www 폴더만 올림)
       - name: Verify deploy source (./www/)
         run: |
           test -d ./www || (echo "::error::www/ not found" && exit 1)
           find ./www -maxdepth 2 -type f | head -n 20
-          
+
+      # 비어있는 디렉터리도 유지
       - name: Create empty .gitkeep files for empty directories
         run: |
           find ./www -type d -empty -exec touch {}/.gitkeep \;
-          
-      - name: Verify FTP connection and permissions
-        run: |
-          echo "FTP 서버 연결 및 권한 확인을 위한 정보:"
-          echo "서버: ${{ secrets.FTP_SERVER }}"
-          echo "사용자: ${{ secrets.FTP_USERNAME }}"
-          echo "대상 경로: ${{ secrets.FTP_REMOTE_DIR }}"
-          echo "포트: ${{ secrets.FTP_PORT }}"
-          
-      - name: Test FTP connection manually
-        run: |
-          echo "FTP 연결 테스트를 위한 정보 출력:"
-          echo "FTP_REMOTE_DIR 값: '${{ secrets.FTP_REMOTE_DIR }}'"
-          echo "처리된 server-dir 값: '${{ endsWith(secrets.FTP_REMOTE_DIR, '/') && secrets.FTP_REMOTE_DIR || format('{0}/', secrets.FTP_REMOTE_DIR) }}'"
 
-      - name: Deploy (FTP)
+      # SFTP 연결 정보 로그(민감정보는 출력하지 않음)
+      - name: Verify SFTP connection settings (safe log)
+        run: |
+          echo "Server: ${{ secrets.FTP_SERVER }}"
+          echo "User:   ${{ secrets.FTP_USERNAME }}"
+          echo "Port:   ${{ secrets.FTP_PORT || '22' }}"
+          echo "Dir:    ${{ secrets.FTP_REMOTE_DIR }}"
+          # 끝 슬래시 강제 확인
+          if [ -n "${{ secrets.FTP_REMOTE_DIR }}" ] && [ "${{ secrets.FTP_REMOTE_DIR }}" != */ ]; then
+            echo "::warning::FTP_REMOTE_DIR should end with a slash. e.g. /www/"
+          fi
+
+      # SFTP 배포
+      - name: Deploy (SFTP)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        continue-on-error: true
-        id: ftp-deploy
         with:
-          server:     ${{ secrets.FTP_SERVER }}     # FTP 서버 호스트명
-          username:   ${{ secrets.FTP_USERNAME }}   # FTP 사용자명
-          password:   ${{ secrets.FTP_PASSWORD }}   # FTP 비밀번호
-          protocol:   ftp                          
-          port:       ${{ secrets.FTP_PORT }}       # FTP 포트
-          server-dir: ${{ secrets.FTP_REMOTE_DIR }} # 웹 호스팅 루트 경로 (슬래시 필수)
+          server:     ${{ secrets.FTP_SERVER }}        # ex) 8440.co.kr
+          username:   ${{ secrets.FTP_USERNAME }}      # ex) mirae8440
+          password:   ${{ secrets.FTP_PASSWORD }}
+          protocol:   sftp                             # ← SFTP 사용
+          port:       ${{ secrets.FTP_PORT || 22 }}    # ← 22 (Secret 없으면 22 기본)
+          server-dir: ${{ secrets.FTP_REMOTE_DIR }}    # ex) /www/ (슬래시 필수)
           local-dir:  "./www/"
-          log-level:  verbose                       # 상세 로그로 디버깅 
-          dry-run:    false                        # 실제 배포 실행
+          log-level:  verbose
+          dry-run:    false
           exclude: |
             **/.git/**
             **/.git*
@@ -64,19 +63,19 @@ jobs:
             **/.cache/**
             **/.cursor/**
             **/.claude/**
-            **/node_modules/**            
+            **/node_modules/**
             **/*.md
             **/*.yml
             **/*.yaml
-            **/*.lock 
+            **/*.lock
             **/.DS_Store
-            **/Thumbs.db            
+            **/Thumbs.db
+            **/__MACOSX/**
             **/uploads/**
             **/storage/**
             **/lib/**
             **/dbeditor/**
             **/bseditor/**
-            **/__MACOSX/**
             **/_dompdf/**
             **/.well-known/**
             **/0/**

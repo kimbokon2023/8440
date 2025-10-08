@@ -32,7 +32,7 @@ else
 	session_start();
 	
 	$DB = "mirae8440";
-	$WebSite = "https://8440.co.kr/";
+	$WebSite = getBaseUrl() . '/';
 	
     $_SESSION["userid"]=$row["id"];
     $_SESSION["name"]=$row["name"];

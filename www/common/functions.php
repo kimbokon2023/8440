@@ -1,4 +1,4 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php
 /**
  * 공통 함수 파일
  * 환경에 관계없이 일관된 인터페이스를 제공하는 함수들
