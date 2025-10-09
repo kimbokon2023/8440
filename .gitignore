@@ -45,3 +45,6 @@ copilot-messages.log
 # System files
 .DS_Store
 .project/attachments/files/**
+
+# Token and credential files
+www/tokens/
