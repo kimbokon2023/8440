@@ -1,4 +1,8 @@
-<?php 
+<?php
+// AJAX 요청이므로 화면에 오류를 표시하지 않도록 재정의
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+
 header('Content-Type: application/json');
 require_once __DIR__ . '/../bootstrap.php';
 

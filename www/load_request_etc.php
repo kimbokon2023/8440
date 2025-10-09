@@ -1,4 +1,8 @@
  <?php
+require_once __DIR__ . '/bootstrap.php';
+
+$regist_state = null; // 변수 초기화
+
   if(isset($_REQUEST["search"]))   //목록표에 제목,이름 등 나오는 부분
 	 $search=$_REQUEST["search"];
   if(isset($_REQUEST["separate_date"]))   //출고일 완료일

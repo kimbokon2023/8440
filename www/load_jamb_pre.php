@@ -124,7 +124,8 @@ try {
     $sum = array_fill(0, 4, 0);
     $out_sum = array_fill(0, 4, 0);
     $check_outsourcing = 0;
-
+    
+    $beforedayjamblist = ""; // 변수 초기화
     while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
         include './work/_row.php';
 

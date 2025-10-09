@@ -23,7 +23,7 @@ try{
      }   	 
 	 ?>
 <script>
- var alerts='<?php echo $alerts; ?>' ;
+ var alerts=<?php echo json_encode($alerts ?? ''); ?> ;
 $("#alerts").val(alerts);	
 //console.log(alerts);
 </script>

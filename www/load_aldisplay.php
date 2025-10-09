@@ -3,8 +3,6 @@ require_once __DIR__ . '/bootstrap.php';
 
 $tablename = "eworks";
 
-  require_once("./lib/mydb.php");
-  $pdo = db_connect();	
   include "./annualleave/load_DB.php";
  
   $page=1;	 

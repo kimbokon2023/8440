@@ -787,7 +787,8 @@ function setCookie (cookie_name, value, minutes) {
     exdate.setMinutes(exdate.getMinutes() + minutes);
     // const cookie_value = escape(value) + ((minutes == null) ? '' : '; expires=' + exdate.toUTCString());
     const cookie_value = value + ((minutes == null) ? '' : '; expires=' + exdate.toUTCString()); // 암호화 끔
-    document.cookie = cookie_name + '=' + cookie_value;
+    // path=/ 추가하여 전체 사이트에서 쿠키 사용 가능하게 설정 (로컬/서버 환경 모두 지원)
+    document.cookie = cookie_name + '=' + cookie_value + '; path=/';
 }
 
 function getCookie(cookie_name) {
@@ -806,7 +807,8 @@ function getCookie(cookie_name) {
   }
 
 function deleteCookie(name) {
-    document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+    // path=/ 추가하여 쿠키 삭제가 전체 사이트에 적용되도록 설정
+    document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT; path=/';
 }
 
 // 월, 일 날짜값 두자리( 00 )로 변경

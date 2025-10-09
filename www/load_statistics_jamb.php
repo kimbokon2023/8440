@@ -1,5 +1,5 @@
-<?php\nrequire_once __DIR__ . '/common/functions.php';
-require_once(includePath('session.php'));
+<?php
+require_once __DIR__ . '/bootstrap.php';
 
 // 단가 정보 로드 (estimate.ini)
 $readIni = parse_ini_file("./work/estimate.ini", false);

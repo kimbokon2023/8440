@@ -26,9 +26,9 @@ $(document).ready(function() {
 		// radioarray 결과 확인
 		// console.log(radioarray);	
 			
-		 showWaitingModal();
-		ajaxRequest5 = $.ajax({
-            url: "/todo/fetch_todo.php",
+	 showWaitingModal();
+	ajaxRequest5 = $.ajax({
+            url: "todo/fetch_todo.php",
             type: "post",
             data: { month: month + 1, year: year, selectedFilter : selectedFilter, search : search, radioarray : radioarray },
             dataType: "json",

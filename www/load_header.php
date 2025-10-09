@@ -57,6 +57,7 @@ if($user_name=='소현철' || $user_name=='김보곤' || $user_name=='이경묵'
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta property="og:type" content="미래기업 통합정보시스템">
 <meta property="og:title" content="미래기업 통합정보시스템">
 <meta property="og:url" content="<?= getBaseUrl() ?>">
@@ -92,8 +93,8 @@ if($user_name=='소현철' || $user_name=='김보곤' || $user_name=='이경묵'
 <link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote-lite.min.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote-lite.min.js"></script>
 
-<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.0/font/bootstrap-icons.min.css" rel="stylesheet">
 

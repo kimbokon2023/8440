@@ -1,5 +1,5 @@
-<?php\nrequire_once __DIR__ . '/common/functions.php';
-require_once(includePath('session.php'));
+<?php
+require_once __DIR__ . '/bootstrap.php';
 
 // 단가 정보 로드 (estimate.ini)
 // (estimate.ini 파일에는 bon_unit_12, lc_unit_12, bon_unit_13to17, lc_unit_13to17 등의 키가 있어야 합니다)

@@ -153,8 +153,8 @@ if((int)$upnum==(int)$parentnum)
 
 <script> 
   // 스크린합 구한값 화면에 출력하기
-var total_sum = '<?php echo $total_sum ;?>';
-var total_m2 = '<?php echo $total_m2 ;?>';
+var total_sum = <?php echo json_encode($total_sum ?? ''); ?>;
+var total_m2 = <?php echo json_encode($total_m2 ?? ''); ?>;
 $("#top_board2").text(total_sum);
 $("#top_board4").text(total_m2);
 </script>

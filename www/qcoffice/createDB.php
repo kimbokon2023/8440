@@ -177,7 +177,7 @@ function creatOfiiceDB()
 	 var term = <?php echo json_encode($term_arr);?> ;
 	 var mcmain_arr = <?php echo json_encode($mcmain_arr);?> ;
 	 var mcsub_arr = <?php echo json_encode($mcsub_arr);?> ;
-	 var TodayStr = '<?php echo $TodayStr; ?>' ;
+	 var TodayStr = <?php echo json_encode($TodayStr ?? ''); ?> ;
 	 
 		
 	 makeweekdate = 0;

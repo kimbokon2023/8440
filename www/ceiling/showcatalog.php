@@ -1,20 +1,17 @@
 <?php
-require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
+require_once __DIR__ . '/../bootstrap.php';
    
-if(isset($_REQUEST["check"])) 
-	 $check=$_REQUEST["check"]; 
-   else
-     $check=$_POST["check"]; 
-if($check==null)
-		$check='1';
+// Initialize check variable
+$check = $_REQUEST['check'] ?? $_POST['check'] ?? '1';
 	
-$URLsave = "https://8440.co.kr/ceiling/showcatalog.php";	
+// 로컬과 서버 환경에서 모두 동작하도록 동적 URL 생성
+$URLsave = getBaseUrl() . "/ceiling/showcatalog.php";	
 
 $title_message ='미래기업 조명천장 카다로그';
 	
  ?>
   
-  <?php include getDocumentRoot() . '/load_header.php' ?>
+  <?php include includePath('load_header.php'); ?>
 
 <title> <?=$title_message?> </title>
 </head>

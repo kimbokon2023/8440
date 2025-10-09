@@ -1,5 +1,6 @@
- <?php
- 	 
+<?php
+require_once __DIR__ . '/bootstrap.php';
+	 
 $now = date("Y-m-d",time()) ;
 
 $a= " where approve<>'처리완료' order by num desc ";  

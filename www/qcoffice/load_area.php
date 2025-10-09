@@ -1,5 +1,6 @@
  <?php
-  	
+require_once __DIR__ . '/../bootstrap.php';
+ 	
 ini_set('display_errors','1');  // 화면에 warning 
   
   $page=1;	 

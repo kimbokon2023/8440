@@ -1,5 +1,8 @@
 <?php
 require_once __DIR__ . '/bootstrap.php';
+
+$dis_text = ""; // 변수 초기화
+$out_dis_text = ""; // 변수 초기화
   
   $page=1;	 
   
@@ -262,8 +265,8 @@ function redirectToView_jamb(num) {
 }
 function dis_text()
 {  
-	var dis_text = '<?php echo $dis_text; ?>';
-	var out_dis_text = '<?php echo $out_dis_text; ?>';
+	var dis_text = <?php echo json_encode($dis_text ?? ''); ?>;
+	var out_dis_text = <?php echo json_encode($out_dis_text ?? ''); ?>;
 	$(".dis_text").text(dis_text);
 	$(".out_dis_text").text(out_dis_text);
 }	

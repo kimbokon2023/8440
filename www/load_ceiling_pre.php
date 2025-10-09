@@ -56,6 +56,7 @@ try {
     $temp1 = $stmh->rowCount();
     $total_row = $temp1;
     $sum = array(0, 0, 0, 0);  // Initialize sum array with default values
+    $preceilinglist = ""; // 변수 초기화
     while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
         include './ceiling/_rowDB.php';			 
 		  
@@ -85,6 +86,7 @@ try {
     $temp1 = $stmh->rowCount();
     $total_row = $temp1;
     $sum = array(0, 0, 0, 0);  // Initialize sum array with default values
+    $beforedayceilinglist = ""; // 변수 초기화
     while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
         include './ceiling/_rowDB.php';			 
 		  

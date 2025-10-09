@@ -1,4 +1,5 @@
-<?php require_once __DIR__ . '/bootstrap.php';
+<?php
+require_once($_SERVER['DOCUMENT_ROOT'] . "/session.php");
 
  if(!isset($_SESSION["level"]) && $_SESSION["level"]==20) {
 	// 포미스톤 레벨 20부여
@@ -12,7 +13,9 @@
          exit;
    }  
 
-require_once(includePath('load_header.php'));
+ini_set('display_errors','1');  // 화면에 warning 없애기	 0 나오기 1
+
+require_once($_SERVER['DOCUMENT_ROOT'] . "/load_header.php");
 // 택배화물 수는 기본 0
 $delivery_count_today = 0;
 ?>
@@ -210,7 +213,7 @@ $delivery_count_today = 0;
 </style>
 </head> 
 
-<?php require_once(includePath('myheader.php')); ?>
+<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/myheader.php'); ?>
 	
 <?php
  	
@@ -287,12 +290,12 @@ $tablename = 'popupwindow';
 ?> 
 
 <?if($chkMobile) { ?>
-   <!-- 모바일 일때
+   <!--모바일 일때 -->
 <div class="container-xxl">    
 	<div class="d-flex mb-1 mt-2 justify-content-center">    
 	   <img src="./img/intrologo.png" style="width:100%;" ></a>	
 	</div>
-</div> -->
+</div>
 <?}?>
 
 <!-- 택배 알림 말풍선 -->
@@ -448,13 +451,13 @@ $tablename = 'popupwindow';
 				</label>
 			</div>
 			<?php endif; ?>
-            <button type="button" class="modern-toolbar-btn modern-toolbar-btn-info"
-                    onclick="popupCenter('<?= getBaseUrl() ?>/cost/calamount.php?menu=no', '', 1000, 800); return false;"
+			<button type="button" class="modern-toolbar-btn modern-toolbar-btn-info"
+					onclick="popupCenter('https://8440.co.kr/cost/calamount.php?menu=no', '', 1000, 800); return false;"
 					title="원자재 가격계산기">
 				<i class="bi bi-calculator-fill"></i>
 			</button>
-            <button type="button" class="modern-toolbar-btn modern-toolbar-btn-info"
-                    onclick="popupCenter('<?= getBaseUrl() ?>/cost/list.php?menu=no&firstItem=304 HL', '', 1600, 800); return false;"
+			<button type="button" class="modern-toolbar-btn modern-toolbar-btn-info"
+					onclick="popupCenter('https://8440.co.kr/cost/list.php?menu=no&firstItem=304 HL', '', 1600, 800); return false;"
 					title="원자재 가격동향">
 				<i class="bi bi-bar-chart-fill"></i>
 			</button>
@@ -463,8 +466,8 @@ $tablename = 'popupwindow';
 					title="원달러 환율">
 				<i class="bi bi-currency-dollar"></i>
 			</button>
-            <button type="button" class="modern-toolbar-btn modern-toolbar-btn-info"
-                    onclick="popupCenter('<?= getBaseUrl() ?>/ceiling/showcatalog.php', '', 1400, 900); return false;"
+			<button type="button" class="modern-toolbar-btn modern-toolbar-btn-info"
+					onclick="popupCenter('https://8440.co.kr/ceiling/showcatalog.php', '', 1400, 900); return false;"
 					title="천장 카다로그">
 				<i class="bi bi-journal-check"></i>
 			</button>
@@ -501,14 +504,14 @@ $tablename = 'popupwindow';
 	<div class="col-sm-4">
 		<div class="d-flex justify-content-end align-items-center">
 			<span style="font-size: 0.75rem; color: var(--dashboard-text-secondary); margin-right: 0.5rem;">코딩강의</span>
-            <button type="button" class="modern-toolbar-btn modern-toolbar-btn-primary"
-                    onclick="popupCenter('<?= getBaseUrl() ?>/school/index.php', '', 1920, 1080); return false;"
+			<button type="button" class="modern-toolbar-btn modern-toolbar-btn-primary"
+					onclick="popupCenter('https://8440.co.kr/school/index.php', '', 1920, 1080); return false;"
 					title="웹코딩 강좌">
 				<i class="bi bi-app-indicator"></i>
 			</button>
 			<span style="font-size: 0.75rem; color: var(--dashboard-text-secondary); margin: 0 0.5rem 0 1rem;">코딩퀴즈</span>
-            <button type="button" class="modern-toolbar-btn modern-toolbar-btn-primary"
-                    onclick="popupCenter('<?= getBaseUrl() ?>/quiz/index.php', '', 1920, 1080); return false;"
+			<button type="button" class="modern-toolbar-btn modern-toolbar-btn-primary"
+					onclick="popupCenter('https://8440.co.kr/quiz/index.php', '', 1920, 1080); return false;"
 					title="웹코딩 퀴즈">
 				<i class="bi bi-person-raised-hand"></i>
 			</button>
@@ -599,7 +602,7 @@ $tablename = 'popupwindow';
 		<tbody>
 		<!-- Jamb 행: 클릭 시 월별 수주내역 팝업 -->
 		<tr class="clickable-row"
-			onclick="popupCenter('<?= getBaseUrl() ?>/graph/monthly_jamb.php','Jamb 월별 수주내역', 1500, 900); return false;">
+			onclick="popupCenter('/graph/monthly_jamb.php','Jamb 월별 수주내역', 1500, 900); return false;">
 			<td class="text-center">
 			<span class="modern-data-value" style="color: #059669; font-weight: 600;">Jamb</span>
 			</td>
@@ -615,7 +618,7 @@ $tablename = 'popupwindow';
 		</tr>
 		<!-- 천장 행: 클릭 시 월별 수주내역 팝업 -->
 		<tr class="clickable-row"
-			onclick="popupCenter('<?= getBaseUrl() ?>/graph/monthly_ceiling.php','천장 월별 수주내역', 1500, 900); return false;">
+			onclick="popupCenter('/graph/monthly_ceiling.php','천장 월별 수주내역', 1500, 900); return false;">
 			<td class="text-center">
 			<span class="modern-data-value" style="color: #0288d1; font-weight: 600;">천장</span>
 			</td>
@@ -696,6 +699,8 @@ $tablename = 'popupwindow';
 			<div style="padding: 0.1rem;">
 				<?php
 				// 금일 연차인 사람 나타내기
+				require_once("./lib/mydb.php");
+				$pdo = db_connect();
 				$now = date("Y-m-d",time()) ;
 
 				$sql = "SELECT * FROM mirae8440.eworks WHERE (al_askdatefrom <= CURDATE() AND al_askdateto >= CURDATE())  AND is_deleted IS NULL ";
@@ -1244,8 +1249,8 @@ $tablename = 'popupwindow';
 			</div>
 		<div class="modern-card-body">		   
 				<?php $option = "option";
-					include getDocumentRoot() . '/QC/rate_badAll.php';?>   
-				<?php include getDocumentRoot() . '/QC/rate_badDetail.php'; ?>   			        
+					include $_SERVER['DOCUMENT_ROOT'] . '/QC/rate_badAll.php';?>   
+				<?php include $_SERVER['DOCUMENT_ROOT'] . '/QC/rate_badDetail.php'; ?>   			        
 		</div>   
 		</div>               
 		
@@ -2103,7 +2108,7 @@ $tablename = 'popupwindow';
 <!-- 권영철님 화면일때 표시함 빠른메뉴 일때 -->
 <?if($submenu==1) { ?>
    <!--모바일 일때 -->
-<div class="d-flex mb-5 mt-5 justify-content-center d-md-none">    
+<div class="d-flex mb-5 mt-5 justify-content-center">    
    <button  type="button" class="btn btn-success btn-lg fs-1" onclick="location.href='../mceiling/list.php';"> 모바일 천장/LC 사진등록 조립기록 화면 바로가기  </button>&nbsp;&nbsp;&nbsp;
 </div>  
 <?}?>
@@ -2116,14 +2121,12 @@ $tablename = 'popupwindow';
 
 <?php   
 // 저녁식사요청
+   require_once("./lib/mydb.php");
+   $pdo = db_connect();   
    $now = date("Y-m-d",time()) ;  
    
    $lunch_done = '';  
    $supper_done = '';
-   $eat_count = '';
-   $aftereat_count = '';
-   $lunch_text = '';
-   $dinner_text = '';
    
    $sql="select * from mirae8440.afterorder where askdatefrom='$today' " ;
    $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
@@ -2161,6 +2164,8 @@ $tablename = 'popupwindow';
 	  		
 <?php   
 // 품질불량 보고서 리스트 불러오기
+   require_once("./lib/mydb.php");
+   $pdo = db_connect();   
    $now = date("Y-m-d",time()) ;  
    
    $sql="select * from mirae8440.error where approve <> '처리완료' order by num desc" ;
@@ -2173,6 +2178,8 @@ $tablename = 'popupwindow';
 	           
 <?php   
 // 장비 미점검 리스트 불러오기
+   require_once("./lib/mydb.php");
+   $pdo = db_connect();   
    $now = date("Y-m-d",time()) ;  
    
    $sql="select * from mirae8440.mymclist where done is null order by num desc" ;
@@ -2184,6 +2191,8 @@ $tablename = 'popupwindow';
 				        
 <?php   
 // 사무실 미점검 리스트 불러오기
+   require_once("./lib/mydb.php");
+   $pdo = db_connect();   
    $now = date("Y-m-d",time()) ;  
    
    $sql="select * from mirae8440.myarealist where done is null order by num desc" ;
@@ -2216,9 +2225,6 @@ $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
 $total_row=$stmh->rowCount();
 if($total_row>0) 
    include "./load_request.php";		
-
-// 월간상세일정 카드 (항상 표시)
-include "./load_month_schedule.php";		
  
  ?>
     
@@ -2228,6 +2234,22 @@ include "./load_month_schedule.php";
 		<H4> <span id="advice"> </span> </H4>
 	</div>  
 </div>   -->
+<!-- <div class="card-body">      -->
+<?
+// // 난수를 발생해서 이미지 불러오기 (명언 관련 이미지)
+
+//     $rndimg = rand(1,36);
+// 	$maxwidth = 400;
+// 	$maxheight = 400;
+	
+// 	print '<br> <div class="d-flex justify-content-center"> 		 ';
+// 	$imgpath = './img/goodwordgif/' . $rndimg . '.gif' ;
+// 	$imgsize = getimagesize($imgpath);
+
+// 	print '<img	src="' . $imgpath . '">  </div>';
+?>  
+<!-- </div>
+</div> -->
 
 <span id="displaytmp" > </span>
 	<!-- 아래 dialog 태그 영역이 메시지 창 -->
@@ -2237,27 +2259,166 @@ include "./load_month_schedule.php";
 	<dialog id="myMsgDialog"  >
 	<?php }  ?>
 		<!-- 문의사항 등록 section-->
-		<section class="py-0">   	
-      <div class="container px-4 px-lg-5 mt-2">
-        <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
-        <H5 class="text-center"> <?php echo $bad_number; ?> 건의 부적합이 있습니다.</H5>
-         <div class="row">
-          <div class="col-sm-3 text-center">
-            <button class="btn btn-outline-dark" type="button" onclick="closeDialog()">
-                <i class="bi-cart-fill me-1"></i>
-                  닫기
-            </button>
-          </div>
-          <div class="col-sm-9 text-center">
-             <a class="btn btn-outline-dark mt-auto" href="./error/list.php?search=Y&state=처리전&item=all"> 부적합 내역 확인하러 가기 </a>
-          </div>
-         </div>
-         <div class="row">
-         </div>
+		<section class="py-0">   				 
+		<div class="container">
+			<div class="input-form-backgroud row">
+			  <div class="input-form col-sm-12 mx-auto">
+				<h3 class="mb-3 text-center">불량접수 리스트 알림</h3>				
+
+				  <div class="row ">
+					<div class="col-sm-2 mb-3 text-center">
+					  출고일
+					</div>
+					<div class="col-sm-7 mb-3 text-center">
+					  현장명
+					</div>
+					  <div class="col-sm-3 mb-3 text-center">
+					  불량내용 
+					</div>
+				  </div>		
+				  <div class="row" style="overflow-y: scroll; height:300px;	overflow-x: hidden;" >
+				  <?php 
+				     for($i=0;$i<count($bad_choice_arr);$i++)
+					 {
+						print '  <div class="row"> ';
+                             print ' <div class="col-sm-2 mb-3 text-center"> ';
+					           print $outdate_arr[$i];
+					         print '</div>';			
+                             print ' <div class="col-sm-7 mb-3"> ';
+					           print $workplace_arr[$i];
+					         print '</div>';			
+                             print ' <div class="col-sm-3 mb-3 text-center"> ';
+					           print $bad_choice_arr[$i];
+					         print '</div>';						
+						print '  </div>		';
+					 }
+				  ?>                  
+				  </div>	
+				   <div class="row" > </div>
+				   <div class="row" > </div>
+				   <div class="row" > </div>
+				   <div class="row justify-content-center fs-4 mb-3  text-primary mt-3" > 불량접수 건 부적합리스트 등록 요청해 주세요.</div>
+				  <div class="row justify-content-center text-center">							
+						<input type="button" id="mButton" onclick="closeMsg();" value=" 창닫기 " >
+						<input type="button" id="cButton" onclick="closePopup();" value="하루에 한번만 보기 " >
+						</div> 		
+			  </div>
+			</div>
+		</div>
+		</section>					
+	</dialog> 
+</div> 
+</div> 
+
+<!-- todo Calendar -->
+<?php if($chkMobile==false) { ?> 
+    <div class="container">     
+<?php } else { ?>
+    <div class="container-xxl">     
+<?php } ?>     
+<div class="modern-management-card">
+    <div class="modern-dashboard-header">
+        📅 월간상세일정 
+    </div>
+    <div class="modern-dashboard-body mt-1">
+        <div class="row">
+            <!-- Calendar Controls -->
+            <div class="col-sm-4">
+              <div class="d-flex justify-content-start align-items-center">
+                <button type="button" id="todo_view" class="btn btn-sm mx-1 fw-bold" style="background: #0288d1; color: white; border: none; border-radius: 6px; padding: 0.25rem 0.5rem;">
+                    <i class="bi bi-chevron-down"></i>
+                </button>
+                <h6 class="mb-0 mx-2" style="color: #1e293b; font-weight: 600;">일정 관리</h6>
+                <span class="modern-data-value" style="color: #64748b; font-size: 0.75rem;">
+                    <i class="bi bi-tree-fill"></i> 연차
+                </span>
+                <span class="modern-data-value ms-2" style="color: #0288d1; font-size: 0.75rem;">
+                    <i class="bi bi-yin-yang"></i> 설계완료
+                </span>
+              </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="d-flex justify-content-center align-items-center mb-2">
+                    <button type="button" id="todo-prev-month" class="btn btn-sm me-2" style="background: #0288d1; color: white; border: none; border-radius: 6px; padding: 0.25rem 0.5rem;">
+                        <i class="bi bi-arrow-left"></i>
+                    </button>
+                    <span id="todo-current-period" class="modern-data-value me-2" style="color: #1e293b; font-weight: 600;"></span>
+                    <button type="button" id="todo-next-month" class="btn btn-sm me-2" style="background: #0288d1; color: white; border: none; border-radius: 6px; padding: 0.25rem 0.5rem;">
+                        <i class="bi bi-arrow-right"></i>
+                    </button>
+                    <button type="button" id="todo-current-month" class="btn btn-sm me-5" style="background: rgba(2, 136, 209, 0.1); color: #0288d1; border: 1px solid #0288d1; border-radius: 6px; padding: 0.25rem 0.5rem; font-weight: 600;">
+                        <?php echo date("m",time()); ?> 월
+                    </button>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="d-flex justify-content-end align-items-center mb-1">
+                    <div class="inputWrap me-1 d-flex align-items-center">
+                        <input type="text" name="searchTodo" id="searchTodo" class="form-control me-1" autocomplete="off" style="width:200px; font-size:12px; height:30px; border: 1px solid #e2e8f0; border-radius: 6px;" />
+                        <button type="button" class="btnClear d-flex align-items-center justify-content-center"></button>
+                    </div>
+                    <button type="button" id="searchTodoBtn" class="btn btn-sm me-2 d-flex align-items-center justify-content-center" style="background: #475569; color: white; border: none; border-radius: 6px; padding: 0.25rem 0.5rem;">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
         </div>
-      </div>
-		</section>
-	</dialog>
+        <div id="todo-board">
+            <div class="row d-flex">
+                <div class="col-sm-5">
+                </div>
+                <div class="col-sm-7">
+                    <!-- 필터 옵션 -->
+                    <div class="d-flex justify-content-end align-items-center mb-2" style="gap: 0.75rem;">
+                        <label class="radio-label d-flex align-items-center" style="cursor: pointer;">
+                            <input type="radio" name="filter" id="filter_all" class="filter-radio me-2" checked>
+                            <span class="modern-data-value" style="color: #475569; font-weight: 600; background: rgba(71, 85, 105, 0.1); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">전체</span>
+                        </label>
+                        <label class="radio-label d-flex align-items-center" style="cursor: pointer;">
+                            <input type="radio" name="filter" id="filter_al" class="filter-radio me-2">
+                            <span class="modern-data-value" style="color: #64748b; font-weight: 600; font-size: 0.75rem;">연차</span>
+                        </label>
+                        <label class="radio-label d-flex align-items-center" style="cursor: pointer;">
+                            <input type="radio" name="filter" id="filter_jamb" class="filter-radio me-2">
+                            <span class="modern-data-value" style="color: #059669; font-weight: 600; background: rgba(5, 150, 105, 0.1); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">쟘(jamb)</span>
+                        </label>
+                        <label class="radio-label d-flex align-items-center" style="cursor: pointer;">
+                            <input type="radio" name="filter" id="filter_CL" class="filter-radio me-2">
+                            <span class="modern-data-value" style="color: #0288d1; font-weight: 600; background: rgba(2, 136, 209, 0.1); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">천장(ceiling)</span>
+                        </label>
+                        <label class="radio-label d-flex align-items-center" style="cursor: pointer;">
+                            <input type="radio" name="filter" id="filter_jambCL" class="filter-radio me-2">
+                            <span class="modern-data-value" style="color: #059669; font-weight: 600; background: rgba(5, 150, 105, 0.1); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem;">+쟘</span>
+                            <span class="modern-data-value ms-1" style="color: #0288d1; font-weight: 600; background: rgba(2, 136, 209, 0.1); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem;">+천장</span>
+                        </label>
+                        <label class="radio-label d-flex align-items-center" style="cursor: pointer;">
+                            <input type="radio" name="filter" id="filter_OEM" class="filter-radio me-2">
+                            <span class="modern-data-value" style="color: #0ea5e9; font-weight: 600; background: rgba(14, 165, 233, 0.1); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">외주</span>
+                        </label>
+                        <label class="radio-label d-flex align-items-center" style="cursor: pointer;">
+                            <input type="radio" name="filter" id="filter_etc" class="filter-radio me-2">
+                            <span class="modern-data-value me-5" style="color: #64748b; font-weight: 600; font-size: 0.75rem;">기타</span>
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div id="todosMain-list" style="margin-top: 1rem;">
+        </div>
+ 
+        <div class="row">
+            <div id="todo-calendar-container"></div>
+        </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div id="todo-calendar-container" class="p-1"></div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
 
 <?php include 'footer.php'; ?>
 
@@ -2315,39 +2476,39 @@ $(document).ready(function(){
     var toggleManagementBtn = document.getElementById("toggleManagementInfo");
 
     if (toggleManagementBtn) {
-        // change 이벤트로 변경하여 Bootstrap 체크박스와 호환성 향상
-        toggleManagementBtn.addEventListener("change", function() {
+        toggleManagementBtn.addEventListener("click", function() {
             var managementInfo = document.getElementById("managementInfo");
             var NoneManagementInfo = document.getElementById("NoneManagementInfo");
 
-            // 체크박스의 현재 상태를 확인
-            var isChecked = this.checked;
-            console.log("Toggle Management Info - isChecked:", isChecked); // 디버깅용
+            if (managementInfo) {
+                // 체크박스의 현재 상태를 확인
+                var isChecked = this.checked;
 
-            if (isChecked) {
-                // 경영정보 보이기
-                if (managementInfo) managementInfo.style.display = "block";
-                if (NoneManagementInfo) NoneManagementInfo.style.display = "none";
-                // 부자재 미입고 카드 보이기
-                var requestEtcCard = document.getElementById("requestEtcCard");
-                if (requestEtcCard) requestEtcCard.style.display = "block";
-                // 원자재 미입고 카드 보이기
-                var requestCard = document.getElementById("requestCard");
-                if (requestCard) requestCard.style.display = "block";
-                setCookie("showManagementInfo", "show", 30); // 30일간 유효
-                setCookie("toggleManagementInfo", "checked", 30); // 체크박스 상태 저장
-            } else {
-                // 경영정보 숨기기 (간소화된 화면만 표시)
-                if (managementInfo) managementInfo.style.display = "none";
-                if (NoneManagementInfo) NoneManagementInfo.style.display = "block";
-                // 부자재 미입고 카드 숨기기
-                var requestEtcCard = document.getElementById("requestEtcCard");
-                if (requestEtcCard) requestEtcCard.style.display = "none";
-                // 원자재 미입고 카드 숨기기
-                var requestCard = document.getElementById("requestCard");
-                if (requestCard) requestCard.style.display = "none";
-                setCookie("showManagementInfo", "hide", 30); // 30일간 유효
-                setCookie("toggleManagementInfo", "unchecked", 30); // 체크박스 상태 저장
+                if (isChecked) {
+                    // 경영정보 보이기
+                    managementInfo.style.display = "block";
+                    if (NoneManagementInfo) NoneManagementInfo.style.display = "none";
+                    // 부자재 미입고 카드 보이기
+                    var requestEtcCard = document.getElementById("requestEtcCard");
+                    if (requestEtcCard) requestEtcCard.style.display = "block";
+                    // 원자재 미입고 카드 보이기
+                    var requestCard = document.getElementById("requestCard");
+                    if (requestCard) requestCard.style.display = "block";
+                    setCookie("showManagementInfo", "show", 30); // 30일간 유효
+                    setCookie("toggleManagementInfo", "checked", 30); // 체크박스 상태 저장
+                } else {
+                    // 경영정보 숨기기 (간소화된 화면만 표시)
+                    managementInfo.style.display = "none";
+					if (NoneManagementInfo) NoneManagementInfo.style.display = "block";
+                    // 부자재 미입고 카드 숨기기
+                    var requestEtcCard = document.getElementById("requestEtcCard");
+                    if (requestEtcCard) requestEtcCard.style.display = "none";
+                    // 원자재 미입고 카드 숨기기
+                    var requestCard = document.getElementById("requestCard");
+                    if (requestCard) requestCard.style.display = "none";
+                    setCookie("showManagementInfo", "hide", 30); // 30일간 유효
+                    setCookie("toggleManagementInfo", "unchecked", 30); // 체크박스 상태 저장
+                }
             }
         });
     }
@@ -2481,32 +2642,32 @@ function safeUpdateElement(selector, value) {
   }
 }
 
-safeUpdateElement('#text1', <?php echo json_encode($request_asked_count ?? ''); ?>); // 화면상단에 건수 표시  원자재 요청건
-safeUpdateElement('#text8', <?php echo json_encode($request_send_count ?? ''); ?>); // 화면상단에 건수 표시  원자재 발주보냄
-safeUpdateElement('#text2', <?php echo json_encode($request_etc_asked_count ?? ''); ?>); // 화면상단에 건수 표시 기타물품 요청건
-safeUpdateElement('#text7', <?php echo json_encode($request_etc_send_count ?? ''); ?>); // 화면상단에 건수 표시 기타물품 발주보냄
-safeUpdateElement('#text5', <?php echo json_encode($eat_count ?? ''); ?>); // 화면상단에 건수 표시 중식
-safeUpdateElement('#text6', <?php echo json_encode($aftereat_count ?? ''); ?>); // 화면상단에 건수 표시 석식
-safeUpdateElement('#lunch_text', <?php echo json_encode($lunch_text ?? ''); ?>); // 화면상단에 중식 종류
-safeUpdateElement('#dinner_text', <?php echo json_encode($dinner_text ?? ''); ?>); // 화면상단에 석식 종류
-safeUpdateElement('#lunch_done', <?php echo json_encode($lunch_done ?? ''); ?>); 
-safeUpdateElement('#supper_done', <?php echo json_encode($supper_done ?? ''); ?>); 
+safeUpdateElement('#text1', '<?php echo $request_asked_count; ?>'); // 화면상단에 건수 표시  원자재 요청건
+safeUpdateElement('#text8', '<?php echo $request_send_count; ?>'); // 화면상단에 건수 표시  원자재 발주보냄
+safeUpdateElement('#text2', '<?php echo $request_etc_asked_count; ?>'); // 화면상단에 건수 표시 기타물품 요청건
+safeUpdateElement('#text7', '<?php echo $request_etc_send_count; ?>'); // 화면상단에 건수 표시 기타물품 발주보냄
+safeUpdateElement('#text5', '<?php echo $eat_count; ?>'); // 화면상단에 건수 표시 중식
+safeUpdateElement('#text6', '<?php echo $aftereat_count; ?>'); // 화면상단에 건수 표시 석식
+safeUpdateElement('#lunch_text', '<?php echo $lunch_text; ?>'); // 화면상단에 중식 종류
+safeUpdateElement('#dinner_text', '<?php echo $dinner_text; ?>'); // 화면상단에 석식 종류
+safeUpdateElement('#lunch_done', '<?php echo $lunch_done; ?>'); 
+safeUpdateElement('#supper_done', '<?php echo $supper_done; ?>'); 
 // 쟘 금일 정보 가져오기
-safeUpdateElement('#jamb_registedate', <?php echo json_encode($jamb_registedate ?? ''); ?>); 
-safeUpdateElement('#jamb_duedate', <?php echo json_encode($jamb_duedate ?? ''); ?>); 
-safeUpdateElement('#jamb_outputdonedate', <?php echo json_encode($jamb_outputdonedate ?? ''); ?>); 
+safeUpdateElement('#jamb_registedate', '<?php echo $jamb_registedate; ?>'); 
+safeUpdateElement('#jamb_duedate', '<?php echo $jamb_duedate; ?>'); 
+safeUpdateElement('#jamb_outputdonedate', '<?php echo $jamb_outputdonedate; ?>'); 
 // 천장 금일 정보 가져오기
-safeUpdateElement('#ceiling_registedate', <?php echo json_encode($ceiling_registedate ?? ''); ?>); 
-safeUpdateElement('#ceiling_duedate', <?php echo json_encode($ceiling_duedate ?? ''); ?>); 
-safeUpdateElement('#ceiling_outputdonedate', <?php echo json_encode($ceiling_outputdonedate ?? ''); ?>); 
+safeUpdateElement('#ceiling_registedate', '<?php echo $ceiling_registedate; ?>'); 
+safeUpdateElement('#ceiling_duedate', '<?php echo $ceiling_duedate; ?>'); 
+safeUpdateElement('#ceiling_outputdonedate', '<?php echo $ceiling_outputdonedate; ?>'); 
 // 덴크리 금일 정보 가져오기
-safeUpdateElement('#dancre_registedate', <?php echo json_encode($dancre_registedate ?? ''); ?>); 
-safeUpdateElement('#dancre_duedate', <?php echo json_encode($dancre_duedate ?? ''); ?>); 
-safeUpdateElement('#dancre_outputdonedate', <?php echo json_encode($dancre_outputdonedate ?? ''); ?>); 
+safeUpdateElement('#dancre_registedate', '<?php echo $dancre_registedate; ?>'); 
+safeUpdateElement('#dancre_duedate', '<?php echo $dancre_duedate; ?>'); 
+safeUpdateElement('#dancre_outputdonedate', '<?php echo $dancre_outputdonedate; ?>'); 
 // 다온텍 금일 정보 가져오기
-$('#daontech_registedate').text(<?php echo json_encode($daontech_registedate ?? ''); ?>); 
-$('#daontech_duedate').text(<?php echo json_encode($daontech_duedate ?? ''); ?>); 
-$('#daontech_outputdonedate').text(<?php echo json_encode($daontech_outputdonedate ?? ''); ?>); 
+$('#daontech_registedate').text('<?php echo $daontech_registedate; ?>'); 
+$('#daontech_duedate').text('<?php echo $daontech_duedate; ?>'); 
+$('#daontech_outputdonedate').text('<?php echo $daontech_outputdonedate; ?>'); 
 
 const Jamb_OutputPrice = <?php echo $jambearning; ?> ;  // 싱글 퀘테이션마크를 삭제하면 숫자로 표현됨 주의!!!
 const Jamb_formattedPrice = Jamb_OutputPrice.toLocaleString() ;
@@ -2516,21 +2677,21 @@ const Lc_OutputPrice = <?php echo $lcearning; ?>; 		      // 싱글 퀘테이션
 const Lc_formattedPrice = Lc_OutputPrice.toLocaleString() ;
 $('#lcearning').text(Lc_formattedPrice  ) ;            // 조명천장 매출
 
-const prejamblist = <?php echo json_encode($prejamblist ?? ''); ?>; 		      
-const preceilinglist = <?php echo json_encode($preceilinglist ?? ''); ?>; 		  
+const prejamblist = '<?php echo $prejamblist; ?>'; 		      
+const preceilinglist = '<?php echo $preceilinglist; ?>'; 		  
 
 $('#prejamblist').text(prejamblist) ;            // 전일 쟘 출고내역
 $('#preceilinglist').text(preceilinglist) ;            // 전일 천장 출고내역
 
 
-$('#steel_done').text(<?php echo json_encode($steel_done ?? ''); ?>); 
-$('#etc_done').text(<?php echo json_encode($etc_done ?? ''); ?>); 
+$('#steel_done').text('<?php echo $steel_done; ?>'); 
+$('#etc_done').text('<?php echo $etc_done; ?>'); 
 	
 $('#eworksel').val('draft');  // 최초 전자결재 작성으로 정함
 
 // console.log("get cookie : " + getCookie("popupYN"));				 
 
-let admin = <?php echo json_encode($admin ?? '0'); ?>;			
+let admin = '<?php echo $admin; ?>';			
 
 if(admin=='1') 
 	   openPopup();	   	
@@ -2574,9 +2735,9 @@ function check_alert()
 	var tmp; 				
 	var user_name = $('#user_name').val();
 	
-	var NoCheck = <?php echo json_encode($NocheckDeviceNum ?? ''); ?>;
-	var NoCheckArea = <?php echo json_encode($NocheckAreaNum ?? ''); ?>;
-	var NocheckOfficePerson = <?php echo json_encode($NocheckOfficePerson ?? []); ?>;
+	var NoCheck = '<?php echo $NocheckDeviceNum ; ?>';
+	var NoCheckArea = '<?php echo $NocheckAreaNum ; ?>';
+	var NocheckOfficePerson = <?php echo json_encode($NocheckOfficePerson); ?>;
 	
 	// console.log('NoCheck', NoCheck);
 	// console.log('NoCheckArea', NoCheckArea);
@@ -2797,7 +2958,7 @@ function closePopup() {
 
 function showMsg(){
 	var dialog = document.getElementById("myMsgDialog");
-	var bad_number = <?php echo json_encode($bad_number ?? 0); ?>;
+	var bad_number ='<?php echo $bad_number; ?>';
 	if(bad_number>0)
 		dialog.showModal();
 }
@@ -2834,100 +2995,70 @@ $(document).ready(function() {
     // searchTodo 입력 필드에서 Enter 키를 누르면 searchTodoBtn 버튼 클릭
     inputEnter('searchTodo', 'searchTodoBtn');    
 	
-    // todo_view 버튼 클릭 이벤트
+    // todo_view
     $("#todo_view").on("click", function() { 
 		var showTodoView = getCookie("showTodoView");
-		var todoCalendarContainer = $("#todo-calendar-container");
-		var todoMainList = $("#todosMain-list");
-		
+		var todoCalendarContainer = $("#todo-list");
 		if (showTodoView === "show") {
-			// 현재 보이는 상태 → 숨김
 			todoCalendarContainer.css("display", "none");
-			todoMainList.css("display", "none");
-			setCookie("showTodoView", "hide", 1440); // 1440분 = 1일
-			$(this).find("i").removeClass("bi-chevron-up").addClass("bi-chevron-down");
+			setCookie("showTodoView",  "hide"  , 10);
 		} else {
-			// 현재 숨겨진 상태 → 보임
 			todoCalendarContainer.css("display", "inline-block");
-			todoMainList.css("display", "block");
-			setCookie("showTodoView", "show", 1440); // 1440분 = 1일
-			$(this).find("i").removeClass("bi-chevron-down").addClass("bi-chevron-up");
+			setCookie("showTodoView",  "show"  , 10);
 		}
-    });
+    });	
 	
-	// 페이지 로드 시 todo_view 쿠키 값에 따라 초기 상태 설정
-	var showTodoView = getCookie("showTodoView");
-	var todoCalendarContainer = $("#todo-calendar-container");
-	var todoMainList = $("#todosMain-list");
-	
-	if (showTodoView === "hide") {
-		// 쿠키에 숨김으로 저장되어 있으면 숨김 상태로 시작
-		todoCalendarContainer.css("display", "none");
-		todoMainList.css("display", "none");
-		$("#todo_view").find("i").removeClass("bi-chevron-up").addClass("bi-chevron-down");
-	} else {
-		// 기본값 또는 "show"이면 보임 상태로 시작
-		todoCalendarContainer.css("display", "inline-block");
-		todoMainList.css("display", "block");
-		$("#todo_view").find("i").removeClass("bi-chevron-down").addClass("bi-chevron-up");
-		// 쿠키가 없으면 기본값으로 "show" 설정
-		if (!showTodoView) {
-			setCookie("showTodoView", "show", 1440);
-		}
-	}
-	
-    // board_view 버튼 클릭 이벤트
+    // board_view
     $("#board_view").on("click", function() {
 		var showBoardView = getCookie("showBoardView");		
 		var board_list = $(".board_list");
-		
 		if (showBoardView === "show") {
-			// 현재 보이는 상태 → 숨김
 			board_list.css("display", "none");
 			$("#org_chart_div").hide();
-			setCookie("showBoardView", "hide", 1440); // 1440분 = 1일
-			$(this).find("i").removeClass("bi-chevron-up").addClass("bi-chevron-down");
+			
+			setCookie("showBoardView",  "hide"  , 10);
 		} else {
-			// 현재 숨겨진 상태 → 보임
 			board_list.css("display", "inline-block");
 			$("#org_chart_div").show();
-			setCookie("showBoardView", "show", 1440); // 1440분 = 1일
-			$(this).find("i").removeClass("bi-chevron-down").addClass("bi-chevron-up");
+			setCookie("showBoardView",  "show"  , 10);
 		}		
     });	
 
-	// 페이지 로드 시 board_view 쿠키 값에 따라 초기 상태 설정	
+	// 최초 실행될때 쿠키값을 기억하고 행하는 구문임.		
 	var showBoardView = getCookie("showBoardView");		
 	var board_list = $(".board_list");
-	
-	if (showBoardView === "hide") {
-		// 쿠키에 숨김으로 저장되어 있으면 숨김 상태로 시작
-		board_list.css("display", "none");	
-		$("#org_chart_div").hide();
-		$("#board_view").find("i").removeClass("bi-chevron-up").addClass("bi-chevron-down");
-	} else {
-		// 기본값 또는 "show"이면 보임 상태로 시작
+	if (showBoardView === "show") {		
 		board_list.css("display", "inline-block");		
 		$("#org_chart_div").show();
-		$("#board_view").find("i").removeClass("bi-chevron-down").addClass("bi-chevron-up");
-		// 쿠키가 없으면 기본값으로 "show" 설정
-		if (!showBoardView) {
-			setCookie("showBoardView", "show", 1440);
-		}
+	} else {
+		board_list.css("display", "none");	
+		$("#org_chart_div").hide();
 	}	
 
 });
 
 
 // 하루동안 띄워주는 팝업창 만들기 코드
-// 쿠키 함수는 common.js에서 로드됨 (setCookie, getCookie, deleteCookie)
-// common.js의 setCookie는 분 단위로 작동: setCookie(name, value, minutes)
-// 팝업용 일 단위 쿠키 함수
-function setCookieForDays(cname, cvalue, exdays) {
+// (예시) 쿠키 저장 함수
+function setCookie(cname, cvalue, exdays) {
   var d = new Date();
   d.setTime(d.getTime() + (exdays*24*60*60*1000));
   var expires = "expires="+ d.toUTCString();
   document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+
+// (예시) 쿠키 불러오기 함수
+function getCookie(cname) {
+  var name = cname + "=";
+  var decodedCookie = decodeURIComponent(document.cookie);
+  var ca = decodedCookie.split(';');
+  for(var i = 0; i < ca.length; i++) {
+    var c = ca[i].trim();
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
 }
 
 $(document).ready(function(){
@@ -2946,7 +3077,7 @@ $(document).ready(function(){
     // [오늘 하루동안 표시하지 않기] 버튼 클릭 시 쿠키 설정 후 팝업 숨기기  
     $('#hideToday').click(function(){
         // 하루(1일) 동안 팝업을 보이지 않도록 쿠키 설정
-        setCookieForDays('dailyPopupShown', 'true', 1);
+        setCookie('dailyPopupShown', 'true', 1);
         $('#dailyPopup').hide();
     });
 });
@@ -3004,8 +3135,8 @@ function checkLunchOrder() {
     // 오전 10시 이후인지 확인
     if (currentHour >= 10) {
         // 중식 주문 데이터 확인 (PHP에서 전달된 변수 사용)
-        const lunchDone = <?php echo json_encode($lunch_done ?? ''); ?>;
-        const eatCount = <?php echo json_encode($eat_count ?? ''); ?>;
+        const lunchDone = '<?php echo $lunch_done; ?>';
+        const eatCount = '<?php echo $eat_count; ?>';
         
         // 중식 주문이 없거나 완료되지 않은 경우
         if (!lunchDone || lunchDone === '' || eatCount === '' || eatCount === '0') {

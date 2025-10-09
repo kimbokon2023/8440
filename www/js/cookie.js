@@ -4,7 +4,8 @@ function setCookie (cookie_name, value, minutes) {
     exdate.setMinutes(exdate.getMinutes() + minutes);
     // const cookie_value = escape(value) + ((minutes == null) ? '' : '; expires=' + exdate.toUTCString());
     const cookie_value = value + ((minutes == null) ? '' : '; expires=' + exdate.toUTCString()); // 암호화 끔
-    document.cookie = cookie_name + '=' + cookie_value;
+    // path=/ 추가하여 전체 사이트에서 쿠키 사용 가능하게 설정 (로컬/서버 환경 모두 지원)
+    document.cookie = cookie_name + '=' + cookie_value + '; path=/';
 }
 
 function getCookie(cookie_name) {

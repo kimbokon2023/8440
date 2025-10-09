@@ -1,15 +1,14 @@
 <?php
+require_once __DIR__ . '/../bootstrap.php';
 // ───────────────────────────────────────────────────────────
 // JAMB 수주현황 분석 (수주금액 / 발주처순위 / 업체별 월별수주금액)
 // ───────────────────────────────────────────────────────────
-include getDocumentRoot() . '/session.php';
 if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
     sleep(1);
-    header("Location:" . $WebSite . "login/login_form.php");
+    header("Location:" . getBaseUrl() . "/login/login_form.php");
     exit;
 }
 $title_message = "JAMB 수주현황 분석";
-include getDocumentRoot() . '/load_header.php';
 
 // ── 1) 기간 계산: start, end 둘 다 있으면 그대로, 하나만 있으면 12개월 보정 ──
 if (!empty($_GET['start']) && !empty($_GET['end'])) {
@@ -255,7 +254,8 @@ for ($dt = clone $startDate; $dt <= $endDate; $dt->modify('+1 month')) {
   </style>
 </head>
 <body>
-<?php if($_GET['header']=='header'){
+<?php 
+if (isset($_GET['header']) && $_GET['header'] === 'header') {
         include getDocumentRoot() . '/myheader.php';
 } ?>
 <div id="loadingOverlay">

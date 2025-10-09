@@ -5,7 +5,7 @@ header("Content-Type: application/json");
 
 // 여러 e_num 값을 배열로 받아옵니다.
 $e_nums = $_REQUEST["selectedIds"] ?? [];
-$last_e_num = null;
+$last_e_num = null; 
 
 try {
     foreach ($e_nums as $e_num) {

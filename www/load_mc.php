@@ -1,8 +1,6 @@
-<?php include getDocumentRoot() . '/session.php';   
- 
-  require_once("./lib/mydb.php");
-  $pdo = db_connect();	  
- 
+<?php
+require_once __DIR__ . '/bootstrap.php';
+
   $page=1;	 
   
   $scale = 20;       // 한 페이지에 보여질 게시글 수

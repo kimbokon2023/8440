@@ -19,7 +19,7 @@ $hp        = $_SESSION['hp']      ?? null;
 // 환경별 URL 설정 (로컬/서버 자동 구분)
 $WebSite  = getBaseUrl() . '/';
 $root_dir = getBaseUrl();
-$version  = '13';
+$version  = '16';
 
 $expiryTime    = (int)ini_get('session.gc_maxlifetime');
 $remainingTime = 0;

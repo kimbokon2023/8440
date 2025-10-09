@@ -1,10 +1,7 @@
 <?php
 require_once __DIR__ . '/bootstrap.php';
-?>
 
-<?php 
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();	
+$dis_text2 = ""; // 변수 초기화
 
 $page=1;	 
 
@@ -217,7 +214,7 @@ function redirectToView_ceiling(num) {
 
 function dis_text2()
 {  
-	var dis_text = '<?php echo $dis_text2; ?>';
+	var dis_text = <?php echo json_encode($dis_text2 ?? ''); ?>;
 	$(".dis_text2").text(dis_text);
 }	
 

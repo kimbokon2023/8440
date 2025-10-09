@@ -21,10 +21,10 @@ $root_dir = getDocumentRoot() ;
                 <div class="col-lg-3 col-sm-3">
                     <h5 class="text-white mb-3">Quick links</h5>
                     <ul class="list-unstyled text-white">
-                        <li><a href="<?$root_dir?>/work/list.php" class='text-white'>쟘공사</a></li>
-                        <li><a href="<?$root_dir?>/ceiling/list.php" class='text-white'>조명천장</a></li>
-                        <li><a href="<?$root_dir?>/steel/list.php" class='text-white'>원자재입출고</a></li>
-                        <li><a href="<?$root_dir?>/notice/list.php" class='text-white'>공지사항</a></li>
+                        <li><a href="<?= getBaseUrl() ?>/work/list.php" class='text-white'>쟘공사</a></li>
+                        <li><a href="<?= getBaseUrl() ?>/ceiling/list.php" class='text-white'>조명천장</a></li>
+                        <li><a href="<?= getBaseUrl() ?>/steel/list.php" class='text-white'>원자재입출고</a></li>
+                        <li><a href="<?= getBaseUrl() ?>/notice/list.php" class='text-white'>공지사항</a></li>
                     </ul>
                 </div>
 				<div class="col-lg-1 col-sm-2">

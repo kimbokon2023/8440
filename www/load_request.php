@@ -1,13 +1,6 @@
  <?php
- if(!isset($_SESSION))      
-	session_start(); 
-if(isset($_SESSION["DB"]))
-	$DB = $_SESSION["DB"] ;	
-	$level= $_SESSION["level"];
-	$user_name= $_SESSION["name"];
-	$user_id= $_SESSION["userid"];	
-	
- 
+require_once __DIR__ . '/bootstrap.php';
+
   if(isset($_REQUEST["search"]))   //목록표에 제목,이름 등 나오는 부분
 	 $search=$_REQUEST["search"];
   if(isset($_REQUEST["separate_date"]))   //출고일 완료일

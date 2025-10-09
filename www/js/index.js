@@ -12,22 +12,23 @@ var isModalOpen = false; // 모달 창 상태를 추적하는 전역 변수
 
 var Eworks_dataTable; // DataTables 인스턴스 전역 변수
 var Eworks_pageNumber; // 현재 페이지 번호 저장을 위한 전역 변수
-$(document).ready(function() {  
-    if ($('#myEworks_Table').length) {
 
-        // DataTables 초기 설정 - 오류 처리 추가
-        try {
-            // DataTable 함수가 존재하는지 확인
-            if (typeof $.fn.DataTable === 'undefined') {
-                console.error('DataTable 라이브러리가 로드되지 않았습니다.');
-                // DataTable이 없을 때 기본 테이블 기능만 활성화
-                $('#myEworks_Table').addClass('table table-striped table-hover');
-                // 전역 변수 초기화
-                window.Eworks_dataTable = null;
-                return;
-            }
+// DataTable 초기화 함수
+function initDataTable() {
+    if (!$('#myEworks_Table').length) return;
+    
+    // DataTable이 이미 초기화되어 있는지 확인
+    if ($.fn.DataTable.isDataTable('#myEworks_Table')) {
+        return;
+    }
+    
+    try {
+        if (typeof $.fn.DataTable === 'undefined') {
+            // console.warn('DataTable 라이브러리가 로드되지 않았습니다.');
+            return;
+        }
 
-            Eworks_dataTable = $('#myEworks_Table').DataTable({
+        Eworks_dataTable = $('#myEworks_Table').DataTable({
             "paging": true,
             "ordering": true,
             "searching": false,
@@ -76,10 +77,24 @@ $(document).ready(function() {
                 Eworks_dataTable.page(parseInt(savedPageNumber) - 1).draw(false);
             }
         });
-        } catch (error) {
-            console.error('DataTable 초기화 중 오류가 발생했습니다:', error);
-            console.error('오류 메시지:', error.message);
-            console.error('오류 스택:', error.stack);
+    } catch (error) {
+        console.error('DataTable 초기화 중 오류가 발생했습니다:', error);
+    }
+}
+
+// 페이지 로드 시 DataTable 초기화 시도
+$(document).ready(function() {
+    if ($('#myEworks_Table').length) {
+        // DataTable 라이브러리가 로드될 때까지 대기
+        if (typeof $.fn.DataTable !== 'undefined') {
+            initDataTable();
+        } else {
+            // 라이브러리가 아직 로드되지 않은 경우 잠시 후 재시도
+            setTimeout(function() {
+                if (typeof $.fn.DataTable !== 'undefined') {
+                    initDataTable();
+                }
+            }, 500);
         }
     }
 });
@@ -2775,17 +2790,24 @@ function load_eworkslist()
 							}
 
 														
-							// 종 아이콘 및 "알림" 버튼 처리
-							var bellIcon = document.getElementById('bellIcon');
-							var alertEworks = document.getElementById('alert_eworks_bell');
-							var badgeElement = document.getElementById('badge3');
-							if (badgeElement) {								
-								var badgeCount = parseInt(badgeElement.innerText);
-								const ework_approval = $("#ework_approval").val();
-								console.log('badgeCount :', badgeCount);								  
-								console.log('ework_approval :', $("#ework_approval").val());
-								
-								if (parseInt(ework_approval) > 0 && !isNaN(badgeCount) && badgeCount > 0)
+						// 종 아이콘 및 "알림" 버튼 처리
+						var bellIcon = document.getElementById('bellIcon');
+						var alertEworks = document.getElementById('alert_eworks_bell');
+						var badgeElement = document.getElementById('badge3');
+						if (badgeElement && bellIcon && alertEworks) {								
+							var badgeText = badgeElement.innerText || badgeElement.textContent || '0';
+							var badgeCount = parseInt(badgeText.trim());
+							const ework_approval = $("#ework_approval").val();
+							
+							// badgeCount가 NaN이면 0으로 설정
+							if (isNaN(badgeCount)) {
+								badgeCount = 0;
+							}
+							
+							console.log('badgeCount :', badgeCount);								  
+							console.log('ework_approval :', $("#ework_approval").val());
+							
+							if (parseInt(ework_approval) > 0 && badgeCount > 0)
 								{
 									bellIcon.style.display = 'inline';
 									bellIcon.classList.add('blink');

@@ -1,4 +1,4 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php require_once __DIR__ . '/../common/functions.php';
 require_once(includePath('session.php')); 
 include getDocumentRoot() . '/load_header.php' ;
 
@@ -13,6 +13,11 @@ $mode = isset($_REQUEST["mode"]) ? $_REQUEST["mode"] : 'search';
 $fromdate = date("Y-m-d", strtotime("-2 years"));
 $todate = date("Y-m-d");
 $Transtodate = date("Y-m-d", strtotime($todate . ' +1 day'));
+
+// Initialize variables to prevent undefined variable warnings
+$num = $_REQUEST['num'] ?? '';
+$page = $_REQUEST['page'] ?? '';
+$calculate = $_REQUEST['calculate'] ?? '';
 
 $default_condition = false;
 $searchspec = '';
@@ -177,11 +182,11 @@ $totalamount = $weight * $steelnum * $unitprice;
 	
 	<div class ="d-flex align-items-center justify-content-center">
 	 <div class="col-sm-7">	  		 
-            <input type="hidden" id="SelectWork" name="SelectWork" > 
-            <input type="hidden" id="vacancy" name="vacancy" > 
-            <input type="hidden" id="num" name="num" value=<?=$num?> > 
-            <input type="hidden" id="page" name="page" value=<?=$page?> > 
-            <input type="hidden" id="calculate" name="calculate" value=<?=$calculate?> > 		
+           <input type="hidden" id="SelectWork" name="SelectWork" > 
+           <input type="hidden" id="vacancy" name="vacancy" > 
+           <input type="hidden" id="num" name="num" value="<?= htmlspecialchars($num ?? '', ENT_QUOTES, 'UTF-8') ?>" > 
+           <input type="hidden" id="page" name="page" value="<?= htmlspecialchars($page ?? '', ENT_QUOTES, 'UTF-8') ?>" > 
+           <input type="hidden" id="calculate" name="calculate" value="<?= htmlspecialchars($calculate ?? '', ENT_QUOTES, 'UTF-8') ?>" >
 				
 		      <div class="p-1 m-1" >
 		     <button type="button" class="btn btn-primary btn-sm  clickbtn " onclick="HL304_click();" > 304 HL </button>	&nbsp;   
@@ -415,9 +420,10 @@ $totalamount = $weight * $steelnum * $unitprice;
 <script>
 
 // 원자재 단가 가져오기 (비동기 방식)
+// 서버와 로컬 모두에서 동작하도록 절대경로 대신 상대경로 사용
 function fetchUnitPrice(item) {
     return $.ajax({
-        url: '/cost/fetch_unitprice.php',
+        url: 'fetch_unitprice.php',
         type: 'POST',
         data: { item: item },
         dataType: 'json'
