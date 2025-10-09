@@ -1,23 +1,14 @@
 <?php
-if(!isset($_SESSION))      
-		session_start(); 
-if(isset($_SESSION["DB"]))
-		$DB = $_SESSION["DB"] ;	
- $level= $_SESSION["level"];
- $user_name= $_SESSION["name"];
- $user_id= $_SESSION["userid"];	
+require_once __DIR__ . '/../bootstrap.php';
 
-
- ?>
- 
- <?php include getDocumentRoot() . '/load_header.php';
  if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
           /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(1);
-         header("Location:".$_SESSION["WebSite"]."login/login_form.php"); 
+	 sleep(1);
+         header("Location:" . getBaseUrl() . "/login/login_form.php"); 
          exit;
    }  
 
+include includePath('load_header.php');
 
  ?>
  
@@ -25,22 +16,33 @@ if(isset($_SESSION["DB"]))
  
  <?php 
 
+// 변수 초기화
+$cursort = $_REQUEST["cursort"] ?? '';    // 현재 정렬모드 지정
+$sortof = $_REQUEST["sortof"] ?? '';  // 클릭해서 넘겨준 값
+$stable = $_REQUEST["stable"] ?? '';    // 정렬모드 변경할지 안할지 결정  
+$year = $_REQUEST["year"] ?? '';
+$process = $_REQUEST["process"] ?? '';
+$asprocess = $_REQUEST["asprocess"] ?? '';
+$up_fromdate = $_REQUEST["up_fromdate"] ?? '';
+$up_todate = $_REQUEST["up_todate"] ?? '';
+$separate_date = $_REQUEST["separate_date"] ?? '';
+$view_table = $_REQUEST["view_table"] ?? '';
   
- $cursort=$_REQUEST["cursort"];    // 현재 정렬모드 지정
- $sortof=$_REQUEST["sortof"];  // 클릭해서 넘겨준 값
- $stable=$_REQUEST["stable"];    // 정렬모드 변경할지 안할지 결정  
-  
-  $sum=array(); 
+$sum=array(); 
 	 
-  if(isset($_REQUEST["mode"]))
-     $mode=$_REQUEST["mode"];
-  else 
-     $mode="";        
- 
+if(isset($_REQUEST["mode"]))
+   $mode=$_REQUEST["mode"];
+else 
+   $mode="";        
+
+if(isset($_REQUEST["search"]))
+   $search=$_REQUEST["search"];
+else
+   $search="";
   
- // 기간을 정하는 구간
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];	 
+// 기간을 정하는 구간
+$fromdate = $_REQUEST["fromdate"] ?? '';	 
+$todate = $_REQUEST["todate"] ?? '';
  
  if($fromdate=="")
 {
@@ -75,8 +77,7 @@ $now = date("Y-m-d");	 // 현재 날짜와 크거나 같으면 생산예정으�
 			  $sql .="or (delicompany like '%$search%' ) or (hpi like '%$search%' ) or (firstord like '%$search%' ) or (secondord like '%$search%' ) or (worker like '%$search%' ) or (memo like '%$search%' )) and ( workday between date('$fromdate') and date('$Transtodate'))" . $orderby;				  		  		   
 		 }    
 	  
-require_once("../lib/mydb.php");
-$pdo = db_connect();	  		  
+// bootstrap.php에서 이미 DB 연결됨	  		  
 // print $search;
 // print $sql;
 
@@ -204,7 +205,7 @@ $jamb_total = "막판:" . $sum1 . ", " . "막판(無):" . $sum2 . ", " . "쪽쟘
 		 
 <body >
 
-<form name="board_form" id="board_form"  method="post" action="delivery_fee.php?mode=search&year=<?=$year?>&search=<?=$search?>&process=<?=$process?>&asprocess=<?=$asprocess?>&fromdate=<?=$fromdate?>&todate=<?=$todate?>&up_fromdate=<?=$up_fromdate?>&up_todate=<?=$up_todate?>&separate_date=<?=$separate_date?>&view_table=<?=$view_table?>">  
+<form name="board_form" id="board_form"  method="post" action="delivery_fee.php?mode=search">  
  <div class="container-fluid">
     <div class="card">		
 		<div class="card-header">    
@@ -277,8 +278,8 @@ $(document).ready(function(){
  var total_sum=0;
  
   
- var rowNum = "<? echo $counter; ?>" ; 
- var jamb_total = "<? echo $jamb_total; ?>"; 
+ var rowNum = <?php echo json_encode($counter); ?> ; 
+ var jamb_total = <?php echo json_encode($jamb_total); ?>; 
  
  const data = [];
  const columns = [];	
@@ -783,9 +784,24 @@ function this_year()  {   // 당해년도
 } 
 function dis_text()
 {  
-		var dis_text = '<?php echo $jamb_total; ?>';
+		var dis_text = <?php echo json_encode($jamb_total ?? ''); ?>;
 		$("#dis_text").val(dis_text);
 }	
+
+// 검색 버튼 클릭 이벤트
+$(document).ready(function() {
+    $("#searchBtn").click(function() {
+        $("#board_form").submit();
+    });
+    
+    // Enter 키로도 검색 가능하도록
+    $("#fromdate, #todate").keypress(function(e) {
+        if (e.which == 13) {  // Enter key
+            e.preventDefault();
+            $("#board_form").submit();
+        }
+    });
+});
 </script>
 
   </html>

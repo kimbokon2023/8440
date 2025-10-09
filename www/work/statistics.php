@@ -1,22 +1,20 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session.php'));  
+<?php
+require_once __DIR__ . '/../bootstrap.php';
 
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(1);
-         header("Location:".$_SESSION["WebSite"]."login/login_form.php"); 
-         exit;
-   }   
+// 권한 확인
+if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+    sleep(1);
+    header("Location:" . getBaseUrl() . "/login/login_form.php");
+    exit;
+}
 
-   // 첫 화면 표시 문구
- $title_message = 'jamb 시공비 통계';    
-   
+// 첫 화면 표시 문구
+$title_message = 'jamb 시공비 통계';
+
+include includePath('load_header.php');
 ?>
-   
-   
-<?php include getDocumentRoot() . '/load_header.php' ?>
 
-<title> <?=$title_message?> </title>
+<title><?= $title_message ?></title>
 
 <!-- Light & Subtle Theme CSS -->
 <link rel="stylesheet" href="../css/dashboard-style.css" type="text/css" />
@@ -232,22 +230,21 @@ body {
 
 <body>
 
-  <?php require_once(includePath('myheader.php')); ?>
+<?php require_once(includePath('myheader.php')); ?>
 
- <?php
- 
-$search = isset($_REQUEST["search"]) ? $_REQUEST["search"] : null;
-$load_confirm = isset($_REQUEST["load_confirm"]) ? $_REQUEST["load_confirm"] : null;
-$display_sel = isset($_REQUEST["display_sel"]) ? $_REQUEST["display_sel"] : 'bar';
-$list = isset($_REQUEST["list"]) ? $_REQUEST["list"] : 0;
-$find = isset($_REQUEST["find"]) ? $_REQUEST["find"] : null;
-$mode = isset($_REQUEST["mode"]) ? $_REQUEST["mode"] : '';
+<?php
+// 요청 변수 안전하게 초기화
+$search = $_REQUEST["search"] ?? null;
+$load_confirm = $_REQUEST["load_confirm"] ?? null;
+$display_sel = $_REQUEST["display_sel"] ?? 'bar';
+$list = $_REQUEST["list"] ?? 0;
+$find = $_REQUEST["find"] ?? null;
+$mode = $_REQUEST["mode"] ?? '';
+$fromdate = $_REQUEST["fromdate"] ?? '';
+$todate = $_REQUEST["todate"] ?? '';
 
 require_once("../lib/mydb.php");
-$pdo = db_connect();
-  
-$fromdate = $_REQUEST["fromdate"];	 
-$todate = $_REQUEST["todate"];	 
+$pdo = db_connect();	 
 
 // 올해를 날짜 기간으로 설정
 if (empty($fromdate)) {
@@ -267,105 +264,86 @@ $Transtodate = date("Y-m-d", $Transtodate);
 
 
 
-$SettingDate="workday ";
+$SettingDate = "workday";
+$common = " WHERE workday BETWEEN date('$fromdate') AND date('$Transtodate')";
 
-$common="   where workday between date('$fromdate') and date('$Transtodate')  " ;
- 
- // 전체합계(입고부분)를 산출하는 부분 
-$sum_title=array(); 
-$sum=array();
+// 전체합계(입고부분)를 산출하는 부분
+$sum_title = array();
+$sum = array();
 
-$sql="select * from mirae8440.work " .$common; 	
- 
- try{  
-// 레코드 전체 sql 설정
-   $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+$sql = "SELECT * FROM mirae8440.work" . $common;
 
-		include '_row.php'; 
+try {
+    $stmh = $pdo->query($sql);
+    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+        include '_row.php';
 
-        for($i=1;$i<=$rowNum;$i++) {			 			  
+        for ($i = 1; $i <= $rowNum; $i++) {
+            $sum_title[$i] = $steelsource_item[$i] . $steelsource_spec[$i];
+            if ($which == '1' and $tmp == $sum_title[$i])
+                $sum[$i] = $sum[$i] + (int)$steelnum;
+        }
+    }
+} catch (PDOException $Exception) {
+    print "오류: " . $Exception->getMessage();
+}
 
-	          $sum_title[$i]=$steelsource_item[$i] . $steelsource_spec[$i];
-			  if($which=='1' and $tmp==$sum_title[$i])
-				    $sum[$i]=$sum[$i] + (int)$steelnum;		// 입고숫자 더해주기 합계표	
-				// $sum[$i]=(float)-1;				
-		           }			  
+// 전체합계(출고부분)를 처리하는 부분
+$sql = "SELECT * FROM mirae8440.work" . $common;
 
-			}		 
-   } catch (PDOException $Exception) {
-    print "오류: ".$Exception->getMessage();
-}  
+try {
+    $stmh = $pdo->query($sql);
+    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+        include '_row.php';
 
+        for ($i = 1; $i <= $rowNum; $i++) {
+            $sum_title[$i] = $steelsource_item[$i] . $steelsource_spec[$i];
+            if ($which == '2' and $tmp == $sum_title[$i])
+                $sum[$i] = $sum[$i] - (int)$steelnum;
+        }
+    }
+} catch (PDOException $Exception) {
+    print "오류: " . $Exception->getMessage();
+}
 
- // 전체합계(출고부분)를 처리하는 부분 
+// SQL 쿼리 생성
+if ($mode == "search") {
+    if ($search == "") {
+        $sql = "SELECT * FROM mirae8440.work WHERE workday BETWEEN date('$fromdate') AND date('$Transtodate')";
+    } else {
+        // 각 필드별로 검색어가 있는지 쿼리주는 부분
+        $sql = "SELECT * FROM mirae8440.work WHERE ((workday LIKE '%$search%') OR (workplacename LIKE '%$search%') ";
+        $sql .= "OR (item LIKE '%$search%') OR (spec LIKE '%$search%') OR (company LIKE '%$search%') OR (model LIKE '%$search%') OR (comment LIKE '%$search%')) AND (workday BETWEEN date('$fromdate') AND date('$Transtodate')) AND (which='$separate_date')";
+    }
+}
 
-$sql="select * from mirae8440.work " . $common; 	 
-	 try{  
-// 레코드 전체 sql 설정
-   $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-   
-		 include '_row.php';
-		 	 	
-	
-        for($i=1;$i<=$rowNum;$i++) {
-	          $sum_title[$i]=$steelsource_item[$i] . $steelsource_spec[$i];
-			  if($which=='2' and $tmp==$sum_title[$i])
-				    $sum[$i]=$sum[$i] - (int)$steelnum;			
-		           }		  
+if ($mode == "") {
+    $sql = "SELECT * FROM mirae8440.work WHERE workday BETWEEN date('$fromdate') AND date('$Transtodate')";
+}
 
-			}		 
-   } catch (PDOException $Exception) {
-    print "오류: ".$Exception->getMessage();
-}  
+$nowday = date("Y-m-d");   // 현재일자 변수지정
 
-  
-  if($mode=="search"){
-		  if($search==""){
-							 $sql="select * from mirae8440.work where workday between date('$fromdate') and date('$Transtodate')   " ; 					
-	                       			
-			     }
-	   
-				   
-            else { // 각 필드별로 검색어가 있는지 쿼리주는 부분						
-							  $sql ="select * from mirae8440.work where ((workday like '%$search%')  or (workplacename like '%$search%') ";
-							  $sql .="or (item like '%$search%') or (spec like '%$search%') or (company like '%$search%') or (model like '%$search%')  or (comment like '%$search%')) and (workday between date('$fromdate') and date('$Transtodate')) and (which='$separate_date')  ";
+// 배열 초기화
+$worker_arr = array();
+$work_done = array();
+$temp_arr = array();
+$count = 0;
 
-						}
+$worker_arr[0] = '추영덕';
+$worker_arr[1] = '이만희';
+$worker_arr[2] = '김상훈';
+$worker_arr[3] = '박철우';
+$worker_arr[4] = '유영';
+$worker_arr[5] = '김운호';
+$worker_arr[6] = '손상민';
+$worker_arr[7] = '조장우';
+$worker_arr[8] = '이인종';
+$worker_arr[9] = '이춘일';
 
-               }
-  if($mode=="") {
-							 $sql="select * from mirae8440.work where workday between date('$fromdate') and date('$Transtodate')   "; 				
-					
-                }		
-				         
-   
-$nowday=date("Y-m-d");   // 현재일자 변수지정   
-	
-$worker_arr = array();	
-$work_done = array();	
-$temp_arr = array();	
-$count=0;
-
-$worker_arr[0]='추영덕';
-$worker_arr[1]='이만희';
-$worker_arr[2]='김상훈';
-$worker_arr[3]='박철우';
-$worker_arr[4]='유영';
-$worker_arr[5]='김운호';
-$worker_arr[6]='손상민';
-$worker_arr[7]='조장우';
-$worker_arr[8]='이인종';
-$worker_arr[9]='이춘일';
-
-$workerNum = count($worker_arr); // 소장8명 명단
-
-
-// print $fromdate;
-// print $todate;
+$workerNum = count($worker_arr); // 소장10명 명단
 ?>
-<form name="board_form" id="board_form"  method="post" action="statistics.php?mode=search&search=<?=$search?>&find=<?=$find?>&fromdate=<?=$fromdate?>&todate=<?=$todate?>&display_sel=<?=$display_sel?>">
+
+<form name="board_form" id="board_form" method="post" action="statistics.php?mode=search&search=<?= $search ?>&find=<?= $find ?>&fromdate=<?= $fromdate ?>&todate=<?= $todate ?>&display_sel=<?= $display_sel ?>">
 
 <div class="container">
 <div class="modern-management-card mt-2 mb-4">
@@ -385,77 +363,69 @@ $workerNum = count($worker_arr); // 소장8명 명단
 <div class="d-flex p-1 m-1 mt-1 mb-1 justify-content-center align-items-center">
 
 	 <?php
-	 
-	//  print 'sql :' . $sql;
-   
-	 try{  
-	  $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-      $total_row=$stmh->rowCount();
-		
-	       while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-              
-			 //  var_dump($row);
-			  
-              $num=$row["num"];		  
-			  $checkstep=$row["checkstep"];
-			  $workplacename=$row["workplacename"];
-			  $workday=$row["workday"];
-			  $worker=$row["worker"];
-			  $widejamb=$row["widejamb"];
-			  $normaljamb=$row["normaljamb"];
-			  $smalljamb=$row["smalljamb"];
- 			  
-   
-			   // 불량이란 단어가 들어가 있는 수량은 제외한다.		   
-			   $findstr = '불량';
 
-			   $pos = stripos($workplacename, $findstr);							   
+try {
+    $stmh = $pdo->query($sql);
+    $total_row = $stmh->rowCount();
 
-			   if($pos==0)  {			
-			  
-			  $work_done[$count]=   (int) $widejamb +   (int) $normaljamb +  (int) $smalljamb/4 ;
- 			  
-							switch ($worker) {
-								case   $worker_arr[0]     :   $work_sum[0] += $work_done[$count]; break;
-								case   $worker_arr[1]     :   $work_sum[1] += $work_done[$count]; break;	
-								case   $worker_arr[2]     :   $work_sum[2] += $work_done[$count]; break;	
-								case   $worker_arr[3]     :   $work_sum[3] += $work_done[$count]; break;
-								case   $worker_arr[4]     :   $work_sum[4] += $work_done[$count]; break;									
-								case   $worker_arr[5]     :   $work_sum[5] += $work_done[$count]; break;									
-								case   $worker_arr[6]     :   $work_sum[6] += $work_done[$count]; break;									
-								case   $worker_arr[7]     :   $work_sum[7] += $work_done[$count]; break;									
-								case   $worker_arr[8]     :   $work_sum[8] += $work_done[$count]; break;									
-								case   $worker_arr[9]     :   $work_sum[9] += $work_done[$count]; break;									
-								
+    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+        $num = $row["num"];
+        $checkstep = $row["checkstep"];
+        $workplacename = $row["workplacename"];
+        $workday = $row["workday"];
+        $worker = $row["worker"];
+        $widejamb = $row["widejamb"];
+        $normaljamb = $row["normaljamb"];
+        $smalljamb = $row["smalljamb"];
 
-								default:  break;	
-							}					  		  			  
+        // 불량이란 단어가 들어가 있는 수량은 제외한다.
+        $findstr = '불량';
+        $pos = stripos($workplacename, $findstr);
 
-					$count++;
-			   }
-			$start_num--;  
-			 } 
-  } catch (PDOException $Exception) {
-  print "오류: ".$Exception->getMessage();
-  }    
-	switch ($display_sel) {
-		case   "doughnut"     :   $chartchoice[0]='checked'; break;
-		case   "bar"     :   $chartchoice[1]='checked'; break;
-		case   "line"     :   $chartchoice[2]='checked'; break;
-		case   "radar"     :   $chartchoice[3]='checked'; break;
-		case   "polarArea"     :   $chartchoice[4]='checked'; break;
-	}
- ?>
-   <input id="view_table" name="view_table" type='hidden' value='<?=$view_table?>' >
-   <input id="display_sel" name="display_sel" type='hidden' value='<?=$display_sel?>' >
-     <div class="stats-radio-container mb-3">
-   			<span class="stats-form-check-label">도넛</span> <input type="radio" class="stats-form-check-input" <?=$chartchoice[0]?> name="chart_sel" value="doughnut">
-			<span class="stats-form-check-label">바</span> <input type="radio" class="stats-form-check-input" <?=$chartchoice[1]?> name="chart_sel" value="bar">
-			<span class="stats-form-check-label">라인</span> <input type="radio" class="stats-form-check-input" <?=$chartchoice[2]?> name="chart_sel" value="line">
-			<span class="stats-form-check-label">레이더</span> <input type="radio" class="stats-form-check-input" <?=$chartchoice[3]?> name="chart_sel" value="radar">
-			<span class="stats-form-check-label">Polar Area</span> <input type="radio" class="stats-form-check-input" <?=$chartchoice[4]?> name="chart_sel" value="polarArea">
-	 </div>
-	</div>
+        if ($pos == 0) {
+            $work_done[$count] = (int)$widejamb + (int)$normaljamb + (int)$smalljamb / 4;
+
+            switch ($worker) {
+                case $worker_arr[0]: $work_sum[0] += $work_done[$count]; break;
+                case $worker_arr[1]: $work_sum[1] += $work_done[$count]; break;
+                case $worker_arr[2]: $work_sum[2] += $work_done[$count]; break;
+                case $worker_arr[3]: $work_sum[3] += $work_done[$count]; break;
+                case $worker_arr[4]: $work_sum[4] += $work_done[$count]; break;
+                case $worker_arr[5]: $work_sum[5] += $work_done[$count]; break;
+                case $worker_arr[6]: $work_sum[6] += $work_done[$count]; break;
+                case $worker_arr[7]: $work_sum[7] += $work_done[$count]; break;
+                case $worker_arr[8]: $work_sum[8] += $work_done[$count]; break;
+                case $worker_arr[9]: $work_sum[9] += $work_done[$count]; break;
+                default: break;
+            }
+
+            $count++;
+        }
+        $start_num--;
+    }
+} catch (PDOException $Exception) {
+    print "오류: " . $Exception->getMessage();
+}
+
+switch ($display_sel) {
+    case "doughnut": $chartchoice[0] = 'checked'; break;
+    case "bar": $chartchoice[1] = 'checked'; break;
+    case "line": $chartchoice[2] = 'checked'; break;
+    case "radar": $chartchoice[3] = 'checked'; break;
+    case "polarArea": $chartchoice[4] = 'checked'; break;
+}
+?>
+
+<input id="view_table" name="view_table" type="hidden" value="<?= $view_table ?>">
+<input id="display_sel" name="display_sel" type="hidden" value="<?= $display_sel ?>">
+    <div class="stats-radio-container mb-3">
+        <span class="stats-form-check-label">도넛</span> <input type="radio" class="stats-form-check-input" <?= $chartchoice[0] ?> name="chart_sel" value="doughnut">
+        <span class="stats-form-check-label">바</span> <input type="radio" class="stats-form-check-input" <?= $chartchoice[1] ?> name="chart_sel" value="bar">
+        <span class="stats-form-check-label">라인</span> <input type="radio" class="stats-form-check-input" <?= $chartchoice[2] ?> name="chart_sel" value="line">
+        <span class="stats-form-check-label">레이더</span> <input type="radio" class="stats-form-check-input" <?= $chartchoice[3] ?> name="chart_sel" value="radar">
+        <span class="stats-form-check-label">Polar Area</span> <input type="radio" class="stats-form-check-input" <?= $chartchoice[4] ?> name="chart_sel" value="polarArea">
+    </div>
+</div>
      <div class="row">
 	     <div class="col-md-8">
            <div id="chartMain" class="stats-chart-container"></div>
@@ -510,116 +480,109 @@ $workerNum = count($worker_arr); // 소장8명 명단
 
 
 <script>
-
-
 /* Checkbox change event */
 $('input[name="chart_sel"]').change(function() {
     // 모든 radio를 순회한다.
     $('input[name="chart_sel"]').each(function() {
-        var value = $(this).val();              // value
-        var checked = $(this).prop('checked');  // jQuery 1.6 이상 (jQuery 1.6 미만에는 prop()가 없음, checked, selected, disabled는 꼭 prop()를 써야함)
-        // var checked = $(this).attr('checked');   // jQuery 1.6 미만 (jQuery 1.6 이상에서는 checked, undefined로 return됨)
-        // var checked = $(this).is('checked');
-        var $label = $(this).next(); 
-        if(checked)  {
-           $("#display_sel").val(value);
-	       document.getElementById('board_form').submit();  // form의 검색버튼 누른 효과 	
-		}
-
+        var value = $(this).val();
+        var checked = $(this).prop('checked');
+        var $label = $(this).next();
+        if (checked) {
+            $("#display_sel").val(value);
+            document.getElementById('board_form').submit();  // form의 검색버튼 누른 효과
+        }
     });
 });
-					
-	// 차트 타입 변경 시 페이지 새로고침을 위한 함수
-	function refreshChart() {
-		var chart_type = document.getElementById('display_sel').value;
-		createChart();
-	}
+
+// 차트 타입 변경 시 페이지 새로고침을 위한 함수
+function refreshChart() {
+    var chart_type = document.getElementById('display_sel').value;
+    createChart();
+}
+
+$(document).ready(function() {
+    // 차트 생성을 DOM 로드 후 실행
+    createChart();
+    saveLogData('Jamb 시공소장 시공비');
+});
+
+function createChart() {
+    var worker_arr = <?php echo json_encode($worker_arr); ?>;
+    var work_sum = <?php echo json_encode($work_sum); ?>;
+    var chart_type = document.getElementById('display_sel').value;
+
+    console.log('Worker Array:', worker_arr);
+    console.log('Work Sum:', work_sum);
+    console.log('Chart Type:', chart_type);
+
+    // 차트 타입 매핑
+    function getHighchartsType(chartType) {
+        switch (chartType) {
+            case 'bar': return 'column';
+            case 'line': return 'line';
+            case 'doughnut': return 'pie';
+            case 'radar': return 'line';
+            case 'polarArea': return 'pie';
+            default: return 'column';
+        }
+    }
+
+    // 차트 데이터 준비
+    var chartData = [];
+    var chartCategories = [];
+
+    for (var i = 0; i < worker_arr.length; i++) {
+        if (worker_arr[i] && work_sum[i] !== undefined) {
+            chartCategories.push(worker_arr[i]);
+            chartData.push(work_sum[i] || 0);
+        }
+    }
+
+    console.log('Chart Data:', chartData);
+    console.log('Chart Categories:', chartCategories);
+
+    // Highcharts 차트 생성
+    Highcharts.chart('chartMain', {
+        chart: {
+            type: getHighchartsType(chart_type),
+            backgroundColor: 'rgba(255, 255, 255, 0.9)'
+        },
+        title: {
+            text: '시공소장별 실적 통계',
+            style: { fontSize: '14px', fontWeight: '600', color: '#334155' }
+        },
+        xAxis: {
+            categories: chartCategories,
+            labels: { style: { fontSize: '10px', color: '#64748b' } }
+        },
+        yAxis: {
+            title: { text: 'SET 수량', style: { fontSize: '10px', color: '#64748b' } },
+            labels: { style: { fontSize: '10px', color: '#64748b' } }
+        },
+        series: [{
+            name: '시공수량',
+            data: chartData,
+            color: '#64748b'
+        }],
+        tooltip: {
+            formatter: function() {
+                return this.series.name + ': <b>' + Highcharts.numberFormat(this.y, 0) + ' SET</b>';
+            }
+        },
+        legend: { enabled: false },
+        credits: { enabled: false },
+        plotOptions: {
+            pie: {
+                innerSize: chart_type === 'doughnut' ? '50%' : 0,
+                dataLabels: {
+                    enabled: true,
+                    format: '{point.name}: {point.y} SET'
+                }
+            }
+        }
+    });
+}
 </script>
-
-<script>
-	$(document).ready(function(){
-		// 차트 생성을 DOM 로드 후 실행
-		createChart();
-		saveLogData('Jamb 시공소장 시공비');
-	});
-
-	function createChart() {
-		var worker_arr = <?php echo json_encode($worker_arr);?> ;
-		var work_sum = <?php echo json_encode($work_sum);?> ;
-		var chart_type = document.getElementById('display_sel').value;
-
-		console.log('Worker Array:', worker_arr);
-		console.log('Work Sum:', work_sum);
-		console.log('Chart Type:', chart_type);
-
-		// 차트 타입 매핑
-		function getHighchartsType(chartType) {
-			switch(chartType) {
-				case 'bar': return 'column';
-				case 'line': return 'line';
-				case 'doughnut': return 'pie';
-				case 'radar': return 'line';
-				case 'polarArea': return 'pie';
-				default: return 'column';
-			}
-		}
-
-		// 차트 데이터 준비
-		var chartData = [];
-		var chartCategories = [];
-
-		for(var i = 0; i < worker_arr.length; i++) {
-			if(worker_arr[i] && work_sum[i] !== undefined) {
-				chartCategories.push(worker_arr[i]);
-				chartData.push(work_sum[i] || 0);
-			}
-		}
-
-		console.log('Chart Data:', chartData);
-		console.log('Chart Categories:', chartCategories);
-
-		// Highcharts 차트 생성
-		Highcharts.chart('chartMain', {
-			chart: {
-				type: getHighchartsType(chart_type),
-				backgroundColor: 'rgba(255, 255, 255, 0.9)'
-			},
-			title: {
-				text: '시공소장별 실적 통계',
-				style: { fontSize: '14px', fontWeight: '600', color: '#334155' }
-			},
-			xAxis: {
-				categories: chartCategories,
-				labels: { style: { fontSize: '10px', color: '#64748b' } }
-			},
-			yAxis: {
-				title: { text: 'SET 수량', style: { fontSize: '10px', color: '#64748b' } },
-				labels: { style: { fontSize: '10px', color: '#64748b' } }
-			},
-			series: [{
-				name: '시공수량',
-				data: chartData,
-				color: '#64748b'
-			}],
-			tooltip: {
-				formatter: function() {
-					return this.series.name + ': <b>' + Highcharts.numberFormat(this.y, 0) + ' SET</b>';
-				}
-			},
-			legend: { enabled: false },
-			credits: { enabled: false },
-			plotOptions: {
-				pie: {
-					innerSize: chart_type === 'doughnut' ? '50%' : 0,
-					dataLabels: {
-						enabled: true,
-						format: '{point.name}: {point.y} SET'
-					}
-				}
-			}
-		});
-	}
-</script> 
 
 </body>
 </html>

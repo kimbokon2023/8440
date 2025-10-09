@@ -1,0 +1,2 @@
+<span style='color: #000' title='Frames'>   269</span><span style='color: #009' title='Memory'>   2048.00 KB</span><span style='color: #900' title='Time'>    114.00 ms</span><span  title='Quirksmode'>  <span style='color: #0d0'>OFF</span></span><br />
+Deprecated: strpos(): Non-string needles will be interpreted as strings in the future. Use an explicit chr() call to preserve the current behavior in /mirae8440/www/_dompdf/vendor/dompdf/dompdf/src/FontMetrics.php on line 431

@@ -1,47 +1,59 @@
 <?php
+require_once __DIR__ . '/../bootstrap.php';
 
-include getDocumentRoot() . '/session.php';   
- 
   if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {          		 
-		 sleep(1);
-		  header("Location:http://8440.co.kr/login/login_form.php"); 
+	 sleep(1);
+	  header("Location:" . getBaseUrl() . "/login/login_form.php"); 
          exit;
    }  
    
- ?> 
+include includePath('load_header.php');
  
- <?php include getDocumentRoot() . '/load_header.php' ?> 
+ ?> 
  <title>  쟘 일괄처리 </title>  
  </head>
  
  <?php 
- 
 
  if(isset($_REQUEST["recordDate"])) 
 	 $recordDate=$_REQUEST["recordDate"];
    else
      $recordDate=date("Y-m-d");
- 
+
 // print $output_check;
+
+// 변수 초기화
+$cursort = $_REQUEST["cursort"] ?? '';    // 현재 정렬모드 지정
+$sortof = $_REQUEST["sortof"] ?? '';  // 클릭해서 넘겨준 값
+$stable = $_REQUEST["stable"] ?? '';    // 정렬모드 변경할지 안할지 결정  
+$year = $_REQUEST["year"] ?? '';
+$process = $_REQUEST["process"] ?? '';
+$asprocess = $_REQUEST["asprocess"] ?? '';
+$up_fromdate = $_REQUEST["up_fromdate"] ?? '';
+$up_todate = $_REQUEST["up_todate"] ?? '';
+$separate_date = $_REQUEST["separate_date"] ?? '';
+$view_table = $_REQUEST["view_table"] ?? '';
   
- $cursort=$_REQUEST["cursort"];    // 현재 정렬모드 지정
- $sortof=$_REQUEST["sortof"];  // 클릭해서 넘겨준 값
- $stable=$_REQUEST["stable"];    // 정렬모드 변경할지 안할지 결정  
-  
-  $sum=array(); 
+$sum=array(); 
 	 
-  if(isset($_REQUEST["mode"]))
-     $mode=$_REQUEST["mode"];
-  else 
-     $mode="";        
- 
- if(isset($_REQUEST["find"]))   //목록표에 제목,이름 등 나오는 부분
- $find=$_REQUEST["find"];
- 
+if(isset($_REQUEST["mode"]))
+   $mode=$_REQUEST["mode"];
+else 
+   $mode="";        
+
+if(isset($_REQUEST["find"]))   //목록표에 제목,이름 등 나오는 부분
+   $find=$_REQUEST["find"];
+else
+   $find="";
+
+if(isset($_REQUEST["search"]))
+   $search=$_REQUEST["search"];
+else
+   $search="";
   
- // 기간을 정하는 구간
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];	 
+// 기간을 정하는 구간
+$fromdate = $_REQUEST["fromdate"] ?? '';	 
+$todate = $_REQUEST["todate"] ?? '';
 
  if($fromdate=="")
 {
@@ -60,24 +72,20 @@ if($todate=="")
 	$Transtodate=date("Y-m-d",$Transtodate);
 	}
  
-  if(isset($_REQUEST["search"]))   //
- $search=$_REQUEST["search"];
-
- $orderby=" order by workday desc "; 
+$orderby=" order by workday desc "; 
 	
 $now = date("Y-m-d");	 // 현재 날짜와 크거나 같으면 생산예정으로 구분		
   
-  if($search==""){
-			 $sql="select * from mirae8440.work where workday between date('$fromdate') and date('$Transtodate')" . $orderby;  			
-		   }
-	 elseif($search!="")
-		{ 
-			  $sql ="select * from mirae8440.work where ((workplacename like '%$search%' )  or (firstordman like '%$search%' )  or (secondordman like '%$search%' )  or (chargedman like '%$search%' ) ";
-			  $sql .="or (delicompany like '%$search%' ) or (hpi like '%$search%' ) or (firstord like '%$search%' ) or (secondord like '%$search%' ) or (worker like '%$search%' ) or (memo like '%$search%' )) and ( workday between date('$fromdate') and date('$Transtodate'))" . $orderby;				  		  		   
-		 }    
+if($search==""){
+	 $sql="select * from mirae8440.work where workday between date('$fromdate') and date('$Transtodate')" . $orderby;  			
+   }
+elseif($search!="")
+{ 
+	  $sql ="select * from mirae8440.work where ((workplacename like '%$search%' )  or (firstordman like '%$search%' )  or (secondordman like '%$search%' )  or (chargedman like '%$search%' ) ";
+	  $sql .="or (delicompany like '%$search%' ) or (hpi like '%$search%' ) or (firstord like '%$search%' ) or (secondord like '%$search%' ) or (worker like '%$search%' ) or (memo like '%$search%' )) and ( workday between date('$fromdate') and date('$Transtodate'))" . $orderby;				  		  		   
+ }    
 	  
-require_once("../lib/mydb.php");
-$pdo = db_connect();	  		  
+// bootstrap.php에서 이미 DB 연결됨
 
    $counter=0;
    $doneday_arr=array();
@@ -276,7 +284,7 @@ $pdo = db_connect();
 		 
 <body >
 
-<form name="board_form" id="board_form"  method="post" action="batch.php?mode=search&year=<?=$year?>&search=<?=$search?>&process=<?=$process?>&asprocess=<?=$asprocess?>&fromdate=<?=$fromdate?>&todate=<?=$todate?>&up_fromdate=<?=$up_fromdate?>&up_todate=<?=$up_todate?>&separate_date=<?=$separate_date?>&view_table=<?=$view_table?>">  
+<form name="board_form" id="board_form"  method="post" action="batch.php?mode=search">  
  <div class="container-fluid">
     <div class="card">				
 			<div class="card">			
@@ -390,7 +398,7 @@ $("#searchBtn").click(function(){  document.getElementById('board_form').submit(
  
  var total_sum=0; 
   
- var rowNum = "<? echo $counter; ?>" ; 
+ var rowNum = <?php echo json_encode($counter); ?> ; 
  
  const data = [];
  const columns = [];	
@@ -674,7 +682,7 @@ const grid = new tui.Grid({
 	grid.on('dblclick', (e) => {
 				
 				
-		var link = 'http://8440.co.kr/work/view.php?menu=no&num=' + grid.getValue(e.rowKey,"col16") ;
+		var link = window.baseUrl + '/work/view.php?menu=no&num=' + grid.getValue(e.rowKey,"col16") ;
 	   //  window.location.href = link;       //웹개발할때 숨쉬듯이 작성할 코드
 		
 	   //  window.location.replace(link);     // 이전 페이지로 못돌아감
@@ -844,7 +852,7 @@ function addDays(date, days) {
 
 function dis_text()
 {  
-		var dis_text = '<?php echo $jamb_total; ?>';
+		var dis_text = <?php echo json_encode($jamb_total ?? ''); ?>;
 		$("#dis_text").val(dis_text);
 }	
 
@@ -857,7 +865,7 @@ function SearchEnter(){
 function List_name(worker)
 {	
 		var worker; 				
-		var name='<?php echo $user_name; ?>' ;
+		var name = <?php echo json_encode($user_name ?? ''); ?> ;
 		 
 			$("#search").val(worker);	
 			$('#board_form').submit();		// 검색버튼 효과
@@ -865,7 +873,7 @@ function List_name(worker)
 
 function move_url(href)
 {
-	 var  search = "<? echo $search;  ?>" ; 
+	 var search = <?php echo json_encode($search ?? ''); ?> ; 
 	 if(search!='')
         document.location.href = href;		 
 	   else

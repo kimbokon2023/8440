@@ -1,74 +1,83 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session.php'));
+<?php
+// 공사완료 확인서 입력 - 로컬/서버 환경 호환
+require_once __DIR__ . '/../bootstrap.php';
+include includePath('load_header.php');
 
+// 입력값 검증 및 초기화
 $tablename = 'work';
+$mode = $_REQUEST["mode"] ?? '';
+$num = $_REQUEST["num"] ?? '';
+$page = $_REQUEST["page"] ?? 1;
+$option = $_REQUEST["option"] ?? '';
 
-if (isset($_REQUEST["mode"])) {
-    $mode = $_REQUEST["mode"];
-} else {
-    $mode = "";
+// 입력값 유효성 검사
+if (empty($num) || !is_numeric($num)) {
+    die("유효하지 않은 번호입니다.");
 }
 
-if (isset($_REQUEST["num"])) {
-    $num = $_REQUEST["num"];
-} else {
-    $num = "";
+// 데이터베이스 연결
+if (!isset($pdo) || !$pdo) {
+    try {
+        $pdo = db_connect();
+    } catch (Exception $e) {
+        if (isLocal()) {
+            die("데이터베이스 연결 실패: " . $e->getMessage());
+        } else {
+            error_log("Database connection failed in customer_input.php: " . $e->getMessage());
+            die("데이터베이스 연결에 실패했습니다. 관리자에게 문의하세요.");
+        }
+    }
 }
-
-if (isset($_REQUEST["page"])) {
-    $page = $_REQUEST["page"];
-} else {
-    $page = 1;
-}
-
-if (isset($_REQUEST["option"])) {
-    $option = $_REQUEST["option"];
-}
-
-include getDocumentRoot() . '/load_header.php';    	  
-require_once("../lib/mydb.php");
-$pdo = db_connect();
 
 try {
     $sql = "SELECT * FROM $DB.$tablename WHERE num = ?";
     $stmh = $pdo->prepare($sql); 
-    $stmh->bindValue(1, $num, PDO::PARAM_STR); 
+    $stmh->bindValue(1, $num, PDO::PARAM_INT); 
     $stmh->execute();
     $count = $stmh->rowCount();              
     if ($count < 1) {  
-        print "검색결과가 없습니다.<br>";
-    } else {
-        $row = $stmh->fetch(PDO::FETCH_ASSOC);
+        die("검색결과가 없습니다.");
     }
-
+    
+    $row = $stmh->fetch(PDO::FETCH_ASSOC);
     include getDocumentRoot() . '/work/_row.php'; 
 
     // customer 필드 가져오기 (Json형태의 값)
-    $customer_data = isset($row["customer"]) ? $row["customer"] : '{}';
+    $customer_data = $row["customer"] ?? '{}';
     // JSON 데이터를 PHP 객체로 디코딩
     $customer_object = json_decode($customer_data);
-	
-	// print $customer_data ;
-    if ($customer_data ==='{}')
-		{
-        // JSON 디코딩에 실패한 경우 처리
-        // (올바르지 않은 JSON 형식일 경우, null을 반환합니다)
-        echo "<h1> 서명이 존재하지 않습니다. </h1>";
-    } else {
+    
+    // 초기값 설정
+    $customer_date = date('Y-m-d');
+    $ordercompany = '미래기업';
+    $workplacename = '';
+    $workname = 'JAMB CLADDING';
+    $pjnum = '';
+    $totalsu = '';
+    $worker = '';
+    $customer_name = '';
+    $image_url = '';
+    
+    if ($customer_data !== '{}' && $customer_object !== null) {
         // 디코딩된 데이터를 각 변수에 할당
-        $customer_date = isset($customer_object->customer_date) ? $customer_object->customer_date : date('Y-m-d');
-        $ordercompany = isset($customer_object->ordercompany) ? $customer_object->ordercompany : '미래기업';
-        $workplacename = isset($customer_object->workplacename) ? $customer_object->workplacename : '';
-        $workname = isset($customer_object->workname) ? $customer_object->workname : 'JAMB CLADDING';
-        $pjnum = isset($customer_object->pjnum) ? $customer_object->pjnum : '';
-        $totalsu = isset($customer_object->totalsu) ? $customer_object->totalsu : '';
-        $worker = isset($customer_object->worker) ? $customer_object->worker : '';
-        $customer_name = isset($customer_object->customer_name) ? $customer_object->customer_name : '';
-        $image_url = isset($customer_object->image_url) ? $customer_object->image_url : '';
+        $customer_date = $customer_object->customer_date ?? date('Y-m-d');
+        $ordercompany = $customer_object->ordercompany ?? '미래기업';
+        $workplacename = $customer_object->workplacename ?? '';
+        $workname = $customer_object->workname ?? 'JAMB CLADDING';
+        $pjnum = $customer_object->pjnum ?? '';
+        $totalsu = $customer_object->totalsu ?? '';
+        $worker = $customer_object->worker ?? '';
+        $customer_name = $customer_object->customer_name ?? '';
+        $image_url = $customer_object->image_url ?? '';
     }
 
 } catch (PDOException $Exception) {
-    print "오류: " . $Exception->getMessage();
+    if (isLocal()) {
+        die("오류: " . $Exception->getMessage());
+    } else {
+        error_log("Database error in customer_input.php: " . $Exception->getMessage());
+        die("데이터베이스 오류가 발생했습니다. 관리자에게 문의하세요.");
+    }
 }
 
 $fs = 'fs-3';   
@@ -166,7 +175,8 @@ $totalsu = intval($widejamb) + intval($normaljamb) + intval($smalljamb) . ' SET'
                                 <span class="fs-2 text-center" style="width:30%;">
                                     <?php
                                     if (!empty($image_url)) {
-                                        print '<img id="signatureBtn" src="../work/' . $image_url . '" style="width:60%;">';
+                                        $imgSrc = isLocal() ? '../work/' . $image_url : asset('work/' . $image_url);
+                                        echo '<img id="signatureBtn" src="' . htmlspecialchars($imgSrc) . '" style="width:60%;" alt="서명">';
                                     }
                                     ?>
                                  </span>
@@ -187,10 +197,12 @@ $totalsu = intval($widejamb) + intval($normaljamb) + intval($smalljamb) . ' SET'
         </div>
     </form>
 <script>
+// 환경별 baseUrl 설정
+window.baseUrl = '<?= getBaseUrl() ?>';
+
 $(document).ready(function() {
         <?php
-        $customer_data = $customer_data ?? '';
-        if (!empty($customer_data)) {
+        if (!empty($customer_data) && $customer_data !== '{}') {
             echo "try {
                 var customerData = JSON.parse('" . addslashes($customer_data) . "');
             } catch (e) {
@@ -310,24 +322,28 @@ $(document).ready(function() {
                 contentType: false,
                 cache: false,
                 timeout: 600000,
-                url: "customer_save.php",
+                url: window.baseUrl + "/p/customer_save.php",
                 type: "post",
                 data: formData,
                 dataType: "json",
                 success: function(data) {
                     console.log(data);
-                    Toastify({
-                        text: "내용이 저장되었습니다.",
-                        duration: 3000,
-                        close: true,
-                        gravity: "top",
-                        position: 'right',
-                    }).showToast();
+                    if (typeof Toastify !== 'undefined') {
+                        Toastify({
+                            text: "내용이 저장되었습니다.",
+                            duration: 3000,
+                            close: true,
+                            gravity: "top",
+                            position: 'right',
+                        }).showToast();
+                    } else {
+                        alert("내용이 저장되었습니다.");
+                    }
 
                     if (callback) callback();
                 },
                 error: function(jqxhr, status, error) {
-                    console.log(jqxhr, status, error);
+                    console.error("저장 오류:", jqxhr, status, error);
                     if (callback) callback();
                 }
             });
@@ -338,17 +354,16 @@ $(document).ready(function() {
         });
 
         $("#exesignatureBtn").click(function() { 
-			saveCustomerData();
             saveCustomerData(function() {
                 const num = $("#num").val();
-                popupCenter('signature_pad.php?num=' + num, '고객서명', 800, 800); 
+                popupCenter(window.baseUrl + '/p/signature_pad.php?num=' + num, '고객서명', 800, 800); 
             });
         });
 
         $("#printBtn").click(function() { 
             saveCustomerData(function() {
                 const num = $("#num").val();
-                popupCenter('customer_print.php?num=' + num , '공 사 완 료 확 인 서', 1200, 900); 
+                popupCenter(window.baseUrl + '/p/customer_print.php?num=' + num , '공 사 완 료 확 인 서', 1200, 900); 
             });
         });
     });

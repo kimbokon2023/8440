@@ -1,0 +1,240 @@
+<?xml version="1.0"?>
+<ProductionPackage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" JobName="211111021">
+  <Barcode>1200005660</Barcode>
+  <DueDate>31.12.5000 23:59:59</DueDate>
+  <BasicMaterial>1.0038</BasicMaterial>
+  <RawMaterial>St37-30</RawMaterial>
+  <RawMaterialThicknessUnit>mm</RawMaterialThicknessUnit>
+  <JobNote>프로엘코리아
+402L SINGLE
+211111021 = ST030T</JobNote>
+  <CreatedBy>USER</CreatedBy>
+  <ChangedBy>USER</ChangedBy>
+  <Workplace WorkplaceName="TruLaser3030(L49)">
+    <Barcode>0800000031</Barcode>
+    <CostCenter />
+    <Activity>2D-Tafelbearbeitung</Activity>
+    <MachineName>L49</MachineName>
+    <MachineType>51</MachineType>
+    <ControlName>Sin 840D</ControlName>
+    <ControlType>1</ControlType>
+    <ProcessingAreaX>3000.00</ProcessingAreaX>
+    <ProcessingAreaY>1500.00</ProcessingAreaY>
+    <ProcessingAreaZ>115.00</ProcessingAreaZ>
+  </Workplace>
+  <ManufacturingOrders>
+    <TcBoManufacturingOrder ManufacturingOrderNo="211111021_1">
+      <Barcode>1100013428</Barcode>
+      <ProgramNo>211111021_1</ProgramNo>
+      <NoOfRuns>1</NoOfRuns>
+      <ProductionOrders>
+        <Order ProductionOrderNo="">
+          <PartoNo>211111021__402L-SI_01</PartoNo>
+          <PartInProgramPosSequenceIds>
+            <PartInProgramPosSequenceId>1</PartInProgramPosSequenceId>
+            <PartInProgramPosSequenceId>2</PartInProgramPosSequenceId>
+            <PartInProgramPosSequenceId>3</PartInProgramPosSequenceId>
+            <PartInProgramPosSequenceId>4</PartInProgramPosSequenceId>
+          </PartInProgramPosSequenceIds>
+          <TotalDesiredQuantity>0</TotalDesiredQuantity>
+          <TotalQuantityInManufacturingOrder>4</TotalQuantityInManufacturingOrder>
+        </Order>
+      </ProductionOrders>
+      <ProcessingTimeTotal>1.01</ProcessingTimeTotal>
+    </TcBoManufacturingOrder>
+  </ManufacturingOrders>
+  <ProductionOrders />
+  <Parts>
+    <Part PartNo="211111021__402L-SI_01">
+      <Barcode>0300026371</Barcode>
+      <BasicMaterial>1.0038</BasicMaterial>
+      <RawMaterial>St37-30</RawMaterial>
+      <PartNoExt />
+      <Description>211111021_프로엘코리아_402L-SINGLE_ST030_(4EA)</Description>
+      <DrawingNo />
+      <AreaUnit>m2</AreaUnit>
+      <CadFilePath>Artikel\26200\26371</CadFilePath>
+      <CadFileName>211111021_프로엘코리아_402l-single_st030_(4ea).geo</CadFileName>
+      <ImageFilePath>Artikel\26200\26371</ImageFilePath>
+      <ImageFileName>FabGenerated_26371.jpg</ImageFileName>
+      <WeightUnit>kg</WeightUnit>
+      <TotalQuantityInJob>4</TotalQuantityInJob>
+      <CuttingLengthPartUnit>mm</CuttingLengthPartUnit>
+      <Dimensions>
+        <Unit>mm</Unit>
+        <Length>579.000</Length>
+        <Width>45.000</Width>
+        <Thickness>3.000</Thickness>
+      </Dimensions>
+      <Area>0.030</Area>
+      <Weight>0.590</Weight>
+      <TargetProcessingTimePerPiece>0.250</TargetProcessingTimePerPiece>
+      <CuttingLengthPart>1628.210</CuttingLengthPart>
+    </Part>
+  </Parts>
+  <NcPrograms>
+    <NcProgram ProgramNo="211111021_1">
+      <MinimumSheetSizeInX>589.000</MinimumSheetSizeInX>
+      <MinimumSheetSizeInY>221.260</MinimumSheetSizeInY>
+      <Waste>94.97</Waste>
+      <ProcessingTime>1.01</ProcessingTime>
+      <TotalNoOfRuns>1</TotalNoOfRuns>
+      <CuttingLengthSheet>6512.850</CuttingLengthSheet>
+      <CuttingLengthSheetUnit>mm</CuttingLengthSheetUnit>
+      <Sheet>ST0M0300----2000x1000</Sheet>
+      <ProductionInstructions>
+        <ClampPositions />
+        <LiftSetupInformation />
+        <DistanceOfSlats>67 mm</DistanceOfSlats>
+        <SlatOccupationName>기본 팔레트, 매 2개 설정</SlatOccupationName>
+        <DistanceOfSlatSupportPoints>38 mm</DistanceOfSlatSupportPoints>
+        <ProcessingFirst>없이</ProcessingFirst>
+        <MicrojointChangeable>설정</MicrojointChangeable>
+        <KerfCorrection />
+        <SheetBackguage>0</SheetBackguage>
+        <Notices />
+        <PalletizingFlag>0</PalletizingFlag>
+        <PalletizingMode>NEU_PALETTIERT</PalletizingMode>
+        <StopPin />
+        <LoadingPositionX>0.000</LoadingPositionX>
+        <LoadingPositionY>0.000</LoadingPositionY>
+      </ProductionInstructions>
+      <LaserTechnoTables>
+        <LaserTechnoTableNc TableNo="ST030MD0-N2S0-30-2" />
+      </LaserTechnoTables>
+      <UsedLaserTechnoTables>
+        <UsedLaserTechnoTable>
+          <TableNo>ST030MD0-N2S0-30-2</TableNo>
+          <PiercingType>일반</PiercingType>
+          <CuttingType>마킹</CuttingType>
+          <CountourType>큰</CountourType>
+        </UsedLaserTechnoTable>
+        <UsedLaserTechnoTable>
+          <TableNo>ST030MD0-N2S0-30-2</TableNo>
+          <PiercingType>일반</PiercingType>
+          <CuttingType>감소</CuttingType>
+          <CountourType>큰</CountourType>
+        </UsedLaserTechnoTable>
+        <UsedLaserTechnoTable>
+          <TableNo>ST030MD0-N2S0-30-2</TableNo>
+          <PiercingType>일반</PiercingType>
+          <CuttingType>일반</CuttingType>
+          <CountourType>큰</CountourType>
+        </UsedLaserTechnoTable>
+      </UsedLaserTechnoTables>
+      <PartsInProgram>
+        <PartInProgram PartoNo="211111021__402L-SI_01">
+          <TopsPartNo>2</TopsPartNo>
+          <PiercingPoints>12</PiercingPoints>
+          <QuantityOnSheet>4</QuantityOnSheet>
+        </PartInProgram>
+      </PartsInProgram>
+      <PartsInProgramPos>
+        <PartInProgramPos SequenceId="1">
+          <PartNo>211111021__402L-SI_01</PartNo>
+          <Position>
+            <MirroredAtY>0</MirroredAtY>
+            <Unit>mm</Unit>
+            <PositionX>10.000</PositionX>
+            <PositionY>10.000</PositionY>
+            <PositionXCenterOfGravity>299.500</PositionXCenterOfGravity>
+            <PositionYCenterOfGravity>32.500</PositionYCenterOfGravity>
+            <Angle>0.000</Angle>
+          </Position>
+        </PartInProgramPos>
+        <PartInProgramPos SequenceId="2">
+          <PartNo>211111021__402L-SI_01</PartNo>
+          <Position>
+            <MirroredAtY>0</MirroredAtY>
+            <Unit>mm</Unit>
+            <PositionX>10.000</PositionX>
+            <PositionY>65.420</PositionY>
+            <PositionXCenterOfGravity>299.500</PositionXCenterOfGravity>
+            <PositionYCenterOfGravity>87.920</PositionYCenterOfGravity>
+            <Angle>0.000</Angle>
+          </Position>
+        </PartInProgramPos>
+        <PartInProgramPos SequenceId="3">
+          <PartNo>211111021__402L-SI_01</PartNo>
+          <Position>
+            <MirroredAtY>0</MirroredAtY>
+            <Unit>mm</Unit>
+            <PositionX>10.000</PositionX>
+            <PositionY>120.840</PositionY>
+            <PositionXCenterOfGravity>299.500</PositionXCenterOfGravity>
+            <PositionYCenterOfGravity>143.340</PositionYCenterOfGravity>
+            <Angle>0.000</Angle>
+          </Position>
+        </PartInProgramPos>
+        <PartInProgramPos SequenceId="4">
+          <PartNo>211111021__402L-SI_01</PartNo>
+          <Position>
+            <MirroredAtY>0</MirroredAtY>
+            <Unit>mm</Unit>
+            <PositionX>10.000</PositionX>
+            <PositionY>176.260</PositionY>
+            <PositionXCenterOfGravity>299.500</PositionXCenterOfGravity>
+            <PositionYCenterOfGravity>198.760</PositionYCenterOfGravity>
+            <Angle>0.000</Angle>
+          </Position>
+        </PartInProgramPos>
+      </PartsInProgramPos>
+    </NcProgram>
+  </NcPrograms>
+  <RequiredSheets>
+    <Sheet SheetIdentNo="ST0M0300----2000x1000">
+      <Barcode>0300000320</Barcode>
+      <BasicMaterial>1.0038</BasicMaterial>
+      <RawMaterial>St37-30</RawMaterial>
+      <SheetWeightUnit>kg</SheetWeightUnit>
+      <TotalQuantityInJob>1</TotalQuantityInJob>
+      <Dimensions>
+        <Unit>mm</Unit>
+        <Length>2000.000</Length>
+        <Width>1000.000</Width>
+        <Thickness>3.000</Thickness>
+      </Dimensions>
+      <SheetWeight>47.100</SheetWeight>
+    </Sheet>
+  </RequiredSheets>
+  <LaserTechnoTables>
+    <LaserTechnoTable TableNo="ST030MD0-N2S0-30-2">
+      <MaxLaserPower>6000</MaxLaserPower>
+      <Gas>2</Gas>
+      <Processing1>-1</Processing1>
+      <Processing2>-1</Processing2>
+      <Rule />
+      <RuleInfo />
+      <RuleType>1</RuleType>
+      <Kerf>0.210</Kerf>
+      <LensFocalLength>7.900</LensFocalLength>
+      <NozzleDiameter>0.000</NozzleDiameter>
+      <SettingDimension>-1.300</SettingDimension>
+    </LaserTechnoTable>
+  </LaserTechnoTables>
+  <UsedLaserTechnoTables>
+    <UsedLaserTechnoTable>
+      <TableNo>ST030MD0-N2S0-30-2</TableNo>
+      <PiercingType>일반</PiercingType>
+      <CuttingType>마킹</CuttingType>
+      <CountourType>큰</CountourType>
+    </UsedLaserTechnoTable>
+    <UsedLaserTechnoTable>
+      <TableNo>ST030MD0-N2S0-30-2</TableNo>
+      <PiercingType>일반</PiercingType>
+      <CuttingType>감소</CuttingType>
+      <CountourType>큰</CountourType>
+    </UsedLaserTechnoTable>
+    <UsedLaserTechnoTable>
+      <TableNo>ST030MD0-N2S0-30-2</TableNo>
+      <PiercingType>일반</PiercingType>
+      <CuttingType>일반</CuttingType>
+      <CountourType>큰</CountourType>
+    </UsedLaserTechnoTable>
+  </UsedLaserTechnoTables>
+  <TotalRuntime>1.01</TotalRuntime>
+  <RawMaterialThickness>3.000</RawMaterialThickness>
+  <TotalPartCount>4</TotalPartCount>
+  <TotalSheetCount>4</TotalSheetCount>
+  <Waste>94.97</Waste>
+</ProductionPackage>

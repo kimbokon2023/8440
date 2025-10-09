@@ -1,15 +1,16 @@
 <?php
- session_start();
+// 시공비 산출자료 페이지 - 로컬/서버 환경 호환
+require_once __DIR__ . '/../bootstrap.php';
 
- $level= $_SESSION["level"];
- if(!isset($_SESSION["level"]) || $level>8) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(2);
-	          header("Location:http://8440.co.kr/login/login_form.php"); 
-         exit;
-   } 
+$level = $_SESSION["level"] ?? null;
+if(!isset($_SESSION["level"]) || $level > 8) {
+    sleep(2);
+    header("Location:" . getBaseUrl() . "/login/logout.php");
+    exit;
+} 
    
-$workername = $_REQUEST["workername"];
+$workername = $_REQUEST["workername"] ?? '';
+$worker = $_REQUEST["worker"] ?? '';
 
  ?>
  
@@ -17,9 +18,9 @@ $workername = $_REQUEST["workername"];
  <html>
  <head>
  <meta charset="UTF-8">
- <link rel="stylesheet" type="text/css" href="../css/common.css">
- <link rel="stylesheet" type="text/css" href="../css/steel.css">
- <link rel="stylesheet" type="text/css" href="../css/jexcel.css"> 
+<link rel="stylesheet" type="text/css" href="<?= asset('css/common.css') ?>">
+<link rel="stylesheet" type="text/css" href="<?= asset('css/steel.css') ?>">
+<link rel="stylesheet" type="text/css" href="<?= asset('css/jexcel.css') ?>">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <link rel="stylesheet" href="https://uicdn.toast.com/tui.pagination/latest/tui-pagination.css" />
 <script src="https://uicdn.toast.com/tui.pagination/latest/tui-pagination.js"></script>
@@ -41,56 +42,55 @@ $workername = $_REQUEST["workername"];
 
  <?php 
  
-  function conv_num($num) {
-$number = (int)str_replace(',', '', $num);
-return $number;
-}
+  // conv_num() 함수는 common/functions.php에서 제공됨
  
   if(isset($_REQUEST["worker"])) 
-	 $worker=$_REQUEST["worker"]; 
+	 $worker=$_REQUEST["worker"] ?? '';
    else
-     $worker=$_POST["worker"]; 
+     $worker=$_POST["worker"] ?? '';
  
  if(isset($_REQUEST["check"])) 
-	 $check=$_REQUEST["check"]; // 미출고 리스트 request 사용 페이지 이동버튼 누를시`
+	 $check=$_REQUEST["check"] ?? ''; // 미출고 리스트 request 사용 페이지 이동버튼 누를시`
+   elseif(isset($_POST["check"]))
+     $check=$_POST["check"] ?? ''; // 미출고 리스트 POST사용
    else
-     $check=$_POST["check"]; // 미출고 리스트 POST사용 
+     $check='0'; 
  
   if(isset($_REQUEST["plan_output_check"])) 
-	 $plan_output_check=$_REQUEST["plan_output_check"]; // 미출고 리스트 request 사용 페이지 이동버튼 누를시`
+	 $plan_output_check=$_REQUEST["plan_output_check"] ?? ''; // 미출고 리스트 request 사용 페이지 이동버튼 누를시`
    else
 	if(isset($_POST["plan_output_check"]))   
-         $plan_output_check=$_POST["plan_output_check"]; // 미출고 리스트 POST사용  
+         $plan_output_check=$_POST["plan_output_check"] ?? ''; // 미출고 리스트 POST사용  
 	 else
 		 $plan_output_check='0';
  
  if(isset($_REQUEST["output_check"])) 
-	 $output_check=$_REQUEST["output_check"]; // 출고완료
+	 $output_check=$_REQUEST["output_check"] ?? ''; // 출고완료
    else
 	if(isset($_POST["output_check"]))   
-         $output_check=$_POST["output_check"]; // 출고완료
+         $output_check=$_POST["output_check"] ?? ''; // 출고완료
 	 else
 		 $output_check='0';
 	 
  if(isset($_REQUEST["team_check"])) 
-	 $team_check=$_REQUEST["team_check"]; // 시공팀미지정
+	 $team_check=$_REQUEST["team_check"] ?? ''; // 시공팀미지정
    else
 	if(isset($_POST["team_check"]))   
-         $team_check=$_POST["team_check"]; // 시공팀미지정
+         $team_check=$_POST["team_check"] ?? ''; // 시공팀미지정
 	 else
 		 $team_check='0';	 
 	 
  if(isset($_REQUEST["measure_check"])) 
-	 $measure_check=$_REQUEST["measure_check"]; // 미실측리스트
+	 $measure_check=$_REQUEST["measure_check"] ?? ''; // 미실측리스트
    else
 	if(isset($_POST["measure_check"]))   
-         $measure_check=$_POST["measure_check"]; // 미실측리스트
+         $measure_check=$_POST["measure_check"] ?? ''; // 미실측리스트
 	 else
 		 $measure_check='0';		 
   
  if(isset($_REQUEST["page"])) // $_REQUEST["page"]값이 없을 때에는 1로 지정 
  {
-    $page=$_REQUEST["page"];  // 페이지 번호
+    $page=$_REQUEST["page"] ?? '';  // 페이지 번호
  }
   else
   {
@@ -99,44 +99,24 @@ return $number;
   
 // print $output_check;
   
- $cursort=$_REQUEST["cursort"];    // 현재 정렬모드 지정
- $sortof=$_REQUEST["sortof"];  // 클릭해서 넘겨준 값
- $stable=$_REQUEST["stable"];    // 정렬모드 변경할지 안할지 결정  
+ $cursort=$_REQUEST["cursort"] ?? '';    // 현재 정렬모드 지정
+ $sortof=$_REQUEST["sortof"] ?? '';  // 클릭해서 넘겨준 값
+ $stable=$_REQUEST["stable"] ?? '';    // 정렬모드 변경할지 안할지 결정  
   
-  $sum=array(); 
+  $sum = array(0, 0, 0, 0); 
 	 
   if(isset($_REQUEST["mode"]))
-     $mode=$_REQUEST["mode"];
+     $mode=$_REQUEST["mode"] ?? '';
   else 
      $mode="";        
  
- if(isset($_REQUEST["find"]))   //목록표에 제목,이름 등 나오는 부분
- $find=$_REQUEST["find"];
+ $find = $_REQUEST["find"] ?? '';   //목록표에 제목,이름 등 나오는 부분
  
   
  // 기간을 정하는 구간
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];	 
+$fromdate=$_REQUEST["fromdate"] ?? '';	 
+$todate=$_REQUEST["todate"] ?? '';	 
 
-// 올해를 날자기간으로 설정
-/*
-if($fromdate=="")
-{
-	$fromdate=substr(date("Y-m-d",time()),0,4) ;
-	$fromdate=$fromdate . "-01-01";
-}
-if($todate=="")
-{
-	$todate=substr(date("Y-m-d",time()),0,4) . "-12-31" ;
-	$Transtodate=strtotime($todate.'+1 days');
-	$Transtodate=date("Y-m-d",$Transtodate);
-}
-    else
-	{
-	$Transtodate=strtotime($todate);
-	$Transtodate=date("Y-m-d",$Transtodate);
-	}
- */
  // 당월을 날짜 기간으로 설정
  
  if($fromdate=="")
@@ -156,32 +136,44 @@ if($todate=="")
 	$Transtodate=date("Y-m-d",$Transtodate);
 	}
  
-  if(isset($_REQUEST["search"]))   //
- $search=$_REQUEST["search"];
+  $search = $_REQUEST["search"] ?? '';
 
  $orderby=" order by doneday desc "; 
 	
 $now = date("Y-m-d");	 // 현재 날짜와 크거나 같으면 생산예정으로 구분		
   
 if($mode=="search"){
-					 $sql="select * from mirae8440.work where (doneday between date('$fromdate') and date('$Transtodate')) and (worker like '%$worker%' ) " . $orderby;  								 
+    // SQL injection 방지를 위해 prepared statement 사용
+    $sql = "select * from mirae8440.work where (doneday between date(?) and date(?)) and (worker like ?) " . $orderby;
+    $sqlParams = [$fromdate, $Transtodate, "%$workername%"];
+} else {
+    $sql = "";
+    $sqlParams = [];
 }
 
 	  
-require_once("../lib/mydb.php");
-$pdo = db_connect();	  		  
+// Database connection is already available from bootstrap.php
+if (!isset($pdo) || !$pdo) {
+    try {
+        $pdo = db_connect();
+    } catch (Exception $e) {
+        die("Database connection failed: " . $e->getMessage());
+    }
+}	  		  
 
-  $counter=0;
-   $workday_arr=array();
-   $workplacename_arr=array();
-   $firstord_arr=array();
-   $secondord_arr=array();
-   $worker_arr=array();
-   $workfeedate_arr=array();
-   $material_arr=array();
-   $demand_arr=array();
-   $visitfee_arr=array();
-   $totalfee_arr=array();
+  $counter = 0;
+   $workday_arr = array();
+   $workplacename_arr = array();
+   $firstord_arr = array();
+   $secondord_arr = array();
+   $worker_arr = array();
+   $workfeedate_arr = array();
+   $material_arr = array();
+   $demand_arr = array();
+   $visitfee_arr = array();
+   $totalfee_arr = array();
+   $doneday_arr = array();
+   $address_arr = array();
    
    $wide_arr=array();
    $normal_arr=array();
@@ -197,21 +189,25 @@ $pdo = db_connect();
    $narrowunit_arr=array();   
    $etcunit_arr=array();   
    
-   $num_arr=array();  // 일괄처리를 위한 번호 저장
+   $num_arr = array();  // 일괄처리를 위한 번호 저장
    
-   $sum1=0;
-   $sum2=0;
-   $sum3=0;
+   $sum1 = 0;
+   $sum2 = 0;
+   $sum3 = 0;
 
 
  try{  
- 
-   // $sql="select * from mirae8440.work"; 		 
-   $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-   $rowNum = $stmh->rowCount();  
+   if(empty($sql)) {
+       $rowNum = 0;
+   } else {
+       $stmh = $pdo->prepare($sql);
+       $stmh->execute($sqlParams);
+       $rowNum = $stmh->rowCount();
+   }  
 
 
-   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {	
+   if($rowNum > 0) {
+       while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {	
 			  $num=$row["num"];
 			  $checkstep=$row["checkstep"];
 			  $workplacename=$row["workplacename"];
@@ -309,9 +305,7 @@ $pdo = db_connect();
 			  $materials="";
 			  $materials=$material2 . " " . $material1 . " " . $material3 . $material4 . $material5 . $material6;		
 		   
-		   $material_arr[$counter]=$materials;   		   
-
-						   
+		   $material_arr[$counter]=$materials;   		
 		   
 		   $wide_arr[$counter] = 0;
 		   $widefee_arr[$counter] = 0;
@@ -328,7 +322,7 @@ $pdo = db_connect();
 		   $etcunit_arr[$counter] = 0;	
 
  
-   				 $workitem="";
+			$workitem="";
 				 if($widejamb!="")   {
 						$wide_arr[$counter] = (int)$widejamb;
 								  
@@ -371,8 +365,6 @@ $pdo = db_connect();
 						}
 				 if($smalljamb!="") {
 						$narrow_arr[$counter] = (int)$smalljamb;	
-						
-
 								 
 							   //불량이란 단어가 들어가 있는 수량은 제외한다.		   
 							   $findstr = '불량';
@@ -391,26 +383,31 @@ $pdo = db_connect();
 						}		   	   
 	 
 		        $totalfee_arr[$counter] = $widefee_arr[$counter] + $normalfee_arr[$counter]+ $narrowfee_arr[$counter] + $etcfee_arr[$counter] ;  
-			   $counter++;	
-		   } // end of 판매 / 불량		   		   	   
-     // }   	 
-   } catch (PDOException $Exception) {
-    print "오류: ".$Exception->getMessage();
-}  
-
+		   $counter++;	
+	   } // end of 판매 / 불량		   		   	   
+     // }
+   }
+   } catch (PDOException $Exception) { 
+	   if (isLocal()) {
+		        print "오류: ".$Exception->getMessage();
+			    } else {
+					error_log("Database error in workfee.php: " . $Exception->getMessage());
+					print "데이터베이스 오류가 발생했습니다. 관리자에게 문의하세요.";
+				}
+				$rowNum = 0;
+			}
 ?>		 
-<body >
-
+<body>
 <div id="wrap">
 			<div class="row">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 			<h1 class="display-0  text-left">
-			  <input type="button" class="btn btn-primary btn-lg " value="목록으로 이동" onclick="javascript:move_url('index.php?check=<?=$check?>&workername=<?=$workername ?>');"> </h1>
+			  <input type="button" class="btn btn-primary btn-lg " value="목록으로 이동" onclick="javascript:move_url('<?= getBaseUrl() ?>/p/index.php?check=<?=$check?>&workername=<?=$workername ?>');"> </h1>
 			  </div>
 <div class="card-header">    
  <h1> &nbsp; 시공완료일 기준 시공비 산출자료 &nbsp; 		<button  type="button" class="btn btn-secondary" id="downloadcsvBtn"> CSV 엑셀 </button>	 
- <button  type="button" class="btn btn-secondary" id="downloadlistBtn" onclick="javascript:move_url('../work/excelform.php?fromdate=<?=$fromdate?>&todate=<?=$todate?>&search=<?=$worker?>&workername=<?=$workername ?>')"> 소장별 거래명세표(엑셀)</button>
+ <button  type="button" class="btn btn-secondary" id="downloadlistBtn" onclick="javascript:move_url('<?= getBaseUrl() ?>/work/excelform.php?fromdate=<?=$fromdate?>&todate=<?=$todate?>&search=<?=$worker?>&workername=<?=$workername ?>')"> 소장별 거래명세표(엑셀)</button>
  	</h1>
-</div> 
+</div>  
   
    <div id="content" style="width:1000px;">			 
    <form name="board_form" id="board_form"  method="post" action="workfee.php?mode=search&year=<?=$year?>&search=<?=$search?>&process=<?=$process?>&asprocess=<?=$asprocess?>&fromdate=<?=$fromdate?>&todate=<?=$todate?>&up_fromdate=<?=$up_fromdate?>&up_todate=<?=$up_todate?>&separate_date=<?=$separate_date?>&view_table=<?=$view_table?>&workername=<?=$workername ?>">  
@@ -448,6 +445,8 @@ $pdo = db_connect();
   </div> <!-- end of wrap -->
   
 <script>
+// 환경별 baseUrl 설정
+window.baseUrl = '<?= getBaseUrl() ?>';
 
 $(document).ready(function(){
 	
@@ -744,7 +743,7 @@ Grid.applyTheme('default', {
 
 $("#downloadcsvBtn").click(function(){  Do_gridexport();   });	          // CSV파일 클릭	
 //////////////////// saveCSV	
-Do_gridexport = function () { 
+var Do_gridexport = function () { 
 	
 		  //  const data = grid.getData();		
 			let csvContent = "data:text/csv;charset=utf-8,\uFEFF";   // 한글파일은 뒤에,\uFEFF  추가해서 해결함.		
@@ -798,14 +797,39 @@ Do_gridexport = function () {
 	
 });
 
+// 유틸리티 함수들
 function comma(str) { 
     str = String(str); 
     return str.replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,'); 
 } 
+
 function uncomma(str) { 
     str = String(str); 
     return str.replace(/[^\d]+/g, ''); 
 }
+
+function dis_text()
+{  
+		var dis_text = '<?php echo $jamb_total ?? ''; ?>';
+		$("#dis_text").val(dis_text);
+}
+
+function SearchEnter(){
+    if(event.keyCode == 13){
+		document.getElementById('board_form').submit(); 
+    }
+}
+
+function move_url(href)
+{	 
+        // href가 절대 URL이 아닌 경우 baseUrl과 결합
+        if (href.indexOf('http') !== 0 && href.indexOf('/') === 0) {
+            document.location.href = window.baseUrl + href;
+        } else {
+            document.location.href = href;
+        }
+}
+
 
 function  prepre_month(){    // 전전월
 			// document.getElementById('search').value=null; 
@@ -1100,37 +1124,6 @@ function this_year()  {   // 당해년도
 			document.getElementById("todate").value = topreyear;
 		    document.getElementById('board_form').submit();  // form의 검색버튼 누른 효과 
 } 
-
-function dis_text()
-{  
-		var dis_text = '<?php echo $jamb_total; ?>';
-		$("#dis_text").val(dis_text);
-}	
-
-function SearchEnter(){
-    if(event.keyCode == 13){
-		document.getElementById('board_form').submit(); 
-    }
-}
-
-function adjustGrid(){
-	
-// 모바일 화면과 PC화면 표시 다르게 하기 
-// myWidth = document.write(window.innerWidth);
-
-// $("#grid").css("width","1000px");
-  
-}
-
-setTimeout(function() {
- // console.log('Works!');
- adjustGrid();
-}, 500);
-
-function move_url(href)
-{	 
-        document.location.href = href;		 
-}
 
 </script>
 

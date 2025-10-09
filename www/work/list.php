@@ -1,22 +1,22 @@
-<?php require_once __DIR__ . '/../common/functions.php';
-include getDocumentRoot() . '/session.php';   
+<?php 
+require_once __DIR__ . '/../bootstrap.php';
 
 // 첫 화면 표시 문구
 $title_message = 'JAMB 수주'; 
  if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-		 sleep(1);
-		  header("Location:" . $WebSite . "login/login_form.php"); 
+	 sleep(1);
+	  header("Location:" . getBaseUrl() . "/login/login_form.php"); 
          exit;
 }   
-include getDocumentRoot() . '/load_header.php';   
+include includePath('load_header.php');   
  ?>
  
 <title> <?=$title_message?> </title>
-<link rel="stylesheet" href="<?$root_dir?>/work/css/style.css">
+<link rel="stylesheet" href="<?= getBaseUrl() ?>/work/css/style.css">
 
 <?php require_once(includePath('myheader.php')); ?>   
 
-<?php include getDocumentRoot() . '/work_voc/load_workvoc.php'; ?>   
+<?php include includePath('work_voc/load_workvoc.php'); ?>
 
 <?php 
 include "request.php"; 	 
@@ -74,8 +74,7 @@ $company1 = $_REQUEST["company1"] ?? null;
 $company2 = $_REQUEST["company2"] ?? null;
 $workersel = $_REQUEST["workersel"] ?? null;
 
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();
+// bootstrap.php에서 이미 DB 연결됨
 
 $now = date("Y-m-d");
 
@@ -144,6 +143,9 @@ if ($fromdate === "" || $fromdate === null || $todate === "" || $todate === null
 				
 // 완료일 기준
 $SettingDate=" orderday ";
+
+// Initialize $Andmywrite to prevent undefined variable warning
+$Andmywrite = '';
 
 $Andis_deleted =  " AND is_deleted IS NULL AND eworks_item='원자재구매' " . $Andmywrite;
 $Whereis_deleted =  " Where is_deleted IS NULL AND eworks_item='원자재구매' " . $Andmywrite;	 
@@ -233,20 +235,20 @@ try{
 	$total_row=$stmh->rowCount();    					 
 ?>	 
 			 
-<form id="board_form" name="board_form" method="post" action="list.php?mode=search">  
-	<input type="hidden" id="voc_alert" name="voc_alert" value="<?=$voc_alert?>"   > 	
-	<input type="hidden" id="ma_alert" name="ma_alert" value="<?=$ma_alert?>"   > 	
-	<input type="hidden" id="order_alert" name="order_alert" value="<?=$order_alert?>"   > 	
-	<input type="hidden" id="page" name="page" value="<?=$page?>"   > 	
-	<input type="hidden" id="scale" name="scale" value="<?=$scale?>"   > 			
-	<input type="hidden" id="check" name="check" value="<?=$check?>"   > 	
-	<input type="hidden" id="cursort" name="cursort" value="<?=$cursort?>"   > 	
-	<input type="hidden" id="sortof" name="sortof" value="<?=$sortof?>"   > 	
-	<input type="hidden" id="stable" name="stable" value="<?=$stable?>"   > 	
-	<input type="hidden" id="sqltext" name="sqltext" value="<?=$sqltext?>" > 				
-	<input type="hidden" id="list" name="list" value="<?=$list?>" > 								
-	<input type="hidden" id="buttonval" name="buttonval" value="<?=$buttonval?>" > 								
-	<input type="hidden" id="claddingornew" name="claddingornew" value="<?=$claddingornew?>" > 								
+<form id="board_form" name="board_form" method="post" action="<?= getBaseUrl() ?>/work/list.php?mode=search">  
+	<input type="hidden" id="voc_alert" name="voc_alert" value="<?= htmlspecialchars($voc_alert ?? '') ?>"   > 	
+	<input type="hidden" id="ma_alert" name="ma_alert" value="<?= htmlspecialchars($ma_alert ?? '') ?>"   > 	
+	<input type="hidden" id="order_alert" name="order_alert" value="<?= htmlspecialchars($order_alert ?? '') ?>"   > 	
+	<input type="hidden" id="page" name="page" value="<?= htmlspecialchars($page ?? '') ?>"   > 	
+	<input type="hidden" id="scale" name="scale" value="<?= htmlspecialchars($scale ?? '') ?>"   > 			
+	<input type="hidden" id="check" name="check" value="<?= htmlspecialchars($check ?? '') ?>"   > 	
+	<input type="hidden" id="cursort" name="cursort" value="<?= htmlspecialchars($cursort ?? '') ?>"   > 	
+	<input type="hidden" id="sortof" name="sortof" value="<?= htmlspecialchars($sortof ?? '') ?>"   > 	
+	<input type="hidden" id="stable" name="stable" value="<?= htmlspecialchars($stable ?? '') ?>"   > 	
+	<input type="hidden" id="sqltext" name="sqltext" value="<?= htmlspecialchars($sqltext ?? '') ?>" > 				
+	<input type="hidden" id="list" name="list" value="<?= htmlspecialchars($list ?? '') ?>" > 								
+	<input type="hidden" id="buttonval" name="buttonval" value="<?= htmlspecialchars($buttonval ?? '') ?>" > 								
+	<input type="hidden" id="claddingornew" name="claddingornew" value="<?= htmlspecialchars($claddingornew ?? '') ?>" > 								
 
 <div class="container-fluid">  		
 	<div class="row">  
@@ -259,11 +261,11 @@ try{
 				<div class="flex-grow-1">
 					<div class="text-white fw-bold mb-1" style="font-size:1.2rem; text-shadow: 0 1px 3px rgba(0,0,0,0.3);">
 						한산에 도장을 맡길때는 <span class="badge bg-white text-cyan px-3 py-2 mx-2" style="font-size:1.1rem; font-weight:700; box-shadow: 0 2px 4px rgba(0,0,0,0.2); color: #0369a1 !important;">도장홀</span>을 각 4개씩 타공해야 도장이 가능합니다. <span class="text-warning" style="font-weight:700;">주의하세요!</span>
-					</div>
-				</div>
-				<img src="../img/notice-ceiling.svg" alt="Notice" class="ms-3 d-none d-md-block" style="height:40px; filter: brightness(0) invert(1);">
 			</div>
 		</div>
+		<!-- <img src="<?= asset('img/notice-ceiling.svg') ?>" alt="Notice" class="ms-3 d-none d-md-block" style="height:40px; filter: brightness(0) invert(1);"> -->
+		</div>
+	</div>
 	</div>
 
 	<div class="d-flex  p-1 m-1 mt-1 mb-2 justify-content-center align-items-center "> 
@@ -287,7 +289,7 @@ try{
 							<?php							
 								function printCheckbox($id, $value, $label, $checkedValue) {
 									$isChecked = ($value == $checkedValue) ? "checked" : "";                                    
-									echo "<input type='checkbox' class='search-condition' $isChecked id=$id value='$value'>&nbsp; <span class='badge bg-dark' style='font-size:13px;'> $label </span>  &nbsp;&nbsp;";
+									echo "<input type='checkbox' class='search-condition' $isChecked id='" . htmlspecialchars($id) . "' value='" . htmlspecialchars($value) . "'>&nbsp; <span class='badge bg-dark' style='font-size:13px;'> " . htmlspecialchars($label) . " </span>  &nbsp;&nbsp;";
 								}                                                     
 									printCheckbox('all', '0', '전체', $current_condition);                                
 									printCheckbox('team', '1', '시공팀미지정', $current_condition);                                
@@ -309,22 +311,22 @@ try{
 						부가기능
 					</div>					
 						<div class="card-body">
-							<button type="button" class="btn btn-dark  btn-sm" onclick="popupCenter('test_list.php','검사일기준 추출',1750,800);">  검사일 </button>  							
-							<button type="button" class="btn btn-dark btn-sm" onclick="popupCenter('delivery_fee.php','배송비',1900,850);">  <i class="bi bi-truck"></i> 배송비 </button> 
+							<button type="button" class="btn btn-dark  btn-sm" id="testListBtn">  검사일 </button>  							
+							<button type="button" class="btn btn-dark btn-sm" id="deliveryFeeBtn">  <i class="bi bi-truck"></i> 배송비 </button> 
 							<?
 							if($user_name=='김보곤' or $user_name=='이미래'  or $user_name=='소현철'    or  $user_name=='이경묵'   or  $user_name=='조경임'  or  $user_name=='이소정')
 							{
 							?>	 
-							<button type="button" class="btn btn-dark  btn-sm" onclick="popupCenter('batch.php','시공소장 결산자료',1910,900);"><i class="bi bi-kanban"></i>  일괄처리 </button>&nbsp;
+							<button type="button" class="btn btn-dark  btn-sm" id="batchBtn"><i class="bi bi-kanban"></i>  일괄처리 </button>&nbsp;
 							<?   }     ?> 
-							<button type="button" class="btn btn-dark  btn-sm" onclick="popupCenter('registration.php','우성(OTIS)발주 일괄등록',1890,1060);">  우성(OTIS) </button> 
-							<button type="button" class="btn btn-dark  btn-sm" onclick="popupCenter('registration_tke.php','TKE 발주 일괄등록',1890,1060);">  TKE </button> 							
-							<button type="button" class="btn btn-danger  btn-sm" onclick="popupCenter('No_demandlist.php','출고완료분 중 미청구',1800,850);"> 출고완료 미청구(새창) </button> 			 
+							<button type="button" class="btn btn-dark  btn-sm" id="registrationBtn">  우성(OTIS) </button> 
+							<button type="button" class="btn btn-dark  btn-sm" id="registrationTkeBtn">  TKE </button> 							
+							<button type="button" class="btn btn-danger  btn-sm" id="noDemandListBtn"> 출고완료 미청구(새창) </button> 			 
 							<button type="button" id="choiceworkerBtn" class="btn btn-primary btn-sm text-center" > 소장 </button>		
 							<button type="button" id="outsourcingBtn" class="btn btn-success btn-sm" >  외주단가 </button>			 
 						</div>
 					</div>		
-							<button type="button" class="btn btn-dark btn-sm me-5" onclick="popupCenter('plan_making.php','생산예정',1820,900);">  <i class="bi bi-calendar-check"></i> 생산예정 </button>    			
+							<button type="button" class="btn btn-dark btn-sm me-5" id="planMakingBtn">  <i class="bi bi-calendar-check"></i> 생산예정 </button>    			
 		            <!-- 결재안되는 곳 표시 
 					<span class="badge bg-danger fs-6"> ※ 한진엘리베이터 결재시까지 출고 안됨 </span>		-->			
 					
@@ -528,6 +530,9 @@ try{
 
   // print 'search : ' . $search . '<br>' ;   
   // print $sql;   		
+	
+	// Initialize $sum array to prevent undefined offset warnings
+	$sum = array(0, 0, 0, 0);
 	    
 	       while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
 			   include "_row.php";	  
@@ -569,9 +574,9 @@ try{
 					else $doneday="";		 			  	  
 		      if($assigndate!="0000-00-00" and $assigndate!="1970-01-01" and $assigndate!="")  $assigndate = date("Y-m-d", strtotime( $assigndate) );
 					else $assigndate="";		  
-			  	  				  
-			  $state_work=0;
-			  if($row["checkbox"]==0) $state_work=1;
+		  	  				  
+		  $state_work=0;
+		  if($checkbox==0) $state_work=1;
 			  if(substr($row["workday"],0,2)=="20") $state_work=2;
 			  if(substr($row["endworkday"],0,2)=="20") $state_work=3;	
               $draw_done="";			  
@@ -583,14 +588,14 @@ try{
 			  }		  
 ?>
 			 
-<tr onclick="redirectToView('<?=$num?>', '<?=$tablename?>')">   
+<tr onclick="redirectToView('<?=htmlspecialchars($num ?? '')?>', '<?=htmlspecialchars($tablename ?? '')?>')">   
   <td>
     <?php
       if($checkstep == '신규') {
         print '<span class="badge bg-danger">' . $checkstep . '</span>';
         $workplacename = "[신규] " . $workplacename;
       } else {
-        print $checkstep;
+        print $checkstep; 
       }
     ?>
   </td>
@@ -664,13 +669,16 @@ echo '<td class="text-center"><span class="'.$spanClass1.'">'.$materials1.'</spa
   <td><?=echo_null(iconv_substr($memo, 0, 10, "utf-8"))?></td>
 </tr>
 
-
-
-<?php require_once __DIR__ . '/../bootstrap.php';
+<?php
 	$start_num--;
 	 } 
   } catch (PDOException $Exception) {
-  print "오류: ".$Exception->getMessage();
+      if (isLocal()) {
+          print "오류: " . $Exception->getMessage();
+      } else {
+          error_log("Database error in list.php: " . $Exception->getMessage());
+          print "데이터베이스 오류가 발생했습니다. 관리자에게 문의하세요.";
+      }
   }  
 
  ?>
@@ -691,6 +699,8 @@ echo '<td class="text-center"><span class="'.$spanClass1.'">'.$materials1.'</spa
 </html>
   
 <script>
+// 환경별 baseUrl 설정
+window.baseUrl = '<?= getBaseUrl() ?>';
 
 var dataTable; // DataTables 인스턴스 전역 변수
 var jambpageNumber; // 현재 페이지 번호 저장을 위한 전역 변수
@@ -742,14 +752,14 @@ function restorePageNumber() {
     }
 }
 
-function redirectToView(num, tablename) {	
-    var url = "view.php?num=" + num ;          
+function redirectToView(num, tablename) {		
+    var url = window.baseUrl + "/work/view.php?num=" + num ;          
 	customPopup(url, 'jamb 수주내역', 1850, 900); 		    
 }
 
 $(document).ready(function(){	
 	$("#writeBtn").click(function(){ 				
-		var url = "write_form.php"; 				
+		var url = window.baseUrl + "/work/write_form.php"; 				
 		customPopup(url, 'jamb 수주내역', 1850, 900); 	
 	 });			 
 		
@@ -915,12 +925,41 @@ function button_condition(con)
 
 	  
 $(document).ready(function(){
+	// 부가기능 버튼들
+	$("#testListBtn").click(function(){ 	
+		popupCenter(window.baseUrl + '/work/test_list.php', '검사일기준 추출', 1750, 800);      
+	});
+	
+	$("#deliveryFeeBtn").click(function(){ 	
+		popupCenter(window.baseUrl + '/work/delivery_fee.php', '배송비', 1900, 850);      
+	});
+	
+	$("#batchBtn").click(function(){ 	
+		popupCenter(window.baseUrl + '/work/batch.php', '시공소장 결산자료', 1910, 900);      
+	});
+	
+	$("#registrationBtn").click(function(){ 	
+		popupCenter(window.baseUrl + '/work/registration.php', '우성(OTIS)발주 일괄등록', 1890, 1060);      
+	});
+	
+	$("#registrationTkeBtn").click(function(){ 	
+		popupCenter(window.baseUrl + '/work/registration_tke.php', 'TKE 발주 일괄등록', 1890, 1060);      
+	});
+	
+	$("#noDemandListBtn").click(function(){ 	
+		popupCenter(window.baseUrl + '/work/No_demandlist.php', '출고완료분 중 미청구', 1800, 850);      
+	});
+	
+	$("#planMakingBtn").click(function(){ 	
+		popupCenter(window.baseUrl + '/work/plan_making.php', '생산예정', 1820, 900);      
+	});
+	
 	$("#choiceworkerBtn").click(function(){ 	
-		customPopup('choiceworker.php', '소장선택', 1100, 300);      
+		customPopup(window.baseUrl + '/work/choiceworker.php', '소장선택', 1100, 300);      
 	 });	
 		
 	$("#outsourcingBtn").click(function(){ 	
-		customPopup('../work_outcost/list.php', '외주단가 설정', 1400, 900);      
+		customPopup(window.baseUrl + '/work_outcost/list.php', '외주단가 설정', 1400, 900);      
 	 });	
 		
 		
@@ -967,7 +1006,7 @@ $("#checkwork").change(function(){
 function List_name(worker)
 {	
 	var worker; 				
-	var name='<?php echo $user_name; ?>' ;
+	var name='<?php echo htmlspecialchars($user_name ?? '', ENT_QUOTES); ?>';
 
 	$("#search").val(worker);	
 	$('#board_form').submit();		// 검색버튼 효과
@@ -990,7 +1029,7 @@ $(document).ready(function() {
 
 $(document).ready(function(){    
    // 방문기록 남김
-   var title = '<?php echo $title_message; ?>';
+   var title = '<?php echo htmlspecialchars($title_message ?? '', ENT_QUOTES); ?>';
    // title = '품질방침/품질목표';
    // title = '절곡 ' + title ;
    saveMenuLog(title);

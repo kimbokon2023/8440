@@ -1,58 +1,100 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session.php'));
+<?php
+// 공사완료 확인서 데이터 저장 - 로컬/서버 환경 호환
+header("Content-Type: application/json; charset=UTF-8");
+
+require_once __DIR__ . '/../bootstrap.php';
 
 $tablename = 'work';
 
-// $jsonData를 JSON으로 파싱
-$jsonData = isset($_REQUEST['customerData']) ? $_REQUEST['customerData'] : '';
-$data = json_decode($jsonData, true);
+// 입력값 검증 및 초기화
+$num = $_REQUEST["num"] ?? '';
+$jsonData = $_REQUEST['customerData'] ?? '';
 
-if ($data === null) {
-    // JSON 데이터 파싱에 실패한 경우
-    http_response_code(400); // Bad Request
-    echo json_encode(array("message" => "Invalid JSON data."));
+// 입력값 유효성 검사
+if (empty($num) || !is_numeric($num)) {
+    http_response_code(400);
+    echo json_encode(["success" => false, "message" => "유효하지 않은 번호입니다."]);
     exit();
 }
 
-// 필요한 필드 및 데이터 추출
-$num = isset($_REQUEST["num"]) ? $_REQUEST["num"] : "";
-
-if (empty($num)) {
-    // 필요한 데이터가 없는 경우 오류 응답
-    http_response_code(400); // Bad Request
-    echo json_encode(array("message" => "Missing 'num' parameter."));
+if (empty($jsonData)) {
+    http_response_code(400);
+    echo json_encode(["success" => false, "message" => "고객 데이터가 없습니다."]);
     exit();
+}
+
+// JSON 데이터 파싱
+$data = json_decode($jsonData, true);
+
+if ($data === null) {
+    http_response_code(400);
+    echo json_encode(["success" => false, "message" => "잘못된 JSON 데이터입니다."]);
+    exit();
+}
+
+// 데이터베이스 연결
+if (!isset($pdo) || !$pdo) {
+    try {
+        $pdo = db_connect();
+    } catch (Exception $e) {
+        http_response_code(500);
+        if (isLocal()) {
+            echo json_encode(["success" => false, "message" => "데이터베이스 연결 실패: " . $e->getMessage()]);
+        } else {
+            error_log("Database connection failed in customer_save.php: " . $e->getMessage());
+            echo json_encode(["success" => false, "message" => "데이터베이스 연결에 실패했습니다."]);
+        }
+        exit();
+    }
 }
 
 $field = 'customer';
 
 try {
-    // 업데이트 쿼리 생성
-    $sql = "UPDATE $DB.$tablename SET $field = ? WHERE num = ? LIMIT 1";
-
-    // 데이터베이스 연결
-    require_once("../lib/mydb.php");
-    $pdo = db_connect();
-
+    // 트랜잭션 시작
     $pdo->beginTransaction();
 
-    // 쿼리 실행
+    // 업데이트 쿼리 생성 및 실행
+    $sql = "UPDATE $DB.$tablename SET $field = ? WHERE num = ? LIMIT 1";
     $stmh = $pdo->prepare($sql);
     $stmh->bindValue(1, $jsonData, PDO::PARAM_STR);
-    $stmh->bindValue(2, $num, PDO::PARAM_STR);
+    $stmh->bindValue(2, $num, PDO::PARAM_INT);
     $stmh->execute();
+
+    // 영향받은 행 수 확인
+    $rowCount = $stmh->rowCount();
 
     // 트랜잭션 커밋
     $pdo->commit();
+
+    // 성공 응답
+    http_response_code(200);
+    echo json_encode([
+        "success" => true,
+        "message" => "데이터가 성공적으로 저장되었습니다.",
+        "data" => $data,
+        "rowCount" => $rowCount
+    ]);
+
 } catch (PDOException $Exception) {
-    $pdo->rollBack();
-    // 오류 응답
-    http_response_code(500); // Internal Server Error
-    echo json_encode(array("message" => "Database error: " . $Exception->getMessage()));
+    // 트랜잭션 롤백
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
+    
+    http_response_code(500);
+    if (isLocal()) {
+        echo json_encode([
+            "success" => false,
+            "message" => "데이터베이스 오류: " . $Exception->getMessage()
+        ]);
+    } else {
+        error_log("Database error in customer_save.php: " . $Exception->getMessage());
+        echo json_encode([
+            "success" => false,
+            "message" => "데이터 저장 중 오류가 발생했습니다."
+        ]);
+    }
     exit();
 }
-
-// 성공 응답
-http_response_code(200); // OK
-echo json_encode(array("message" => "Data saved successfully", "data" => $data));
 ?>

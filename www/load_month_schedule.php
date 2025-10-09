@@ -3,19 +3,21 @@
 ?>
 <div class="row d-flex" style="padding:0; margin-top: 10px;">
 	<!-- 월간상세일정 -->
-	<div class="col-12 board_list" style="padding:7;">
+	<div class="col-12 schedule_card" style="padding:7;">
 		<div class="modern-management-card">
-			<div class="modern-dashboard-header">
-				📅 월간상세일정 
+			<div class="modern-dashboard-header d-flex justify-content-between align-items-center">
+				<span>📅 월간상세일정</span>
+				<button type="button" id="schedule_toggle" class="btn btn-sm mx-1 fw-bold" style="background: #0288d1; color: white; border: none; border-radius: 6px; padding: 0.25rem 0.5rem;">
+					<i class="bi bi-chevron-up"></i>
+				</button>
 			</div>
 			<div class="modern-dashboard-body mt-1">
+				<!-- 접고 펼치기 가능한 컨테이너 -->
+				<div id="scheduleContentWrapper">
 				<div class="row">
 					<!-- Calendar Controls -->
 					<div class="col-sm-4">
 					  <div class="d-flex justify-content-start align-items-center">
-						<button type="button" id="todo_view" class="btn btn-sm mx-1 fw-bold" style="background: #0288d1; color: white; border: none; border-radius: 6px; padding: 0.25rem 0.5rem;">
-							<i class="bi bi-chevron-down"></i>
-						</button>
 						<h6 class="mb-0 mx-2" style="color: #1e293b; font-weight: 600;">일정 관리</h6>
 						<span class="modern-data-value" style="color: #64748b; font-size: 0.75rem;">
 							<i class="bi bi-tree-fill"></i> 연차
@@ -104,6 +106,7 @@
 						<div id="todo-calendar-container" class="p-1"></div>
 					</div>
 				</div>
+				</div><!-- #scheduleContentWrapper -->
 			</div>
 		</div>
 	</div>

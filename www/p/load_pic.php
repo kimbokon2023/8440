@@ -1,20 +1,36 @@
 <?php
 header("Content-Type: application/json"); // JSON 응답 설정
 
+// 1. vendor autoload를 가장 먼저 (namespace 때문에)
+require_once __DIR__ . '/../vendor/autoload.php';
+
+// Google API 클래스들이 로드됨 (IDE 인식용 주석)
+// @see Google_Client
+// @see Google_Service_Drive
+
+// 2. 공통 함수 로드
+require_once __DIR__ . '/../common/functions.php';
+
+// 3. 데이터베이스 연결
+require_once __DIR__ . '/../lib/mydb.php';
+
 $num = $_REQUEST["num"] ?? '';
 $tablename = $_REQUEST["tablename"] ?? '';
 $item = $_REQUEST["item"] ?? '';
 
-require_once("../lib/mydb.php");
-require_once getDocumentRoot() . '/vendor/autoload.php';
-
 // Google Drive 서비스 계정 인증 설정
-putenv('GOOGLE_APPLICATION_CREDENTIALS=' . getDocumentRoot() . '/tokens/mytoken.json');
-$client = new Google_Client();
-$client->useApplicationDefaultCredentials();
-$client->setScopes([Google_Service_Drive::DRIVE]);
+$serviceAccountKeyFile = getDocumentRoot() . '/tokens/mytoken.json';
 
-$service = new Google_Service_Drive($client);
+try {
+    $client = new Google_Client();
+    $client->setAuthConfig($serviceAccountKeyFile);
+    $client->addScope(Google_Service_Drive::DRIVE);
+    
+    $service = new Google_Service_Drive($client);
+} catch (Exception $e) {
+    echo json_encode(['error' => 'Google Drive 초기화 실패: ' . $e->getMessage()]);
+    exit;
+}
 
 // SQL 쿼리 실행 및 데이터 처리
 $pdo = db_connect();

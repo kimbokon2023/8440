@@ -1,53 +1,51 @@
 <?php
-   session_start();
-   $level= $_SESSION["level"];
-   $id_name= $_SESSION["name"];   
-   
-    if(isset($_REQUEST["check"])) 
-	 $check=$_REQUEST["check"]; 
-   else
-     $check=$_POST["check"]; 
-if($check==null)
-		$check='1';
+require_once __DIR__ . '/../bootstrap.php';
 
+// 세션 변수 안전하게 초기화
+$level = $_SESSION["level"] ?? 0;
+$id_name = $_SESSION["name"] ?? 'Unknown';
+
+// 요청 변수 안전하게 초기화
+$check = $_REQUEST["check"] ?? $_POST["check"] ?? '1';
+
+// 베이스 URL 설정 (로컬/서버 환경 자동 감지)
+$base_url = getBaseUrl();
 
 // 오늘 날짜를 YYYY-MM-DD 형식으로 구합니다.
 $today = date("Y-m-d");
 
 // $today 변수를 JavaScript에 전달하기 위해 echo 문을 사용합니다.
 echo "<script>var today = '$today';</script>";
+
+include includePath('load_header.php');
 ?>
 
-<?php include getDocumentRoot() . '/load_header.php' ?>
-  
-<title> 미래기업 jamb 공사 스케줄 </title>
+<title>미래기업 jamb 공사 스케줄</title>
    
 </head>
  
 
 <style>
 .red-day {
-  color: red!important ;
-} 
-.today {
-  background-color: #ffe5e5 !important;
+    color: red !important;
 }
- 
+
+.today {
+    background-color: #ffe5e5 !important;
+}
 </style>
- 
+
 <body>
-   
 
-<? include getDocumentRoot() . '/myheader.php'; ?>   
+<?php include includePath('myheader.php'); ?>
 
+<div class="card mt-2 mb-2">
+    <div class="d-flex p-2 mt-3 mb-1 justify-content-center">
+        <h4 id="clickableText">JAMB 시공 스케줄</h4>
+        <button type="button" class="btn btn-dark btn-sm mx-3" onclick="location.reload();" title="새로고침"><i class="bi bi-arrow-clockwise"></i></button>
+    </div>
 
-<div class="card mt-2 mb-2">	
-<div class="d-flex p-2 mt-3 mb-1 justify-content-center">	
-	<h4 id="clickableText">JAMB 시공 스케줄 </h4> 
-	<button type="button" class="btn btn-dark btn-sm mx-3"  onclick='location.reload();' title="새로고침"> <i class="bi bi-arrow-clockwise"></i> </button>  	 
-</div>
-
-<div id="holder" class="d-flex p-2 justify-content-center" ></div>
+    <div id="holder" class="d-flex p-2 justify-content-center"></div>
 
 
 <script type="text/tmpl" id="tmpl">
@@ -281,166 +279,161 @@ $.extend(Date.prototype, {
       data = options.data[index];
       time = data.start.toTimeString();
       if (time && data.end) { time = time + ' - ' + data.end.toTimeString(); }
-      $t.data('popover',true);
+      $t.data('popover', true);
       // $t.popover({content: '<p><strong>' + time + '</strong></p>'+data.text, html: true, placement: 'auto left'}).popover('toggle');
-	  
-	   // console.log(data.id); // id 추출해서
-	   popupCenter('../work/view.php?menu=no&num=' + data.id   , '잠 내역', 1800, 900);		   
-	  
+
+      // console.log(data.id); // id 추출해서
+      var base_url = '<?php echo $base_url; ?>';
+      popupCenter(base_url + '/work/view.php?menu=no&num=' + data.id, '잠 내역', 1800, 900);
+
       return false;
 	  
 
 	  
     });
-	
+
     function dayAddEvent(index, event) {
-      if (!!event.allDay) {
-        monthAddEvent(index, event);
-        return;
-      }	  
-	  
-	  // 일자별 화면에 버튼형식으로 만들어주는 부분
-	  // 선택을 시공예정일과 시공완료일에 따른 배경색등 지정할때 유용한 것
-
-		  var $event = $('<div/>', {
-			'class': 'event',
-			text: event.title,
-			title: event.title,
-			'data-index': index
-		  });
-
-		  // deadline 속성이 존재하면 'text-primary' 클래스를 추가합니다.
-		  if (event.deadline) {
-			$event.addClass('text-primary');
-		  }
-
-		  var start = event.start;
-		  var end = event.end || start;
-		  var time = event.start.toTimeString();
-		  var hour = start.getHours();
-		  var timeclass = '.time-22-0';
-		  var startint = start.toDateInt();
-		  var dateint = options.date.toDateInt();
-		  var endint = end.toDateInt();
-
-		  if (startint > dateint || endint < dateint) {
-			return;
-		  }
-      
-      if (!!time) {
-        $event.html('<strong>' + time + '</strong> ' + $event.html());
-      }
-      $event.toggleClass('begin', startint === dateint);
-      $event.toggleClass('end', endint === dateint);
-      if (hour < 6) {
-        timeclass = '.time-0-0';
-      }
-      if (hour < 22) {
-        timeclass = '.time-' + hour + '-' + (start.getMinutes() < 30 ? '0' : '30');
-      }
-      $(timeclass).append($event);
-    }
-    
-function monthAddEvent(index, event) {
-  var $event = $('<div/>', {'class': 'event', text: event.title, title:  event.title, 'data-index': index}),
-      e = new Date(event.start),
-      dateclass = e.toDateCssClass(),
-      day = $('.' + e.toDateCssClass()),
-      empty = $('<div/>', {'class':'clear event', html:' '}), 
-      numbevents = 0, 
-      time = event.start.toTimeString(),
-      endday = event.end && $('.' + event.end.toDateCssClass()).length > 0,
-      checkanyway = new Date(e.getFullYear(), e.getMonth(), e.getDate()+40),
-      existing,		  
-      i;
-	  
-  // Add 'text-primary' class if deadline is "0000-00-00" or empty
-	if (!event.deadline || event.deadline === "0000-00-00") {
-	  $event.addClass('text-primary');
-	}
-	  
-
-  // Add 'text-primary' class if deadline exists and is a valid date
-  // if (event.deadline) {
-    // $event.addClass('text-primary');
-	// console.log(event.deadline);
-  // }
-
-  $event.toggleClass('all-day', !!event.allDay);
-
-  if (!!time) {
-    $event.html('<strong>' + time + '</strong> ' + $event.html());
-  }
-
-  if (!event.end) {
-    $event.addClass('begin end');
-    $('.' + event.start.toDateCssClass()).append($event);
-    return;
-  }
-
-  while (e <= event.end && (day.length || endday || options.date < checkanyway)) {
-    if(day.length) { 
-      existing = day.find('.event').length;
-      numbevents = Math.max(numbevents, existing);
-
-      for(i = 0; i < numbevents - existing; i++) {
-        day.append(empty.clone());
-      }
-
-      day.append(
-        $event.
-        toggleClass('begin', dateclass === event.start.toDateCssClass()).
-        toggleClass('end', dateclass === event.end.toDateCssClass())
-      );
-
-      $event = $event.clone();
-      $event.html(' ');
-    }
-
-    e.setDate(e.getDate() + 1);
-    dateclass = e.toDateCssClass();
-    day = $('.' + dateclass);
-  }
-}
-
-	function yearAddEvents(events, year) {
-      var counts = [0,0,0,0,0,0,0,0,0,0,0,0];
-      $.each(events, function (i, v) {
-        if (v.start.getFullYear() === year) {
-            counts[v.start.getMonth()]++;
+        if (!!event.allDay) {
+            monthAddEvent(index, event);
+            return;
         }
-      });
-      $.each(counts, function (i, v) {
-        if (v!==0) {
-            $('.month-'+i).append('<span class="badge">'+v+'</span>');
+
+        // 일자별 화면에 버튼형식으로 만들어주는 부분
+        // 선택을 시공예정일과 시공완료일에 따른 배경색등 지정할때 유용한 것
+        var $event = $('<div/>', {
+            'class': 'event',
+            text: event.title,
+            title: event.title,
+            'data-index': index
+        });
+
+        // deadline 속성이 존재하면 'text-primary' 클래스를 추가합니다.
+        if (event.deadline) {
+            $event.addClass('text-primary');
         }
-      });
+
+        var start = event.start;
+        var end = event.end || start;
+        var time = event.start.toTimeString();
+        var hour = start.getHours();
+        var timeclass = '.time-22-0';
+        var startint = start.toDateInt();
+        var dateint = options.date.toDateInt();
+        var endint = end.toDateInt();
+
+        if (startint > dateint || endint < dateint) {
+            return;
+        }
+
+        if (!!time) {
+            $event.html('<strong>' + time + '</strong> ' + $event.html());
+        }
+        $event.toggleClass('begin', startint === dateint);
+        $event.toggleClass('end', endint === dateint);
+        if (hour < 6) {
+            timeclass = '.time-0-0';
+        }
+        if (hour < 22) {
+            timeclass = '.time-' + hour + '-' + (start.getMinutes() < 30 ? '0' : '30');
+        }
+        $(timeclass).append($event);
     }
-    
+
+    function monthAddEvent(index, event) {
+        var $event = $('<div/>', {
+            'class': 'event',
+            text: event.title,
+            title: event.title,
+            'data-index': index
+        }),
+        e = new Date(event.start),
+        dateclass = e.toDateCssClass(),
+        day = $('.' + e.toDateCssClass()),
+        empty = $('<div/>', {'class': 'clear event', html: ' '}),
+        numbevents = 0,
+        time = event.start.toTimeString(),
+        endday = event.end && $('.' + event.end.toDateCssClass()).length > 0,
+        checkanyway = new Date(e.getFullYear(), e.getMonth(), e.getDate() + 40),
+        existing,
+        i;
+
+        // Add 'text-primary' class if deadline is "0000-00-00" or empty
+        if (!event.deadline || event.deadline === "0000-00-00") {
+            $event.addClass('text-primary');
+        }
+
+        $event.toggleClass('all-day', !!event.allDay);
+
+        if (!!time) {
+            $event.html('<strong>' + time + '</strong> ' + $event.html());
+        }
+
+        if (!event.end) {
+            $event.addClass('begin end');
+            $('.' + event.start.toDateCssClass()).append($event);
+            return;
+        }
+
+        while (e <= event.end && (day.length || endday || options.date < checkanyway)) {
+            if (day.length) {
+                existing = day.find('.event').length;
+                numbevents = Math.max(numbevents, existing);
+
+                for (i = 0; i < numbevents - existing; i++) {
+                    day.append(empty.clone());
+                }
+
+                day.append(
+                    $event.
+                    toggleClass('begin', dateclass === event.start.toDateCssClass()).
+                    toggleClass('end', dateclass === event.end.toDateCssClass())
+                );
+
+                $event = $event.clone();
+                $event.html(' ');
+            }
+
+            e.setDate(e.getDate() + 1);
+            dateclass = e.toDateCssClass();
+            day = $('.' + dateclass);
+        }
+    }
+
+    function yearAddEvents(events, year) {
+        var counts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        $.each(events, function(i, v) {
+            if (v.start.getFullYear() === year) {
+                counts[v.start.getMonth()]++;
+            }
+        });
+        $.each(counts, function(i, v) {
+            if (v !== 0) {
+                $('.month-' + i).append('<span class="badge">' + v + '</span>');
+            }
+        });
+    }
+
     function draw() {
-	  // 테이블을 보이게 하고
-	  $("#jamb_table").show();
-	  // 최종 엘리먼트를 그려준다.		  
-      $el.html(t(options));
-      //potential optimization (untested), this object could be keyed into a dictionary on the dateclass string; the object would need to be reset and the first entry would have to be made here
-      $('.' + (new Date()).toDateCssClass()).addClass('today');
-      if (options.data && options.data.length) {
-        if (options.mode === 'year') {
-            yearAddEvents(options.data, options.date.getFullYear());
-        } else if (options.mode === 'month' || options.mode === 'week') {
-            $.each(options.data, monthAddEvent);
-        } else {
-            $.each(options.data, dayAddEvent); //day
+        // 테이블을 보이게 하고
+        $("#jamb_table").show();
+        // 최종 엘리먼트를 그려준다.
+        $el.html(t(options));
+        //potential optimization (untested), this object could be keyed into a dictionary on the dateclass string; the object would need to be reset and the first entry would have to be made here
+        $('.' + (new Date()).toDateCssClass()).addClass('today');
+        if (options.data && options.data.length) {
+            if (options.mode === 'year') {
+                yearAddEvents(options.data, options.date.getFullYear());
+            } else if (options.mode === 'month' || options.mode === 'week') {
+                $.each(options.data, monthAddEvent);
+            } else {
+                $.each(options.data, dayAddEvent); //day
+            }
         }
-      }
-	  
-	  	  	  
     }
-    
-	// 화면에 첫 띄워주기
-     draw();    
 
-		
+    // 화면에 첫 띄워주기
+    draw();
+
   }
   
   (function (defaults, $, window, document) {
@@ -474,104 +467,103 @@ function monthAddEvent(index, event) {
 })(jQuery);
 
 var dataset = [];
-  
+
 if (ajaxRequest !== null) {
-	ajaxRequest.abort();
+    ajaxRequest.abort();
 }
 
-	 // ajax 요청 생성
-	 ajaxRequest = $.ajax({
-		
-			url: "../work/deadlinedata.php?" ,
-    	  	type: "post",		
-   			data: '',
-   			dataType:"json",
-		}).done(function(data){
-			  console.log(data);
-              console.log(Object.values(data)[0].length);		// 12 데이터 숫자 나옴 반복								
-			 // console.log(Object.values(data)[0][0]['address']);		// 참조하려면 좌측과 같이 3번의 첨자가 필요함 주의		
-			var titlename ='';
-			for(i = 0; i < Object.values(data)[0].length ; i++) {
-				
-				// 시공팀에 따라 조회가 다름				
-				     // 신규쟘일 경우 (신규)
-				 // if(Object.values(data)[0][i]['checkstep'] ==='신규')
-							// titlename +=  '(신규)' ;
-					titlename = Object.values(data)[0][i]['workplacename'];
-					// 한글 유니코드 범위를 확인하는 정규표현식
-					const koreanRegex = /[\uAC00-\uD7A3]/;
+// ajax 요청 생성
+ajaxRequest = $.ajax({
+    url: "../work/deadlinedata.php?",
+    type: "post",
+    data: '',
+    dataType: "json",
+}).done(function(data) {
+    console.log(data);
+    console.log(Object.values(data)[0].length);
+    
+    var titlename = '';
+    for (i = 0; i < Object.values(data)[0].length; i++) {
+        titlename = Object.values(data)[0][i]['workplacename'];
+        
+        // 한글 유니코드 범위를 확인하는 정규표현식
+        const koreanRegex = /[\uAC00-\uD7A3]/;
 
-					if (koreanRegex.test(titlename)) {
-					  // titlename에 한글이 포함되어 있으면
-					  
-					    if(Object.values(data)[0][i]['checkstep'] !=='신규')
-							titlename = titlename.substring(0, 6);
-							else					  
-							    titlename = '(신규)' + titlename.substring(0, 6);
-					 }
-					
-						titlename += '[' ;
+        if (koreanRegex.test(titlename)) {
+            // titlename에 한글이 포함되어 있으면
+            if (Object.values(data)[0][i]['checkstep'] !== '신규') {
+                titlename = titlename.substring(0, 6);
+            } else {
+                titlename = '(신규)' + titlename.substring(0, 6);
+            }
+        }
 
-					  if(Object.values(data)[0][i]['secondord'] !='')
-							titlename +=  Object.values(data)[0][i]['secondord'] + '] ' ;
-						  											
-						
-						if(Number(Object.values(data)[0][i]['widejamb']) > 0)
-							titlename += '막' + Object.values(data)[0][i]['widejamb']  ;
-						if(Number(Object.values(data)[0][i]['normaljamb']) > 0)
-							titlename += '멍' + Object.values(data)[0][i]['normaljamb']  ;
-						if(Number(Object.values(data)[0][i]['smalljamb']) > 0)
-							titlename += '쪽' + Object.values(data)[0][i]['smalljamb']  ;
+        titlename += '[';
 
-						if(Object.values(data)[0][i]['worker']!=='')
-							titlename += ' ' + Object.values(data)[0][i]['worker']  ;  							
-						
+        if (Object.values(data)[0][i]['secondord'] != '') {
+            titlename += Object.values(data)[0][i]['secondord'] + '] ';
+        }
 
+        if (Number(Object.values(data)[0][i]['widejamb']) > 0) {
+            titlename += '막' + Object.values(data)[0][i]['widejamb'];
+        }
+        if (Number(Object.values(data)[0][i]['normaljamb']) > 0) {
+            titlename += '멍' + Object.values(data)[0][i]['normaljamb'];
+        }
+        if (Number(Object.values(data)[0][i]['smalljamb']) > 0) {
+            titlename += '쪽' + Object.values(data)[0][i]['smalljamb'];
+        }
 
-							var date = new Date(Object.values(data)[0][i]['endworkday']);
-							 d = date.getDate();				
-							 m = date.getMonth();
-							 y = date.getFullYear();	
-							 
-							var deadlinevar =  Object.values(data)[0][i]['deadline'] 						 
-						
-				
-				dataset.push({ title: titlename , start: new Date(y, m, d),  end: null , allDay: true , text: titlename , id :Object.values(data)[0][i]['num'], deadline : deadlinevar   });		
-			}
-			
-  
-			  
-			  dataset.sort(function(a,b) { return (+a.start) - (+b.start); });
-			  
-			//data must be sorted by start date
+        if (Object.values(data)[0][i]['worker'] !== '') {
+            titlename += ' ' + Object.values(data)[0][i]['worker'];
+        }
 
-			//Actually do everything
-			
-			//현재 설정 mode 쿠키에 저장함
-			ObjectCal = new Array();
-			var data = new Object();					  
-			data.mode = '2023-01-01';						
-			ObjectCal.push(data);
-            console.log('ordercart 쿠키' + JSON.stringify(ObjectCal));
-				
-		    setCookie ('calendar', JSON.stringify(ObjectCal), 3600);   // 쿠키에 저장함
-			
-			
-			$('#holder').calendar({
-			  data: dataset
-			});
-		
-			
-		});
-			
+        var date = new Date(Object.values(data)[0][i]['endworkday']);
+        d = date.getDate();
+        m = date.getMonth();
+        y = date.getFullYear();
 
+        var deadlinevar = Object.values(data)[0][i]['deadline'];
 
+        dataset.push({
+            title: titlename,
+            start: new Date(y, m, d),
+            end: null,
+            allDay: true,
+            text: titlename,
+            id: Object.values(data)[0][i]['num'],
+            deadline: deadlinevar
+        });
+    }
+
+    dataset.sort(function(a, b) {
+        return (+a.start) - (+b.start);
+    });
+
+    //data must be sorted by start date
+
+    //Actually do everything
+
+    //현재 설정 mode 쿠키에 저장함
+    ObjectCal = new Array();
+    var data = new Object();
+    data.mode = '2023-01-01';
+    ObjectCal.push(data);
+    console.log('ordercart 쿠키' + JSON.stringify(ObjectCal));
+
+    setCookie('calendar', JSON.stringify(ObjectCal), 3600);   // 쿠키에 저장함
+
+    $('#holder').calendar({
+        data: dataset
+    });
+});
 </script>
 
 <script>
-	$(document).ready(function(){
-		saveLogData('Jamb 월간일정'); // 다른 페이지에 맞는 menuName을 전달
-	});
-</script> 
+$(document).ready(function() {
+    saveLogData('Jamb 월간일정');
+});
+</script>
 
 </body>
+</html>

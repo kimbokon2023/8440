@@ -1,18 +1,71 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
-require_once getDocumentRoot() . '/vendor/autoload.php';
-require_once(includePath('lib/mydb.php'));
+<?php
+// 실측서 이미지 등록/수정/삭제 - 로컬/서버 환경 호환
 
-// 서비스 계정 JSON 파일 경로
-$serviceAccountKeyFile = getDocumentRoot() . '/tokens/mytoken.json';
+// 1. vendor autoload를 가장 먼저 (namespace 때문에)
+require_once __DIR__ . '/../vendor/autoload.php';
+
+// Google API 클래스들이 로드됨 (IDE 인식용 주석)
+// @see Google_Client
+// @see Google_Service_Drive
+
+// 2. 공통 함수 로드
+require_once __DIR__ . '/../common/functions.php';
+
+// 3. 세션 시작
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+require_once includePath('session.php');
+
+// 4. 데이터베이스 연결
+require_once includePath('lib/mydb.php');
+
+// 5. 에러 리포팅 설정
+if (function_exists('setupErrorReporting')) {
+    setupErrorReporting();
+}
+
+// 입력값 검증 및 초기화
+$num = $_REQUEST["num"] ?? '';
+$workername = $_REQUEST["workername"] ?? '';
+$check = $_REQUEST["check"] ?? $_POST["check"] ?? '0';
+
+// 입력값 유효성 검사
+if (empty($num) || !is_numeric($num)) {
+    die("유효하지 않은 번호입니다.");
+}
+
+// 데이터베이스 연결
+if (!isset($pdo) || !$pdo) {
+    try {
+        $pdo = db_connect();
+    } catch (Exception $e) {
+        if (isLocal()) {
+            die("데이터베이스 연결 실패: " . $e->getMessage());
+        } else {
+            error_log("Database connection failed in reg_ms.php: " . $e->getMessage());
+            die("데이터베이스 연결에 실패했습니다. 관리자에게 문의하세요.");
+        }
+    }
+}
 
 // Google Drive 클라이언트 설정
-$client = new Google_Client();
-$client->setAuthConfig($serviceAccountKeyFile);
-$client->addScope(Google_Service_Drive::DRIVE);
+$serviceAccountKeyFile = getDocumentRoot() . '/tokens/mytoken.json';
 
-// Google Drive 서비스 초기화
-$service = new Google_Service_Drive($client);
+try {
+    $client = new Google_Client();
+    $client->setAuthConfig($serviceAccountKeyFile);
+    $client->addScope(Google_Service_Drive::DRIVE);
+    
+    $service = new Google_Service_Drive($client);
+} catch (Exception $e) {
+    if (isLocal()) {
+        die("Google Drive 초기화 실패: " . $e->getMessage());
+    } else {
+        error_log("Google Drive 초기화 실패 in reg_ms.php: " . $e->getMessage());
+        die("Google Drive 연결에 실패했습니다. 관리자에게 문의하세요.");
+    }
+}
 
 // 특정 폴더 확인 함수
 function getFolderId($service, $folderName, $parentFolderId = null) {
@@ -21,33 +74,40 @@ function getFolderId($service, $folderName, $parentFolderId = null) {
         $query .= " and '$parentFolderId' in parents";
     }
 
-    $response = $service->files->listFiles([
-        'q' => $query,
-        'spaces' => 'drive',
-        'fields' => 'files(id, name)'
-    ]);
-
-    return count($response->files) > 0 ? $response->files[0]->id : null;
+    try {
+        $response = $service->files->listFiles([
+            'q' => $query,
+            'spaces' => 'drive',
+            'fields' => 'files(id, name)'
+        ]); 
+        
+        return count($response->files) > 0 ? $response->files[0]->id : null;
+    } catch (Exception $e) {
+        error_log("getFolderId 실패: " . $e->getMessage());
+        return null;
+    }
 }
 
 // '미래기업/uploads' 폴더의 ID 가져오기
 $miraeFolderId = getFolderId($service, '미래기업');
 $uploadsFolderId = getFolderId($service, 'uploads', $miraeFolderId);
 
-$num = $_REQUEST["num"] ?? "";
-$workername = $_REQUEST["workername"] ?? "";
-$check = $_REQUEST["check"] ?? $_POST["check"];
-
-$pdo = db_connect();
+// 현장 정보 조회
 try {
     $sql = "SELECT * FROM mirae8440.work WHERE num=?";
     $stmh = $pdo->prepare($sql);
-    $stmh->bindValue(1, $num, PDO::PARAM_STR);
+    $stmh->bindValue(1, $num, PDO::PARAM_INT);
     $stmh->execute();
     $row = $stmh->fetch(PDO::FETCH_ASSOC);
-    $workplacename = $row["workplacename"];
+    $workplacename = $row["workplacename"] ?? '';
 } catch (PDOException $Exception) {
-    print "오류: " . $Exception->getMessage();
+    if (isLocal()) {
+        print "오류: " . $Exception->getMessage();
+    } else {
+        error_log("Database error in reg_ms.php (select work): " . $Exception->getMessage());
+        print "데이터베이스 오류가 발생했습니다. 관리자에게 문의하세요.";
+    }
+    exit;
 }
 
 // Google Drive 및 데이터베이스에서 파일 정보 가져오기
@@ -71,25 +131,41 @@ try {
                 $file = $service->files->get($fileId, ['fields' => 'webViewLink, thumbnailLink']);
                 $thumbnailUrl = $file->thumbnailLink ?? "https://drive.google.com/uc?id=$fileId";
                 $webViewLink = $file->webViewLink;
-                $picData[] = ['thumbnail' => $thumbnailUrl, 'link' => $webViewLink];
+                $picData[] = [
+                    'thumbnail' => $thumbnailUrl, 
+                    'link' => $webViewLink,
+                    'id' => $fileId
+                ];
             } catch (Exception $e) {
                 error_log("Google Drive 파일 정보 가져오기 실패: " . $e->getMessage());
-                $picData[] = ['thumbnail' => "https://drive.google.com/uc?id=$fileId", 'link' => null];
+                $picData[] = [
+                    'thumbnail' => "https://drive.google.com/uc?id=$fileId", 
+                    'link' => null,
+                    'id' => $fileId
+                ];
             }
         } else {
             // 파일 ID가 아닌 경우 로컬 파일로 처리
-            $picData[] = ['thumbnail' => "/uploads/" . $picname, 'link' => null];
+            $picData[] = [
+                'thumbnail' => asset("uploads/" . $picname), 
+                'link' => null,
+                'id' => $picname
+            ];
         }
     }
 } catch (PDOException $Exception) {
-    print "오류: " . $Exception->getMessage();
+    if (isLocal()) {
+        print "오류: " . $Exception->getMessage();
+    } else {
+        error_log("Database error in reg_ms.php (select picuploads): " . $Exception->getMessage());
+        print "데이터베이스 오류가 발생했습니다. 관리자에게 문의하세요.";
+    }
 }
 
 $picNum = count($picData);
 ?>
 
-
-<?php include getDocumentRoot() . '/load_header.php' ?>
+<?php include includePath('load_header.php'); ?>
 
 <title> 실측서 이미지 등록/수정/삭제 </title>
 
@@ -100,92 +176,118 @@ $picNum = count($picData);
         margin: 10px;
         border: 1px solid #ccc;
         border-radius: 5px;
+        cursor: pointer;
+    }
+    
+    #top-menu {
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
     }
 </style>
-
 
 </head>
 <body>
 <div class="container">
     <!-- Modal -->
-  <div class="modal fade" id="myModal" role="dialog">
-    <div class="modal-dialog modal-lg modal-center">
-      <!-- Modal content-->
-      <div class="modal-content">
-        <div class="modal-header">          
-          <h4 class="modal-title">알림</h4>
-        </div>
-        <div class="modal-body">		
-		   <div id="alertmsg" class="fs-1 mb-5 justify-content-center">
-		     결재가 진행중입니다.<br>수정사항이 있으면 결재권자에게 말씀해 주세요.
-		   </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" id="closeModalBtn" class="btn btn-default" data-dismiss="modal">닫기</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-<div id="top-menu">
-    <?php if (!isset($_SESSION["userid"])): ?>
-        <a href="../login/login_form.php">로그인</a> | <a href="../member/insertForm.php">회원가입</a>
-    <?php else: ?>
-        <div class="row">
-            <div class="col">
-                <h2 class="display-5 font-center text-left"><br>
-                    <?= $_SESSION["name"] ?> |
-                    <a href="../login/logout.php">로그아웃</a> | <a href="../member/updateForm.php?id=<?= $_SESSION["userid"] ?>">정보수정</a>
-                </h2>
-            </div>
-        </div>
-    <?php endif; ?>
-</div>
-
-<br>
-<div class="row">
-    <h1 class="display-1 text-left">
-        <input type="button" class="btn btn-secondary btn-lg" value="이전화면으로 돌아가기" onclick="location.href='./view.php?num=<?= $num ?>&check=<?= $check ?>&workername=<?= $workername ?>'">
-    </h1>
-</div>
-<br><br>
-
-<form id="board_form" name="board_form" method="post" enctype="multipart/form-data">
-    <input type="hidden" id="check" name="check" value="<?= $check ?>">
-    <input type="hidden" id="num" name="num" value="<?= $num ?>">
-    <input type="hidden" id="tablename" name="tablename" value="<?= $tablename ?>">
-    <input type="hidden" id="item" name="item" value="<?= $item ?>">
-	 <input id="pInput" name="pInput" type="hidden" value="0">		
-    <div class="container">
-        <div class="row d-flex mb-5">
-            <h2 class="fs-2 text-center mb-2">실측서 이미지 등록/수정/삭제</h2>
-        </div>
-        <div class="row">            
-            <h2 class="fs-4 text-danger">설계자에게 전달할 추가 내용이 있으면 등록합니다.</h2>
-        </div>
-        <br>
-        <div class="d-flex p-2 justify-content-center">
-            <span class="fs-4 badge bg-secondary ">현장명 : <?= $workplacename ?> </span>
-        </div>
-		<div class="row mt-2">			
-			<span class="form-control fs-4 text-left text-secondary">
-			    <span style="color:gray">실측서 이미지파일 </span>	                  
-			    <input id="upfile" name="upfile[]" class="input" type="file" multiple accept=".gif, .jpg, .png">
-			</span>	
-	    </div>    				
-        <div class="row d-flex mt-3 mb-3">
-            <span class="fs-3 text-left text-secondary">실측서 이미지 </span>
-            <div id="displayPicture" class="mb-2">
-                <?php foreach ($picData as $pic): ?>
-                    <img src="<?= $pic ?>" style="width:100%;"><br>
-                <?php endforeach; ?>
+    <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal-dialog modal-lg modal-center">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">          
+                    <h4 class="modal-title">알림</h4>
+                </div>
+                <div class="modal-body">		
+                    <div id="alertmsg" class="fs-1 mb-5 justify-content-center">
+                        결재가 진행중입니다.<br>수정사항이 있으면 결재권자에게 말씀해 주세요.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="closeModalBtn" class="btn btn-default" data-dismiss="modal">닫기</button>
+                </div>
             </div>
         </div>
     </div>
+
+    <div id="top-menu">
+        <?php if (!isset($_SESSION["userid"])): ?>
+            <a href="<?= getBaseUrl() ?>/login/login_form.php">로그인</a> | 
+            <a href="<?= getBaseUrl() ?>/member/insertForm.php">회원가입</a>
+        <?php else: ?>
+            <div class="row">
+                <div class="col">
+                    <h2 class="display-5 font-center text-left"><br>
+                        <?= $_SESSION["name"] ?> |
+                        <a href="<?= getBaseUrl() ?>/login/logout.php">로그아웃</a> | 
+                        <a href="<?= getBaseUrl() ?>/member/updateForm.php?id=<?= $_SESSION["userid"] ?>">정보수정</a>
+                    </h2>
+                </div>
+            </div>
+        <?php endif; ?>
+    </div>
+
+    <br>
+    <div class="row">
+        <h1 class="display-1 text-left">
+            <input type="button" class="btn btn-secondary btn-lg" value="이전화면으로 돌아가기" 
+                   onclick="location.href='<?= getBaseUrl() ?>/p/view.php?num=<?= $num ?>&check=<?= $check ?>&workername=<?= $workername ?>'">
+        </h1>
+    </div>
+    <br><br>
+
+    <form id="board_form" name="board_form" method="post" enctype="multipart/form-data">
+        <input type="hidden" id="check" name="check" value="<?= $check ?>">
+        <input type="hidden" id="num" name="num" value="<?= $num ?>">
+        <input type="hidden" id="tablename" name="tablename" value="<?= $tablename ?>">
+        <input type="hidden" id="item" name="item" value="<?= $item ?>">
+        <input id="pInput" name="pInput" type="hidden" value="0">		
+        
+        <div class="container">
+            <div class="row d-flex mb-5">
+                <h2 class="fs-2 text-center mb-2">실측서 이미지 등록/수정/삭제</h2>
+            </div>
+            <div class="row">            
+                <h2 class="fs-4 text-danger">설계자에게 전달할 추가 내용이 있으면 등록합니다.</h2>
+            </div>
+            <br>
+            <div class="d-flex p-2 justify-content-center">
+                <span class="fs-4 badge bg-secondary">현장명 : <?= htmlspecialchars($workplacename) ?> </span>
+            </div>
+            <div class="row mt-2">			
+                <span class="form-control fs-4 text-left text-secondary">
+                    <span style="color:gray">실측서 이미지파일 </span>	                  
+                    <input id="upfile" name="upfile[]" class="input" type="file" multiple accept=".gif, .jpg, .png">
+                </span>	
+            </div>    				
+            <div class="row d-flex mt-3 mb-3">
+                <span class="fs-3 text-left text-secondary">실측서 이미지 </span>
+                <div id="displayPicture" class="mb-2">
+                    <?php foreach ($picData as $pic): ?>
+                        <div class="d-inline-block m-2 text-center">
+                            <img src="<?= htmlspecialchars($pic['thumbnail']) ?>" 
+                                 class="thumbnail" 
+                                 alt="실측서 이미지"
+                                 onclick="<?= !empty($pic['link']) ? "window.open('" . htmlspecialchars($pic['link']) . "', '_blank')" : "" ?>">
+                            <br>
+                            <button type="button" class="btn btn-danger mt-2 btn-sm" 
+                                    onclick="deleteFile('<?= htmlspecialchars($pic['id']) ?>')">삭제</button>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+    </form>
 </div>
-</form>
 
 <script>
+// 환경별 baseUrl 설정
+window.baseUrl = '<?= getBaseUrl() ?>';
+
 $(document).ready(function() {
     // 이미지 업로드 이벤트 처리
     $("#upfile").change(function() {
@@ -201,12 +303,12 @@ $(document).ready(function() {
         $('#myModal').modal('show');
 
         $.ajax({
-            url: "mspic_insert.php", // 서비스 계정 기반으로 수정된 업로드 PHP 경로
+            url: window.baseUrl + "/p/mspic_insert.php",
             type: "POST",
             data: data,
             processData: false,
             contentType: false,
-            dataType: 'json', // 서버에서 반환되는 JSON 응답 처리
+            dataType: 'json',
             success: function(response) {
                 console.log("서버 응답:", response);
                 
@@ -215,38 +317,47 @@ $(document).ready(function() {
                 let errorCount = 0;
                 let errorMessages = [];
 
-                response.forEach(item => {
-                    if (item.status === 'success') {
-                        successCount++;
-                    } else if (item.status === 'error') {
-                        errorCount++;
-                        errorMessages.push(`파일: ${item.file}, 메시지: ${item.message}`);
+                if (Array.isArray(response)) {
+                    response.forEach(item => {
+                        if (item.status === 'success') {
+                            successCount++;
+                        } else if (item.status === 'error') {
+                            errorCount++;
+                            errorMessages.push(`파일: ${item.file}, 메시지: ${item.message}`);
+                        }
+                    });
+                }
+
+                // 결과에 따라 사용자에게 알림 표시
+                if (successCount > 0) {
+                    if (typeof Toastify !== 'undefined') {
+                        Toastify({
+                            text: `${successCount}개의 파일이 성공적으로 업로드되었습니다.`,
+                            duration: 3000,
+                            close: true,
+                            gravity: "top",
+                            position: "center",
+                            backgroundColor: "#4fbe87",
+                        }).showToast();
+                    } else {
+                        alert(`${successCount}개의 파일이 성공적으로 업로드되었습니다.`);
                     }
-                });
+                }
 
-				// 결과에 따라 사용자에게 알림 표시
-				if (successCount > 0) {
-					Toastify({
-						text: `${successCount}개의 파일이 성공적으로 업로드되었습니다.`,
-						duration: 3000,
-						close: true,
-						gravity: "top", // 알림 위치
-						position: "center", // 알림 중앙 정렬
-						backgroundColor: "#4fbe87", // 성공 메시지 배경색
-					}).showToast();
-				}
-
-				if (errorCount > 0) {
-					Toastify({
-						text: `오류 발생: ${errorCount}개의 파일이 업로드되지 않았습니다.\n상세 오류:\n${errorMessages.join('\n')}`,
-						duration: 5000, // 오류 메시지 표시 시간
-						close: true,
-						gravity: "top", // 알림 위치
-						position: "center", // 알림 중앙 정렬
-						backgroundColor: "#f44336", // 오류 메시지 배경색 (빨간색)
-					}).showToast();
-				}
-
+                if (errorCount > 0) {
+                    if (typeof Toastify !== 'undefined') {
+                        Toastify({
+                            text: `오류 발생: ${errorCount}개의 파일이 업로드되지 않았습니다.\n상세 오류:\n${errorMessages.join('\n')}`,
+                            duration: 5000,
+                            close: true,
+                            gravity: "top",
+                            position: "center",
+                            backgroundColor: "#f44336",
+                        }).showToast();
+                    } else {
+                        alert(`오류 발생: ${errorCount}개의 파일이 업로드되지 않았습니다.\n상세 오류:\n${errorMessages.join('\n')}`);
+                    }
+                }
 
                 // 업로드 후 디스플레이 업데이트
                 $('#myModal').modal('hide');
@@ -267,26 +378,34 @@ $(document).ready(function() {
         let item = $("#item").val();
 
         $.ajax({
-            url: `load_pic.php?num=${num}&tablename=${tablename}&item=${item}`,
+            url: window.baseUrl + `/p/load_pic.php?num=${num}&tablename=${tablename}&item=${item}`,
             type: 'GET',
             dataType: 'json',
             success: function(data) {
                 $("#displayPicture").html('');
-                data.img_arr.forEach((imgData, index) => {
-                    let thumbnail = imgData.thumbnail || '/assets/default-thumbnail.png'; // 기본 썸네일 제공
-                    let link = imgData.link || '#';
+                if (data.img_arr && Array.isArray(data.img_arr)) {
+                    data.img_arr.forEach((imgData, index) => {
+                        let thumbnail = imgData.thumbnail || '/assets/default-thumbnail.png';
+                        let link = imgData.link || '#';
+                        let id = imgData.id || '';
 
-                    $("#displayPicture").append(`
-                        <div class="d-inline-block m-2 text-center">                            
-                               <img id="pic${index}" src="${thumbnail}" class="thumbnail" style="width:150px; height:auto;">                            
-                            <button type="button" class="btn btn-danger mt-2 btn-sm" onclick="deleteFile('${imgData.id}')">삭제</button>
-                        </div>
-                    `);
-                });
+                        let clickHandler = link !== '#' ? `onclick="window.open('${link}', '_blank')"` : '';
+
+                        $("#displayPicture").append(`
+                            <div class="d-inline-block m-2 text-center">                            
+                                <img id="pic${index}" src="${thumbnail}" class="thumbnail" 
+                                     style="width:150px; height:auto;" ${clickHandler} alt="실측서 이미지">                            
+                                <br>
+                                <button type="button" class="btn btn-danger mt-2 btn-sm" 
+                                        onclick="deleteFile('${id}')">삭제</button>
+                            </div>
+                        `);
+                    });
+                }
             },
             error: function(error) {
                 console.error("이미지 로드 오류:", error);
-                // alert("이미지 로드 중 문제가 발생했습니다. 콘솔을 확인하세요.");
+                // 오류 발생 시에도 계속 진행
             }
         });
     }
@@ -296,16 +415,27 @@ $(document).ready(function() {
         if (!confirm("정말로 삭제하시겠습니까?")) return;
 
         $.ajax({
-            url: `delpic.php?picname=${fileId}`,
+            url: window.baseUrl + `/p/delpic.php?picname=${fileId}`,
             type: "POST",
             dataType: 'json',
             success: function(response) {
                 console.log("삭제 응답:", response);
                 if (response.status === "success") {
-                    alert("파일이 성공적으로 삭제되었습니다.");
+                    if (typeof Toastify !== 'undefined') {
+                        Toastify({
+                            text: "파일이 성공적으로 삭제되었습니다.",
+                            duration: 2000,
+                            close: true,
+                            gravity: "top",
+                            position: "center",
+                            backgroundColor: "#4fbe87",
+                        }).showToast();
+                    } else {
+                        alert("파일이 성공적으로 삭제되었습니다.");
+                    }
                     displayPictureLoad();
                 } else {
-                    alert(`삭제 실패: ${response.message}`);
+                    alert(`삭제 실패: ${response.message || '알 수 없는 오류'}`);
                 }
             },
             error: function(error) {
@@ -319,8 +449,6 @@ $(document).ready(function() {
     displayPictureLoad();
 });
 </script>
-
-
 
 </body>
 </html>

@@ -1,13 +1,13 @@
 <?php
-include getDocumentRoot() . '/session.php';
+require_once __DIR__ . '/../bootstrap.php';
 
 if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
-    header("Location:" . $_SESSION["WebSite"] . "login/login_form.php");
+    header("Location:" . getBaseUrl() . "/login/login_form.php");
     exit;
 }
-?>
 
-<?php include getDocumentRoot() . '/load_header.php'; ?>
+include includePath('load_header.php');
+?>
 
 <title>출고일 기준 미청구리스트</title>
 </head>
@@ -20,8 +20,7 @@ $todate = $_REQUEST["todate"] ?? substr(date("Y"), 0, 4) . "-12-31";
 $Transtodate = date("Y-m-d", strtotime($todate . '+1 days'));
 $includeDemanded = isset($_REQUEST["includeDemanded"]) ? true : false;  // 청구완료 포함 여부 확인
 
-require_once("../lib/mydb.php");
-$pdo = db_connect();
+// bootstrap.php에서 이미 DB 연결됨
 
 $orderby = "order by workday desc";
 
@@ -50,7 +49,7 @@ try {
 
         $row['material'] = implode('', array_slice($row, array_search('material1', array_keys($row)), 6));
 
-        include getDocumentRoot() . '/work/_row.php';
+        include '_row.php';
         $customer_data = $row["customer"];
         $customer_object = json_decode($customer_data, true);
         if ($customer_object === null || empty($customer_object['image_url'])) {
@@ -114,10 +113,10 @@ try {
                             </div>
                         </div>
 
-                        <input type="date" id="fromdate" name="fromdate" size="12" value="<?= $fromdate ?>" placeholder="기간 시작일"> &nbsp; ~ &nbsp;
-                        <input type="date" id="todate" name="todate" size="12" value="<?= $todate ?>" placeholder="기간 끝"> &nbsp;                        
+                        <input type="date" id="fromdate" name="fromdate" class="form-control w120px" value="<?= $fromdate ?>" placeholder="기간 시작일"> &nbsp; ~ &nbsp;
+                        <input type="date" id="todate" name="todate" class="form-control w120px" value="<?= $todate ?>" placeholder="기간 끝"> &nbsp;                        
 
-                        <button type="button" id="searchBtn" class="btn btn-dark btn-sm me-2"><ion-icon name="search"></ion-icon></button>
+                        <button type="button" id="searchBtn" class="btn btn-dark btn-sm me-2"><i class="bi bi-search"></i></button>
                         <button type="button" class="btn btn-dark btn-sm me-2" id="savePDFBtn">시공확인서 PDF 저장</button>
                         <button type="button" class="btn btn-dark btn-sm me-2" id="downloadcsvBtn">CSV 엑셀 다운로드</button>
                     </div>

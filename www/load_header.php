@@ -4,6 +4,11 @@
 // 자바스크립트 자동 업데이트를 위한 version 설정
 
 $now = date("Y-m-d",time()) ;  
+$version = time(); // 캐시 방지를 위한 버전 번호
+
+// 사용자 정보 초기화
+$user_id = $_SESSION["userid"] ?? '';
+$user_name = $_SESSION["name"] ?? '';
 
 // 필요한 데이터를 담을 배열 초기화
 $firstStep = array();
@@ -66,6 +71,12 @@ if($user_name=='소현철' || $user_name=='김보곤' || $user_name=='이경묵'
  
 <script src="<?= asset('js/jquery.min.js') ?>"></script>
 
+<!-- 동적 Base URL 설정 -->
+<script>
+    // PHP에서 생성된 base URL을 JavaScript 전역 변수로 설정
+    window.baseUrl = <?= json_encode(getBaseUrl()) ?>;
+</script>
+
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap">
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.7.10/sweetalert2.min.css" rel="stylesheet">
@@ -101,7 +112,7 @@ if($user_name=='소현철' || $user_name=='김보곤' || $user_name=='이경묵'
 <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/1.5.3/signature_pad.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="<?= asset('css/style.css?version=' . $version) ?>">
 <link rel="stylesheet" href="<?= asset('css/eworks.css?version=' . $version) ?>">
 <script src="<?= asset('js/common.js?version=' . $version) ?>"></script>

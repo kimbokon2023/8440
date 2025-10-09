@@ -2876,6 +2876,42 @@ $(document).ready(function() {
 		}
 	}
 	
+	// schedule_toggle 버튼 클릭 이벤트 (월간상세일정 접고 펼치기)
+    $("#schedule_toggle").on("click", function() { 
+		var showScheduleView = getCookie("showScheduleView");
+		var scheduleContentWrapper = $("#scheduleContentWrapper");
+		
+		if (showScheduleView === "show") {
+			// 현재 보이는 상태 → 숨김
+			scheduleContentWrapper.slideUp(300);
+			setCookie("showScheduleView", "hide", 1440); // 1440분 = 1일
+			$(this).find("i").removeClass("bi-chevron-up").addClass("bi-chevron-down");
+		} else {
+			// 현재 숨겨진 상태 → 보임
+			scheduleContentWrapper.slideDown(300);
+			setCookie("showScheduleView", "show", 1440); // 1440분 = 1일
+			$(this).find("i").removeClass("bi-chevron-down").addClass("bi-chevron-up");
+		}
+    });
+	
+	// 페이지 로드 시 schedule_toggle 쿠키 값에 따라 초기 상태 설정
+	var showScheduleView = getCookie("showScheduleView");
+	var scheduleContentWrapper = $("#scheduleContentWrapper");
+	
+	if (showScheduleView === "hide") {
+		// 쿠키에 숨김으로 저장되어 있으면 숨김 상태로 시작
+		scheduleContentWrapper.css("display", "none");
+		$("#schedule_toggle").find("i").removeClass("bi-chevron-up").addClass("bi-chevron-down");
+	} else {
+		// 기본값 또는 "show"이면 보임 상태로 시작
+		scheduleContentWrapper.css("display", "block");
+		$("#schedule_toggle").find("i").removeClass("bi-chevron-down").addClass("bi-chevron-up");
+		// 쿠키가 없으면 기본값으로 "show" 설정
+		if (!showScheduleView) {
+			setCookie("showScheduleView", "show", 1440);
+		}
+	}
+	
     // board_view 버튼 클릭 이벤트
     $("#board_view").on("click", function() {
 		var showBoardView = getCookie("showBoardView");		

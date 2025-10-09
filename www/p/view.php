@@ -1,49 +1,43 @@
  <?php
- session_start(); 
- 
- ?>
- 
- <?php include getDocumentRoot() . '/load_header.php' ?>
- 
- <?php
- $file_dir = '../uploads/'; 
-  
- $num=$_REQUEST["num"];
- $search=$_REQUEST["search"];  //검색어
- 
- 
-$workername = $_REQUEST["workername"];
+// 현장 상세보기 페이지 - 로컬/서버 환경 호환
+require_once __DIR__ . '/../bootstrap.php';
+include includePath('load_header.php');
 
-if($workername !== '' and  $workername !== null )
-{
-	$id_name=$workername;	 
-	$user_name=$workername;	
+$file_dir = '../uploads/'; 
+ 
+// 입력값 검증 및 초기화
+$num = $_REQUEST["num"] ?? '';
+$search = $_REQUEST["search"] ?? '';  //검색어
+$workername = $_REQUEST["workername"] ?? '';
+
+if($workername !== '' && $workername !== null) {
+    $id_name = $workername;	 
+    $user_name = $workername;	
+} else {
+    $level = $_SESSION["level"] ?? null;
+    $id_name = $_SESSION["name"] ?? '';   
+    $user_name = $_SESSION["name"] ?? '';  
 }
- else
- {
-   $level= $_SESSION["level"];
-   $id_name= $_SESSION["name"];   
-   $user_name= $_SESSION["name"];  
- }
  
  
 
- if(isset($_REQUEST["check"])) 
-	 $check=$_REQUEST["check"]; 
-   else
-     $check=$_POST["check"]; 
+ $check = $_REQUEST["check"] ?? $_POST["check"] ?? '0'; 
  
- if(isset($_REQUEST["page"]))
- {
-    $page=$_REQUEST["page"]; 
- }
-  else
-  {
-    $page=1;	 
-  }
+ $page = $_REQUEST["page"] ?? 1;
 	 
- require_once("../lib/mydb.php");
- $pdo = db_connect();
+// 입력값 유효성 검사
+if (empty($num) || !is_numeric($num)) {
+    die("유효하지 않은 번호입니다.");
+}
+
+// Database connection is already available from bootstrap.php
+if (!isset($pdo) || !$pdo) {
+    try {
+        $pdo = db_connect();
+    } catch (Exception $e) {
+        die("데이터베이스 연결에 실패했습니다.");
+    }
+}
  
  try{
      $sql = "select * from mirae8440.work where num=?";
@@ -100,8 +94,13 @@ if($workername !== '' and  $workername !== null )
 	  $hpi=$row["hpi"];  
 	  $filename1=$row["filename1"];
 	  $filename2=$row["filename2"];
-	  $imgurl1="../imgwork/" . $filename1;
-	  $imgurl2="../imgwork/" . $filename2;
+	  // 이미지 URL 생성 (환경별 처리)	  
+	  // 서버 환경에서는 asset 함수 사용
+		$imgurl1 = !empty($filename1) ? asset("imgwork/" . $filename1) : '';
+		$imgurl2 = !empty($filename2) ? asset("imgwork/" . $filename2) : '';
+
+	  
+	  // 로컬 환경에서 디버그 정보 표시
 	  $designer=$row["designer"];  
 	  $madeconfirm=$row["madeconfirm"];  
 	  $assigndate=$row["assigndate"];  
@@ -139,15 +138,16 @@ if($workername !== '' and  $workername !== null )
 					else $assigndate="";									
 					
      }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
+       if (isLocal()) {
+           print "오류: ".$Exception->getMessage();
+       } else {
+           error_log("Database error in view.php: " . $Exception->getMessage());
+           print "데이터베이스 오류가 발생했습니다. 관리자에게 문의하세요.";
+       }
      }  
    
 	$todate=date("Y-m-d")  // 현재일 저장      
 ?>
- 
-<title> 미래기업 쟘공사 관리시스템 </title>
-
-</head>
 <body>
  <style>
     .rotated {
@@ -156,6 +156,32 @@ if($workername !== '' and  $workername !== null )
 	  -moz-transform: rotate(90deg); /* Firefox */
 	  -webkit-transform: rotate(90deg); /* Safari and Chrome */
 	  -o-transform: rotate(90deg); /* Opera */
+	}
+	
+	.imagediv {
+		text-align: center;
+		margin: 10px 0;
+	}
+	
+	.before_work, .after_work {
+		max-width: 100%;
+		height: auto;
+		border: 1px solid #ddd;
+		border-radius: 8px;
+		box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+		margin: 5px;
+	}
+	
+	.badge {
+		font-size: 1.2em;
+	}
+	
+	.fs-4 {
+		font-size: 1.25rem !important;
+	}
+	
+	.fs-3 {
+		font-size: 1.75rem !important;
 	}
 </style> 
 <div class="container-fluid">        
@@ -168,14 +194,14 @@ if($workername !== '' and  $workername !== null )
 			if(!isset($_SESSION["userid"]))
 			{
 		  ?>
-		<a href="../login/login_form.php">로그인</a> | <a href="../member/insertForm.php">회원가입</a>
+		<a href="<?= getBaseUrl() ?>/login/login_form.php">로그인</a> | <a href="<?= getBaseUrl() ?>/member/insertForm.php">회원가입</a>
 			<?php
 			}
 			else
 			 {
 		?>	
 			<?=$user_name?> | 
-			<a href="../login/logout.php">로그아웃</a> | <a href="../member/updateForm.php?id=<?=$_SESSION["userid"]?>">정보수정</a>		
+			<a href="<?= getBaseUrl() ?>/login/logout.php">로그아웃</a> | <a href="<?= getBaseUrl() ?>/member/updateForm.php?id=<?=$_SESSION["userid"]?>">정보수정</a>		
 		<?php
 			 }
 		?>
@@ -183,24 +209,24 @@ if($workername !== '' and  $workername !== null )
 	</div>
 
 <div class="d-flex  mt-2 mb-3 justify-content-center align-items-center ">   	 
-		  <button type="button" class="btn btn-secondary " onclick="javascript:move_url('index.php?check=<?=$check?>&workername=<?=$workername ?>');"> 
+		  <button type="button" class="btn btn-secondary " onclick="javascript:move_url('<?= getBaseUrl() ?>/p/index.php?check=<?=$check?>&workername=<?=$workername ?>');"> 
 		  목록 </button> &nbsp;			
 		<?php
 			if($workername!='서영선')
 		{
 		?>		  
-		  <button type="button" class="btn btn-danger  " onclick="javascript:move_url('voc.php?num=<?=$num?>&check=<?=$check?>&workername=<?=$workername ?>');"> 
+		  <button type="button" class="btn btn-danger  " onclick="javascript:move_url('<?= getBaseUrl() ?>/p/voc.php?num=<?=$num?>&check=<?=$check?>&workername=<?=$workername ?>');"> 
 		  협의사항 </button> &nbsp;
-		  <button type="button" class="btn btn-primary  " onclick="javascript:move_url('process_DB.php?num=<?=$num?>&check=<?=$check?>&measureday=<?=$todate?>&workername =<?=$workername ?>');"> 
+		  <button type="button" class="btn btn-primary  " onclick="javascript:move_url('<?= getBaseUrl() ?>/p/process_DB.php?num=<?=$num?>&check=<?=$check?>&measureday=<?=$todate?>&workername =<?=$workername ?>');"> 
 		  실측완료 </button> &nbsp;			
-		  <button type="button" class="btn btn-success   " onclick="javascript:move_url('process_done.php?num=<?=$num?>&check=<?=$check?>&doneday=<?=$todate?>&workername =<?=$workername ?>');">
+		  <button type="button" class="btn btn-success   " onclick="javascript:move_url('<?= getBaseUrl() ?>/p/process_done.php?num=<?=$num?>&check=<?=$check?>&doneday=<?=$todate?>&workername =<?=$workername ?>');">
 		  시공완료 </button> &nbsp;
-		  <button type="button" class="btn btn-secondary   " onclick="javascript:move_url('reg_pic.php?num=<?=$num?>&check=<?=$check?>&workername=<?=$workername ?>');"> 
+		  <button type="button" class="btn btn-secondary   " onclick="javascript:move_url('<?= getBaseUrl() ?>/p/reg_pic.php?num=<?=$num?>&check=<?=$check?>&workername=<?=$workername ?>');">
 		  전후 사진 </button> &nbsp;
-		  <button type="button" class="btn btn-dark  " onclick="javascript:move_url('reg_ms.php?num=<?=$num?>&check=<?=$check?>&workername=<?=$workername ?>');"> 
+		  <button type="button" class="btn btn-dark  " onclick="javascript:move_url('<?= getBaseUrl() ?>/p/reg_ms.php?num=<?=$num?>&check=<?=$check?>&workername=<?=$workername ?>');">
 		  실측서 이미지		 </button> &nbsp;	  	
-		  <button type="button" class="btn btn-danger  fw-bold " onclick="javascript:popup('customer_input.php?num=<?=$num?>');"> 
-		  TKE 공사완료 확인서 </button> 
+		  <button type="button" class="btn btn-danger  fw-bold " onclick="javascript:popup('<?= getBaseUrl() ?>/p/customer_input.php?num=<?=$num?>');">
+		  TKE 공사완료 확인서 </button>
 		  <button type="button" class="btn btn-outline-dark mx-1 " onclick="self.close();"> 
 		  닫기 </button> 
 		</div>
@@ -208,9 +234,9 @@ if($workername !== '' and  $workername !== null )
 		} else {
 			// 서영선 소장일때
 		?>
-		 <button type="button" class="btn btn-success   " onclick="javascript:move_url('process_done.php?num=<?=$num?>&check=<?=$check?>&doneday=<?=$todate?>&workername =<?=$workername ?>');">시공완료 </button> &nbsp;
-		  <button type="button" class="btn btn-secondary   " onclick="javascript:move_url('reg_pic.php?num=<?=$num?>&check=<?=$check?>&workername=<?=$workername ?>');"> 전후 사진 </button> &nbsp;	
-		  <button type="button" class="btn btn-danger  fw-bold " onclick="javascript:popup('customer_input_newone.php?num=<?=$num?>');">  공사완료 확인서 </button> 
+		 <button type="button" class="btn btn-success   " onclick="javascript:move_url('<?= getBaseUrl() ?>/p/process_done.php?num=<?=$num?>&check=<?=$check?>&doneday=<?=$todate?>&workername =<?=$workername ?>');">시공완료 </button> &nbsp;
+		  <button type="button" class="btn btn-secondary   " onclick="javascript:move_url('<?= getBaseUrl() ?>/p/reg_pic.php?num=<?=$num?>&check=<?=$check?>&workername=<?=$workername ?>');"> 전후 사진 </button> &nbsp;	
+		  <button type="button" class="btn btn-danger  fw-bold " onclick="javascript:popup('<?= getBaseUrl() ?>/p/customer_input_newone.php?num=<?=$num?>');">  공사완료 확인서 </button> 
 		  <button type="button" class="btn btn-outline-dark mx-1 " onclick="self.close();"> 닫기 </button> 
 		<?php
 		}
@@ -258,7 +284,7 @@ if($workername !== '' and  $workername !== null )
 	<div class="d-flex p-1 m-1 mt-2 mb-2 align-items-center fs-4">    	
 		실측일(소장님 입력) : 
 	<input type="date" class="btn btn-secondary btn-lg fs-4" name=measureday id=measureday value="<?=$measureday?>"> &nbsp;
-	<input type="button" class="btn btn-secondary btn-lg fs-4" value="수정" onclick="javascript:input_measureday('process_DB.php?num=<?=$num?>&check=<?=$check?>');"> 
+	<input type="button" class="btn btn-secondary btn-lg fs-4" value="수정" onclick="javascript:input_measureday('<?= getBaseUrl() ?>/p/process_DB.php?num=<?=$num?>&check=<?=$check?>');"> 
  	</div>
 	<div class="d-flex p-1 m-1 mt-2 mb-2 align-items-center fs-4">     	
 	     도면설계완료일 :  <?=$drawday?>
@@ -290,7 +316,7 @@ if($workername !== '' and  $workername !== null )
 	<div class="d-flex p-1 m-1 mt-2 mb-3 align-items-center fs-4">  
         시공완료일(소장님 입력):<input type="date" class="btn btn-secondary btn-lg fs-4 " name=doneday id=doneday value="<?=$doneday?>">
 		&nbsp;
-		<input type="button" class="btn btn-secondary btn-lg fs-4 " value="수정" onclick="javascript:input_doneday('process_done.php?num=<?=$num?>&check=<?=$check?>');"> 
+		<input type="button" class="btn btn-secondary btn-lg fs-4 " value="수정" onclick="javascript:input_doneday('<?= getBaseUrl() ?>/p/process_done.php?num=<?=$num?>&check=<?=$check?>');"> 
 	</div>
 <?php
 if($workername!='서영선')
@@ -434,7 +460,12 @@ if ($showLink) {
      $content=$row["content"];
 
      }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
+       if (isLocal()) {
+           print "오류: ".$Exception->getMessage();
+       } else {
+           error_log("Database error in view.php: " . $Exception->getMessage());
+           print "데이터베이스 오류가 발생했습니다. 관리자에게 문의하세요.";
+       }
      }  
    
  ?>
@@ -450,8 +481,8 @@ if ($showLink) {
 	<div class="d-flex p-1 m-1 mt-2 mb-3 align-items-center fs-4">  
 	   <div class='imagediv' >
 		<?php
-			 if($filename1!="") 
-				print '<img class="before_work" src="' . $imgurl1 . '" >';
+			 if(!empty($filename1) && !empty($imgurl1)) 
+				print '<img class="before_work" src="' . $imgurl1 . '" alt="시공 전 사진">';
 		   ?>
 		   </div>
 	</div>	
@@ -461,8 +492,8 @@ if ($showLink) {
 	<div class="d-flex p-1 m-1 mt-2 mb-3 align-items-center fs-4">  	          
     <div class='imagediv' >
 		<?php
-	     if($filename2!="") 
-		  print '<img class="after_work" src="' . $imgurl2 . '" >';
+	     if(!empty($filename2) && !empty($imgurl2)) 
+		  print '<img class="after_work" src="' . $imgurl2 . '" alt="시공 후 사진">';
 	   ?>	                
 	   </div>  	        
 		   
@@ -475,6 +506,11 @@ if ($showLink) {
  
  
  <script language="javascript">
+function popupCenter(url, title, w, h) {
+    var left = (screen.width/2)-(w/2);
+    var top = (screen.height/2)-(h/2);
+    return window.open(url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=no, width='+w+', height='+h+', top='+top+', left='+left);
+}
  
  function openPopup() {
     // Modify the window features as needed (width, height, etc.)
@@ -647,7 +683,12 @@ function input_message(href)
 
 function move_url(href)
 {
-     document.location.href = href;		 
+    // href가 절대 URL이 아닌 경우 baseUrl과 결합
+    if (href.indexOf('http') !== 0 && href.indexOf('/') === 0) {
+        document.location.href = window.baseUrl + href;
+    } else {
+        document.location.href = href;
+    }
 }
 
 function popup(href)

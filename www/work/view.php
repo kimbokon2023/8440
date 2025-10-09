@@ -1,37 +1,34 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session.php'));
+<?php
+require_once __DIR__ . '/../bootstrap.php';
 	
 $title_message = 'jamb 수주내역';  
-?>    
- 
-<?php 
-include getDocumentRoot() . '/load_header.php';
 
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
+if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
 	sleep(1);
-		header("Location:" . $WebSite . "login/login_form.php"); 
+	header("Location:" . getBaseUrl() . "/login/login_form.php"); 
 	exit;
-   }    
-?> 
+}
+
+include includePath('load_header.php');
+?>    
 <title> <?=$title_message?> </title>
 <body>
 </head>
-<?php include getDocumentRoot() . '/common/modal.php'; ?>
+<?php include includePath('common/modal.php'); ?>
 <?php
   
- if($user_name==='이미래' || $user_name==='김보곤'  || $user_name==='최장중' )
-	 $isAuthorizedUser = true;
-    else
-		$isAuthorizedUser = false;
+if($user_name==='이미래' || $user_name==='김보곤'  || $user_name==='최장중' )
+	$isAuthorizedUser = true;
+else
+	$isAuthorizedUser = false;
 	
 //	var_dump($isAuthorizedUser);
  
- include 'request.php';
+include 'request.php';
  
 $file_dir = getDocumentRoot() . '/uploads/'; 
  
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();
+// bootstrap.php에서 이미 DB 연결됨
 
 try {
     // 외주단가 가져오기
@@ -117,8 +114,8 @@ sort($material_arr);
  
    $filename1=$row["filename1"];
   $filename2=$row["filename2"];
-  $imgurl1="../imgwork/" . $filename1;
-  $imgurl2="../imgwork/" . $filename2;
+  $imgurl1 = asset('imgwork/' . $filename1);
+  $imgurl2 = asset('imgwork/' . $filename2);
   $checkhold=$row["checkhold"];  
   $attachment=$row["attachment"];  
     
@@ -337,7 +334,7 @@ if (preg_match($pattern, $workplacename_customer, $matches)) {
     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"></button>
   </div>
   <div class="offcanvas-body">
-     <img src="../img/dslaser.jpg" style="width:95%;">
+     <img src="<?= asset('img/dslaser.jpg') ?>" style="width:95%;">
   </div>
 </div>
 
@@ -1374,8 +1371,8 @@ function rotate_image() {
   var box = $('.imagediv');
   var imgObj = new Image();
   var imgObj2 = new Image();
-  imgObj.src = "<? echo $imgurl1; ?>";
-  imgObj2.src = "<? echo $imgurl2; ?>";
+  imgObj.src = <?php echo json_encode($imgurl1); ?>;
+  imgObj2.src = <?php echo json_encode($imgurl2); ?>;
   var maxWidth = 300; // 최대 가로 너비
   var maxHeight = 500; // 최대 세로 높이
   

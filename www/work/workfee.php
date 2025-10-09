@@ -1,21 +1,29 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session.php'));
-if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) 
-{
-	/*   alert("관리자 승인이 필요합니다."); */
-	sleep(1);
-	header("Location:".$_SESSION["WebSite"]."login/login_form.php"); 
-	exit;
-}  
+<?php
+require_once __DIR__ . '/../bootstrap.php';
+
+// 권한 확인
+if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+    sleep(1);
+    header("Location:" . getBaseUrl() . "/login/login_form.php");
+    exit;
+}
+
+// 베이스 URL 설정 (로컬/서버 환경 자동 감지)
+$base_url = getBaseUrl();
+
+include includePath('load_header.php');
 ?>
-<?php include getDocumentRoot() . '/load_header.php' ?> 
-<title> 시공소장 시공비 </title> 
-</head> 
+
+<title>시공소장 시공비</title>
+</head>
+
 <body>
+
 <?php require_once(includePath('myheader.php')); ?>   
 <?php 
+// 요청 변수 안전하게 초기화
 $recordDate = $_REQUEST["recordDate"] ?? date("Y-m-d");
-$check = $_REQUEST["check"] ?? $_POST["check"];
+$check = $_REQUEST["check"] ?? $_POST["check"] ?? '';
 $plan_output_check = $_REQUEST["plan_output_check"] ?? $_POST["plan_output_check"] ?? '0';
 $output_check = $_REQUEST["output_check"] ?? $_POST["output_check"] ?? '0';
 $team_check = $_REQUEST["team_check"] ?? $_POST["team_check"] ?? '0';
@@ -25,122 +33,115 @@ $find = $_REQUEST["find"] ?? $_POST["find"] ?? '';
 $fromdate = $_REQUEST["fromdate"] ?? $_POST["fromdate"] ?? '';
 $todate = $_REQUEST["todate"] ?? $_POST["todate"] ?? '';
 $page = $_REQUEST["page"] ?? 1;
-$cursort = $_REQUEST["cursort"];
-$sortof = $_REQUEST["sortof"];
-$stable = $_REQUEST["stable"];
-  
-$sum=array(); 
- 
- if($fromdate=="")
-{
-	$fromdate=substr(date("Y-m-d",time()),0,7) ;
-	$fromdate=$fromdate . "-01";
-}
-if($todate=="")
-{
-	$todate=substr(date("Y-m-d",time()),0,4) . "-12-31" ;
-	$Transtodate=strtotime($todate.'+1 days');
-	$Transtodate=date("Y-m-d",$Transtodate);
-}
-    else
-	{
-	$Transtodate=strtotime($todate);
-	$Transtodate=date("Y-m-d",$Transtodate);
-	}
- 
-if(isset($_REQUEST["search"]))   //
-	$search=$_REQUEST["search"];
-	
-$orderby=" order by workday desc "; 
- 
-$now = date("Y-m-d");	 // 출고일기준으로 변경 24/06/05
+$cursort = $_REQUEST["cursort"] ?? '';
+$sortof = $_REQUEST["sortof"] ?? '';
+$stable = $_REQUEST["stable"] ?? '';
+$search = $_REQUEST["search"] ?? '';
 
-$sql="select * from mirae8440.work where workday between date('$fromdate') and date('$Transtodate')" . $orderby; 
-  
-if($mode=="search"){
-	if($search==""){
-		 $sql="select * from mirae8440.work where workday between date('$fromdate') and date('$Transtodate')" . $orderby;  			
-	   }
-	elseif($search!="")
-	{ 
-		  $sql ="select * from mirae8440.work where ((workplacename like '%$search%' )  or (firstordman like '%$search%' )  or (secondordman like '%$search%' )  or (chargedman like '%$search%' ) ";
-		  $sql .="or (delicompany like '%$search%' ) or (hpi like '%$search%' ) or (firstord like '%$search%' ) or (secondord like '%$search%' ) or (worker like '%$search%' ) or (memo like '%$search%' )) and ( workday between date('$fromdate') and date('$Transtodate'))" . $orderby;				  		  		   
-	 }    
+$sum = array();
+
+// 기간 초기화
+if ($fromdate == "") {
+    $fromdate = substr(date("Y-m-d", time()), 0, 7);
+    $fromdate = $fromdate . "-01";
 }
-	  
+
+if ($todate == "") {
+    $todate = substr(date("Y-m-d", time()), 0, 4) . "-12-31";
+    $Transtodate = strtotime($todate . '+1 days');
+    $Transtodate = date("Y-m-d", $Transtodate);
+} else {
+    $Transtodate = strtotime($todate);
+    $Transtodate = date("Y-m-d", $Transtodate);
+}
+
+$orderby = " ORDER BY workday DESC";
+
+$now = date("Y-m-d");   // 출고일기준으로 변경 24/06/05
+
+// SQL 쿼리 생성
+$sql = "SELECT * FROM mirae8440.work WHERE workday BETWEEN date('$fromdate') AND date('$Transtodate')" . $orderby;
+
+if ($mode == "search") {
+    if ($search == "") {
+        $sql = "SELECT * FROM mirae8440.work WHERE workday BETWEEN date('$fromdate') AND date('$Transtodate')" . $orderby;
+    } elseif ($search != "") {
+        $sql = "SELECT * FROM mirae8440.work WHERE ((workplacename LIKE '%$search%') OR (firstordman LIKE '%$search%') OR (secondordman LIKE '%$search%') OR (chargedman LIKE '%$search%') ";
+        $sql .= "OR (delicompany LIKE '%$search%') OR (hpi LIKE '%$search%') OR (firstord LIKE '%$search%') OR (secondord LIKE '%$search%') OR (worker LIKE '%$search%') OR (memo LIKE '%$search%')) AND (workday BETWEEN date('$fromdate') AND date('$Transtodate'))" . $orderby;
+    }
+}
+
 require_once("../lib/mydb.php");
-$pdo = db_connect();	  		  
+$pdo = db_connect();
 
-   $counter=0;
-   $workday_arr=array();
-   $workplacename_arr=array();
-   $firstord_arr=array();
-   $secondord_arr=array();
-   $worker_arr=array();
-   $workfeedate_arr=array();
-   $material_arr=array();
-   $demand_arr=array();
-   $visitfee_arr=array();
-   $totalfee_arr=array();
-   
-   $wide_arr=array();
-   $normal_arr=array();
-   $narrow_arr=array();
-   $widefee_arr=array();
-   $normalfee_arr=array();
-   $narrowfee_arr=array();
-   $etc_arr=array();
-   $etcfee_arr=array();  
-   
-   $wideunit_arr=array();
-   $normalunit_arr=array();
-   $narrowunit_arr=array();   
-   $etcunit_arr=array();  
-   
-   $add_arr=array();   // 추가로 재료분리대/ 쫄대등 들어가는 현장
-   
-   $num_arr=array();  // 일괄처리를 위한 번호 저장
-     					
-	function formatValidDate($date) {
-		return ($date != "0000-00-00" && $date != "1970-01-01" && $date != "") ? date("Y-m-d", strtotime($date)) : "";
-	}	   
+// 배열 초기화
+$counter = 0;
+$workday_arr = array();
+$workplacename_arr = array();
+$firstord_arr = array();
+$secondord_arr = array();
+$worker_arr = array();
+$workfeedate_arr = array();
+$material_arr = array();
+$demand_arr = array();
+$visitfee_arr = array();
+$totalfee_arr = array();
 
- try{   
-   // $sql="select * from mirae8440.work"; 		 
-   $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-   $rowNum = $stmh->rowCount();  
+$wide_arr = array();
+$normal_arr = array();
+$narrow_arr = array();
+$widefee_arr = array();
+$normalfee_arr = array();
+$narrowfee_arr = array();
+$etc_arr = array();
+$etcfee_arr = array();
 
-   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {				  
-		include '_row.php';			  			  
-		$searchitem = $workplacename . $memo . $attachment;			  
-		// 재료분리대 등 존재여부 찾기
-		// if (strpos($searchitem,"재료") or strpos($searchitem,"끼임") or strpos($searchitem,"쫄대")  or strpos($searchitem,"갭커버")  or strpos($searchitem,"갭카바") )  
-			// $add_arr[$counter]='유';
-		// else
-			// $add_arr[$counter]='';
-		
-			$orderday = formatValidDate($orderday);
-			$measureday = formatValidDate($measureday);
-			$drawday = formatValidDate($drawday);
-			$deadline = formatValidDate($deadline);
-			$workday = formatValidDate($workday);
-			$endworkday = formatValidDate($endworkday);
-			$demand = formatValidDate($demand);
-			$startday = formatValidDate($startday);
-			$testday = formatValidDate($testday);
-			$doneday = formatValidDate($doneday);
-			$workfeedate = formatValidDate($workfeedate);
-			$recordDate = formatValidDate($recordDate);					
+$wideunit_arr = array();
+$normalunit_arr = array();
+$narrowunit_arr = array();
+$etcunit_arr = array();
 
-			$doneday_arr[$counter]=$doneday;
-			$workfeedate_arr[$counter]=$workfeedate;
-			$workplacename_arr[$counter]=$workplacename;
-			$address_arr[$counter]=$address;
-			$secondord_arr[$counter]=$secondord;   
-			$firstord_arr[$counter]=$firstord;   
-			$worker_arr[$counter]=$worker;   
-			$demand_arr[$counter]=$demand;   
-			$num_arr[$counter]=$num;   
+$add_arr = array();   // 추가로 재료분리대/ 쫄대등 들어가는 현장
+$num_arr = array();   // 일괄처리를 위한 번호 저장
+
+// 유효한 날짜 포맷 함수
+function formatValidDate($date) {
+    return ($date != "0000-00-00" && $date != "1970-01-01" && $date != "") ? date("Y-m-d", strtotime($date)) : "";
+}	   
+
+try {
+    $stmh = $pdo->query($sql);
+    $rowNum = $stmh->rowCount();
+
+    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+        include '_row.php';
+
+        $searchitem = $workplacename . $memo . $attachment;
+
+        // 날짜 포맷 처리
+        $orderday = formatValidDate($orderday);
+        $measureday = formatValidDate($measureday);
+        $drawday = formatValidDate($drawday);
+        $deadline = formatValidDate($deadline);
+        $workday = formatValidDate($workday);
+        $endworkday = formatValidDate($endworkday);
+        $demand = formatValidDate($demand);
+        $startday = formatValidDate($startday);
+        $testday = formatValidDate($testday);
+        $doneday = formatValidDate($doneday);
+        $workfeedate = formatValidDate($workfeedate);
+        $recordDate = formatValidDate($recordDate);
+
+        // 배열에 데이터 저장
+        $doneday_arr[$counter] = $doneday;
+        $workfeedate_arr[$counter] = $workfeedate;
+        $workplacename_arr[$counter] = $workplacename;
+        $address_arr[$counter] = $address;
+        $secondord_arr[$counter] = $secondord;
+        $firstord_arr[$counter] = $firstord;
+        $worker_arr[$counter] = $worker;
+        $demand_arr[$counter] = $demand;
+        $num_arr[$counter] = $num;   
 		   
 		   // 판매'란 단어 있으면 실측비 제외		   
 		   // $findstr = '판매';
@@ -251,20 +252,19 @@ $pdo = db_connect();
 								}	
 																	
 						}		   	   
-	 
-		        $totalfee_arr[$counter] = $widefee_arr[$counter] + $normalfee_arr[$counter]+ $narrowfee_arr[$counter] + $etcfee_arr[$counter] ;  
-			   $counter++;	
-		   } // end of 판매 / 불량		   		   	   
-     // }   	 
-   } catch (PDOException $Exception) {
-    print "오류: ".$Exception->getMessage();
-}  
-?>		 
 
-<form name="board_form" id="board_form"  method="post" action="workfee.php?mode=search&year=<?=$year?>&search=<?=$search?>&process=<?=$process?>&asprocess=<?=$asprocess?>&fromdate=<?=$fromdate?>&todate=<?=$todate?>&up_fromdate=<?=$up_fromdate?>&up_todate=<?=$up_todate?>&separate_date=<?=$separate_date?>&view_table=<?=$view_table?>">  
+        $totalfee_arr[$counter] = $widefee_arr[$counter] + $normalfee_arr[$counter] + $narrowfee_arr[$counter] + $etcfee_arr[$counter];
+        $counter++;
+    }
+} catch (PDOException $Exception) {
+    print "오류: " . $Exception->getMessage();
+}
+?>
 
-<div class="container-fluid">  	
-	<div class="card mt-3 mb-5">    
+<form name="board_form" id="board_form" method="post" action="workfee.php?mode=search&year=<?= $year ?>&search=<?= $search ?>&process=<?= $process ?>&asprocess=<?= $asprocess ?>&fromdate=<?= $fromdate ?>&todate=<?= $todate ?>&up_fromdate=<?= $up_fromdate ?>&up_todate=<?= $up_todate ?>&separate_date=<?= $separate_date ?>&view_table=<?= $view_table ?>">
+
+<div class="container-fluid">
+    <div class="card mt-3 mb-5">    
 	
 	<div class="card-header">    
 	<span class="fs-6 badge bg-danger" > 출고일 기준자료</span> &nbsp; 	   
@@ -752,18 +752,16 @@ function savegrid() {
 		   });
    }
    
-		
+
 grid.on('dblclick', (e) => {
-	
-    var link = 'http://8440.co.kr/work/view.php?menu=no&num=' + numcopy[e.rowKey] ;
-   //  window.location.href = link;       //웹개발할때 숨쉬듯이 작성할 코드
-	
-   //  window.location.replace(link);     // 이전 페이지로 못돌아감
-   //  window.open(link);  	
-   if(numcopy[e.rowKey]>0)
-       popupCenter(link, "jamb 수주내역",1800, 920);
-	
-   console.log(e.rowKey);
+    var base_url = '<?php echo $base_url; ?>';
+    var link = base_url + '/work/view.php?menu=no&num=' + numcopy[e.rowKey];
+    
+    if (numcopy[e.rowKey] > 0) {
+        popupCenter(link, "jamb 수주내역", 1800, 920);
+    }
+    
+    console.log(e.rowKey);
 });	   
    
 $("#refresh").click(function(){  location.reload();   });	          // refresh     

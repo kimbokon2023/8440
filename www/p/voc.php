@@ -1,74 +1,118 @@
-<meta charset="utf-8">
- 
- <?php
- session_start(); 
-  
- $num=$_REQUEST["num"]; 
- $parent=$num;
- 
- $workername = $_REQUEST["workername"];
- 
- require_once("../lib/mydb.php");
- $pdo = db_connect();
+<?php
+// 현장 협의사항 등록/수정 페이지 - 로컬/서버 환경 호환
+require_once __DIR__ . '/../bootstrap.php';
+include includePath('load_header.php');
+
+// 입력값 검증 및 초기화
+$num = $_REQUEST["num"] ?? '';
+$parent = $num;
+$workername = $_REQUEST["workername"] ?? '';
+
+// 입력값 유효성 검사
+if (empty($num) || !is_numeric($num)) {
+    die("유효하지 않은 번호입니다.");
+}
+
+// 로컬 환경에서 디버그 정보 표시 (필요시에만 주석 해제)
+// if (isLocal()) {
+//     debug(getEnvironmentInfo(), 'ENVIRONMENT INFO');
+// }
+
+// Database connection is already available from bootstrap.php
+if (!isset($pdo) || !$pdo) {
+    try {
+        $pdo = db_connect();
+    } catch (Exception $e) {
+        die("데이터베이스 연결에 실패했습니다.");
+    }
+}
  
  try{
      $sql = "select * from mirae8440.work where num=?";
      $stmh = $pdo->prepare($sql);  
-     $stmh->bindValue(1, $num, PDO::PARAM_STR);      
+     $stmh->bindValue(1, $num, PDO::PARAM_INT);      
      $stmh->execute();            
       
      $row = $stmh->fetch(PDO::FETCH_ASSOC); 	 
   
-     $workplacename=$row["workplacename"];
+     $workplacename = $row["workplacename"] ?? '';
 					
      }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
+       if (isLocal()) {
+           print "오류: ".$Exception->getMessage();
+       } else {
+           error_log("Database error in voc.php: " . $Exception->getMessage());
+           print "데이터베이스 오류가 발생했습니다. 관리자에게 문의하세요.";
+       }
      }  
 	 
  try{
      $sql = "select * from mirae8440.voc where parent=?";
      $stmh = $pdo->prepare($sql);  
-     $stmh->bindValue(1, $num, PDO::PARAM_STR);      
+     $stmh->bindValue(1, $num, PDO::PARAM_INT);      
      $stmh->execute();            
       
      $row = $stmh->fetch(PDO::FETCH_ASSOC); 	 
   
-     $content=$row["content"];
-     $childnum=$row["num"];
+     $content = $row["content"] ?? '';
+     $childnum = $row["num"] ?? 0;
 	 
-	 if($childnum!=0)
-		   $mode="modify";
+	 if($childnum != 0)
+		   $mode = "modify";
 	    else
-		     $mode="insert";
+		     $mode = "insert";
 		 
      }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
+       if (isLocal()) {
+           print "오류: ".$Exception->getMessage();
+       } else {
+           error_log("Database error in voc.php: " . $Exception->getMessage());
+           print "데이터베이스 오류가 발생했습니다. 관리자에게 문의하세요.";
+       }
   }  
    
  ?>
- <!DOCTYPE HTML>
- <html>
- <head> 
- <meta charset="utf-8">
- <head>
- <meta charset="UTF-8">
-<script src="https://bossanova.uk/jexcel/v3/jexcel.js"></script>
-<script src="https://bossanova.uk/jsuites/v2/jsuites.js"></script>
-<link rel="stylesheet" href="https://bossanova.uk/jexcel/v3/jexcel.css" type="text/css" />
-<link rel="stylesheet" href="https://bossanova.uk/jsuites/v2/jsuites.css" type="text/css" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
-<link rel="stylesheet" href="../css/partner.css" type="text/css" />
 
- <title> 쟘공사 현장 코멘트 등록하기 </title>
- </head>
-  <body>
+<title> 쟘공사 현장 코멘트 등록하기 </title>
+<style>
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    textarea {
+        width: 100%;
+        min-height: 150px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        resize: vertical;
+    }
+    
+    .btn {
+        margin: 5px;
+    }
+    
+    .display-4, .display-5, .display-1 {
+        margin: 10px 0;
+    }
+    
+    #top-menu {
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-bottom: 1px solid #dee2e6;
+    }
+</style>
+</head>
+<body>
 <div id="top-menu">
 <?php
     if(!isset($_SESSION["userid"]))
 	{
 ?>
-          <a href="../login/login_form.php">로그인</a> | <a href="../member/insertForm.php">회원가입</a>
+          <a href="<?= getBaseUrl() ?>/login/login_form.php">로그인</a> | <a href="<?= getBaseUrl() ?>/member/insertForm.php">회원가입</a>
 <?php
 	}
 	else
@@ -78,7 +122,7 @@
 			<div class="col">           
 		         <h1 class="display-5 font-center text-left"> <br>
 	<?=$_SESSION["name"]?> | 
-		<a href="../login/logout.php">로그아웃</a> | <a href="../member/updateForm.php?id=<?=$_SESSION["userid"]?>">정보수정</a>
+		<a href="<?= getBaseUrl() ?>/login/logout.php">로그아웃</a> | <a href="<?= getBaseUrl() ?>/member/updateForm.php?id=<?=$_SESSION["userid"]?>">정보수정</a>
 		
 <?php
 	 }
@@ -94,7 +138,7 @@
   </div>
 <br>
 <br>
-<form id="board_form" name="board_form" method="post" action="voc_insert.php?num=<?=$num?>">  
+<form id="board_form" name="board_form" method="post" action="<?= getBaseUrl() ?>/p/voc_insert.php?num=<?=$num?>">  
      
 	 <input type="hidden" id=childnum name=childnum value="<?=$childnum?>" >
 	 <input type="hidden" id=parent name=parent value="<?=$parent?>" >
@@ -138,6 +182,9 @@
 </html>    
 
  <script language="javascript">
+// 환경별 baseUrl 설정
+window.baseUrl = '<?= getBaseUrl() ?>';
+
 /* function new(){
  window.open("viewimg.php","첨부이미지 보기", "width=300, height=200, left=30, top=30, scrollbars=no,titlebar=no,status=no,resizable=no,fullscreen=no");
 } */
@@ -176,8 +223,10 @@ formd == this.form.name
 textid == this.name
 */
 
-var form = eval("document."+formd);
-var text = eval("form."+textid);
+var form = document.forms[formd] || document[formd];
+var text = form ? form[textid] : null;
+
+if (!text || !text.value) return;
 
 var textlength = text.value.length;
 
@@ -231,8 +280,21 @@ function copy_below(){
 
 function pro_submit()
      {
-           $('#board_form').submit();	
-
+           // 폼 유효성 검사
+           var content = document.querySelector('textarea[name="content"]');
+           if (!content || !content.value.trim()) {
+               alert('협의사항 내용을 입력해주세요.');
+               if (content) content.focus();
+               return;
+           }
+           
+           // 폼 제출
+           var form = document.getElementById('board_form');
+           if (form) {
+               form.submit();
+           } else {
+               alert('폼을 찾을 수 없습니다.');
+           }
      }
 
 </script>

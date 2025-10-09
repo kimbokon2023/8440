@@ -65,6 +65,7 @@ $madeconfirm = isset($row["madeconfirm"]) ? $row["madeconfirm"] : '';
 $mymemo = isset($row["mymemo"]) ? $row["mymemo"] : '';      // 나의 메모 남기기 이미래대리만 보는 메모
 $assigndate = isset($row["assigndate"]) ? $row["assigndate"] : '';      // 배정일
 $gapcover = isset($row["gapcover"]) ? $row["gapcover"] : '';      // 갭커버
+$checkbox = isset($row["checkbox"]) ? $row["checkbox"] : 0;      // checkbox 필드
 
 // 2024년6월 12일 공사완료확인서 정보 json형태로 저장
 $customer = isset($row["customer"]) ? $row["customer"] : '';   

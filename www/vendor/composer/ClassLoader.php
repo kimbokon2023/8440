@@ -1,4 +1,5 @@
-<?php require_once __DIR__ . '/../bootstrap.php';
+<?php
+
 /*
  * This file is part of Composer.
  *

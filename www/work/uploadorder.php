@@ -115,10 +115,14 @@ if($colarr1[$i]!='')
 	 $secondwide = $widetmp[1];
 	 
 	 $widesutmp =  explode("\r",$colarr13[$i]); 	     // 수량을 301 311 등 나눠서 넣는 배열을 분석해서 넣어준다
-	 $firstwidesu = trim($widesutmp[0]);
-	 $secondwidesu = trim($widesutmp[1]);
+	 $firstwidesu = isset($widesutmp[0]) ? trim($widesutmp[0]) : '';
+	 $secondwidesu = isset($widesutmp[1]) ? trim($widesutmp[1]) : '';
 	 $testday = $colarr18[$i] ;
 	 $checkstep = "" ;
+	 
+	 // 변수 초기화
+	 $widejamb = '';
+	 $normaljamb = '';
 	 
 	 if(trim($firstwide)=='311' || trim($firstwide)=='310')
 		   $widejamb = $firstwidesu ;

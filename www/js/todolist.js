@@ -28,7 +28,7 @@ $(document).ready(function() {
 			
 	 showWaitingModal();
 	ajaxRequest5 = $.ajax({
-            url: "todo/fetch_todo.php",
+            url: window.baseUrl + "/todo/fetch_todo.php",
             type: "post",
             data: { month: month + 1, year: year, selectedFilter : selectedFilter, search : search, radioarray : radioarray },
             dataType: "json",
@@ -70,10 +70,11 @@ $(document).ready(function() {
 			hideSavingModal();					
 				
             },
-            error: function() {
-                console.log('Failed to fetch data');
-				ajaxRequest5 = null;
-				hideSavingModal();
+            error: function(xhr, status, error) {
+                console.log('Failed to fetch data:', status, error);
+                console.log('Response:', xhr.responseText);
+			ajaxRequest5 = null;
+			hideSavingModal();
             }
         });
     }

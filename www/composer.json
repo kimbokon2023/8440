@@ -1,7 +1,15 @@
 {
     "require": {
-        "dompdf/dompdf": "2.0",
-        "google/apiclient": "2.7",
-        "google/apiclient-services": "0.283"
+        "php": ">=7.3",
+        "dompdf/dompdf": "^1.2",
+        "google/apiclient": "^2.14",
+        "google/apiclient-services": "^0.283",
+        "monolog/monolog": "^2.0",
+        "psr/log": "^1.0"
+    },
+    "config": {
+        "platform": {
+            "php": "7.3.7"
+        }
     }
 }

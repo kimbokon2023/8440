@@ -21,7 +21,15 @@ function url($path = '') {
  * @return string 완전한 자산 URL
  */
 function asset($path) {
-    return getPath($path);
+    if (isLocal()) {
+        // 로컬 환경에서는 상대 경로 사용 (도메인 제외)
+        $baseUrl = getBaseUrl();
+        $relativePath = str_replace($baseUrl, '', getPath($path));
+        return $relativePath ?: '/' . ltrim($path, '/');
+    } else {
+        // 서버 환경에서는 절대 URL 사용
+        return getPath($path);
+    }
 }
 
 /**
@@ -109,6 +117,33 @@ function debug($data, $label = 'DEBUG') {
         echo '<strong>' . htmlspecialchars($label) . ':</strong>' . "\n";
         print_r($data);
         echo '</pre>';
+    }
+}
+
+/**
+ * 자산 파일 존재 여부 확인
+ * @param string $path 자산 경로
+ * @return bool 파일 존재 여부
+ */
+function assetExists($path) {
+    $absolutePath = absolutePath($path);
+    return file_exists($absolutePath);
+}
+
+/**
+ * 자산 URL 생성 (파일 존재 여부 확인 포함)
+ * @param string $path 자산 경로
+ * @param string $fallback 대체 URL (파일이 없을 경우)
+ * @return string 자산 URL
+ */
+function assetWithFallback($path, $fallback = '') {
+    if (assetExists($path)) {
+        return asset($path);
+    } else {
+        if (isLocal()) {
+            debug("Asset file not found: " . $path, 'ASSET WARNING');
+        }
+        return $fallback ?: asset($path);
     }
 }
 

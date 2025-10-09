@@ -1,8 +1,11 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session.php'));
+<?php
+// 설치·검수 완료 확인서 출력 (부대공사용) - 로컬/서버 환경 호환
+require_once __DIR__ . '/../bootstrap.php';
+
 $title_message = '설치·검수 완료 확인서';
 $tablename = 'work';
-include getDocumentRoot() . '/load_header.php';
+
+include includePath('load_header.php');
 ?>
 <title><?= $title_message ?></title>
 <style>
@@ -51,41 +54,74 @@ include getDocumentRoot() . '/load_header.php';
 
 <body>
 <?php
+// 입력값 검증 및 초기화
 $num = $_REQUEST['num'] ?? '';
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();
+
+// 입력값 유효성 검사
+if (empty($num) || !is_numeric($num)) {
+    die("유효하지 않은 번호입니다.");
+}
+
+// 데이터베이스 연결
+if (!isset($pdo) || !$pdo) {
+    try {
+        $pdo = db_connect();
+    } catch (Exception $e) {
+        if (isLocal()) {
+            die("데이터베이스 연결 실패: " . $e->getMessage());
+        } else {
+            error_log("Database connection failed in customer_print_newone.php: " . $e->getMessage());
+            die("데이터베이스 연결에 실패했습니다. 관리자에게 문의하세요.");
+        }
+    }
+}
 
 try {
     $sql = "SELECT * FROM $DB.$tablename WHERE num = ?";
     $stmh = $pdo->prepare($sql);
-    $stmh->bindValue(1, $num, PDO::PARAM_STR);
+    $stmh->bindValue(1, $num, PDO::PARAM_INT);
     $stmh->execute();
     $count = $stmh->rowCount();
 
     if ($count < 1) {
-        echo "검색결과가 없습니다.";
-    } else {
-        $row = $stmh->fetch(PDO::FETCH_ASSOC);
-        include getDocumentRoot() . '/work/_row.php';
-
-        $customer = json_decode($row['customer'], true);
-        $jobno = $customer['pjnum'] ?? '';
-        $site = $customer['workplacename'] ?? '';
-        $content = $customer['workname'] ?? '';
-        $qty = $customer['totalsu'] ?? '';
-        $company = $customer['ordercompany'] ?? '';
-        $name = $customer['customer_name'] ?? '';
-        $date = $customer['customer_date'] ?? '';
-        $sign = $customer['image_url'] ?? '';
-        
-        // 작업전/작업후 사진 정보 추가
-        $filename1 = $row["filename1"];  // 작업전 사진
-        $filename2 = $row["filename2"];  // 작업후 사진
-        $imgurl1 = "../imgwork/" . $filename1;
-        $imgurl2 = "../imgwork/" . $filename2;
+        die("검색결과가 없습니다.");
     }
+    
+    $row = $stmh->fetch(PDO::FETCH_ASSOC);
+    include getDocumentRoot() . '/work/_row.php';
+
+    $customer = json_decode($row['customer'], true);
+    $jobno = $customer['pjnum'] ?? '';
+    $site = $customer['workplacename'] ?? '';
+    $content = $customer['workname'] ?? '';
+    $qty = $customer['totalsu'] ?? '';
+    $company = $customer['ordercompany'] ?? '';
+    $name = $customer['customer_name'] ?? '';
+    $date = $customer['customer_date'] ?? '';
+    $sign = $customer['image_url'] ?? '';
+    
+    // 작업전/작업후 사진 정보 추가
+    $filename1 = $row["filename1"] ?? '';
+    $filename2 = $row["filename2"] ?? '';
+    
+    // 환경별 이미지 경로 설정
+    if (isLocal()) {
+        $imgurl1 = !empty($filename1) ? "../imgwork/" . $filename1 : '';
+        $imgurl2 = !empty($filename2) ? "../imgwork/" . $filename2 : '';
+        $signurl = !empty($sign) ? "../work/" . $sign : '';
+    } else {
+        $imgurl1 = !empty($filename1) ? asset("imgwork/" . $filename1) : '';
+        $imgurl2 = !empty($filename2) ? asset("imgwork/" . $filename2) : '';
+        $signurl = !empty($sign) ? asset("work/" . $sign) : '';
+    }
+    
 } catch (PDOException $e) {
-    echo "오류: " . $e->getMessage();
+    if (isLocal()) {
+        die("오류: " . $e->getMessage());
+    } else {
+        error_log("Database error in customer_print_newone.php: " . $e->getMessage());
+        die("데이터베이스 오류가 발생했습니다. 관리자에게 문의하세요.");
+    }
 }
 ?>
 
@@ -135,16 +171,16 @@ try {
         <div class="comparison">
             <div class="comparison-box">
                 <div style="font-size: 16px; margin-bottom: 10px;">작업전</div>
-                <?php if($filename1 != "") { ?>
-                    <img src="<?= $imgurl1 ?>" style="max-width: 100%; max-height: 200px; object-fit: contain;">
+                <?php if(!empty($filename1) && !empty($imgurl1)) { ?>
+                    <img src="<?= htmlspecialchars($imgurl1) ?>" style="max-width: 100%; max-height: 200px; object-fit: contain;" alt="작업전 사진">
                 <?php } else { ?>
                     <div style="color: #999; font-size: 14px;">사진 없음</div>
                 <?php } ?>
             </div>
             <div class="comparison-box">
                 <div style="font-size: 16px; margin-bottom: 10px;">작업후</div>
-                <?php if($filename2 != "") { ?>
-                    <img src="<?= $imgurl2 ?>" style="max-width: 100%; max-height: 200px; object-fit: contain;">
+                <?php if(!empty($filename2) && !empty($imgurl2)) { ?>
+                    <img src="<?= htmlspecialchars($imgurl2) ?>" style="max-width: 100%; max-height: 200px; object-fit: contain;" alt="작업후 사진">
                 <?php } else { ?>
                     <div style="color: #999; font-size: 14px;">사진 없음</div>
                 <?php } ?>
@@ -152,15 +188,21 @@ try {
         </div>
         <hr>
         <h5 class="text-start">현장 담당자 확인</h5>
-        <div class="d-flex justify-content-end text-end   fs-5"> <?= date('Y年 m月 d日', strtotime(htmlspecialchars($date))) ?> <span style="margin-right: 180px;"></span></div>
+        <div class="d-flex justify-content-end text-end   fs-5"> 
+            <?php 
+            if (!empty($date)) {
+                echo date('Y年 m月 d日', strtotime($date));
+            }
+            ?> 
+            <span style="margin-right: 180px;"></span>
+        </div>
         <div class="signature-area">
             <div class="signature-text">                
-        
                 담 당 자 : <?= htmlspecialchars($name) ?> (인)
             </div>
-            <?php if (!empty($sign)) { ?>
+            <?php if (!empty($sign) && !empty($signurl)) { ?>
             <div>
-                <img src="../work/<?= $sign ?>" class="signature-img">
+                <img src="<?= htmlspecialchars($signurl) ?>" class="signature-img" alt="서명">
             </div>
             <?php } ?>
         </div>
@@ -170,15 +212,20 @@ try {
 </div>
 
 <script>
-
 function generatePDF() {
-    var workplace = '<?php echo $workplacename; ?>';
+    var workplace = '<?php echo htmlspecialchars($site ?? $workplacename ?? '현장', ENT_QUOTES); ?>';
     var d = new Date();
     var currentDate = ( d.getMonth() + 1 ) + "-" + d.getDate()  + "_" ;
     var currentTime = d.getHours()  + "_" + d.getMinutes() +"_" + d.getSeconds() ;
     var result = '설치검수확인서_(' + workplace +')' + currentDate + currentTime + '.pdf';    
     
     var element = document.getElementById('content-to-print');
+    
+    if (typeof html2pdf === 'undefined') {
+        alert('PDF 생성 라이브러리가 로드되지 않았습니다.');
+        return;
+    }
+    
     var opt = {
         margin:       0,
         filename:     result,
@@ -186,6 +233,7 @@ function generatePDF() {
         html2canvas:  { scale: 2 },
         jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
     };
+    
     html2pdf().from(element).set(opt).save();
 }
 </script>

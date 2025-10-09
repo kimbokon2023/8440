@@ -1,46 +1,40 @@
-<?php
+﻿<?php
 // 소장들 보는 모바일 화면 구성
 // 소장들 선택할때 관리자도 선택가능하게 제작함.
- session_start();
+require_once __DIR__ . '/../bootstrap.php';
 
-   $level= $_SESSION["level"];
-   $id_name= $_SESSION["name"];   
-   $user_name= $_SESSION["name"];   
+$level = $_SESSION["level"] ?? null;
+$id_name = $_SESSION["name"] ?? null;   
+$user_name = $_SESSION["name"] ?? null;   
    
- if(!isset($_SESSION["level"]) || $level>10) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(2);
-         header ("Location:https://8440.co.kr/login/logout.php");
-         exit;
-   }  
+if(!isset($_SESSION["level"]) || $level > 10) {
+    /*   alert("관리자 승인이 필요합니다."); */
+    sleep(2);
+    header("Location:" . getBaseUrl() . "/login/logout.php");
+    exit;
+}  
 
 $workername = $_REQUEST["workername"] ?? '';
 
-if($workername !== '' and  $workername !== null )
-{
-	$id_name=$workername;	 
-	$user_name=$workername;	
+if($workername !== '' && $workername !== null) {
+    $id_name = $workername;	 
+    $user_name = $workername;	
+} else {
+    $level = $_SESSION["level"] ?? null;
+    $id_name = $_SESSION["name"] ?? null;   
+    $user_name = $_SESSION["name"] ?? null;  
 }
- else
- {
-   $level= $_SESSION["level"];
-   $id_name= $_SESSION["name"];   
-   $user_name= $_SESSION["name"];  
- }
  
 
- if($workername!='서영선')
- {
-	$title_message = '미래기업 공사 관리 시스템'; 
- }
- else
- {
-	$title_message = '미래기업 쟘공사(소장)'; 
- }
+if($workername != '서영선') {
+    $title_message = '미래기업 공사 관리 시스템';
+} else {
+    $title_message = '미래기업 쟘공사(소장)';
+}
 
- ?>
- 
-<?php include getDocumentRoot() . '/load_header.php' ?>
+?>
+
+<?php include includePath('load_header.php'); ?>
   
 <title> <?=$title_message?> </title> 
  
@@ -53,22 +47,22 @@ if($workername !== '' and  $workername !== null )
  </head> 
 <body>
  <?php 
-if(isset($_REQUEST["search"]))   //목록표에 제목,이름 등 나오는 부분
-	 $search=$_REQUEST["search"];
-	  
- if(isset($_REQUEST["check"])) 
-	 $check=$_REQUEST["check"]; // request 사용 페이지 이동버튼 누를시`
-   else
-     $check=$_POST["check"]; //  POST사용 
+$search = $_REQUEST["search"] ?? '';   //목록표에 제목,이름 등 나오는 부분
+
+if(isset($_REQUEST["check"])) {
+	$check = $_REQUEST["check"]; // request 사용 페이지 이동버튼 누를시
+} elseif(isset($_POST["check"])) {
+	$check = $_POST["check"]; // POST 사용
+} else {
+	$check = '0';
+}
 
 if($check==null) $check=0;	 
     
-$sum=array();
+$sum = array(0, 0, 0, 0);
 
 // 금일 출고리스트 배열 추출
-
- require_once("../lib/mydb.php");
- $pdo = db_connect();	
+// bootstrap.php에서 DB 연결 설정됨	
 
 $sql="select * from mirae8440.work where worker='$id_name' and (deadline !='' and deadline IS Not NULL)  and (doneday ='' OR doneday IS NULL) and (madeconfirm ='' OR madeconfirm IS NULL)   ";
 
@@ -113,7 +107,7 @@ $mode=$_REQUEST["mode"] ?? '';
 	  	    $orderby=" order by assigndate desc  ";															
 		}		 
 	 
-$a= " " . $orderby . " ";  
+$a= " " . $orderby . " ";   
 $b=  " " . $orderby;
 
 		  if($search==""){
@@ -150,18 +144,21 @@ $b=  " " . $orderby;
 				  } 
 
 	 try{  
-
-	  $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-      $temp1=$stmh->rowCount();
+	     $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
+         $temp1=$stmh->rowCount();
 	      
-	  $total_row = $temp1;     // 전체 글수	   
+	     $total_row = $temp1;     // 전체 글수	   
 			 
-	  $message = '';			 
+	     $message = '';			 
+	 } catch (PDOException $Exception) {
+	     print "오류: ".$Exception->getMessage();
+	     $total_row = 0;
+	 }
 	  
-			?>
+?>
 		 
 <body>
-<form id="board_form" name="board_form" method="post" action="index.php?mode=search&search=<?=$search?>&check=<?=$check?>&workername=<?=$workername?>">  
+<form id="board_form" name="board_form" method="post" action="<?= getBaseUrl() ?>/p/index.php?mode=search&search=<?=$search?>&check=<?=$check?>&workername=<?=$workername?>">  
  <div  class="container-fluid">
 	 <br>
 	 <br>
@@ -170,7 +167,7 @@ $b=  " " . $orderby;
 			if(!isset($_SESSION["userid"]))
 			{
 		?>
-				  <a href="../login/login_form.php">로그인</a> | <a href="../member/insertForm.php">회원가입</a>
+				  <a href="<?= getBaseUrl() ?>/login/login_form.php">로그인</a> | <a href="<?= getBaseUrl() ?>/member/insertForm.php">회원가입</a>
 		<?php
 			}
 			else
@@ -180,7 +177,7 @@ $b=  " " . $orderby;
 		   <div class="col-6"> 
 			 <h3 class="font-center text-left"> 
 					<?=$user_name?> | 
-						<a href="../login/logout.php">로그아웃</a> | <a href="../member/updateForm.php?id=<?=$_SESSION["userid"]?>">정보수정</a>
+						<a href="<?= getBaseUrl() ?>/login/logout.php">로그아웃</a> | <a href="<?= getBaseUrl() ?>/member/updateForm.php?id=<?=$_SESSION["userid"]?>">정보수정</a>
 						
 				<?php
 					 }
@@ -196,7 +193,7 @@ if($workername!='서영선')
 	
 	<div class="d-flex mt-4">
 	   <H1> &nbsp;&nbsp;  쟘(Jamb) 현장 </H1> &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;  
-	   <button type="button"  class="btn btn-outline-primary btn-lg" onclick="window.open('./request.php','VB 자재 협조 요청사항','top=10, left=10, height=600, width=800, menubar=no, toolbar=no,');">  (바이브)VB 자재사용시 요청사항 </button>  &nbsp;  
+	   <button type="button"  class="btn btn-outline-primary btn-lg" onclick="window.open(window.baseUrl + '/p/request.php','VB 자재 협조 요청사항','top=10, left=10, height=600, width=800, menubar=no, toolbar=no,');">  (바이브)VB 자재사용시 요청사항 </button>  &nbsp;  
 	   <button type="button"  id="showhpiBtn" class="btn btn-outline-success btn-lg" >  HPI(타공) </button>
    </div>
 	 
@@ -208,7 +205,7 @@ if($workername!='서영선')
 		  <?php print '<h2 class="display-4  bg-dark text-light">' . $message . ' </h2></div>' ; ?>
 		  
 	 </div> 
-	<? } ?>
+	<?php } ?>
 			
 	<br>
 <?php
@@ -277,16 +274,16 @@ else{
 		
 	</div>				
 	<div class="d-flex mt-3 mb-3">		
-		<button type="button" id="showall" class="btn btn-dark" onclick="location.href='index.php?mode=search&search=<?=$search?>&check=0&workername=<?=$workername ?>'"> 전체   </button>  &nbsp;&nbsp;&nbsp;&nbsp;
+		<button type="button" id="showall" class="btn btn-dark" onclick="location.href=window.baseUrl + '/p/index.php?mode=search&search=<?=$search?>&check=0&workername=<?=$workername ?>'"> 전체   </button>  &nbsp;&nbsp;&nbsp;&nbsp;
 		<?php
 		if($workername!='서영선')
 		{
 		?>
-			<button id="showNomeasure"  type="button" class="btn btn-secondary " onclick="location.href='index.php?mode=search&search=<?=$search?>&check=4&workername=<?=$workername ?>'"> 미실측  </button> &nbsp;&nbsp;&nbsp;&nbsp;
-			<button id="showNowork" type="button" class="btn btn-secondary " onclick="location.href='index.php?mode=search&search=<?=$search?>&check=3&workername=<?=$workername ?>'"> 미시공   </button>  &nbsp;&nbsp;&nbsp;&nbsp;
-			<button type="button" id="outputplan" class="btn btn-secondary " onclick="location.href='index.php?mode=search&search=<?=$search?>&check=1&workername=<?=$workername ?>'"> 생산예정   </button>  &nbsp;&nbsp;&nbsp;&nbsp;
-			<button type="button" class="btn btn-secondary " onclick="location.href='index.php?mode=search&search=<?=$search?>&check=2&workername=<?=$workername ?>'"> 시공 사진   </button>  &nbsp;&nbsp;&nbsp;&nbsp;
-			<button type="button" class="btn btn-secondary btn-lg" onclick="location.href='workfee.php?mode=search&search=<?=$search?>&worker=<?=$user_name?>&workername=<?=$workername ?>'"> 시공내역 </button>
+			<button id="showNomeasure"  type="button" class="btn btn-secondary " onclick="location.href=window.baseUrl + '/p/index.php?mode=search&search=<?=$search?>&check=4&workername=<?=$workername ?>'"> 미실측  </button> &nbsp;&nbsp;&nbsp;&nbsp;
+			<button id="showNowork" type="button" class="btn btn-secondary " onclick="location.href=window.baseUrl + '/p/index.php?mode=search&search=<?=$search?>&check=3&workername=<?=$workername ?>'"> 미시공   </button>  &nbsp;&nbsp;&nbsp;&nbsp;
+			<button type="button" id="outputplan" class="btn btn-secondary " onclick="location.href=window.baseUrl + '/p/index.php?mode=search&search=<?=$search?>&check=1&workername=<?=$workername ?>'"> 생산예정   </button>  &nbsp;&nbsp;&nbsp;&nbsp;
+			<button type="button" class="btn btn-secondary " onclick="location.href=window.baseUrl + '/p/index.php?mode=search&search=<?=$search?>&check=2&workername=<?=$workername ?>'"> 시공 사진   </button>  &nbsp;&nbsp;&nbsp;&nbsp;
+			<button type="button" class="btn btn-secondary btn-lg" onclick="location.href=window.baseUrl + '/p/workfee.php?mode=search&search=<?=$search?>&worker=<?=$user_name?>&workername=<?=$workername ?>'"> 시공내역 </button>
 		<?php
 		}
 		?>
@@ -362,10 +359,11 @@ else{
 			
 	       while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
 			
-			 include "../work/_row.php";
+			 include includePath("work/_row.php");
 			
-			  $imgurl1="../imgwork/" . $filename1;
-			  $imgurl2="../imgwork/" . $filename2;			  
+			  // 이미지 URL을 asset() 함수로 처리
+			  $imgurl1 = asset("imgwork/" . $filename1);
+			  $imgurl2 = asset("imgwork/" . $filename2);			  
 			  
 			  
 			  $sum[0] = $sum[0] + (int)$widejamb;
@@ -397,12 +395,15 @@ else{
 					else $assigndate="";		  
 			  	  				  
 			  $state_work=0;
-			  if($row["checkbox"]==0) $state_work=1;
+			  if(isset($row["checkbox"]) && $row["checkbox"]==0) $state_work=1;
 			  if(substr($row["workday"],0,2)=="20") $state_work=2;
 			  if(substr($row["endworkday"],0,2)=="20") $state_work=3;	
 	 
               $measure_done="     ";			  
 			  if(substr($row["measureday"],0,2)=="20") $measure_done = "OK";		    			  
+			  
+			  $draw_done="     ";
+			  if(substr($row["drawday"],0,2)=="20") $draw_done = "OK";
               
 			  if(substr($testday,0,2)=="20")  $testday = iconv_substr($testday,5,5,"utf-8");
 			            else $testday="    ";	              
@@ -491,10 +492,6 @@ else{
 			<?php
 			$start_num--;
 			 } 
-  } catch (PDOException $Exception) {
-  print "오류: ".$Exception->getMessage();
-  }  
-
  ?>
           
 	 </tbody>
@@ -511,7 +508,7 @@ else{
 <!-- Custom Style to increase the font size -->
 <style>
     .big-font-toast {
-        font-size: 35px !important;  // 원하는 폰트 크기로 설정
+        font-size: 35px !important; 
     }
 </style>  
   
@@ -519,7 +516,7 @@ else{
  <script language="javascript">
  
  function redirectToView(num, check, workername) {
-    var url = "view.php?num=" + num + "&check=" + check  + "&workername=" + workername ;        
+    var url = window.baseUrl + "/p/view.php?num=" + num + "&check=" + check  + "&workername=" + workername ;        
     window.location.href = url;
 }
  
@@ -527,7 +524,7 @@ else{
 $(document).ready(function(){
 	
 	$("#showhpiBtn").click(function(){ 
-	var popup = window.open("hpi.php", "hpi 정보", "width=700,height=800");
+	var popup = window.open(window.baseUrl + "/p/hpi.php", "hpi 정보", "width=700,height=800");
     // Focus the popup window
     if (window.focus) {
         popup.focus();
@@ -538,7 +535,7 @@ $(document).ready(function(){
  function donecheck(num) {
 	 
 	  $.ajax({
-			url: "update_madeconfirm.php?num=" + num,
+			url: window.baseUrl + "/p/update_madeconfirm.php?num=" + num,
     	  	type: "post",		
    			data: '',
    			dataType:"json",

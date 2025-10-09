@@ -1,25 +1,27 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session.php'));  	
+<?php
+require_once __DIR__ . '/../bootstrap.php';
 
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-		 sleep(1);
-		 header("Location:https://8440.co.kr/login/login_form.php"); 
-         exit;
-   }  
-   
+// 권한 확인
+if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+    sleep(1);
+    header("Location:" . getBaseUrl() . "/login/login_form.php");
+    exit;
+}
+
 $title_message = "JAMB 매출";
 
-$readIni = array();   // 환경파일 불러오기
-$readIni = parse_ini_file("./estimate.ini",false);	
-?>
+// 환경파일 불러오기
+$readIni = array();
+$readIni = parse_ini_file("./estimate.ini", false);
 
-<?php include getDocumentRoot() . '/load_header.php' ?>
+include includePath('load_header.php');
+?>
 
 <!-- Highcharts 라이브러리 -->
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
 
-<title> <?=$title_message?> </title>
+<title><?= $title_message ?></title>
 
 <!-- Light & Subtle Theme CSS -->
 <link rel="stylesheet" href="../css/dashboard-style.css" type="text/css" />
@@ -344,73 +346,49 @@ body {
 </style> 
 </head>		 
 <body>
-  <?php require_once(includePath('myheader.php')); ?>   
- <?php 
- 
-  if(isset($_REQUEST["load_confirm"]))   // 초기 당월 차트보이도록 변수를 저장하고 다시 부르면 실행되지 않도록 하기 위한 루틴
-	 $load_confirm=$_REQUEST["load_confirm"];	 
-  
-  if(isset($_REQUEST["display_sel"]))   //목록표에 제목,이름 등 나오는 부분
-		$display_sel=$_REQUEST["display_sel"];	 
-	 else
-		 $display_sel='bar';	
+<?php require_once(includePath('myheader.php')); ?>
 
-  if(isset($_REQUEST["item_sel"]))   //목록표에 제목,이름 등 나오는 부분
-		$item_sel=$_REQUEST["item_sel"];	 
-	 else
-		$item_sel='년도비교';	
-  
-  $sum=array(); 
-	 
-  if(isset($_REQUEST["mode"]))
-     $mode=$_REQUEST["mode"];
-  else 
-     $mode="";        
- 
- if(isset($_REQUEST["find"]))   //목록표에 제목,이름 등 나오는 부분
- $find=$_REQUEST["find"]; 
-  
-// 기간을 정하는 구간 
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];	 
+<?php
+// 요청 변수 안전하게 초기화
+$load_confirm = $_REQUEST["load_confirm"] ?? '';
+$display_sel = $_REQUEST["display_sel"] ?? 'bar';
+$item_sel = $_REQUEST["item_sel"] ?? '년도비교';
+$mode = $_REQUEST["mode"] ?? '';
+$find = $_REQUEST["find"] ?? '';
+$fromdate = $_REQUEST["fromdate"] ?? '';
+$todate = $_REQUEST["todate"] ?? '';
+$search = $_REQUEST["search"] ?? '';
 
-// 올해를 날자기간으로 설정
-if($fromdate=="")
-{
-	$fromdate=substr(date("Y-m-d",time()),0,4) ;
-	$fromdate=$fromdate . "-01-01";
+$sum = array();
+
+// 기간 초기화 (올해를 날짜 기간으로 설정)
+if ($fromdate == "") {
+    $fromdate = substr(date("Y-m-d", time()), 0, 4);
+    $fromdate = $fromdate . "-01-01";
 }
-if($todate=="")
-{
-	$todate=substr(date("Y-m-d",time()),0,4) . "-12-31" ;
-	$Transtodate=strtotime($todate.'+1 days');
-	$Transtodate=date("Y-m-d",$Transtodate);
+
+if ($todate == "") {
+    $todate = substr(date("Y-m-d", time()), 0, 4) . "-12-31";
+    $Transtodate = strtotime($todate . '+1 days');
+    $Transtodate = date("Y-m-d", $Transtodate);
+} else {
+    $Transtodate = strtotime($todate);
+    $Transtodate = date("Y-m-d", $Transtodate);
 }
-    else
-	{
-	$Transtodate=strtotime($todate);
-	$Transtodate=date("Y-m-d",$Transtodate);
-	}
 
-if(isset($_REQUEST["search"]))   
-$search=$_REQUEST["search"];
+$orderby = " ORDER BY workday DESC";
 
-$orderby=" order by workday desc "; 
-	
-$now = date("Y-m-d");	 // 현재 날짜와 크거나 같으면 출고예정으로 구분	
+$now = date("Y-m-d");   // 현재 날짜와 크거나 같으면 출고예정으로 구분
 
-$sql="select * from mirae8440.work ";	
+// SQL 쿼리 생성
+if ($search == "") {
+    $sql = "SELECT * FROM mirae8440.work WHERE workday BETWEEN date('$fromdate') AND date('$Transtodate')" . $orderby;
+} else {
+    $sql = "SELECT * FROM mirae8440.work WHERE ((workplacename LIKE '%$search%') OR (firstordman LIKE '%$search%') OR (secondordman LIKE '%$search%') OR (chargedman LIKE '%$search%') ";
+    $sql .= "OR (delicompany LIKE '%$search%') OR (hpi LIKE '%$search%') OR (firstord LIKE '%$search%') OR (secondord LIKE '%$search%') OR (worker LIKE '%$search%') OR (memo LIKE '%$search%')) AND (workday BETWEEN date('$fromdate') AND date('$Transtodate'))" . $orderby;
+}
 
- if($search=="")
-	{
-	 $sql="select * from mirae8440.work where workday between date('$fromdate') and date('$Transtodate')" . $orderby;  			
-	}
-  else
-{ 
-	  $sql ="select * from mirae8440.work where ((workplacename like '%$search%' )  or (firstordman like '%$search%' )  or (secondordman like '%$search%' )  or (chargedman like '%$search%' ) ";
-	  $sql .="or (delicompany like '%$search%' ) or (hpi like '%$search%' ) or (firstord like '%$search%' ) or (secondord like '%$search%' ) or (worker like '%$search%' ) or (memo like '%$search%' )) and ( workday between date('$fromdate') and date('$Transtodate'))" . $orderby;				  		  		   
- }    
- 		  
+// 변수 초기화
 $WJ_HL = 0;
 $WJ = 0;
 $NJ_HL = 0;
@@ -419,114 +397,112 @@ $SJ_HL = 0;
 $SJ = 0;
 
 try {
-	
-	$allstmh = $pdo->query($sql);
-	
-  while ($row = $allstmh->fetch(PDO::FETCH_ASSOC)) {
-    $material1 = $row["material1"];
-    $material2 = $row["material2"];
-    $material3 = $row["material3"];
-    $material4 = $row["material4"];
-    $material5 = $row["material5"];
-    $material6 = $row["material6"];
-    $widejamb = intval($row["widejamb"]);
-    $normaljamb = intval($row["normaljamb"]);
-    $smalljamb = intval($row["smalljamb"]);
-	
-	$workplacename = $row["workplacename"];
-	
-    $combinedMaterials = $material1 . $material2 . $material3 . $material4 . $material5 . $material6;
-	
-   $findstr = '불량';
+    $allstmh = $pdo->query($sql);
 
-   $pos = stripos($workplacename, $findstr);							   
+    while ($row = $allstmh->fetch(PDO::FETCH_ASSOC)) {
+        $material1 = $row["material1"];
+        $material2 = $row["material2"];
+        $material3 = $row["material3"];
+        $material4 = $row["material4"];
+        $material5 = $row["material5"];
+        $material6 = $row["material6"];
+        $widejamb = intval($row["widejamb"]);
+        $normaljamb = intval($row["normaljamb"]);
+        $smalljamb = intval($row["smalljamb"]);
+        $workplacename = $row["workplacename"];
 
-   if($pos==0)  {	
+        $combinedMaterials = $material1 . $material2 . $material3 . $material4 . $material5 . $material6;
 
-    // $WJ_HL 계산
-    if (stripos($combinedMaterials, 'HL') !== false || stripos($combinedMaterials, 'H/L') !== false) {
-      $WJ_HL += $widejamb;
+        // 불량이란 단어가 들어가 있는 수량은 제외한다.
+        $findstr = '불량';
+        $pos = stripos($workplacename, $findstr);
+
+        if ($pos == 0) {
+            // $WJ_HL 계산
+            if (stripos($combinedMaterials, 'HL') !== false || stripos($combinedMaterials, 'H/L') !== false) {
+                $WJ_HL += $widejamb;
+            }
+
+            // $WJ 계산
+            if (stripos($combinedMaterials, 'HL') === false && stripos($combinedMaterials, 'H/L') === false) {
+                $WJ += $widejamb;
+            }
+
+            // $NJ_HL 계산
+            if (stripos($combinedMaterials, 'HL') !== false || stripos($combinedMaterials, 'H/L') !== false) {
+                $NJ_HL += $normaljamb;
+            }
+
+            // $NJ 계산
+            if (stripos($combinedMaterials, 'HL') === false && stripos($combinedMaterials, 'H/L') === false) {
+                $NJ += $normaljamb;
+            }
+
+            // $SJ_HL 계산
+            if (stripos($combinedMaterials, 'HL') !== false || stripos($combinedMaterials, 'H/L') !== false) {
+                $SJ_HL += $smalljamb;
+            }
+
+            // $SJ 계산
+            if (stripos($combinedMaterials, 'HL') === false && stripos($combinedMaterials, 'H/L') === false) {
+                $SJ += $smalljamb;
+            }
+        }
     }
-
-    // $WJ 계산
-    if (stripos($combinedMaterials, 'HL') === false && stripos($combinedMaterials, 'H/L') === false) {
-      $WJ += $widejamb;
-    }
-
-    // $NJ_HL 계산
-    if (stripos($combinedMaterials, 'HL') !== false || stripos($combinedMaterials, 'H/L') !== false) {
-      $NJ_HL += $normaljamb;
-    }
-
-    // $NJ 계산
-    if (stripos($combinedMaterials, 'HL') === false && stripos($combinedMaterials, 'H/L') === false) {
-      $NJ += $normaljamb;
-    }
-
-    // $SJ_HL 계산
-    if (stripos($combinedMaterials, 'HL') !== false || stripos($combinedMaterials, 'H/L') !== false) {
-      $SJ_HL += $smalljamb;
-    }
-
-    // $SJ 계산
-    if (stripos($combinedMaterials, 'HL') === false && stripos($combinedMaterials, 'H/L') === false) {
-      $SJ += $smalljamb;
-    }
-   }
-  } // end of while
 } catch (PDOException $Exception) {
-  print "오류: " . $Exception->getMessage();
+    print "오류: " . $Exception->getMessage();
 }
 
 // 합계표 만들기
 // 막판 산출
 $WJ_amount = str_replace(',', '', $WJ) * intval(str_replace(',', '', $readIni["WJ"]));
 $WJ_HL_amount = str_replace(',', '', $WJ_HL) * intval(str_replace(',', '', $readIni["WJ_HL"]));
-$WJ_total = $WJ_amount + $WJ_HL_amount ;
+$WJ_total = $WJ_amount + $WJ_HL_amount;
 $WJ_num = $WJ + $WJ_HL;
+
 // 막판무 산출
 $NJ_amount = str_replace(',', '', $NJ) * intval(str_replace(',', '', $readIni["NJ"]));
 $NJ_HL_amount = str_replace(',', '', $NJ_HL) * intval(str_replace(',', '', $readIni["NJ_HL"]));
-$NJ_total = $NJ_amount + $NJ_HL_amount ;
+$NJ_total = $NJ_amount + $NJ_HL_amount;
 $NJ_num = $NJ + $NJ_HL;
+
 // 쪽쟘 산출
 $SJ_amount = str_replace(',', '', $SJ) * intval(str_replace(',', '', $readIni["SJ"]));
 $SJ_HL_amount = str_replace(',', '', $SJ_HL) * intval(str_replace(',', '', $readIni["SJ_HL"]));
-$SJ_total = $SJ_amount + $SJ_HL_amount ;
+$SJ_total = $SJ_amount + $SJ_HL_amount;
 $SJ_num = $SJ + $SJ_HL;
 
-$total = $WJ_total + $NJ_total + $SJ_total ;		  
+$total = $WJ_total + $NJ_total + $SJ_total;
 
-$counter=0;
-$workday_arr=array();
-$workplacename_arr=array();
-$address_arr=array();
-$sum_arr=array();
-$delicompany_arr=array();
-$delipay_arr=array();
-$secondord_arr=array();
-$worker_arr=array();
+// 배열 초기화
+$counter = 0;
+$workday_arr = array();
+$workplacename_arr = array();
+$address_arr = array();
+$sum_arr = array();
+$delicompany_arr = array();
+$delipay_arr = array();
+$secondord_arr = array();
+$worker_arr = array();
 
+$item_arr = array();
+$work_sum = array();
+$month_sum = array();
 
-$item_arr = array();	
-$work_sum = array();	
-$month_sum = array();	
-
-$item_arr[0]='막판';
-$item_arr[1]='막(無)';
-$item_arr[2]='쪽쟘';
+$item_arr[0] = '막판';
+$item_arr[1] = '막(無)';
+$item_arr[2] = '쪽쟘';
 
 $work_sum[0] = $WJ_total;
 $work_sum[1] = $NJ_total;
 $work_sum[2] = $SJ_total;
 
+$all_sum = $work_sum[0] + $work_sum[1] + $work_sum[2];
 
-$all_sum = $work_sum[0] + $work_sum[1] + $work_sum[2];		
+$year = substr($fromdate, 0, 4);
 
-$year=substr($fromdate,0,4) ;
-// print $year;
-
-if($item_sel==='년도비교') 
+// 년도 비교
+if ($item_sel === '년도비교') 
  {
     $year_count=0;
     $date_count=0;
@@ -555,10 +531,10 @@ if($item_sel==='년도비교')
 				case   11  :   $day=31; break;
 			}			
 			
-			$month_fromdate = sprintf("%04d-%02d-%02d", $year, $month, 1);
-			$month_todate = sprintf("%04d-%02d-%02d", $year, $month, $day);
+            $month_fromdate = sprintf("%04d-%02d-%02d", $year, $month, 1);
+            $month_todate = sprintf("%04d-%02d-%02d", $year, $month, $day);
 
-			$sql="select * from mirae8440.work where workday between date('$month_fromdate') and date('$month_todate')" ; 			
+            $sql = "SELECT * FROM mirae8440.work WHERE workday BETWEEN date('$month_fromdate') AND date('$month_todate')"; 			
 		
 		$sum1 = 0; $sum2 = 0; $sum3 = 0;		
 		$WJ_HL = 0;
@@ -670,17 +646,17 @@ if($item_sel==='월별비교')
 
 	}
 					  
-	$month_fromdate = sprintf("%04d-%02d-%02d", $year, $month, 1);  // 날짜형식으로 바꾸기
-	$month_todate = sprintf("%04d-%02d-%02d", $year, $month, $day);  // 날짜형식으로 바꾸기
-			
-	if($search=== "" ){
-	    $sql="select * from mirae8440.work where workday between date('$month_fromdate') and date('$month_todate')" ; 			
-	}
-										
-	if( $search!=="" ){
-	  $sql ="select * from mirae8440.work where ((workplacename like '%$search%' )  or (firstordman like '%$search%' )  or (secondordman like '%$search%' )  or (chargedman like '%$search%' ) ";
-	  $sql .="or (delicompany like '%$search%' ) or (hpi like '%$search%' ) or (firstord like '%$search%' ) or (secondord like '%$search%' ) or (worker like '%$search%' ) or (memo like '%$search%' )) and ( workday between date('$month_fromdate') and date('$month_todate'))" ;				  		  		   
-	}					
+        $month_fromdate = sprintf("%04d-%02d-%02d", $year, $month, 1);  // 날짜형식으로 바꾸기
+        $month_todate = sprintf("%04d-%02d-%02d", $year, $month, $day);  // 날짜형식으로 바꾸기
+
+        if ($search === "") {
+            $sql = "SELECT * FROM mirae8440.work WHERE workday BETWEEN date('$month_fromdate') AND date('$month_todate')";
+        }
+
+        if ($search !== "") {
+            $sql = "SELECT * FROM mirae8440.work WHERE ((workplacename LIKE '%$search%') OR (firstordman LIKE '%$search%') OR (secondordman LIKE '%$search%') OR (chargedman LIKE '%$search%') ";
+            $sql .= "OR (delicompany LIKE '%$search%') OR (hpi LIKE '%$search%') OR (firstord LIKE '%$search%') OR (secondord LIKE '%$search%') OR (worker LIKE '%$search%') OR (memo LIKE '%$search%')) AND (workday BETWEEN date('$month_fromdate') AND date('$month_todate'))";
+        }					
 		$counter=0;
 		$sum1=0;
 		$sum2=0;
@@ -780,50 +756,48 @@ $chart_sel = 'bar';  // 바차트 선택
 ?>
 
 
-<form id="board_form" name="board_form" method="post" action="output_statis.php?mode=search">  
-	<input type="hidden" id="chart_sel" name="chart_sel" value="bar">
-	<input type="hidden" id="display_sel" name="display_sel" value="bar">
-	<input id="item_sel" name="item_sel" type='hidden' value='<?=$item_sel?>' >     
+<form id="board_form" name="board_form" method="post" action="output_statis.php?mode=search">
+    <input type="hidden" id="chart_sel" name="chart_sel" value="bar">
+    <input type="hidden" id="display_sel" name="display_sel" value="bar">
+    <input id="item_sel" name="item_sel" type="hidden" value="<?= $item_sel ?>">     
 
 <div class="container">
 
-<div class="output-filter-container mt-1 mb-2">
-<h4 class="output-page-title"><?=$title_message?></h4>
-</div>					
+    <div class="output-filter-container mt-1 mb-2">
+        <h4 class="output-page-title"><?= $title_message ?></h4>
+    </div>
 
-<div class="row"> 		  
-	<div class="d-flex mt-1 mb-2 justify-content-center align-items-center "> 		
-	<!-- 기간설정 칸 -->
-	 <?php include getDocumentRoot() . '/setdate.php' ?>
-	</div>
-</div>
+    <div class="row">
+        <div class="d-flex mt-1 mb-2 justify-content-center align-items-center">
+            <!-- 기간설정 칸 -->
+            <?php include getDocumentRoot() . '/setdate.php' ?>
+        </div>
+    </div>
 
-<div class="row "> 		 
-<div class="d-flex justify-content-center align-items-center mt-2 mb-2 "> 		 
-	  
-	<?php			
-		switch ($item_sel) {
-			case   "년도비교"     :     $item_sel_choice[0]='checked'; break;			
-			case   "월별비교"     :     $item_sel_choice[1]='checked'; break;
-			case   "종류별비교"     :   $item_sel_choice[2]='checked'; break;
-		}		
-	 ?>    
-			
-	<label class='custom-radio me-1'>				
-		<input type="radio" class="radio-input" <?=$item_sel_choice[0]?> name="item_sel" value="년도비교">
-	<span class="radio-label">년도비교</span>
-	</label>
-	<label class='custom-radio me-1'>				
-		<input type="radio" class="radio-input" <?=$item_sel_choice[1]?> name="item_sel" value="월별비교">
-	<span class="radio-label">월별비교</span>
-	</label>
-	<label class='custom-radio'>				
-		<input type="radio" class="radio-input" <?=$item_sel_choice[2]?> name="item_sel" value="종류별비교">
-	<span class="radio-label">종류별비교</span>
-	</label>		
-		
-	</div>
-	</div>
+    <div class="row">
+        <div class="d-flex justify-content-center align-items-center mt-2 mb-2">
+            <?php
+            switch ($item_sel) {
+                case "년도비교": $item_sel_choice[0] = 'checked'; break;
+                case "월별비교": $item_sel_choice[1] = 'checked'; break;
+                case "종류별비교": $item_sel_choice[2] = 'checked'; break;
+            }
+            ?>
+
+            <label class="custom-radio me-1">
+                <input type="radio" class="radio-input" <?= $item_sel_choice[0] ?> name="item_sel" value="년도비교">
+                <span class="radio-label">년도비교</span>
+            </label>
+            <label class="custom-radio me-1">
+                <input type="radio" class="radio-input" <?= $item_sel_choice[1] ?> name="item_sel" value="월별비교">
+                <span class="radio-label">월별비교</span>
+            </label>
+            <label class="custom-radio">
+                <input type="radio" class="radio-input" <?= $item_sel_choice[2] ?> name="item_sel" value="종류별비교">
+                <span class="radio-label">종류별비교</span>
+            </label>
+        </div>
+    </div>
 	<!-- JAMB 매출 통합 카드 -->
 	<div class="modern-management-card mt-3">
 		<div class="modern-dashboard-header">
@@ -1060,200 +1034,187 @@ $chart_sel = 'bar';  // 바차트 선택
 </div> <!--container-->     
 	 
  </form> 
-  
-<script> 
-$(document).ready(function() { 
-	$("#writeBtn").click(function(){ 	
-		popupCenter('./estimate.php', '쟘 제품 단가입력', 1050, 600);	   	 
-	 });		 	 
-});  
 
 
-</script>
-  </html>
-  
 <script>
-/* Checkbox change event */
-
-    $('input[name="chart_sel"]').each(function() {
-        var value = $(this).val();              // value
-        var checked = $(this).prop('checked');  // jQuery 1.6 이상 (jQuery 1.6 미만에는 prop()가 없음, checked, selected, disabled는 꼭 prop()를 써야함)
-        // var checked = $(this).attr('checked');   // jQuery 1.6 미만 (jQuery 1.6 이상에서는 checked, undefined로 return됨)
-        // var checked = $(this).is('checked');
-        var $label = $(this).next(); 
-        if(checked)  {
-           $("#display_sel").val(value);
-	       document.getElementById('board_form').submit();  // form의 검색버튼 누른 효과 	
-		}
-
+$(document).ready(function() {
+    $("#writeBtn").click(function() {
+        popupCenter('./estimate.php', '쟘 제품 단가입력', 1050, 600);
     });
+
+    saveLogData('Jamb 매출통계');
+});
+
+/* Checkbox change event */
+$('input[name="chart_sel"]').each(function() {
+    var value = $(this).val();
+    var checked = $(this).prop('checked');
+    var $label = $(this).next();
+    if (checked) {
+        $("#display_sel").val(value);
+        document.getElementById('board_form').submit();
+    }
+});
 
 $('input[name="item_sel"]').change(function() {
     // 모든 radio를 순회한다.
     $('input[name="item_sel"]').each(function() {
-        var value = $(this).val();              // value
-        var checked = $(this).prop('checked');  // jQuery 1.6 이상 (jQuery 1.6 미만에는 prop()가 없음, checked, selected, disabled는 꼭 prop()를 써야함)
-        // var checked = $(this).attr('checked');   // jQuery 1.6 미만 (jQuery 1.6 이상에서는 checked, undefined로 return됨)
-        // var checked = $(this).is('checked');
-        var $label = $(this).next(); 
-        if(checked)  {
-           $("#item_sel").val(value);
-	       document.getElementById('board_form').submit();  // form의 검색버튼 누른 효과 	
-		}
-
+        var value = $(this).val();
+        var checked = $(this).prop('checked');
+        var $label = $(this).next();
+        if (checked) {
+            $("#item_sel").val(value);
+            document.getElementById('board_form').submit();
+        }
     });
 });
-					
-    // 데이터 준비 (천원 단위로 변환)
-    var item_arr = <?php echo json_encode(isset($item_arr) ? $item_arr : []);?>;
-    var work_sum = <?php echo json_encode(isset($work_sum) && is_array($work_sum) ? array_map(function($x){return is_numeric($x) ? $x/1000 : 0;}, $work_sum) : []);?>;
-    var month_sum = <?php echo json_encode(isset($month_sum) && is_array($month_sum) ? array_map(function($x){return is_numeric($x) ? $x/1000 : 0;}, $month_sum) : []);?>;
-    var year_sum = <?php echo json_encode(isset($year_sum) && is_array($year_sum) ? array_map(function($x){return is_numeric($x) ? $x/1000 : 0;}, $year_sum) : []);?>;
-    var item_type = document.getElementById('item_sel').value;
 
-    // 데이터 유효성 검사
-    if (!item_arr) item_arr = [];
-    if (!work_sum) work_sum = [];
-    if (!month_sum) month_sum = [];
-    if (!year_sum) year_sum = [];
+// 데이터 준비 (천원 단위로 변환)
+var item_arr = <?php echo json_encode(isset($item_arr) ? $item_arr : []); ?>;
+var work_sum = <?php echo json_encode(isset($work_sum) && is_array($work_sum) ? array_map(function($x) { return is_numeric($x) ? $x / 1000 : 0; }, $work_sum) : []); ?>;
+var month_sum = <?php echo json_encode(isset($month_sum) && is_array($month_sum) ? array_map(function($x) { return is_numeric($x) ? $x / 1000 : 0; }, $month_sum) : []); ?>;
+var year_sum = <?php echo json_encode(isset($year_sum) && is_array($year_sum) ? array_map(function($x) { return is_numeric($x) ? $x / 1000 : 0; }, $year_sum) : []); ?>;
+var item_type = document.getElementById('item_sel').value;
 
-    // Highcharts 기본 설정
-    var chartOptions = {
-        chart: {
-            type: 'column',
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            height: 280
-        },
-        title: {
-            text: 'JAMB 매출 현황 (천원)',
-            style: { fontSize: '14px', fontWeight: '600', color: '#01579b' }
-        },
+// 데이터 유효성 검사
+if (!item_arr) item_arr = [];
+if (!work_sum) work_sum = [];
+if (!month_sum) month_sum = [];
+if (!year_sum) year_sum = [];
+
+// Highcharts 기본 설정
+var chartOptions = {
+    chart: {
+        type: 'column',
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        height: 280
+    },
+    title: {
+        text: 'JAMB 매출 현황 (천원)',
+        style: { fontSize: '14px', fontWeight: '600', color: '#01579b' }
+    },
+    xAxis: {
+        labels: { style: { fontSize: '10px', color: '#01579b' } }
+    },
+    yAxis: {
+        title: { text: '천원', style: { fontSize: '10px', color: '#01579b' } },
+        labels: { style: { fontSize: '10px', color: '#01579b' } }
+    },
+    tooltip: {
+        formatter: function() {
+            return this.series.name + ': <b>' + Highcharts.numberFormat(this.y, 0) + ' 천원</b>';
+        }
+    },
+    legend: { enabled: false },
+    credits: { enabled: false },
+    plotOptions: {
+        column: {
+            colorByPoint: true
+        }
+    },
+    colors: ['#0288d1', '#0277bd', '#01579b', '#4fc3f7', '#29b6f6', '#03a9f4', '#039be5', '#0288d1']
+};
+
+if (item_type == '종류별비교') {
+    var categories = [
+        item_arr[0] || '항목1',
+        item_arr[1] || '항목2',
+        item_arr[2] || '항목3'
+    ];
+    var data = [
+        work_sum[0] || 0,
+        work_sum[1] || 0,
+        work_sum[2] || 0
+    ];
+
+    Highcharts.chart('myChart', Object.assign({}, chartOptions, {
+        title: { text: 'JAMB 종류별 매출 비교 (천원)', style: { fontSize: '14px', fontWeight: '600', color: '#01579b' } },
         xAxis: {
+            categories: categories,
             labels: { style: { fontSize: '10px', color: '#01579b' } }
         },
-        yAxis: {
-            title: { text: '천원', style: { fontSize: '10px', color: '#01579b' } },
+        series: [{
+            name: 'JAMB 매출',
+            data: data
+        }]
+    }));
+}
+
+if (item_type == '월별비교') {
+    var monthLabels = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
+
+    // 12개월 데이터 안전하게 처리
+    var monthData = [];
+    for (var i = 0; i < 12; i++) {
+        monthData.push(month_sum[i] || 0);
+    }
+
+    Highcharts.chart('myChart', Object.assign({}, chartOptions, {
+        title: { text: '월별 매출 현황 (천원)', style: { fontSize: '14px', fontWeight: '600', color: '#01579b' } },
+        xAxis: {
+            categories: monthLabels,
             labels: { style: { fontSize: '10px', color: '#01579b' } }
         },
-        tooltip: {
-            formatter: function() {
-                return this.series.name + ': <b>' + Highcharts.numberFormat(this.y, 0) + ' 천원</b>';
-            }
+        series: [{
+            name: 'JAMB 매출',
+            data: monthData
+        }]
+    }));
+}
+
+if (item_type == '년도비교') {
+    var yearLabels = ['전년1월', '1월', '전년2월', '2월', '전년3월', '3월', '전년4월', '4월', '전년5월', '5월', '전년6월', '6월', '전년7월', '7월', '전년8월', '8월', '전년9월', '9월', '전년10월', '10월', '전년11월', '11월', '전년12월', '12월'];
+    var yearData = [];
+
+    // 데이터 유효성 검사 - year_sum이 배열이고 최소 24개 요소가 있는지 확인
+    if (!Array.isArray(year_sum)) {
+        year_sum = [];
+    }
+
+    // 배열 길이를 24로 확장 (12개월 × 2년)
+    while (year_sum.length < 24) {
+        year_sum.push(0);
+    }
+
+    // 년도비교 데이터 재구성 - 안전한 인덱스 접근
+    for (var i = 0; i < 12; i++) {
+        var prevYearValue = year_sum[i];
+        var currentYearValue = year_sum[i + 12];
+
+        // 숫자가 아닌 값이나 null/undefined 처리
+        prevYearValue = (typeof prevYearValue === 'number' && !isNaN(prevYearValue)) ? prevYearValue : 0;
+        currentYearValue = (typeof currentYearValue === 'number' && !isNaN(currentYearValue)) ? currentYearValue : 0;
+
+        yearData.push(prevYearValue);      // 전년도 데이터
+        yearData.push(currentYearValue);   // 올해 데이터
+    }
+
+    // 최종 데이터 유효성 검사
+    if (yearData.length === 0 || yearData.every(val => val === 0)) {
+        console.warn('년도비교 차트: 유효한 데이터가 없습니다.');
+        yearData = new Array(24).fill(0); // 빈 데이터로 초기화
+    }
+
+    Highcharts.chart('myChart', Object.assign({}, chartOptions, {
+        title: { text: '전년 대비 월별 매출 현황 (천원)', style: { fontSize: '14px', fontWeight: '600', color: '#01579b' } },
+        xAxis: {
+            categories: yearLabels,
+            labels: { style: { fontSize: '10px', color: '#01579b' } }
         },
-        legend: { enabled: false },
-        credits: { enabled: false },
         plotOptions: {
             column: {
-                colorByPoint: true
+                colorByPoint: false
             }
         },
-        colors: ['#0288d1', '#0277bd', '#01579b', '#4fc3f7', '#29b6f6', '#03a9f4', '#039be5', '#0288d1']
-    };
-
-    if(item_type == '종류별비교') {
-        var categories = [
-            item_arr[0] || '항목1',
-            item_arr[1] || '항목2',
-            item_arr[2] || '항목3'
-        ];
-        var data = [
-            work_sum[0] || 0,
-            work_sum[1] || 0,
-            work_sum[2] || 0
-        ];
-
-        Highcharts.chart('myChart', Object.assign({}, chartOptions, {
-            title: { text: 'JAMB 종류별 매출 비교 (천원)', style: { fontSize: '14px', fontWeight: '600', color: '#01579b' } },
-            xAxis: {
-                categories: categories,
-                labels: { style: { fontSize: '10px', color: '#01579b' } }
-            },
-            series: [{
-                name: 'JAMB 매출',
-                data: data
-            }]
-        }));
-    }
-
-    if(item_type == '월별비교') {
-        var monthLabels = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
-
-        // 12개월 데이터 안전하게 처리
-        var monthData = [];
-        for(var i = 0; i < 12; i++) {
-            monthData.push(month_sum[i] || 0);
-        }
-
-        Highcharts.chart('myChart', Object.assign({}, chartOptions, {
-            title: { text: '월별 매출 현황 (천원)', style: { fontSize: '14px', fontWeight: '600', color: '#01579b' } },
-            xAxis: {
-                categories: monthLabels,
-                labels: { style: { fontSize: '10px', color: '#01579b' } }
-            },
-            series: [{
-                name: 'JAMB 매출',
-                data: monthData
-            }]
-        }));
-    }
-
-    if(item_type == '년도비교') {
-        var yearLabels = ['전년1월','1월','전년2월','2월','전년3월','3월','전년4월','4월','전년5월','5월','전년6월','6월','전년7월','7월','전년8월','8월','전년9월','9월','전년10월','10월','전년11월','11월','전년12월','12월'];
-        var yearData = [];
-
-        // 데이터 유효성 검사 - year_sum이 배열이고 최소 24개 요소가 있는지 확인
-        if (!Array.isArray(year_sum)) {
-            year_sum = [];
-        }
-
-        // 배열 길이를 24로 확장 (12개월 × 2년)
-        while(year_sum.length < 24) {
-            year_sum.push(0);
-        }
-
-        // 년도비교 데이터 재구성 - 안전한 인덱스 접근
-        for(var i = 0; i < 12; i++) {
-            var prevYearValue = year_sum[i];
-            var currentYearValue = year_sum[i + 12];
-
-            // 숫자가 아닌 값이나 null/undefined 처리
-            prevYearValue = (typeof prevYearValue === 'number' && !isNaN(prevYearValue)) ? prevYearValue : 0;
-            currentYearValue = (typeof currentYearValue === 'number' && !isNaN(currentYearValue)) ? currentYearValue : 0;
-
-            yearData.push(prevYearValue);      // 전년도 데이터
-            yearData.push(currentYearValue);   // 올해 데이터
-        }
-
-        // 최종 데이터 유효성 검사
-        if (yearData.length === 0 || yearData.every(val => val === 0)) {
-            console.warn('년도비교 차트: 유효한 데이터가 없습니다.');
-            yearData = new Array(24).fill(0); // 빈 데이터로 초기화
-        }
-
-        Highcharts.chart('myChart', Object.assign({}, chartOptions, {
-            title: { text: '전년 대비 월별 매출 현황 (천원)', style: { fontSize: '14px', fontWeight: '600', color: '#01579b' } },
-            xAxis: {
-                categories: yearLabels,
-                labels: { style: { fontSize: '10px', color: '#01579b' } }
-            },
-            plotOptions: {
-                column: {
-                    colorByPoint: false
-                }
-            },
-            colors: ['#64748b', '#0288d1'], // 전년도는 회색, 올해는 파란색
-            series: [{
-                name: '전년 대비 JAMB 매출',
-                data: yearData,
-                type: 'column'  // 명시적으로 차트 타입 지정
-            }]
-        }));
-    }
-
-	$(document).ready(function(){
-		saveLogData('Jamb 매출통계'); // 다른 페이지에 맞는 menuName을 전달
-	});
-</script> 
+        colors: ['#64748b', '#0288d1'], // 전년도는 회색, 올해는 파란색
+        series: [{
+            name: '전년 대비 JAMB 매출',
+            data: yearData,
+            type: 'column'
+        }]
+    }));
+}
+</script>
 
 </body>
 </html>

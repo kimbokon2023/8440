@@ -1,88 +1,35 @@
 <?php
- session_start();
+require_once __DIR__ . '/../bootstrap.php';
 
- $level= $_SESSION["level"];
- ?>
+$level = $_SESSION["level"] ?? null;
 
+include includePath('load_header.php');
+?>
 
- <?php include getDocumentRoot() . '/load_header.php' ?>
+<title> TKE 엑셀 양식 일괄등록 </title> 
+</head>
 
- <title> TKE 엑셀 양식 일괄등록 </title> 
- </head>
+<?php 
 
- <?php 
+$recordDate = $_REQUEST["recordDate"] ?? date("Y-m-d");
 
- if(isset($_REQUEST["recordDate"])) 
-	 $recordDate=$_REQUEST["recordDate"];
-   else
-     $recordDate=date("Y-m-d");
- 
- if(isset($_REQUEST["check"])) 
-	 $check=$_REQUEST["check"]; // 미출고 리스트 request 사용 페이지 이동버튼 누를시`
-   else
-     $check=$_POST["check"]; // 미출고 리스트 POST사용 
- 
-  if(isset($_REQUEST["plan_output_check"])) 
-	 $plan_output_check=$_REQUEST["plan_output_check"]; // 미출고 리스트 request 사용 페이지 이동버튼 누를시`
-   else
-	if(isset($_POST["plan_output_check"]))   
-         $plan_output_check=$_POST["plan_output_check"]; // 미출고 리스트 POST사용  
-	 else
-		 $plan_output_check='0';
- 
- if(isset($_REQUEST["output_check"])) 
-	 $output_check=$_REQUEST["output_check"]; // 출고완료
-   else
-	if(isset($_POST["output_check"]))   
-         $output_check=$_POST["output_check"]; // 출고완료
-	 else
-		 $output_check='0';
-	 
- if(isset($_REQUEST["team_check"])) 
-	 $team_check=$_REQUEST["team_check"]; // 시공팀미지정
-   else
-	if(isset($_POST["team_check"]))   
-         $team_check=$_POST["team_check"]; // 시공팀미지정
-	 else
-		 $team_check='0';	 
-	 
- if(isset($_REQUEST["measure_check"])) 
-	 $measure_check=$_REQUEST["measure_check"]; // 미실측리스트
-   else
-	if(isset($_POST["measure_check"]))   
-         $measure_check=$_POST["measure_check"]; // 미실측리스트
-	 else
-		 $measure_check='0';		 
+// 변수 초기화
+$check = $_REQUEST["check"] ?? $_POST["check"] ?? '1';
+$plan_output_check = $_REQUEST["plan_output_check"] ?? $_POST["plan_output_check"] ?? '0';
+$output_check = $_REQUEST["output_check"] ?? $_POST["output_check"] ?? '0';
+$team_check = $_REQUEST["team_check"] ?? $_POST["team_check"] ?? '0';
+$measure_check = $_REQUEST["measure_check"] ?? $_POST["measure_check"] ?? '0';
+$page = $_REQUEST["page"] ?? 1;
+$cursort = $_REQUEST["cursort"] ?? '';
+$sortof = $_REQUEST["sortof"] ?? '';
+$stable = $_REQUEST["stable"] ?? '';
+$mode = $_REQUEST["mode"] ?? '';
+$find = $_REQUEST["find"] ?? '';
+$search = $_REQUEST["search"] ?? '';
+$fromdate = $_REQUEST["fromdate"] ?? '';
+$todate = $_REQUEST["todate"] ?? '';
   
- if(isset($_REQUEST["page"])) // $_REQUEST["page"]값이 없을 때에는 1로 지정 
- {
-    $page=$_REQUEST["page"];  // 페이지 번호
- }
-  else
-  {
-    $page=1;	 
-  }
-  
-// print $output_check;
-  
- $cursort=$_REQUEST["cursort"];    // 현재 정렬모드 지정
- $sortof=$_REQUEST["sortof"];  // 클릭해서 넘겨준 값
- $stable=$_REQUEST["stable"];    // 정렬모드 변경할지 안할지 결정  
-  
-  $sum=array(); 
-	 
-  if(isset($_REQUEST["mode"]))
-     $mode=$_REQUEST["mode"];
-  else 
-     $mode="";        
- 
- if(isset($_REQUEST["find"]))   //목록표에 제목,이름 등 나오는 부분
- $find=$_REQUEST["find"];
- 
-  
- // 기간을 정하는 구간
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];	 
+$sum = array();
  
 if($fromdate=="")
 {
@@ -101,9 +48,6 @@ if($todate=="")
 	$Transtodate=date("Y-m-d",$Transtodate);
 	}
  
-  if(isset($_REQUEST["search"]))   //
- $search=$_REQUEST["search"];
-
 $orderby=" order by workday desc "; 
 	
 $now = date("Y-m-d");	 // 현재 날짜와 크거나 같으면 생산예정으로 구분		
@@ -118,8 +62,7 @@ $now = date("Y-m-d");	 // 현재 날짜와 크거나 같으면 생산예정으�
 					  $sql .="or (delicompany like '%$search%' ) or (hpi like '%$search%' ) or (firstord like '%$search%' ) or (secondord like '%$search%' ) or (worker like '%$search%' ) or (memo like '%$search%' )) and ( (workday between date('$fromdate') and date('$Transtodate') ) and (filename1 is null  or filename2 is null or doneday is null )  and (workplacename Not like '%판매%' ) and (workplacename Not like '%불량%' ) and (workplacename Not like '%분실%' ) and (workplacename Not like '%누락%' )  and (workplacename Not like '%추가%' ) )" . $orderby;				  		  		   
 			     }    
 	  
-require_once("../lib/mydb.php");
-$pdo = db_connect();	  		  
+// bootstrap.php에서 이미 DB 연결됨	  		  
  
    $counter=0;
    $workday_arr=array();
@@ -300,7 +243,7 @@ $(document).ready(function(){
  var total_sum=0; 
  var count=0;  // 전체줄수 카운트 
   
- var rowNum = "<? echo $counter; ?>" ; 
+ var rowNum = <?php echo json_encode($counter); ?> ; 
  
 const COL_COUNT = 47;
 const COL_NAMES = 47;
@@ -481,7 +424,7 @@ $("#savegridBtn").click(function(){  savegrid();   });
 
 function dis_text()
 {  
-		var dis_text = '<?php echo $jamb_total; ?>';
+		var dis_text = <?php echo json_encode($jamb_total ?? ''); ?>;
 		$("#dis_text").val(dis_text);
 }	
 

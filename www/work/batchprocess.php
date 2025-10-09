@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../bootstrap.php';
+
 header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문
 
 function checkInput($input) {
@@ -9,19 +11,20 @@ function checkInput($input) {
     }
 }
 
-isset($_REQUEST["num_arr"])  ? $num_arr=$_REQUEST["num_arr"] :   $num_arr=''; 
-isset($_REQUEST["recordDate_arr"])  ? $recordDate_arr=$_REQUEST["recordDate_arr"] :   $recordDate_arr=''; 
-isset($_REQUEST["workchoice"])  ? $workchoice=$_REQUEST["workchoice"] :   $workchoice=''; 
-isset($_REQUEST["image1_arr"])  ? $image1_arr=$_REQUEST["image1_arr"] :   $image1_arr=''; 
-isset($_REQUEST["image2_arr"])  ? $image2_arr=$_REQUEST["image2_arr"] :   $image2_arr=''; 
+// 변수 초기화
+$num_arr = $_REQUEST["num_arr"] ?? ''; 
+$recordDate_arr = $_REQUEST["recordDate_arr"] ?? ''; 
+$workchoice = $_REQUEST["workchoice"] ?? ''; 
+$image1_arr = $_REQUEST["image1_arr"] ?? ''; 
+$image2_arr = $_REQUEST["image2_arr"] ?? ''; 
 
-$num_tmp = explode(",",$num_arr[0]);
-$date_tmp = explode(",",$recordDate_arr[0]);
-$image1 = explode(",",$image1_arr[0]);
-$image2 = explode(",",$image2_arr[0]);
+// 배열 처리 - 빈 배열 체크 추가
+$num_tmp = !empty($num_arr[0]) ? explode(",", $num_arr[0]) : [];
+$date_tmp = !empty($recordDate_arr[0]) ? explode(",", $recordDate_arr[0]) : [];
+$image1 = !empty($image1_arr[0]) ? explode(",", $image1_arr[0]) : [];
+$image2 = !empty($image2_arr[0]) ? explode(",", $image2_arr[0]) : [];
 
-require_once("../lib/mydb.php");	
-$pdo = db_connect();
+// bootstrap.php에서 이미 DB 연결됨
 
 if($workchoice == 'measureday')
 {

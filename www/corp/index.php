@@ -1,19 +1,16 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
-require_once(includePath('lib/mydb.php'));
+<?php
+require_once __DIR__ . '/../bootstrap.php';
 
 // 첫 화면 표시 문구
 $title_message = '거래처 조회'; 
-?>
 
-<?php 
-if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
+if(!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
     sleep(1);
-    header("Location:" . $WebSite . "login/login_form.php"); 
+    header("Location:" . getBaseUrl() . "/login/login_form.php"); 
     exit;
 }
 
-include getDocumentRoot() . '/load_header.php';   
+include includePath('load_header.php');   
 ?>
 <title> <?=$title_message?> </title>
 <!-- Tabulator CSS and JS -->
@@ -21,7 +18,7 @@ include getDocumentRoot() . '/load_header.php';
 <script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.2.1/dist/js/tabulator.min.js"></script>
 
 <body>		 
-<?php require_once(includePath('myheader.php')); ?>   
+<?php include includePath('myheader.php'); ?>   
 
 <style>
 /* Light mode styles */
@@ -431,8 +428,7 @@ body {
 </div>
 
 <?php
-// 거래처 데이터 조회
-$pdo = db_connect();
+// bootstrap.php에서 이미 DB 연결됨
 
 // 거래처 테이블이 없으면 생성
 $createTableSQL = "
@@ -804,7 +800,7 @@ $(document).ready(function() {
             console.log('🔍 Tabulator 내장 이벤트 rowData.num 값:', num, '타입:', typeof num);
             
             if (num && num > 0) {
-                var url = "edit.php?num=" + encodeURIComponent(num);
+                var url = window.baseUrl + "/corp/edit.php?num=" + encodeURIComponent(num);
                 console.log('Tabulator 내장 이벤트로 열릴 URL:', url);
                 var newWindow = window.open(url, '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
                 if (!newWindow) {
@@ -825,7 +821,7 @@ $(document).ready(function() {
             console.log('🔍 Tabulator 더블클릭 rowData.num 값:', num, '타입:', typeof num);
             
             if (num && num > 0) {
-                var url = "edit.php?num=" + encodeURIComponent(num);
+                var url = window.baseUrl + "/corp/edit.php?num=" + encodeURIComponent(num);
                 console.log('더블클릭으로 열릴 URL:', url);
                 var newWindow = window.open(url, '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
                 if (!newWindow) {
@@ -899,7 +895,7 @@ $(document).ready(function() {
                         console.log('🔍 jQuery 백업 rowData.num 값:', num, '타입:', typeof num);
                         
                         if (num && num > 0) {
-                            var url = "edit.php?num=" + encodeURIComponent(num);
+                            var url = window.baseUrl + "/corp/edit.php?num=" + encodeURIComponent(num);
                             console.log('jQuery 백업으로 열릴 URL:', url);
                             var newWindow = window.open(url, '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
                             if (!newWindow) {
@@ -1102,7 +1098,7 @@ function goToLastPage() {
 
 // 거래처 등록 함수
 function addCustomer() {
-    var url = "add.php";
+    var url = window.baseUrl + "/corp/add.php";
     window.open(url, '_blank', 'width=1200,height=900,scrollbars=yes,resizable=yes');
 }
 
@@ -1121,7 +1117,7 @@ $(document).ready(function() {
 </script>
 
 <div class="container-fluid mt-3 mb-3">
-    <? include '../footer_sub.php'; ?>
+    <?php include '../footer_sub.php'; ?>
 </div>
 </body>
 </html>

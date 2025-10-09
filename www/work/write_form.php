@@ -1,17 +1,13 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session.php'));
- 
-include getDocumentRoot() . '/load_header.php';
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-		 sleep(1);
-	          header("Location:" . $WebSite . "login/login_form.php"); 
-         exit;
-   }  
+<?php
+require_once __DIR__ . '/../bootstrap.php';
 
-  if(isset($_REQUEST["mode"]))  //수정 버튼을 클릭해서 호출했는지 체크
-	$mode=$_REQUEST["mode"];
-  else
-	$mode="";
+if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
+	sleep(1);
+	header("Location:" . getBaseUrl() . "/login/login_form.php"); 
+	exit;
+}
+
+$mode = $_REQUEST["mode"] ?? "";
 
 if($mode === 'copy')
 	$title_message = "(데이터복사) jamb 수주내역" ;
@@ -22,11 +18,12 @@ else
   
 // 수정작업 2023년 7월 14일 UI 개선
  
- if($user_name==='이미래' || $user_name==='김보곤')
-	 $isAuthorizedUser = true;
-    else
-		$isAuthorizedUser = false;
+if($user_name==='이미래' || $user_name==='김보곤' || $user_name==='조경임' || $user_name==='이경묵' || $user_name==='소현철' || $user_name==='최장중')
+	$isAuthorizedUser = true;
+else
+	$isAuthorizedUser = false;
 
+include includePath('load_header.php');
  ?>
 
 
@@ -114,8 +111,7 @@ else
 include 'request.php';  
   
  // 재질 배열 추출 
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();	
+// bootstrap.php에서 이미 DB 연결됨	
    
 // 소장 VOC 가져오기
 	try{
@@ -129,7 +125,12 @@ $pdo = db_connect();
 		 $content=$row["content"];
 
 		 }catch (PDOException $Exception) {
-		   print "오류: ".$Exception->getMessage();
+             if (isLocal()) {
+                 print "오류: ".$Exception->getMessage();
+             } else {
+                 error_log("Database error in write_form.php (voc): " . $Exception->getMessage());
+                 print "데이터베이스 오류가 발생했습니다. 관리자에게 문의하세요.";
+             }
 		 }    
 
 
@@ -145,43 +146,47 @@ $pdo = db_connect();
 		  print "검색결과가 없습니다.<br>";
 		 }else{
 		  $row = $stmh->fetch(PDO::FETCH_ASSOC);
-		  $item_file_0 = $row["file_name_0"];
-		  $item_file_1 = $row["file_name_1"];
+		  $item_file_0 = $row["file_name_0"] ?? '';
+		  $item_file_1 = $row["file_name_1"] ?? '';
 
-		  $copied_file_0 = "../uploads/". $row["file_copied_0"];
-		  $copied_file_1 = "../uploads/". $row["file_copied_1"];
+		  $copied_file_0 = "../uploads/". ($row["file_copied_0"] ?? '');
+		  $copied_file_1 = "../uploads/". ($row["file_copied_1"] ?? '');
 		 }
 
 	  include '_row.php';
 
-		if($orderday!="0000-00-00" and $orderday!="1970-01-01"  and $orderday!="") $orderday = date("Y-m-d", strtotime( $orderday) );
+		if($orderday && $orderday!="0000-00-00" && $orderday!="1970-01-01") $orderday = date("Y-m-d", strtotime($orderday));
 			else $orderday="";
-		if($measureday!="0000-00-00" and $measureday!="1970-01-01" and $measureday!="")   $measureday = date("Y-m-d", strtotime( $measureday) );
+		if($measureday && $measureday!="0000-00-00" && $measureday!="1970-01-01") $measureday = date("Y-m-d", strtotime($measureday));
 			else $measureday="";
-		if($drawday!="0000-00-00" and $drawday!="1970-01-01" and $drawday!="")  $drawday = date("Y-m-d", strtotime( $drawday) );
+		if($drawday && $drawday!="0000-00-00" && $drawday!="1970-01-01") $drawday = date("Y-m-d", strtotime($drawday));
 			else $drawday="";
-		if($deadline!="0000-00-00" and $deadline!="1970-01-01" and $deadline!="")  $deadline = date("Y-m-d", strtotime( $deadline) );
+		if($deadline && $deadline!="0000-00-00" && $deadline!="1970-01-01") $deadline = date("Y-m-d", strtotime($deadline));
 			else $deadline="";
-		if($workday!="0000-00-00" and $workday!="1970-01-01"  and $workday!="")  $workday = date("Y-m-d", strtotime( $workday) );
+		if($workday && $workday!="0000-00-00" && $workday!="1970-01-01") $workday = date("Y-m-d", strtotime($workday));
 			else $workday="";					
-		if($endworkday!="0000-00-00" and $endworkday!="1970-01-01" and $endworkday!="")  $endworkday = date("Y-m-d", strtotime( $endworkday) );
+		if($endworkday && $endworkday!="0000-00-00" && $endworkday!="1970-01-01") $endworkday = date("Y-m-d", strtotime($endworkday));
 			else $endworkday="";		      
-		if($demand!="0000-00-00" and $demand!="1970-01-01" and $demand!="")  $demand = date("Y-m-d", strtotime( $demand) );
+		if($demand && $demand!="0000-00-00" && $demand!="1970-01-01") $demand = date("Y-m-d", strtotime($demand));
 			else $demand="";						
-		if($startday!="0000-00-00" and $startday!="1970-01-01" and $startday!="")  $startday = date("Y-m-d", strtotime( $startday) );
+		if($startday && $startday!="0000-00-00" && $startday!="1970-01-01") $startday = date("Y-m-d", strtotime($startday));
 			else $startday="";	
-		if($testday!="0000-00-00" and $testday!="1970-01-01" and $testday!="")  $testday = date("Y-m-d", strtotime( $testday) );
+		if($testday && $testday!="0000-00-00" && $testday!="1970-01-01") $testday = date("Y-m-d", strtotime($testday));
 			else $testday="";											
-		if($doneday!="0000-00-00" and $doneday!="1970-01-01" and $doneday!="")  $doneday = date("Y-m-d", strtotime( $doneday) );
+		if($doneday && $doneday!="0000-00-00" && $doneday!="1970-01-01") $doneday = date("Y-m-d", strtotime($doneday));
 			else $doneday="";												
-		if($workfeedate!="0000-00-00" and $workfeedate!="1970-01-01" and $workfeedate!="")  $workfeedate = date("Y-m-d", strtotime( $workfeedate) );
+		if($workfeedate && $workfeedate!="0000-00-00" && $workfeedate!="1970-01-01") $workfeedate = date("Y-m-d", strtotime($workfeedate));
 			else $workfeedate="";												
-		if($assigndate!="0000-00-00" and $assigndate!="1970-01-01" and $assigndate!="")  $assigndate = date("Y-m-d", strtotime( $assigndate) );
-			else $assigndate="";						
-																
+		if($assigndate && $assigndate!="0000-00-00" && $assigndate!="1970-01-01") $assigndate = date("Y-m-d", strtotime($assigndate));
+			else $assigndate="";								
 
      }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
+         if (isLocal()) {
+             print "오류: ".$Exception->getMessage();
+         } else {
+             error_log("Database error in write_form.php (modify): " . $Exception->getMessage());
+             print "데이터베이스 오류가 발생했습니다. 관리자에게 문의하세요.";
+         }
      }
   }
 
@@ -199,6 +204,7 @@ $orderday=date("Y-m-d");
   $secondordman="";
   $secondordmantel="";
   $chargedman="";
+  $chargedmantel="";
   $measureday="";
   $drawday="";
   $deadline="";
@@ -227,6 +233,7 @@ $orderday=date("Y-m-d");
   
   $update_day="";
   $regist_day="";  
+  $first_writer="";
   
   $delivery="";
   $delicar="";
@@ -237,6 +244,17 @@ $orderday=date("Y-m-d");
   $update_log="";
   $attachment="";
   $assigndate="";
+  $outsourcing="";
+  $madeconfirm="";
+  $checkmat1="";
+  $checkmat2="";
+  $checkmat3="";
+  $gapcover="";
+  $mymemo="";
+  $widejambworkfee="";
+  $normaljambworkfee="";
+  $smalljambworkfee="";
+  $checkhold="";
   
   }
 
@@ -254,11 +272,11 @@ $orderday=date("Y-m-d");
       print "검색결과가 없습니다.<br>";
      }else{
       $row = $stmh->fetch(PDO::FETCH_ASSOC);
-      $item_file_0 = $row["file_name_0"];
-      $item_file_1 = $row["file_name_1"];
+      $item_file_0 = $row["file_name_0"] ?? '';
+      $item_file_1 = $row["file_name_1"] ?? '';
 
-      $copied_file_0 = "../uploads/". $row["file_copied_0"];
-      $copied_file_1 = "../uploads/". $row["file_copied_1"];
+      $copied_file_0 = "../uploads/". ($row["file_copied_0"] ?? '');
+      $copied_file_1 = "../uploads/". ($row["file_copied_1"] ?? '');
 	 }
 	 
   include '_row.php'; 	 
@@ -285,31 +303,36 @@ $orderday=date("Y-m-d");
   $outsourcing=null ;
 
 
-		      if($orderday!="0000-00-00" and $orderday!="1970-01-01"  and $orderday!="") $orderday = date("Y-m-d", strtotime( $orderday) );
+		      if($orderday && $orderday!="0000-00-00" && $orderday!="1970-01-01") $orderday = date("Y-m-d", strtotime($orderday));
 					else $orderday="";
-		      if($measureday!="0000-00-00" and $measureday!="1970-01-01" and $measureday!="")   $measureday = date("Y-m-d", strtotime( $measureday) );
+		      if($measureday && $measureday!="0000-00-00" && $measureday!="1970-01-01") $measureday = date("Y-m-d", strtotime($measureday));
 					else $measureday="";
-		      if($drawday!="0000-00-00" and $drawday!="1970-01-01" and $drawday!="")  $drawday = date("Y-m-d", strtotime( $drawday) );
+		      if($drawday && $drawday!="0000-00-00" && $drawday!="1970-01-01") $drawday = date("Y-m-d", strtotime($drawday));
 					else $drawday="";
-		      if($deadline!="0000-00-00" and $deadline!="1970-01-01" and $deadline!="")  $deadline = date("Y-m-d", strtotime( $deadline) );
+		      if($deadline && $deadline!="0000-00-00" && $deadline!="1970-01-01") $deadline = date("Y-m-d", strtotime($deadline));
 					else $deadline="";
-		      if($workday!="0000-00-00" and $workday!="1970-01-01"  and $workday!="")  $workday = date("Y-m-d", strtotime( $workday) );
+		      if($workday && $workday!="0000-00-00" && $workday!="1970-01-01") $workday = date("Y-m-d", strtotime($workday));
 					else $workday="";					
-		      if($endworkday!="0000-00-00" and $endworkday!="1970-01-01" and $endworkday!="")  $endworkday = date("Y-m-d", strtotime( $endworkday) );
+		      if($endworkday && $endworkday!="0000-00-00" && $endworkday!="1970-01-01") $endworkday = date("Y-m-d", strtotime($endworkday));
 					else $endworkday="";		      
-		      if($demand!="0000-00-00" and $demand!="1970-01-01" and $demand!="")  $demand = date("Y-m-d", strtotime( $demand) );
+		      if($demand && $demand!="0000-00-00" && $demand!="1970-01-01") $demand = date("Y-m-d", strtotime($demand));
 					else $demand="";						
-		      if($startday!="0000-00-00" and $startday!="1970-01-01" and $startday!="")  $startday = date("Y-m-d", strtotime( $startday) );
+		      if($startday && $startday!="0000-00-00" && $startday!="1970-01-01") $startday = date("Y-m-d", strtotime($startday));
 					else $startday="";	
-		      if($testday!="0000-00-00" and $testday!="1970-01-01" and $testday!="")  $testday = date("Y-m-d", strtotime( $testday) );
+		      if($testday && $testday!="0000-00-00" && $testday!="1970-01-01") $testday = date("Y-m-d", strtotime($testday));
 					else $testday="";						
-			  if($doneday!="0000-00-00" and $doneday!="1970-01-01" and $doneday!="")  $doneday = date("Y-m-d", strtotime( $doneday) );
+			  if($doneday && $doneday!="0000-00-00" && $doneday!="1970-01-01") $doneday = date("Y-m-d", strtotime($doneday));
 					else $doneday="";													
 		      // if($workfeedate!="0000-00-00" and $workfeedate!="1970-01-01" and $workfeedate!="")  $workfeedate = date("Y-m-d", strtotime( $workfeedate) );
 					// else $workfeedate="";						
 
      }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
+         if (isLocal()) {
+             print "오류: ".$Exception->getMessage();
+         } else {
+             error_log("Database error in write_form.php (copy): " . $Exception->getMessage());
+             print "데이터베이스 오류가 발생했습니다. 관리자에게 문의하세요.";
+         }
      }
 	 
 // copy일 경우는 $num 0 초기화
@@ -349,8 +372,13 @@ $num = 0;
 			  $counter++;
 	 } 	 
    } catch (PDOException $Exception) {
-    print "오류: ".$Exception->getMessage();
-}    
+       if (isLocal()) {
+           print "오류: ".$Exception->getMessage();
+       } else {
+           error_log("Database error in write_form.php (steelsource): " . $Exception->getMessage());
+           print "데이터베이스 오류가 발생했습니다. 관리자에게 문의하세요.";
+       }
+   }    
 
 array_push($material_arr,'','304 Hair Line 1.2T','304 HL 1.2T','304 Mirror 1.2T','304 MR 1.2T','VB 1.2T','2B VB 1.2T','304 Mirror VB 1.2T', '304 Mirror Bronze 1.2T', '304 Mirror VB Ti-Bronze 1.2T', '304 Hair Line Black 1.2T', 'SPCC 1.2T(도장)', 'EGI 1.2T(도장)', 'HTM (신우)',  '기타', '304 HL 1.2T','304 MR 1.2T','VB 1.2T','2B VB 1.2T','304 VB 1.2T', 'SPCC 1.2T(도장)', 'EGI 1.2T(도장)', 'HTM (신우)' );
 
@@ -361,15 +389,15 @@ sort($material_arr);
 
 <form id="board_form" name="board_form" method="post"  onkeydown="return captureReturnKey(event)"  >	
 	      
-	<input type="hidden" id="voc_alert" name="voc_alert" value="<?=$voc_alert?>" size="5" > 	
-	<input type="hidden" id="ma_alert" name="ma_alert" value="<?=$ma_alert?>" size="5" > 	
-	<input type="hidden" id="order_alert" name="order_alert" value="<?=$order_alert?>" size="5" > 		
-	<input type="hidden" id="sqltext" name="sqltext" value="<?=$sqltext?>" > 					
-	<input type="hidden" id="buttonval" name="buttonval" value="<?=$buttonval?>" > 		
-	<input type="hidden" id="first_writer" name="first_writer" value="<?=$first_writer?>"  >
-	<input type="hidden" id="update_log" name="update_log" value="<?=$update_log?>"  >
-	<input type="hidden" id="num" name="num" value="<?=$num?>"  >
-	<input type="hidden" id="mode" name="mode" value="<?=$mode?>"  >			   
+	<input type="hidden" id="voc_alert" name="voc_alert" value="<?= htmlspecialchars($voc_alert ?? '') ?>" size="5" > 	
+	<input type="hidden" id="ma_alert" name="ma_alert" value="<?= htmlspecialchars($ma_alert ?? '') ?>" size="5" > 	
+	<input type="hidden" id="order_alert" name="order_alert" value="<?= htmlspecialchars($order_alert ?? '') ?>" size="5" > 		
+	<input type="hidden" id="sqltext" name="sqltext" value="<?= htmlspecialchars($sqltext ?? '') ?>" > 					
+	<input type="hidden" id="buttonval" name="buttonval" value="<?= htmlspecialchars($buttonval ?? '') ?>" > 		
+	<input type="hidden" id="first_writer" name="first_writer" value="<?= htmlspecialchars($first_writer ?? '') ?>"  >
+	<input type="hidden" id="update_log" name="update_log" value="<?= htmlspecialchars($update_log ?? '') ?>"  >
+	<input type="hidden" id="num" name="num" value="<?= htmlspecialchars($num ?? '') ?>"  >
+	<input type="hidden" id="mode" name="mode" value="<?= htmlspecialchars($mode ?? '') ?>"  >			   
 
 <div class="container-fluid">	
   
@@ -387,11 +415,11 @@ sort($material_arr);
    		
 <div class="d-flex justify-content-start align-items-center mt-3 mb-2 ">		
 		<span class="fs-5 me-5">	<?=$title_message?> </span>			
-						등록 <?=$first_writer?>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+						등록 <?= htmlspecialchars($first_writer ?? '', ENT_QUOTES) ?>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
 						  <?php
-								  $update_log_extract = substr($update_log, 0, 31);  // 이미래....
+								  $update_log_extract = substr($update_log ?? '', 0, 31);  // 이미래....
 						  ?>
-						수정 <?=$update_log_extract?> &nbsp;&nbsp;&nbsp;
+						수정 <?= htmlspecialchars($update_log_extract ?? '', ENT_QUOTES) ?> &nbsp;&nbsp;&nbsp;
 						
 					<button type="button" class="btn btn-outline-dark btn-sm me-5" id="showlogBtn"   >								
 						Log 기록
@@ -433,9 +461,9 @@ sort($material_arr);
 				}		 
 						?>	
  
-	  <input type="radio" <?=$aryreg[0]?> name=checkstep value="" >   덧방   &nbsp;&nbsp;&nbsp;  
-	  <input type="radio" <?=$aryreg[1]?> name=checkstep value="신규" > 신규  &nbsp;&nbsp;&nbsp;  	 
-	  <input type="radio" <?=$aryreg[2]?> name=checkstep value="부대공사" > 부대공사
+	  <input type="radio" <?= $aryreg[0] ?? '' ?> name=checkstep value="" >   덧방   &nbsp;&nbsp;&nbsp;  
+	  <input type="radio" <?= $aryreg[1] ?? '' ?> name=checkstep value="신규" > 신규  &nbsp;&nbsp;&nbsp;  	 
+	  <input type="radio" <?= $aryreg[2] ?? '' ?> name=checkstep value="부대공사" > 부대공사
       </td>	
       <td colspan="2" >
       <h5> <span class="badge bg-success ">외주가공</span>    &nbsp;		 
@@ -444,7 +472,7 @@ sort($material_arr);
 			   name="outsourcing" 
 			   value="외주"
 			   onclick="updateWorkOrder();"
-			   <?php echo ($outsourcing === '외주') ? 'checked' : ''; ?>>
+			   <?php echo (($outsourcing ?? '') === '외주') ? 'checked' : ''; ?>>
 
 		</h5>
       </td>			  
@@ -490,7 +518,7 @@ sort($material_arr);
 		  <button type="button" class="btn btn-dark-outline btn-sm" onclick="phonebookBtn('secondord','chargedman','chargedmantel','false');">  <ion-icon name="settings-outline"></ion-icon> </button>
 	  </td>	  
       <td class="col">Tel</td>
-      <td class="col"><input type="text" name="chargedmantel" id="chargedmantel" value="<?=$chargedmantel?>" class="form-control"></td>
+      <td class="col"><input type="text" name="chargedmantel" id="chargedmantel" value="<?= htmlspecialchars($chargedmantel ?? '', ENT_QUOTES) ?>" class="form-control"></td>
 	  <td> </td>	  
     </tr>
   </tbody>
@@ -552,14 +580,14 @@ sort($material_arr);
       <td class="col"><input type="date" name="doneday" id="doneday" value="<?=$doneday?>" class="form-control"></td>
 	  <?php if($mode!=='copy') { ?>
 		   <td colspan="2"> 
-		   <?php  if($madeconfirm === '1') { ?>
+		   <?php  if(($madeconfirm ?? '') === '1') { ?>
 		   <h5> <span class="badge bg-primary " > 
 		   제작완료 확인함  </span> 
 				<input type="checkbox" 
 				   id="madeconfirm" 
 				   name="madeconfirm" 
 				   value="1"			   
-				   <?php echo ($madeconfirm === '1') ? 'checked' : ''; ?>>
+				   <?php echo (($madeconfirm ?? '') === '1') ? 'checked' : ''; ?>>
 		   <?php  } ?>
 		   </h5> 
 		   </td>
@@ -583,7 +611,7 @@ sort($material_arr);
       <tr>
         <td class="col" style="width:10%;">재질1</td>
         <td class="col" style="width:23%;">   
-			<input type="checkbox" name="checkmat1" id="checkmat1" value="checked" <?=$checkmat1?>  style="font-size:13px;" > 사급
+			<input type="checkbox" name="checkmat1" id="checkmat1" value="checked" <?= htmlspecialchars($checkmat1 ?? '', ENT_QUOTES) ?>  style="font-size:13px;" > 사급
 			<input type="text" name="material1" id="material1" value="<?=$material1?>" size="20" style="font-size:13px;" >
 				<select name="material2" id="material2" class="form-select d-block w-auto" style="font-size: 0.65rem; height: 30px;">
 				<?php		 
@@ -602,7 +630,7 @@ sort($material_arr);
         </td>          
 		<td class="col" style="width:10%;">재질2</td>
         <td class="col" style="width:23%;">   
-			<input type="checkbox" name="checkmat2" id="checkmat2" value="checked"  <?=$checkmat2?>  style="font-size:13px;" > 사급
+			<input type="checkbox" name="checkmat2" id="checkmat2" value="checked"  <?= htmlspecialchars($checkmat2 ?? '', ENT_QUOTES) ?>  style="font-size:13px;" > 사급
 			<input type="text" name="material3" id="material3" value="<?=$material3?>" size="20" style="font-size:13px;" >
 				<select name="material4" id="material4" class="form-select d-block w-auto" style="font-size: 0.65rem; height: 30px;">
 				<?php		 
@@ -621,7 +649,7 @@ sort($material_arr);
         </td>             
 		<td class="col" style="width:10%;">재질3</td>
         <td class="col" style="width:23%;">   
-			<input type="checkbox" name="checkmat3" id="checkmat3" value="checked"  <?=$checkmat3?>  style="font-size:13px;" > 사급
+			<input type="checkbox" name="checkmat3" id="checkmat3" value="checked"  <?= htmlspecialchars($checkmat3 ?? '', ENT_QUOTES) ?>  style="font-size:13px;" > 사급
 			<input type="text" name="material5" id="material5" value="<?=$material5?>" size="20" style="font-size:13px;" >
 				<select name="material6" id="material6" class="form-select d-block w-auto" style="font-size: 0.65rem; height: 30px;">
 				<?php		 
@@ -648,7 +676,7 @@ sort($material_arr);
       <td style="width:7%;"> 막판 <input type="text" id="widejamb" name="widejamb" value="<?=$widejamb?>" class="form-control" oninput="this.value = this.value.replace(/[^0-9\-]/g,'')"></td>
       <td style="width:7%;"> 막판(無) <input type="text" id="normaljamb" name="normaljamb" value="<?=$normaljamb?>"  class="form-control" oninput="this.value = this.value.replace(/[^0-9\-]/g,'')"></td>
       <td style="width:7%;"> 쪽쟘<input type="text" id="smalljamb" name="smalljamb" value="<?=$smalljamb?>"  class="form-control" oninput="this.value = this.value.replace(/[^0-9\-]/g,'')"></td>
-      <td style="width:7%;"> 갭커버<input type="text" id="gapcover" name="gapcover" value="<?=$gapcover?>"  class="form-control" oninput="this.value = this.value.replace(/[^0-9\-]/g,'')"></td>
+      <td style="width:7%;"> 갭커버<input type="text" id="gapcover" name="gapcover" value="<?= htmlspecialchars($gapcover ?? '', ENT_QUOTES) ?>"  class="form-control" oninput="this.value = this.value.replace(/[^0-9\-]/g,'')"></td>
        <td style="width:25%;"> HPI<input type="text" id="hpi" name="hpi" value="<?=$hpi?>"  class="form-control text-danger"></td>    
        <td style="width:47%;"> 부속자재 <input type="text" name="attachment" id="attachment" value="<?=$attachment?>"   class="form-control text-primary"  > </td>
     </tr>    
@@ -690,7 +718,7 @@ sort($material_arr);
 		</td>
 	   <td>
 		<div id="user_display2" <?php if (!$isAuthorizedUser) echo 'style="display:none;"'; ?>>
-				<textarea rows="3" name="mymemo" id="mymemo"  class="form-control text-dark"  ><?=$mymemo?></textarea>  
+				<textarea rows="3" name="mymemo" id="mymemo"  class="form-control text-dark"  ><?= htmlspecialchars($mymemo ?? '', ENT_QUOTES) ?></textarea>  
 			</div>
 		</td>			
    </tr>  
@@ -713,12 +741,12 @@ sort($material_arr);
 </thead>
  <tbody> 
 	<tr>
-	  <td colspan="3" class="text-center" > <input type="text" id="widejambworkfee" name="widejambworkfee" value="<?=$widejambworkfee?>"  class="form-control text-success text-center w80px"></td>    
-	  <td colspan="3" class="text-center" > <input type="text" id="normaljambworkfee" name="normaljambworkfee" value="<?=$normaljambworkfee?>"  class="form-control text-success w80px" ></td>    
-	  <td colspan="4" class="text-center" > <input type="text" id="smalljambworkfee" name="smalljambworkfee" value="<?=$smalljambworkfee?>"  class="form-control text-success w80px" ></td>    
+	  <td colspan="3" class="text-center" > <input type="text" id="widejambworkfee" name="widejambworkfee" value="<?= htmlspecialchars($widejambworkfee ?? '', ENT_QUOTES) ?>"  class="form-control text-success text-center w80px"></td>    
+	  <td colspan="3" class="text-center" > <input type="text" id="normaljambworkfee" name="normaljambworkfee" value="<?= htmlspecialchars($normaljambworkfee ?? '', ENT_QUOTES) ?>"  class="form-control text-success w80px" ></td>    
+	  <td colspan="4" class="text-center" > <input type="text" id="smalljambworkfee" name="smalljambworkfee" value="<?= htmlspecialchars($smalljambworkfee ?? '', ENT_QUOTES) ?>"  class="form-control text-success w80px" ></td>    
 	  <td colspan="4" class="text-center" > 
         <?php
-          if ($checkhold == '보류') {
+          if (($checkhold ?? '') == '보류') {
             echo "<input type='checkbox' name='checkhold' id='checkhold' value='보류' checked> 보류 (미출고 검색안됨)";
           } else {
             echo "<input type='checkbox' name='checkhold' id='checkhold' value='보류'> 보류 (미출고 검색안됨)";
@@ -744,6 +772,8 @@ sort($material_arr);
 </form>
 		
 <script>
+// 환경별 baseUrl 설정
+window.baseUrl = '<?= getBaseUrl() ?>';
 
 // 예시 시공소장 리스트
 var com1_arr = [' ', '추영덕', '이만희', '김운호', '김상훈', '유영', '손상민', '조장우', '박철우', '이인종', '김진섭', '이춘일','서영선'];
@@ -805,7 +835,7 @@ $(document).ready(function() {
 
 
 document.getElementById('drawday').addEventListener('change', function() {
-	user_name = '<?php echo $user_name;?>';
+	user_name = '<?php echo htmlspecialchars($user_name ?? '', ENT_QUOTES);?>';
     document.getElementById('designer').value = user_name;
 });
 
@@ -826,7 +856,7 @@ function phonebookBtn(belong, firstitem, seconditem, enterpress)
     var search = $("#" + firstitem).val();		
 	var belongstr = $("#" + belong).val();
 	
-    href = '../phonebook/list.php?search=' + search + '&firstitem=' + firstitem  + '&seconditem=' + seconditem  + '&enterpress=' + enterpress  + '&belong=' + belong  + '&belongstr=' + belong ;				
+    href = window.baseUrl + '/phonebook/list.php?search=' + search + '&firstitem=' + firstitem  + '&seconditem=' + seconditem  + '&enterpress=' + enterpress  + '&belong=' + belong  + '&belongstr=' + belong ;				
 	popupCenter(href, '전화번호 검색', 600, 770);
 
 }
@@ -835,14 +865,14 @@ $(document).ready(function(){
 			
 		// Log 파일보기
 		$("#showlogBtn").click( function() {     	
-		    var num = '<?php echo $num; ?>' 
+		    var num = '<?php echo htmlspecialchars($num ?? '', ENT_QUOTES); ?>' 
 			// table 이름을 넣어야 함
 		    var workitem =  'work' ;
 
 			// 버튼 비활성화
 			var btn = $(this);			
 			
-			    popupCenter("../Showlog.php?num=" + num + "&workitem=" + workitem , '로그기록 보기', 500, 500);		
+			    popupCenter(window.baseUrl + "/Showlog.php?num=" + num + "&workitem=" + workitem , '로그기록 보기', 500, 500);		
 							 
 			btn.prop('disabled', false);					 
 					 
@@ -914,7 +944,7 @@ num = $("#num").val();
 			contentType: false,      
 			cache: false,           
 			timeout: 600000, 			
-			url: "../p/mspic_insert.php?num=" + num ,
+			url: window.baseUrl + "/p/mspic_insert.php?num=" + num ,
 			type: "post",		
 			data: data,						
 			success : function(data){
@@ -1013,7 +1043,7 @@ $(document).ready(function(){
 			contentType: false,      
 			cache: false,           
 			timeout: 600000, 			
-			url: "insert.php",
+			url: window.baseUrl + "/work/insert.php",
 			type: "post",		
 			data: datasource,			
 			dataType: "json", 
@@ -1029,7 +1059,7 @@ $(document).ready(function(){
 					}	
 					setTimeout(function(){	
 						hideMsgModal();					
-						location.href = "view.php?num=" + data["num"];
+						location.href = window.baseUrl + "/work/view.php?num=" + data["num"];
 					}, 800);	
 				}, 800);
 		
@@ -1065,7 +1095,7 @@ $(document).ready(function(){
 
 $(document).ready(function(){
 	
-var mode = '<?php echo $mode; ?>';
+var mode = '<?php echo htmlspecialchars($mode ?? '', ENT_QUOTES); ?>';
 
 	if(mode==='copy')
 	{

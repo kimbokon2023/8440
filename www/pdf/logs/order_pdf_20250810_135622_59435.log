@@ -1,0 +1,10 @@
+[13:56:22] START: num=13, download=1, DEBUG=0
+[13:56:22] ORDER OK.
+[13:56:22] COUNTS: items=1, other=1, d_items=0, d_other=0
+[13:56:22] TOTALS: ex=1649760, tax=164976, inc=1814736
+[13:56:22] FONTS: MISSING
+[13:56:22] FONT PATH: /mirae8440/www/pdf/assets/fonts/*
+[13:56:22] ERROR: HTML empty
+[13:56:22] Dompdf render OK.
+[13:56:22] OUTPUT SIZE: 919 bytes.
+[13:56:22] SEND DONE.

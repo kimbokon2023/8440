@@ -1,5 +1,5 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session.php'));
+<?php
+require_once __DIR__ . '/../bootstrap.php';
 
 $title_message = '공 사 완 료 확 인 서';
 $tablename = 'work';
@@ -10,11 +10,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['recordIds'])) {
     die('Invalid request.');
 }
 
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();
-?>
+// bootstrap.php에서 이미 DB 연결됨
 
-<?php include getDocumentRoot() . '/load_header.php'; ?>
+include includePath('load_header.php');
+?>
 
 <title> <?=$title_message?> </title>
 
@@ -63,9 +62,7 @@ $pdo = db_connect();
                 print "검색결과가 없습니다.<br>";
             } else {
                 $row = $stmh->fetch(PDO::FETCH_ASSOC);
-                include getDocumentRoot() . '/work/_row.php';
-				
-			
+                include '_row.php';			
 
                 $customer_data = $row["customer"];
                 $customer_object = json_decode($customer_data, true);				
@@ -136,7 +133,7 @@ $pdo = db_connect();
                     <div class="d-flex align-items-center justify-content-center mt-5 mb-5 fs-2">
                         위 확인자 : &nbsp; <span class="text-center me-2 "><?=$customer_name?></span>  <span class="text-center fs-5 ">  (서명) </span>
                         <?php if (!empty($image_url)) { ?>
-                            <img src="../work/<?=$image_url?>" style="width:20%;">
+                            <img src="<?= asset('work/' . $image_url) ?>" style="width:20%;">
                         <?php } ?>
                     </div>
                     <div class="d-flex align-items-center justify-content-center mt-5 mb-5 fs-2">

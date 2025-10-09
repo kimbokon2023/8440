@@ -6,10 +6,10 @@ ini_set('log_errors', 1);
 header('Content-Type: application/json');
 require_once __DIR__ . '/../bootstrap.php';
 
-$month = $_POST['month'];
-$year = $_POST['year'];
+$month = $_POST['month'] ?? date('n');
+$year = $_POST['year'] ?? date('Y');
 $search = $_POST['search'] ?? null;
-$selectedFilter = $_POST['selectedFilter'];
+$selectedFilter = $_POST['selectedFilter'] ?? 'filter_all';
 
 $todo_data = array();
 $leave_data = array();

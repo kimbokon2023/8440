@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/../bootstrap.php';
 
 header("Content-Type: application/json");
 
@@ -7,22 +7,30 @@ function pipetocomma($str) {
     return str_replace('|', ',', $str);
 }
 
-// $col1, $col2, ..., $col21 초기화
+// $col1, $col2, ..., $col47 초기화
 for($i = 1; $i <= 47; $i++) {
-    ${"col$i"} = isset($_REQUEST["col$i"]) ? $_REQUEST["col$i"] : '';
-    ${"colarr$i"} = explode(",", ${"col$i"}[0] ?? '');
-
+    ${"col$i"} = $_REQUEST["col$i"] ?? '';
+    // 빈 배열 체크 추가
+    if(!empty(${"col$i"}[0])) {
+        ${"colarr$i"} = explode(",", ${"col$i"}[0]);
+    } else {
+        ${"colarr$i"} = [];
+    }
 }
 
-for($i=0; $i < count($colarr7); $i++) {
-	for($j = 1; $j <= 47; $j++) {
-		${"colarr$j"}[$i] = pipetocomma(${"colarr$j"}[$i]);
-	}
+// 파이프를 콤마로 변환
+if(!empty($colarr7)) {
+    for($i=0; $i < count($colarr7); $i++) {
+        for($j = 1; $j <= 47; $j++) {
+            if(isset(${"colarr$j"}[$i])) {
+                ${"colarr$j"}[$i] = pipetocomma(${"colarr$j"}[$i]);
+            }
+        }
+    }
 }
 
 $orderday = date("Y-m-d"); 
-require_once("../lib/mydb.php");	
-$pdo = db_connect();
+// bootstrap.php에서 이미 DB 연결됨
 
 $innercount = 0;
 

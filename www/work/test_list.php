@@ -1,25 +1,16 @@
 <?php
-if(!isset($_SESSION))      
-		session_start(); 
-if(isset($_SESSION["DB"]))
-		$DB = $_SESSION["DB"] ;	
- $level= $_SESSION["level"];
- $user_name= $_SESSION["name"];
- $user_id= $_SESSION["userid"];	
-
- ?> 
- 
- <?php include getDocumentRoot() . '/load_header.php';
-
+require_once __DIR__ . '/../bootstrap.php';
 
  if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
           /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(1);
-         header("Location:".$_SESSION["WebSite"]."login/login_form.php"); 
+	 sleep(1);
+         header("Location:" . getBaseUrl() . "/login/login_form.php"); 
          exit;
    }  
+   
+include includePath('load_header.php');
 
- ?> 
+ ?>
  <title> 검사일정 </title>  
  </head>
  
@@ -29,9 +20,18 @@ if(isset($_SESSION["DB"]))
 	   $search=$_REQUEST["search"];
 	 else 
 		 $search="";
+
+// 누락된 변수 초기화
+$year = $_REQUEST["year"] ?? '';
+$process = $_REQUEST["process"] ?? '';
+$asprocess = $_REQUEST["asprocess"] ?? '';
+$up_fromdate = $_REQUEST["up_fromdate"] ?? '';
+$up_todate = $_REQUEST["up_todate"] ?? '';
+$separate_date = $_REQUEST["separate_date"] ?? '';
+$view_table = $_REQUEST["view_table"] ?? '';
 	  
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];	 
+$fromdate = isset($_REQUEST["fromdate"]) ? $_REQUEST["fromdate"] : '';	 
+$todate = isset($_REQUEST["todate"]) ? $_REQUEST["todate"] : '';	 
 
 if($fromdate=="")
 {
@@ -50,26 +50,23 @@ if($todate=="")
 	$Transtodate=date("Y-m-d",$Transtodate);
 	}
  	  
-	  
-require_once("../lib/mydb.php");
-$pdo = db_connect();	
+// bootstrap.php에서 이미 DB 연결됨	
   
   
 $attached=" ";
 	
-$orderby="order by testday desc, measureday desc ";	
-	 
- $orderby=" order by workday desc ";
+// 검사일정 페이지이므로 testday (검사일) 기준으로 정렬 및 검색
+$orderby=" order by testday desc, measureday desc ";	
 	
 $now = date("Y-m-d");	 // 현재 날짜와 크거나 같으면 출고예정으로 구분		
   
 if($search==""){
-	 $sql="select * from mirae8440.work where workday between date('$fromdate') and date('$Transtodate')" . $orderby;  			
+	 $sql="select * from mirae8440.work where testday between date('$fromdate') and date('$Transtodate')" . $orderby;  			
    }
 elseif($search!="")
 { 
 	  $sql ="select * from mirae8440.work where ((workplacename like '%$search%' )  or (firstordman like '%$search%' )  or (secondordman like '%$search%' )  or (chargedman like '%$search%' ) ";
-	  $sql .="or (delicompany like '%$search%' ) or (hpi like '%$search%' ) or (firstord like '%$search%' ) or (secondord like '%$search%' ) or (worker like '%$search%' ) or (memo like '%$search%' )) and ( workday between date('$fromdate') and date('$Transtodate'))" . $orderby;				  		  		   
+	  $sql .="or (delicompany like '%$search%' ) or (hpi like '%$search%' ) or (firstord like '%$search%' ) or (secondord like '%$search%' ) or (worker like '%$search%' ) or (memo like '%$search%' )) and ( testday between date('$fromdate') and date('$Transtodate'))" . $orderby;				  		  		   
  }    
 
 
@@ -90,7 +87,9 @@ elseif($search!="")
    $measureday_arr=array();   
    $worker_arr=array();   
    $endworkday_arr=array();   
-   $draw_arr=array();   
+   $draw_arr=array();
+   $sum_arr1=array();  // 초기화 추가
+   $sum_arr2=array();  // 초기화 추가   
 
 	 try{  
 	 
@@ -137,14 +136,22 @@ elseif($search!="")
    $endworkday_arr[$counter]=$endworkday;   
    
    		        $draw_arr[$counter]="";			  
-			  if(substr($row["drawday"],0,2)=="20")  $draw_arr[$counter]= "OK";		  
+		  if(substr($row["drawday"],0,2)=="20")  $draw_arr[$counter]= "OK";		  
    
-				 if($widejamb!="")
-					    $sum1_arr[$counter] += $widejamb;
-				 if($normaljamb!="")
-					    $sum2_arr[$counter] += $normaljamb;
-				 if($smalljamb!="")
-					    $sum3_arr[$counter] += $smalljamb;
+   // 배열 초기화
+   if(!isset($sum1_arr[$counter])) $sum1_arr[$counter] = 0;
+   if(!isset($sum2_arr[$counter])) $sum2_arr[$counter] = 0;
+   if(!isset($sum3_arr[$counter])) $sum3_arr[$counter] = 0;
+   if(!isset($sum_arr1[$counter])) $sum_arr1[$counter] = 0;
+   if(!isset($sum_arr2[$counter])) $sum_arr2[$counter] = 0;
+   if(!isset($sum_arr[$counter])) $sum_arr[$counter] = 0;
+   
+			 if($widejamb!="")
+				    $sum1_arr[$counter] += $widejamb;
+			 if($normaljamb!="")
+				    $sum2_arr[$counter] += $normaljamb;
+			 if($smalljamb!="")
+				    $sum3_arr[$counter] += $smalljamb;
    
     $sum_arr[$counter] = $sum_arr1[$counter] + $sum_arr2[$counter] + $sum3_arr[$counter];
 		
@@ -159,7 +166,7 @@ elseif($search!="")
 		 
 <body >
 
-<form name="board_form" id="board_form"  method="post" action="test_list.php?mode=search&year=<?=$year?>&search=<?=$search?>&process=<?=$process?>&asprocess=<?=$asprocess?>&fromdate=<?=$fromdate?>&todate=<?=$todate?>&up_fromdate=<?=$up_fromdate?>&up_todate=<?=$up_todate?>&separate_date=<?=$separate_date?>&view_table=<?=$view_table?>">  
+<form name="board_form" id="board_form"  method="post" action="test_list.php?mode=search">  
  <div class="container-fluid">
     <div class="card">		
 		<div class="card-header">    
@@ -217,9 +224,6 @@ elseif($search!="")
 <script>
 
 $(document).ready(function(){
-	
-
-
  var arr1 = <?php echo json_encode($secondord_arr);?> ;
  var arr2 = <?php echo json_encode($workplacename_arr);?> ;
  var arr3 = <?php echo json_encode($address_arr);?> ;
@@ -594,7 +598,22 @@ function replaceAllaa(str, searchStr, replaceStr) {
 
   </script>
   
-
+<script>
+// 검색 버튼 클릭 이벤트
+$(document).ready(function() {
+    $("#searchBtn").click(function() {
+        $("#board_form").submit();
+    });
+    
+    // Enter 키로도 검색 가능하도록
+    $("#fromdate, #todate").keypress(function(e) {
+        if (e.which == 13) {  // Enter key
+            e.preventDefault();
+            $("#board_form").submit();
+        }
+    });
+});
+</script>
 
   </body>
 

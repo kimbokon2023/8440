@@ -1,31 +1,62 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session.php'));
-
-include getDocumentRoot() . '/load_header.php';
+<?php
+// 서명 패드 - 로컬/서버 환경 호환
+require_once __DIR__ . '/../bootstrap.php';
+include includePath('load_header.php');
 
 $tablename = 'work';
 
-if (isset($_REQUEST["num"])) {
-    $num = $_REQUEST["num"];
-} else {
-    $num = "";
+// 입력값 검증 및 초기화
+$num = $_REQUEST["num"] ?? '';
+
+// 입력값 유효성 검사
+if (empty($num) || !is_numeric($num)) {
+    die("유효하지 않은 번호입니다.");
 }
 
-require_once("../lib/mydb.php");
-$pdo = db_connect();
+// 데이터베이스 연결
+if (!isset($pdo) || !$pdo) {
+    try {
+        $pdo = db_connect();
+    } catch (Exception $e) {
+        if (isLocal()) {
+            die("데이터베이스 연결 실패: " . $e->getMessage());
+        } else {
+            error_log("Database connection failed in signature_pad.php: " . $e->getMessage());
+            die("데이터베이스 연결에 실패했습니다. 관리자에게 문의하세요.");
+        }
+    }
+}
 
 $image_url = '';
+$image_full_path = '';
 
 try {
     $sql = "SELECT customer FROM $DB.$tablename WHERE num = ?";
     $stmh = $pdo->prepare($sql);
-    $stmh->bindValue(1, $num, PDO::PARAM_STR);
+    $stmh->bindValue(1, $num, PDO::PARAM_INT);
     $stmh->execute();
     $row = $stmh->fetch(PDO::FETCH_ASSOC);
-    $customerData = json_decode($row["customer"], true);
-    $image_url = isset($customerData['image_url']) ? $customerData['image_url'] : '';
+    
+    if ($row) {
+        $customerData = json_decode($row["customer"] ?? '{}', true);
+        $image_url = $customerData['image_url'] ?? '';
+        
+        // 환경별 이미지 전체 경로 생성
+        if (!empty($image_url)) {
+            if (isLocal()) {
+                $image_full_path = '../work/' . $image_url;
+            } else {
+                $image_full_path = asset('work/' . $image_url);
+            }
+        }
+    }
 } catch (PDOException $Exception) {
-    print "오류: " . $Exception->getMessage();
+    if (isLocal()) {
+        die("오류: " . $Exception->getMessage());
+    } else {
+        error_log("Database error in signature_pad.php: " . $Exception->getMessage());
+        die("데이터베이스 오류가 발생했습니다. 관리자에게 문의하세요.");
+    }
 }
 ?>
     
@@ -56,6 +87,9 @@ try {
 </div>
 
 <script>
+// 환경별 baseUrl 설정
+window.baseUrl = '<?= getBaseUrl() ?>';
+
 var canvas = document.getElementById('signature-pad');
 var signaturePad = new SignaturePad(canvas, {
     minWidth: 5, // minimum line thickness
@@ -74,28 +108,40 @@ window.onresize = resizeCanvas;
 resizeCanvas();
 
 // 이미지 URL 불러와서 캔버스에 표시
-if ('<?php echo $image_url; ?>' !== '') {
+var imageFullPath = '<?php echo htmlspecialchars($image_full_path, ENT_QUOTES); ?>';
+if (imageFullPath !== '') {
     var img = new Image();
-    img.src = '<?php echo $image_url; ?>';
+    img.src = imageFullPath;
 
     img.onload = function() {
         canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-        signaturePad.fromDataURL('<?php echo $image_url; ?>');
+        signaturePad.fromDataURL(imageFullPath);
+    };
+    
+    img.onerror = function() {
+        console.error('이미지 로드 실패:', imageFullPath);
     };
 }
 
 function saveSignature() {
+    if (signaturePad.isEmpty()) {
+        if (typeof Toastify !== 'undefined') {
+            Toastify({
+                text: "서명을 먼저 작성해주세요.",
+                duration: 2000,
+                close: true,
+                gravity: "top",
+                position: 'center',
+                backgroundColor: "#f44336",
+            }).showToast();
+        } else {
+            alert("서명을 먼저 작성해주세요.");
+        }
+        return;
+    }
+    
     var dataURL = signaturePad.toDataURL();
     sendDataToServer(dataURL);
-	setTimeout(function(){
-		if (window.opener && !window.opener.closed) {
-			// 부모 창에 restorePageNumber 함수가 있는지 확인
-			opener.location.reload();
-			self.close();
-		}							
-	
-	}, 2000);	
-
 }
 
 function clearSignature() {
@@ -104,27 +150,59 @@ function clearSignature() {
 
 function sendDataToServer(dataURL) {
     var xhr = new XMLHttpRequest();
-    var num = '<?php echo $num; ?>';
+    var num = '<?php echo htmlspecialchars($num, ENT_QUOTES); ?>';
 
-    xhr.open('POST', 'save_signature.php?num=' + num , true);
+    xhr.open('POST', window.baseUrl + '/p/save_signature.php?num=' + num, true);
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    
     xhr.onreadystatechange = function() {
-        if (xhr.readyState == 4 && xhr.status == 200) {
-            Toastify({
-                text: "서명이 저장되었습니다.",
-                duration: 3000,
-                close: true,
-                gravity: "top",
-                position: 'center',
-            }).showToast();
+        if (xhr.readyState == 4) {
+            if (xhr.status == 200) {
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.success) {
+                        if (typeof Toastify !== 'undefined') {
+                            Toastify({
+                                text: response.message || "서명이 저장되었습니다.",
+                                duration: 2000,
+                                close: true,
+                                gravity: "top",
+                                position: 'center',
+                                backgroundColor: "#4fbe87",
+                            }).showToast();
+                        } else {
+                            alert(response.message || "서명이 저장되었습니다.");
+                        }
+                        
+                        // 부모 창 새로고침 및 창 닫기
+                        setTimeout(function() {
+                            if (window.opener && !window.opener.closed) {
+                                opener.location.reload();
+                            }
+                            self.close();
+                        }, 2000);
+                    } else {
+                        alert(response.message || "서명 저장에 실패했습니다.");
+                    }
+                } catch (e) {
+                    console.error("응답 파싱 오류:", e);
+                    alert("서명 저장 중 오류가 발생했습니다.");
+                }
+            } else {
+                console.error("서버 오류:", xhr.status, xhr.statusText);
+                alert("서명 저장 중 서버 오류가 발생했습니다.");
+            }
         }
     };
+    
     xhr.send('img=' + encodeURIComponent(dataURL));
 }
 
 $(document).ready(function(){
     $("#closeBtn").click(function(){
-        opener.location.reload();
+        if (window.opener && !window.opener.closed) {
+            opener.location.reload();
+        }
         self.close();
     });
 });

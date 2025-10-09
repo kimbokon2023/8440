@@ -1,34 +1,31 @@
 <?php
-// 소장들 보는 모바일 화면 구성
-// 소장들 선택할때 관리자도 선택가능하게 제작함.
- session_start();
+// 소장들 보는 모바일 화면 구성 - 로컬/서버 환경 호환
+require_once __DIR__ . '/../bootstrap.php';
 
-   $level= $_SESSION["level"];
-   $id_name= $_SESSION["name"];   
-   $user_name= $_SESSION["name"];   
-   
- if(!isset($_SESSION["level"]) || $level>8) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(2);
-         header ("Location:http://8440.co.kr/login/logout.php");
-         exit;
-   }  
+// 세션 변수 초기화
+$level = $_SESSION["level"] ?? 99;
+$id_name = $_SESSION["name"] ?? '';
+$user_name = $_SESSION["name"] ?? '';
 
-$workername = $_REQUEST["workername"];
-
-if($workername !== '' and  $workername !== null )
-{
-	$id_name=$workername;	 
-	$user_name=$workername;	
+// 권한 체크
+if (!isset($_SESSION["level"]) || $level > 8) {
+    sleep(2);
+    header("Location:" . getBaseUrl() . "/login/logout.php");
+    exit;
 }
- else
- {
-   $level= $_SESSION["level"];
-   $id_name= $_SESSION["name"];   
-   $user_name= $_SESSION["name"];  
- }
 
- ?>
+// 작업자명 처리
+$workername = $_REQUEST["workername"] ?? '';
+
+if (!empty($workername)) {
+    $id_name = $workername;
+    $user_name = $workername;
+} else {
+    $level = $_SESSION["level"] ?? 99;
+    $id_name = $_SESSION["name"] ?? '';
+    $user_name = $_SESSION["name"] ?? '';
+}
+?>
  <!DOCTYPE HTML>
  <html>
 
@@ -62,7 +59,7 @@ if($workername !== '' and  $workername !== null )
 .col-lg-12 { position: relative; min-height: 1px; padding-right: 6px; padding-left: 6px; } .col-xs-1, .col-xs-2, .col-xs-3, .col-xs-4, .col-xs-5, .col-xs-6, .col-xs-7, .col-xs-8, .col-xs-9, .col-xs-10, .col-xs-11, .col-xs-12 { float: left; } .col-xs-12 { width: 100%; } .col-xs-11 { width: 91.66666667%; } .col-xs-10 { width: 83.33333333%; } /* 생략 */ @media (min-width: 768px) { .col-sm-1, .col-sm-2, .col-sm-3, .col-sm-4, .col-sm-5, .col-sm-6, .col-sm-7, .col-sm-8, .col-sm-9, .col-sm-10, .col-sm-11, .col-sm-12 { float: left; } .col-sm-12 { width: 100%; } /* 생략 */ @media (min-width: 992px) { .col-md-1, .col-md-2, .col-md-3, .col-md-4, .col-md-5, .col-md-6, .col-md-7, .col-md-8, .col-md-9, .col-md-10, .col-md-11, .col-md-12 { float: left; } .col-md-12 { width: 100%; } .col-md-11 { width: 91.66666667%; } .col-md-10 { width: 83.33333333%; }
 
 
-.col-xs-1, .col-xs-2, .col-xs-3, .col-xs-4, .col-sm-4, .col-md-4, .col-lg-4, .col-xs-5, .col-xs-6, .col-xs-7, .col-xs-8, .col-xs-9, .col-xs-10, .col-xs-11,  .col-xs-12, 
+.col-xs-1, .col-xs-2, .col-xs-3, .col-xs-4, .col-sm-4, .col-md-4, .col-lg-4, .col-xs-5, .col-xs-6, .col-xs-7, .col-xs-8, .col-xs-9, .col-xs-10, .col-xs-11,  .col-xs-12 
 { position: relative; min-height: 1px; padding-right: 3px; padding-left: 3px; float:left; } 
 
 </style>
@@ -103,29 +100,30 @@ if($workername !== '' and  $workername !== null )
 </style>
  
  <?php
-if(isset($_REQUEST["search"]))   //목록표에 제목,이름 등 나오는 부분
-	 $search=$_REQUEST["search"];
-	  
-  require_once("../lib/mydb.php");
-  $pdo = db_connect();	
+// 입력값 초기화
+$search = $_REQUEST["search"] ?? '';
+$check = $_REQUEST["check"] ?? $_POST["check"] ?? 0;
+$mode = $_REQUEST["mode"] ?? '';
 
+// 데이터베이스 연결
+if (!isset($pdo) || !$pdo) {
+    try {
+        $pdo = db_connect();
+    } catch (Exception $e) {
+        if (isLocal()) {
+            die("데이터베이스 연결 실패: " . $e->getMessage());
+        } else {
+            error_log("Database connection failed in index1.php: " . $e->getMessage());
+            die("데이터베이스 연결에 실패했습니다. 관리자에게 문의하세요.");
+        }
+    }
+}
 
- if(isset($_REQUEST["check"])) 
-	 $check=$_REQUEST["check"]; // request 사용 페이지 이동버튼 누를시`
-   else
-     $check=$_POST["check"]; //  POST사용 
+// 배열 초기화
+$sum = array(0, 0, 0, 0);
 
-if($check==null) $check=0;	 
-    
-  $sum=array();
-
-	 
-  if(isset($_REQUEST["mode"]))
-     $mode=$_REQUEST["mode"];
-  else 
-     $mode="";       
-   
- switch($check) {  
+// 조회 조건 설정
+switch($check) {  
   case '1' :  // 출고예정 체크된 경우
 				$attached=" and (date(endworkday)>=date(now()))  ";
 				$orderby=" order by endworkday asc ";						
@@ -201,7 +199,7 @@ $message = '';
     if(!isset($_SESSION["userid"]))
 	{
 ?>
-          <a href="../login/login_form.php">로그인</a> | <a href="../member/insertForm.php">회원가입</a>
+          <a href="<?= getBaseUrl() ?>/login/login_form.php">로그인</a> | <a href="<?= getBaseUrl() ?>/member/insertForm.php">회원가입</a>
 <?php
 	}
 	else
@@ -210,8 +208,8 @@ $message = '';
 			<div class="row">
            <div class="col-6"> 
 		         <h3 class="display-5 font-center text-left"> 
-	<?=$user_name?> | 
-		<a href="../login/logout.php">로그아웃</a> | <a href="../member/updateForm.php?id=<?=$_SESSION["userid"]?>">정보수정</a>
+	<?= htmlspecialchars($user_name) ?> | 
+		<a href="<?= getBaseUrl() ?>/login/logout.php">로그아웃</a> | <a href="<?= getBaseUrl() ?>/member/updateForm.php?id=<?= htmlspecialchars($_SESSION["userid"]) ?>">정보수정</a>
 		
 <?php
 	 }
@@ -219,11 +217,11 @@ $message = '';
 </h3>
 </div> </div> 
 <br>
-<form id="board_form" name="board_form" method="get" action="index1.php?mode=search&search=<?=$search?>&check=<?=$check?>">  
+<form id="board_form" name="board_form" method="get" action="<?= getBaseUrl() ?>/p/index1.php?mode=search&search=<?= urlencode($search) ?>&check=<?= htmlspecialchars($check) ?>">  
 	<div class="row">
    <H1> &nbsp;&nbsp;  쟘(Jamb) 현장 </H1> &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;  
-   <button type="button"  class="btn btn-outline-primary btn-lg" onclick="window.open('./request.php','VB 자재 협조 요청사항','top=10, left=10, height=600, width=800, menubar=no, toolbar=no,');">  (바이브)VB 자재사용시 요청사항 </button>  &nbsp;  
-   <button type="button"  class="btn btn-outline-success btn-lg" onclick="location.href='./hpi.php';">  HPI(타공) </button>  </div>
+   <button type="button"  class="btn btn-outline-primary btn-lg" onclick="window.open('<?= getBaseUrl() ?>/p/request.php','VB 자재 협조 요청사항','top=10, left=10, height=600, width=800, menubar=no, toolbar=no,');">  (바이브)VB 자재사용시 요청사항 </button>  &nbsp;  
+   <button type="button"  class="btn btn-outline-success btn-lg" onclick="location.href='<?= getBaseUrl() ?>/p/hpi.php';">  HPI(타공) </button>  </div>
 	 
 	<?php if($message!=='') { ?>
 		<div class="d-flex">
@@ -249,19 +247,19 @@ $message = '';
 		<br> <br>
 		<div class="row">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-<button type="button" id="showall" class="btn btn-dark btn-lg " onclick="location.href='index.php?mode=search&search=<?=$search?>&check=0'"> 전체   </button>  &nbsp;&nbsp;&nbsp;&nbsp;
-<button id="showNomeasure"  type="button" class="btn btn-success btn-lg btn-lg " onclick="location.href='index.php?mode=search&search=<?=$search?>&check=4'"> 미실측  </button> &nbsp;&nbsp;&nbsp;&nbsp;
-<button id="showNowork" type="button" class="btn btn-info btn-lg " onclick="location.href='index.php?mode=search&search=<?=$search?>&check=3'"> 미시공   </button>  &nbsp;&nbsp;&nbsp;&nbsp;
-<button type="button" id="outputplan" class="btn btn-danger btn-lg " onclick="location.href='index.php?mode=search&search=<?=$search?>&check=1'"> 출고예정   </button>  &nbsp;&nbsp;&nbsp;&nbsp;
-<button type="button" id="outputplan" class="btn btn-outline-primary " onclick="location.href='index.php?mode=search&search=<?=$search?>&check=2'"> 시공후 사진등록완료   </button>  &nbsp;&nbsp;&nbsp;&nbsp;
-<button type="button" class="btn btn-secondary btn-lg" onclick="location.href='workfee.php?mode=search&search=<?=$search?>&worker=<?=$user_name?>'"> 시공내역 </button>
+<button type="button" id="showall" class="btn btn-dark btn-lg " onclick="location.href='<?= getBaseUrl() ?>/p/index1.php?mode=search&search=<?= urlencode($search) ?>&check=0'"> 전체   </button>  &nbsp;&nbsp;&nbsp;&nbsp;
+<button id="showNomeasure"  type="button" class="btn btn-success btn-lg btn-lg " onclick="location.href='<?= getBaseUrl() ?>/p/index1.php?mode=search&search=<?= urlencode($search) ?>&check=4'"> 미실측  </button> &nbsp;&nbsp;&nbsp;&nbsp;
+<button id="showNowork" type="button" class="btn btn-info btn-lg " onclick="location.href='<?= getBaseUrl() ?>/p/index1.php?mode=search&search=<?= urlencode($search) ?>&check=3'"> 미시공   </button>  &nbsp;&nbsp;&nbsp;&nbsp;
+<button type="button" id="outputplan" class="btn btn-danger btn-lg " onclick="location.href='<?= getBaseUrl() ?>/p/index1.php?mode=search&search=<?= urlencode($search) ?>&check=1'"> 출고예정   </button>  &nbsp;&nbsp;&nbsp;&nbsp;
+<button type="button" id="outputplan2" class="btn btn-outline-primary " onclick="location.href='<?= getBaseUrl() ?>/p/index1.php?mode=search&search=<?= urlencode($search) ?>&check=2'"> 시공후 사진등록완료   </button>  &nbsp;&nbsp;&nbsp;&nbsp;
+<button type="button" class="btn btn-secondary btn-lg" onclick="location.href='<?= getBaseUrl() ?>/p/workfee.php?mode=search&search=<?= urlencode($search) ?>&worker=<?= urlencode($user_name) ?>'"> 시공내역 </button>
 		</div>
 	<br>	
-		<input type="hidden" id="workername" name="workername" value="<?=$workername?>"   > 						
-		<input type="hidden" id="check" name="check" value="<?=$check?>"   > 						
-		<input type="hidden" id="sqltext" name="sqltext" value="<?=$sqltext?>" > 			
-		<input type="hidden" id="voc_alert" name="voc_alert" value="<?=$voc_alert?>"   > 	
-		<input type="hidden" id="ma_alert" name="ma_alert" value="<?=$ma_alert?>"   > 	
+		<input type="hidden" id="workername" name="workername" value="<?= htmlspecialchars($workername) ?>"   > 						
+		<input type="hidden" id="check" name="check" value="<?= htmlspecialchars($check) ?>"   > 						
+		<input type="hidden" id="sqltext" name="sqltext" value="<?= htmlspecialchars($sqltext ?? '') ?>" > 			
+		<input type="hidden" id="voc_alert" name="voc_alert" value="<?= htmlspecialchars($voc_alert ?? '') ?>"   > 	
+		<input type="hidden" id="ma_alert" name="ma_alert" value="<?= htmlspecialchars($ma_alert ?? '') ?>"   > 	
          <div id="vacancy" style="display:none">  </div>
 			                
 		<?php
@@ -396,10 +394,17 @@ $message = '';
 			  $update_day=$row["update_day"];
 			  $demand=$row["demand"];
 			  
-			  $filename1=$row["filename1"];
-			  $filename2=$row["filename2"];
-			  $imgurl1="../imgwork/" . $filename1;
-			  $imgurl2="../imgwork/" . $filename2;			  
+			  $filename1 = $row["filename1"] ?? '';
+			  $filename2 = $row["filename2"] ?? '';
+			  
+			  // 환경별 이미지 경로 설정
+			  if (isLocal()) {
+			      $imgurl1 = !empty($filename1) ? "../imgwork/" . $filename1 : '';
+			      $imgurl2 = !empty($filename2) ? "../imgwork/" . $filename2 : '';
+			  } else {
+			      $imgurl1 = !empty($filename1) ? asset("imgwork/" . $filename1) : '';
+			      $imgurl2 = !empty($filename2) ? asset("imgwork/" . $filename2) : '';
+			  }			  
 			  
 			  
 			  $sum[0] = $sum[0] + (int)$widejamb;
@@ -431,7 +436,7 @@ $message = '';
 					else $doneday="";		  
 			  	  				  
 			  $state_work=0;
-			  if($row["checkbox"]==0) $state_work=1;
+			  if(isset($row["checkbox"]) && $row["checkbox"]==0) $state_work=1;
 			  if(substr($row["workday"],0,2)=="20") $state_work=2;
 			  if(substr($row["endworkday"],0,2)=="20") $state_work=3;	
 	 
@@ -495,7 +500,7 @@ $message = '';
           <h4 class="display-5 font-center text-center text-secondary"> <?=$pic_done?> &nbsp;</h4>
         </div>				
         <div class="col-sm-4">
-          <h3 class="display-5 font-center text-left"><a href="view.php?num=<?=$num?>&check=<?=$check?>&workername=<?=$workername?>"  > <?=$workplacename?> </a>&nbsp; </h3>
+          <h3 class="display-5 font-center text-left"><a href="<?= getBaseUrl() ?>/p/view.php?num=<?= htmlspecialchars($num) ?>&check=<?= htmlspecialchars($check) ?>&workername=<?= urlencode($workername) ?>"  > <?= htmlspecialchars($workplacename) ?> </a>&nbsp; </h3>
         </div>				
       </div>	 
 				  
@@ -505,7 +510,12 @@ $message = '';
 			$start_num--;
 			 } 
   } catch (PDOException $Exception) {
-  print "오류: ".$Exception->getMessage();
+      if (isLocal()) {
+          print "오류: " . $Exception->getMessage();
+      } else {
+          error_log("Database error in index1.php: " . $Exception->getMessage());
+          print "데이터베이스 오류가 발생했습니다. 관리자에게 문의하세요.";
+      }
   }  
 
  ?>
@@ -522,7 +532,5 @@ $message = '';
 	</form>	
          </div> <!-- end of  container -->     
 
-  </body>  
-
-  
+  </body>    
   </html>

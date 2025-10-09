@@ -1,0 +1,9 @@
+{
+    "php.suggest.basic": false,
+    "intelephense.environment.includePaths": [
+        "www/vendor"
+    ],
+    "files.exclude": {
+        "**/node_modules": true
+    }
+}

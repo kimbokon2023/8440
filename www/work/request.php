@@ -1,7 +1,7 @@
 <?php
 $scale = isset($_REQUEST["scale"]) ? $_REQUEST["scale"] : 100;
 
-$check = isset($_REQUEST["check"]) ? $_REQUEST["check"] : $_POST["check"];
+$check = isset($_REQUEST["check"]) ? $_REQUEST["check"] : (isset($_POST["check"]) ? $_POST["check"] : '1');
 
 $search = isset($_REQUEST["search"]) ? $_REQUEST["search"] : "";
 
