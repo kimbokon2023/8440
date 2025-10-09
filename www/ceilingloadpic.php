@@ -1,42 +1,44 @@
-<?php\nrequire_once __DIR__ . '/common/functions.php';
-require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
-require_once getDocumentRoot() . '/vendor/autoload.php';
-require_once(includePath('lib/mydb.php'));
+<?php
+require_once __DIR__ . '/bootstrap.php';
 
 // 서비스 계정 JSON 파일 경로
 $serviceAccountKeyFile = getDocumentRoot() . '/tokens/mytoken.json';
 
-include getDocumentRoot() . '/load_header.php';
-  
-$num=$_REQUEST["num"];
+include includePath('load_header.php');
+
+// Request 변수 안전하게 초기화
+$num = $_REQUEST["num"] ?? '';
 
 $pdo = db_connect();
- 
- try{
-     $sql = "select * from mirae8440.ceiling where num=?";
-     $stmh = $pdo->prepare($sql);  
-     $stmh->bindValue(1, $num, PDO::PARAM_STR);      
-     $stmh->execute();            
-      
-    $row = $stmh->fetch(PDO::FETCH_ASSOC); 	 
-  
-	$workplacename=$row["workplacename"];
-	$secondord=$row["secondord"];
-	$deadline=$row["deadline"];
 
-	$type=$row["type"];			  
-	$inseung=$row["inseung"];			  	
-					
-     }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
-     }
-   
+// 변수 초기화
+$workplacename = "";
+$secondord = "";
+$deadline = "";
+$type = "";
+$inseung = "";
 
-$picNum=0; 
-$picData=array(); 
+try {
+    $sql = "SELECT * FROM mirae8440.ceiling WHERE num = ?";
+    $stmh = $pdo->prepare($sql);
+    $stmh->bindValue(1, $num, PDO::PARAM_STR);
+    $stmh->execute();
 
-// 서비스 계정 JSON 파일 경로
-$serviceAccountKeyFile = getDocumentRoot() . '/tokens/mytoken.json';
+    $row = $stmh->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        $workplacename = $row["workplacename"] ?? "";
+        $secondord = $row["secondord"] ?? "";
+        $deadline = $row["deadline"] ?? "";
+        $type = $row["type"] ?? "";
+        $inseung = $row["inseung"] ?? "";
+    }
+} catch (PDOException $Exception) {
+    print "오류: " . $Exception->getMessage();
+}
+// 변수 초기화
+$picNum = 0;
+$picData = [];
 
 // Google Drive 클라이언트 설정
 $client = new Google_Client();
@@ -62,14 +64,11 @@ function getFolderId($service, $folderName, $parentFolderId = null) {
     return count($response->files) > 0 ? $response->files[0]->id : null;
 }
 
-// '폴더의 ID 가져오기
+// 폴더의 ID 가져오기
 $miraeFolderId = getFolderId($service, '미래기업');
 $uploadsFolderId = getFolderId($service, 'imgwork', $miraeFolderId);
 
-$pdo = db_connect();
-
 // Google Drive 및 데이터베이스에서 파일 정보 가져오기
-$picData = [];
 $tablename = 'ceilingwrap';
 $item = 'ceilingwrap';
 
@@ -131,83 +130,73 @@ try {
 }
 
 $picNum = count($picData);
+?>
 
-    
- ?>
- 
- 
- <title> 미래기업 천장&LC 출하관련 사진 </title>
- </head>
-  <body>
- <style>
+<title>미래기업 천장&LC 출하관련 사진</title>
+</head>
+<body>
+<style>
     .rotated {
-  transform: rotate(90deg);
-  -ms-transform: rotate(90deg); /* IE 9 */
-  -moz-transform: rotate(90deg); /* Firefox */
-  -webkit-transform: rotate(90deg); /* Safari and Chrome */
-  -o-transform: rotate(90deg); /* Opera */
-}
+        transform: rotate(90deg);
+        -ms-transform: rotate(90deg); /* IE 9 */
+        -moz-transform: rotate(90deg); /* Firefox */
+        -webkit-transform: rotate(90deg); /* Safari and Chrome */
+        -o-transform: rotate(90deg); /* Opera */
+    }
 </style> 
 
- <div  class="container">
+<div class="container">
     <div class="card">
-     <div class="card-title justify-content-center ">
-	 	<div class="d-flex  mb-1 justify-content-center fs-3"> 
-			현장명 :       <?=$workplacename?>	
-		</div>
-	 </div>
-       <div class="card-body ">	
-	   
-				<div class="table-reponsive mb-2  fs-4">
-				<table class="table table-bordered">
-				   <tbody>				   
-					 <tr>
-					   <td class="text-center fw-bold" > 발주처 </td>
-							<td class="text-center" >	
-								  <?=$secondord?>  
-							</td>
-					  <td class="text-center fw-bold" > 인승 </td>
-					  <td class="text-center" >								
-							<?=$inseung?> 					  
-					  </td>
-					  <td class="text-center fw-bold" > 타입 </td>
-					     <td class="text-center" >	
-							<?=$type?>                                                
-						  </td>
-						<td class="text-center fw-bold" > 납품일자 </td>
-						<td class="text-center" >	
-							  <?=$deadline?>                                               
-						</td>
-					  </tr>
-					  
-						
-				</tbody>
-				</table>
-				</div>		   
-	   
-	   	   		   
-		     <div class="d-flex  mt-2 mb-1 justify-content-center fs-3"> 
-					(주)미래기업  출하관련 사진 
-			  </div>
-	    <div class="d-flex  mt-2 mb-1 justify-content-center fs-3"> 	      
-		<div class="row">	 
-					<div id = "displayPicture" style="display:none;" > </div> 
-		</div>		   
-	   </div>
-	   </div> 
- </div>
- </div>
- 
- 
-<script>
+        <div class="card-title justify-content-center">
+            <div class="d-flex mb-1 justify-content-center fs-3">
+                현장명: <?= $workplacename ?>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive mb-2 fs-4">
+                <table class="table table-bordered">
+                    <tbody>
+                        <tr>
+                            <td class="text-center fw-bold">발주처</td>
+                            <td class="text-center">
+                                <?= $secondord ?>
+                            </td>
+                            <td class="text-center fw-bold">인승</td>
+                            <td class="text-center">
+                                <?= $inseung ?>
+                            </td>
+                            <td class="text-center fw-bold">타입</td>
+                            <td class="text-center">
+                                <?= $type ?>
+                            </td>
+                            <td class="text-center fw-bold">납품일자</td>
+                            <td class="text-center">
+                                <?= $deadline ?>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-$(document).ready(function () {
+            <div class="d-flex mt-2 mb-1 justify-content-center fs-3">
+                (주)미래기업 출하관련 사진
+            </div>
+            <div class="d-flex mt-2 mb-1 justify-content-center fs-3">
+                <div class="row">
+                    <div id="displayPicture" style="display:none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+$(document).ready(function() {
     // 모달 닫기 버튼
-    $("#closeModalBtn").click(function () {
+    $("#closeModalBtn").click(function() {
         $('#myModal').modal('hide');
     });
 
-		displayPictureLoad(); // 기존 사진 로드
+    displayPictureLoad(); // 기존 사진 로드
 });
 
 // 기존 사진 로드
@@ -234,11 +223,7 @@ function displayPictureLoad() {
         );
     });
 }
-
-
 </script>
- 
+
 </body>
-</html>    
- 
- 
+</html>

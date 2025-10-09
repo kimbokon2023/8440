@@ -1,23 +1,20 @@
 
-<div class="card mt-2 mb-2">	
-<div class="d-flex p-2 mt-3 mb-1 justify-content-center">	
-	<h3 id="clickableText_ceiling"> 조명천장 월간 출고 스케줄 </h3> 
-</div>
+<div class="card mt-2 mb-2">
+    <div class="d-flex p-2 mt-3 mb-1 justify-content-center">
+        <h3 id="clickableText_ceiling"> 조명천장 월간 출고 스케줄 </h3>
+    </div>
 
-<div id="holder_ceiling" class="d-flex p-2 justify-content-center" ></div>
+    <div id="holder_ceiling" class="d-flex p-2 justify-content-center"></div>
 
-<style>
-.red-day {
-  color: red;
-}
+    <style>
+        .red-day {
+            color: red;
+        }
 
-.brown-text {
-  color: brown;
-}
-
-
-
-</style>
+        .brown-text {
+            color: brown;
+        }
+    </style>
 
 <script type="text/tmp1_ceiling" id="tmp1_ceiling">
   {{ 
@@ -160,74 +157,80 @@
 
 <script>
 
+// 전역 변수 선언
 var ajaxRequest1 = null;
+var $ceiling_currentPopover = null;
 
-    var $ceiling_currentPopover = null;
-  $(document).on('shown.bs.popover', function (ev) {
+// Popover 이벤트 핸들러
+$(document).on('shown.bs.popover', function (ev) {
     var $target = $(ev.target);
     if ($ceiling_currentPopover && ($ceiling_currentPopover.get(0) != $target.get(0))) {
-      $ceiling_currentPopover.popover('toggle');
+        $ceiling_currentPopover.popover('toggle');
     }
     $ceiling_currentPopover = $target;
-  }).on('hidden.bs.popover', function (ev) {
+}).on('hidden.bs.popover', function (ev) {
     var $target = $(ev.target);
     if ($ceiling_currentPopover && ($ceiling_currentPopover.get(0) == $target.get(0))) {
-      $ceiling_currentPopover = null;
+        $ceiling_currentPopover = null;
     }
-  });
-
-
-//quicktmp1_ceiling is a simple template language I threw together a while ago; it is not remotely secure to xss and probably has plenty of bugs that I haven't considered, but it basically works
-//the design is a function I read in a blog post by John Resig (http://ejohn.org/blog/javascript-micro-templating/) and it is intended to be loosely translateable to a more comprehensive template language like mustache easily
-$.extend({
-    quicktmp1_ceiling: function (template) {return new Function("obj","var p=[],print=function(){p.push.apply(p,arguments);};with(obj){p.push('"+template.replace(/[\r\t\n]/g," ").split("{{").join("\t").replace(/((^|\}\})[^\t]*)'/g,"$1\r").replace(/\t:(.*?)\}\}/g,"',$1,'").split("\t").join("');").split("}}").join("p.push('").split("\r").join("\\'")+"');}return p.join('');")}
 });
 
-$.extend(Date.prototype, {
-  //provides a string that is _year_month_day, intended to be widely usable as a css class
-  toDateCssClass:  function () { 
-    return '_' + this.getFullYear() + '_' + (this.getMonth() + 1) + '_' + this.getDate(); 
-  },
-  //this generates a number useful for comparing two dates; 
-  toDateInt: function () { 
-    return ((this.getFullYear()*12) + this.getMonth())*32 + this.getDate(); 
-  },
-  toTimeString: function() {
-    var hours = this.getHours(),
-        minutes = this.getMinutes(),
-        hour = (hours > 12) ? (hours - 12) : hours,
-        ampm = (hours >= 12) ? ' pm' : ' am';
-    if (hours === 0 && minutes===0) { return ''; }
-    if (minutes > 0) {
-      return hour + ':' + minutes + ampm;
+
+// quicktmp1_ceiling 템플릿 언어
+// John Resig의 micro-templating 기반 (http://ejohn.org/blog/javascript-micro-templating/)
+$.extend({
+    quicktmp1_ceiling: function (template) {
+        return new Function("obj", "var p=[],print=function(){p.push.apply(p,arguments);};with(obj){p.push('" + template.replace(/[\r\t\n]/g, " ").split("{{").join("\t").replace(/((^|\}\})[^\t]*)'/g, "$1\r").replace(/\t:(.*?)\}\}/g, "',$1,'").split("\t").join("');").split("}}").join("p.push('").split("\r").join("\\'") + "');}return p.join('');")
     }
-    return hour + ampm;
-  }
+});
+
+// Date 프로토타입 확장
+$.extend(Date.prototype, {
+    // CSS 클래스로 사용 가능한 날짜 문자열 (_year_month_day 형식)
+    toDateCssClass: function () {
+        return '_' + this.getFullYear() + '_' + (this.getMonth() + 1) + '_' + this.getDate();
+    },
+    // 날짜 비교를 위한 숫자 생성
+    toDateInt: function () {
+        return ((this.getFullYear() * 12) + this.getMonth()) * 32 + this.getDate();
+    },
+    // 시간 문자열 생성
+    toTimeString: function () {
+        var hours = this.getHours(),
+            minutes = this.getMinutes(),
+            hour = (hours > 12) ? (hours - 12) : hours,
+            ampm = (hours >= 12) ? ' pm' : ' am';
+        if (hours === 0 && minutes === 0) {
+            return '';
+        }
+        if (minutes > 0) {
+            return hour + ':' + minutes + ampm;
+        }
+        return hour + ampm;
+    }
 });
 
 
 (function ($) {
-	
 
-// 쿠키 불러옴
-let getCal_ceiling = getCookie("calendar_ceiling");
+    // 쿠키 불러옴
+    let getCal_ceiling = getCookie("calendar_ceiling");
+    var Objectdate;
 
-	if(getCal_ceiling!=null)
-	{	
-		 console.log('자료있음');
-		 
-		var decodedString = decodeURIComponent(getCal_ceiling);
-			
-		Objectdate = JSON.parse(decodedString);
+    if (getCal_ceiling != null) {
+        console.log('자료있음');
+        
+        var decodedString = decodeURIComponent(getCal_ceiling);
+        
+        Objectdate = JSON.parse(decodedString);
 
-		let Cartcount = Object.keys(Objectdate).length;
+        let Cartcount = Object.keys(Objectdate).length;
 
-		console.log('date : ' + Cartcount);
-}
-		
+        console.log('date : ' + Cartcount);
+    }
 
-  //t here is a function which gets passed an options object and returns a string of html. I am using quicktmp1_ceiling to create it based on the template located over in the html block
-  var t = $.quicktmp1_ceiling($('#tmp1_ceiling').get(0).innerHTML);
+    // 템플릿 함수 생성 (options 객체를 받아 HTML 문자열 반환)
+    var t = $.quicktmp1_ceiling($('#tmp1_ceiling').get(0).innerHTML);
   
   function calendar_ceiling($el, options) {
     //actions aren't currently in the template, but could be added easily...
@@ -383,34 +386,32 @@ let getCal_ceiling = getCookie("calendar_ceiling");
     }
     
     function draw_ceiling() {
-	  $("#ceiling_table").show();
-	  // 최종 엘리먼트를 그려준다.	
-      $el.html(t(options));
-      //potential optimization (untested), this object could be keyed into a dictionary on the dateclass string; the object would need to be reset and the first entry would have to be made here
-      $('.' + (new Date()).toDateCssClass()).addClass('today');
-      if (options.data && options.data.length) {
-        if (options.mode === 'year') {
-            ceiling_yearAddEvents(options.data, options.date.getFullYear());
-        } else if (options.mode === 'month' || options.mode === 'week') {
-            $.each(options.data, ceiling_monthAddEvent);
-        } else {
-            $.each(options.data, dayAddEvent_ceiling); //day
+        $("#ceiling_table").show();
+        // 최종 엘리먼트를 그려준다.
+        $el.html(t(options));
+        // 오늘 날짜 표시
+        $('.' + (new Date()).toDateCssClass()).addClass('today');
+        if (options.data && options.data.length) {
+            if (options.mode === 'year') {
+                ceiling_yearAddEvents(options.data, options.date.getFullYear());
+            } else if (options.mode === 'month' || options.mode === 'week') {
+                $.each(options.data, ceiling_monthAddEvent);
+            } else {
+                $.each(options.data, dayAddEvent_ceiling); // day
+            }
         }
-      }
-	  
-	  	  	  
     }
     
-   // draw_ceiling();    
-   
-	var clicked = false;
-	
+    // 클릭 상태 변수
+    var clicked = false;
+    
+    // 테이블 숨기기 함수
     function clear() {
-        // clear 함수의 내용: 테이블 숨기기
         $("#ceiling_table").hide();
         console.log("Clearing...");
     }
 
+    // 클릭 이벤트: 토글 기능
     $('#clickableText_ceiling')
         .css('cursor', 'pointer')
         .on('click', function() {
@@ -421,10 +422,7 @@ let getCal_ceiling = getCookie("calendar_ceiling");
             }
             clicked = !clicked; // 클릭 상태 토글
         });
-	   
-   
-   
-  }
+}
   
   (function (defaults, $, window, document) {
     $.extend({
@@ -456,91 +454,90 @@ let getCal_ceiling = getCookie("calendar_ceiling");
     
 })(jQuery);
 
+// 데이터셋 초기화
 var dataset_ceiling = [];
-  
+
+// 기존 AJAX 요청 취소
 if (ajaxRequest1 !== null) {
-	ajaxRequest1.abort();
+    ajaxRequest1.abort();
 }
 
-	 // ajax 요청 생성
-	 ajaxRequest1 = $.ajax({
-		
-			url: "../ceiling/deadlinedata.php?" ,
-    	  	type: "post",		
-   			data: '',
-   			dataType:"json",
-		}).done(function(data_ceiling){
-              console.log('data_ceiling');
-              console.log(data_ceiling);
-             // console.log(Object.values(data_ceiling)[0].length);		// 12 데이터 숫자 나옴 반복								
-			 //	console.log(Object.values(data_ceiling)[0][0]['address']);		// 참조하려면 좌측과 같이 3번의 첨자가 필요함 주의		
-			var titlename ='';
-			for(i = 0; i < Object.values(data_ceiling)[0].length ; i++) {
+// AJAX 요청 생성
+ajaxRequest1 = $.ajax({
+    url: "../ceiling/deadlinedata.php?",
+    type: "post",
+    data: '',
+    dataType: "json",
+}).done(function(data_ceiling) {
+    console.log('data_ceiling');
+    console.log(data_ceiling);
 				
-				// 시공팀에 따라 조회가 다름				
-				     // 신규쟘일 경우 (신규)
-				 // if(Object.values(data_ceiling)[0][i]['checkstep'] ==='신규')
-							// titlename +=  '(신규)' ;
-					titlename = Object.values(data_ceiling)[0][i]['workplacename'];
-					// 한글 유니코드 범위를 확인하는 정규표현식
-					const koreanRegex = /[\uAC00-\uD7A3]/;
-					let className = "";
+    var titlename = '';
+    
+    // 데이터 처리
+    for (var i = 0; i < Object.values(data_ceiling)[0].length; i++) {
+        titlename = Object.values(data_ceiling)[0][i]['workplacename'];
+        
+        // 한글 유니코드 범위를 확인하는 정규표현식
+        const koreanRegex = /[\uAC00-\uD7A3]/;
+        let className = "";
 
-					if (koreanRegex.test(titlename)) {
-					  // titlename에 한글이 포함되어 있으면
-					  
-							    titlename = titlename.substring(0, 6);
-							    className = "brown-text"; // 클래스 이름 설정
-					 }
-					
-						titlename += '[' ;
+        if (koreanRegex.test(titlename)) {
+            // titlename에 한글이 포함되어 있으면
+            titlename = titlename.substring(0, 6);
+            className = "brown-text"; // 클래스 이름 설정
+        }
+        
+        titlename += '[';
 
-					  if(Object.values(data_ceiling)[0][i]['secondord'] !='')
-							titlename +=  Object.values(data_ceiling)[0][i]['secondord'] + '] ' ;
-						  											
-						
-						if(Number(Object.values(data_ceiling)[0][i]['bon_su']) > 0)
-							titlename += '본' + Object.values(data_ceiling)[0][i]['bon_su']  ;
-						if(Number(Object.values(data_ceiling)[0][i]['lc_su']) > 0)
-							titlename += 'LC' + Object.values(data_ceiling)[0][i]['lc_su']  ;
-						if(Number(Object.values(data_ceiling)[0][i]['etc_su']) > 0)
-							titlename += '기타' + Object.values(data_ceiling)[0][i]['etc_su']  ;
-						
+        if (Object.values(data_ceiling)[0][i]['secondord'] != '') {
+            titlename += Object.values(data_ceiling)[0][i]['secondord'] + '] ';
+        }
+        
+        if (Number(Object.values(data_ceiling)[0][i]['bon_su']) > 0) {
+            titlename += '본' + Object.values(data_ceiling)[0][i]['bon_su'];
+        }
+        if (Number(Object.values(data_ceiling)[0][i]['lc_su']) > 0) {
+            titlename += 'LC' + Object.values(data_ceiling)[0][i]['lc_su'];
+        }
+        if (Number(Object.values(data_ceiling)[0][i]['etc_su']) > 0) {
+            titlename += '기타' + Object.values(data_ceiling)[0][i]['etc_su'];
+        }
 
-						var date = new Date(Object.values(data_ceiling)[0][i]['deadline']);
-						 d = date.getDate();				
-						 m = date.getMonth();
-						 y = date.getFullYear();				
-				
-				
-				dataset_ceiling.push({ title: titlename , start: new Date(y, m, d), end: null , allDay: true , text: titlename , id: Object.values(data_ceiling)[0][i]['num'], className: className  });
-			}
-			
-  
-			  
-			  dataset_ceiling.sort(function(a,b) { return (+a.start) - (+b.start); });
-			  
-			//data must be sorted by start date
+        var date = new Date(Object.values(data_ceiling)[0][i]['deadline']);
+        var d = date.getDate();
+        var m = date.getMonth();
+        var y = date.getFullYear();
 
-			//Actually do everything
-			
-			//현재 설정 mode 쿠키에 저장함
-			ObjectCal = new Array();
-			var data_ceiling = new Object();					  
-			data_ceiling.mode = '2022-01-01';						
-			ObjectCal.push(data_ceiling);
-            console.log('ordercart 쿠키' + JSON.stringify(ObjectCal));
-				
-		    setCookie ('calendar_ceiling', JSON.stringify(ObjectCal), 3600);   // 쿠키에 저장함
-			
-			
-			$('#holder_ceiling').calendar_ceiling({
-			  data: dataset_ceiling
-			});
-		
-			
-		});
-			
-
+        dataset_ceiling.push({
+            title: titlename,
+            start: new Date(y, m, d),
+            end: null,
+            allDay: true,
+            text: titlename,
+            id: Object.values(data_ceiling)[0][i]['num'],
+            className: className
+        });
+    }
+    
+    // 시작 날짜 기준으로 정렬 (필수)
+    dataset_ceiling.sort(function(a, b) {
+        return (+a.start) - (+b.start);
+    });
+    
+    // 현재 설정을 쿠키에 저장
+    var ObjectCal = new Array();
+    var data_ceiling = new Object();
+    data_ceiling.mode = '2022-01-01';
+    ObjectCal.push(data_ceiling);
+    console.log('ordercart 쿠키' + JSON.stringify(ObjectCal));
+    
+    setCookie('calendar_ceiling', JSON.stringify(ObjectCal), 3600); // 쿠키에 저장함
+    
+    // 캘린더 초기화
+    $('#holder_ceiling').calendar_ceiling({
+        data: dataset_ceiling
+    });
+});
 
 </script>

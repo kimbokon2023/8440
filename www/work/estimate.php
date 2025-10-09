@@ -1,119 +1,142 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-session_start();
+<?php
+require_once __DIR__ . '/../bootstrap.php';
 
-$root_dir = getDocumentRoot() ;
+// 권한 확인
+if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+    sleep(1);
+    header("Location:" . getBaseUrl() . "/login/login_form.php");
+    exit;
+}
 
-ini_set('display_errors','0');  // 화면에 warning 없애기	
+// 베이스 URL 설정 (로컬/서버 환경 자동 감지)
+$base_url = getBaseUrl();
+
+// 세션 변수 안전하게 초기화
+$level = $_SESSION["level"] ?? 0;
+$user_name = $_SESSION["name"] ?? '';
+
+ini_set('display_errors', '0');  // 화면에 warning 없애기
 
 // 모바일 사용여부 확인하는 루틴
-$mAgent = array("iPhone","iPod","Android","Blackberry", 
-    "Opera Mini", "Windows ce", "Nokia", "sony" );
+$mAgent = array("iPhone", "iPod", "Android", "Blackberry", 
+    "Opera Mini", "Windows ce", "Nokia", "sony");
 $chkMobile = false;
-for($i=0; $i<sizeof($mAgent); $i++){
-    if(stripos( $_SERVER['HTTP_USER_AGENT'], $mAgent[$i] )){
+for ($i = 0; $i < sizeof($mAgent); $i++) {
+    if (stripos($_SERVER['HTTP_USER_AGENT'], $mAgent[$i])) {
         $chkMobile = true;
         break;
     }
-}   
+}
 
-$level= $_SESSION["level"];
-$user_name= $_SESSION["name"];
+// 환경파일 불러오기
+$readIni = array();
+$readIni = parse_ini_file(includePath("work/estimate.ini"), false);
 
-$readIni = array();   // 환경파일 불러오기
-$readIni = parse_ini_file("./estimate.ini",false);	
 // 초기 서버를 이동중에 저정해야할 변수들을 저장하면서 작업한다. 자료를 추가 불러올때 카운터 숫자등..
-$init_read = array();   // 환경파일 불러오기
-$init_read = parse_ini_file("./estimate.ini",false);	
+$init_read = array();
+$init_read = parse_ini_file(includePath("work/estimate.ini"), false);
 
+// 요청 변수 안전하게 초기화
+$num = $_REQUEST["num"] ?? '';
 
-										  
-isset($_REQUEST["num"])  ? $num=$_REQUEST["num"] :   $num=''; 
 require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
-	
-if($num=='')
-{
-	$registedate=date("Y-m-d");	
+// 변수 초기화
+$registedate = '';
+$mcno = '';
+$inputsum = '';
+$outputsum = '';
+$isEditMode = false;
+$mode = '';
 
-	$mcno = '';
-	$inputsum = '';
-	$outputsum = '';
+// 배열 변수 초기화
+$input_arr = array();
+$output_arr1 = array();
+$output_arr2 = array();
+$output_arr3 = array();
+$output_arr4 = array();
+$text_arr1 = array();
+$text_arr2 = array();
+$text_arr3 = array();
+$text_arr4 = array();
+$text_arr5 = array();
+
+if ($num == '') {
+    $registedate = date("Y-m-d");
+    $mcno = '';
+    $inputsum = '';
+    $outputsum = '';
+} else {
+    // 값이 존재하면 수정모드
+    $isEditMode = true; // 수정 모드 여부
+    
+    // 배열 변수들 안전하게 초기화
+    $input_arr = isset($input_arr) && is_string($input_arr) ? explode(',', $input_arr) : array();
+    $output_arr1 = isset($output_arr1) && is_string($output_arr1) ? explode(',', $output_arr1) : array();
+    $output_arr2 = isset($output_arr2) && is_string($output_arr2) ? explode(',', $output_arr2) : array();
+    $output_arr3 = isset($output_arr3) && is_string($output_arr3) ? explode(',', $output_arr3) : array();
+    $output_arr4 = isset($output_arr4) && is_string($output_arr4) ? explode(',', $output_arr4) : array();
+    
+    // 지출부분 읽기
+    $text_arr1 = isset($text1) && is_string($text1) ? explode(',', $text1) : array();
+    $text_arr2 = isset($text2) && is_string($text2) ? explode(',', $text2) : array();
+    $text_arr3 = isset($text3) && is_string($text3) ? explode(',', $text3) : array();
+    $text_arr4 = isset($text4) && is_string($text4) ? explode(',', $text4) : array();
+    $text_arr5 = isset($text5) && is_string($text5) ? explode(',', $text5) : array();
+
+    // 배열의 각 요소가 0인 경우 공백으로 변경
+    $text_arr1 = array_map(function($value) {
+        return ($value == 0) ? '' : $value;
+    }, $text_arr1);
+
+    $text_arr2 = array_map(function($value) {
+        return ($value == 0) ? '' : $value;
+    }, $text_arr2);
+
+    $text_arr3 = array_map(function($value) {
+        return ($value == 0) ? '' : $value;
+    }, $text_arr3);
+
+    $text_arr4 = array_map(function($value) {
+        return ($value == 0) ? '' : $value;
+    }, $text_arr4);
+
+    $text_arr5 = array_map(function($value) {
+        return ($value == 0) ? '' : $value;
+    }, $text_arr5);
+
+    $mode = "modify";
 }
-else // 값이 존재하면 수정모드
-{
-	$isEditMode = true; // 수정 모드 여부
-	$inputvalues = explode(',', $input_arr);
-	$outputvalues1 = explode(',', $output_arr1);
-	$outputvalues2 = explode(',', $output_arr2);
-	$outputvalues3 = explode(',', $output_arr3);
-	$outputvalues4 = explode(',', $output_arr4);
-
-	
-	$input_arr = $inputvalues;
-	$output_arr1 = $outputvalues1;
-	$output_arr2 = $outputvalues2;
-	$output_arr3 = $outputvalues3;
-	$output_arr4 = $outputvalues4;	
-	
-// 지출부분 읽기
-		
-	$text_arr1 = explode(',', $text1);
-	$text_arr2 = explode(',', $text2);
-	$text_arr3 = explode(',', $text3);
-	$text_arr4 = explode(',', $text4);
-	$text_arr5 = explode(',', $text5);
-
-	// 배열의 각 요소가 0인 경우 공백으로 변경
-	$text_arr1 = array_map(function($value) {
-		return ($value == 0) ? '' : $value;
-	}, $text_arr1);
-
-	$text_arr2 = array_map(function($value) {
-		return ($value == 0) ? '' : $value;
-	}, $text_arr2);
-
-	$text_arr3 = array_map(function($value) {
-		return ($value == 0) ? '' : $value;
-	}, $text_arr3);
-
-	$text_arr4 = array_map(function($value) {
-		return ($value == 0) ? '' : $value;
-	}, $text_arr4);
-
-	$text_arr5 = array_map(function($value) {
-		return ($value == 0) ? '' : $value;
-	}, $text_arr5);
-
-	
-	// var_dump($text1);
-
-	$mode="modify";
-}
 
 
-	$total0 = 0;		  
-	$total1 = 0;		  
-	$total2 = 0;		  
-	$total3 = 0;		  
-	$total4 = 0;		  
-	$total5 = 0;
+// 합계 계산 변수 초기화
+$total0 = 0;
+$total1 = 0;
+$total2 = 0;
+$total3 = 0;
+$total4 = 0;
+$total5 = 0;
 
-    $total1 += array_sum($text1);
-    $total2 += array_sum($text2);
-    $total3 += array_sum($text3);
-    $total4 += array_sum($text4);
-    $total5 += array_sum($text5);
-	
-	$total0 += $total1 + $total2 + $total3 + $total4 + $total5 ;	
+// 배열 합계 계산 (안전하게 처리)
+$total1 += isset($text1) ? array_sum($text1) : 0;
+$total2 += isset($text2) ? array_sum($text2) : 0;
+$total3 += isset($text3) ? array_sum($text3) : 0;
+$total4 += isset($text4) ? array_sum($text4) : 0;
+$total5 += isset($text5) ? array_sum($text5) : 0;
 
+$total0 += $total1 + $total2 + $total3 + $total4 + $total5;
+?>
 
-?>  
-
-<?php include getDocumentRoot() . '/load_header.php' ?>
+<?php include includePath('load_header.php'); ?>
 <title>JAMB 단가</title>
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Toastify -->
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 <!-- Dashboard CSS -->
-<link rel="stylesheet" href="/css/dashboard-style.css" type="text/css" />
+<link rel="stylesheet" href="<?php echo $base_url; ?>/css/dashboard-style.css" type="text/css" />
 
 <style>
 /* Light & Subtle Theme - Estimate Specific */
@@ -266,9 +289,9 @@ body {
 	
 	
 <form id="board_form" name="board_form" class="form-signin" method="post">                      
-	<input type="hidden" id="mode" name="mode" value="<?=$mode?>">
-	<input type="hidden" id="num" name="num" value="<?=$num?>">
-	<input type="hidden" id="user_name" name="user_name" value="<?=$user_name?>">	
+	<input type="hidden" id="mode" name="mode" value="<?php echo htmlspecialchars($mode, ENT_QUOTES, 'UTF-8'); ?>">
+	<input type="hidden" id="num" name="num" value="<?php echo htmlspecialchars($num, ENT_QUOTES, 'UTF-8'); ?>">
+	<input type="hidden" id="user_name" name="user_name" value="<?php echo htmlspecialchars($user_name, ENT_QUOTES, 'UTF-8'); ?>">
 
 <div class="container-fluid">
 	<div class="row justify-content-center align-items-center vh-60">
@@ -294,144 +317,135 @@ body {
         <tr>
             <td>막판유</td>
             <td>
-                <input type="text" class="form-control text-end" name="WJ_HL" value="<?=$readIni['WJ_HL']?>"  data-separator=","  />
+                <input type="text" class="form-control text-end" name="WJ_HL" value="<?php echo htmlspecialchars($readIni['WJ_HL'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" data-separator="," />
             </td>
             <td>
-                <input type="text" class="form-control text-end" name="WJ" value="<?=$readIni['WJ']?>" data-separator="," />
+                <input type="text" class="form-control text-end" name="WJ" value="<?php echo htmlspecialchars($readIni['WJ'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" data-separator="," />
             </td>
         </tr>
         <tr>
             <td>막판무</td>
             <td>
-                <input type="text" class="form-control text-end" name="NJ_HL"  value="<?=$readIni['NJ_HL']?>" data-separator="," />
+                <input type="text" class="form-control text-end" name="NJ_HL" value="<?php echo htmlspecialchars($readIni['NJ_HL'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" data-separator="," />
             </td>
             <td>
-                <input type="text" class="form-control text-end" name="NJ" value="<?=$readIni['NJ']?>"  data-separator="," />
+                <input type="text" class="form-control text-end" name="NJ" value="<?php echo htmlspecialchars($readIni['NJ'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" data-separator="," />
             </td>
         </tr>
         <tr>
             <td>쪽쟘</td>
             <td>
-                <input type="text" class="form-control text-end" name="SJ_HL"  value="<?=$readIni['SJ_HL']?>" data-separator="," />
+                <input type="text" class="form-control text-end" name="SJ_HL" value="<?php echo htmlspecialchars($readIni['SJ_HL'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" data-separator="," />
             </td>
             <td>
-                <input type="text" class="form-control text-end" name="SJ"  value="<?=$readIni['SJ']?>" data-separator="," />
+                <input type="text" class="form-control text-end" name="SJ" value="<?php echo htmlspecialchars($readIni['SJ'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" data-separator="," />
             </td>
         </tr>
-						</tbody>
-						</table>
-					</div>
+					</tbody>
+					</table>
 				</div>
 			</div>
 		</div>
-<div class="sideBanner">
-
- <!-- <div class="mb-1 mt-1 fs-3">
-    <button type="button" class="btn btn-dark rounded-pill saveBtn fs-1">저장</button>
-  </div> -->
+	</div>
+	
+	<div class="sideBanner">
+		<!-- <div class="mb-1 mt-1 fs-3">
+			<button type="button" class="btn btn-dark rounded-pill saveBtn fs-1">저장</button>
+		</div> -->
   
-<div class="mb-1 mt-1">
-  <button type="button" class="btn btn-dark rounded-pill fs-6" id="saveButton">저장</button>
-</div>
+		<div class="mb-1 mt-1">
+			<button type="button" class="btn btn-dark rounded-pill fs-6" id="saveButton">저장</button>
+		</div>
 
-  <div class="mb-1 mt-1">
-    <button type="button" class="btn btn-secondary rounded-pill closeBtn fs-6">닫기</button>
-   </div>
-</div>
-</div>
+		<div class="mb-1 mt-1">
+			<button type="button" class="btn btn-secondary rounded-pill closeBtn fs-6">닫기</button>
+		</div>
+	</div>
 </div>
 </form>
 <script> 
 
 // 전자결재를 위해 띄우는 창
 // 기본 위치(top)값
-var floatPosition = parseInt($(".sideBanner").css('top'))
+var floatPosition = parseInt($(".sideBanner").css('top'));
 
 // scroll 인식
 $(window).scroll(function() {
-  // 모바일에선 나타나지 않게 하기  
+    // 모바일에선 나타나지 않게 하기  
     // 현재 스크롤 위치
     var currentTop = $(window).scrollTop();
     var bannerTop = currentTop + floatPosition + "px";
 
-    //이동 애니메이션
+    // 이동 애니메이션
     $(".sideBanner").stop().animate({
-      "top" : bannerTop
+        "top": bannerTop
     }, 400);
-  
 }).scroll();
 
 
-$(document).ready(function(){	
+$(document).ready(function() {
+    $('.form-control').on('input', function() {
+        var separator = $(this).data('separator');
+        var value = $(this).val().replace(/\,/g, '');
+        var parsedValue = parseInt(value);
+        var formattedValue = isNaN(parsedValue) ? '' : parsedValue.toLocaleString();
+        $(this).val(formattedValue);
+    });
 
-	$('.form-control').on('input', function() {
-		var separator = $(this).data('separator');
-		var value = $(this).val().replace(/\,/g, '');
-		var parsedValue = parseInt(value);
-		var formattedValue = isNaN(parsedValue) ? '' : parsedValue.toLocaleString();
-		$(this).val(formattedValue);
-	});	
+    var state = $('#state').val();
+    // 처리완료인 경우는 수정하기 못하게 한다.
 
-	var state =  $('#state').val();  	
-	// 처리완료인 경우는 수정하기 못하게 한다.
+    $("#closeModalBtn").click(function() {
+        $('#myModal').modal('hide');
+    });
 
-	$("#closeModalBtn").click(function(){ 
-		$('#myModal').modal('hide');
-	});
-		
-	$(".closeBtn").click(function(){    // 저장하고 창닫기	
+    $(".closeBtn").click(function() {
+        // 저장하고 창닫기
+        myalert("창 닫기!");
+        opener.location.reload();
+        window.close();
+    });
 
-			myalert("창 닫기!");		
-			opener.location.reload();		
-			 window.close();	
-	 });	
-	 
-	$('#saveButton').on('click', function() {
-		$.ajax({
-			url: "save_estimate.php",
-			type: "post",		
-			data: $("#board_form").serialize(),								
-			success : function( data ){		
+    $('#saveButton').on('click', function() {
+        $.ajax({
+            url: "save_estimate.php",
+            type: "post",
+            data: $("#board_form").serialize(),
+            success: function(data) {
+                console.log(data);
 
-			   console.log(data);			
-														
-					 Toastify({
-							text: '저장되었습니다.' ,
-							duration: 3000,
-							close:true,
-							gravity:"top",
-							position: "center",
-							backgroundColor: "#4fbe87",
-						}).showToast();							
-			 												
-				},
-				error : function( jqxhr , status , error ){
-					console.log( jqxhr , status , error );
-					   } 			      		
-		   });		
-	   });		
-			 
+                Toastify({
+                    text: '저장되었습니다.',
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "center",
+                    backgroundColor: "#4fbe87",
+                }).showToast();
+            },
+            error: function(jqxhr, status, error) {
+                console.log(jqxhr, status, error);
+            }
+        });
+    });
 }); // end of ready document
 
 
 function myalert(str) {
+    Toastify({
+        text: str,
+        duration: 3000,
+        close: true,
+        gravity: "top",
+        position: "center",
+        backgroundColor: "#4fbe87",
+        className: "toastify-content",
+    }).showToast();
 
- Toastify({
-		text: str,
-		duration: 3000,
-		close:true,
-		gravity:"top",
-		position: "center",
-		backgroundColor: "#4fbe87",
-		className: "toastify-content",
-	}).showToast();	
-	
-	setTimeout(function() {
-		// 시간지연
-		}, 1000);
-	
-}	 
-
+    setTimeout(function() {
+        // 시간지연
+    }, 1000);
+}
 </script>
 
 </body>

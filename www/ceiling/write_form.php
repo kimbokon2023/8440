@@ -1,19 +1,37 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
-require_once getDocumentRoot() . '/vendor/autoload.php';
+<?php
+require_once __DIR__ . '/../bootstrap.php';
+
+// 권한 확인
+if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+    sleep(1);
+    header("Location:" . getBaseUrl() . "/login/login_form.php");
+    exit;
+}
+
+// 베이스 URL 설정
+$base_url = getBaseUrl();
+
+// 세션 변수 안전하게 초기화
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+$user_name = $_SESSION["user_name"] ?? '';
+
+// Composer autoload 및 데이터베이스 연결
+require_once(includePath('vendor/autoload.php'));
 require_once(includePath('lib/mydb.php'));
 
 // 서비스 계정 JSON 파일 경로
-$serviceAccountKeyFile = getDocumentRoot() . '/tokens/mytoken.json';
+$serviceAccountKeyFile = includePath('tokens/mytoken.json');
 
-// Google Drive 클라이언트 설정  
-// require_once getDocumentRoot() . '/vendor/autoload.php';에서 가져옴
+// Google Drive 클라이언트 설정
 $client = new Google_Client();
 $client->setAuthConfig($serviceAccountKeyFile);
-$client->addScope(Google_Service_Drive::DRIVE);
-
-// Google Drive 서비스 초기화
-$service = new Google_Service_Drive($client);
+if (class_exists('Google_Service_Drive')) {
+    $client->addScope(\Google_Service_Drive::DRIVE);
+    // Google Drive 서비스 초기화
+    $service = new \Google_Service_Drive($client);
+} else {
+    $service = null;
+}
 
 // 특정 폴더 확인 함수
 function getFolderId($service, $folderName, $parentFolderId = null) {
@@ -31,28 +49,21 @@ function getFolderId($service, $folderName, $parentFolderId = null) {
     return count($response->files) > 0 ? $response->files[0]->id : null;
 }
 
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-		 sleep(1);
-	          header("Location:" . $WebSite . "login/login_form.php"); 
-         exit;
-   }  
+// 모드 확인
+$mode = $_REQUEST["mode"] ?? '';
 
-include getDocumentRoot() . '/load_header.php';
+if ($mode === 'copy') {
+    $title_message = "(데이터복사) 본천장&조명천장 수주내역";
+} elseif ($mode === 'split') {
+    $title_message = "(분할 & 복사) 본천장&조명천장 수주내역";
+} else {
+    $title_message = "본천장&조명천장 수주내역";
+}
 
-  if(isset($_REQUEST["mode"]))  //수정 버튼을 클릭해서 호출했는지 체크
-	$mode=$_REQUEST["mode"];
-  else
-	$mode="";
-
-if($mode === 'copy')
-	$title_message = "(데이터복사) 본천장&조명천장 수주내역" ;
-else if($mode === 'split')  
-	$title_message = "(분할 & 복사) 본천장&조명천장 수주내역" ;
-else
-	$title_message = "본천장&조명천장 수주내역" ;
- ?> 
-<script src="../js/calinseung.js"></script>    
-<title> <?=$title_message?> </title>
+include includePath('load_header.php');
+?>
+<script src="<?php echo $base_url; ?>/js/calinseung.js"></script>
+<title><?php echo $title_message; ?></title>
 </head>
 
 <body>
@@ -252,64 +263,50 @@ else
     animation: slideOutRight 0.2s ease-in forwards;
 }
 	  
-  </style> 
-  
-<?   
-  
-  if(isset($_REQUEST["num"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $num=$_REQUEST["num"];
-  else
-   $num="";  
+</style>
 
-  if(isset($_REQUEST["search"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $search=$_REQUEST["search"];
-  else
-   $search="";
-  
+<?php
+// 요청 변수 안전하게 초기화
+$num = $_REQUEST["num"] ?? '';
+$search = $_REQUEST["search"] ?? '';
 
-$pdo = db_connect();	
- 
-$URLsave = "https://8440.co.kr/ceilingloadpic.php?num=" . $num;  
+$pdo = db_connect();
 
-	// 첨부 파일(엑셀파일) 에 대한 읽어오는 부분
-	require_once(includePath('lib/mydb.php'));
-	$pdo = db_connect();
-	 
-	// 첨부파일 있는 것 불러오기 
-	$savefilename_arr=array(); 
-	$realname_arr=array(); 
-	$attach_arr=array(); 
-	$tablename='ceiling';
-	$item = 'ceiling';
+$URLsave = getBaseUrl() . "/ceilingloadpic.php?num=" . $num;
 
-  
-  if ($mode=="modify"){
-    try{
-		  $sql = "select * from mirae8440.ceiling where num = ? ";
-		  $stmh = $pdo->prepare($sql); 
+// 첨부파일 배열 초기화
+$savefilename_arr = array();
+$realname_arr = array();
+$attach_arr = array();
+$tablename = 'ceiling';
+$item = 'ceiling';
 
-		$stmh->bindValue(1,$num,PDO::PARAM_STR); 
-		$stmh->execute();
-		$count = $stmh->rowCount();              
-    if($count<1){  
-      print "검색결과가 없습니다.<br>";
-     }else{
-      $row = $stmh->fetch(PDO::FETCH_ASSOC);
-	  
-	  include "_rowDB.php";
-	  
-      $item_file_0 = $row["file_name_0"];
-      $item_file_1 = $row["file_name_1"];
-
-      $copied_file_0 = "../uploads/". $row["file_copied_0"];
-      $copied_file_1 = "../uploads/". $row["file_copied_1"];
-	 }
-				   
-
-     }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
-     }
-  }
+// 수정 모드 처리
+if ($mode == "modify") {
+    try {
+        $sql = "SELECT * FROM {$DB}.ceiling WHERE num = ?";
+        $stmh = $pdo->prepare($sql);
+        $stmh->bindValue(1, $num, PDO::PARAM_STR);
+        $stmh->execute();
+        $count = $stmh->rowCount();
+        
+        if ($count < 1) {
+            echo "검색결과가 없습니다.<br>";
+        } else {
+            $row = $stmh->fetch(PDO::FETCH_ASSOC);
+            
+            include "_rowDB.php";
+            
+            $item_file_0 = $row["file_name_0"] ?? '';
+            $item_file_1 = $row["file_name_1"] ?? '';
+            
+            $copied_file_0 = "../uploads/" . ($row["file_copied_0"] ?? '');
+            $copied_file_1 = "../uploads/" . ($row["file_copied_1"] ?? '');
+        }
+    } catch (PDOException $Exception) {
+        echo "오류: " . $Exception->getMessage();
+    }
+}
   
 if ($mode !== "modify" and $mode !== "copy" and $mode !== "split"  ) {
     // 수정모드가 아닐 때, 즉 신규 자료일 때 변수 초기화
@@ -409,92 +406,95 @@ if ($mode !== "modify" and $mode !== "copy" and $mode !== "split"  ) {
     }
 }
 
-  if ($mode=="copy" or $mode=='split'){
-    try{
-      $sql = "select * from mirae8440.ceiling where num = ? ";
-      $stmh = $pdo->prepare($sql); 
-
-    $stmh->bindValue(1,$num,PDO::PARAM_STR); 
-      $stmh->execute();
-      $count = $stmh->rowCount();              
-    if($count<1){  
-      print "검색결과가 없습니다.<br>";
-     }else{
-      $row = $stmh->fetch(PDO::FETCH_ASSOC);
-      $item_file_0 = $row["file_name_0"];
-      $item_file_1 = $row["file_name_1"];
-
-      $copied_file_0 = "../uploads/". $row["file_copied_0"];
-      $copied_file_1 = "../uploads/". $row["file_copied_1"];
-	 }
-    
-	include '_rowDB.php';
+// 복사 및 분할 모드 처리
+if ($mode == "copy" || $mode == 'split') {
+    try {
+        $sql = "SELECT * FROM {$DB}.ceiling WHERE num = ?";
+        $stmh = $pdo->prepare($sql);
+        $stmh->bindValue(1, $num, PDO::PARAM_STR);
+        $stmh->execute();
+        $count = $stmh->rowCount();
+        
+        if ($count < 1) {
+            echo "검색결과가 없습니다.<br>";
+        } else {
+            $row = $stmh->fetch(PDO::FETCH_ASSOC);
+            $item_file_0 = $row["file_name_0"] ?? '';
+            $item_file_1 = $row["file_name_1"] ?? '';
             
-			  $order_date1=$row["order_date1"];	
-			  $order_date2=$row["order_date2"];	
-			  $order_date3=$row["order_date3"];	
-			  $order_date4=$row["order_date4"];	
-			  $order_input_date1=$row["order_input_date1"];	
-			  $order_input_date2=$row["order_input_date2"];	
-			  $order_input_date3=$row["order_input_date3"];	
-			  $order_input_date4=$row["order_input_date4"];	
-  				
-		      $workday=trans_date($workday);
-		      $demand=trans_date($demand);
-		      $orderday=trans_date($orderday);
-		      $deadline=trans_date($deadline);
-		      $testday=trans_date($testday);
-		      $lclaser_date=trans_date($lclaser_date);
-		      $lcbending_date=trans_date($lcbending_date);
-		      $lcwelding_date=trans_date($lcwelding_date);
-		      $lcpainting_date=trans_date($lcpainting_date);
-		      $lcassembly_date=trans_date($lcassembly_date);		      
-		      $eunsung_make_date=trans_date($eunsung_make_date);			
-		      $eunsung_laser_date=trans_date($eunsung_laser_date);			
-		      $mainbending_date=trans_date($mainbending_date);			
-		      $mainwelding_date=trans_date($mainwelding_date);			
-		      $mainpainting_date=trans_date($mainpainting_date);			
-		      $mainassembly_date=trans_date($mainassembly_date);	
-		      $etclaser_date=trans_date($etclaser_date);			
-		      $etcbending_date=trans_date($etcbending_date);			
-		      $etcwelding_date=trans_date($etcwelding_date);			
-		      $etcpainting_date=trans_date($etcpainting_date);			
-		      $etcassembly_date=trans_date($etcassembly_date);		
-			  
-		      $order_date1=trans_date($order_date1);					   
-		      $order_date2=trans_date($order_date2);					   
-		      $order_date3=trans_date($order_date3);					   
-		      $order_date4=trans_date($order_date4);					   
-		      $order_input_date1=trans_date($order_input_date1);					   
-		      $order_input_date2=trans_date($order_input_date2);					   
-		      $order_input_date3=trans_date($order_input_date3);					   
-		      $order_input_date4=trans_date($order_input_date4);					  
-			  
-            $designer ="";
-			$deadline = null;
-			$lc_draw = null;
-			$etc_draw = null;
-			$main_draw = null;
-			
-     }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
-     }
-	// 자료번호 초기화 
-	$num = 0;		 
-	 
-  }
+            $copied_file_0 = "../uploads/" . ($row["file_copied_0"] ?? '');
+            $copied_file_1 = "../uploads/" . ($row["file_copied_1"] ?? '');
+        }
+        
+        include '_rowDB.php';
+        
+        $order_date1 = $row["order_date1"] ?? '';
+        $order_date2 = $row["order_date2"] ?? '';
+        $order_date3 = $row["order_date3"] ?? '';
+        $order_date4 = $row["order_date4"] ?? '';
+        $order_input_date1 = $row["order_input_date1"] ?? '';
+        $order_input_date2 = $row["order_input_date2"] ?? '';
+        $order_input_date3 = $row["order_input_date3"] ?? '';
+        $order_input_date4 = $row["order_input_date4"] ?? '';
+        
+        // 날짜 포맷 변환
+        $workday = trans_date($workday);
+        $demand = trans_date($demand);
+        $orderday = trans_date($orderday);
+        $deadline = trans_date($deadline);
+        $testday = trans_date($testday);
+        $lclaser_date = trans_date($lclaser_date);
+        $lcbending_date = trans_date($lcbending_date);
+        $lcwelding_date = trans_date($lcwelding_date);
+        $lcpainting_date = trans_date($lcpainting_date);
+        $lcassembly_date = trans_date($lcassembly_date);
+        $eunsung_make_date = trans_date($eunsung_make_date);
+        $eunsung_laser_date = trans_date($eunsung_laser_date);
+        $mainbending_date = trans_date($mainbending_date);
+        $mainwelding_date = trans_date($mainwelding_date);
+        $mainpainting_date = trans_date($mainpainting_date);
+        $mainassembly_date = trans_date($mainassembly_date);
+        $etclaser_date = trans_date($etclaser_date);
+        $etcbending_date = trans_date($etcbending_date);
+        $etcwelding_date = trans_date($etcwelding_date);
+        $etcpainting_date = trans_date($etcpainting_date);
+        $etcassembly_date = trans_date($etcassembly_date);
+        
+        $order_date1 = trans_date($order_date1);
+        $order_date2 = trans_date($order_date2);
+        $order_date3 = trans_date($order_date3);
+        $order_date4 = trans_date($order_date4);
+        $order_input_date1 = trans_date($order_input_date1);
+        $order_input_date2 = trans_date($order_input_date2);
+        $order_input_date3 = trans_date($order_input_date3);
+        $order_input_date4 = trans_date($order_input_date4);
+        
+        $designer = "";
+        $deadline = null;
+        $lc_draw = null;
+        $etc_draw = null;
+        $main_draw = null;
+        
+    } catch (PDOException $Exception) {
+        echo "오류: " . $Exception->getMessage();
+    }
     
-   $material_arr = array('','304 Hair Line 1.2T','304 HL 1.2T','304 Mirror 1.2T','304 MR 1.2T','VB 1.2T','2B VB 1.2T','304 Mirror VB 1.2T', '304 Mirror Bronze 1.2T', '304 Mirror VB Ti-Bronze 1.2T', '304 Hair Line Black 1.2T', 'SPCC 1.2T(도장)', 'EGI 1.2T(도장)', 'HTM (신우)',  '기타' );
-			 
+    // 자료번호 초기화
+    $num = 0;
+}
+    
+$material_arr = array('', '304 Hair Line 1.2T', '304 HL 1.2T', '304 Mirror 1.2T', '304 MR 1.2T', 'VB 1.2T', '2B VB 1.2T', '304 Mirror VB 1.2T', '304 Mirror Bronze 1.2T', '304 Mirror VB Ti-Bronze 1.2T', '304 Hair Line Black 1.2T', 'SPCC 1.2T(도장)', 'EGI 1.2T(도장)', 'HTM (신우)', '기타');
+
+// first_writer와 update_log 초기화
+$first_writer = $first_writer ?? '';
+$update_log = $update_log ?? '';
 ?>
 
-
-<form id="board_form" name="board_form" method="post"  onkeydown="return captureReturnKey(event)"  >	
-		      
-<input type="hidden" id="first_writer" name="first_writer" value="<?=$first_writer?>"  >
-<input type="hidden" id="update_log" name="update_log" value="<?=$update_log?>"  >
-<input type="hidden" id="num" name="num" value="<?=$num?>"  >
-<input type="hidden" id="mode" name="mode" value="<?=$mode?>"  >
+<form id="board_form" name="board_form" method="post" onkeydown="return captureReturnKey(event)">
+    <input type="hidden" id="first_writer" name="first_writer" value="<?php echo htmlspecialchars($first_writer, ENT_QUOTES, 'UTF-8'); ?>">
+    <input type="hidden" id="update_log" name="update_log" value="<?php echo htmlspecialchars($update_log, ENT_QUOTES, 'UTF-8'); ?>">
+    <input type="hidden" id="num" name="num" value="<?php echo htmlspecialchars($num, ENT_QUOTES, 'UTF-8'); ?>">
+    <input type="hidden" id="mode" name="mode" value="<?php echo htmlspecialchars($mode, ENT_QUOTES, 'UTF-8'); ?>">
 
 
 <div class="container-fluid">	  
@@ -512,7 +512,7 @@ if ($mode !== "modify" and $mode !== "copy" and $mode !== "split"  ) {
 </div> 		
 <div class="col-sm-10"> 		  
 <div class="d-flex justify-content-start align-items-center mt-3 mb-2 ">		
-	<span class="fs-5 me-5">  <?=$title_message?> </span>           
+    <span class="fs-5 me-5"><?php echo $title_message; ?></span>           
     <!-- 이 부분 조회 화면과 다름 -->   	
   	   <button id="saveBtn" type="button" class="btn btn-dark  btn-sm me-2"  > <i class="bi bi-floppy-fill"></i> 저장 </button> 	   	
 	</div>
@@ -528,14 +528,14 @@ if ($mode !== "modify" and $mode !== "copy" and $mode !== "split"  ) {
 		  <tbody>
 			<tr>
 			  <td colspan="1">현장명</td>
-			  <td colspan="4"><input type="text" id="workplacename" name="workplacename" value="<?=$workplacename?>" class="form-control"  style="text-align: left;"  required></td>
+			  <td colspan="4"><input type="text" id="workplacename" name="workplacename" value="<?php echo htmlspecialchars($workplacename, ENT_QUOTES, 'UTF-8'); ?>" class="form-control"  style="text-align: left;"  required></td>
 			  <td colspan="1" >
 				<h5> <span class="badge bg-success ">외주가공</span>  </h5>
 			  </td>						  
 			</tr>
 			<tr>
 			  <td>주소</td>
-			  <td colspan="4"><input type="text" id="address" name="address" value="<?=$address?>" class="form-control"  style="text-align: left;"  onkeydown="if(event.keyCode == 13) { addressBtn('address'); }" ></td>
+			  <td colspan="4"><input type="text" id="address" name="address" value="<?php echo htmlspecialchars($address, ENT_QUOTES, 'UTF-8'); ?>" class="form-control"  style="text-align: left;"  onkeydown="if(event.keyCode == 13) { addressBtn('address'); }" ></td>
 			  <td colspan="1">
 				<div class="d-flex align-items-center position-relative ms-2">
 					<input type="checkbox" 
@@ -577,38 +577,38 @@ if ($mode !== "modify" and $mode !== "copy" and $mode !== "split"  ) {
 			<tr>
 			 <td class="col" style="width:10%;" > 원청</td>
 				  <td class="col" >   
-					<input type="text" id="firstord" name="firstord" value="<?=$firstord?>" class="form-control"></td>
+					<input type="text" id="firstord" name="firstord" value="<?php echo htmlspecialchars($firstord, ENT_QUOTES, 'UTF-8'); ?>" class="form-control"></td>
 				  <td class="col" style="width:10%;" > 담당</td>
 				  <td class="col" style="width:20%;" >   
-					  <input type="text" id="firstordman" name="firstordman" size="11" value="<?=$firstordman?>" onkeydown="if(event.keyCode == 13) { phonebookBtn('firstord','firstordman', 'firstordmantel','true'); }">
+					  <input type="text" id="firstordman" name="firstordman" size="11" value="<?php echo htmlspecialchars($firstordman, ENT_QUOTES, 'UTF-8'); ?>" onkeydown="if(event.keyCode == 13) { phonebookBtn('firstord','firstordman', 'firstordmantel','true'); }">
 					  <button type="button" class="btn btn-dark-outline btn-sm" onclick="phonebookBtn('firstord', 'firstordman', 'firstordmantel', 'false');">
 						<i class="bi bi-gear-fill"></i>
 					  </button>
 				  </td>
 				  <td class="col" style="width:10%;" > Tel</td>
 				  <td class="col"  > 
-				  <input type="text" id="firstordmantel" name="firstordmantel" value="<?=$firstordmantel?>" class="form-control"></td>
+				  <input type="text" id="firstordmantel" name="firstordmantel" value="<?php echo htmlspecialchars($firstordmantel, ENT_QUOTES, 'UTF-8'); ?>" class="form-control"></td>
 				  <td> </td>
 			</tr>
 			<tr>
 			  <td class="col">발주처</td>
-			  <td class="col"><input type="text" id="secondord" name="secondord" value="<?=$secondord?>" class="form-control"></td>
+			  <td class="col"><input type="text" id="secondord" name="secondord" value="<?php echo htmlspecialchars($secondord, ENT_QUOTES, 'UTF-8'); ?>" class="form-control"></td>
 			  <td class="col">담당</td>
 			  <td class="col" style="width:20%;" >    
-				  <input type="text" id="secondordman" name="secondordman" size="11" value="<?=$secondordman?>" onkeydown="if(event.keyCode == 13) { phonebookBtn('secondord', 'secondordman', 'secondordmantel','true'); }">
+				  <input type="text" id="secondordman" name="secondordman" size="11" value="<?php echo htmlspecialchars($secondordman, ENT_QUOTES, 'UTF-8'); ?>" onkeydown="if(event.keyCode == 13) { phonebookBtn('secondord', 'secondordman', 'secondordmantel','true'); }">
 				  <button type="button" class="btn btn-dark-outline btn-sm" onclick="phonebookBtn('secondord', 'secondordman','secondordmantel','false');"> 
 					
 				  <i class="bi bi-gear-fill"></i></button>
 			  </td>
 			  <td class="col">Tel</td>
-			  <td class="col"><input type="text" id="secondordmantel" name="secondordmantel" value="<?=$secondordmantel?>" class="form-control"></td>
+			  <td class="col"><input type="text" id="secondordmantel" name="secondordmantel" value="<?php echo htmlspecialchars($secondordmantel, ENT_QUOTES, 'UTF-8'); ?>" class="form-control"></td>
 			  <td> </td>
 			</tr>
 			<tr>			  
 			  <td>현장담당</td>
-			  <td><input type="text" name="chargedman" id="chargedman" value="<?=$chargedman?>" class="form-control" onkeydown="JavaScript:Enter_chargedman_Check();"></td>
+			  <td><input type="text" name="chargedman" id="chargedman" value="<?php echo htmlspecialchars($chargedman, ENT_QUOTES, 'UTF-8'); ?>" class="form-control" onkeydown="JavaScript:Enter_chargedman_Check();"></td>
 			  <td class="col">Tel</td>
-			  <td class="col"><input type="text" name="chargedmantel" id="chargedmantel" value="<?=$chargedmantel?>" class="form-control"></td>			  
+			  <td class="col"><input type="text" name="chargedmantel" id="chargedmantel" value="<?php echo htmlspecialchars($chargedmantel, ENT_QUOTES, 'UTF-8'); ?>" class="form-control"></td>			  
 			  <td>설계자</td>
 			  <td class="text-center">
 			  <select name="designer" id="designer" class="form-select d-block w-auto mx-1" style="font-size: 0.8rem; height: 32px;">
@@ -629,47 +629,47 @@ if ($mode !== "modify" and $mode !== "copy" and $mode !== "split"  ) {
 		<tr>
 		  <td>접수일</td>
 		  <!-- 수정불가하게 -->
-		  <td><input type="date" name="orderday" id="orderday" value="<?=$orderday?>"  class="form-control" readonly></td>
+		  <td><input type="date" name="orderday" id="orderday" value="<?php echo htmlspecialchars($orderday, ENT_QUOTES, 'UTF-8'); ?>"  class="form-control" readonly></td>
 
 		  <td class="text-success fw-bold"> 본천장 설계</td>
-		  <td><input type="date" name="main_draw" id="main_draw" value="<?=$main_draw?>" class="form-control"></td>
+		  <td><input type="date" name="main_draw" id="main_draw" value="<?php echo htmlspecialchars($main_draw, ENT_QUOTES, 'UTF-8'); ?>" class="form-control"></td>
 
 		  <td class="text-info fw-bold">LC 설계</td>
-		  <td><input type="date" name="lc_draw" id="lc_draw" value="<?=$lc_draw?>" class="form-control"></td>
+		  <td><input type="date" name="lc_draw" id="lc_draw" value="<?php echo htmlspecialchars($lc_draw, ENT_QUOTES, 'UTF-8'); ?>" class="form-control"></td>
 		</tr>
 		<tr>
 		  <td colspan="4"></td>
 		  <td class="text-primary fw-bold">기타 설계</td>
-		  <td><input type="date" name="etc_draw" id="etc_draw" value="<?=$etc_draw?>" class="form-control"></td>
+		  <td><input type="date" name="etc_draw" id="etc_draw" value="<?php echo htmlspecialchars($etc_draw, ENT_QUOTES, 'UTF-8'); ?>" class="form-control"></td>
 		</tr>
 		<tr>
 		  <td style="color:red;">납기일</td>
-		  <td><input type="date" name="deadline" id="deadline" value="<?=$deadline?>" class="form-control"></td>    
+		  <td><input type="date" name="deadline" id="deadline" value="<?php echo htmlspecialchars($deadline, ENT_QUOTES, 'UTF-8'); ?>" class="form-control"></td>    
 		  <td style="color:blue;">출고일</td>
-		  <td><input type="date" name="workday" id="workday" value="<?=$workday?>" class="form-control"></td>    
+		  <td><input type="date" name="workday" id="workday" value="<?php echo htmlspecialchars($workday, ENT_QUOTES, 'UTF-8'); ?>" class="form-control"></td>    
 		  
 		  <td class="text-danger"> 청구일</td>		   
 		  <td>
-				<input type="date" name="demand" id="demand" value="<?=$demand?>"  class="form-control" > 
+				<input type="date" name="demand" id="demand" value="<?php echo htmlspecialchars($demand, ENT_QUOTES, 'UTF-8'); ?>"  class="form-control" > 
 		   </td>		  
 		</tr>
 		<tr>
 		<td>미래 시공팀</td>
-		  <td><input type="text" name="worker" value="<?=$worker?>" class="form-control"></td>
+		  <td><input type="text" name="worker" value="<?php echo htmlspecialchars($worker, ENT_QUOTES, 'UTF-8'); ?>" class="form-control"></td>
 		  <td>서버도면폴더</td>
-		  <td colspan="3" >  <input type="text" id="dwglocation" name="dwglocation" value="<?=$dwglocation?>" class="form-control" placeholder="Nas2dual 저장위치 폴더명 \천장완료\ 다음위치" ></td>
+		  <td colspan="3" >  <input type="text" id="dwglocation" name="dwglocation" value="<?php echo htmlspecialchars($dwglocation, ENT_QUOTES, 'UTF-8'); ?>" class="form-control" placeholder="Nas2dual 저장위치 폴더명 \천장완료\ 다음위치" ></td>
 		</tr>      
 				
 		<tr>
 		  <td>운송방식 </td>
 		  <td>
-			<input type="text" name="delivery" value="<?=$delivery?>" class="form-control">
+			<input type="text" name="delivery" value="<?php echo htmlspecialchars($delivery, ENT_QUOTES, 'UTF-8'); ?>" class="form-control">
 		  </td>	
 		  <td>
 			<span style="color:red;">운임비 </span>
 		  </td>	
 		  <td>
-			<input type="text" name="delipay" value="<?=$delipay?>" class="form-control" onkeyup="inputNumberFormat(this)">
+			<input type="text" name="delipay" value="<?php echo htmlspecialchars($delipay, ENT_QUOTES, 'UTF-8'); ?>" class="form-control" onkeyup="inputNumberFormat(this)">
 		  </td>
 			<td colspan="2" class="text-success fs-6"> <b>박스포장 &nbsp;
 				<input type="checkbox" id="boxwrap"  name="boxwrap"  value="박스포장" <?php echo ($boxwrap === '박스포장' ? 'checked' : ''); ?>>
@@ -677,48 +677,48 @@ if ($mode !== "modify" and $mode !== "copy" and $mode !== "split"  ) {
 		</tr>	
  <tr>
     <td>타입(Type)</td>
-    <td><input type="text" id="type" name="type" value="<?=$type?>" class="form-control"></td>
+    <td><input type="text" id="type" name="type" value="<?php echo htmlspecialchars($type, ENT_QUOTES, 'UTF-8'); ?>" class="form-control"></td>
 
     <td style="color:red;">Car insize</td>
-    <td><input type="text" id="car_insize" name="car_insize" value="<?=$car_insize?>" class="form-control"></td>
+    <td><input type="text" id="car_insize" name="car_insize" value="<?php echo htmlspecialchars($car_insize, ENT_QUOTES, 'UTF-8'); ?>" class="form-control"></td>
 
     <td style="color:blue;">인승</td>
-    <td><input type="text" id="inseung" name="inseung" value="<?=$inseung?>" class="form-control"></td>	
+    <td><input type="text" id="inseung" name="inseung" value="<?php echo htmlspecialchars($inseung, ENT_QUOTES, 'UTF-8'); ?>" class="form-control"></td>	
   </tr>
   
   <tr>  
     <td data-bs-toggle="tooltip" data-bs-placement="top" title="자동계산됨" >결합단위(SET)
-      <input type="text" id="su"  name="su" value="<?=$su?>"  class="form-control calculate-su"  oninput="this.value = this.value.replace(/[^0-9\-]/g,'')" >
+      <input type="text" id="su"  name="su" value="<?php echo htmlspecialchars($su, ENT_QUOTES, 'UTF-8'); ?>"  class="form-control calculate-su"  oninput="this.value = this.value.replace(/[^0-9\-]/g,'')" >
     </td>
 
     <td>본천장 수량
-       <input type="text" id="bon_su" name="bon_su" value="<?=$bon_su?>"  class="form-control calculate-su"  oninput="this.value = this.value.replace(/[^0-9\-]/g,'')">
+       <input type="text" id="bon_su" name="bon_su" value="<?php echo htmlspecialchars($bon_su, ENT_QUOTES, 'UTF-8'); ?>"  class="form-control calculate-su"  oninput="this.value = this.value.replace(/[^0-9\-]/g,'')">
      </td>
 
     <td>L/C 수량
-       <input type="text" id="lc_su"  name="lc_su" value="<?=$lc_su?>"  class="form-control calculate-su" oninput="this.value = this.value.replace(/[^0-9\-]/g,'')">
+       <input type="text" id="lc_su"  name="lc_su" value="<?php echo htmlspecialchars($lc_su, ENT_QUOTES, 'UTF-8'); ?>"  class="form-control calculate-su" oninput="this.value = this.value.replace(/[^0-9\-]/g,'')">
     </td>
   
     <td>기타 수량
-      <input type="text" id="etc_su" name="etc_su" value="<?=$etc_su?>" class="form-control calculate-su"   oninput="this.value = this.value.replace(/[^0-9\-]/g,'')">
+      <input type="text" id="etc_su" name="etc_su" value="<?php echo htmlspecialchars($etc_su, ENT_QUOTES, 'UTF-8'); ?>" class="form-control calculate-su"   oninput="this.value = this.value.replace(/[^0-9\-]/g,'')">
     </td>
 
     <td>공기청정기
-       <input type="text" id="air_su"  name="air_su" value="<?=$air_su?>" class="form-control" oninput="this.value = this.value.replace(/[^0-9\-]/g,'')">
+       <input type="text" id="air_su"  name="air_su" value="<?php echo htmlspecialchars($air_su, ENT_QUOTES, 'UTF-8'); ?>" class="form-control" oninput="this.value = this.value.replace(/[^0-9\-]/g,'')">
      </td>
     <td class="text-primary" >제품가격
-       <input type="text" id="price" name="price" value="<?=$price?>" class="form-control" oninput="this.value = this.value.replace(/[^\d]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',')">
+       <input type="text" id="price" name="price" value="<?php echo htmlspecialchars($price, ENT_QUOTES, 'UTF-8'); ?>" class="form-control" oninput="this.value = this.value.replace(/[^\d]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',')">
    </td>
   </tr>	 
   
   <tr>
     <td> 레이져가공 순서 </td>
     <td>	
-      <input type="text" id="work_order"  name="work_order" value="<?=$work_order?>" class="form-control" >
+      <input type="text" id="work_order"  name="work_order" value="<?php echo htmlspecialchars($work_order, ENT_QUOTES, 'UTF-8'); ?>" class="form-control" >
     </td> 
 	<td> 레이져가공 예정 </td>
     <td>	
-      <input type="date" id="laserdueday"  name="laserdueday" value="<?=$laserdueday?>" class="form-control" >
+      <input type="date" id="laserdueday"  name="laserdueday" value="<?php echo htmlspecialchars($laserdueday, ENT_QUOTES, 'UTF-8'); ?>" class="form-control" >
     </td>
   </tr>	
 	
@@ -737,7 +737,7 @@ if ($mode !== "modify" and $mode !== "copy" and $mode !== "split"  ) {
         } 		   
         ?>	  
       </select>     
-      <input type="text" name="material1" id="material1" value="<?=$material1?>" class="form-control w150px mx-2">      
+      <input type="text" name="material1" id="material1" value="<?php echo htmlspecialchars($material1, ENT_QUOTES, 'UTF-8'); ?>" class="form-control w150px mx-2">      
 	  </div>
   </td>
   </tr>
@@ -756,20 +756,20 @@ if ($mode !== "modify" and $mode !== "copy" and $mode !== "split"  ) {
         } 		   
         ?>	  
       </select>     
-      <input type="text" name="material3" id="material3" value="<?=$material3?>" class="form-control w150px mx-2">    
+      <input type="text" name="material3" id="material3" value="<?php echo htmlspecialchars($material3, ENT_QUOTES, 'UTF-8'); ?>" class="form-control w150px mx-2">    
 	  </div>
   </td>
 </tr>
 <tr>  
     <td>비고1</td>
 		<td colspan="6">
-            <textarea  id="memo"  name="memo" class="form-control"><?=$memo?></textarea>
+            <textarea id="memo" name="memo" class="form-control"><?php echo htmlspecialchars($memo, ENT_QUOTES, 'UTF-8'); ?></textarea>
           </td>
 	</tr>
 	<tr>
 	<td>비고2 </td>		  
         <td colspan="6">
-            <textarea  id="memo2"  name="memo2" class="form-control"><?=$memo2?></textarea>
+            <textarea id="memo2" name="memo2" class="form-control"><?php echo htmlspecialchars($memo2, ENT_QUOTES, 'UTF-8'); ?></textarea>
           </td>          
 	</tr>
 		  </tbody>
@@ -804,61 +804,61 @@ if ($mode !== "modify" and $mode !== "copy" and $mode !== "split"  ) {
       <tr>
         <td  id='type1'  title="클릭시 트윈테크 자동계산" >발주1</td>
         <td>
-          <input type="text" name="order_com1" id="order_com1" value="<?=$order_com1?>" size="10" class="form-control">
+          <input type="text" name="order_com1" id="order_com1" value="<?php echo htmlspecialchars($order_com1, ENT_QUOTES, 'UTF-8'); ?>" size="10" class="form-control">
         </td>
         <td>
-          <input type="text" name="order_text1" id="order_text1" value="<?=$order_text1?>" size="15" class="form-control">
+          <input type="text" name="order_text1" id="order_text1" value="<?php echo htmlspecialchars($order_text1, ENT_QUOTES, 'UTF-8'); ?>" size="15" class="form-control">
         </td>
         <td>
-          <input type="date" name="order_date1" id="order_date1" value="<?=$order_date1?>" size="10" class="form-control">
+          <input type="date" name="order_date1" id="order_date1" value="<?php echo htmlspecialchars($order_date1, ENT_QUOTES, 'UTF-8'); ?>" size="10" class="form-control">
         </td>
         <td>
-          <input type="date" name="order_input_date1" id="order_input_date1" value="<?=$order_input_date1?>" size="10" class="form-control">
+          <input type="date" name="order_input_date1" id="order_input_date1" value="<?php echo htmlspecialchars($order_input_date1, ENT_QUOTES, 'UTF-8'); ?>" size="10" class="form-control">
         </td>
       </tr>
       <tr>
         <td  id='type2'  title="클릭시 트윈테크 자동계산">발주2</td>
         <td>
-          <input type="text" name="order_com2" id="order_com2" value="<?=$order_com2?>" size="10" class="form-control">
+          <input type="text" name="order_com2" id="order_com2" value="<?php echo htmlspecialchars($order_com2, ENT_QUOTES, 'UTF-8'); ?>" size="10" class="form-control">
         </td>
         <td>
-          <input type="text" name="order_text2" id="order_text2" value="<?=$order_text2?>" size="15" class="form-control">
+          <input type="text" name="order_text2" id="order_text2" value="<?php echo htmlspecialchars($order_text2, ENT_QUOTES, 'UTF-8'); ?>" size="15" class="form-control">
         </td>
         <td>
-          <input type="date" name="order_date2" id="order_date2" value="<?=$order_date2?>" size="10" class="form-control">
+          <input type="date" name="order_date2" id="order_date2" value="<?php echo htmlspecialchars($order_date2, ENT_QUOTES, 'UTF-8'); ?>" size="10" class="form-control">
         </td>
         <td>
-          <input type="date" name="order_input_date2" id="order_input_date2" value="<?=$order_input_date2?>" size="10" class="form-control">
+          <input type="date" name="order_input_date2" id="order_input_date2" value="<?php echo htmlspecialchars($order_input_date2, ENT_QUOTES, 'UTF-8'); ?>" size="10" class="form-control">
         </td>
       </tr>
       <tr>
         <td  id='type3'  title="클릭시 트윈테크 자동계산">발주3</td>
         <td>
-          <input type="text" name="order_com3" id="order_com3" value="<?=$order_com3?>" size="10" class="form-control">
+          <input type="text" name="order_com3" id="order_com3" value="<?php echo htmlspecialchars($order_com3, ENT_QUOTES, 'UTF-8'); ?>" size="10" class="form-control">
         </td>
         <td>
-          <input type="text" name="order_text3" id="order_text3" value="<?=$order_text3?>" size="15" class="form-control">
+          <input type="text" name="order_text3" id="order_text3" value="<?php echo htmlspecialchars($order_text3, ENT_QUOTES, 'UTF-8'); ?>" size="15" class="form-control">
         </td>
         <td>
-          <input type="date" name="order_date3" id="order_date3" value="<?=$order_date3?>" size="10" class="form-control">
+          <input type="date" name="order_date3" id="order_date3" value="<?php echo htmlspecialchars($order_date3, ENT_QUOTES, 'UTF-8'); ?>" size="10" class="form-control">
         </td>
         <td>
-          <input type="date" name="order_input_date3" id="order_input_date3" value="<?=$order_input_date3?>" size="10" class="form-control">
+          <input type="date" name="order_input_date3" id="order_input_date3" value="<?php echo htmlspecialchars($order_input_date3, ENT_QUOTES, 'UTF-8'); ?>" size="10" class="form-control">
         </td>
       </tr>
       <tr>
         <td id='type4'  title="클릭시 트윈테크 자동계산">발주4</td>
         <td>
-          <input type="text" name="order_com4" id="order_com4" value="<?=$order_com4?>" size="10" class="form-control">
+          <input type="text" name="order_com4" id="order_com4" value="<?php echo htmlspecialchars($order_com4, ENT_QUOTES, 'UTF-8'); ?>" size="10" class="form-control">
         </td>
         <td>
-          <input type="text" name="order_text4" id="order_text4" value="<?=$order_text4?>" size="15" class="form-control">
+          <input type="text" name="order_text4" id="order_text4" value="<?php echo htmlspecialchars($order_text4, ENT_QUOTES, 'UTF-8'); ?>" size="15" class="form-control">
         </td>
         <td>
-          <input type="date" name="order_date4" id="order_date4" value="<?=$order_date4?>" size="10" class="form-control">
+          <input type="date" name="order_date4" id="order_date4" value="<?php echo htmlspecialchars($order_date4, ENT_QUOTES, 'UTF-8'); ?>" size="10" class="form-control">
         </td>
         <td>
-          <input type="date" name="order_input_date4" id="order_input_date4" value="<?=$order_input_date4?>" size="10" class="form-control">
+          <input type="date" name="order_input_date4" id="order_input_date4" value="<?php echo htmlspecialchars($order_input_date4, ENT_QUOTES, 'UTF-8'); ?>" size="10" class="form-control">
         </td>
       </tr>
     </tbody>
@@ -888,26 +888,26 @@ if ($mode !== "modify" and $mode !== "copy" and $mode !== "split"  ) {
     <tbody>	  
 		 <tr>        
 			<td>
-				<input id="part1" type="hidden" name="part1" size="2" style="text-align: center;" value="<?=$part1?>" >
-				<input id="part2" name="part2" size="2" style="text-align: center;" value="<?=$part2?>">
+				<input id="part1" type="hidden" name="part1" size="2" style="text-align: center;" value="<?php echo htmlspecialchars($part1, ENT_QUOTES, 'UTF-8'); ?>" >
+				<input id="part2" name="part2" size="2" style="text-align: center;" value="<?php echo htmlspecialchars($part2, ENT_QUOTES, 'UTF-8'); ?>">
 			</td>
 			<td>
-				<input id="part3" name="part3" size="2" style="text-align: center;" value="<?=$part3?>" >
+				<input id="part3" name="part3" size="2" style="text-align: center;" value="<?php echo htmlspecialchars($part3, ENT_QUOTES, 'UTF-8'); ?>" >
 			</td>
 			<td>
-				<input id="part4" name="part4" size="2" style="text-align: center;" value="<?=$part4?>" >
+				<input id="part4" name="part4" size="2" style="text-align: center;" value="<?php echo htmlspecialchars($part4, ENT_QUOTES, 'UTF-8'); ?>" >
 			</td>
 			<td>
-				<input id="part5" name="part5" size="2" style="text-align: center;" value="<?=$part5?>" >
+				<input id="part5" name="part5" size="2" style="text-align: center;" value="<?php echo htmlspecialchars($part5, ENT_QUOTES, 'UTF-8'); ?>" >
 			</td>
 			<td>
-				<input id="part6" name="part6" size="2" style="text-align: center;" value="<?=$part6?>" >
+				<input id="part6" name="part6" size="2" style="text-align: center;" value="<?php echo htmlspecialchars($part6, ENT_QUOTES, 'UTF-8'); ?>" >
 			</td>      
 			<td>
-				<input id="part7" name="part7" size="2" style="text-align: center;" value="<?=$part7?>" >
+				<input id="part7" name="part7" size="2" style="text-align: center;" value="<?php echo htmlspecialchars($part7, ENT_QUOTES, 'UTF-8'); ?>" >
 			</td>      
 			<td>
-				<input id="part20" name="part20" size="2" style="text-align: center;" value="<?=$part20?>" >
+				<input id="part20" name="part20" size="2" style="text-align: center;" value="<?php echo htmlspecialchars($part20, ENT_QUOTES, 'UTF-8'); ?>" >
 			</td>
 		</tr>		
     </tbody>
@@ -931,46 +931,46 @@ if ($mode !== "modify" and $mode !== "copy" and $mode !== "split"  ) {
 			<td style="color: blue;">T5 (일반)</td>
 			<td class="text-center" style="color: blue;">
 			  5W(300) 
-			  <input id="part8" name="part8" size="2" style="text-align: center; color: blue;" value="<?=$part8?>" class="form-control">
+			  <input id="part8" name="part8" size="2" style="text-align: center; color: blue;" value="<?php echo htmlspecialchars($part8, ENT_QUOTES, 'UTF-8'); ?>" class="form-control">
 			</td>		  			
 			<td  class="text-center" style="color: blue;">
-			  11W(600) <input id="part9" name="part9" size="2" style="text-align: center; color: blue;" value="<?=$part9?>" class="form-control">
+			  11W(600) <input id="part9" name="part9" size="2" style="text-align: center; color: blue;" value="<?php echo htmlspecialchars($part9, ENT_QUOTES, 'UTF-8'); ?>" class="form-control">
 			</td>
 		    	<td  class="text-center" style="color: blue;">
-			  15W(900) <input id="part10" name="part10" size="2" style="text-align: center; color: blue;" value="<?=$part10?>" class="form-control">
+			  15W(900) <input id="part10" name="part10" size="2" style="text-align: center; color: blue;" value="<?php echo htmlspecialchars($part10, ENT_QUOTES, 'UTF-8'); ?>" class="form-control">
 			</td>		  
 			<td  class="text-center" style="color: blue;">
-			  20W(1200) <input id="part11" name="part11" size="2" style="text-align: center; color: blue;" value="<?=$part11?>" class="form-control">
+			  20W(1200) <input id="part11" name="part11" size="2" style="text-align: center; color: blue;" value="<?php echo htmlspecialchars($part11, ENT_QUOTES, 'UTF-8'); ?>" class="form-control">
 			</td>
 		  </tr>
 		  <tr>
 			<td style="color: red;">T5 (KS)</td>		
 			<td  class="text-center" style="color: red;"> 
-			  6W(300) <input id="part12" name="part12" size="2" style="text-align: center; color: red;" value="<?=$part12?>" class="form-control">
+			  6W(300) <input id="part12" name="part12" size="2" style="text-align: center; color: red;" value="<?php echo htmlspecialchars($part12, ENT_QUOTES, 'UTF-8'); ?>" class="form-control">
 			</td>			
 			<td  class="text-center" style="color: red;">
-			  10W(600) <input id="part13" name="part13" size="2" style="text-align: center; color: red;" value="<?=$part13?>" class="form-control">
+			  10W(600) <input id="part13" name="part13" size="2" style="text-align: center; color: red;" value="<?php echo htmlspecialchars($part13, ENT_QUOTES, 'UTF-8'); ?>" class="form-control">
 			</td>		  			
 			<td  class="text-center" style="color: red;">
-			  15W(900) <input id="part14" name="part14" size="2" style="text-align: center; color: red;" value="<?=$part14?>" class="form-control">
+			  15W(900) <input id="part14" name="part14" size="2" style="text-align: center; color: red;" value="<?php echo htmlspecialchars($part14, ENT_QUOTES, 'UTF-8'); ?>" class="form-control">
 			</td>			
 			<td  class="text-center" style="color: red;">
-			  20W(1200) <input id="part15" name="part15" size="2" style="text-align: center; color: red;" value="<?=$part15?>" class="form-control">
+			  20W(1200) <input id="part15" name="part15" size="2" style="text-align: center; color: red;" value="<?php echo htmlspecialchars($part15, ENT_QUOTES, 'UTF-8'); ?>" class="form-control">
 			</td>
 		  </tr>
 		  <tr>
 			<td style="color: brown;">직관등</td>
 			<td  class="text-center" style="color: brown;">
-			  600mm <input id="part16" name="part16" size="2" style="text-align: center; color: brown;" value="<?=$part16?>" class="form-control">
+			  600mm <input id="part16" name="part16" size="2" style="text-align: center; color: brown;" value="<?php echo htmlspecialchars($part16, ENT_QUOTES, 'UTF-8'); ?>" class="form-control">
 			</td>
 			<td  class="text-center" style="color: brown;">
-			  800mm <input id="part17" name="part17" size="2" style="text-align: center; color: brown;" value="<?=$part17?>" class="form-control">
+			  800mm <input id="part17" name="part17" size="2" style="text-align: center; color: brown;" value="<?php echo htmlspecialchars($part17, ENT_QUOTES, 'UTF-8'); ?>" class="form-control">
 			</td>
 			<td  class="text-center" style="color: brown;">
-			  1000mm <input id="part18" name="part18" size="2" style="text-align: center; color: brown;" value="<?=$part18?>" class="form-control">
+			  1000mm <input id="part18" name="part18" size="2" style="text-align: center; color: brown;" value="<?php echo htmlspecialchars($part18, ENT_QUOTES, 'UTF-8'); ?>" class="form-control">
 			</td>		  			
 			<td  class="text-center" style="color: brown;">
-			  1200mm <input id="part19" name="part19" size="2" style="text-align: center; color: brown;" value="<?=$part19?>" class="form-control">
+			  1200mm <input id="part19" name="part19" size="2" style="text-align: center; color: brown;" value="<?php echo htmlspecialchars($part19, ENT_QUOTES, 'UTF-8'); ?>" class="form-control">
 			</td>
 		  </tr>
 		</tbody>
@@ -1003,26 +1003,26 @@ if ($mode !== "modify" and $mode !== "copy" and $mode !== "split"  ) {
     <tr>
       <td>업체</td>
       <td>
-        <input type="text" name="lclaser_com" id="lclaser_com" value="<?=$lclaser_com?>" class="form-control">
+        <input type="text" name="lclaser_com" id="lclaser_com" value="<?php echo htmlspecialchars($lclaser_com, ENT_QUOTES, 'UTF-8'); ?>" class="form-control">
       </td>
       <td>레이져</td>
       <td>
-        <input type="date" name="lclaser_date" id="lclaser_date" value="<?=$lclaser_date?>" class="form-control">
+        <input type="date" name="lclaser_date" id="lclaser_date" value="<?php echo htmlspecialchars($lclaser_date, ENT_QUOTES, 'UTF-8'); ?>" class="form-control">
       </td>
 	  <td colspan="1"> </td>
       <td>절곡</td>
       <td colspan="1">
-        <input type="date" name="lcbending_date" id="lcbending_date" value="<?=$lcbending_date?>" class="form-control">
+        <input type="date" name="lcbending_date" id="lcbending_date" value="<?php echo htmlspecialchars($lcbending_date, ENT_QUOTES, 'UTF-8'); ?>" class="form-control">
       </td>      
     </tr>
     <tr>
       <td>제관</td>
       <td>
-        <input type="date" name="lcwelding_date" id="lcwelding_date" value="<?=$lcwelding_date?>" class="form-control">
+        <input type="date" name="lcwelding_date" id="lcwelding_date" value="<?php echo htmlspecialchars($lcwelding_date, ENT_QUOTES, 'UTF-8'); ?>" class="form-control">
       </td>
       <td>도장</td>
       <td>
-        <input type="date" name="lcpainting_date" id="lcpainting_date" value="<?=$lcpainting_date?>" class="form-control">
+        <input type="date" name="lcpainting_date" id="lcpainting_date" value="<?php echo htmlspecialchars($lcpainting_date, ENT_QUOTES, 'UTF-8'); ?>" class="form-control">
       </td>
       <td class="text-danger"> 
 		<input class="ms-3" type="checkbox" id="cabledone" name="cabledone" value="결선완료" <?php echo ($cabledone === '결선완료' ? 'checked' : ''); ?>>
@@ -1030,7 +1030,7 @@ if ($mode !== "modify" and $mode !== "copy" and $mode !== "split"  ) {
 	  </td>
       <td>조립</td>
       <td>
-          <input type="date" name="lcassembly_date" id="lcassembly_date" value="<?=$lcassembly_date?>" class="form-control">
+          <input type="date" name="lcassembly_date" id="lcassembly_date" value="<?php echo htmlspecialchars($lcassembly_date, ENT_QUOTES, 'UTF-8'); ?>" class="form-control">
       </td>	        
     </tr>
   </tbody>
@@ -1048,30 +1048,30 @@ if ($mode !== "modify" and $mode !== "copy" and $mode !== "split"  ) {
       <tr>
         <td >은성레이져 외주</td>
         <td>
-          <input type="date" name="eunsung_make_date" id="eunsung_make_date" value="<?=$eunsung_make_date?>" class="form-control">
+          <input type="date" name="eunsung_make_date" id="eunsung_make_date" value="<?php echo htmlspecialchars($eunsung_make_date, ENT_QUOTES, 'UTF-8'); ?>" class="form-control">
         </td>
         <td>  레이져 </td>
         <td>
-          <input type="date" name="eunsung_laser_date" id="eunsung_laser_date" value="<?=$eunsung_laser_date?>" class="form-control">
+          <input type="date" name="eunsung_laser_date" id="eunsung_laser_date" value="<?php echo htmlspecialchars($eunsung_laser_date, ENT_QUOTES, 'UTF-8'); ?>" class="form-control">
         </td>
 
         <td>  절곡 </td>
         <td>
-          <input type="date" name="mainbending_date" id="mainbending_date" value="<?=$mainbending_date?>" class="form-control">
+          <input type="date" name="mainbending_date" id="mainbending_date" value="<?php echo htmlspecialchars($mainbending_date, ENT_QUOTES, 'UTF-8'); ?>" class="form-control">
         </td>
       </tr>
       <tr>		
         <td>  제관 </td>
         <td>
-          <input type="date" name="mainwelding_date" id="mainwelding_date" value="<?=$mainwelding_date?>" class="form-control">
+          <input type="date" name="mainwelding_date" id="mainwelding_date" value="<?php echo htmlspecialchars($mainwelding_date, ENT_QUOTES, 'UTF-8'); ?>" class="form-control">
         </td>
         <td>  도장 </td>
         <td>
-          <input type="date" name="mainpainting_date" id="mainpainting_date" value="<?=$mainpainting_date?>" class="form-control">
+          <input type="date" name="mainpainting_date" id="mainpainting_date" value="<?php echo htmlspecialchars($mainpainting_date, ENT_QUOTES, 'UTF-8'); ?>" class="form-control">
         </td>
         <td>  조립 </td>
         <td>
-          <input type="date" name="mainassembly_date" id="mainassembly_date" value="<?=$mainassembly_date?>" class="form-control">
+          <input type="date" name="mainassembly_date" id="mainassembly_date" value="<?php echo htmlspecialchars($mainassembly_date, ENT_QUOTES, 'UTF-8'); ?>" class="form-control">
         </td>
       </tr>
     </tbody>
@@ -1090,25 +1090,25 @@ if ($mode !== "modify" and $mode !== "copy" and $mode !== "split"  ) {
       <tr>
         <td>  레이져 </td>
         <td>
-          <input type="date" name="etclaser_date" id="etclaser_date" value="<?=$etclaser_date?>" class="form-control">
+          <input type="date" name="etclaser_date" id="etclaser_date" value="<?php echo htmlspecialchars($etclaser_date, ENT_QUOTES, 'UTF-8'); ?>" class="form-control">
         </td>
         <td>  절곡 </td>
         <td>
-          <input type="date" name="etcbending_date" id="etcbending_date" value="<?=$etcbending_date?>" class="form-control">
+          <input type="date" name="etcbending_date" id="etcbending_date" value="<?php echo htmlspecialchars($etcbending_date, ENT_QUOTES, 'UTF-8'); ?>" class="form-control">
         </td>
         <td>  제관 </td>
         <td>
-          <input type="date" name="etcwelding_date" id="etcwelding_date" value="<?=$etcwelding_date?>" class="form-control">
+          <input type="date" name="etcwelding_date" id="etcwelding_date" value="<?php echo htmlspecialchars($etcwelding_date, ENT_QUOTES, 'UTF-8'); ?>" class="form-control">
         </td>
       </tr>
       <tr>		
         <td>  도장 </td>
         <td>
-          <input type="date" name="etcpainting_date" id="etcpainting_date" value="<?=$etcpainting_date?>" class="form-control">
+          <input type="date" name="etcpainting_date" id="etcpainting_date" value="<?php echo htmlspecialchars($etcpainting_date, ENT_QUOTES, 'UTF-8'); ?>" class="form-control">
         </td>
         <td>  조립 </td>
         <td>
-          <input type="date" name="etcassembly_date" id="etcassembly_date" value="<?=$etcassembly_date?>" class="form-control">
+          <input type="date" name="etcassembly_date" id="etcassembly_date" value="<?php echo htmlspecialchars($etcassembly_date, ENT_QUOTES, 'UTF-8'); ?>" class="form-control">
         </td>
       </tr>
     </tbody>
@@ -1792,57 +1792,55 @@ var mode = '<?php echo $mode; ?>';
 		  confirmButtonColor: '#3085d6',
 		  cancelButtonColor: '#d33',
 		  confirmButtonText: '네 그렇게 합시다!'
-		}).then((result) => {
-		  if (result.isConfirmed) {
-			  // 실제 코드입력
-				$('#board_form').find('input').each(function(){ $(this).val(''); });
-				$('#board_form').find('textarea').each(function(){ $(this).val(''); });
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // 실제 코드입력
+                $('#board_form').find('input').each(function() { $(this).val(''); });
+                $('#board_form').find('textarea').each(function() { $(this).val(''); });
 
-				$('#workplacename').val("<? echo $workplacename; ?>");
-				$('#address').val("<? echo $address; ?>");
-				$('#firstord').val("<? echo $firstord; ?>");
-				$('#firstordman').val("<? echo $firstordman; ?>");
-				$('#firstordmantel').val("<? echo $firstordmantel; ?>");
-				$('#secondord').val("<? echo $secondord; ?>");
-				$('#secondordman').val("<? echo $secondordman; ?>");
-				$('#secondordmantel').val("<? echo $secondordmantel; ?>");
-				$('#chargedman').val("<? echo $chargedman; ?>");
-				$('#chargedmantel').val("<? echo $chargedmantel; ?>");
-				$('#orderday').val(getToday());
+                $('#workplacename').val("<?php echo $workplacename; ?>");
+                $('#address').val("<?php echo $address; ?>");
+                $('#firstord').val("<?php echo $firstord; ?>");
+                $('#firstordman').val("<?php echo $firstordman; ?>");
+                $('#firstordmantel').val("<?php echo $firstordmantel; ?>");
+                $('#secondord').val("<?php echo $secondord; ?>");
+                $('#secondordman').val("<?php echo $secondordman; ?>");
+                $('#secondordmantel').val("<?php echo $secondordmantel; ?>");
+                $('#chargedman').val("<?php echo $chargedman; ?>");
+                $('#chargedmantel').val("<?php echo $chargedmantel; ?>");
+                $('#orderday').val(getToday());
 
-			Swal.fire(
-			  '처리되었습니다.',
-			  '데이터가 성공적으로 복사되었습니다.',
-			  'success'
-			)
-		  }
-		  else
-		  {  
-				$('#board_form').find('input').each(function(){ $(this).val(''); });
-				$('#board_form').find('textarea').each(function(){ $(this).val(''); });
+                Swal.fire(
+                    '처리되었습니다.',
+                    '데이터가 성공적으로 복사되었습니다.',
+                    'success'
+                )
+            } else {
+                $('#board_form').find('input').each(function() { $(this).val(''); });
+                $('#board_form').find('textarea').each(function() { $(this).val(''); });
 
-				$('#workplacename').val("<? echo $workplacename; ?>");
-				$('#address').val("<? echo $address; ?>");
-				$('#firstord').val("<? echo $firstord; ?>");
-				$('#firstordman').val("<? echo $firstordman; ?>");
-				$('#firstordmantel').val("<? echo $firstordmantel; ?>");
-				$('#secondord').val("<? echo $secondord; ?>");
-				$('#secondordman').val("<? echo $secondordman; ?>");
-				$('#secondordmantel').val("<? echo $secondordmantel; ?>");
-				$('#chargedman').val("<? echo $chargedman; ?>");
-				$('#chargedmantel').val("<? echo $chargedmantel; ?>");
-				$('#orderday').val(getToday());
-				
-				$('#type').val("<? echo $type; ?>");
-				$('#inseung').val("<? echo $inseung; ?>");
-				$('#car_insize').val("<? echo $car_insize; ?>");
-				
-				$('#order_com1').val("<? echo $order_com1; ?>");
-				$('#order_com2').val("<? echo $order_com2; ?>");
-				$('#order_com3').val("<? echo $order_com3; ?>");
-				$('#order_com4').val("<? echo $order_com4; ?>");
-		  }	  
-		});		
+                $('#workplacename').val("<?php echo $workplacename; ?>");
+                $('#address').val("<?php echo $address; ?>");
+                $('#firstord').val("<?php echo $firstord; ?>");
+                $('#firstordman').val("<?php echo $firstordman; ?>");
+                $('#firstordmantel').val("<?php echo $firstordmantel; ?>");
+                $('#secondord').val("<?php echo $secondord; ?>");
+                $('#secondordman').val("<?php echo $secondordman; ?>");
+                $('#secondordmantel').val("<?php echo $secondordmantel; ?>");
+                $('#chargedman').val("<?php echo $chargedman; ?>");
+                $('#chargedmantel').val("<?php echo $chargedmantel; ?>");
+                $('#orderday').val(getToday());
+                
+                $('#type').val("<?php echo $type; ?>");
+                $('#inseung').val("<?php echo $inseung; ?>");
+                $('#car_insize').val("<?php echo $car_insize; ?>");
+                
+                $('#order_com1').val("<?php echo $order_com1; ?>");
+                $('#order_com2').val("<?php echo $order_com2; ?>");
+                $('#order_com3').val("<?php echo $order_com3; ?>");
+                $('#order_com4').val("<?php echo $order_com4; ?>");
+            }
+        });		
 	  }
 
 	if(mode==='split') // 분할

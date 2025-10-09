@@ -1,64 +1,100 @@
 <?php
-header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문
+require_once __DIR__ . '/../bootstrap.php';
 
-isset($_REQUEST["num_arr"])  ? $num_arr=$_REQUEST["num_arr"] :   $num_arr=''; 
-isset($_REQUEST["choice"])  ? $choice=$_REQUEST["choice"] :   $choice=''; 
-isset($_REQUEST["recordDate_arr"])  ? $recordDate_arr=$_REQUEST["recordDate_arr"] :   $recordDate_arr=''; 
-// $data = file_get_contents($url); // 파일의 내용을 변수에 넣는다
+// 권한 확인
+if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => '권한이 없습니다.'], JSON_UNESCAPED_UNICODE);
+    exit;
+}
 
-//print_r($num_arr[0]);
-$num_tmp = explode(",",$num_arr[0]);
-$date_tmp = explode(",",$recordDate_arr[0]);
+// JSON 응답 헤더 설정
+header("Content-Type: application/json");
 
-require_once("../lib/mydb.php");	
+// 요청 변수 안전하게 초기화
+$num_arr = $_REQUEST["num_arr"] ?? '';
+$choice = $_REQUEST["choice"] ?? '';
+$recordDate_arr = $_REQUEST["recordDate_arr"] ?? '';
+
+// 배열 변수 초기화
+$num_tmp = array();
+$date_tmp = array();
+
+// 배열 데이터 파싱
+if (is_array($num_arr) && isset($num_arr[0]) && is_string($num_arr[0])) {
+    $num_tmp = explode(",", $num_arr[0]);
+}
+
+if (is_array($recordDate_arr) && isset($recordDate_arr[0]) && is_string($recordDate_arr[0])) {
+    $date_tmp = explode(",", $recordDate_arr[0]);
+}
+
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
-if($choice == 'endworkday')  // 예정일 변경
-{		
-	for($i=0;$i<count($num_tmp);$i++) {	
-		 try{		 
-			$pdo->beginTransaction();   
-			$sql = "update mirae8440.work set ";
-			$sql .="endworkday =? where num=? LIMIT 1" ;       
-			   
-			 $stmh = $pdo->prepare($sql); 
-
-			 $stmh->bindValue(1, $date_tmp[$i], PDO::PARAM_STR);      // 청구일 기록        
-			 $stmh->bindValue(2, $num_tmp[$i], PDO::PARAM_STR);	 
-			 $stmh->execute();
-			 $pdo->commit(); 
-			} catch (PDOException $Exception) {
-			   $pdo->rollBack();
-			   print "오류: ".$Exception->getMessage();
-		   } 
-	}	
+// 예정일 변경
+if ($choice == 'endworkday') {
+    for ($i = 0; $i < count($num_tmp); $i++) {
+        try {
+            $pdo->beginTransaction();
+            
+            $sql = "UPDATE mirae8440.work SET endworkday = ? WHERE num = ? LIMIT 1";
+            
+            $stmh = $pdo->prepare($sql);
+            $stmh->bindValue(1, $date_tmp[$i], PDO::PARAM_STR);  // 청구일 기록
+            $stmh->bindValue(2, $num_tmp[$i], PDO::PARAM_STR);
+            $stmh->execute();
+            
+            $pdo->commit();
+        } catch (PDOException $Exception) {
+            if ($pdo) {
+                $pdo->rollBack();
+            }
+            http_response_code(500);
+            echo json_encode([
+                'success' => false,
+                'message' => '오류: ' . $Exception->getMessage()
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+    }
 }
-else
-{	
-	for($i=0;$i<count($num_tmp);$i++) {	
-		 try{		 
-			$pdo->beginTransaction();   
-			$sql = "update mirae8440.work set ";
-			$sql .="workday=?, deadline=?  where num=? LIMIT 1" ;       
-			   
-			 $stmh = $pdo->prepare($sql); 
-
-			 $stmh->bindValue(1, $date_tmp[$i], PDO::PARAM_STR);      // 출고일 기록        
-			 $stmh->bindValue(2, $date_tmp[$i], PDO::PARAM_STR);	  // 생산완료일
-			 $stmh->bindValue(3, $num_tmp[$i], PDO::PARAM_STR);	 
-			 $stmh->execute();
-			 $pdo->commit(); 
-		} catch (PDOException $Exception) {
-			   $pdo->rollBack();
-			   print "오류: ".$Exception->getMessage();
-	   } 
-	}
+// 출고일 및 생산완료일 변경
+else {
+    for ($i = 0; $i < count($num_tmp); $i++) {
+        try {
+            $pdo->beginTransaction();
+            
+            $sql = "UPDATE mirae8440.work SET workday = ?, deadline = ? WHERE num = ? LIMIT 1";
+            
+            $stmh = $pdo->prepare($sql);
+            $stmh->bindValue(1, $date_tmp[$i], PDO::PARAM_STR);  // 출고일 기록
+            $stmh->bindValue(2, $date_tmp[$i], PDO::PARAM_STR);  // 생산완료일
+            $stmh->bindValue(3, $num_tmp[$i], PDO::PARAM_STR);
+            $stmh->execute();
+            
+            $pdo->commit();
+        } catch (PDOException $Exception) {
+            if ($pdo) {
+                $pdo->rollBack();
+            }
+            http_response_code(500);
+            echo json_encode([
+                'success' => false,
+                'message' => '오류: ' . $Exception->getMessage()
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+    }
 }
 
+// 성공 응답 데이터
 $data = array(
-		"num_arr" =>         $num_tmp,
-		"recordDate_arr" =>         $date_tmp,
+    "success" => true,
+    "num_arr" => $num_tmp,
+    "recordDate_arr" => $date_tmp,
 );
 
-echo(json_encode($data, JSON_UNESCAPED_UNICODE));
+// JSON 출력
+echo json_encode($data, JSON_UNESCAPED_UNICODE);
 ?>

@@ -8,11 +8,18 @@ if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
     exit;
 }
 
+// 베이스 URL 설정 (로컬/서버 환경 자동 감지)
+$base_url = getBaseUrl();
+
+// 세션 변수 안전하게 초기화
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+$user_name = $_SESSION["name"] ?? '';
+
 $title_message = "JAMB 매출";
 
 // 환경파일 불러오기
 $readIni = array();
-$readIni = parse_ini_file("./estimate.ini", false);
+$readIni = parse_ini_file(includePath("work/estimate.ini"), false);
 
 include includePath('load_header.php');
 ?>
@@ -21,10 +28,16 @@ include includePath('load_header.php');
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
 
-<title><?= $title_message ?></title>
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- 공통 함수 -->
+<script src="<?php echo $base_url; ?>/js/common.js"></script>
+
+<title><?php echo $title_message; ?></title>
 
 <!-- Light & Subtle Theme CSS -->
-<link rel="stylesheet" href="../css/dashboard-style.css" type="text/css" />
+<link rel="stylesheet" href="<?php echo $base_url; ?>/css/dashboard-style.css" type="text/css" />
 
 <style>
 /* ========================================= */
@@ -359,7 +372,11 @@ $fromdate = $_REQUEST["fromdate"] ?? '';
 $todate = $_REQUEST["todate"] ?? '';
 $search = $_REQUEST["search"] ?? '';
 
+// 배열 초기화
 $sum = array();
+$item_sel_choice = array('', '', '');
+$year_sum = array();
+$month_sum = array();
 
 // 기간 초기화 (올해를 날짜 기간으로 설정)
 if ($fromdate == "") {
@@ -395,21 +412,34 @@ $NJ_HL = 0;
 $NJ = 0;
 $SJ_HL = 0;
 $SJ = 0;
+$WJ_amount = 0;
+$WJ_HL_amount = 0;
+$WJ_total = 0;
+$WJ_num = 0;
+$NJ_amount = 0;
+$NJ_HL_amount = 0;
+$NJ_total = 0;
+$NJ_num = 0;
+$SJ_amount = 0;
+$SJ_HL_amount = 0;
+$SJ_total = 0;
+$SJ_num = 0;
+$total = 0;
 
 try {
     $allstmh = $pdo->query($sql);
 
     while ($row = $allstmh->fetch(PDO::FETCH_ASSOC)) {
-        $material1 = $row["material1"];
-        $material2 = $row["material2"];
-        $material3 = $row["material3"];
-        $material4 = $row["material4"];
-        $material5 = $row["material5"];
-        $material6 = $row["material6"];
-        $widejamb = intval($row["widejamb"]);
-        $normaljamb = intval($row["normaljamb"]);
-        $smalljamb = intval($row["smalljamb"]);
-        $workplacename = $row["workplacename"];
+        $material1 = $row["material1"] ?? '';
+        $material2 = $row["material2"] ?? '';
+        $material3 = $row["material3"] ?? '';
+        $material4 = $row["material4"] ?? '';
+        $material5 = $row["material5"] ?? '';
+        $material6 = $row["material6"] ?? '';
+        $widejamb = intval($row["widejamb"] ?? 0);
+        $normaljamb = intval($row["normaljamb"] ?? 0);
+        $smalljamb = intval($row["smalljamb"] ?? 0);
+        $workplacename = $row["workplacename"] ?? '';
 
         $combinedMaterials = $material1 . $material2 . $material3 . $material4 . $material5 . $material6;
 
@@ -455,20 +485,20 @@ try {
 
 // 합계표 만들기
 // 막판 산출
-$WJ_amount = str_replace(',', '', $WJ) * intval(str_replace(',', '', $readIni["WJ"]));
-$WJ_HL_amount = str_replace(',', '', $WJ_HL) * intval(str_replace(',', '', $readIni["WJ_HL"]));
+$WJ_amount = str_replace(',', '', $WJ) * intval(str_replace(',', '', $readIni["WJ"] ?? 0));
+$WJ_HL_amount = str_replace(',', '', $WJ_HL) * intval(str_replace(',', '', $readIni["WJ_HL"] ?? 0));
 $WJ_total = $WJ_amount + $WJ_HL_amount;
 $WJ_num = $WJ + $WJ_HL;
 
 // 막판무 산출
-$NJ_amount = str_replace(',', '', $NJ) * intval(str_replace(',', '', $readIni["NJ"]));
-$NJ_HL_amount = str_replace(',', '', $NJ_HL) * intval(str_replace(',', '', $readIni["NJ_HL"]));
+$NJ_amount = str_replace(',', '', $NJ) * intval(str_replace(',', '', $readIni["NJ"] ?? 0));
+$NJ_HL_amount = str_replace(',', '', $NJ_HL) * intval(str_replace(',', '', $readIni["NJ_HL"] ?? 0));
 $NJ_total = $NJ_amount + $NJ_HL_amount;
 $NJ_num = $NJ + $NJ_HL;
 
 // 쪽쟘 산출
-$SJ_amount = str_replace(',', '', $SJ) * intval(str_replace(',', '', $readIni["SJ"]));
-$SJ_HL_amount = str_replace(',', '', $SJ_HL) * intval(str_replace(',', '', $readIni["SJ_HL"]));
+$SJ_amount = str_replace(',', '', $SJ) * intval(str_replace(',', '', $readIni["SJ"] ?? 0));
+$SJ_HL_amount = str_replace(',', '', $SJ_HL) * intval(str_replace(',', '', $readIni["SJ_HL"] ?? 0));
 $SJ_total = $SJ_amount + $SJ_HL_amount;
 $SJ_num = $SJ + $SJ_HL;
 
@@ -502,117 +532,115 @@ $all_sum = $work_sum[0] + $work_sum[1] + $work_sum[2];
 $year = substr($fromdate, 0, 4);
 
 // 년도 비교
-if ($item_sel === '년도비교') 
- {
-    $year_count=0;
-    $date_count=0;
-    $year_sum = array();	
-    $year=substr($fromdate,0,4) -1;				
+if ($item_sel === '년도비교') {
+    $year_count = 0;
+    $date_count = 0;
+    $year_sum = array();
+    $year = substr($fromdate, 0, 4) - 1;
 
-    while($year_count<2) {
-		
-        $month_count=0;		
-		
-        while($month_count<12) {	
-		
-			$month=$month_count + 1;
-			switch ($month_count) {
-				case   0   :   $day=31; break;
-				case   1   :   $day=28; break;
-				case   2   :   $day=31; break;
-				case   3   :   $day=30; break;
-				case   4   :   $day=31; break;
-				case   5   :   $day=30; break;
-				case   6   :   $day=31; break;
-				case   7   :   $day=31; break;
-				case   8   :   $day=30; break;
-				case   9   :   $day=31; break;
-				case   10  :   $day=30; break;
-				case   11  :   $day=31; break;
-			}			
-			
+    while ($year_count < 2) {
+        $month_count = 0;
+        
+        while ($month_count < 12) {
+            $month = $month_count + 1;
+            switch ($month_count) {
+                case 0: $day = 31; break;
+                case 1: $day = 28; break;
+                case 2: $day = 31; break;
+                case 3: $day = 30; break;
+                case 4: $day = 31; break;
+                case 5: $day = 30; break;
+                case 6: $day = 31; break;
+                case 7: $day = 31; break;
+                case 8: $day = 30; break;
+                case 9: $day = 31; break;
+                case 10: $day = 30; break;
+                case 11: $day = 31; break;
+            }
+            
             $month_fromdate = sprintf("%04d-%02d-%02d", $year, $month, 1);
             $month_todate = sprintf("%04d-%02d-%02d", $year, $month, $day);
 
-            $sql = "SELECT * FROM mirae8440.work WHERE workday BETWEEN date('$month_fromdate') AND date('$month_todate')"; 			
-		
-		$sum1 = 0; $sum2 = 0; $sum3 = 0;		
-		$WJ_HL = 0;
-		$WJ = 0;
-		$NJ_HL = 0;
-		$NJ = 0;
-		$SJ_HL = 0;
-		$SJ = 0;
-		$WJ_total = 0;
-		$NJ_total = 0;
-		$SJ_total = 0;
-		
-        try {
-			$stmh = $pdo->query($sql);
-			$rowNum = $stmh->rowCount();
-			
-			while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-				
-			include '_row.php';
+            $sql = "SELECT * FROM mirae8440.work WHERE workday BETWEEN date('$month_fromdate') AND date('$month_todate')";
+            
+            $sum1 = 0;
+            $sum2 = 0;
+            $sum3 = 0;
+            $WJ_HL = 0;
+            $WJ = 0;
+            $NJ_HL = 0;
+            $NJ = 0;
+            $SJ_HL = 0;
+            $SJ = 0;
+            $WJ_total = 0;
+            $NJ_total = 0;
+            $SJ_total = 0;
+            
+            try {
+                $stmh = $pdo->query($sql);
+                $rowNum = $stmh->rowCount();
+                
+                while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+                    include '_row.php';
 
-			$widejamb = intval($row["widejamb"]);
-			$normaljamb = intval($row["normaljamb"]);
-			$smalljamb = intval($row["smalljamb"]);					
+                    $widejamb = intval($row["widejamb"] ?? 0);
+                    $normaljamb = intval($row["normaljamb"] ?? 0);
+                    $smalljamb = intval($row["smalljamb"] ?? 0);					
 
-			$combinedMaterials = $material1 . $material2 . $material3 . $material4 . $material5 . $material6;
-				
-			$findstr = '불량';
-			$pos = stripos($workplacename, $findstr);							   
-			   
-			if($pos==0)  {
-				// $WJ_HL 계산
-				if (stripos($combinedMaterials, 'HL') !== false || stripos($combinedMaterials, 'H/L') !== false) {
-				  $WJ_HL += $widejamb;
-				}
-				// $WJ 계산
-				if (stripos($combinedMaterials, 'HL') === false && stripos($combinedMaterials, 'H/L') === false) {
-				  $WJ += $widejamb;
-				}
-				// $NJ_HL 계산
-				if (stripos($combinedMaterials, 'HL') !== false || stripos($combinedMaterials, 'H/L') !== false) {
-				  $NJ_HL += $normaljamb;
-				}
-				// $NJ 계산
-				if (stripos($combinedMaterials, 'HL') === false && stripos($combinedMaterials, 'H/L') === false) {
-				  $NJ += $normaljamb;
-				}
-				// $SJ_HL 계산
-				if (stripos($combinedMaterials, 'HL') !== false || stripos($combinedMaterials, 'H/L') !== false) {
-				  $SJ_HL += $smalljamb;
-				}
-				// $SJ 계산
-				if (stripos($combinedMaterials, 'HL') === false && stripos($combinedMaterials, 'H/L') === false) {
-				  $SJ += $smalljamb;
-				}
-			}
-					// 합계표 만들기
-					// 막판 산출
-					$WJ_amount = str_replace(',', '', $WJ) * intval(str_replace(',', '', $readIni["WJ"]));
-					$WJ_HL_amount = str_replace(',', '', $WJ_HL) * intval(str_replace(',', '', $readIni["WJ_HL"]));
-					$WJ_total = $WJ_amount + $WJ_HL_amount ;
-					$WJ_num = $WJ + $WJ_HL;
-					// 막판무 산출
-					$NJ_amount = str_replace(',', '', $NJ) * intval(str_replace(',', '', $readIni["NJ"]));
-					$NJ_HL_amount = str_replace(',', '', $NJ_HL) * intval(str_replace(',', '', $readIni["NJ_HL"]));
-					$NJ_total = $NJ_amount + $NJ_HL_amount ;
-					$NJ_num = $NJ + $NJ_HL;
-					// 쪽쟘 산출
-					$SJ_amount = str_replace(',', '', $SJ) * intval(str_replace(',', '', $readIni["SJ"]));
-					$SJ_HL_amount = str_replace(',', '', $SJ_HL) * intval(str_replace(',', '', $readIni["SJ_HL"]));
-					$SJ_total = $SJ_amount + $SJ_HL_amount ;
-					$SJ_num = $SJ + $SJ_HL;
-
-				 } 	 
-			   } catch (PDOException $Exception) {
-				print "오류: ".$Exception->getMessage();
-			} 				
-				
-            $year_sum[$date_count] = $WJ_total + $NJ_total + $SJ_total ;
+                    $combinedMaterials = $material1 . $material2 . $material3 . $material4 . $material5 . $material6;
+                    
+                    $findstr = '불량';
+                    $pos = stripos($workplacename, $findstr);
+                    
+                    if ($pos == 0) {
+                        // $WJ_HL 계산
+                        if (stripos($combinedMaterials, 'HL') !== false || stripos($combinedMaterials, 'H/L') !== false) {
+                            $WJ_HL += $widejamb;
+                        }
+                        // $WJ 계산
+                        if (stripos($combinedMaterials, 'HL') === false && stripos($combinedMaterials, 'H/L') === false) {
+                            $WJ += $widejamb;
+                        }
+                        // $NJ_HL 계산
+                        if (stripos($combinedMaterials, 'HL') !== false || stripos($combinedMaterials, 'H/L') !== false) {
+                            $NJ_HL += $normaljamb;
+                        }
+                        // $NJ 계산
+                        if (stripos($combinedMaterials, 'HL') === false && stripos($combinedMaterials, 'H/L') === false) {
+                            $NJ += $normaljamb;
+                        }
+                        // $SJ_HL 계산
+                        if (stripos($combinedMaterials, 'HL') !== false || stripos($combinedMaterials, 'H/L') !== false) {
+                            $SJ_HL += $smalljamb;
+                        }
+                        // $SJ 계산
+                        if (stripos($combinedMaterials, 'HL') === false && stripos($combinedMaterials, 'H/L') === false) {
+                            $SJ += $smalljamb;
+                        }
+                    }
+                    
+                    // 합계표 만들기
+                    // 막판 산출
+                    $WJ_amount = str_replace(',', '', $WJ) * intval(str_replace(',', '', $readIni["WJ"] ?? 0));
+                    $WJ_HL_amount = str_replace(',', '', $WJ_HL) * intval(str_replace(',', '', $readIni["WJ_HL"] ?? 0));
+                    $WJ_total = $WJ_amount + $WJ_HL_amount;
+                    $WJ_num = $WJ + $WJ_HL;
+                    // 막판무 산출
+                    $NJ_amount = str_replace(',', '', $NJ) * intval(str_replace(',', '', $readIni["NJ"] ?? 0));
+                    $NJ_HL_amount = str_replace(',', '', $NJ_HL) * intval(str_replace(',', '', $readIni["NJ_HL"] ?? 0));
+                    $NJ_total = $NJ_amount + $NJ_HL_amount;
+                    $NJ_num = $NJ + $NJ_HL;
+                    // 쪽쟘 산출
+                    $SJ_amount = str_replace(',', '', $SJ) * intval(str_replace(',', '', $readIni["SJ"] ?? 0));
+                    $SJ_HL_amount = str_replace(',', '', $SJ_HL) * intval(str_replace(',', '', $readIni["SJ_HL"] ?? 0));
+                    $SJ_total = $SJ_amount + $SJ_HL_amount;
+                    $SJ_num = $SJ + $SJ_HL;
+                }
+            } catch (PDOException $Exception) {
+                print "오류: " . $Exception->getMessage();
+            }
+            
+            $year_sum[$date_count] = $WJ_total + $NJ_total + $SJ_total;
             $month_count++;
             $date_count++;
         }
@@ -621,136 +649,125 @@ if ($item_sel === '년도비교')
     }
 }
 
-if($item_sel==='월별비교') 
-	{
-	$month_count=0;      // 월별 차트 통계 내는 부분
-	while($month_count<12)		 
-	{	
-
-	$year=substr($fromdate,0,4) ;
-	
-	$month=$month_count + 1;
-		switch ($month_count) {
-			case   0   :   $day=31; break;
-			case   1   :   $day=28; break;
-			case   2   :   $day=31; break;
-			case   3   :   $day=30; break;
-			case   4   :   $day=31; break;
-			case   5   :   $day=30; break;
-			case   6   :   $day=31; break;
-			case   7   :   $day=31; break;
-			case   8   :   $day=30; break;
-			case   9   :   $day=31; break;
-			case   10  :   $day=30; break;
-			case   11  :   $day=31; break;
-
-	}
-					  
-        $month_fromdate = sprintf("%04d-%02d-%02d", $year, $month, 1);  // 날짜형식으로 바꾸기
-        $month_todate = sprintf("%04d-%02d-%02d", $year, $month, $day);  // 날짜형식으로 바꾸기
+if ($item_sel === '월별비교') {
+    $month_count = 0;      // 월별 차트 통계 내는 부분
+    while ($month_count < 12) {
+        $year = substr($fromdate, 0, 4);
+        
+        $month = $month_count + 1;
+        switch ($month_count) {
+            case 0: $day = 31; break;
+            case 1: $day = 28; break;
+            case 2: $day = 31; break;
+            case 3: $day = 30; break;
+            case 4: $day = 31; break;
+            case 5: $day = 30; break;
+            case 6: $day = 31; break;
+            case 7: $day = 31; break;
+            case 8: $day = 30; break;
+            case 9: $day = 31; break;
+            case 10: $day = 30; break;
+            case 11: $day = 31; break;
+        }
+        
+        $month_fromdate = sprintf("%04d-%02d-%02d", $year, $month, 1);
+        $month_todate = sprintf("%04d-%02d-%02d", $year, $month, $day);
 
         if ($search === "") {
             $sql = "SELECT * FROM mirae8440.work WHERE workday BETWEEN date('$month_fromdate') AND date('$month_todate')";
-        }
-
-        if ($search !== "") {
+        } else {
             $sql = "SELECT * FROM mirae8440.work WHERE ((workplacename LIKE '%$search%') OR (firstordman LIKE '%$search%') OR (secondordman LIKE '%$search%') OR (chargedman LIKE '%$search%') ";
             $sql .= "OR (delicompany LIKE '%$search%') OR (hpi LIKE '%$search%') OR (firstord LIKE '%$search%') OR (secondord LIKE '%$search%') OR (worker LIKE '%$search%') OR (memo LIKE '%$search%')) AND (workday BETWEEN date('$month_fromdate') AND date('$month_todate'))";
-        }					
-		$counter=0;
-		$sum1=0;
-		$sum2=0;
-		$sum3=0;
-
-		$sum1 = 0; $sum2 = 0; $sum3 = 0;
-		
-		$WJ_HL = 0;
-		$WJ = 0;
-		$NJ_HL = 0;
-		$NJ = 0;
-		$SJ_HL = 0;
-		$SJ = 0;
-		$WJ_total = 0;
-		$NJ_total = 0;
-		$SJ_total = 0;		
-		
-        try {
-			$stmh = $pdo->query($sql);
-			$rowNum = $stmh->rowCount();
-			
-			while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-                    include '_row.php';
-					
-					$widejamb = intval($row["widejamb"]);
-					$normaljamb = intval($row["normaljamb"]);
-					$smalljamb = intval($row["smalljamb"]);					
-					
-					$combinedMaterials = $material1 . $material2 . $material3 . $material4 . $material5 . $material6;
-					
-				   $findstr = '불량';
-				   $pos = stripos($workplacename, $findstr);							   
-				   
-				   if($pos==0)  {
-						// $WJ_HL 계산
-						if (stripos($combinedMaterials, 'HL') !== false || stripos($combinedMaterials, 'H/L') !== false) {
-						  $WJ_HL += $widejamb;
-						}
-						// $WJ 계산
-						if (stripos($combinedMaterials, 'HL') === false && stripos($combinedMaterials, 'H/L') === false) {
-						  $WJ += $widejamb;
-						}
-						// $NJ_HL 계산
-						if (stripos($combinedMaterials, 'HL') !== false || stripos($combinedMaterials, 'H/L') !== false) {
-						  $NJ_HL += $normaljamb;
-						}
-						// $NJ 계산
-						if (stripos($combinedMaterials, 'HL') === false && stripos($combinedMaterials, 'H/L') === false) {
-						  $NJ += $normaljamb;
-						}
-						// $SJ_HL 계산
-						if (stripos($combinedMaterials, 'HL') !== false || stripos($combinedMaterials, 'H/L') !== false) {
-						  $SJ_HL += $smalljamb;
-						}
-						// $SJ 계산
-						if (stripos($combinedMaterials, 'HL') === false && stripos($combinedMaterials, 'H/L') === false) {
-						  $SJ += $smalljamb;
-						}
-				   }
-
-					// 합계표 만들기
-					// 막판 산출
-					$WJ_amount = str_replace(',', '', $WJ) * intval(str_replace(',', '', $readIni["WJ"]));
-					$WJ_HL_amount = str_replace(',', '', $WJ_HL) * intval(str_replace(',', '', $readIni["WJ_HL"]));
-					$WJ_total = $WJ_amount + $WJ_HL_amount ;
-					$WJ_num = $WJ + $WJ_HL;
-					// 막판무 산출
-					$NJ_amount = str_replace(',', '', $NJ) * intval(str_replace(',', '', $readIni["NJ"]));
-					$NJ_HL_amount = str_replace(',', '', $NJ_HL) * intval(str_replace(',', '', $readIni["NJ_HL"]));
-					$NJ_total = $NJ_amount + $NJ_HL_amount ;
-					$NJ_num = $NJ + $NJ_HL;
-					// 쪽쟘 산출
-					$SJ_amount = str_replace(',', '', $SJ) * intval(str_replace(',', '', $readIni["SJ"]));
-					$SJ_HL_amount = str_replace(',', '', $SJ_HL) * intval(str_replace(',', '', $readIni["SJ_HL"]));
-					$SJ_total = $SJ_amount + $SJ_HL_amount ;
-					$SJ_num = $SJ + $SJ_HL;
-					
-					$counter++;	   
-					$total_row++;
-
-				 } 	 
-			   } catch (PDOException $Exception) {
-				print "오류: ".$Exception->getMessage();
-			} 				
-				
-            $month_sum[$month_count] = $WJ_total + $NJ_total + $SJ_total ;
-            $month_count++;       
         }
-       
+        
+        $counter = 0;
+        $sum1 = 0;
+        $sum2 = 0;
+        $sum3 = 0;
+        $WJ_HL = 0;
+        $WJ = 0;
+        $NJ_HL = 0;
+        $NJ = 0;
+        $SJ_HL = 0;
+        $SJ = 0;
+        $WJ_total = 0;
+        $NJ_total = 0;
+        $SJ_total = 0;
+        
+        try {
+            $stmh = $pdo->query($sql);
+            $rowNum = $stmh->rowCount();
+            
+            while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+                include '_row.php';
+                
+                $widejamb = intval($row["widejamb"] ?? 0);
+                $normaljamb = intval($row["normaljamb"] ?? 0);
+                $smalljamb = intval($row["smalljamb"] ?? 0);					
+					
+                $combinedMaterials = $material1 . $material2 . $material3 . $material4 . $material5 . $material6;
+                
+                $findstr = '불량';
+                $pos = stripos($workplacename, $findstr);
+                
+                if ($pos == 0) {
+                    // $WJ_HL 계산
+                    if (stripos($combinedMaterials, 'HL') !== false || stripos($combinedMaterials, 'H/L') !== false) {
+                        $WJ_HL += $widejamb;
+                    }
+                    // $WJ 계산
+                    if (stripos($combinedMaterials, 'HL') === false && stripos($combinedMaterials, 'H/L') === false) {
+                        $WJ += $widejamb;
+                    }
+                    // $NJ_HL 계산
+                    if (stripos($combinedMaterials, 'HL') !== false || stripos($combinedMaterials, 'H/L') !== false) {
+                        $NJ_HL += $normaljamb;
+                    }
+                    // $NJ 계산
+                    if (stripos($combinedMaterials, 'HL') === false && stripos($combinedMaterials, 'H/L') === false) {
+                        $NJ += $normaljamb;
+                    }
+                    // $SJ_HL 계산
+                    if (stripos($combinedMaterials, 'HL') !== false || stripos($combinedMaterials, 'H/L') !== false) {
+                        $SJ_HL += $smalljamb;
+                    }
+                    // $SJ 계산
+                    if (stripos($combinedMaterials, 'HL') === false && stripos($combinedMaterials, 'H/L') === false) {
+                        $SJ += $smalljamb;
+                    }
+                }
+
+                // 합계표 만들기
+                // 막판 산출
+                $WJ_amount = str_replace(',', '', $WJ) * intval(str_replace(',', '', $readIni["WJ"] ?? 0));
+                $WJ_HL_amount = str_replace(',', '', $WJ_HL) * intval(str_replace(',', '', $readIni["WJ_HL"] ?? 0));
+                $WJ_total = $WJ_amount + $WJ_HL_amount;
+                $WJ_num = $WJ + $WJ_HL;
+                // 막판무 산출
+                $NJ_amount = str_replace(',', '', $NJ) * intval(str_replace(',', '', $readIni["NJ"] ?? 0));
+                $NJ_HL_amount = str_replace(',', '', $NJ_HL) * intval(str_replace(',', '', $readIni["NJ_HL"] ?? 0));
+                $NJ_total = $NJ_amount + $NJ_HL_amount;
+                $NJ_num = $NJ + $NJ_HL;
+                // 쪽쟘 산출
+                $SJ_amount = str_replace(',', '', $SJ) * intval(str_replace(',', '', $readIni["SJ"] ?? 0));
+                $SJ_HL_amount = str_replace(',', '', $SJ_HL) * intval(str_replace(',', '', $readIni["SJ_HL"] ?? 0));
+                $SJ_total = $SJ_amount + $SJ_HL_amount;
+                $SJ_num = $SJ + $SJ_HL;
+                
+                $counter++;
+            }
+        } catch (PDOException $Exception) {
+            print "오류: " . $Exception->getMessage();
+        }
+        
+        $month_sum[$month_count] = $WJ_total + $NJ_total + $SJ_total;
+        $month_count++;
+    }
 }
 
 
 // 차트는 바차트로 고정한다.
-$chartchoice[1] = 'checked';  // 바차트 선택
+$chartchoice = array('', 'checked');  // 바차트 선택
 $chart_sel = 'bar';  // 바차트 선택
 
 ?>
@@ -759,18 +776,18 @@ $chart_sel = 'bar';  // 바차트 선택
 <form id="board_form" name="board_form" method="post" action="output_statis.php?mode=search">
     <input type="hidden" id="chart_sel" name="chart_sel" value="bar">
     <input type="hidden" id="display_sel" name="display_sel" value="bar">
-    <input id="item_sel" name="item_sel" type="hidden" value="<?= $item_sel ?>">     
+    <input id="item_sel" name="item_sel" type="hidden" value="<?php echo $item_sel; ?>">     
 
 <div class="container">
 
     <div class="output-filter-container mt-1 mb-2">
-        <h4 class="output-page-title"><?= $title_message ?></h4>
+        <h4 class="output-page-title"><?php echo $title_message; ?></h4>
     </div>
 
     <div class="row">
         <div class="d-flex mt-1 mb-2 justify-content-center align-items-center">
             <!-- 기간설정 칸 -->
-            <?php include getDocumentRoot() . '/setdate.php' ?>
+            <?php include includePath('setdate.php'); ?>
         </div>
     </div>
 
@@ -785,15 +802,15 @@ $chart_sel = 'bar';  // 바차트 선택
             ?>
 
             <label class="custom-radio me-1">
-                <input type="radio" class="radio-input" <?= $item_sel_choice[0] ?> name="item_sel" value="년도비교">
+                <input type="radio" class="radio-input" <?php echo $item_sel_choice[0]; ?> name="item_sel" value="년도비교">
                 <span class="radio-label">년도비교</span>
             </label>
             <label class="custom-radio me-1">
-                <input type="radio" class="radio-input" <?= $item_sel_choice[1] ?> name="item_sel" value="월별비교">
+                <input type="radio" class="radio-input" <?php echo $item_sel_choice[1]; ?> name="item_sel" value="월별비교">
                 <span class="radio-label">월별비교</span>
             </label>
             <label class="custom-radio">
-                <input type="radio" class="radio-input" <?= $item_sel_choice[2] ?> name="item_sel" value="종류별비교">
+                <input type="radio" class="radio-input" <?php echo $item_sel_choice[2]; ?> name="item_sel" value="종류별비교">
                 <span class="radio-label">종류별비교</span>
             </label>
         </div>
@@ -961,18 +978,18 @@ $chart_sel = 'bar';  // 바차트 선택
 						<tbody>
 							<tr>
 								<td class="text-center">막판유</td>
-								<td class="text-end"><?= number_format($readIni['WJ_HL']) ?></td>
-								<td class="text-end"><?= number_format($readIni['WJ']) ?></td>
+								<td class="text-end"><?php echo number_format(floatval($readIni['WJ_HL'] ?? 0)); ?></td>
+								<td class="text-end"><?php echo number_format(floatval($readIni['WJ'] ?? 0)); ?></td>
 							</tr>
 							<tr>
 								<td class="text-center">막판무</td>
-								<td class="text-end"><?= number_format($readIni['NJ_HL']) ?></td>
-								<td class="text-end"><?= number_format($readIni['NJ']) ?></td>
+								<td class="text-end"><?php echo number_format(floatval($readIni['NJ_HL'] ?? 0)); ?></td>
+								<td class="text-end"><?php echo number_format(floatval($readIni['NJ'] ?? 0)); ?></td>
 							</tr>
 							<tr>
 								<td class="text-center">쪽쟘</td>
-								<td class="text-end"><?= number_format($readIni['SJ_HL']) ?></td>
-								<td class="text-end"><?= number_format($readIni['SJ']) ?></td>
+								<td class="text-end"><?php echo number_format(floatval($readIni['SJ_HL'] ?? 0)); ?></td>
+								<td class="text-end"><?php echo number_format(floatval($readIni['SJ'] ?? 0)); ?></td>
 							</tr>
 						</tbody>
 					</table>
@@ -999,28 +1016,28 @@ $chart_sel = 'bar';  // 바차트 선택
 						<tbody>
 							<tr>
 								<td class="text-center">막판유</td>
-								<td class="text-end"><?= number_format($WJ_num) ?></td>
-								<td class="text-end"><?= number_format($WJ_HL_amount) ?></td>
-								<td class="text-end"><?= number_format($WJ_amount) ?></td>
-								<td class="text-end"><strong><?= number_format($WJ_total/1000) ?> 천원</strong></td>
+								<td class="text-end"><?php echo number_format($WJ_num); ?></td>
+								<td class="text-end"><?php echo number_format($WJ_HL_amount); ?></td>
+								<td class="text-end"><?php echo number_format($WJ_amount); ?></td>
+								<td class="text-end"><strong><?php echo number_format($WJ_total/1000); ?> 천원</strong></td>
 							</tr>
 							<tr>
 								<td class="text-center">막판무</td>
-								<td class="text-end"><?= number_format($NJ_num) ?></td>
-								<td class="text-end"><?= number_format($NJ_HL_amount) ?></td>
-								<td class="text-end"><?= number_format($NJ_amount) ?></td>
-								<td class="text-end"><strong><?= number_format($NJ_total/1000) ?> 천원</strong></td>
+								<td class="text-end"><?php echo number_format($NJ_num); ?></td>
+								<td class="text-end"><?php echo number_format($NJ_HL_amount); ?></td>
+								<td class="text-end"><?php echo number_format($NJ_amount); ?></td>
+								<td class="text-end"><strong><?php echo number_format($NJ_total/1000); ?> 천원</strong></td>
 							</tr>
 							<tr>
 								<td class="text-center">쪽쟘</td>
-								<td class="text-end"><?= number_format($SJ_num) ?></td>
-								<td class="text-end"><?= number_format($SJ_HL_amount) ?></td>
-								<td class="text-end"><?= number_format($SJ_amount) ?></td>
-								<td class="text-end"><strong><?= number_format($SJ_total/1000) ?> 천원</strong></td>
+								<td class="text-end"><?php echo number_format($SJ_num); ?></td>
+								<td class="text-end"><?php echo number_format($SJ_HL_amount); ?></td>
+								<td class="text-end"><?php echo number_format($SJ_amount); ?></td>
+								<td class="text-end"><strong><?php echo number_format($SJ_total/1000); ?> 천원</strong></td>
 							</tr>
 							<tr class="table-info">
 								<td colspan="4" class="text-center"><strong>합계</strong></td>
-								<td class="text-end"><strong style="color: #0369a1;"><?= number_format($total/1000) ?> 천원</strong></td>
+								<td class="text-end"><strong style="color: #0369a1;"><?php echo number_format($total/1000); ?> 천원</strong></td>
 							</tr>
 						</tbody>
 					</table>

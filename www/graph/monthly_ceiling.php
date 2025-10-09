@@ -1,39 +1,46 @@
 <?php
-// ───────────────────────────────────────────────────────────
-// monthly_ceiling.php: 조명천장/본천장 수주통계 (원 단위 표시)
-// ───────────────────────────────────────────────────────────
-include getDocumentRoot() . '/session.php';
+require_once __DIR__ . '/../bootstrap.php';
+
+// 권한 확인
 if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
     sleep(1);
-    header("Location:" . $WebSite . "login/login_form.php");
+    header("Location:" . getBaseUrl() . "/login/login_form.php");
     exit;
 }
+
+// 베이스 URL 설정 (로컬/서버 환경 자동 감지)
+$base_url = getBaseUrl();
+
+// 세션 변수 안전하게 초기화
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+$user_name = $_SESSION["user_name"] ?? '';
+
 $title_message = "조명천장/본천장 수주현황 분석";
-
+include includePath('load_header.php');
 // 단가 파일 읽기
-$readIni = parse_ini_file(getDocumentRoot() . "/ceiling/estimate.ini", false);
+$readIni = parse_ini_file(includePath("ceiling/estimate.ini"), false);
 
-// ── 1) 기간 계산 (start, end 둘 다 있으면 그대로, 하나만 있으면 12개월 보정) ──
+// 기간 계산 (start, end 둘 다 있으면 그대로, 하나만 있으면 12개월 보정)
 if (!empty($_GET['start']) && !empty($_GET['end'])) {
     $startDate = DateTime::createFromFormat('Y-m-01', $_GET['start'] . '-01');
-    $endDate   = DateTime::createFromFormat('Y-m-01', $_GET['end']   . '-01');
+    $endDate = DateTime::createFromFormat('Y-m-01', $_GET['end'] . '-01');
 } elseif (!empty($_GET['start'])) {
     $startDate = DateTime::createFromFormat('Y-m-01', $_GET['start'] . '-01');
-    $endDate   = (clone $startDate)->modify('+11 months');
+    $endDate = (clone $startDate)->modify('+11 months');
 } elseif (!empty($_GET['end'])) {
-    $endDate   = DateTime::createFromFormat('Y-m-01', $_GET['end']   . '-01');
+    $endDate = DateTime::createFromFormat('Y-m-01', $_GET['end'] . '-01');
     $startDate = (clone $endDate)->modify('-11 months');
 } else {
-    $endDate   = new DateTime('first day of this month');
+    $endDate = new DateTime('first day of this month');
     $startDate = (clone $endDate)->modify('-11 months');
 }
 $startYM = $startDate->format('Y-m');
-$endYM   = $endDate  ->format('Y-m');
+$endYM = $endDate->format('Y-m');
 
-// ── 2) 보기 모드 정의 ──
+// 보기 모드 정의
 $viewMode = $_GET['view'] ?? 'revenue';
 
-// ── 3) 월 리스트 & 레이블 생성 ──
+// 월 리스트 & 레이블 생성
 $months = $labels = [];
 for ($dt = clone $startDate; $dt <= $endDate; $dt->modify('+1 month')) {
     $ym = $dt->format('Y-m');
@@ -41,29 +48,54 @@ for ($dt = clone $startDate; $dt <= $endDate; $dt->modify('+1 month')) {
     $labels[] = $dt->format('Y') . '년 ' . $dt->format('n') . '월';
 }
 
-// ── 4) 매출 계산 함수: {bon_su, lc_su, inseung} → 원 단위 수주금액 ──
+// 매출 계산 함수: {bon_su, lc_su, inseung} → 원 단위 수주금액
 function calc_rev(array $row, array $units): int {
     $i = intval($row['inseung']);
-    if      ($i <= 12) { $bonU = $units['bon_unit_12'];    $lcU = $units['lc_unit_12']; }
-    elseif  ($i <= 17) { $bonU = $units['bon_unit_13to17']; $lcU = $units['lc_unit_13to17']; }
-    else               { $bonU = $units['bon_unit_18'];    $lcU = $units['lc_unit_18']; }
+    if ($i <= 12) {
+        $bonU = $units['bon_unit_12'];
+        $lcU = $units['lc_unit_12'];
+    } elseif ($i <= 17) {
+        $bonU = $units['bon_unit_13to17'];
+        $lcU = $units['lc_unit_13to17'];
+    } else {
+        $bonU = $units['bon_unit_18'];
+        $lcU = $units['lc_unit_18'];
+    }
     // ★ 여기에 ×1000 추가: ini 파일에 기록된 단가는 '천원' 단위이므로 원 단위로 환산합니다.
     return (
-         intval($row['bon_su']) * $bonU
-       + intval($row['lc_su'])  * $lcU
+        intval($row['bon_su']) * $bonU
+        + intval($row['lc_su']) * $lcU
     ) * 1000;
 }
- 
-include getDocumentRoot() . '/load_header.php';
+
+// PDO 연결
+require_once __DIR__ . "/../lib/mydb.php";
+$pdo = db_connect();
+
+include includePath('load_header.php');
 ?>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title><?=$title_message?></title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Light & Subtle Theme CSS -->
-  <link rel="stylesheet" href="../css/dashboard-style.css" type="text/css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo $title_message; ?></title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Highcharts -->
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- 공통 함수 -->
+    <script src="<?php echo $base_url; ?>/js/common.js"></script>
+    
+    <!-- Light & Subtle Theme CSS -->
+    <link rel="stylesheet" href="<?php echo $base_url; ?>/css/dashboard-style.css" type="text/css" />
   <style>
     /* ========================================= */
     /* Light & Subtle Theme - Monthly Ceiling Specific */
@@ -415,9 +447,11 @@ include getDocumentRoot() . '/load_header.php';
   </style>
 </head>
 <body>
-<?php if($_GET['header']=='header'){
-        include getDocumentRoot() . '/myheader.php';
-} ?>
+<?php 
+if (isset($_GET['header']) && $_GET['header'] === 'header') {
+    include includePath('myheader.php');
+}
+?>
 <div id="loadingOverlay">
   <div class="spinner">
     <div class="spinner-border text-primary" role="status">
@@ -428,57 +462,57 @@ include getDocumentRoot() . '/load_header.php';
 </div>
 
 <div class="container-fluid py-4">
-  <h4 class="text-center mb-4"><?=$title_message?></h4>
+    <h4 class="text-center mb-4"><?php echo $title_message; ?></h4>
 
-  <!-- 필터: 기간 & 보기 모드 -->
-  <div class="filter-container">
-    <div class="row">
-      <div class="col-md-6 d-flex align-items-center mb-2">
-        <label class="me-2 compact-title">시작:</label>
-        <input type="month" id="startYM" class="form-control me-4" style="width:210px;" value="<?=$startYM?>">
-        <label class="me-2 compact-title">종료:</label>
-        <input type="month" id="endYM" class="form-control" style="width:210px;" value="<?=$endYM?>">
-      </div>
-      <div class="col-md-6 d-flex align-items-center mb-2">
-        <?php foreach ([
-          'revenue'          => '수주금액 기준',
-          'vendor'           => '발주처 수주순위',
-          'topVendorMonthly' => '업체별 월별수주금액'
-        ] as $val => $text): ?>
-          <div class="form-check form-check-inline">
-            <input class="form-check-input"
-                   type="radio" name="view"
-                   id="view<?=$val?>" value="<?=$val?>"
-              <?= $viewMode === $val ? 'checked' : '' ?>>
-            <label class="form-check-label" for="view<?=$val?>"><?=$text?></label>
-          </div>
-        <?php endforeach; ?>
-      </div>
+    <!-- 필터: 기간 & 보기 모드 -->
+    <div class="filter-container">
+        <div class="row">
+            <div class="col-md-6 d-flex align-items-center mb-2">
+                <label class="me-2 compact-title">시작:</label>
+                <input type="month" id="startYM" class="form-control me-4" style="width:210px;" value="<?php echo $startYM; ?>">
+                <label class="me-2 compact-title">종료:</label>
+                <input type="month" id="endYM" class="form-control" style="width:210px;" value="<?php echo $endYM; ?>">
+            </div>
+            <div class="col-md-6 d-flex align-items-center mb-2">
+                <?php foreach ([
+                    'revenue' => '수주금액 기준',
+                    'vendor' => '발주처 수주순위',
+                    'topVendorMonthly' => '업체별 월별수주금액'
+                ] as $val => $text): ?>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input"
+                               type="radio" name="view"
+                               id="view<?php echo $val; ?>" value="<?php echo $val; ?>"
+                            <?php echo $viewMode === $val ? 'checked' : ''; ?>>
+                        <label class="form-check-label" for="view<?php echo $val; ?>"><?php echo $text; ?></label>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <?php
-  switch ($viewMode):
+    <?php
+    switch ($viewMode):
 
-    // ── 1) 월별 총수주금액 ──
-    case 'revenue':
-      $data = [];
-      foreach ($months as $ym) {
-        $from = "$ym-01";
-        $to   = date("Y-m-t", strtotime($from));
-        $stmt = $pdo->prepare("
-          SELECT inseung, bon_su, lc_su
-          FROM {$DB}.ceiling
-          WHERE workday BETWEEN :from AND :to
-        ");
-        $stmt->execute(['from'=>$from,'to'=>$to]);
-        $rev = 0;
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-          $rev += calc_rev($row, $readIni);
-        }
-        $data[] = $rev;
-      }
-      ?>
+        // 1) 월별 총수주금액
+        case 'revenue':
+            $data = [];
+            foreach ($months as $ym) {
+                $from = "$ym-01";
+                $to = date("Y-m-t", strtotime($from));
+                $stmt = $pdo->prepare("
+                    SELECT inseung, bon_su, lc_su
+                    FROM {$DB}.ceiling
+                    WHERE workday BETWEEN :from AND :to
+                ");
+                $stmt->execute(['from' => $from, 'to' => $to]);
+                $rev = 0;
+                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $rev += calc_rev($row, $readIni);
+                }
+                $data[] = $rev;
+            }
+            ?>
       <div class="row">
         <div class="col-md-8">
           <div class="compact-chart-container">
@@ -513,28 +547,28 @@ include getDocumentRoot() . '/load_header.php';
       </div>
     <?php break;
 
-    // ── 2) 발주처별 총합 순위 (Top20) ──
-    case 'vendor':
-      $vendorRev = [];
-      $stmt = $pdo->prepare("
-        SELECT inseung, bon_su, lc_su, secondord
-        FROM {$DB}.ceiling
-        WHERE workday BETWEEN :from AND :to
-      ");
-      $stmt->execute([
-        'from'=>$startDate->format('Y-m-d'),
-        'to'  =>$endDate  ->format('Y-m-t'),
-      ]);
-      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $rev    = calc_rev($row, $readIni);
-        $vendor = trim($row['secondord']) ?: '기타';
-        $vendorRev[$vendor] = ($vendorRev[$vendor] ?? 0) + $rev;
-      }
-      arsort($vendorRev);
-      $top20  = array_slice($vendorRev, 0, 20, true);
-      $labels2= array_keys($top20);
-      $data2  = array_values($top20);
-      ?>
+        // 2) 발주처별 총합 순위 (Top20)
+        case 'vendor':
+            $vendorRev = [];
+            $stmt = $pdo->prepare("
+                SELECT inseung, bon_su, lc_su, secondord
+                FROM {$DB}.ceiling
+                WHERE workday BETWEEN :from AND :to
+            ");
+            $stmt->execute([
+                'from' => $startDate->format('Y-m-d'),
+                'to' => $endDate->format('Y-m-t'),
+            ]);
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $rev = calc_rev($row, $readIni);
+                $vendor = trim($row['secondord']) ?: '기타';
+                $vendorRev[$vendor] = ($vendorRev[$vendor] ?? 0) + $rev;
+            }
+            arsort($vendorRev);
+            $top20 = array_slice($vendorRev, 0, 20, true);
+            $labels2 = array_keys($top20);
+            $data2 = array_values($top20);
+            ?>
       <div class="row">
         <div class="col-md-8">
           <div class="compact-chart-container">
@@ -570,214 +604,215 @@ include getDocumentRoot() . '/load_header.php';
       </div>
     <?php break;
 
-    // ── 3) Top20 업체 월별 수주금액 ──
-    case 'topVendorMonthly':
-      // 3-1) Top20 선정
-      $vendorRev = [];
-      $stmt = $pdo->prepare("
-        SELECT inseung, bon_su, lc_su, secondord
-        FROM {$DB}.ceiling
-        WHERE workday BETWEEN :from AND :to
-      ");
-      $stmt->execute([
-        'from'=>$startDate->format('Y-m-d'),
-        'to'  =>$endDate  ->format('Y-m-t'),
-      ]);
-      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $rev    = calc_rev($row, $readIni);
-        $vendor = trim($row['secondord']) ?: '기타';
-        $vendorRev[$vendor] = ($vendorRev[$vendor] ?? 0) + $rev;
-      }
-      arsort($vendorRev);
-      $top20keys = array_slice(array_keys($vendorRev), 0, 20);
+        // 3) Top20 업체 월별 수주금액
+        case 'topVendorMonthly':
+            // 3-1) Top20 선정
+            $vendorRev = [];
+            $stmt = $pdo->prepare("
+                SELECT inseung, bon_su, lc_su, secondord
+                FROM {$DB}.ceiling
+                WHERE workday BETWEEN :from AND :to
+            ");
+            $stmt->execute([
+                'from' => $startDate->format('Y-m-d'),
+                'to' => $endDate->format('Y-m-t'),
+            ]);
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $rev = calc_rev($row, $readIni);
+                $vendor = trim($row['secondord']) ?: '기타';
+                $vendorRev[$vendor] = ($vendorRev[$vendor] ?? 0) + $rev;
+            }
+            arsort($vendorRev);
+            $top20keys = array_slice(array_keys($vendorRev), 0, 20);
 
-      // 3-2) 업체별 월별 집계
-      $vendorMonthly = [];
-      foreach ($top20keys as $vendor) {
-        $arr = [];
-        foreach ($months as $ym) {
-          $from = "$ym-01";
-          $to   = date("Y-m-t", strtotime($from));
-          $st2 = $pdo->prepare("
-            SELECT inseung, bon_su, lc_su
-            FROM {$DB}.ceiling
-            WHERE workday BETWEEN :from AND :to
-              AND TRIM(secondord)=:vendor
-          ");
-          $st2->execute(['from'=>$from,'to'=>$to,'vendor'=>$vendor]);
-          $sum = 0;
-          while ($r = $st2->fetch(PDO::FETCH_ASSOC)) {
-            $sum += calc_rev($r, $readIni);
-          }
-          $arr[] = $sum;
-        }
-        $vendorMonthly[$vendor] = $arr;
-      }
+            // 3-2) 업체별 월별 집계
+            $vendorMonthly = [];
+            foreach ($top20keys as $vendor) {
+                $arr = [];
+                foreach ($months as $ym) {
+                    $from = "$ym-01";
+                    $to = date("Y-m-t", strtotime($from));
+                    $st2 = $pdo->prepare("
+                        SELECT inseung, bon_su, lc_su
+                        FROM {$DB}.ceiling
+                        WHERE workday BETWEEN :from AND :to
+                            AND TRIM(secondord) = :vendor
+                    ");
+                    $st2->execute(['from' => $from, 'to' => $to, 'vendor' => $vendor]);
+                    $sum = 0;
+                    while ($r = $st2->fetch(PDO::FETCH_ASSOC)) {
+                        $sum += calc_rev($r, $readIni);
+                    }
+                    $arr[] = $sum;
+                }
+                $vendorMonthly[$vendor] = $arr;
+            }
 
-      // 3-3) 출력
-      foreach ($top20keys as $i => $vendor):
-        $cid = "chartV{$i}";
-      ?>
-      <div class="card mb-4">
-        <div class="card-header">
-          <div class="d-flex align-items-center justify-content-between">
-            <span><?=($i+1)?>위: <?=htmlspecialchars($vendor)?></span>
-            <div class="compact-badge" style="margin: 0;">
-              합계: <?=number_format(array_sum($vendorMonthly[$vendor])/1000)?>천원
+            // 3-3) 출력
+            foreach ($top20keys as $i => $vendor):
+                $cid = "chartV{$i}";
+            ?>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <span><?php echo ($i+1); ?>위: <?php echo htmlspecialchars($vendor); ?></span>
+                        <div class="compact-badge" style="margin: 0;">
+                            합계: <?php echo number_format(array_sum($vendorMonthly[$vendor])/1000); ?>천원
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body row">
+                    <div class="col-md-8">
+                        <div class="compact-chart-container">
+                            <div class="compact-chart-header">
+                                <div class="compact-chart-icon">🏠</div>
+                                <h6 class="compact-chart-title"><?php echo htmlspecialchars($vendor); ?> 천장 월별 추이 (천원)</h6>
+                            </div>
+                            <div id="<?php echo $cid; ?>" class="chart-container"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="table-container">
+                            <table class="table table-sm table-bordered vendor-monthly-table">
+                                <thead>
+                                    <tr><th>월</th><th class="text-end">수주금액(천원)</th></tr>
+                                </thead>
+                                <tbody>
+                                <?php foreach ($labels as $j => $lbl): ?>
+                                    <tr>
+                                        <td><?php echo $lbl; ?></td>
+                                        <td class="text-end"><?php echo number_format(($vendorMonthly[$vendor][$j] ?? 0)/1000); ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                                    <tr class="table-secondary fw-bold">
+                                        <td>합계</td>
+                                        <td class="text-end"><?php echo number_format(array_sum($vendorMonthly[$vendor])/1000); ?></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
-        <div class="card-body row">
-          <div class="col-md-8">
-            <div class="compact-chart-container">
-              <div class="compact-chart-header">
-                <div class="compact-chart-icon">🏠</div>
-                <h6 class="compact-chart-title"><?=htmlspecialchars($vendor)?> 천장 월별 추이 (천원)</h6>
-              </div>
-              <div id="<?=$cid?>" class="chart-container"></div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="table-container">
-              <table class="table table-sm table-bordered vendor-monthly-table">
-                <thead>
-                  <tr><th>월</th><th class="text-end">수주금액(천원)</th></tr>
-                </thead>
-                <tbody>
-                <?php foreach($labels as $j=>$lbl): ?>
-                  <tr>
-                    <td><?=$lbl?></td>
-                    <td class="text-end"><?=number_format(($vendorMonthly[$vendor][$j] ?? 0)/1000)?></td>
-                  </tr>
-                <?php endforeach; ?>
-                  <tr class="table-secondary fw-bold">
-                    <td>합계</td>
-                    <td class="text-end"><?=number_format(array_sum($vendorMonthly[$vendor])/1000)?></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    <?php endforeach;
-  endswitch;
-  ?>
+            <?php endforeach;
+    endswitch;
+    ?>
 
 </div>
 
-<!-- Highcharts -->
-<script src="https://code.highcharts.com/highcharts.js"></script>
-<script src="https://code.highcharts.com/modules/exporting.js"></script>
 <script>
-  // 로딩 오버레이
-  function showLoading(){ document.getElementById('loadingOverlay').style.display='block'; }
-  function getParams(){
-    return {
-      start: document.getElementById('startYM').value,
-      end:   document.getElementById('endYM').value,
-      view:  document.querySelector('input[name=view]:checked').value
-    };
-  }
-  function reloadPage(params){
-    showLoading();
-    const url = new URL(window.location);
-    ['start','end','view'].forEach(p=>url.searchParams.delete(p));
-    Object.entries(params).forEach(([k,v])=>url.searchParams.set(k,v));
-    window.location = url;
-  }
-  document.getElementById('startYM').addEventListener('change',function(){
-    const dt=new Date(this.value+'-01'); dt.setMonth(dt.getMonth()+11);
-    document.getElementById('endYM').value = dt.toISOString().slice(0,7);
-    reloadPage(getParams());
-  });
-  document.getElementById('endYM').addEventListener('change',function(){
-    const dt=new Date(this.value+'-01'); dt.setMonth(dt.getMonth()-11);
-    document.getElementById('startYM').value = dt.toISOString().slice(0,7);
-    reloadPage(getParams());
-  });
-  document.querySelectorAll('input[name=view]').forEach(rb=>
-    rb.addEventListener('change',()=>reloadPage(getParams()))
-  );
+    // 로딩 오버레이
+    function showLoading() {
+        document.getElementById('loadingOverlay').style.display = 'block';
+    }
+    
+    function getParams() {
+        return {
+            start: document.getElementById('startYM').value,
+            end: document.getElementById('endYM').value,
+            view: document.querySelector('input[name=view]:checked').value
+        };
+    }
+    
+    function reloadPage(params) {
+        showLoading();
+        const url = new URL(window.location);
+        ['start', 'end', 'view'].forEach(p => url.searchParams.delete(p));
+        Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+        window.location = url;
+    }
+    
+    document.getElementById('startYM').addEventListener('change', function() {
+        const dt = new Date(this.value + '-01');
+        dt.setMonth(dt.getMonth() + 11);
+        document.getElementById('endYM').value = dt.toISOString().slice(0, 7);
+        reloadPage(getParams());
+    });
+    
+    document.getElementById('endYM').addEventListener('change', function() {
+        const dt = new Date(this.value + '-01');
+        dt.setMonth(dt.getMonth() - 11);
+        document.getElementById('startYM').value = dt.toISOString().slice(0, 7);
+        reloadPage(getParams());
+    });
+    
+    document.querySelectorAll('input[name=view]').forEach(rb =>
+        rb.addEventListener('change', () => reloadPage(getParams()))
+    );
 
-  // 차트 그리기 - 컴팩트 블루 테마 적용
-  <?php if (in_array($viewMode, ['revenue','vendor'])): ?>
-  Highcharts.chart('chartMain', {
-    chart: {
-      type: 'column',
-      backgroundColor: 'rgba(255, 255, 255, 0.9)'
-    },
-    title: {
-      text: '<?= $viewMode==='revenue'? '조명천장/본천장 월별 수주금액 추이 (천원)' : '발주처별 수주금액(천원)' ?>',
-      style: { fontSize: '14px', fontWeight: '600', color: '#01579b' }
-    },
-    xAxis: {
-      categories: <?= json_encode($viewMode==='revenue'? $labels : $labels2, JSON_UNESCAPED_UNICODE) ?>,
-      labels: { style: { fontSize: '10px', color: '#01579b' } }
-    },
-    yAxis: {
-      title: { text: '천원', style: { fontSize: '10px', color: '#01579b' } },
-      labels: { style: { fontSize: '10px', color: '#01579b' } }
-    },
-    series: [{
-      name: '수주금액',
-      data: <?= json_encode($viewMode==='revenue'? array_map(function($x){return $x/1000;}, $data) : array_map(function($x){return $x/1000;}, $data2)) ?>,
-      color: '#0288d1'
-    }],
-    tooltip: {
-      formatter: function() {
-        return this.series.name + ': <b>' + Highcharts.numberFormat(this.y, 0) + ' 천원</b>';
-      }
-    },
-    legend: { enabled: false },
-    credits: { enabled: false }
-  });
-  <?php elseif ($viewMode==='topVendorMonthly'): ?>
-  <?php foreach($top20keys as $i=>$vendor): ?>
-  Highcharts.chart('chartV<?=$i?>',
-    {
-    chart: {
-      type: 'line',
-      backgroundColor: 'rgba(255, 255, 255, 0.9)'
-    },
-    title: {
-      text: '<?= addslashes($vendor) ?> 천장 월별 추이 (천원)',
-      style: { fontSize: '12px', fontWeight: '600', color: '#01579b' }
-    },
-    xAxis: {
-      categories: <?= json_encode($labels, JSON_UNESCAPED_UNICODE) ?>,
-      labels: { style: { fontSize: '9px', color: '#01579b' } }
-    },
-    yAxis: {
-      title: { text: '천원', style: { fontSize: '9px', color: '#01579b' } },
-      labels: { style: { fontSize: '9px', color: '#01579b' } }
-    },
-    series: [{
-      name: '수주금액',
-      data: <?= json_encode(array_map(function($x){return $x/1000;}, $vendorMonthly[$vendor])) ?>,
-      color: '#0288d1',
-      lineWidth: 2
-    }],
-    tooltip: {
-      formatter: function() {
-        return this.series.name + ': <b>' + Highcharts.numberFormat(this.y, 0) + ' 천원</b>';
-      }
-    },
-    legend: { enabled: false },
-    credits: { enabled: false }
-  });
-  <?php endforeach; ?>
-  <?php endif; ?>
+    // 차트 그리기 - 컴팩트 블루 테마 적용
+    <?php if (in_array($viewMode, ['revenue', 'vendor'])): ?>
+    Highcharts.chart('chartMain', {
+        chart: {
+            type: 'column',
+            backgroundColor: 'rgba(255, 255, 255, 0.9)'
+        },
+        title: {
+            text: '<?php echo $viewMode === 'revenue' ? '조명천장/본천장 월별 수주금액 추이 (천원)' : '발주처별 수주금액(천원)'; ?>',
+            style: { fontSize: '14px', fontWeight: '600', color: '#01579b' }
+        },
+        xAxis: {
+            categories: <?php echo json_encode($viewMode === 'revenue' ? $labels : $labels2, JSON_UNESCAPED_UNICODE); ?>,
+            labels: { style: { fontSize: '10px', color: '#01579b' } }
+        },
+        yAxis: {
+            title: { text: '천원', style: { fontSize: '10px', color: '#01579b' } },
+            labels: { style: { fontSize: '10px', color: '#01579b' } }
+        },
+        series: [{
+            name: '수주금액',
+            data: <?php echo json_encode($viewMode === 'revenue' ? array_map(function($x){return $x/1000;}, $data) : array_map(function($x){return $x/1000;}, $data2)); ?>,
+            color: '#0288d1'
+        }],
+        tooltip: {
+            formatter: function() {
+                return this.series.name + ': <b>' + Highcharts.numberFormat(this.y, 0) + ' 천원</b>';
+            }
+        },
+        legend: { enabled: false },
+        credits: { enabled: false }
+    });
+    <?php elseif ($viewMode === 'topVendorMonthly'): ?>
+    <?php foreach ($top20keys as $i => $vendor): ?>
+    Highcharts.chart('chartV<?php echo $i; ?>', {
+        chart: {
+            type: 'line',
+            backgroundColor: 'rgba(255, 255, 255, 0.9)'
+        },
+        title: {
+            text: '<?php echo addslashes($vendor); ?> 천장 월별 추이 (천원)',
+            style: { fontSize: '12px', fontWeight: '600', color: '#01579b' }
+        },
+        xAxis: {
+            categories: <?php echo json_encode($labels, JSON_UNESCAPED_UNICODE); ?>,
+            labels: { style: { fontSize: '9px', color: '#01579b' } }
+        },
+        yAxis: {
+            title: { text: '천원', style: { fontSize: '9px', color: '#01579b' } },
+            labels: { style: { fontSize: '9px', color: '#01579b' } }
+        },
+        series: [{
+            name: '수주금액',
+            data: <?php echo json_encode(array_map(function($x){return $x/1000;}, $vendorMonthly[$vendor])); ?>,
+            color: '#0288d1',
+            lineWidth: 2
+        }],
+        tooltip: {
+            formatter: function() {
+                return this.series.name + ': <b>' + Highcharts.numberFormat(this.y, 0) + ' 천원</b>';
+            }
+        },
+        legend: { enabled: false },
+        credits: { enabled: false }
+    });
+    <?php endforeach; ?>
+    <?php endif; ?>
 
-
-  $(document).ready(function(){    
-   // 방문기록 남김
-   var title = '<?php echo $title_message; ?>';
-   // title = '품질방침/품질목표';
-   // title = '절곡 ' + title ;
-   saveMenuLog(title);
-});	
-
+    $(document).ready(function() {
+        // 방문기록 남김
+        var title = '<?php echo $title_message; ?>';
+        saveMenuLog(title);
+    });
 
 </script>
 </body>

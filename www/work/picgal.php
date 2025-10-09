@@ -140,244 +140,243 @@
 }
 </style>
 
- <?php
- session_start(); 
- $user_name= $_SESSION["name"];
- $level= $_SESSION["level"]; 
- 
- require_once("../lib/mydb.php");
- $pdo = db_connect();	 
-?>	 
-<?php include getDocumentRoot() . '/load_header.php' ?>
+<?php
+require_once __DIR__ . '/../bootstrap.php';
 
-<title> 미래기업 쟘 시공사진 모음 </title>
-   
-<?php include '../myheader.php'; ?>   
+// 세션 변수 안전하게 초기화
+$user_name = $_SESSION["name"] ?? '';
+$level = $_SESSION["level"] ?? '';
 
-<div class="container"> 
+require_once(includePath('lib/mydb.php'));
+$pdo = db_connect();
 
-<div class="modern-management-card">
-  <div class="modern-dashboard-header">
-    <h3 class="gallery-title text-center mb-0">Jamb 시공 Before & After 사진 모음 (최근100개 현장)</h3>
-  </div>
+include includePath('load_header.php');
+?>
 
-  <div style="padding: 1.5rem;">
-    <div class="d-flex justify-content-center"> 	     
-        <input type="hidden" id="voc_alert" name="voc_alert" value="<?=$voc_alert?>" size="5" > 	
-	    <input type="hidden" id="ma_alert" name="ma_alert" value="<?=$ma_alert?>" size="5" > 	                       
+<title>미래기업 Jamb 시공사진 모음</title>
 
-        <table class="gallery-table">
-        <?php
-            $img_arr = array();
+<?php include includePath('myheader.php'); ?>   
 
-            try{
-                $sql = "select * from mirae8440.work order by filename1 desc";
-                $stmh = $pdo->prepare($sql);  
-                $stmh->bindValue(1, $num, PDO::PARAM_STR);      
-                $stmh->execute();            
-                $counter=0; 
-                while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-                    $workplacename=$row["workplacename"];   
-                    $workday=$row["workday"];  
-                    $worker=$row["worker"];
+<div class="container">
+    <div class="modern-management-card">
+        <div class="modern-dashboard-header">
+            <h3 class="gallery-title text-center mb-0">Jamb 시공 Before & After 사진 모음 (최근100개 현장)</h3>
+        </div>
 
-                    $filename1=$row["filename1"];
-                    $filename2=$row["filename2"];
-                    $imgurl1="../imgwork/" . $filename1;
-                    $imgurl2="../imgwork/" . $filename2;		
-					
-					$wanttoshoepic = 100;
+        <div style="padding: 1.5rem;">
+            <div class="d-flex justify-content-center">
+                <input type="hidden" id="voc_alert" name="voc_alert" value="<?= $voc_alert ?? '' ?>" size="5">
+                <input type="hidden" id="ma_alert" name="ma_alert" value="<?= $ma_alert ?? '' ?>" size="5">
 
-                    if($filename1!='' && $filename1!='pass' && $filename2!='' && $filename2!='pass' && $counter<$wanttoshoepic) {
-                        array_push($img_arr, $imgurl1);
-        ?>
-                        <tr>
-                            <th colspan="2" class="workplace-header">
-                             현장명 : <?=$workplacename?> , 작업소장 : <?=$worker?>
-                            </th>
-                        </tr>
-                        <tr>						 
-                            <td>
-                                <div style="text-align: center;">
-                                    <div class="gallery-badge gallery-badge-before">시공 (전) Before 사진</div>
-                                    <br>
-                                    <div class="d-flex justify-content-center">
-                                        <button type="button" class="rotate-btn" id="rotate<?=$counter?>" onclick="rotateFn('before_work<?=$counter?>','<?=$imgurl1?>')">
-                                            <i class="bi bi-arrow-clockwise"></i> 회전
-                                        </button>
+                <table class="gallery-table">
+                <?php
+                // 변수 초기화
+                $img_arr = [];
+                $voc_alert = "";
+                $ma_alert = "";
+                $num = "";
+
+                try {
+                    $sql = "SELECT * FROM mirae8440.work ORDER BY filename1 DESC";
+                    $stmh = $pdo->prepare($sql);
+                    $stmh->execute();
+                    $counter = 0;
+                    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+                        $workplacename = $row["workplacename"] ?? '';
+                        $workday = $row["workday"] ?? '';
+                        $worker = $row["worker"] ?? '';
+
+                        $filename1 = $row["filename1"] ?? '';
+                        $filename2 = $row["filename2"] ?? '';
+                        $imgurl1 = "../imgwork/" . $filename1;
+                        $imgurl2 = "../imgwork/" . $filename2;
+
+                        $wanttoshoepic = 100;
+
+                        if ($filename1 != '' && $filename1 != 'pass' && $filename2 != '' && $filename2 != 'pass' && $counter < $wanttoshoepic) {
+                            array_push($img_arr, $imgurl1);
+                ?>
+                            <tr>
+                                <th colspan="2" class="workplace-header">
+                                    현장명: <?= $workplacename ?>, 작업소장: <?= $worker ?>
+                                </th>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div style="text-align: center;">
+                                        <div class="gallery-badge gallery-badge-before">시공 (전) Before 사진</div>
+                                        <br>
+                                        <div class="d-flex justify-content-center">
+                                            <button type="button" class="rotate-btn" id="rotate<?= $counter ?>" onclick="rotateFn('before_work<?= $counter ?>','<?= $imgurl1 ?>')">
+                                                <i class="bi bi-arrow-clockwise"></i> 회전
+                                            </button>
+                                        </div>
+                                        <div class="image-container">
+                                            <?php
+                                            if ($filename1 != "" && $filename1 != "pass") {
+                                                print '<img id="before_work' . $counter . '" src="' . $imgurl1 . '" alt="시공 전 사진">';
+                                            }
+                                            ?>
+                                        </div>
                                     </div>
-                                    <div class="image-container">
-                                    <?php
-                                        if($filename1!="" && $filename1!="pass")
-                                            print '<img id="before_work' . $counter . '" src="' . $imgurl1 . '" alt="시공 전 사진">';
-                                    ?>
+                                </td>
+                                <td>
+                                    <div style="text-align: center;">
+                                        <div class="gallery-badge gallery-badge-after">시공 (후) After 사진</div>
+                                        <br>
+                                        <div class="d-flex justify-content-center">
+                                            <button type="button" class="rotate-btn" id="rotate_after<?= $counter ?>" onclick="rotateFn('after_work<?= $counter ?>','<?= $imgurl2 ?>')">
+                                                <i class="bi bi-arrow-clockwise"></i> 회전
+                                            </button>
+                                        </div>
+                                        <div class="image-container">
+                                            <?php
+                                            if ($filename2 != "" && $filename2 != "pass") {
+                                                print '<img id="after_work' . $counter . '" src="' . $imgurl2 . '" alt="시공 후 사진">';
+                                            }
+                                            ?>
+                                        </div>
                                     </div>
-                                </div>
-                            </td>									
-                            <td>
-                                <div style="text-align: center;">
-                                    <div class="gallery-badge gallery-badge-after">시공 (후) After 사진</div>
-                                    <br>
-                                    <div class="d-flex justify-content-center">
-                                        <button type="button" class="rotate-btn" id="rotate_after<?=$counter?>" onclick="rotateFn('after_work<?=$counter?>','<?=$imgurl2?>')">
-                                            <i class="bi bi-arrow-clockwise"></i> 회전
-                                        </button>
-                                    </div>
-                                    <div class="image-container">
-                                    <?php
-                                        if($filename2!="" && $filename2!="pass")
-                                            print '<img id="after_work' . $counter . '" src="' . $imgurl2 . '" alt="시공 후 사진">';
-                                    ?>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-        <?php
-                        $counter++;		
-		            }	     
-	   	        }				
-            }catch (PDOException $Exception) {
-                print "오류: ".$Exception->getMessage();
-            }   
-        ?>
-        </table>
+                                </td>
+                            </tr>
+                <?php
+                            $counter++;
+                        }
+                    }
+                } catch (PDOException $Exception) {
+                    print "오류: " . $Exception->getMessage();
+                }
+                ?>
+                </table>
+            </div>
         </div>
     </div>
 </div>
-</div>
 
- </body>
-</html>    
+</body>
+</html>
 
- <script language="javascript">
- 
+<script language="javascript">
 var imgObj = new Image();
+
 function showImgWin(imgName) {
-imgObj.src = imgName;
-setTimeout("createImgWin(imgObj)", 100);
-}
-function createImgWin(imgObj) {
-if (! imgObj.complete) {
-setTimeout("createImgWin(imgObj)", 100);
-return;
-}
-imageWin = window.open("", "imageWin",
-"width=" + imgObj.width + ",height=" + imgObj.height);
+    imgObj.src = imgName;
+    setTimeout("createImgWin(imgObj)", 100);
 }
 
-   function inputNumberFormat(obj) { 
-    obj.value = comma(uncomma(obj.value)); 
-} 
-function comma(str) { 
-    str = String(str); 
-    return str.replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,'); 
-} 
-function uncomma(str) { 
-    str = String(str); 
-    return str.replace(/[^\d]+/g, ''); 
+function createImgWin(imgObj) {
+    if (!imgObj.complete) {
+        setTimeout("createImgWin(imgObj)", 100);
+        return;
+    }
+    imageWin = window.open("", "imageWin", "width=" + imgObj.width + ",height=" + imgObj.height);
+}
+
+function inputNumberFormat(obj) {
+    obj.value = comma(uncomma(obj.value));
+}
+
+function comma(str) {
+    str = String(str);
+    return str.replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
+}
+
+function uncomma(str) {
+    str = String(str);
+    return str.replace(/[^\d]+/g, '');
 }
 
 
 function date_mask(formd, textid) {
+    /*
+    input onkeyup에서
+    formd == this.form.name
+    textid == this.name
+    */
 
-/*
-input onkeyup에서
-formd == this.form.name
-textid == this.name
-*/
+    var form = eval("document." + formd);
+    var text = eval("form." + textid);
 
-var form = eval("document."+formd);
-var text = eval("form."+textid);
+    var textlength = text.value.length;
 
-var textlength = text.value.length;
+    if (textlength == 4) {
+        text.value = text.value + "-";
+    } else if (textlength == 7) {
+        text.value = text.value + "-";
+    } else if (textlength > 9) {
+        //날짜 수동 입력 Validation 체크
+        var chk_date = checkdate(text);
 
-if (textlength == 4) {
-text.value = text.value + "-";
-} else if (textlength == 7) {
-text.value = text.value + "-";
-} else if (textlength > 9) {
-//날짜 수동 입력 Validation 체크
-var chk_date = checkdate(text);
-
-if (chk_date == false) {
-return;
-}
-}
+        if (chk_date == false) {
+            return;
+        }
+    }
 }
 
 function checkdate(input) {
-   var validformat = /^\d{4}\-\d{2}\-\d{2}$/; //Basic check for format validity 
-   var returnval = false;
+    var validformat = /^\d{4}\-\d{2}\-\d{2}$/; //Basic check for format validity
+    var returnval = false;
 
-   if (!validformat.test(input.value)) {
-    alert("날짜 형식이 올바르지 않습니다. YYYY-MM-DD");
-   } else { //Detailed check for valid date ranges 
-    var yearfield = input.value.split("-")[0];
-    var monthfield = input.value.split("-")[1];
-    var dayfield = input.value.split("-")[2];
-    var dayobj = new Date(yearfield, monthfield - 1, dayfield);
-   }
+    if (!validformat.test(input.value)) {
+        alert("날짜 형식이 올바르지 않습니다. YYYY-MM-DD");
+    } else { //Detailed check for valid date ranges
+        var yearfield = input.value.split("-")[0];
+        var monthfield = input.value.split("-")[1];
+        var dayfield = input.value.split("-")[2];
+        var dayobj = new Date(yearfield, monthfield - 1, dayfield);
+    }
 
-   if ((dayobj.getMonth() + 1 != monthfield)
-     || (dayobj.getDate() != dayfield)
-     || (dayobj.getFullYear() != yearfield)) {
-    alert("날짜 형식이 올바르지 않습니다. YYYY-MM-DD");
-   } else {
-    //alert ('Correct date'); 
-    returnval = true;
-   }
-   if (returnval == false) {
-    input.select();
-   }
-   return returnval;
-  }
-  
-function input_Text(){
-    document.getElementById("test").value = comma(Math.floor(uncomma(document.getElementById("test").value)*1.1));   // 콤마를 계산해 주고 다시 붙여주고
-}  
-
-function copy_below(){	
-
-  
-}  
-
-function del_below()
-     {
-  
+    if ((dayobj.getMonth() + 1 != monthfield) || (dayobj.getDate() != dayfield) || (dayobj.getFullYear() != yearfield)) {
+        alert("날짜 형식이 올바르지 않습니다. YYYY-MM-DD");
+    } else {
+        //alert ('Correct date');
+        returnval = true;
+    }
+    if (returnval == false) {
+        input.select();
+    }
+    return returnval;
 }
-     function del(href) 
-     {
+  
+function input_Text() {
+    document.getElementById("test").value = comma(Math.floor(uncomma(document.getElementById("test").value) * 1.1));   // 콤마를 계산해 주고 다시 붙여주고
+}
 
-     }
-	 
- function displayoutputlist(){
-	 alert("dkdkdkd");
-   $("#displayoutput").show(); 
-   $("#displayoutput").load("./outputlist.php");	 	 
-		 
-	 }
+function copy_below() {
+    // 빈 함수
+}
+
+function del_below() {
+    // 빈 함수
+}
+
+function del(href) {
+    // 빈 함수
+}
+
+function displayoutputlist() {
+    alert("dkdkdkd");
+    $("#displayoutput").show();
+    $("#displayoutput").load("./outputlist.php");
+}
  	 
 // 사진 회전하기
-function rotate_image()
-{	
- var arr = <?php echo json_encode($img_arr);?> ;
- var box = $('.imagediv');
- var imgObj = new Image();
- 
- box.css('width','800px');
- box.css('height','750px');
- box.css('margin-top','230px');
- box.css('margin-bottom','50px');
- 
- for(i=0;i<=arr.length;i++)
-	{
-	imgObj.src = arr[i] ; 
-	if( imgObj.width > imgObj.height)
-	   {
-			$('#before_work' + i).addClass('rotated');
-			$('#after_work' + i).addClass('rotated');	
-	   }
-	
+function rotate_image() {
+    var arr = <?php echo json_encode($img_arr); ?>;
+    var box = $('.imagediv');
+    var imgObj = new Image();
+
+    box.css('width', '800px');
+    box.css('height', '750px');
+    box.css('margin-top', '230px');
+    box.css('margin-bottom', '50px');
+
+    for (i = 0; i <= arr.length; i++) {
+        imgObj.src = arr[i];
+        if (imgObj.width > imgObj.height) {
+            $('#before_work' + i).addClass('rotated');
+            $('#after_work' + i).addClass('rotated');
+        }
     }
 }
 
@@ -389,7 +388,7 @@ window.rotateFn = function(uniqueId, url) {
     // Retrieve current rotation, default to 0 if not set
     var currentRotation = parseInt(imageElement.dataset.rotation) || 0;
     var newRotation = (currentRotation + 90) % 360;
-    
+
     imageElement.style.transform = 'rotate(' + newRotation + 'deg)';
     imageElement.dataset.rotation = newRotation; // Store new rotation
 
@@ -451,18 +450,18 @@ function rotateImageAndUpload(imageElement, uploadUrl, originalFileName, uniqueI
             })
             .then(response => response.json())
             .then(data => {
-                console.log('Upload successful:', data);		
+                console.log('Upload successful:', data);
 
-				if (data.status === "success") {
-					imageElement.src = data.targetFilePath; // 새 이미지 경로로 업데이트
-					imageElement.style.transform = ''; // 회전 상태 초기화
-					imageElement.dataset.rotation = 0; // 회전 데이터 초기화
+                if (data.status === "success") {
+                    imageElement.src = data.targetFilePath; // 새 이미지 경로로 업데이트
+                    imageElement.style.transform = ''; // 회전 상태 초기화
+                    imageElement.dataset.rotation = 0; // 회전 데이터 초기화
 
-					// 회전 및 삭제 버튼 업데이트
-					updateButtonsAfterUpload(uniqueId, data.targetFilePath, itemType);
-					
-					toastAlert("이미지가 회전되었습니다.");
-				}		
+                    // 회전 및 삭제 버튼 업데이트
+                    updateButtonsAfterUpload(uniqueId, data.targetFilePath, itemType);
+
+                    toastAlert("이미지가 회전되었습니다.");
+                }
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -472,9 +471,7 @@ function rotateImageAndUpload(imageElement, uploadUrl, originalFileName, uniqueI
 }
 
 setTimeout(function() {
- // console.log('Works!');
- rotate_image();
-}, 500);	
-
-
+    // console.log('Works!');
+    rotate_image();
+}, 500);
 </script>

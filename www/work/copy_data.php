@@ -1,37 +1,32 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-// 수정작업 2023년 7월 14일 UI 개선
-// 설계자 자동입력 수정 23/09/14
-    if(!isset($_SESSION)) 
-    { 
-        session_start(); 
-		
-$user_name = $_SESSION["name"];
+<?php
+require_once __DIR__ . '/../bootstrap.php';
 
- 
- if($user_name==='이미래' || $user_name==='김보곤')
-	 $isAuthorizedUser = true;
-    else
-		$isAuthorizedUser = false;
+// 권한 확인
+if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+    sleep(1);
+    header("Location:" . getBaseUrl() . "/login/logout.php");
+    exit;
+}
 
-// print_r($user_name);
-		
-  } 
+// 베이스 URL 설정 (로컬/서버 환경 자동 감지)
+$base_url = getBaseUrl();
 
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(1);
-         header("Location:http://8440.co.kr/login/logout.php"); 
-         exit;
-   }   
+// 세션 변수 안전하게 초기화
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+$user_name = $_SESSION["name"] ?? '';
 
-//header("Refresh:0");  // reload refresh   
- ?>
+// 권한 사용자 확인
+if ($user_name === '이미래' || $user_name === '김보곤') {
+    $isAuthorizedUser = true;
+} else {
+    $isAuthorizedUser = false;
+}
+?>
 
 
- <?php include getDocumentRoot() . '/load_header.php' ?>
- 
- 
- <title> 미래기업 Jamb 수주 </title>
+<?php include includePath('load_header.php'); ?>
+
+<title>미래기업 Jamb 수주</title>
 
 </head>
 
@@ -123,194 +118,285 @@ text-decoration:none;
   <?php require_once(includePath('myheader.php')); ?>   
 
 
- <?php
- 
-  if(isset($_REQUEST["mode"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $mode=$_REQUEST["mode"];
-  else
-   $mode="";
-  
-  if(isset($_REQUEST["num"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $num=$_REQUEST["num"];
-  else
-   $num="";
+<?php
+// 요청 변수 안전하게 초기화
+$mode = $_REQUEST["mode"] ?? '';
+$num = $_REQUEST["num"] ?? '';
+$page = $_REQUEST["page"] ?? 1;
+$search = $_REQUEST["search"] ?? '';
+$find = $_REQUEST["find"] ?? '';
+$process = $_REQUEST["process"] ?? '전체';
+$yearcheckbox = $_REQUEST["yearcheckbox"] ?? '';
+$year = $_REQUEST["year"] ?? '';
+$voc_alert = $_REQUEST["voc_alert"] ?? '';
+$ma_alert = $_REQUEST["ma_alert"] ?? '';
+$order_alert = $_REQUEST["order_alert"] ?? '';
+$scale = $_REQUEST["scale"] ?? '';
+$check = $_REQUEST["check"] ?? '';
+$output_check = $_REQUEST["output_check"] ?? '';
+$plan_output_check = $_REQUEST["plan_output_check"] ?? '';
+$team_check = $_REQUEST["team_check"] ?? '';
+$measure_check = $_REQUEST["measure_check"] ?? '';
+$cursort = $_REQUEST["cursort"] ?? '';
+$sortof = $_REQUEST["sortof"] ?? '';
+$stable = $_REQUEST["stable"] ?? '';
+$sqltext = $_REQUEST["sqltext"] ?? '';
+$list = $_REQUEST["list"] ?? '';
+$buttonval = $_REQUEST["buttonval"] ?? '';
 
-   if(isset($_REQUEST["page"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $page=$_REQUEST["page"];
-  else
-   $page=1;   
-
-  if(isset($_REQUEST["search"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $search=$_REQUEST["search"];
-  else
-   $search="";
-  
-  if(isset($_REQUEST["find"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $find=$_REQUEST["find"];
-  else
-   $find="";
-  if(isset($_REQUEST["process"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $process=$_REQUEST["process"];
-  else
-   $process="전체";
-
- $yearcheckbox=$_REQUEST["yearcheckbox"];   // 년도 체크박스
- $year=$_REQUEST["year"];   // 년도 체크박스
+// 모바일 체크
+$chkMobile = function_exists('isMobile') ? isMobile() : false;
       
-  require_once("../lib/mydb.php");
-  $pdo = db_connect();
+require_once __DIR__ . "/../lib/mydb.php";
+$pdo = db_connect();
 
-  if ($mode=="copy"){
-    try{
-      $sql = "select * from mirae8440.work where num = ? ";
-      $stmh = $pdo->prepare($sql); 
+// 변수 초기화
+$item_file_0 = '';
+$item_file_1 = '';
+$copied_file_0 = '';
+$copied_file_1 = '';
+$first_writer = '';
+$update_log = '';
 
-    $stmh->bindValue(1,$num,PDO::PARAM_STR); 
-      $stmh->execute();
-      $count = $stmh->rowCount();              
-    if($count<1){  
-      print "검색결과가 없습니다.<br>";
-     }else{
-      $row = $stmh->fetch(PDO::FETCH_ASSOC);
-      $item_file_0 = $row["file_name_0"];
-      $item_file_1 = $row["file_name_1"];
+// _row.php에서 사용할 변수들 초기화
+$workplacename = '';
+$checkstep = '';
+$address = '';
+$firstord = '';
+$firstordman = '';
+$firstordmantel = '';
+$secondord = '';
+$secondordman = '';
+$secondordmantel = '';
+$chargedman = '';
+$chargedmantel = '';
+$orderday = '';
+$measureday = '';
+$designer = '';
+$drawday = '';
+$dwglocation = '';
+$workday = '';
+$worker = '';
+$work_order = '';
+$endworkday = '';
+$deadline = '';
+$startday = '';
+$assigndate = '';
+$testday = '';
+$doneday = '';
+$workfeedate = '';
+$demand = '';
+$delicar = '';
+$delipay = '';
+$delimethod = '';
+$outsourcing = '';
+$material1 = '';
+$material2 = '';
+$material3 = '';
+$material4 = '';
+$material5 = '';
+$material6 = '';
+$checkmat1 = '';
+$checkmat2 = '';
+$checkmat3 = '';
+$widejamb = '';
+$normaljamb = '';
+$smalljamb = '';
+$gapcover = '';
+$hpi = '';
+$attachment = '';
+$memo = '';
+$content = '';
+$mymemo = '';
+$memo2 = '';
+$widejambworkfee = '';
+$normaljambworkfee = '';
+$smalljambworkfee = '';
+$checkhold = '';
 
-      $copied_file_0 = "../uploads/". $row["file_copied_0"];
-      $copied_file_1 = "../uploads/". $row["file_copied_1"];
-	 }
+if ($mode == "copy") {
+    try {
+        $sql = "SELECT * FROM mirae8440.work WHERE num = ?";
+        $stmh = $pdo->prepare($sql);
+        $stmh->bindValue(1, $num, PDO::PARAM_STR);
+        $stmh->execute();
+        $count = $stmh->rowCount();
+        
+        if ($count < 1) {
+            print "검색결과가 없습니다.<br>";
+        } else {
+            $row = $stmh->fetch(PDO::FETCH_ASSOC);
+            $item_file_0 = $row["file_name_0"] ?? '';
+            $item_file_1 = $row["file_name_1"] ?? '';
+            $copied_file_0 = "../uploads/" . ($row["file_copied_0"] ?? '');
+            $copied_file_1 = "../uploads/" . ($row["file_copied_1"] ?? '');
+        }
+        
+        include '_row.php'; 	 
 	 
-  include '_row.php'; 	 
-	 
-  $orderday=date("Y-m-d");      // 현재일자 저장
-  $measureday=null;
-  $drawday=null;
-  $deadline=null;
-  $workday=null;
-  $worker=$row["worker"];
-  $endworkday=null;
-  // 시공소장이 선정되어있으면 배정일 현재일로 기록
-  if($worker!=='')
-	$assigndate=date("Y-m-d"); 	
-  else
-	  $assigndate=null; 	
+        $orderday = date("Y-m-d");      // 현재일자 저장
+        $measureday = null;
+        $drawday = null;
+        $deadline = null;
+        $workday = null;
+        $worker = $row["worker"] ?? '';
+        $endworkday = null;
+        
+        // 시공소장이 선정되어있으면 배정일 현재일로 기록
+        if ($worker !== '') {
+            $assigndate = date("Y-m-d");
+        } else {
+            $assigndate = null;
+        }
 
-  $delicar="없음";
-  $delipay="";
-  $delimethod="없음";
-  $demand=null;
-   $work_order="";  
-  $outsourcing=null ;
-
-
-		      if($orderday!="0000-00-00" and $orderday!="1970-01-01"  and $orderday!="") $orderday = date("Y-m-d", strtotime( $orderday) );
-					else $orderday="";
-		      if($measureday!="0000-00-00" and $measureday!="1970-01-01" and $measureday!="")   $measureday = date("Y-m-d", strtotime( $measureday) );
-					else $measureday="";
-		      if($drawday!="0000-00-00" and $drawday!="1970-01-01" and $drawday!="")  $drawday = date("Y-m-d", strtotime( $drawday) );
-					else $drawday="";
-		      if($deadline!="0000-00-00" and $deadline!="1970-01-01" and $deadline!="")  $deadline = date("Y-m-d", strtotime( $deadline) );
-					else $deadline="";
-		      if($workday!="0000-00-00" and $workday!="1970-01-01"  and $workday!="")  $workday = date("Y-m-d", strtotime( $workday) );
-					else $workday="";					
-		      if($endworkday!="0000-00-00" and $endworkday!="1970-01-01" and $endworkday!="")  $endworkday = date("Y-m-d", strtotime( $endworkday) );
-					else $endworkday="";		      
-		      if($demand!="0000-00-00" and $demand!="1970-01-01" and $demand!="")  $demand = date("Y-m-d", strtotime( $demand) );
-					else $demand="";						
-		      if($startday!="0000-00-00" and $startday!="1970-01-01" and $startday!="")  $startday = date("Y-m-d", strtotime( $startday) );
-					else $startday="";	
-		      if($testday!="0000-00-00" and $testday!="1970-01-01" and $testday!="")  $testday = date("Y-m-d", strtotime( $testday) );
-					else $testday="";						
-			  if($doneday!="0000-00-00" and $doneday!="1970-01-01" and $doneday!="")  $doneday = date("Y-m-d", strtotime( $doneday) );
-					else $doneday="";													
-		      // if($workfeedate!="0000-00-00" and $workfeedate!="1970-01-01" and $workfeedate!="")  $workfeedate = date("Y-m-d", strtotime( $workfeedate) );
-					// else $workfeedate="";						
-
-     }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
-     }
-  }
-$mode="";
-
-  require_once("../lib/mydb.php");
-  $pdo = db_connect();
-  
-   $sql="select * from mirae8440.steelsource"; 					
-
-	 try{  
-
-   $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-   $rowNum = $stmh->rowCount();  
-   $counter=1;
-   $item_counter=1;
-   $steelsource_num=array();
-   $steelsource_item=array();
-   $steelsource_spec=array();
-   $steelsource_take=array();
-   $material_arr=array();
-   $designer_arr=array();
-   $steelsource_spec_yes=array();
-   $spec_arr=array();
-   $last_item="";
-   $last_spec="";
-   $pass='0';
-   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {	   
- 			  $steelsource_num[$counter]=$row["num"];			  
- 			  $steelsource_item[$counter]=$row["item"] . " 1.2T";
- 			  $steelsource_spec[$counter]=$row["spec"];
-		      $steelsource_take[$counter]=$row["take"];   
-			  
-			  if($steelsource_item[$counter]!=$last_item)
-			  {
-				 $last_item= $steelsource_item[$counter];
-			     $material_arr[$item_counter]=$last_item;
-				 $item_counter++;
-			  }
-			 
-			  $counter++;
-	 } 	 
-   } catch (PDOException $Exception) {
-    print "오류: ".$Exception->getMessage();
-}    
+        $delicar = "없음";
+        $delipay = "";
+        $delimethod = "없음";
+        $demand = null;
+        $work_order = "";
+        $outsourcing = null;
 
 
-array_push($material_arr,'','304 Hair Line 1.2T','304 HL 1.2T','304 Mirror 1.2T','304 MR 1.2T','VB 1.2T','2B VB 1.2T','304 Mirror VB 1.2T', '304 Mirror Bronze 1.2T', '304 Mirror VB Ti-Bronze 1.2T', '304 Hair Line Black 1.2T', 'SPCC 1.2T(도장)', 'EGI 1.2T(도장)', 'HTM (신우)',  '기타', '304 HL 1.2T','304 MR 1.2T','VB 1.2T','2B VB 1.2T','304 VB 1.2T', 'SPCC 1.2T(도장)', 'EGI 1.2T(도장)', 'HTM (신우)' );
+        // 날짜 포맷 처리
+        if ($orderday != "0000-00-00" && $orderday != "1970-01-01" && $orderday != "" && $orderday !== null) {
+            $orderday = date("Y-m-d", strtotime($orderday));
+        } else {
+            $orderday = "";
+        }
+        
+        if ($measureday != "0000-00-00" && $measureday != "1970-01-01" && $measureday != "" && $measureday !== null) {
+            $measureday = date("Y-m-d", strtotime($measureday));
+        } else {
+            $measureday = "";
+        }
+        
+        if ($drawday != "0000-00-00" && $drawday != "1970-01-01" && $drawday != "" && $drawday !== null) {
+            $drawday = date("Y-m-d", strtotime($drawday));
+        } else {
+            $drawday = "";
+        }
+        
+        if ($deadline != "0000-00-00" && $deadline != "1970-01-01" && $deadline != "" && $deadline !== null) {
+            $deadline = date("Y-m-d", strtotime($deadline));
+        } else {
+            $deadline = "";
+        }
+        
+        if ($workday != "0000-00-00" && $workday != "1970-01-01" && $workday != "" && $workday !== null) {
+            $workday = date("Y-m-d", strtotime($workday));
+        } else {
+            $workday = "";
+        }
+        
+        if ($endworkday != "0000-00-00" && $endworkday != "1970-01-01" && $endworkday != "" && $endworkday !== null) {
+            $endworkday = date("Y-m-d", strtotime($endworkday));
+        } else {
+            $endworkday = "";
+        }
+        
+        if ($demand != "0000-00-00" && $demand != "1970-01-01" && $demand != "" && $demand !== null) {
+            $demand = date("Y-m-d", strtotime($demand));
+        } else {
+            $demand = "";
+        }
+        
+        if ($startday != "0000-00-00" && $startday != "1970-01-01" && $startday != "" && $startday !== null) {
+            $startday = date("Y-m-d", strtotime($startday));
+        } else {
+            $startday = "";
+        }
+        
+        if ($testday != "0000-00-00" && $testday != "1970-01-01" && $testday != "" && $testday !== null) {
+            $testday = date("Y-m-d", strtotime($testday));
+        } else {
+            $testday = "";
+        }
+        
+        if ($doneday != "0000-00-00" && $doneday != "1970-01-01" && $doneday != "" && $doneday !== null) {
+            $doneday = date("Y-m-d", strtotime($doneday));
+        } else {
+            $doneday = "";
+        }
+        
+    } catch (PDOException $Exception) {
+        print "오류: " . $Exception->getMessage();
+    }
+}
+$mode = "";
+
+// 재질 정보 가져오기
+$sql = "SELECT * FROM mirae8440.steelsource";
+
+try {
+    $stmh = $pdo->query($sql);
+    $rowNum = $stmh->rowCount();
+    $counter = 1;
+    $item_counter = 1;
+    $steelsource_num = array();
+    $steelsource_item = array();
+    $steelsource_spec = array();
+    $steelsource_take = array();
+    $material_arr = array();
+    $designer_arr = array();
+    $steelsource_spec_yes = array();
+    $spec_arr = array();
+    $last_item = "";
+    $last_spec = "";
+    $pass = '0';
+    
+    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+        $steelsource_num[$counter] = $row["num"];
+        $steelsource_item[$counter] = $row["item"] . " 1.2T";
+        $steelsource_spec[$counter] = $row["spec"];
+        $steelsource_take[$counter] = $row["take"];
+        
+        if ($steelsource_item[$counter] != $last_item) {
+            $last_item = $steelsource_item[$counter];
+            $material_arr[$item_counter] = $last_item;
+            $item_counter++;
+        }
+        
+        $counter++;
+    }
+} catch (PDOException $Exception) {
+    print "오류: " . $Exception->getMessage();
+}
+
+array_push($material_arr, '', '304 Hair Line 1.2T', '304 HL 1.2T', '304 Mirror 1.2T', '304 MR 1.2T', 'VB 1.2T', '2B VB 1.2T', '304 Mirror VB 1.2T', '304 Mirror Bronze 1.2T', '304 Mirror VB Ti-Bronze 1.2T', '304 Hair Line Black 1.2T', 'SPCC 1.2T(도장)', 'EGI 1.2T(도장)', 'HTM (신우)', '기타', '304 HL 1.2T', '304 MR 1.2T', 'VB 1.2T', '2B VB 1.2T', '304 VB 1.2T', 'SPCC 1.2T(도장)', 'EGI 1.2T(도장)', 'HTM (신우)');
 $material_arr = array_unique($material_arr);
 sort($material_arr);
 ?>
 
-  <?php
-if($mode=="modify"){
-  ?>
-	<form  name="board_form" id="frm"  method="post" action="insert.php?mode=modify&num=<?=$num?>&page=<?=$page?>&search=<?=$search?>&find=<?=$find?>&process=<?=$process?>&yearcheckbox=<?=$yearcheckbox?>&year=<?=$year?>&check=<?=$check?>&output_check=<?=$output_check?>&team_check=<?=$team_check?>&plan_output_check=<?=$plan_output_check?>&page=<?=$page?>&cursort=<?=$cursort?>&sortof=<?=$sortof?>&scale=<?=$scale?>&stable=1" enctype="multipart/form-data"> 
-  <?php  } else {
-  ?>
-	<form  name="board_form" id="frm"  method="post" action="insert.php?mode=not&scale=<?=$scale?>" enctype="multipart/form-data"> 
-  <?php
-	}
-  ?>	  
+<?php
+if ($mode == "modify") {
+?>
+    <form name="board_form" id="frm" method="post" action="insert.php?mode=modify&num=<?php echo $num; ?>&page=<?php echo $page; ?>&search=<?php echo $search; ?>&find=<?php echo $find; ?>&process=<?php echo $process; ?>&yearcheckbox=<?php echo $yearcheckbox; ?>&year=<?php echo $year; ?>&check=<?php echo $check; ?>&output_check=<?php echo $output_check; ?>&team_check=<?php echo $team_check; ?>&plan_output_check=<?php echo $plan_output_check; ?>&page=<?php echo $page; ?>&cursort=<?php echo $cursort; ?>&sortof=<?php echo $sortof; ?>&scale=<?php echo $scale; ?>&stable=1" enctype="multipart/form-data">
+<?php } else { ?>
+    <form name="board_form" id="frm" method="post" action="insert.php?mode=not&scale=<?php echo $scale; ?>" enctype="multipart/form-data">
+<?php } ?>  
 
 	      
-				<input type="hidden" id="voc_alert" name="voc_alert" value="<?=$voc_alert?>" size="5" > 	
-				<input type="hidden" id="ma_alert" name="ma_alert" value="<?=$ma_alert?>" size="5" > 	
-				<input type="hidden" id="order_alert" name="order_alert" value="<?=$order_alert?>" size="5" > 	
-				<input type="hidden" id="page" name="page" value="<?=$page?>" size="5" > 	
-				<input type="hidden" id="scale" name="scale" value="<?=$scale?>" size="5" > 	
-				<input type="hidden" id="yearcheckbox" name="yearcheckbox" value="<?=$yearcheckbox?>" size="5" > 	
-				<input type="hidden" id="year" name="year" value="<?=$year?>" size="5" > 	
-				<input type="hidden" id="check" name="check" value="<?=$check?>" size="5" > 	
-				<input type="hidden" id="output_check" name="output_check" value="<?=$output_check?>" size="5" > 	
-				<input type="hidden" id="plan_output_check" name="plan_output_check" value="<?=$plan_output_check?>" size="5" > 	
-				<input type="hidden" id="team_check" name="team_check" value="<?=$team_check?>" size="5" > 	
-				<input type="hidden" id="measure_check" name="measure_check" value="<?=$measure_check?>" size="5" > 	
-				<input type="hidden" id="cursort" name="cursort" value="<?=$cursort?>" size="5" > 	
-				<input type="hidden" id="sortof" name="sortof" value="<?=$sortof?>" size="5" > 	
-				<input type="hidden" id="stable" name="stable" value="<?=$stable?>" size="5" > 	
-				<input type="hidden" id="sqltext" name="sqltext" value="<?=$sqltext?>" > 				
-				<input type="hidden" id="list" name="list" value="<?=$list?>" > 								
-				<input type="hidden" id="buttonval" name="buttonval" value="<?=$buttonval?>" > 		
-			  
-			   <input type="hidden" id="first_writer" name="first_writer" value="<?=$first_writer?>"  >
-			   <input type="hidden" id="update_log" name="update_log" value="<?=$update_log?>"  >
+    <input type="hidden" id="voc_alert" name="voc_alert" value="<?php echo $voc_alert; ?>" size="5">
+    <input type="hidden" id="ma_alert" name="ma_alert" value="<?php echo $ma_alert; ?>" size="5">
+    <input type="hidden" id="order_alert" name="order_alert" value="<?php echo $order_alert; ?>" size="5">
+    <input type="hidden" id="page" name="page" value="<?php echo $page; ?>" size="5">
+    <input type="hidden" id="scale" name="scale" value="<?php echo $scale; ?>" size="5">
+    <input type="hidden" id="yearcheckbox" name="yearcheckbox" value="<?php echo $yearcheckbox; ?>" size="5">
+    <input type="hidden" id="year" name="year" value="<?php echo $year; ?>" size="5">
+    <input type="hidden" id="check" name="check" value="<?php echo $check; ?>" size="5">
+    <input type="hidden" id="output_check" name="output_check" value="<?php echo $output_check; ?>" size="5">
+    <input type="hidden" id="plan_output_check" name="plan_output_check" value="<?php echo $plan_output_check; ?>" size="5">
+    <input type="hidden" id="team_check" name="team_check" value="<?php echo $team_check; ?>" size="5">
+    <input type="hidden" id="measure_check" name="measure_check" value="<?php echo $measure_check; ?>" size="5">
+    <input type="hidden" id="cursort" name="cursort" value="<?php echo $cursort; ?>" size="5">
+    <input type="hidden" id="sortof" name="sortof" value="<?php echo $sortof; ?>" size="5">
+    <input type="hidden" id="stable" name="stable" value="<?php echo $stable; ?>" size="5">
+    <input type="hidden" id="sqltext" name="sqltext" value="<?php echo $sqltext; ?>">
+    <input type="hidden" id="list" name="list" value="<?php echo $list; ?>">
+    <input type="hidden" id="buttonval" name="buttonval" value="<?php echo $buttonval; ?>">
+    
+    <input type="hidden" id="first_writer" name="first_writer" value="<?php echo $first_writer; ?>">
+    <input type="hidden" id="update_log" name="update_log" value="<?php echo $update_log; ?>">
 			     
 
 

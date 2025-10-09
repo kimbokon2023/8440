@@ -1,17 +1,32 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
-require_once getDocumentRoot() . '/vendor/autoload.php';
+<?php
+require_once __DIR__ . '/../bootstrap.php';
+
+// 권한 확인
+if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+    sleep(1);
+    header("Location:" . getBaseUrl() . "/login/login_form.php");
+    exit;
+}
+
+// 베이스 URL 설정
+$base_url = getBaseUrl();
+
+// 세션 변수 안전하게 초기화
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+$user_name = $_SESSION["user_name"] ?? '';
+
+// Composer autoload 및 데이터베이스 연결
+require_once(includePath('vendor/autoload.php'));
 require_once(includePath('lib/mydb.php'));
 
 // 서비스 계정 JSON 파일 경로
-$serviceAccountKeyFile = getDocumentRoot() . '/tokens/mytoken.json';	
+$serviceAccountKeyFile = includePath('tokens/mytoken.json');
 
 // Google Drive 클라이언트 설정
 $client = new Google_Client();
 $client->setAuthConfig($serviceAccountKeyFile);
 if (class_exists('Google_Service_Drive')) {
     $client->addScope(\Google_Service_Drive::DRIVE);
-
     // Google Drive 서비스 초기화
     $service = new \Google_Service_Drive($client);
 } else {
@@ -34,21 +49,13 @@ function getFolderId($service, $folderName, $parentFolderId = null) {
 
     return count($response->files) > 0 ? $response->files[0]->id : null;
 }
+
 // 첫 화면 표시 문구
-$title_message = 'EL Ceiling 수주'; 
- ?>
+$title_message = 'EL Ceiling 수주';
 
-<?php 
-
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-		 sleep(1);
-		  header("Location:" . $WebSite . "login/login_form.php"); 
-         exit;
-   }
-
-include getDocumentRoot() . '/load_header.php';   
- ?>
-<title> <?=$title_message?> </title>
+include includePath('load_header.php');
+?>
+<title><?php echo $title_message; ?></title>
 <!-- Tabulator CSS and JS -->
 <link href="https://unpkg.com/tabulator-tables@6.2.1/dist/css/tabulator.min.css" rel="stylesheet">
 <script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.2.1/dist/js/tabulator.min.js"></script>
@@ -851,6 +858,7 @@ th, td {
   /* iOS 사파리 보정 */
   input, select, textarea, button {
     -webkit-appearance: none;
+    appearance: none;
     border-radius: 0.375rem;
   }
 
@@ -1046,26 +1054,41 @@ th, td {
 
 </head>
 <?php
-$tablename = 'ceiling'; 
+$tablename = 'ceiling';
 include "_request.php";
-// print 'search : ' . var_dump($search);
-function check_in_range($start_date, $end_date, $user_date)
-{  
-  $start_ts = strtotime($start_date);
-  $end_ts = strtotime($end_date);
-  $user_ts = strtotime($user_date);
-  
-  return (($user_ts >= $start_ts) && ($user_ts <= $end_ts));
-}	  
 
-require_once(includePath('lib/mydb.php'));
+// 날짜 범위 체크 함수
+function check_in_range($start_date, $end_date, $user_date) {
+    $start_ts = strtotime($start_date);
+    $end_ts = strtotime($end_date);
+    $user_ts = strtotime($user_date);
+    
+    return (($user_ts >= $start_ts) && ($user_ts <= $end_ts));
+}
+
 $pdo = db_connect();
 
-// /////////////////////////첨부파일 있는 것 불러오기 
-$savefilename_arr=array(); 
-$realname_arr=array(); 
-$attach_arr=array(); 
-$tablename='ceiling';
+// 변수 초기화 (_request.php에서 일부 초기화됨)
+// $check, $output_check, $plan_output_check, $team_check, $measure_check, $search는 _request.php에서 초기화됨
+$num = $_REQUEST["num"] ?? '';
+$voc_alert = $_REQUEST["voc_alert"] ?? '';
+$ma_alert = $_REQUEST["ma_alert"] ?? '';
+$order_alert = $_REQUEST["order_alert"] ?? '';
+$cursort = $_REQUEST["cursort"] ?? 'desc';
+$sortof = $_REQUEST["sortof"] ?? 'num';
+$stable = $_REQUEST["stable"] ?? '';
+$sqltext = $_REQUEST["sqltext"] ?? '';
+$list = $_REQUEST["list"] ?? '';
+$find = $_REQUEST["find"] ?? 'all';
+$fromdate = $_REQUEST["fromdate"] ?? '';
+$todate = $_REQUEST["todate"] ?? '';
+$reception_filter = $_REQUEST["reception_filter"] ?? '0';
+$chkMobile = function_exists('isMobile') ? isMobile() : false;
+
+// 첨부파일 배열 초기화
+$savefilename_arr = array();
+$realname_arr = array();
+$attach_arr = array();
 $item = 'ceiling';
 
 $sql = "SELECT * FROM {$DB}.picuploads WHERE tablename=? AND item = ? AND parentnum = ?";
@@ -1166,35 +1189,21 @@ $start_date = $today ;
 //print '오늘기준 6일전 날짜 ' . $beforefiveday;
 
 // laser todolist 배열
-$todolist=array();
-$todolistlink=array();
+$todolist = array();
+$todolistlink = array();
 
 // 설계 todolist 배열
-$todolist_draw=array();
-$todolistlink_draw=array();
-
-if(isset($_REQUEST["fromdate"]))  //수정 버튼을 클릭해서 호출했는지 체크
-$fromdate=$_REQUEST["fromdate"];
-
-if(isset($_REQUEST["todate"]))  //수정 버튼을 클릭해서 호출했는지 체크
-$todate=$_REQUEST["todate"];
-
-// 접수일 기준 필터 처리
-$reception_filter = '0';
-if (isset($_REQUEST["reception_filter"]) && $_REQUEST["reception_filter"] == '1') {
-    $reception_filter = '1';
-} elseif (isset($_POST["reception_filter"]) && $_POST["reception_filter"] == '1') {
-    $reception_filter = '1';
-}  
+$todolist_draw = array();
+$todolistlink_draw = array();
 
 // 현재 날짜
 $currentDate = date("Y-m-d");
 
 // fromdate 또는 todate가 빈 문자열이거나 null인 경우
 if ($fromdate === "" || $fromdate === null || $todate === "" || $todate === null) {
-    $fromdate = date("Y-m-d", strtotime("-3 months", strtotime($currentDate))); // 1개월 이전 날짜
+    $fromdate = date("Y-m-d", strtotime("-3 months", strtotime($currentDate))); // 3개월 이전 날짜
     $todate = $currentDate; // 현재 날짜
-	$Transtodate = $todate;
+    $Transtodate = $todate;
 } else {
     // fromdate와 todate가 모두 설정된 경우 (기존 로직 유지)
     $Transtodate = $todate;
@@ -1299,7 +1308,11 @@ $cursort = $_REQUEST["cursort"] ?? "desc";
 // 기본 정렬 설정
 $orderby = "order by " . $sortof . " " . $cursort . " ";
 
-if ($check=='1')  // 미출고 리스트 클릭
+// SQL 조건절 초기화
+$attached = '';
+$whereattached = '';
+
+if ($check == '1')  // 미출고 리스트 클릭
 		{
 				$attached=" and ((workday='') or (workday='0000-00-00')) ";
 				$whereattached=" where ( workday='' or (workday='0000-00-00') ) ";
@@ -1373,8 +1386,11 @@ if ($reception_filter == '1') {
     $SettingDate = " orderday "; // 완료일 기준 (기본값)
 }
 
-$Andis_deleted =  " AND is_deleted IS NULL AND eworks_item='원자재구매' " . $Andmywrite;
-$Whereis_deleted =  " Where is_deleted IS NULL AND eworks_item='원자재구매' " . $Andmywrite;	 
+// 내 작성물만 보기 조건 (추후 기능 구현 시 사용)
+$Andmywrite = '';
+
+$Andis_deleted = " AND is_deleted IS NULL AND eworks_item='원자재구매' " . $Andmywrite;
+$Whereis_deleted = " WHERE is_deleted IS NULL AND eworks_item='원자재구매' " . $Andmywrite;	 
 	 
 $common= $SettingDate . " between date('$fromdate') and date('$Transtodate') ";
 		
@@ -1419,21 +1435,21 @@ try{
 			 
  ?>
 
-<form id="board_form" name="board_form" method="post" action="list.php?mode=search">  
-	<input type="hidden" id="voc_alert" name="voc_alert" value="<?=$voc_alert?>" size="5" > 	
-	<input type="hidden" id="ma_alert" name="ma_alert" value="<?=$ma_alert?>" size="5" > 	
-	<input type="hidden" id="order_alert" name="order_alert" value="<?=$order_alert?>" size="5" > 		
-	<input type="hidden" id="check" name="check" value="<?=$check?>" size="5" > 	
-	<input type="hidden" id="output_check" name="output_check" value="<?=$output_check?>" size="5" > 	
-	<input type="hidden" id="plan_output_check" name="plan_output_check" value="<?=$plan_output_check?>" size="5" > 	
-	<input type="hidden" id="team_check" name="team_check" value="<?=$team_check?>" size="5" > 	
-	<input type="hidden" id="measure_check" name="measure_check" value="<?=$measure_check?>" size="5" > 	
-	<input type="hidden" id="cursort" name="cursort" value="<?=$cursort?>" size="5" > 	
-	<input type="hidden" id="sortof" name="sortof" value="<?=$sortof?>" size="5" > 	
-	<input type="hidden" id="stable" name="stable" value="<?=$stable?>" size="5" > 	
-	<input type="hidden" id="sqltext" name="sqltext" value="<?=$sqltext?>" > 		
-	<input type="hidden" id="list" name="list" value="<?=$list?>" >
-	<input type="hidden" id="reception_filter" name="reception_filter" value="<?=$reception_filter?>" > 		
+<form id="board_form" name="board_form" method="post" action="list.php?mode=search">
+    <input type="hidden" id="voc_alert" name="voc_alert" value="<?php echo htmlspecialchars($voc_alert, ENT_QUOTES, 'UTF-8'); ?>" size="5">
+    <input type="hidden" id="ma_alert" name="ma_alert" value="<?php echo htmlspecialchars($ma_alert, ENT_QUOTES, 'UTF-8'); ?>" size="5">
+    <input type="hidden" id="order_alert" name="order_alert" value="<?php echo htmlspecialchars($order_alert, ENT_QUOTES, 'UTF-8'); ?>" size="5">
+    <input type="hidden" id="check" name="check" value="<?php echo htmlspecialchars($check, ENT_QUOTES, 'UTF-8'); ?>" size="5">
+    <input type="hidden" id="output_check" name="output_check" value="<?php echo htmlspecialchars($output_check, ENT_QUOTES, 'UTF-8'); ?>" size="5">
+    <input type="hidden" id="plan_output_check" name="plan_output_check" value="<?php echo htmlspecialchars($plan_output_check, ENT_QUOTES, 'UTF-8'); ?>" size="5">
+    <input type="hidden" id="team_check" name="team_check" value="<?php echo htmlspecialchars($team_check, ENT_QUOTES, 'UTF-8'); ?>" size="5">
+    <input type="hidden" id="measure_check" name="measure_check" value="<?php echo htmlspecialchars($measure_check, ENT_QUOTES, 'UTF-8'); ?>" size="5">
+    <input type="hidden" id="cursort" name="cursort" value="<?php echo htmlspecialchars($cursort, ENT_QUOTES, 'UTF-8'); ?>" size="5">
+    <input type="hidden" id="sortof" name="sortof" value="<?php echo htmlspecialchars($sortof, ENT_QUOTES, 'UTF-8'); ?>" size="5">
+    <input type="hidden" id="stable" name="stable" value="<?php echo htmlspecialchars($stable, ENT_QUOTES, 'UTF-8'); ?>" size="5">
+    <input type="hidden" id="sqltext" name="sqltext" value="<?php echo htmlspecialchars($sqltext, ENT_QUOTES, 'UTF-8'); ?>">
+    <input type="hidden" id="list" name="list" value="<?php echo htmlspecialchars($list, ENT_QUOTES, 'UTF-8'); ?>">
+    <input type="hidden" id="reception_filter" name="reception_filter" value="<?php echo htmlspecialchars($reception_filter, ENT_QUOTES, 'UTF-8'); ?>"> 		
 
 <div class="container-fluid">  
 	<div class="card mb-2">  
@@ -1458,8 +1474,8 @@ try{
 			</div>
 		</div>
 	</div>
-	<div class="d-flex  p-1 m-1 mt-1 justify-content-center align-items-center "> 		
-		  <a href="list.php">   <h5>  <?=$title_message?> </h5> </a>	 &nbsp;&nbsp;&nbsp;	&nbsp;	  	
+    <div class="d-flex p-1 m-1 mt-1 justify-content-center align-items-center">
+        <a href="list.php"><h5><?php echo $title_message; ?></h5></a>&nbsp;&nbsp;&nbsp;&nbsp;
 		<!-- 화면 리로드 -->
 		<button type="button" class="btn btn-dark btn-sm me-2" onclick="window.location.reload();">
 			<i class="bi bi-arrow-clockwise"></i> 
@@ -1537,73 +1553,74 @@ try{
 			<button type="button" class="btn btn-warning btn-sm me-2">  <span id="notdrawing" > </span>  	</button>  			  
 				
 		</div>	
-	 <div class="row " >  				
-		<div class="col-sm-8">
-		  <div id="display_list" class="card justify-content-center align-items-center">										
-			  <table class="table table-hover">
-				<tbody>
-				  <tr>
-					<td >				 
-					  <div class="d-flex justify-content-center align-items-center">	
-						<span id="laserBadge" class="text-danger fs-6"> laser 미가공 List</span>                                                          
-					  </div>			 
-					  <div class="d-flex justify-content-center align-items-center">	
-						<span id="todolist" class="form-control">Todo List</span>                                                          
-					  </div>
-					</td>	
-				  </tr>
-				</tbody>
-			  </table>
-		  </div>
-		</div>
-		<div class="col-sm-4">
-		  <div id="display_list_draw" class="card justify-content-center align-items-center">										
-			  <table class="table table-hover">
-				<tbody>
-				  <tr>
-					<td >	
-					  <div class="d-flex justify-content-center align-items-center">	
-						<span id="drawBadge" class="text-primary fs-6"> 미설계 List</span>                                                          
-					  </div>	
-					  <div class="d-flex justify-content-center align-items-center">	
-						<span id="todolist_draw" class="form-control"></span>                                                          
-					  </div>
-					</td>	
-				  </tr>
-				</tbody>
-			  </table>
-		  </div>
-		</div>
+    <div class="row">
+        <div class="col-sm-8">
+            <div id="display_list" class="card justify-content-center align-items-center">
+                <table class="table table-hover">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <span id="laserBadge" class="text-danger fs-6">laser 미가공 List</span>
+                                </div>
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <span id="todolist" class="form-control">Todo List</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div id="display_list_draw" class="card justify-content-center align-items-center">
+                <table class="table table-hover">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <span id="drawBadge" class="text-primary fs-6">미설계 List</span>
+                                </div>
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <span id="todolist_draw" class="form-control"></span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-	<div class="d-flex  p-1 m-1 mt-1 mb-1 justify-content-center align-items-center"> 	  
-			총 <?= $total_row ?> 건 &nbsp;		&nbsp;
-			<!-- 기간부터 검색까지 연결 묶음 start -->
-				<span id="showdate" class="btn btn-dark btn-sm " > 기간 </span>	&nbsp;                    
-                <input type="checkbox" id="receptionDateFilter" class="form-check-input me-1" <?= (isset($_GET['reception_filter']) && $_GET['reception_filter'] == '1') || (isset($_POST['reception_filter']) && $_POST['reception_filter'] == '1') ? 'checked' : '' ?>>
-                <label for="receptionDateFilter" class="mx-2 text-muted" style="cursor: pointer;"> 접수일 기준 </label>
-			   <input type="date" id="fromdate" name="fromdate"   class="form-control p-1"   style="width:100px;" value="<?=$fromdate?>" >  &nbsp;   ~ &nbsp;  
-			   <input type="date" id="todate" name="todate"  class="form-control p-1"   style="width:100px;" value="<?=$todate?>" >  &nbsp;     </span> 
-			   &nbsp;&nbsp;		 
+    <div class="d-flex p-1 m-1 mt-1 mb-1 justify-content-center align-items-center">
+        총 <?php echo $total_row; ?> 건 &nbsp;&nbsp;
+        <!-- 기간부터 검색까지 연결 묶음 start -->
+        <span id="showdate" class="btn btn-dark btn-sm">기간</span>&nbsp;
+        <input type="checkbox" id="receptionDateFilter" class="form-check-input me-1" <?php echo ((isset($_GET['reception_filter']) && $_GET['reception_filter'] == '1') || (isset($_POST['reception_filter']) && $_POST['reception_filter'] == '1')) ? 'checked' : ''; ?>>
+        <label for="receptionDateFilter" class="mx-2 text-muted" style="cursor: pointer;">접수일 기준</label>
+        <input type="date" id="fromdate" name="fromdate" class="form-control p-1" style="width:100px;" value="<?php echo htmlspecialchars($fromdate, ENT_QUOTES, 'UTF-8'); ?>">&nbsp;~&nbsp;
+        <input type="date" id="todate" name="todate" class="form-control p-1" style="width:100px;" value="<?php echo htmlspecialchars($todate, ENT_QUOTES, 'UTF-8'); ?>">&nbsp;
+        &nbsp;&nbsp;		 
 				
-		<select id="find" name="find" class="form-select w-auto mx-1" style="font-size:1em; height:30px;" >
-			<?php
-				$options = array(
-					'all' => '전체',
-					'workplacename' => '현장명',
-					'firstord' => '원청',
-					'secondord' => '발주처',
-					'type' => '타입'
-				);
-				foreach ($options as $value => $label) {
-					$selected = ($find == $value) ? 'selected' : '';
-					echo "<option value='$value' $selected>$label</option>";
-				}
-			?>
-		</select>	
-		<div class="inputWrap">
-				<input type="text" id="search" name="search" value="<?=$search?>" onkeydown="JavaScript:SearchEnter();" autocomplete="off"  class="form-control" style="width:150px;" > &nbsp;			
-				<button class="btnClear"></button>
-		</div>				
+        <select id="find" name="find" class="form-select w-auto mx-1" style="font-size:1em; height:30px;">
+            <?php
+            $options = array(
+                'all' => '전체',
+                'workplacename' => '현장명',
+                'firstord' => '원청',
+                'secondord' => '발주처',
+                'type' => '타입'
+            );
+            foreach ($options as $value => $label) {
+                $selected = ($find == $value) ? 'selected' : '';
+                echo "<option value='$value' $selected>$label</option>";
+            }
+            ?>
+        </select>
+        <div class="inputWrap">
+            <input type="text" id="search" name="search" value="<?php echo htmlspecialchars($search, ENT_QUOTES, 'UTF-8'); ?>" onkeydown="JavaScript:SearchEnter();" autocomplete="off" class="form-control" style="width:150px;">&nbsp;
+            <button class="btnClear"></button>
+        </div>				
 		<div id="autocomplete-list">				
 		</div>	
 		  &nbsp;
@@ -2099,9 +2116,9 @@ console.log('PHP Table Data:', phpTableData);
       
    </div> <!--container-->
 </form>	
-	<div class="container-fluid mt-3 mb-3">
-		<? include '../footer_sub.php'; ?>
-	</div>
+    <div class="container-fluid mt-3 mb-3">
+        <?php include includePath('footer_sub.php'); ?>
+    </div>
 </body>
 </html>
 <script> 

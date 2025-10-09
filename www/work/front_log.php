@@ -1,14 +1,33 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session.php'));
-include getDocumentRoot() . '/load_header.php';
+<?php
+require_once __DIR__ . '/../bootstrap.php';
+
+// 권한 확인
+if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+    sleep(1);
+    header("Location:" . getBaseUrl() . "/login/login_form.php");
+    exit;
+}
+
+// 베이스 URL 설정 (로컬/서버 환경 자동 감지)
+$base_url = getBaseUrl();
+
+// 세션 변수 안전하게 초기화
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+$user_name = $_SESSION["name"] ?? '';
+
+include includePath('load_header.php');
 ?>
 <title>Jamb Front Log</title>
 <!-- Tabulator CSS -->
 <link href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator.min.css" rel="stylesheet">
 <!-- Tabulator JS -->
 <script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.5.0/dist/js/tabulator.min.js"></script>
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- 공통 함수 -->
+<script src="<?php echo $base_url; ?>/js/common.js"></script>
 <!-- Dashboard CSS -->
-<link rel="stylesheet" href="/css/dashboard-style.css" type="text/css" />
+<link rel="stylesheet" href="<?php echo $base_url; ?>/css/dashboard-style.css" type="text/css" />
 
 <style>
 /* Light & Subtle Theme - Front Log Specific */
@@ -254,291 +273,299 @@ body {
 <body>
 <?php require_once(includePath('myheader.php')); ?>
 <?php
-ini_set('display_errors','1');
+ini_set('display_errors', '1');
+
+// 환경파일 불러오기
 $readIni = array();
-$readIni = parse_ini_file("./estimate.ini",false);
+$readIni = parse_ini_file(includePath("work/estimate.ini"), false);
+
 include "request.php";
+
+// 요청 변수 안전하게 초기화
+$findstr = $_REQUEST["findstr"] ?? '전체';
+$company1 = $_REQUEST["company1"] ?? '';
+$company2 = $_REQUEST["company2"] ?? '';
+$workersel = $_REQUEST["workersel"] ?? '';
+
+// 배열 초기화
 $Twosearchword = array();
-if(strpos($search,',') !== false){
-  $Twosearchword = explode(',',$search);
-}
-$sum=array();
+$sum = array(0, 0, 0, 0);
 $scale = 1000;
 
-if(isset($_REQUEST["findstr"]))
-$findstr=$_REQUEST["findstr"];
-  else
-	  $findstr="전체";
-
-if(isset($_REQUEST["company1"]))
-$company1=$_REQUEST["company1"];
-
-if(isset($_REQUEST["company2"]))
-$company2=$_REQUEST["company2"];
-
-if(isset($_REQUEST["workersel"]))
-$workersel=$_REQUEST["workersel"];
+// 검색어 처리
+if (strpos($search, ',') !== false) {
+    $Twosearchword = explode(',', $search);
+}
 
 require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
-switch($cursort)
-{
-   case 1 :
-   $orderby="order by orderday desc, num desc  ";
-   break;
-   case 2 :
-   $orderby="order by orderday asc, num desc  ";
-   break;
-   case 3 :
-   $orderby="order by doneday desc, num desc  ";
-   break;
-   case 4 :
-   $orderby="order by doneday asc, num desc  ";
-   break;
-   case 5 :
-   $orderby="order by measureday desc, num desc  ";
-   break;
-   case 6 :
-   $orderby="order by measureday asc, num desc  ";
-   break;
-   case 7:
-   $orderby="order by endworkday desc, num desc  ";
-   break;
-   case 8 :
-   $orderby="order by endworkday asc, num desc  ";
-   break;
-   case 9 :
-   $orderby="order by workday desc, num desc  ";
-   break;
-   case 10:
-   $orderby="order by workday asc, num desc  ";
-   break;
-   case 11 :
-   $orderby="order by demand desc, num desc";
-   break;
-   case 12:
-   $orderby="order by demand asc, num desc";
-   break;
-   case 13 :
-   $orderby="order by deadline asc, num desc  ";
-   break;
-   case 14:
-   $orderby="order by deadline desc, num desc  ";
-   break;
-default:
-   $orderby="order by orderday desc, num desc ";
-break;
+switch ($cursort) {
+    case 1:
+        $orderby = "ORDER BY orderday DESC, num DESC";
+        break;
+    case 2:
+        $orderby = "ORDER BY orderday ASC, num DESC";
+        break;
+    case 3:
+        $orderby = "ORDER BY doneday DESC, num DESC";
+        break;
+    case 4:
+        $orderby = "ORDER BY doneday ASC, num DESC";
+        break;
+    case 5:
+        $orderby = "ORDER BY measureday DESC, num DESC";
+        break;
+    case 6:
+        $orderby = "ORDER BY measureday ASC, num DESC";
+        break;
+    case 7:
+        $orderby = "ORDER BY endworkday DESC, num DESC";
+        break;
+    case 8:
+        $orderby = "ORDER BY endworkday ASC, num DESC";
+        break;
+    case 9:
+        $orderby = "ORDER BY workday DESC, num DESC";
+        break;
+    case 10:
+        $orderby = "ORDER BY workday ASC, num DESC";
+        break;
+    case 11:
+        $orderby = "ORDER BY demand DESC, num DESC";
+        break;
+    case 12:
+        $orderby = "ORDER BY demand ASC, num DESC";
+        break;
+    case 13:
+        $orderby = "ORDER BY deadline ASC, num DESC";
+        break;
+    case 14:
+        $orderby = "ORDER BY deadline DESC, num DESC";
+        break;
+    default:
+        $orderby = "ORDER BY orderday DESC, num DESC";
+        break;
 }
 
+// 변수 초기화
 $measure_check = 1;
 $check = 1;
-
-if ($check=='1')
-{
-	$attached=" and ( workday='0000-00-00' or workday='' or workday IS NULL  ) ";
-	$whereattached=" where (workday='0000-00-00' or workday='' or workday IS NULL ) ";
-}
-
+$attached = '';
+$whereattached = '';
 $now = date("Y-m-d");
 
-$a= " " . $orderby . " ";
-$b=  " " . $orderby;
+if ($check == '1') {
+    $attached = " AND (workday='0000-00-00' OR workday='' OR workday IS NULL)";
+    $whereattached = " WHERE (workday='0000-00-00' OR workday='' OR workday IS NULL)";
+}
+
+$a = " " . $orderby . " ";
+$b = " " . $orderby;
 
 $search = str_replace(' ', '', $search);
 
-	  if($search=="" && $findstr==="전체"){
-				 $sql="select * from mirae8440.work " . $whereattached . $a;
-				 $sqlcon = "select * from mirae8440.work "  . $whereattached .  $b;
-			   }
-		 elseif($search!="" && $find!="all" && $findstr==="전체")
-			{
-				$sql="select * from mirae8440.work where ($find like '%$search%') " . $attached . $a;
-				$sqlcon="select * from mirae8440.work where ($find like '%$search%')  "  . $attached . $b;
-			 }
-		 elseif($findstr!=="전체") {
-		   if($findstr=='덧방')
-				   $searchstr = '';
-			   else
-				   $searchstr = '신규';
+if ($search == "" && $findstr === "전체") {
+    $sql = "SELECT * FROM mirae8440.work " . $whereattached . $a;
+    $sqlcon = "SELECT * FROM mirae8440.work " . $whereattached . $b;
+} elseif ($search != "" && $find != "all" && $findstr === "전체") {
+    $sql = "SELECT * FROM mirae8440.work WHERE ($find LIKE '%$search%') " . $attached . $a;
+    $sqlcon = "SELECT * FROM mirae8440.work WHERE ($find LIKE '%$search%') " . $attached . $b;
+} elseif ($findstr !== "전체") {
+    if ($findstr == '덧방') {
+        $searchstr = '';
+    } else {
+        $searchstr = '신규';
+    }
 
-			if(count($Twosearchword)>1)
-			   {
-					  if($check!='1')
-						  $attached = '';
+    if (count($Twosearchword) > 1) {
+        if ($check != '1') {
+            $attached = '';
+        }
 
-						  $search1 = $Twosearchword[0];
-						  $sql ="select * from mirae8440.work where ( (replace(workplacename,' ','') like '%$search1%' ) or (firstordman like '%$search1%' )  or (secondordman like '%$search1%' )  or (chargedman like '%$search1%' ) ";
-						  $sql .="or (delicompany like '%$search1%' ) or (attachment like '%$search1%' )  or (hpi like '%$search1%' ) or (firstord like '%$search1%' ) or (secondord like '%$search1%' ) or (worker like '%$search1%' ) or (memo like '%$search1%' ) or (material1 like '%$search1%' ) or (material2 like '%$search1%' ) or (material3 like '%$search1%' ) or (material4 like '%$search1%' ) or (material5 like '%$search1%' ) or (material6 like '%$search1%' ))  and ( checkstep='$searchstr' )  " ;
-						  $search2 = $Twosearchword[1];
-						  $sql .= " and ( (replace(workplacename,' ','') like '%$search2%' ) or (firstordman like '%$search2%' )  or (secondordman like '%$search2%' )  or (chargedman like '%$search2%' ) ";
-						  $sql .= "or (delicompany like '%$search2%' ) or (attachment like '%$search2%' )  or (hpi like '%$search2%' ) or (firstord like '%$search2%' ) or (secondord like '%$search2%' ) or (worker like '%$search2%' ) or (memo like '%$search2%' ) or (material1 like '%$search2%' ) or (material2 like '%$search2%' ) or (material3 like '%$search2%' ) or (material4 like '%$search2%' ) or (material5 like '%$search2%' ) or (material6 like '%$search2%' ))   and ( checkstep='$searchstr' )  " . $attached . $a;
+        $search1 = $Twosearchword[0];
+        $sql = "SELECT * FROM mirae8440.work WHERE ((REPLACE(workplacename,' ','') LIKE '%$search1%') OR (firstordman LIKE '%$search1%') OR (secondordman LIKE '%$search1%') OR (chargedman LIKE '%$search1%') ";
+        $sql .= "OR (delicompany LIKE '%$search1%') OR (attachment LIKE '%$search1%') OR (hpi LIKE '%$search1%') OR (firstord LIKE '%$search1%') OR (secondord LIKE '%$search1%') OR (worker LIKE '%$search1%') OR (memo LIKE '%$search1%') OR (material1 LIKE '%$search1%') OR (material2 LIKE '%$search1%') OR (material3 LIKE '%$search1%') OR (material4 LIKE '%$search1%') OR (material5 LIKE '%$search1%') OR (material6 LIKE '%$search1%')) AND (checkstep='$searchstr')";
+        $search2 = $Twosearchword[1];
+        $sql .= " AND ((REPLACE(workplacename,' ','') LIKE '%$search2%') OR (firstordman LIKE '%$search2%') OR (secondordman LIKE '%$search2%') OR (chargedman LIKE '%$search2%') ";
+        $sql .= "OR (delicompany LIKE '%$search2%') OR (attachment LIKE '%$search2%') OR (hpi LIKE '%$search2%') OR (firstord LIKE '%$search2%') OR (secondord LIKE '%$search2%') OR (worker LIKE '%$search2%') OR (memo LIKE '%$search2%') OR (material1 LIKE '%$search2%') OR (material2 LIKE '%$search2%') OR (material3 LIKE '%$search2%') OR (material4 LIKE '%$search2%') OR (material5 LIKE '%$search2%') OR (material6 LIKE '%$search2%')) AND (checkstep='$searchstr')" . $attached . $a;
 
-						  $sqlcon ="select * from mirae8440.work where ( (replace(workplacename,' ','') like '%$search1%' ) or (firstordman like '%$search1%' )  or (secondordman like '%$search1%' )  or (chargedman like '%$search1%' ) ";
-						  $sqlcon .="or (delicompany like '%$search1%' ) or (attachment like '%$search1%' )  or (hpi like '%$search1%' ) or (firstord like '%$search1%' ) or (secondord like '%$search1%' ) or (worker like '%$search1%' ) or (memo like '%$search1%' ) or (material1 like '%$search1%' ) or (material2 like '%$search1%' ) or (material3 like '%$search1%' ) or (material4 like '%$search1%' ) or (material5 like '%$search1%' ) or (material6 like '%$search1%' ))   and ( checkstep='$searchstr' )  " ;
-						  $sqlcon .= " and ( (replace(workplacename,' ','') like '%$search2%' ) or (firstordman like '%$search2%' )  or (secondordman like '%$search2%' )  or (chargedman like '%$search2%' ) ";
-						  $sqlcon .= "or (delicompany like '%$search2%' ) or (attachment like '%$search2%' )  or (hpi like '%$search2%' ) or (firstord like '%$search2%' ) or (secondord like '%$search2%' ) or (worker like '%$search2%' ) or (memo like '%$search2%' ) or (material1 like '%$search2%' ) or (material2 like '%$search2%' ) or (material3 like '%$search2%' ) or (material4 like '%$search2%' ) or (material5 like '%$search2%' ) or (material6 like '%$search2%' ))   and ( checkstep='$searchstr' )  " . $attached . $b;
+        $sqlcon = "SELECT * FROM mirae8440.work WHERE ((REPLACE(workplacename,' ','') LIKE '%$search1%') OR (firstordman LIKE '%$search1%') OR (secondordman LIKE '%$search1%') OR (chargedman LIKE '%$search1%') ";
+        $sqlcon .= "OR (delicompany LIKE '%$search1%') OR (attachment LIKE '%$search1%') OR (hpi LIKE '%$search1%') OR (firstord LIKE '%$search1%') OR (secondord LIKE '%$search1%') OR (worker LIKE '%$search1%') OR (memo LIKE '%$search1%') OR (material1 LIKE '%$search1%') OR (material2 LIKE '%$search1%') OR (material3 LIKE '%$search1%') OR (material4 LIKE '%$search1%') OR (material5 LIKE '%$search1%') OR (material6 LIKE '%$search1%')) AND (checkstep='$searchstr')";
+        $sqlcon .= " AND ((REPLACE(workplacename,' ','') LIKE '%$search2%') OR (firstordman LIKE '%$search2%') OR (secondordman LIKE '%$search2%') OR (chargedman LIKE '%$search2%') ";
+        $sqlcon .= "OR (delicompany LIKE '%$search2%') OR (attachment LIKE '%$search2%') OR (hpi LIKE '%$search2%') OR (firstord LIKE '%$search2%') OR (secondord LIKE '%$search2%') OR (worker LIKE '%$search2%') OR (memo LIKE '%$search2%') OR (material1 LIKE '%$search2%') OR (material2 LIKE '%$search2%') OR (material3 LIKE '%$search2%') OR (material4 LIKE '%$search2%') OR (material5 LIKE '%$search2%') OR (material6 LIKE '%$search2%')) AND (checkstep='$searchstr')" . $attached . $b;
+    } else {
+        if ($check != '1') {
+            $sql = "SELECT * FROM mirae8440.work WHERE ((REPLACE(workplacename,' ','') LIKE '%$search%') OR (firstordman LIKE '%$search%') OR (secondordman LIKE '%$search%') OR (chargedman LIKE '%$search%') ";
+            $sql .= "OR (delicompany LIKE '%$search%') OR (attachment LIKE '%$search%') OR (hpi LIKE '%$search%') OR (firstord LIKE '%$search%') OR (secondord LIKE '%$search%') OR (worker LIKE '%$search%') OR (memo LIKE '%$search%') OR (material1 LIKE '%$search%') OR (material2 LIKE '%$search%') OR (material3 LIKE '%$search%') OR (material4 LIKE '%$search%') OR (material5 LIKE '%$search%') OR (material6 LIKE '%$search%')) AND (checkstep='$searchstr')" . $a;
 
-				}
-			  else {
-					  if($check!='1') {
-						  $sql ="select * from mirae8440.work where ((replace(workplacename,' ','') like '%$search%' ) or (firstordman like '%$search%' )  or (secondordman like '%$search%' )  or (chargedman like '%$search%' ) ";
-						  $sql .="or (delicompany like '%$search%' ) or (attachment like '%$search%' )  or (hpi like '%$search%' ) or (firstord like '%$search%' ) or (secondord like '%$search%' ) or (worker like '%$search%' ) or (memo like '%$search%' ) or (material1 like '%$search%' ) or (material2 like '%$search%' ) or (material3 like '%$search%' ) or (material4 like '%$search%' ) or (material5 like '%$search%' ) or (material6 like '%$search%' ))   and ( checkstep='$searchstr' )   " . $a;
+            $sqlcon = "SELECT * FROM mirae8440.work WHERE ((REPLACE(workplacename,' ','') LIKE '%$search%') OR (firstordman LIKE '%$search%') OR (secondordman LIKE '%$search%') OR (chargedman LIKE '%$search%') ";
+            $sqlcon .= "OR (delicompany LIKE '%$search%') OR (attachment LIKE '%$search%') OR (hpi LIKE '%$search%') OR (firstord LIKE '%$search%') OR (secondord LIKE '%$search%') OR (worker LIKE '%$search%') OR (memo LIKE '%$search%') OR (material1 LIKE '%$search%') OR (material2 LIKE '%$search%') OR (material3 LIKE '%$search%') OR (material4 LIKE '%$search%') OR (material5 LIKE '%$search%') OR (material6 LIKE '%$search%')) AND (checkstep='$searchstr')" . $b;
+        }
 
-						  $sqlcon ="select * from mirae8440.work where ((replace(workplacename,' ','') like '%$search%' )  or (firstordman like '%$search%' )  or (secondordman like '%$search%' )  or (chargedman like '%$search%' ) ";
-						  $sqlcon .="or (delicompany like '%$search%' )  or (attachment like '%$search%' )  or (hpi like '%$search%' ) or (firstord like '%$search%' ) or (secondord like '%$search%' ) or (worker like '%$search%' ) or (memo like '%$search%' )  or (material1 like '%$search%' ) or (material2 like '%$search%' ) or (material3 like '%$search%' ) or (material4 like '%$search%' ) or (material5 like '%$search%' ) or (material6 like '%$search%' ))   and ( checkstep='$searchstr' )   " . $b;
-					  }
+        if ($check == '1' || $output_check == '1' || $measure_check == '1' || $plan_output_check == '1' || $team_check == '1') {
+            $sql = "SELECT * FROM mirae8440.work WHERE ((REPLACE(workplacename,' ','') LIKE '%$search%') OR (firstordman LIKE '%$search%') OR (secondordman LIKE '%$search%') OR (chargedman LIKE '%$search%') ";
+            $sql .= "OR (delicompany LIKE '%$search%') OR (hpi LIKE '%$search%') OR (firstord LIKE '%$search%') OR (secondord LIKE '%$search%') OR (worker LIKE '%$search%') OR (memo LIKE '%$search%') OR (material1 LIKE '%$search%') OR (material2 LIKE '%$search%') OR (material3 LIKE '%$search%') OR (material4 LIKE '%$search%') OR (material5 LIKE '%$search%') OR (material6 LIKE '%$search%')) AND (checkstep='$searchstr')" . $attached . $a;
 
-				 if($check=='1' || $output_check=='1' || $measure_check=='1' || $plan_output_check=='1' || $team_check=='1') {
-						  $sql ="select * from mirae8440.work where ((replace(workplacename,' ','')  like '%$search%' )  or (firstordman like '%$search%' )  or (secondordman like '%$search%' )  or (chargedman like '%$search%' ) ";
-						  $sql .="or (delicompany like '%$search%' ) or (hpi like '%$search%' ) or (firstord like '%$search%' ) or (secondord like '%$search%' ) or (worker like '%$search%' ) or (memo like '%$search%' )  or (material1 like '%$search%' ) or (material2 like '%$search%' ) or (material3 like '%$search%' ) or (material4 like '%$search%' ) or (material5 like '%$search%' ) or (material6 like '%$search%' )  )   and ( checkstep='$searchstr' ) "  . $attached . $a;
+            $sqlcon = "SELECT * FROM mirae8440.work WHERE ((REPLACE(workplacename,' ','') LIKE '%$search%') OR (firstordman LIKE '%$search%') OR (secondordman LIKE '%$search%') OR (chargedman LIKE '%$search%') ";
+            $sqlcon .= "OR (delicompany LIKE '%$search%') OR (hpi LIKE '%$search%') OR (firstord LIKE '%$search%') OR (secondord LIKE '%$search%') OR (worker LIKE '%$search%') OR (memo LIKE '%$search%') OR (material1 LIKE '%$search%') OR (material2 LIKE '%$search%') OR (material3 LIKE '%$search%') OR (material4 LIKE '%$search%') OR (material5 LIKE '%$search%') OR (material6 LIKE '%$search%')) AND (checkstep='$searchstr')" . $attached . $b;
+        }
+    }
+} elseif ($search != "" && $find == "all") {
+    if (count($Twosearchword) > 1) {
+        if ($check != '1') {
+            $attached = '';
+        }
 
-						  $sqlcon ="select * from mirae8440.work where ((replace(workplacename,' ','')  like '%$search%' )  or (firstordman like '%$search%' )  or (secondordman like '%$search%' )  or (chargedman like '%$search%' ) ";
-						  $sqlcon .="or (delicompany like '%$search%' ) or (hpi like '%$search%' ) or (firstord like '%$search%' ) or (secondord like '%$search%' ) or (worker like '%$search%' ) or (memo like '%$search%' )  or (material1 like '%$search%' ) or (material2 like '%$search%' ) or (material3 like '%$search%' ) or (material4 like '%$search%' ) or (material5 like '%$search%' ) or (material6 like '%$search%' )  )   and ( checkstep='$searchstr' ) "  . $attached . $b;
-					  }
-				}
-			  }
+        $search1 = $Twosearchword[0];
+        $sql = "SELECT * FROM mirae8440.work WHERE ((REPLACE(workplacename,' ','') LIKE '%$search1%') OR (firstordman LIKE '%$search1%') OR (secondordman LIKE '%$search1%') OR (chargedman LIKE '%$search1%') ";
+        $sql .= "OR (delicompany LIKE '%$search1%') OR (attachment LIKE '%$search1%') OR (hpi LIKE '%$search1%') OR (firstord LIKE '%$search1%') OR (secondord LIKE '%$search1%') OR (worker LIKE '%$search1%') OR (memo LIKE '%$search1%') OR (material1 LIKE '%$search1%') OR (material2 LIKE '%$search1%') OR (material3 LIKE '%$search1%') OR (material4 LIKE '%$search1%') OR (material5 LIKE '%$search1%') OR (material6 LIKE '%$search1%'))";
+        $search2 = $Twosearchword[1];
+        $sql .= " AND ((REPLACE(workplacename,' ','') LIKE '%$search2%') OR (firstordman LIKE '%$search2%') OR (secondordman LIKE '%$search2%') OR (chargedman LIKE '%$search2%') ";
+        $sql .= "OR (delicompany LIKE '%$search2%') OR (attachment LIKE '%$search2%') OR (hpi LIKE '%$search2%') OR (firstord LIKE '%$search2%') OR (secondord LIKE '%$search2%') OR (worker LIKE '%$search2%') OR (memo LIKE '%$search2%') OR (material1 LIKE '%$search2%') OR (material2 LIKE '%$search2%') OR (material3 LIKE '%$search2%') OR (material4 LIKE '%$search2%') OR (material5 LIKE '%$search2%') OR (material6 LIKE '%$search2%'))" . $attached . $a;
 
-		 elseif($search!="" && $find=="all") {
-			if(count($Twosearchword)>1)
-			   {
-					  if($check!='1')
-						  $attached = '';
+        $sqlcon = "SELECT * FROM mirae8440.work WHERE ((REPLACE(workplacename,' ','') LIKE '%$search1%') OR (firstordman LIKE '%$search1%') OR (secondordman LIKE '%$search1%') OR (chargedman LIKE '%$search1%') ";
+        $sqlcon .= "OR (delicompany LIKE '%$search1%') OR (attachment LIKE '%$search1%') OR (hpi LIKE '%$search1%') OR (firstord LIKE '%$search1%') OR (secondord LIKE '%$search1%') OR (worker LIKE '%$search1%') OR (memo LIKE '%$search1%') OR (material1 LIKE '%$search1%') OR (material2 LIKE '%$search1%') OR (material3 LIKE '%$search1%') OR (material4 LIKE '%$search1%') OR (material5 LIKE '%$search1%') OR (material6 LIKE '%$search1%'))";
+        $sqlcon .= " AND ((REPLACE(workplacename,' ','') LIKE '%$search2%') OR (firstordman LIKE '%$search2%') OR (secondordman LIKE '%$search2%') OR (chargedman LIKE '%$search2%') ";
+        $sqlcon .= "OR (delicompany LIKE '%$search2%') OR (attachment LIKE '%$search2%') OR (hpi LIKE '%$search2%') OR (firstord LIKE '%$search2%') OR (secondord LIKE '%$search2%') OR (worker LIKE '%$search2%') OR (memo LIKE '%$search2%') OR (material1 LIKE '%$search2%') OR (material2 LIKE '%$search2%') OR (material3 LIKE '%$search2%') OR (material4 LIKE '%$search2%') OR (material5 LIKE '%$search2%') OR (material6 LIKE '%$search2%'))" . $attached . $b;
+    } else {
+        if ($check != '1') {
+            $sql = "SELECT * FROM mirae8440.work WHERE (REPLACE(workplacename,' ','') LIKE '%$search%') OR (firstordman LIKE '%$search%') OR (secondordman LIKE '%$search%') OR (chargedman LIKE '%$search%') ";
+            $sql .= "OR (delicompany LIKE '%$search%') OR (attachment LIKE '%$search%') OR (hpi LIKE '%$search%') OR (firstord LIKE '%$search%') OR (secondord LIKE '%$search%') OR (worker LIKE '%$search%') OR (memo LIKE '%$search%') OR (material1 LIKE '%$search%') OR (material2 LIKE '%$search%') OR (material3 LIKE '%$search%') OR (material4 LIKE '%$search%') OR (material5 LIKE '%$search%') OR (material6 LIKE '%$search%')" . $a;
 
-						  $search1 = $Twosearchword[0];
-						  $sql ="select * from mirae8440.work where ( (replace(workplacename,' ','') like '%$search1%' ) or (firstordman like '%$search1%' )  or (secondordman like '%$search1%' )  or (chargedman like '%$search1%' ) ";
-						  $sql .="or (delicompany like '%$search1%' ) or (attachment like '%$search1%' )  or (hpi like '%$search1%' ) or (firstord like '%$search1%' ) or (secondord like '%$search1%' ) or (worker like '%$search1%' ) or (memo like '%$search1%' ) or (material1 like '%$search1%' ) or (material2 like '%$search1%' ) or (material3 like '%$search1%' ) or (material4 like '%$search1%' ) or (material5 like '%$search1%' ) or (material6 like '%$search1%' ))  " ;
-						  $search2 = $Twosearchword[1];
-						  $sql .= " and ( (replace(workplacename,' ','') like '%$search2%' ) or (firstordman like '%$search2%' )  or (secondordman like '%$search2%' )  or (chargedman like '%$search2%' ) ";
-						  $sql .= "or (delicompany like '%$search2%' ) or (attachment like '%$search2%' )  or (hpi like '%$search2%' ) or (firstord like '%$search2%' ) or (secondord like '%$search2%' ) or (worker like '%$search2%' ) or (memo like '%$search2%' ) or (material1 like '%$search2%' ) or (material2 like '%$search2%' ) or (material3 like '%$search2%' ) or (material4 like '%$search2%' ) or (material5 like '%$search2%' ) or (material6 like '%$search2%' ))  " . $attached . $a;
+            $sqlcon = "SELECT * FROM mirae8440.work WHERE (REPLACE(workplacename,' ','') LIKE '%$search%') OR (firstordman LIKE '%$search%') OR (secondordman LIKE '%$search%') OR (chargedman LIKE '%$search%') ";
+            $sqlcon .= "OR (delicompany LIKE '%$search%') OR (attachment LIKE '%$search%') OR (hpi LIKE '%$search%') OR (firstord LIKE '%$search%') OR (secondord LIKE '%$search%') OR (worker LIKE '%$search%') OR (memo LIKE '%$search%') OR (material1 LIKE '%$search%') OR (material2 LIKE '%$search%') OR (material3 LIKE '%$search%') OR (material4 LIKE '%$search%') OR (material5 LIKE '%$search%') OR (material6 LIKE '%$search%')" . $b;
+        }
 
-						  $sqlcon ="select * from mirae8440.work where ( (replace(workplacename,' ','') like '%$search1%' ) or (firstordman like '%$search1%' )  or (secondordman like '%$search1%' )  or (chargedman like '%$search1%' ) ";
-						  $sqlcon .="or (delicompany like '%$search1%' ) or (attachment like '%$search1%' )  or (hpi like '%$search1%' ) or (firstord like '%$search1%' ) or (secondord like '%$search1%' ) or (worker like '%$search1%' ) or (memo like '%$search1%' ) or (material1 like '%$search1%' ) or (material2 like '%$search1%' ) or (material3 like '%$search1%' ) or (material4 like '%$search1%' ) or (material5 like '%$search1%' ) or (material6 like '%$search1%' ))  " ;
-						  $sqlcon .= " and ( (replace(workplacename,' ','') like '%$search2%' ) or (firstordman like '%$search2%' )  or (secondordman like '%$search2%' )  or (chargedman like '%$search2%' ) ";
-						  $sqlcon .= "or (delicompany like '%$search2%' ) or (attachment like '%$search2%' )  or (hpi like '%$search2%' ) or (firstord like '%$search2%' ) or (secondord like '%$search2%' ) or (worker like '%$search2%' ) or (memo like '%$search2%' ) or (material1 like '%$search2%' ) or (material2 like '%$search2%' ) or (material3 like '%$search2%' ) or (material4 like '%$search2%' ) or (material5 like '%$search2%' ) or (material6 like '%$search2%' ))  " . $attached . $b;
-				}
-			  else {
-					  if($check!='1') {
-						  $sql ="select * from mirae8440.work where (replace(workplacename,' ','') like '%$search%' ) or (firstordman like '%$search%' )  or (secondordman like '%$search%' )  or (chargedman like '%$search%' ) ";
-						  $sql .="or (delicompany like '%$search%' ) or (attachment like '%$search%' )  or (hpi like '%$search%' ) or (firstord like '%$search%' ) or (secondord like '%$search%' ) or (worker like '%$search%' ) or (memo like '%$search%' ) or (material1 like '%$search%' ) or (material2 like '%$search%' ) or (material3 like '%$search%' ) or (material4 like '%$search%' ) or (material5 like '%$search%' ) or (material6 like '%$search%' )  " . $a;
+        if ($check == '1' || $output_check == '1' || $measure_check == '1' || $plan_output_check == '1' || $team_check == '1') {
+            $sql = "SELECT * FROM mirae8440.work WHERE ((REPLACE(workplacename,' ','') LIKE '%$search%') OR (firstordman LIKE '%$search%') OR (secondordman LIKE '%$search%') OR (chargedman LIKE '%$search%') ";
+            $sql .= "OR (delicompany LIKE '%$search%') OR (hpi LIKE '%$search%') OR (firstord LIKE '%$search%') OR (secondord LIKE '%$search%') OR (worker LIKE '%$search%') OR (memo LIKE '%$search%') OR (material1 LIKE '%$search%') OR (material2 LIKE '%$search%') OR (material3 LIKE '%$search%') OR (material4 LIKE '%$search%') OR (material5 LIKE '%$search%') OR (material6 LIKE '%$search%'))" . $attached . $a;
 
-						  $sqlcon ="select * from mirae8440.work where (replace(workplacename,' ','') like '%$search%' )  or (firstordman like '%$search%' )  or (secondordman like '%$search%' )  or (chargedman like '%$search%' ) ";
-						  $sqlcon .="or (delicompany like '%$search%' )  or (attachment like '%$search%' )  or (hpi like '%$search%' ) or (firstord like '%$search%' ) or (secondord like '%$search%' ) or (worker like '%$search%' ) or (memo like '%$search%' )  or (material1 like '%$search%' ) or (material2 like '%$search%' ) or (material3 like '%$search%' ) or (material4 like '%$search%' ) or (material5 like '%$search%' ) or (material6 like '%$search%' )  " . $b;
-					  }
+            $sqlcon = "SELECT * FROM mirae8440.work WHERE ((REPLACE(workplacename,' ','') LIKE '%$search%') OR (firstordman LIKE '%$search%') OR (secondordman LIKE '%$search%') OR (chargedman LIKE '%$search%') ";
+            $sqlcon .= "OR (delicompany LIKE '%$search%') OR (hpi LIKE '%$search%') OR (firstord LIKE '%$search%') OR (secondord LIKE '%$search%') OR (worker LIKE '%$search%') OR (memo LIKE '%$search%') OR (material1 LIKE '%$search%') OR (material2 LIKE '%$search%') OR (material3 LIKE '%$search%') OR (material4 LIKE '%$search%') OR (material5 LIKE '%$search%') OR (material6 LIKE '%$search%'))" . $attached . $b;
+        }
+    }
+}
 
-				 if($check=='1' || $output_check=='1' || $measure_check=='1' || $plan_output_check=='1' || $team_check=='1') {
-						  $sql ="select * from mirae8440.work where ((replace(workplacename,' ','')  like '%$search%' )  or (firstordman like '%$search%' )  or (secondordman like '%$search%' )  or (chargedman like '%$search%' ) ";
-						  $sql .="or (delicompany like '%$search%' ) or (hpi like '%$search%' ) or (firstord like '%$search%' ) or (secondord like '%$search%' ) or (worker like '%$search%' ) or (memo like '%$search%' )  or (material1 like '%$search%' ) or (material2 like '%$search%' ) or (material3 like '%$search%' ) or (material4 like '%$search%' ) or (material5 like '%$search%' ) or (material6 like '%$search%' )  ) "  . $attached . $a;
-
-						  $sqlcon ="select * from mirae8440.work where ((replace(workplacename,' ','')  like '%$search%' )  or (firstordman like '%$search%' )  or (secondordman like '%$search%' )  or (chargedman like '%$search%' ) ";
-						  $sqlcon .="or (delicompany like '%$search%' ) or (hpi like '%$search%' ) or (firstord like '%$search%' ) or (secondord like '%$search%' ) or (worker like '%$search%' ) or (memo like '%$search%' )  or (material1 like '%$search%' ) or (material2 like '%$search%' ) or (material3 like '%$search%' ) or (material4 like '%$search%' ) or (material5 like '%$search%' ) or (material6 like '%$search%' )  ) "  . $attached . $b;
-					  }
-				}
-			  }
-
+// 변수 초기화
 $WJ_HL = 0;
 $WJ = 0;
 $NJ_HL = 0;
 $NJ = 0;
 $SJ_HL = 0;
 $SJ = 0;
+$WJ_amount = 0;
+$WJ_HL_amount = 0;
+$WJ_total = 0;
+$WJ_num = 0;
+$NJ_amount = 0;
+$NJ_HL_amount = 0;
+$NJ_total = 0;
+$NJ_num = 0;
+$SJ_amount = 0;
+$SJ_HL_amount = 0;
+$SJ_total = 0;
+$SJ_num = 0;
+$total = 0;
 
 try {
-  $allstmh = $pdo->query($sqlcon);
+    $allstmh = $pdo->query($sqlcon);
 
-  while ($row = $allstmh->fetch(PDO::FETCH_ASSOC)) {
-    $material1 = $row["material1"];
-    $material2 = $row["material2"];
-    $material3 = $row["material3"];
-    $material4 = $row["material4"];
-    $material5 = $row["material5"];
-    $material6 = $row["material6"];
-    $widejamb = intval($row["widejamb"]);
-    $normaljamb = intval($row["normaljamb"]);
-    $smalljamb = intval($row["smalljamb"]);
+    while ($row = $allstmh->fetch(PDO::FETCH_ASSOC)) {
+        $material1 = $row["material1"] ?? '';
+        $material2 = $row["material2"] ?? '';
+        $material3 = $row["material3"] ?? '';
+        $material4 = $row["material4"] ?? '';
+        $material5 = $row["material5"] ?? '';
+        $material6 = $row["material6"] ?? '';
+        $widejamb = intval($row["widejamb"] ?? 0);
+        $normaljamb = intval($row["normaljamb"] ?? 0);
+        $smalljamb = intval($row["smalljamb"] ?? 0);
 
-    $combinedMaterials = $material1 . $material2 . $material3 . $material4 . $material5 . $material6;
+        $combinedMaterials = $material1 . $material2 . $material3 . $material4 . $material5 . $material6;
 
-    if (stripos($combinedMaterials, 'HL') !== false || stripos($combinedMaterials, 'H/L') !== false) {
-      $WJ_HL += $widejamb;
+        if (stripos($combinedMaterials, 'HL') !== false || stripos($combinedMaterials, 'H/L') !== false) {
+            $WJ_HL += $widejamb;
+        }
+
+        if (stripos($combinedMaterials, 'HL') === false && stripos($combinedMaterials, 'H/L') === false) {
+            $WJ += $widejamb;
+        }
+
+        if (stripos($combinedMaterials, 'HL') !== false || stripos($combinedMaterials, 'H/L') !== false) {
+            $NJ_HL += $normaljamb;
+        }
+
+        if (stripos($combinedMaterials, 'HL') === false && stripos($combinedMaterials, 'H/L') === false) {
+            $NJ += $normaljamb;
+        }
+
+        if (stripos($combinedMaterials, 'HL') !== false || stripos($combinedMaterials, 'H/L') !== false) {
+            $SJ_HL += $smalljamb;
+        }
+
+        if (stripos($combinedMaterials, 'HL') === false && stripos($combinedMaterials, 'H/L') === false) {
+            $SJ += $smalljamb;
+        }
     }
-
-    if (stripos($combinedMaterials, 'HL') === false && stripos($combinedMaterials, 'H/L') === false) {
-      $WJ += $widejamb;
-    }
-
-    if (stripos($combinedMaterials, 'HL') !== false || stripos($combinedMaterials, 'H/L') !== false) {
-      $NJ_HL += $normaljamb;
-    }
-
-    if (stripos($combinedMaterials, 'HL') === false && stripos($combinedMaterials, 'H/L') === false) {
-      $NJ += $normaljamb;
-    }
-
-    if (stripos($combinedMaterials, 'HL') !== false || stripos($combinedMaterials, 'H/L') !== false) {
-      $SJ_HL += $smalljamb;
-    }
-
-    if (stripos($combinedMaterials, 'HL') === false && stripos($combinedMaterials, 'H/L') === false) {
-      $SJ += $smalljamb;
-    }
-  }
 } catch (PDOException $Exception) {
-  print "오류: " . $Exception->getMessage();
+    print "오류: " . $Exception->getMessage();
 }
 
-$WJ_amount = str_replace(',', '', $WJ) * intval(str_replace(',', '', $readIni["WJ"]));
-$WJ_HL_amount = str_replace(',', '', $WJ_HL) * intval(str_replace(',', '', $readIni["WJ_HL"]));
-$WJ_total = $WJ_amount + $WJ_HL_amount ;
+// 합계표 만들기
+$WJ_amount = str_replace(',', '', $WJ) * intval(str_replace(',', '', $readIni["WJ"] ?? 0));
+$WJ_HL_amount = str_replace(',', '', $WJ_HL) * intval(str_replace(',', '', $readIni["WJ_HL"] ?? 0));
+$WJ_total = $WJ_amount + $WJ_HL_amount;
 $WJ_num = $WJ + $WJ_HL;
 
-$NJ_amount = str_replace(',', '', $NJ) * intval(str_replace(',', '', $readIni["NJ"]));
-$NJ_HL_amount = str_replace(',', '', $NJ_HL) * intval(str_replace(',', '', $readIni["NJ_HL"]));
-$NJ_total = $NJ_amount + $NJ_HL_amount ;
+$NJ_amount = str_replace(',', '', $NJ) * intval(str_replace(',', '', $readIni["NJ"] ?? 0));
+$NJ_HL_amount = str_replace(',', '', $NJ_HL) * intval(str_replace(',', '', $readIni["NJ_HL"] ?? 0));
+$NJ_total = $NJ_amount + $NJ_HL_amount;
 $NJ_num = $NJ + $NJ_HL;
 
-$SJ_amount = str_replace(',', '', $SJ) * intval(str_replace(',', '', $readIni["SJ"]));
-$SJ_HL_amount = str_replace(',', '', $SJ_HL) * intval(str_replace(',', '', $readIni["SJ_HL"]));
-$SJ_total = $SJ_amount + $SJ_HL_amount ;
+$SJ_amount = str_replace(',', '', $SJ) * intval(str_replace(',', '', $readIni["SJ"] ?? 0));
+$SJ_HL_amount = str_replace(',', '', $SJ_HL) * intval(str_replace(',', '', $readIni["SJ_HL"] ?? 0));
+$SJ_total = $SJ_amount + $SJ_HL_amount;
 $SJ_num = $SJ + $SJ_HL;
 
-$total = $WJ_total + $NJ_total + $SJ_total ;
+$total = $WJ_total + $NJ_total + $SJ_total;
 
-try{
-	$allstmh = $pdo->query($sqlcon);
-	$temp2=$allstmh->rowCount();
-	$stmh = $pdo->query($sql);
-	$temp1=$stmh->rowCount();
+// 페이지네이션 계산
+try {
+    $allstmh = $pdo->query($sqlcon);
+    $temp2 = $allstmh->rowCount();
+    $stmh = $pdo->query($sql);
+    $temp1 = $stmh->rowCount();
 
-	$total_row = $temp2;
-	$total_page = ceil($total_row / $scale);
-	$current_page = ceil($page/$page_scale);
+    $total_row = $temp2;
+    $total_page = ceil($total_row / $scale);
+    $current_page = ceil($page / $page_scale);
 } catch (PDOException $Exception) {
-	print "오류: ".$Exception->getMessage();
+    print "오류: " . $Exception->getMessage();
 }
 ?>
 
 <form id="board_form" name="board_form" method="post" action="front_log.php?mode=search">
 <div class="container-fluid">
-	<input type="hidden" id="voc_alert" name="voc_alert" value="<?=$voc_alert?>" size="5" >
-	<input type="hidden" id="ma_alert" name="ma_alert" value="<?=$ma_alert?>" size="5" >
-	<input type="hidden" id="order_alert" name="order_alert" value="<?=$order_alert?>" size="5" >
-	<input type="hidden" id="page" name="page" value="<?=$page?>" size="5" >
-	<input type="hidden" id="scale" name="scale" value="<?=$scale?>" size="5" >
-	<input type="hidden" id="yearcheckbox" name="yearcheckbox" value="<?=$yearcheckbox?>" size="5" >
-	<input type="hidden" id="year" name="year" value="<?=$year?>" size="5" >
-	<input type="hidden" id="check" name="check" value="<?=$check?>" size="5" >
-	<input type="hidden" id="output_check" name="output_check" value="<?=$output_check?>" size="5" >
-	<input type="hidden" id="plan_output_check" name="plan_output_check" value="<?=$plan_output_check?>" size="5" >
-	<input type="hidden" id="team_check" name="team_check" value="<?=$team_check?>" size="5" >
-	<input type="hidden" id="measure_check" name="measure_check" value="<?=$measure_check?>" size="5" >
-	<input type="hidden" id="cursort" name="cursort" value="<?=$cursort?>" size="5" >
-	<input type="hidden" id="sortof" name="sortof" value="<?=$sortof?>" size="5" >
-	<input type="hidden" id="stable" name="stable" value="<?=$stable?>" size="5" >
-	<input type="hidden" id="sqltext" name="sqltext" value="<?=$sqltext?>" >
-	<input type="hidden" id="list" name="list" value="<?=$list?>" >
-	<input type="hidden" id="buttonval" name="buttonval" value="<?=$buttonval?>" >
-	<input type="hidden" id="findstr" name="findstr" value="<?=$findstr?>" >
+	<input type="hidden" id="voc_alert" name="voc_alert" value="<?php echo $voc_alert; ?>" size="5">
+	<input type="hidden" id="ma_alert" name="ma_alert" value="<?php echo $ma_alert; ?>" size="5">
+	<input type="hidden" id="order_alert" name="order_alert" value="<?php echo $order_alert; ?>" size="5">
+	<input type="hidden" id="page" name="page" value="<?php echo $page; ?>" size="5">
+	<input type="hidden" id="scale" name="scale" value="<?php echo $scale; ?>" size="5">
+	<input type="hidden" id="yearcheckbox" name="yearcheckbox" value="<?php echo $yearcheckbox; ?>" size="5">
+	<input type="hidden" id="year" name="year" value="<?php echo $year; ?>" size="5">
+	<input type="hidden" id="check" name="check" value="<?php echo $check; ?>" size="5">
+	<input type="hidden" id="output_check" name="output_check" value="<?php echo $output_check; ?>" size="5">
+	<input type="hidden" id="plan_output_check" name="plan_output_check" value="<?php echo $plan_output_check; ?>" size="5">
+	<input type="hidden" id="team_check" name="team_check" value="<?php echo $team_check; ?>" size="5">
+	<input type="hidden" id="measure_check" name="measure_check" value="<?php echo $measure_check; ?>" size="5">
+	<input type="hidden" id="cursort" name="cursort" value="<?php echo $cursort; ?>" size="5">
+	<input type="hidden" id="sortof" name="sortof" value="<?php echo $sortof; ?>" size="5">
+	<input type="hidden" id="stable" name="stable" value="<?php echo $stable; ?>" size="5">
+	<input type="hidden" id="sqltext" name="sqltext" value="<?php echo $sqltext; ?>">
+	<input type="hidden" id="list" name="list" value="<?php echo $list; ?>">
+	<input type="hidden" id="buttonval" name="buttonval" value="<?php echo $buttonval; ?>">
+	<input type="hidden" id="findstr" name="findstr" value="<?php echo $findstr; ?>">
 
 	<div id="vacancy" style="display:none">  </div>
 
@@ -571,18 +598,18 @@ try{
 					<tbody>
 						<tr>
 							<td class="text-center">막판유</td>
-							<td class="text-end"><?= number_format($readIni['WJ_HL']) ?></td>
-							<td class="text-end"><?= number_format($readIni['WJ']) ?></td>
+							<td class="text-end"><?php echo number_format(floatval($readIni['WJ_HL'] ?? 0)); ?></td>
+							<td class="text-end"><?php echo number_format(floatval($readIni['WJ'] ?? 0)); ?></td>
 						</tr>
 						<tr>
 							<td class="text-center">막판무</td>
-							<td class="text-end"><?= number_format($readIni['NJ_HL']) ?></td>
-							<td class="text-end"><?= number_format($readIni['NJ']) ?></td>
+							<td class="text-end"><?php echo number_format(floatval($readIni['NJ_HL'] ?? 0)); ?></td>
+							<td class="text-end"><?php echo number_format(floatval($readIni['NJ'] ?? 0)); ?></td>
 						</tr>
 						<tr>
 							<td class="text-center">쪽쟘</td>
-							<td class="text-end"><?= number_format($readIni['SJ_HL']) ?></td>
-							<td class="text-end"><?= number_format($readIni['SJ']) ?></td>
+							<td class="text-end"><?php echo number_format(floatval($readIni['SJ_HL'] ?? 0)); ?></td>
+							<td class="text-end"><?php echo number_format(floatval($readIni['SJ'] ?? 0)); ?></td>
 						</tr>
 					</tbody>
 				</table>
@@ -610,28 +637,28 @@ try{
 					<tbody>
 						<tr>
 							<td class="text-center">막판유</td>
-							<td class="text-center"><?= number_format($WJ_num) ?></td>
-							<td class="text-end"><?= number_format($WJ_HL_amount/1000) ?></td>
-							<td class="text-end"><?= number_format($WJ_amount/1000) ?></td>
-							<td class="text-end fw-bold"><?= number_format($WJ_total/1000) ?></td>
+							<td class="text-center"><?php echo number_format($WJ_num); ?></td>
+							<td class="text-end"><?php echo number_format($WJ_HL_amount/1000); ?></td>
+							<td class="text-end"><?php echo number_format($WJ_amount/1000); ?></td>
+							<td class="text-end fw-bold"><?php echo number_format($WJ_total/1000); ?></td>
 						</tr>
 						<tr>
 							<td class="text-center">막판무</td>
-							<td class="text-center"><?= number_format($NJ_num) ?></td>
-							<td class="text-end"><?= number_format($NJ_HL_amount/1000) ?></td>
-							<td class="text-end"><?= number_format($NJ_amount/1000) ?></td>
-							<td class="text-end fw-bold"><?= number_format($NJ_total/1000) ?></td>
+							<td class="text-center"><?php echo number_format($NJ_num); ?></td>
+							<td class="text-end"><?php echo number_format($NJ_HL_amount/1000); ?></td>
+							<td class="text-end"><?php echo number_format($NJ_amount/1000); ?></td>
+							<td class="text-end fw-bold"><?php echo number_format($NJ_total/1000); ?></td>
 						</tr>
 						<tr>
 							<td class="text-center">쪽쟘</td>
-							<td class="text-center"><?= number_format($SJ_num) ?></td>
-							<td class="text-end"><?= number_format($SJ_HL_amount/1000) ?></td>
-							<td class="text-end"><?= number_format($SJ_amount/1000) ?></td>
-							<td class="text-end fw-bold"><?= number_format($SJ_total/1000) ?></td>
+							<td class="text-center"><?php echo number_format($SJ_num); ?></td>
+							<td class="text-end"><?php echo number_format($SJ_HL_amount/1000); ?></td>
+							<td class="text-end"><?php echo number_format($SJ_amount/1000); ?></td>
+							<td class="text-end fw-bold"><?php echo number_format($SJ_total/1000); ?></td>
 						</tr>
 						<tr class="table-info">
 							<td colspan="4" class="text-center fw-bold">합계</td>
-							<td class="text-end fw-bold text-danger"><?= number_format($total/1000) ?></td>
+							<td class="text-end fw-bold text-danger"><?php echo number_format($total/1000); ?></td>
 						</tr>
 					</tbody>
 				</table>
@@ -714,7 +741,7 @@ try{
 </select>
 &nbsp;
 
-<input type="text" id="search" name="search" class="form-control p-1 me-1" style="width:300px;" placeholder="현장명, 원청, 발주처, 시공팀, HPI, 비고 검색..."  value="<?=$search?>" > &nbsp;
+<input type="text" id="search" name="search" class="form-control p-1 me-1" style="width:300px;" placeholder="현장명, 원청, 발주처, 시공팀, HPI, 비고 검색..." value="<?php echo htmlspecialchars($search, ENT_QUOTES, 'UTF-8'); ?>"> &nbsp;
 
 <button id="searchBtn" type="button" class="btn btn-dark  btn-sm"  > <i class="bi bi-search"></i> 검색 </button> &nbsp;
 <button id="clearBtn" type="button" class="btn btn-secondary btn-sm"> <i class="bi bi-x-circle"></i> 초기화 </button> &nbsp;
@@ -762,7 +789,7 @@ try {
 <br>
 <br>
 	<div class="container-fluid">
-	<? include '../footer_sub.php'; ?>
+	<?php include includePath('footer_sub.php'); ?>
 	</div>
 </div>
 </form>
@@ -1031,18 +1058,15 @@ $("#checkwork").change(function(){
     });
 });
 
-function dis_text()
-{
-	var dis_text = '<?php echo $dis_text; ?>';
-	$("#dis_text").text(dis_text);
+function dis_text() {
+    var dis_text = '<?php echo htmlspecialchars($dis_text ?? '', ENT_QUOTES, 'UTF-8'); ?>';
+    $("#dis_text").text(dis_text);
 }
-function List_name(worker)
-{
-	var worker;
-	var name='<?php echo $user_name; ?>' ;
 
-	$("#search").val(worker);
-	$('#board_form').submit();
+function List_name(worker) {
+    var name = '<?php echo htmlspecialchars($user_name, ENT_QUOTES, 'UTF-8'); ?>';
+    $("#search").val(worker);
+    $('#board_form').submit();
 }
 
 setTimeout(function() {

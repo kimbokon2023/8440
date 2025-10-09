@@ -243,7 +243,13 @@ $mode = $_REQUEST["mode"] ?? '';
 $fromdate = $_REQUEST["fromdate"] ?? '';
 $todate = $_REQUEST["todate"] ?? '';
 
-require_once("../lib/mydb.php");
+// 추가 변수 초기화
+$separate_date = $_REQUEST["separate_date"] ?? '';
+$view_table = $_REQUEST["view_table"] ?? '';
+$chartchoice = array();
+$work_sum = array();
+
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	 
 
 // 올해를 날짜 기간으로 설정
@@ -271,17 +277,28 @@ $common = " WHERE workday BETWEEN date('$fromdate') AND date('$Transtodate')";
 $sum_title = array();
 $sum = array();
 
+// _row.php에서 사용할 변수들 초기화
+$rowNum = 0;
+$steelsource_item = array();
+$steelsource_spec = array();
+$which = '';
+$tmp = '';
+$steelnum = 0;
+
 $sql = "SELECT * FROM mirae8440.work" . $common;
 
 try {
     $stmh = $pdo->query($sql);
     while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-        include '_row.php';
+        if (file_exists('_row.php')) {
+            include '_row.php';
 
-        for ($i = 1; $i <= $rowNum; $i++) {
-            $sum_title[$i] = $steelsource_item[$i] . $steelsource_spec[$i];
-            if ($which == '1' and $tmp == $sum_title[$i])
-                $sum[$i] = $sum[$i] + (int)$steelnum;
+            for ($i = 1; $i <= $rowNum; $i++) {
+                $sum_title[$i] = $steelsource_item[$i] . $steelsource_spec[$i];
+                if ($which == '1' and $tmp == $sum_title[$i]) {
+                    $sum[$i] = $sum[$i] + (int)$steelnum;
+                }
+            }
         }
     }
 } catch (PDOException $Exception) {
@@ -294,12 +311,15 @@ $sql = "SELECT * FROM mirae8440.work" . $common;
 try {
     $stmh = $pdo->query($sql);
     while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-        include '_row.php';
+        if (file_exists('_row.php')) {
+            include '_row.php';
 
-        for ($i = 1; $i <= $rowNum; $i++) {
-            $sum_title[$i] = $steelsource_item[$i] . $steelsource_spec[$i];
-            if ($which == '2' and $tmp == $sum_title[$i])
-                $sum[$i] = $sum[$i] - (int)$steelnum;
+            for ($i = 1; $i <= $rowNum; $i++) {
+                $sum_title[$i] = $steelsource_item[$i] . $steelsource_spec[$i];
+                if ($which == '2' and $tmp == $sum_title[$i]) {
+                    $sum[$i] = $sum[$i] - (int)$steelnum;
+                }
+            }
         }
     }
 } catch (PDOException $Exception) {
@@ -313,7 +333,10 @@ if ($mode == "search") {
     } else {
         // 각 필드별로 검색어가 있는지 쿼리주는 부분
         $sql = "SELECT * FROM mirae8440.work WHERE ((workday LIKE '%$search%') OR (workplacename LIKE '%$search%') ";
-        $sql .= "OR (item LIKE '%$search%') OR (spec LIKE '%$search%') OR (company LIKE '%$search%') OR (model LIKE '%$search%') OR (comment LIKE '%$search%')) AND (workday BETWEEN date('$fromdate') AND date('$Transtodate')) AND (which='$separate_date')";
+        $sql .= "OR (item LIKE '%$search%') OR (spec LIKE '%$search%') OR (company LIKE '%$search%') OR (model LIKE '%$search%') OR (comment LIKE '%$search%')) AND (workday BETWEEN date('$fromdate') AND date('$Transtodate'))";
+        if ($separate_date) {
+            $sql .= " AND (which='$separate_date')";
+        }
     }
 }
 
@@ -328,6 +351,12 @@ $worker_arr = array();
 $work_done = array();
 $temp_arr = array();
 $count = 0;
+$start_num = 0;
+
+// work_sum 배열 초기화
+for ($i = 0; $i < 10; $i++) {
+    $work_sum[$i] = 0;
+}
 
 $worker_arr[0] = '추영덕';
 $worker_arr[1] = '이만희';
@@ -354,10 +383,10 @@ $workerNum = count($worker_arr); // 소장10명 명단
 
 <div style="padding: 1.5rem;">
 <div class="row">
-	<div class="d-flex mt-1 mb-2 justify-content-center align-items-center">
-	<!-- 기간설정 칸 -->
-	 <?php include getDocumentRoot() . '/setdate.php' ?>
-	</div>
+    <div class="d-flex mt-1 mb-2 justify-content-center align-items-center">
+        <!-- 기간설정 칸 -->
+        <?php include includePath('setdate.php'); ?>
+    </div>
 </div>
 
 <div class="d-flex p-1 m-1 mt-1 mb-1 justify-content-center align-items-center">
@@ -369,14 +398,14 @@ try {
     $total_row = $stmh->rowCount();
 
     while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-        $num = $row["num"];
-        $checkstep = $row["checkstep"];
-        $workplacename = $row["workplacename"];
-        $workday = $row["workday"];
-        $worker = $row["worker"];
-        $widejamb = $row["widejamb"];
-        $normaljamb = $row["normaljamb"];
-        $smalljamb = $row["smalljamb"];
+        $num = $row["num"] ?? '';
+        $checkstep = $row["checkstep"] ?? '';
+        $workplacename = $row["workplacename"] ?? '';
+        $workday = $row["workday"] ?? '';
+        $worker = $row["worker"] ?? '';
+        $widejamb = $row["widejamb"] ?? 0;
+        $normaljamb = $row["normaljamb"] ?? 0;
+        $smalljamb = $row["smalljamb"] ?? 0;
 
         // 불량이란 단어가 들어가 있는 수량은 제외한다.
         $findstr = '불량';
@@ -407,6 +436,11 @@ try {
     print "오류: " . $Exception->getMessage();
 }
 
+// chartchoice 배열 초기화
+for ($i = 0; $i < 5; $i++) {
+    $chartchoice[$i] = '';
+}
+
 switch ($display_sel) {
     case "doughnut": $chartchoice[0] = 'checked'; break;
     case "bar": $chartchoice[1] = 'checked'; break;
@@ -426,54 +460,52 @@ switch ($display_sel) {
         <span class="stats-form-check-label">Polar Area</span> <input type="radio" class="stats-form-check-input" <?= $chartchoice[4] ?> name="chart_sel" value="polarArea">
     </div>
 </div>
-     <div class="row">
-	     <div class="col-md-8">
-           <div id="chartMain" class="stats-chart-container"></div>
-		   </div>
-           <div class="col-md-4">
-           <div class="stats-table-container">
-		    <h5 class="mb-2 mt-3 stats-chart-title"> 시공소장별 시공비 추정금액 </h5>
-			<span class='stats-info-text mt-2 mb-4 d-block'>
-					최종SET는 쪽쟘 4Set → 와이드 1Set로 계산함
-		    </span>
-									   
-			<table class="stats-table table-bordered">
-				<thead>
-					<tr>
-						<th class="text-center"> 시공소장</th>
-						<th class="text-center"> 설치 SET</th>
-						<th class="text-center"> 시공비(만원)</th>
-					</tr>
-				</thead>
-				<tbody>
-					<?php
-					$totalAmount = 0;
-					for ($i = 0; $i < $workerNum; $i++) {
-						$amount = $work_sum[$i] * 8;
-						$totalAmount += $amount;
+    <div class="row">
+        <div class="col-md-8">
+            <div id="chartMain" class="stats-chart-container"></div>
+        </div>
+        <div class="col-md-4">
+            <div class="stats-table-container">
+                <h5 class="mb-2 mt-3 stats-chart-title">시공소장별 시공비 추정금액</h5>
+                <span class='stats-info-text mt-2 mb-4 d-block'>
+                    최종SET는 쪽쟘 4Set → 와이드 1Set로 계산함
+                </span>
 
-						echo "<tr>";
-						echo "<td class='text-center'> " . $worker_arr[$i] . "</td>";
-						echo "<td class='text-center'> " . number_format($work_sum[$i]) . " (SET)</td>";
-						echo "<td class='text-center'> " . number_format($amount) . " </td>";
-						echo "</tr>";
-					}
-					?>
-					<tr class="stats-table-secondary">
-						<td class="text-center" colspan="2"><strong>합계</strong></td>
-						<td class="text-center"><strong><?= number_format($totalAmount) ?></strong></td>
-					</tr>
-				</tbody>
-			</table>
+                <table class="stats-table table-bordered">
+                    <thead>
+                        <tr>
+                            <th class="text-center">시공소장</th>
+                            <th class="text-center">설치 SET</th>
+                            <th class="text-center">시공비(만원)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        $totalAmount = 0;
+                        for ($i = 0; $i < $workerNum; $i++) {
+                            $amount = $work_sum[$i] * 8;
+                            $totalAmount += $amount;
 
-		   </div>
-		   </div>
+                            echo "<tr>";
+                            echo "<td class='text-center'>" . $worker_arr[$i] . "</td>";
+                            echo "<td class='text-center'>" . number_format($work_sum[$i]) . " (SET)</td>";
+                            echo "<td class='text-center'>" . number_format($amount) . "</td>";
+                            echo "</tr>";
+                        }
+                        ?>
+                        <tr class="stats-table-secondary">
+                            <td class="text-center" colspan="2"><strong>합계</strong></td>
+                            <td class="text-center"><strong><?= number_format($totalAmount) ?></strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-   </div>
-
-   </div> <!--card-body-->
-   </div> <!--glass-container -->
-   </div> <!--container-fluid-->
+    </div> <!--card-body-->
+    </div> <!--glass-container -->
+    </div> <!--container-fluid-->
 
 </form>
 

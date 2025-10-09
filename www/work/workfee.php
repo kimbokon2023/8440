@@ -37,6 +37,13 @@ $cursort = $_REQUEST["cursort"] ?? '';
 $sortof = $_REQUEST["sortof"] ?? '';
 $stable = $_REQUEST["stable"] ?? '';
 $search = $_REQUEST["search"] ?? '';
+$year = $_REQUEST["year"] ?? '';
+$process = $_REQUEST["process"] ?? '';
+$asprocess = $_REQUEST["asprocess"] ?? '';
+$up_fromdate = $_REQUEST["up_fromdate"] ?? '';
+$up_todate = $_REQUEST["up_todate"] ?? '';
+$separate_date = $_REQUEST["separate_date"] ?? '';
+$view_table = $_REQUEST["view_table"] ?? '';
 
 $sum = array();
 
@@ -86,6 +93,8 @@ $material_arr = array();
 $demand_arr = array();
 $visitfee_arr = array();
 $totalfee_arr = array();
+$doneday_arr = array();
+$address_arr = array();
 
 $wide_arr = array();
 $normal_arr = array();
@@ -145,7 +154,7 @@ try {
 		   
 		   // 판매'란 단어 있으면 실측비 제외		   
 		   // $findstr = '판매';
-		   $findstr = '떨미';
+		   $findstr = '판매';
 		   $pos = stripos($workplacename, $findstr);			   
 		   
 		if( trim($secondord) =='우성스틸' or trim($secondord) == '한산' or trim($secondord) == '대오정공' or $pos>0 )
@@ -181,8 +190,8 @@ try {
 								  
 					   //불량이란 단어가 들어가 있는 수량은 제외한다.		   
 					   // $findstr = '불량';
-					   $findstr = '떨뿔';
-					   $findstr2 = '떨뿔';
+					   $findstr = '판매';
+					   $findstr2 = '판매';
 					   $pos = stripos($workplacename, $findstr);							   
 					   //판매란 단어가 들어가 있는 수량은 제외한다.		   
 					   // $findstr2 = '판매';
@@ -208,8 +217,8 @@ try {
 							 
 					   //불량이란 단어가 들어가 있는 수량은 제외한다.		   
 						// $findstr = '불량';
-					   $findstr = '떨뿔';
-					   $findstr2 = '떨뿔';
+					   $findstr = '판매';
+					   $findstr2 = '판매';
 					   $pos = stripos($workplacename, $findstr);							   
 					   //판매란 단어가 들어가 있는 수량은 제외한다.		   							   
 					   $pos2 = stripos($workplacename, $findstr2);
@@ -232,8 +241,8 @@ try {
 														 
 					   //불량이란 단어가 들어가 있는 수량은 제외한다.		   
 					   // $findstr = '불량';
-					   $findstr = '떨뿔';
-					   $findstr2 = '떨뿔';
+					   $findstr = '판매';
+					   $findstr2 = '판매';
 					   $pos = stripos($workplacename, $findstr);							   
 					   //판매란 단어가 들어가 있는 수량은 제외한다.		   							   
 					   $pos2 = stripos($workplacename, $findstr2);
@@ -259,9 +268,15 @@ try {
 } catch (PDOException $Exception) {
     print "오류: " . $Exception->getMessage();
 }
+
+// jamb_total 계산 (전체 잼 수량 합계)
+$jamb_total = 0;
+for ($i = 0; $i < $counter; $i++) {
+    $jamb_total += $wide_arr[$i] + $normal_arr[$i] + $narrow_arr[$i];
+}
 ?>
 
-<form name="board_form" id="board_form" method="post" action="workfee.php?mode=search&year=<?= $year ?>&search=<?= $search ?>&process=<?= $process ?>&asprocess=<?= $asprocess ?>&fromdate=<?= $fromdate ?>&todate=<?= $todate ?>&up_fromdate=<?= $up_fromdate ?>&up_todate=<?= $up_todate ?>&separate_date=<?= $separate_date ?>&view_table=<?= $view_table ?>">
+<form name="board_form" id="board_form" method="post" action="workfee.php?mode=search&year=<?php echo $year; ?>&search=<?php echo $search; ?>&process=<?php echo $process; ?>&asprocess=<?php echo $asprocess; ?>&fromdate=<?php echo $fromdate; ?>&todate=<?php echo $todate; ?>&up_fromdate=<?php echo $up_fromdate; ?>&up_todate=<?php echo $up_todate; ?>&separate_date=<?php echo $separate_date; ?>&view_table=<?php echo $view_table; ?>">
 
 <div class="container-fluid">
     <div class="card mt-3 mb-5">    
@@ -271,7 +286,7 @@ try {
 	 판매,불량자료도 나옴 &nbsp; 	
 	 <button  type="button" class="btn btn-secondary  btn-sm" id="refresh"> <i class="bi bi-arrow-clockwise"></i>  </button>	 &nbsp;			 
 	 <button  type="button" class="btn btn-secondary  btn-sm" id="downloadcsvBtn"> CSV 엑셀 다운로드 </button>	 &nbsp;
-	 <button  type="button" class="btn btn-secondary  btn-sm" id="downloadlistBtn" onclick="javascript:move_url('../work/excelform.php?fromdate=<?=$fromdate?>&todate=<?=$todate?>&search=<?=$search?>')"> 소장별 거래명세표(엑셀)</button>&nbsp;
+	 <button  type="button" class="btn btn-secondary  btn-sm" id="downloadlistBtn" onclick="javascript:move_url('../work/excelform.php?fromdate=<?php echo $fromdate; ?>&todate=<?php echo $todate; ?>&search=<?php echo $search; ?>')"> 소장별 거래명세표(엑셀)</button>&nbsp;
 	  
 	 <span style="margin-left:70px;color:grey;"> 작업소장 :  </span>
 	    <button type="button" class="btn btn-dark  btn-sm" onclick="List_name('')"> ALL </button> 				
@@ -289,7 +304,7 @@ try {
    <div class="d-flex  p-1 m-1 mt-1 mb-1 justify-content-center align-items-center "> 		 
   
    <span style="color:blue;"> 시공비 청구일자 일괄처리 </span>	&nbsp;	
-	 <input type="date" id="recordDate" name="recordDate"  class="form-control fs-6" style="width:150px;"  value="<?=$recordDate?>" placeholder=""> 	 
+	 <input type="date" id="recordDate" name="recordDate"  class="form-control fs-6" style="width:150px;"  value="<?php echo $recordDate; ?>" placeholder=""> 	 
 	 &nbsp;	&nbsp;	선택체크		&nbsp;	
 	 <button type="button" id="saveBtn"  class="btn btn-secondary btn-sm"> 일괄적용&저장 </button>	&nbsp;		
 	 <button type="button" id="clearBtn"  class="btn btn-outline-danger btn-sm"> 선택 Clear </button>	&nbsp;		
@@ -313,12 +328,12 @@ try {
 		</div>
 		</div>
 
-		<input type="date" id="fromdate" name="fromdate" size="12" value="<?=$fromdate?>" placeholder="기간 시작일">  &nbsp;   ~ &nbsp;  
-		<input type="date" id="todate" name="todate" size="12"  value="<?=$todate?>" placeholder="기간 끝">  &nbsp;     </span> 
+		<input type="date" id="fromdate" name="fromdate" size="12" value="<?php echo $fromdate; ?>" placeholder="기간 시작일">  &nbsp;   ~ &nbsp;  
+		<input type="date" id="todate" name="todate" size="12"  value="<?php echo $todate; ?>" placeholder="기간 끝">  &nbsp;     </span> 
 		&nbsp;&nbsp;		   		
 
 		&nbsp;
-		<input type="text" name="search" id="search" value="<?=$search?>" class="form-control" style="width:150px;" onkeydown="JavaScript:SearchEnter();" placeholder="검색어"> 
+		<input type="text" name="search" id="search" value="<?php echo $search; ?>" class="form-control" style="width:150px;" onkeydown="JavaScript:SearchEnter();" placeholder="검색어"> 
 		<button type="button" id="searchBtn" class="btn btn-dark  btn-sm mx-1"> <i class="bi bi-search"></i> 검색  </button>	&nbsp;&nbsp;											
 
 		<span style="margin-left:20px;font-size:15px;color:blue;"> ※실측비는 1,2,3차 등 차수 및 여건에 따라 달라질 수 있음 </span>       
@@ -380,104 +395,107 @@ $("#popupwindow").click(function(){
 
 });		
 	
- var arr1 = <?php echo json_encode($doneday_arr);?> ;
- var arr2 = <?php echo json_encode($workfeedate_arr);?> ;  
- var arr3 = <?php echo json_encode($worker_arr);?> ; 
- var arr4 = <?php echo json_encode($workplacename_arr);?> ;
- var arr5 = <?php echo json_encode($material_arr);?> ;
- var arr6 = <?php echo json_encode($firstord_arr);?> ;  
- var arr7 = <?php echo json_encode($secondord_arr);?> ; 
- var arr8 = <?php echo json_encode($demand_arr);?> ;
- var arr9 = <?php echo json_encode($visitfee_arr);?> ;
- var arr10= <?php echo json_encode($wide_arr);?> ;
- var arr11= <?php echo json_encode($wideunit_arr);?> ;
- var arr12= <?php echo json_encode($widefee_arr);?> ;
- var arr13= <?php echo json_encode($normal_arr);?> ;
- var arr14= <?php echo json_encode($normalunit_arr);?> ;
- var arr15= <?php echo json_encode($normalfee_arr);?> ;
- var arr16= <?php echo json_encode($narrow_arr);?> ;
- var arr17= <?php echo json_encode($narrowunit_arr);?> ;
- var arr18= <?php echo json_encode($narrowfee_arr);?> ;
- var arr19 = <?php echo json_encode($etc_arr);?> ;
- var arr20 = <?php echo json_encode($etcfee_arr);?> ;
- var arr21 = <?php echo json_encode($totalfee_arr);?> ;
- var arr22 = <?php echo json_encode($num_arr);?> ;
- var arr23 = <?php echo json_encode($add_arr);?> ;  // 재료분리대 여부 검색해서 알려줌 추가부분
+ var arr1 = <?php echo json_encode($doneday_arr ?: array());?> || [];
+ var arr2 = <?php echo json_encode($workfeedate_arr ?: array());?> || [];
+ var arr3 = <?php echo json_encode($worker_arr ?: array());?> || [];
+ var arr4 = <?php echo json_encode($workplacename_arr ?: array());?> || [];
+ var arr5 = <?php echo json_encode($material_arr ?: array());?> || [];
+ var arr6 = <?php echo json_encode($firstord_arr ?: array());?> || [];
+ var arr7 = <?php echo json_encode($secondord_arr ?: array());?> || [];
+ var arr8 = <?php echo json_encode($demand_arr ?: array());?> || [];
+ var arr9 = <?php echo json_encode($visitfee_arr ?: array());?> || [];
+ var arr10= <?php echo json_encode($wide_arr ?: array());?> || [];
+ var arr11= <?php echo json_encode($wideunit_arr ?: array());?> || [];
+ var arr12= <?php echo json_encode($widefee_arr ?: array());?> || [];
+ var arr13= <?php echo json_encode($normal_arr ?: array());?> || [];
+ var arr14= <?php echo json_encode($normalunit_arr ?: array());?> || [];
+ var arr15= <?php echo json_encode($normalfee_arr ?: array());?> || [];
+ var arr16= <?php echo json_encode($narrow_arr ?: array());?> || [];
+ var arr17= <?php echo json_encode($narrowunit_arr ?: array());?> || [];
+ var arr18= <?php echo json_encode($narrowfee_arr ?: array());?> || [];
+ var arr19 = <?php echo json_encode($etc_arr ?: array());?> || [];
+ var arr20 = <?php echo json_encode($etcfee_arr ?: array());?> || [];
+ var arr21 = <?php echo json_encode($totalfee_arr ?: array());?> || [];
+ var arr22 = <?php echo json_encode($num_arr ?: array());?> || [];
+ var arr23 = <?php echo json_encode($add_arr ?: array());?> || [];  // 재료분리대 여부 검색해서 알려줌 추가부분
  
-var num = <?php echo json_encode($num_arr);?> ;
-var numcopy = new Array(); ;
+var num = <?php echo json_encode($num_arr ?: array());?> || [];
+var numcopy = new Array();
  
- var total_sum=0; 
- var count=0;  // 전체줄수 카운트 
+ var total_sum = 0; 
+ var count = 0;  // 전체줄수 카운트 
   
- var rowNum = "<? echo $counter; ?>" ; 
+ var rowNum = "<?php echo $counter; ?>"; 
  
  const data = [];
  const columns = [];	
  const COL_COUNT = 22;
 
- for(i=0;i<rowNum;i++) {
-			 total_sum = total_sum + Number(uncomma(arr21[i]));
-		 row = { name: i };		 
-		 for (let k = 0; k < COL_COUNT; k++ ) {				
-				row[`col1`] = arr1[i] ;						 						
-				row[`col2`] = arr2[i] ;						 						
-				row[`col3`] = arr3[i] ;						 						
-				row[`col4`] = arr4[i] ;						 											 						
-				row[`col5`] = arr5[i] ;						 											 						
-				row[`col6`] = arr6[i] ;						 											 						
-				row[`col7`] = arr7[i] ;						 											 						
-				row[`col8`] = arr8[i] ;						 											 						
-				row[`col9`] =  (arr9[i] == 0) ? "" : comma(arr9[i]);						 						
-				row[`col10`] = (arr10[i] == 0) ? "" : comma(arr10[i]);					 						
-				row[`col11`] = (arr11[i] == 0) ? "" : comma(arr11[i]);							 						
-				row[`col12`] = (arr12[i] == 0) ? "" : comma(arr12[i]);							 						
-				row[`col13`] = (arr13[i] == 0) ? "" : comma(arr13[i]);							 						
-				row[`col14`] = (arr14[i] == 0) ? "" : comma(arr14[i]);							 						
-				row[`col15`] = (arr15[i] == 0) ? "" : comma(arr15[i]);							 						
-				row[`col16`] = (arr16[i] == 0) ? "" : comma(arr16[i]);							 						
-				row[`col17`] = (arr17[i] == 0) ? "" : comma(arr17[i]);							 						
-				row[`col18`] = (arr18[i] == 0) ? "" : comma(arr18[i]);							 						
-				row[`col19`] = (arr19[i] == 0) ? "" : comma(arr19[i]);							 						
-				row[`col20`] = (arr20[i] == 0) ? "" : comma(arr20[i]);							 						
-				row[`col21`] = (arr21[i] == 0) ? "" : comma(arr21[i]);							 						
-				row[`col22`] = arr22[i] ;						 											 						
-				row[`col23`] = arr23[i] ;						 											 						
-						}
-				data.push(row); 	 
-                numcopy[count] = num[i] ; 			 
-			    count++;					
+ if (rowNum > 0) {
+     for(i=0;i<rowNum;i++) {
+         total_sum = total_sum + Number(uncomma(arr21[i] || 0));
+         row = { name: i };		 
+         for (let k = 0; k < COL_COUNT; k++ ) {				
+             row[`col1`] = arr1[i] || '';						 						
+             row[`col2`] = arr2[i] || '';						 						
+             row[`col3`] = arr3[i] || '';						 						
+             row[`col4`] = arr4[i] || '';						 											 						
+             row[`col5`] = arr5[i] || '';						 											 						
+             row[`col6`] = arr6[i] || '';						 											 						
+             row[`col7`] = arr7[i] || '';						 											 						
+             row[`col8`] = arr8[i] || '';						 											 						
+             row[`col9`] =  (arr9[i] == 0 || !arr9[i]) ? "" : comma(arr9[i]);						 						
+             row[`col10`] = (arr10[i] == 0 || !arr10[i]) ? "" : comma(arr10[i]);					 						
+             row[`col11`] = (arr11[i] == 0 || !arr11[i]) ? "" : comma(arr11[i]);							 						
+             row[`col12`] = (arr12[i] == 0 || !arr12[i]) ? "" : comma(arr12[i]);							 						
+             row[`col13`] = (arr13[i] == 0 || !arr13[i]) ? "" : comma(arr13[i]);							 						
+             row[`col14`] = (arr14[i] == 0 || !arr14[i]) ? "" : comma(arr14[i]);							 						
+             row[`col15`] = (arr15[i] == 0 || !arr15[i]) ? "" : comma(arr15[i]);							 						
+             row[`col16`] = (arr16[i] == 0 || !arr16[i]) ? "" : comma(arr16[i]);							 						
+             row[`col17`] = (arr17[i] == 0 || !arr17[i]) ? "" : comma(arr17[i]);							 						
+             row[`col18`] = (arr18[i] == 0 || !arr18[i]) ? "" : comma(arr18[i]);							 						
+             row[`col19`] = (arr19[i] == 0 || !arr19[i]) ? "" : comma(arr19[i]);							 						
+             row[`col20`] = (arr20[i] == 0 || !arr20[i]) ? "" : comma(arr20[i]);							 						
+             row[`col21`] = (arr21[i] == 0 || !arr21[i]) ? "" : comma(arr21[i]);							 						
+             row[`col22`] = arr22[i] || '';						 											 						
+             row[`col23`] = arr23[i] || '';						 											 						
+         }
+         data.push(row); 	 
+         numcopy[count] = num[i] || ''; 			 
+         count++;					
+     }
  }
  
 // 마지막에 한줄 추가해서 합계내역 넣음
+var i = parseInt(rowNum) || 0;
 i++;		
 row = { name: i };		 
-	 for (let k = 0; k < COL_COUNT; k++ ) {				
-			row[`col1`] = '' ;						 						
-			row[`col2`] = '' ;						 						
-			row[`col3`] = '' ;						 						
-			row[`col4`] = '' ;						 						
-			row[`col5`] = '' ;
-			row[`col6`] = '' ;						 						
-			row[`col7`] = '' ;						 						
-			row[`col8`] = '' ;
-			row[`col9`] = '' ;					 						
-			row[`col10`] ='' ;
-			row[`col11`] ='' ;
-			row[`col12`] ='' ;
-			row[`col13`] ='' ;
-			row[`col14`] ='' ;
-			row[`col15`] ='' ;
-			row[`col16`] ='' ;
-			row[`col17`] ='' ;
-			row[`col18`] ='' ;
-			row[`col19`] ='' ;
-			row[`col20`] = '합계';
-			row[`col21`] = comma(total_sum)  ;	
-			row[`col22`] ='' ;				
-		}
-		 data.push(row); 	
-		 numcopy[count] = 0 ;
+for (let k = 0; k < COL_COUNT; k++ ) {				
+    row[`col1`] = '';						 						
+    row[`col2`] = '';						 						
+    row[`col3`] = '';						 						
+    row[`col4`] = '';						 						
+    row[`col5`] = '';
+    row[`col6`] = '';						 						
+    row[`col7`] = '';						 						
+    row[`col8`] = '';
+    row[`col9`] = '';					 						
+    row[`col10`] = '';
+    row[`col11`] = '';
+    row[`col12`] = '';
+    row[`col13`] = '';
+    row[`col14`] = '';
+    row[`col15`] = '';
+    row[`col16`] = '';
+    row[`col17`] = '';
+    row[`col18`] = '';
+    row[`col19`] = '';
+    row[`col20`] = '합계';
+    row[`col21`] = comma(total_sum);	
+    row[`col22`] = '';				
+}
+data.push(row); 	
+numcopy[count] = 0;
 		 count++;	
 
 class CustomTextEditor {
@@ -845,23 +863,20 @@ function SearchEnter(){
     }
 }
 
-function List_name(worker)
-{	
-		var worker; 				
-		var name='<?php echo $user_name; ?>' ;
-		 
-			$("#search").val(worker);	
-			$('#board_form').submit();		// 검색버튼 효과
+function List_name(worker) {
+    var name = '<?php echo $user_name; ?>';
+    
+    $("#search").val(worker);
+    $('#board_form').submit();        // 검색버튼 효과
 }
 
-function move_url(href)
-{
-	 var  search = "<? echo $search;  ?>" ; 
-	 if(search!='')
-        document.location.href = href;		 
-	   else
-		  alert('소장을 선택해 주세요');   
-	   
+function move_url(href) {
+    var search = "<?php echo $search; ?>";
+    if (search != '') {
+        document.location.href = href;
+    } else {
+        alert('소장을 선택해 주세요');
+    }
 }
 
 </script>
@@ -872,5 +887,5 @@ function move_url(href)
 	});
 </script>
 
-</html>
 </body>
+</html> 

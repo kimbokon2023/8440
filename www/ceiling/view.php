@@ -1,32 +1,30 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
-require_once getDocumentRoot() . '/vendor/autoload.php';
-require_once(includePath('lib/mydb.php'));
+<?php
+require_once __DIR__ . '/../bootstrap.php';
 
-// 서비스 계정 JSON 파일 경로
-$serviceAccountKeyFile = getDocumentRoot() . '/tokens/mytoken.json';
- 
-$menu=$_REQUEST["menu"]; 
-   
-$title_message = '본천장&조명천장 수주내역';   
-   
+// Session-based access control (level 5 or higher required)
+if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+    sleep(1);
+    header("Location:" . getBaseUrl() . "/login/login_form.php");
+    exit;
+}
+
+// Initialize session variables
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+$user_name = $_SESSION["user_name"] ?? '';
+$level = $_SESSION["level"] ?? '';
+
+// Initialize base URL
+$base_url = getBaseUrl();
+
+// Initialize request variables
+$menu = $_REQUEST["menu"] ?? '';
+$title_message = '본천장&조명천장 수주내역';
+
+include includePath('load_header.php');
+include includePath('common/modal.php');
 ?>
 
-<?php 
-
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-		 sleep(1);
-	          header("Location:" . $WebSite . "login/login_form.php"); 
-         exit;
-   }    
-
-include getDocumentRoot() . '/load_header.php';   
-   
- ?>
-
-<?php include getDocumentRoot() . '/common/modal.php'; ?>
-
-<title> <?=$title_message?>  </title>
+<title><?php echo htmlspecialchars($title_message); ?></title>
 
 </head>
 
@@ -207,33 +205,48 @@ input[type="checkbox"] {
    
 <?php
    
+// Initialize all request variables
 $num = $_REQUEST["num"] ?? '';
 $search = $_REQUEST["search"] ?? '';
 $find = $_REQUEST["find"] ?? '';
-
 $process = $_REQUEST["process"] ?? '';
 $year = $_REQUEST["year"] ?? '';
-
+$yearcheckbox = $_REQUEST["yearcheckbox"] ?? '';
+$page = $_REQUEST["page"] ?? '';
 $check_draw = $_REQUEST["check_draw"] ?? $_POST["check_draw"] ?? '';
 $check = $_REQUEST["check"] ?? $_POST["check"] ?? '';
 $output_check = $_REQUEST["output_check"] ?? $_POST["output_check"] ?? '0';
 $team_check = $_REQUEST["team_check"] ?? $_POST["team_check"] ?? '0';
 $measure_check = $_REQUEST["measure_check"] ?? $_POST["measure_check"] ?? '0';
 $plan_output_check = $_REQUEST["plan_output_check"] ?? $_POST["plan_output_check"] ?? '0';
-
-
 $cursort = $_REQUEST["cursort"] ?? '0';
 $sortof = $_REQUEST["sortof"] ?? '0';
 $stable = $_REQUEST["stable"] ?? '0';
-
 $navibar = $_REQUEST["navibar"] ?? '0';
 
-$pdo = db_connect();	
- 
-$WrappicNum=0; 
+// Initialize hidden form variables
+$mode = '';
+$item = '';
+$pInput = '';
+$parentid = '';
+$fileorimage = '';
+$savetitle = '';
+$timekey = '';
+$upnum = '';
+$sort = '';
+$m2 = '';
+
+// Initialize admin variable
+$admin = $_SESSION["admin"] ?? '';
+
+// Database connection
+$pdo = db_connect();
+
+// Initialize picture counter
+$WrappicNum = 0;
 
 // 서비스 계정 JSON 파일 경로
-$serviceAccountKeyFile = getDocumentRoot() . '/tokens/mytoken.json';
+$serviceAccountKeyFile = includePath('tokens/mytoken.json');
 
 // Google Drive 클라이언트 설정
 $client = new Google_Client();
@@ -330,62 +343,28 @@ try {
 $WrappicNum = count($WrappicData);
 
  
- try{
-     $sql = "select * from mirae8440.ceiling where num=?";
-     $stmh = $pdo->prepare($sql);  
-     $stmh->bindValue(1, $num, PDO::PARAM_STR);      
-     $stmh->execute();            
-      
-     $row = $stmh->fetch(PDO::FETCH_ASSOC); 	
-      
-     include '_rowDB.php';	  
-			
-	  $workday=trans_date($workday);
-	  $demand=trans_date($demand);
-	  $orderday=trans_date($orderday);
-	  $deadline=trans_date($deadline);
-	  $testday=trans_date($testday);
-	  $lc_draw=trans_date($lc_draw);
-	  $etc_draw=trans_date($etc_draw);
-	  $lclaser_date=trans_date($lclaser_date);
-	  $lclbending_date=trans_date($lclbending_date);
-	  $lclwelding_date=trans_date($lclwelding_date);
-	  $lcpainting_date=trans_date($lcpainting_date);
-	  $lcassembly_date=trans_date($lcassembly_date);
-	  $main_draw=trans_date($main_draw);			
-	  $eunsung_make_date=trans_date($eunsung_make_date);			
-	  $eunsung_laser_date=trans_date($eunsung_laser_date);			
-	  $mainbending_date=trans_date($mainbending_date);			
-	  $mainwelding_date=trans_date($mainwelding_date);			
-	  $mainpainting_date=trans_date($mainpainting_date);			
-	  $mainassembly_date=trans_date($mainassembly_date);		
-	  
-	  $order_date1=trans_date($order_date1);					   
-	  $order_date2=trans_date($order_date2);					   
-	  $order_date3=trans_date($order_date3);					   
-	  $order_date4=trans_date($order_date4);					   
-	  $order_input_date1=trans_date($order_input_date1);					   
-	  $order_input_date2=trans_date($order_input_date2);					   
-	  $order_input_date3=trans_date($order_input_date3);					   
-	  $order_input_date4=trans_date($order_input_date4);	
-	  
-	  
-	  // $outsourcing = '외주';
-			
-     }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
-     }
+try {
+    $sql = "SELECT * FROM {$DB}.ceiling WHERE num=?";
+    $stmh = $pdo->prepare($sql);
+    $stmh->bindValue(1, $num, PDO::PARAM_STR);
+    $stmh->execute();
+
+    $row = $stmh->fetch(PDO::FETCH_ASSOC);
+
+    include '_rowDB.php';
+
+} catch (PDOException $Exception) {
+    print "오류: " . $Exception->getMessage();
+}
  
- // 랜더링 이미지 이미 있는 것 불러오기 
-$picData=array(); 
-$tablename='ceiling';
+// 랜더링 이미지 이미 있는 것 불러오기
+$picData = array();
+$tablename = 'ceiling';
 $item = 'ceilingrendering';
 
-// '폴더의 ID 가져오기
+// 폴더의 ID 가져오기
 $miraeFolderId = getFolderId($service, '미래기업');
 $uploadsFolderId = getFolderId($service, 'uploads', $miraeFolderId);
-
-$pdo = db_connect();
 
 // 파일 확인 및 Google Drive 정보 가져오기
 $sql = "SELECT * FROM {$DB}.picuploads WHERE item = ? AND parentnum = ?";
@@ -445,8 +424,8 @@ try {
 }
 
 $picNum = count($picData);
-  
-$URLsave = "https://8440.co.kr/ceilingloadpic.php?num=" . $num;  
+
+$URLsave = $base_url . "/ceilingloadpic.php?num=" . $num;  
  
 // // 첨부파일 있는 것 불러오기 
 // $savefilename_arr=array(); 
@@ -563,8 +542,8 @@ $material_arr = array('','304 Hair Line 1.2T','304 HL 1.2T','304 Mirror 1.2T','3
  ?>
  
 		      
-<input type="hidden" id="first_writer" name="first_writer" value="<?=$first_writer?>"  >
-<input type="hidden" id="update_log" name="update_log" value="<?=$update_log?>"  > 
+<input type="hidden" id="first_writer" name="first_writer" value="<?php echo htmlspecialchars($first_writer); ?>">
+<input type="hidden" id="update_log" name="update_log" value="<?php echo htmlspecialchars($update_log); ?>"> 
  
 <div class="container-fluid">	  
 <div class="card p-2 m-2">	  
@@ -578,23 +557,22 @@ $material_arr = array('','304 Hair Line 1.2T','304 HL 1.2T','304 Mirror 1.2T','3
 <div class="col-sm-1"> 		
 </div> 		
 <div class="col-sm-10"> 		  
-<div class="d-flex justify-content-start align-items-center mt-3 mb-2 ">		
-	<span class="fs-6 me-5">  <?=$title_message?> (#<?=$num?>) </span>   
+<div class="d-flex justify-content-start align-items-center mt-3 mb-2 ">
+    <span class="fs-6 me-5"> <?php echo htmlspecialchars($title_message); ?> (#<?php echo htmlspecialchars($num); ?>)</span>   
 	
-	<button class="btn btn-dark btn-sm me-1" onclick="location.href='write_form.php?mode=modify&num=<?=$num?>&page=<?=$page?>&search=<?=$search?>&find=<?=$find?>&process=<?=$process?>&yearcheckbox=<?=$yearcheckbox?>&year=<?=$year?>&check=<?=$check?>&output_check=<?=$output_check?>&team_check=<?=$team_check?>&plan_output_check=<?=$plan_output_check?>&page=<?=$page?>&cursort=<?=$cursort?>&sortof=<?=$sortof?>&stable=1';" >  <i class="bi bi-pencil-square"></i>  수정  </button>
-	<button class="btn btn-danger btn-sm me-1" onclick="javascript:del('delete.php?num=<?=$num?>&page=<?=$page?>&check=<?=$check?>')">  <i class="bi bi-trash"></i>  삭제   </button>
-	<button class="btn btn-dark btn-sm me-1" onclick="location.href='write_form.php';" > <ion-icon name="create-outline"></ion-icon> 신규 </button>
-	<button class="btn btn-primary btn-sm me-1" onclick="location.href='write_form.php?mode=copy&num=<?=$num?>';" >  <i class="bi bi-copy"></i> 복사 </button>&nbsp;
-	<button class="btn btn-outline-primary btn-sm me-1" onclick="location.href='write_form.php?mode=split&num=<?=$num?>';"> <i class="bi bi-window-split"></i>  분할&복사 </button>
-	<button class="btn btn-success btn-sm me-1" onclick="popupCenter('transform.php?num=<?=$num?>&upnum=<?=$upnum?>&page=<?=$page?>&search=<?=$search?>&find=<?=$find?>&list=1&process=<?=$process?>&sort=<?=$sort?>&m2=<?=$m2?>','출고증 인쇄',1400,900);" > <i class="bi bi-printer"></i> 출고증 </button>
-	<button class="btn btn-success btn-sm me-1" onclick="popupCenter('transform_sheet.php?num=<?=$num?>&upnum=<?=$upnum?>&page=<?=$page?>&search=<?=$search?>&find=<?=$find?>&list=1&process=<?=$process?>&sort=<?=$sort?>&m2=<?=$m2?>','출고증 인쇄',1400,900);" > <i class="bi bi-printer"></i> 거래명세서  </button>
-	<button class="btn btn-success btn-sm me-1" onclick="popupCenter('inspection.php?num=<?=$num?>&upnum=<?=$upnum?>&page=<?=$page?>&search=<?=$search?>&find=<?=$find?>&list=1&process=<?=$process?>&sort=<?=$sort?>&m2=<?=$m2?>','검사서(후지) 인쇄',1000,500);" > <i class="bi bi-printer"></i> 검사서(후지)</button> 
+    <button class="btn btn-dark btn-sm me-1" onclick="location.href='write_form.php?mode=modify&num=<?php echo urlencode($num); ?>&page=<?php echo urlencode($page); ?>&search=<?php echo urlencode($search); ?>&find=<?php echo urlencode($find); ?>&process=<?php echo urlencode($process); ?>&yearcheckbox=<?php echo urlencode($yearcheckbox); ?>&year=<?php echo urlencode($year); ?>&check=<?php echo urlencode($check); ?>&output_check=<?php echo urlencode($output_check); ?>&team_check=<?php echo urlencode($team_check); ?>&plan_output_check=<?php echo urlencode($plan_output_check); ?>&page=<?php echo urlencode($page); ?>&cursort=<?php echo urlencode($cursort); ?>&sortof=<?php echo urlencode($sortof); ?>&stable=1';"><i class="bi bi-pencil-square"></i> 수정</button>
+    <button class="btn btn-danger btn-sm me-1" onclick="javascript:del('delete.php?num=<?php echo urlencode($num); ?>&page=<?php echo urlencode($page); ?>&check=<?php echo urlencode($check); ?>')"><i class="bi bi-trash"></i> 삭제</button>
+    <button class="btn btn-dark btn-sm me-1" onclick="location.href='write_form.php';"><ion-icon name="create-outline"></ion-icon> 신규</button>
+    <button class="btn btn-primary btn-sm me-1" onclick="location.href='write_form.php?mode=copy&num=<?php echo urlencode($num); ?>';"><i class="bi bi-copy"></i> 복사</button>&nbsp;
+    <button class="btn btn-outline-primary btn-sm me-1" onclick="location.href='write_form.php?mode=split&num=<?php echo urlencode($num); ?>';"><i class="bi bi-window-split"></i> 분할&복사</button>
+    <button class="btn btn-success btn-sm me-1" onclick="popupCenter('transform.php?num=<?php echo urlencode($num); ?>&upnum=<?php echo urlencode($upnum); ?>&page=<?php echo urlencode($page); ?>&search=<?php echo urlencode($search); ?>&find=<?php echo urlencode($find); ?>&list=1&process=<?php echo urlencode($process); ?>&sort=<?php echo urlencode($sort); ?>&m2=<?php echo urlencode($m2); ?>','출고증 인쇄',1400,900);"><i class="bi bi-printer"></i> 출고증</button>
+    <button class="btn btn-success btn-sm me-1" onclick="popupCenter('transform_sheet.php?num=<?php echo urlencode($num); ?>&upnum=<?php echo urlencode($upnum); ?>&page=<?php echo urlencode($page); ?>&search=<?php echo urlencode($search); ?>&find=<?php echo urlencode($find); ?>&list=1&process=<?php echo urlencode($process); ?>&sort=<?php echo urlencode($sort); ?>&m2=<?php echo urlencode($m2); ?>','출고증 인쇄',1400,900);"><i class="bi bi-printer"></i> 거래명세서</button>
+    <button class="btn btn-success btn-sm me-1" onclick="popupCenter('inspection.php?num=<?php echo urlencode($num); ?>&upnum=<?php echo urlencode($upnum); ?>&page=<?php echo urlencode($page); ?>&search=<?php echo urlencode($search); ?>&find=<?php echo urlencode($find); ?>&list=1&process=<?php echo urlencode($process); ?>&sort=<?php echo urlencode($sort); ?>&m2=<?php echo urlencode($m2); ?>','검사서(후지) 인쇄',1000,500);"><i class="bi bi-printer"></i> 검사서(후지)</button> 
 	<?php 
 	
-	if(intval($bon_su)>0)
-    {  ?>	
-	<button class="btn btn-success btn-sm" onclick="popupCenter('millsheet.php?num=<?=$num?>&upnum=<?=$upnum?>&page=<?=$page?>&search=<?=$search?>&find=<?=$find?>&list=1&process=<?=$process?>&sort=<?=$sort?>&m2=<?=$m2?>','자체시험성적서 인쇄',1000,500);" > 자체시험성적서 <ion-icon name="print-outline"></ion-icon> </button>&nbsp;&nbsp;   						
-	<?php }  ?>
+    if (intval($bon_su) > 0) { ?>
+    <button class="btn btn-success btn-sm" onclick="popupCenter('millsheet.php?num=<?php echo urlencode($num); ?>&upnum=<?php echo urlencode($upnum); ?>&page=<?php echo urlencode($page); ?>&search=<?php echo urlencode($search); ?>&find=<?php echo urlencode($find); ?>&list=1&process=<?php echo urlencode($process); ?>&sort=<?php echo urlencode($sort); ?>&m2=<?php echo urlencode($m2); ?>','자체시험성적서 인쇄',1000,500);"> 자체시험성적서 <ion-icon name="print-outline"></ion-icon></button>&nbsp;&nbsp;
+    <?php } ?>
 	
 	</div>
 	</div>
@@ -608,21 +586,20 @@ $material_arr = array('','304 Hair Line 1.2T','304 HL 1.2T','304 Mirror 1.2T','3
 		 
 		  <tbody>
 			<tr>
-			  <td colspan="1">현장명</td>
-			  <td colspan="4">
-				<input type="text" id="workplacename" name="workplacename" value="<?=$workplacename?>" class="form-control" style="text-align: left;" required>
-			  </td>
-			  <td colspan="1">
-			   <?php
-					  if($outsourcing === '외주')
-					  {
-							print '<h5> <span id="outsourcingBtn" class="badge bg-success ">외주가공</span>    &nbsp;	';							
-					  }		
-				?>			  
-			</td>
-			</tr>
-			  <td>주소</td>
-			  <td colspan="4"><input type="text" name="address" value="<?=$address?>" class="form-control"  style="text-align: left;" ></td>
+            <td colspan="1">현장명</td>
+            <td colspan="4">
+                <input type="text" id="workplacename" name="workplacename" value="<?php echo htmlspecialchars($workplacename); ?>" class="form-control" style="text-align: left;" required>
+            </td>
+            <td colspan="1">
+            <?php
+                if ($outsourcing === '외주') {
+                    print '<h5> <span id="outsourcingBtn" class="badge bg-success ">외주가공</span>    &nbsp;	';
+                }
+            ?>
+            </td>
+            </tr>
+            <td>주소</td>
+            <td colspan="4"><input type="text" name="address" value="<?php echo htmlspecialchars($address); ?>" class="form-control" style="text-align: left;"></td>
 			  <td colspan="1">
 			   <?php
 					  if($outsourcing === '외주')
@@ -1450,7 +1427,7 @@ $material_arr = array('','304 Hair Line 1.2T','304 HL 1.2T','304 Mirror 1.2T','3
 
 
 
- <script language="javascript">
+<script>
 $(document).ready(function(){
 	
 	// 외주가공 메모 말풍선 숨기기 함수
@@ -1559,8 +1536,8 @@ WrapdisplayPictureLoad();
 // 기존 포장 사진 로드
 function WrapdisplayPictureLoad() {
     $('#displayPicture').show();
-    var picNum = "<?php echo $WrappicNum; ?>";
-    var picData = <?php echo json_encode($WrappicData); ?>;
+    var picNum = <?php echo json_encode($WrappicNum); ?>;
+    var picData = <?php echo json_encode($WrappicData ?: array()); ?> || [];
 
     $("#displayPicture").html('');
 	
@@ -1584,11 +1561,11 @@ function WrapdisplayPictureLoad() {
 }
 
 
-	// 도면폴더 클릭시 실행
-	$("#dwgclick").click(function() {
-		// Link = "file://nas2dual/%EC%9E%A0%EC%99%84%EB%A3%8C/"; 
-		
-		var Urls = '<?php echo $dwglocation; ?>';	
+    // 도면폴더 클릭시 실행
+    $("#dwgclick").click(function() {
+        // Link = "file://nas2dual/%EC%9E%A0%EC%99%84%EB%A3%8C/";
+
+        var Urls = <?php echo json_encode($dwglocation); ?>;	
 					
 		Urls = "\\\\nas2dual\\천장완료\\" + Urls;	
 		
@@ -1747,8 +1724,8 @@ function displayPicture() {
 // 기존 사진 로드
 function displayPictureLoad() {
     $('#displayrender').show();
-    var picNum = "<?php echo $picNum; ?>";
-    var picData = <?php echo json_encode($picData); ?>;
+    var picNum = <?php echo json_encode($picNum); ?>;
+    var picData = <?php echo json_encode($picData ?: array()); ?> || [];
 
     $("#displayrender").html('');
     picData.forEach(function(pic, index) {
@@ -1877,10 +1854,10 @@ function del_below()
 		 
 	 }
 function check_alert()
-{	
-// load 알림설정
-var tmp; 				
-var name='<?php echo $user_name; ?>' ;
+{
+    // load 알림설정
+    var tmp;
+    var name = <?php echo json_encode($user_name); ?>;
  
 			tmp="../load_alert.php";			
 			$("#vacancy").load(tmp);     
@@ -1915,10 +1892,10 @@ function clipboardCopy(idName) {
 		check_alert();
 	},3000); 
  	 
-function del(href) {    
-	var user_name = '<?php echo $user_name; ?>';
-	var first_writer = '<?php echo $first_writer; ?>';
-	var admin = '<?php echo $admin; ?>';
+function del(href) {
+    var user_name = <?php echo json_encode($user_name); ?>;
+    var first_writer = <?php echo json_encode($first_writer); ?>;
+    var admin = <?php echo json_encode($admin); ?>;
 
 if (first_writer.includes(user_name) && admin !== '1') 
    {	
@@ -2140,11 +2117,10 @@ function displayFile() {
     });
 }
 
-// 기존 파일 불러오기
 // 기존 파일 불러오기 (Google Drive에서 가져오기)
 function displayFileLoad() {
     $('#displayfile').show();
-    var data = <?php echo json_encode($savefilename_arr); ?>;
+    var data = <?php echo json_encode($savefilename_arr ?: array()); ?> || [];
 
     $("#displayfile").html(''); // 기존 내용 초기화
 

@@ -1,19 +1,23 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-if(!isset($_SESSION))      
-		session_start(); 
-if(isset($_SESSION["DB"]))
-		$DB = $_SESSION["DB"] ;	
- $level= $_SESSION["level"];
- $user_name= $_SESSION["name"];
- $user_id= $_SESSION["userid"];	
+<?php
+require_once __DIR__ . '/../common/functions.php';
 
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(1);
-         header("Location:".$_SESSION["WebSite"]."login/login_form.php"); 
-         exit;
-   }  
-   
+if (!isset($_SESSION)) {
+    session_start();
+}
+
+// 세션 변수 초기화
+$DB = isset($_SESSION["DB"]) ? $_SESSION["DB"] : "";
+$level = isset($_SESSION["level"]) ? $_SESSION["level"] : 10;
+$user_name = isset($_SESSION["name"]) ? $_SESSION["name"] : "";
+$user_id = isset($_SESSION["userid"]) ? $_SESSION["userid"] : "";
+
+// 권한 체크
+if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+    sleep(1);
+    header("Location:" . $_SESSION["WebSite"] . "login/login_form.php");
+    exit;
+}
+
 ?>
 
  <?php include getDocumentRoot() . '/load_header.php' ?>
@@ -54,178 +58,186 @@ if(isset($_SESSION["DB"]))
 
    
 <?php
-//header("Refresh:0");  // reload refresh   
-  
-  if(isset($_REQUEST["mode"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $mode=$_REQUEST["mode"];
-  else
-   $mode="";
-  
-  if(isset($_REQUEST["num"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $num=$_REQUEST["num"];
-  else
-   $num="";
+// 요청 변수 초기화
+$mode = isset($_REQUEST["mode"]) ? $_REQUEST["mode"] : "";
+$num = isset($_REQUEST["num"]) ? $_REQUEST["num"] : "";
+$page = isset($_REQUEST["page"]) ? $_REQUEST["page"] : 1;
+$search = isset($_REQUEST["search"]) ? $_REQUEST["search"] : "";
+$find = isset($_REQUEST["find"]) ? $_REQUEST["find"] : "";
+$process = isset($_REQUEST["process"]) ? $_REQUEST["process"] : "전체";
+$yearcheckbox = isset($_REQUEST["yearcheckbox"]) ? $_REQUEST["yearcheckbox"] : "";
+$year = isset($_REQUEST["year"]) ? $_REQUEST["year"] : "";
 
-   if(isset($_REQUEST["page"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $page=$_REQUEST["page"];
-  else
-   $page=1;   
-
-  if(isset($_REQUEST["search"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $search=$_REQUEST["search"];
-  else
-   $search="";
-  
-  if(isset($_REQUEST["find"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $find=$_REQUEST["find"];
-  else
-   $find="";
-  if(isset($_REQUEST["process"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $process=$_REQUEST["process"];
-  else
-   $process="전체";
-
- $yearcheckbox=$_REQUEST["yearcheckbox"];   // 년도 체크박스
- $year=$_REQUEST["year"];   // 년도 체크박스
-      
+// 추가 요청 변수 초기화
+$navibar = isset($_REQUEST["navibar"]) ? $_REQUEST["navibar"] : "";
+$check = isset($_REQUEST["check"]) ? $_REQUEST["check"] : "";
+$output_check = isset($_REQUEST["output_check"]) ? $_REQUEST["output_check"] : "";
+$team_check = isset($_REQUEST["team_check"]) ? $_REQUEST["team_check"] : "";
+$measure_check = isset($_REQUEST["measure_check"]) ? $_REQUEST["measure_check"] : "";
+$plan_output_check = isset($_REQUEST["plan_output_check"]) ? $_REQUEST["plan_output_check"] : "";
+$cursort = isset($_REQUEST["cursort"]) ? $_REQUEST["cursort"] : "";
+$sortof = isset($_REQUEST["sortof"]) ? $_REQUEST["sortof"] : "";
+$stable = isset($_REQUEST["stable"]) ? $_REQUEST["stable"] : "";
+$check_draw = isset($_REQUEST["check_draw"]) ? $_REQUEST["check_draw"] : "";
+$scale = isset($_REQUEST["scale"]) ? $_REQUEST["scale"] : "";
 
 
 
-// 첨부 이미지에 대한 부분
+
+// 데이터베이스 연결
 require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();	
- 
- // 이미지 이미 있는 것 불러오기 
-$picData=array(); 
-$tablename='ceiling';
+$pdo = db_connect();
+
+// 이미지 데이터 초기화
+$picData = array();
+$tablename = 'ceiling';
 $item = 'ceilingrendering';
 
-$sql=" select * from mirae8440.picuploads where tablename ='$tablename' and item ='$item' and parentnum ='$num' ";	
+// 이미지 이미 있는 것 불러오기
+$sql = "select * from mirae8440.picuploads where tablename = '$tablename' and item = '$item' and parentnum = '$num'";
 
- try{  
-   $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh   
-   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-			array_push($picData, $row["picname"]);			
-        }		 
-   } catch (PDOException $Exception) {
-    print "오류: ".$Exception->getMessage();
-  }  
-$picNum=count($picData);    
-  
-$URLsave = "http://8440.co.kr/ceilingloadpic.php?num=" . $num;  
+try {
+    $stmh = $pdo->query($sql);
+    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+        array_push($picData, $row["picname"]);
+    }
+} catch (PDOException $Exception) {
+    print "오류: " . $Exception->getMessage();
+}
+$picNum = count($picData);
 
- 
-// 첨부파일 있는 것 불러오기 
-$savefilename_arr=array(); 
-$realname_arr=array(); 
-$attach_arr=array(); 
-$tablename='ceiling';
+$URLsave = "http://8440.co.kr/ceilingloadpic.php?num=" . $num;
+
+// 첨부파일 데이터 초기화
+$savefilename_arr = array();
+$realname_arr = array();
+$attach_arr = array();
+$tablename = 'ceiling';
 $item = 'ceiling';
 
-$sql=" select * from mirae8440.fileuploads where tablename ='$tablename' and item ='$item' and parentid ='$num' ";	
+// 첨부파일 있는 것 불러오기
+$sql = "select * from mirae8440.fileuploads where tablename = '$tablename' and item = '$item' and parentid = '$num'";
 
- try{  
-   $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh   
-   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-			array_push($realname_arr, $row["realname"]);			
-			array_push($savefilename_arr, $row["savename"]);			
-			array_push($attach_arr, $row["parentid"]);			
-        }		 
-   } catch (PDOException $Exception) {
-    print "오류: ".$Exception->getMessage();
-  }   
+try {
+    $stmh = $pdo->query($sql);
+    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+        array_push($realname_arr, $row["realname"]);
+        array_push($savefilename_arr, $row["savename"]);
+        array_push($attach_arr, $row["parentid"]);
+    }
+} catch (PDOException $Exception) {
+    print "오류: " . $Exception->getMessage();
+}   
   
 
 
 
 
+// 복사 모드 변수 초기화
+$first_writer = "";
+$update_log = "";
+$item_file_0 = "";
+$item_file_1 = "";
+$copied_file_0 = "";
+$copied_file_1 = "";
 
-  if ($mode=="copy"){
-    try{
-      $sql = "select * from mirae8440.ceiling where num = ? ";
-      $stmh = $pdo->prepare($sql); 
+// 포장 이미지 관련 변수 초기화
+$WrappicNum = 0;
+$WrappicData = array();
 
-    $stmh->bindValue(1,$num,PDO::PARAM_STR); 
-      $stmh->execute();
-      $count = $stmh->rowCount();              
-    if($count<1){  
-      print "검색결과가 없습니다.<br>";
-     }else{
-      $row = $stmh->fetch(PDO::FETCH_ASSOC);
-      $item_file_0 = $row["file_name_0"];
-      $item_file_1 = $row["file_name_1"];
-
-      $copied_file_0 = "../uploads/". $row["file_copied_0"];
-      $copied_file_1 = "../uploads/". $row["file_copied_1"];
-	 }
-    
-	include '_rowDB.php';
+if ($mode == "copy") {
+    try {
+        $sql = "select * from mirae8440.ceiling where num = ?";
+        $stmh = $pdo->prepare($sql);
+        
+        $stmh->bindValue(1, $num, PDO::PARAM_STR);
+        $stmh->execute();
+        $count = $stmh->rowCount();
+        
+        if ($count < 1) {
+            print "검색결과가 없습니다.<br>";
+        } else {
+            $row = $stmh->fetch(PDO::FETCH_ASSOC);
+            $item_file_0 = $row["file_name_0"];
+            $item_file_1 = $row["file_name_1"];
             
-			  $order_date1=$row["order_date1"];	
-			  $order_date2=$row["order_date2"];	
-			  $order_date3=$row["order_date3"];	
-			  $order_date4=$row["order_date4"];	
-			  $order_input_date1=$row["order_input_date1"];	
-			  $order_input_date2=$row["order_input_date2"];	
-			  $order_input_date3=$row["order_input_date3"];	
-			  $order_input_date4=$row["order_input_date4"];	
-  				
-		      $workday=trans_date($workday);
-		      $demand=trans_date($demand);
-		      $orderday=trans_date($orderday);
-		      $deadline=trans_date($deadline);
-		      $testday=trans_date($testday);
-		      $lc_draw=trans_date($lc_draw);
-		      $lclaser_date=trans_date($lclaser_date);
-		      $lcbending_date=trans_date($lcbending_date);
-		      $lcwelding_date=trans_date($lcwelding_date);
-		      $lcpainting_date=trans_date($lcpainting_date);
-		      $lcassembly_date=trans_date($lcassembly_date);
-		      $main_draw=trans_date($main_draw);			
-		      $eunsung_make_date=trans_date($eunsung_make_date);			
-		      $eunsung_laser_date=trans_date($eunsung_laser_date);			
-		      $mainbending_date=trans_date($mainbending_date);			
-		      $mainwelding_date=trans_date($mainwelding_date);			
-		      $mainpainting_date=trans_date($mainpainting_date);			
-		      $mainassembly_date=trans_date($mainassembly_date);	
-		      $etclaser_date=trans_date($etclaser_date);			
-		      $etcbending_date=trans_date($etcbending_date);			
-		      $etcwelding_date=trans_date($etcwelding_date);			
-		      $etcpainting_date=trans_date($etcpainting_date);			
-		      $etcassembly_date=trans_date($etcassembly_date);		
-			  
-		      $order_date1=trans_date($order_date1);					   
-		      $order_date2=trans_date($order_date2);					   
-		      $order_date3=trans_date($order_date3);					   
-		      $order_date4=trans_date($order_date4);					   
-		      $order_input_date1=trans_date($order_input_date1);					   
-		      $order_input_date2=trans_date($order_input_date2);					   
-		      $order_input_date3=trans_date($order_input_date3);					   
-		      $order_input_date4=trans_date($order_input_date4);					  
-
-     }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
-     }
-  }
-$mode="";
+            $copied_file_0 = "../uploads/" . $row["file_copied_0"];
+            $copied_file_1 = "../uploads/" . $row["file_copied_1"];
+        }
+        
+        include '_rowDB.php';
+        
+        $order_date1 = $row["order_date1"];
+        $order_date2 = $row["order_date2"];
+        $order_date3 = $row["order_date3"];
+        $order_date4 = $row["order_date4"];
+        $order_input_date1 = $row["order_input_date1"];
+        $order_input_date2 = $row["order_input_date2"];
+        $order_input_date3 = $row["order_input_date3"];
+        $order_input_date4 = $row["order_input_date4"];
+        
+        // 날짜 변환
+        $workday = trans_date($workday);
+        $demand = trans_date($demand);
+        $orderday = trans_date($orderday);
+        $deadline = trans_date($deadline);
+        $testday = trans_date($testday);
+        $lc_draw = trans_date($lc_draw);
+        $lclaser_date = trans_date($lclaser_date);
+        $lcbending_date = trans_date($lcbending_date);
+        $lcwelding_date = trans_date($lcwelding_date);
+        $lcpainting_date = trans_date($lcpainting_date);
+        $lcassembly_date = trans_date($lcassembly_date);
+        $main_draw = trans_date($main_draw);
+        $eunsung_make_date = trans_date($eunsung_make_date);
+        $eunsung_laser_date = trans_date($eunsung_laser_date);
+        $mainbending_date = trans_date($mainbending_date);
+        $mainwelding_date = trans_date($mainwelding_date);
+        $mainpainting_date = trans_date($mainpainting_date);
+        $mainassembly_date = trans_date($mainassembly_date);
+        $etclaser_date = trans_date($etclaser_date);
+        $etcbending_date = trans_date($etcbending_date);
+        $etcwelding_date = trans_date($etcwelding_date);
+        $etcpainting_date = trans_date($etcpainting_date);
+        $etcassembly_date = trans_date($etcassembly_date);
+        
+        $order_date1 = trans_date($order_date1);
+        $order_date2 = trans_date($order_date2);
+        $order_date3 = trans_date($order_date3);
+        $order_date4 = trans_date($order_date4);
+        $order_input_date1 = trans_date($order_input_date1);
+        $order_input_date2 = trans_date($order_input_date2);
+        $order_input_date3 = trans_date($order_input_date3);
+        $order_input_date4 = trans_date($order_input_date4);
+        
+    } catch (PDOException $Exception) {
+        print "오류: " . $Exception->getMessage();
+    }
+}
+$mode = "";
 
 // $mode를 이용해서 copy_data.php에서 기존 데이터를 사용한다.
-	 
-$material_arr = array('','304 Hair Line 1.2T','304 HL 1.2T','304 Mirror 1.2T','304 MR 1.2T','VB 1.2T','2B VB 1.2T','304 Mirror VB 1.2T', '304 Mirror Bronze 1.2T', '304 Mirror VB Ti-Bronze 1.2T', '304 Hair Line Black 1.2T', 'SPCC 1.2T(도장)', 'EGI 1.2T(도장)', 'HTM (신우)',  '기타' );
-  
+
+// 소재 배열
+$material_arr = array(
+    '', '304 Hair Line 1.2T', '304 HL 1.2T', '304 Mirror 1.2T', '304 MR 1.2T', 
+    'VB 1.2T', '2B VB 1.2T', '304 Mirror VB 1.2T', '304 Mirror Bronze 1.2T', 
+    '304 Mirror VB Ti-Bronze 1.2T', '304 Hair Line Black 1.2T', 'SPCC 1.2T(도장)', 
+    'EGI 1.2T(도장)', 'HTM (신우)', '기타'
+);
+
 ?>
 
-  
 <?php
-if($mode=="modify"){
+if ($mode == "modify") {
 ?>
-<form  id="board_form"   name="board_form" onkeydown="return captureReturnKey(event)" method="post" action="insert.php?mode=modify&num=<?=$num?>&page=<?=$page?>&search=<?=$search?>&find=<?=$find?>&process=<?=$process?>&yearcheckbox=<?=$yearcheckbox?>&year=<?=$year?>&check=<?=$check?>&output_check=<?=$output_check?>&team_check=<?=$team_check?>&plan_output_check=<?=$plan_output_check?>&page=<?=$page?>&cursort=<?=$cursort?>&sortof=<?=$sortof?>&stable=1&check_draw=<?=$check_draw?>" enctype="multipart/form-data"> 
-<?php  } else {
-?>
-<form  id="board_form"  name="board_form" onkeydown="return captureReturnKey(event)" method="post" action="insert.php?mode=not" enctype="multipart/form-data"> 
-<?php
-}
-?>	   
+<form id="board_form" name="board_form" onkeydown="return captureReturnKey(event)" method="post" 
+      action="insert.php?mode=modify&num=<?=$num?>&page=<?=$page?>&search=<?=$search?>&find=<?=$find?>&process=<?=$process?>&yearcheckbox=<?=$yearcheckbox?>&year=<?=$year?>&check=<?=$check?>&output_check=<?=$output_check?>&team_check=<?=$team_check?>&plan_output_check=<?=$plan_output_check?>&page=<?=$page?>&cursort=<?=$cursort?>&sortof=<?=$sortof?>&stable=1&check_draw=<?=$check_draw?>" 
+      enctype="multipart/form-data">
+<?php } else { ?>
+<form id="board_form" name="board_form" onkeydown="return captureReturnKey(event)" method="post" 
+      action="insert.php?mode=not" enctype="multipart/form-data">
+<?php } ?>	   
 
 <div class="container-fluid">	  
 <div class="card">	  
@@ -850,129 +862,119 @@ function goToListPage() {
 }
 
 document.getElementById('main_draw').addEventListener('change', function() {
-	user_name = '<?php echo $user_name;?>';
+    var user_name = '<?php echo $user_name;?>';
     document.getElementById('designer').value = user_name;
 });
 
 document.getElementById('lc_draw').addEventListener('change', function() {
-	user_name = '<?php echo $user_name;?>';
+    var user_name = '<?php echo $user_name;?>';
     document.getElementById('designer').value = user_name;
 });
 
 $(document).ready(function(){
 	
-// 전체화면에 꽉찬 이미지 보여주는 루틴
-		$(document).on("click","img",function(){
-			var path = $(this).attr('src')
-			showImage(path);
-		});//end click event
-		
-		function showImage(fileCallPath){
-		    
-		    $(".bigPictureWrapper").css("display","flex").show();
-		    
-		    $(".bigPicture")
-		    .html("<img src='"+fileCallPath+"' >")
-		    .animate({width:'100%', height: '100%'}, 1000);
-		    
-		  }//end fileCallPath
+    // 전체화면에 꽉찬 이미지 보여주는 루틴
+    $(document).on("click", "img", function() {
+        var path = $(this).attr('src');
+        showImage(path);
+    }); // end click event
+    
+    function showImage(fileCallPath) {
+        $(".bigPictureWrapper").css("display", "flex").show();
+        
+        $(".bigPicture")
+            .html("<img src='" + fileCallPath + "' >")
+            .animate({width: '100%', height: '100%'}, 1000);
+    } // end fileCallPath
 		  
-		$(".bigPictureWrapper").on("click", function(e){
-		    $(".bigPicture").animate({width:'0%', height: '0%'}, 1000);
-		    setTimeout(function(){
-		      $('.bigPictureWrapper').hide();
-		    }, 1000);
-		  });//end bigWrapperClick event	
+    $(".bigPictureWrapper").on("click", function(e) {
+        $(".bigPicture").animate({width: '0%', height: '0%'}, 1000);
+        setTimeout(function() {
+            $('.bigPictureWrapper').hide();
+        }, 1000);
+    }); // end bigWrapperClick event	
 		  
 
-	// 매초 검사해서 이미지가 있으면 보여주기
-	$("#pInput").val('50'); // 최초화면 사진파일 보여주기
-		
-	let timer3 = setInterval(() => {  // 2초 간격으로 사진업데이트 체크한다.
-			  if($("#pInput").val()=='100')   // 사진이 등록된 경우
-			  {
-					 displayfile(); 
-					 displayPicture();  
-					 // console.log(100);
-			  }	      
-			  if($("#pInput").val()=='50')   // 사진이 등록된 경우
-			  {
-					 displayfileLoad();				 				  
-					 displayPictureLoad();				 
-			  }	     
-			   
-		 }, 2000);	
+    // 매초 검사해서 이미지가 있으면 보여주기
+    $("#pInput").val('50'); // 최초화면 사진파일 보여주기
+    
+    var timer3 = setInterval(function() {  // 2초 간격으로 사진업데이트 체크한다.
+        if ($("#pInput").val() == '100') {   // 사진이 등록된 경우
+            displayfile();
+            displayPicture();
+        }
+        if ($("#pInput").val() == '50') {   // 사진이 등록된 경우
+            displayfileLoad();
+            displayPictureLoad();
+        }
+    }, 2000);	
 		 
   
 delFileFn = function(divID, delChoice) {
-	console.log(divID, delChoice);
-	if(confirm("한번 삭제한 자료는 복구할 방법이 없습니다.\n\n정말 삭제하시겠습니까?")) {
-	$.ajax({
-		url:'../file/del_file.php?savename=' + delChoice ,
-		type:'post',
-		data: $("#board_form").serialize(),
-		dataType: 'json',
-		}).done(function(data){						
-		   const savename = data["savename"];		   
-		   
-		  // 시공전사진 삭제 
-			$("#file" + divID).remove();  // 그림요소 삭제
-			$("#delFile" + divID).remove();  // 그림요소 삭제
-		    $("#pInput").val('');					
-			
-        });	
-	}		
+    console.log(divID, delChoice);
+    if (confirm("한번 삭제한 자료는 복구할 방법이 없습니다.\n\n정말 삭제하시겠습니까?")) {
+        $.ajax({
+            url: '../file/del_file.php?savename=' + delChoice,
+            type: 'post',
+            data: $("#board_form").serialize(),
+            dataType: 'json',
+        }).done(function(data) {
+            const savename = data["savename"];
+            
+            // 시공전사진 삭제
+            $("#file" + divID).remove();  // 그림요소 삭제
+            $("#delFile" + divID).remove();  // 그림요소 삭제
+            $("#pInput").val('');
+        });
+    }
+};
 
-}		 
-		 
-  
-	delPicFn = function(divID, delChoice) {
-		console.log(divID, delChoice);
-	if(confirm("한번 삭제한 자료는 복구할 방법이 없습니다.\n\n정말 삭제하시겠습니까?")) {
-		$.ajax({
-			url:'../p/delpic.php?picname=' + delChoice ,
-			type:'post',
-			data: $("#board_form").serialize(),
-			dataType: 'json',
-			}).done(function(data){						
-			   const picname = data["picname"];		   
-			   
-			  // 시공전사진 삭제 
-				$("#pic" + divID).remove();  // 그림요소 삭제
-				$("#delPic" + divID).remove();  // 그림요소 삭제
-				$("#pInput").val('');						
-				
-			});		
-		}
-	}
+delPicFn = function(divID, delChoice) {
+    console.log(divID, delChoice);
+    if (confirm("한번 삭제한 자료는 복구할 방법이 없습니다.\n\n정말 삭제하시겠습니까?")) {
+        $.ajax({
+            url: '../p/delpic.php?picname=' + delChoice,
+            type: 'post',
+            data: $("#board_form").serialize(),
+            dataType: 'json',
+        }).done(function(data) {
+            const picname = data["picname"];
+            
+            // 시공전사진 삭제
+            $("#pic" + divID).remove();  // 그림요소 삭제
+            $("#delPic" + divID).remove();  // 그림요소 삭제
+            $("#pInput").val('');
+        });
+    }
+};
 	  		 
 			 
-	// 천장 렌더링 이미지 불러오기
-	function displayPicture() {       
-		$('#displayrender').show();
-		params = $("#num").val();	
-		$("#tablename").val('ceiling');
-		$("#item").val('ceilingrendering');	
-		
-		var tablename = $("#tablename").val();    
-		var item = $("#item").val();	
-		
-		$.ajax({
-			url:'../p/load_pic.php?num=' + params + '&tablename=' + tablename + '&item=' + item ,
-			type:'post',
-			data: $("#board_form").serialize(),
-			dataType: 'json',
-			}).done(function(data){						
-			   const recnum = data["recnum"];		   
-			   console.log(data);
-			   $("#displayrender").html('');
-			   for(i=0;i<recnum;i++) {			   
-				   $("#displayrender").append("<img id=pic" + i + " src ='../uploads/" + data["img_arr"][i] + "' style='width:100%; '  > <br> " );			   
-				   $("#displayrender").append("&nbsp;<button type='button' class='mt-2 btn btn-secondary' id='delPic" + i + "' onclick=delPicFn('" + i + "','" +  data["img_arr"][i] + "')> 삭제 </button>&nbsp; <br>");					   
-				  }		   
-					$("#pInput").val('');			
-		});	
-	}
+    // 천장 렌더링 이미지 불러오기
+    function displayPicture() {
+        $('#displayrender').show();
+        var params = $("#num").val();
+        $("#tablename").val('ceiling');
+        $("#item").val('ceilingrendering');
+        
+        var tablename = $("#tablename").val();
+        var item = $("#item").val();
+        
+        $.ajax({
+            url: '../p/load_pic.php?num=' + params + '&tablename=' + tablename + '&item=' + item,
+            type: 'post',
+            data: $("#board_form").serialize(),
+            dataType: 'json',
+        }).done(function(data) {
+            const recnum = data["recnum"];
+            console.log(data);
+            $("#displayrender").html('');
+            for (var i = 0; i < recnum; i++) {
+                $("#displayrender").append("<img id=pic" + i + " src ='../uploads/" + data["img_arr"][i] + "' style='width:100%; '  > <br> ");
+                $("#displayrender").append("&nbsp;<button type='button' class='mt-2 btn btn-secondary' id='delPic" + i + "' onclick=delPicFn('" + i + "','" + data["img_arr"][i] + "')> 삭제 </button>&nbsp; <br>");
+            }
+            $("#pInput").val('');
+        });
+    }
 		 
 		 
 WrapdisplayPictureLoad();
@@ -999,517 +1001,471 @@ function WrapdisplayPictureLoad() {
 
 
 
-// 기존 ,fpsej있는 이미지 화면에 보여주기
-function displayPictureLoad() {    
-	$('#displayrender').show();
-	var picNum = "<? echo $picNum; ?>"; 					
-	var picData = <?php echo json_encode($picData);?> ;	
-	console.log(picNum);
-	console.log(picData);
-	for(i=0;i<picNum;i++) {
-	   $("#displayrender").append("<img id=pic" + i + " src ='../uploads/" + picData[i] + "' style='width:100%;' > <br>" );			
-	   // $("#displayPicture").zoom();
-	   $("#displayrender").append("&nbsp;<button type='button' class='mt-2 btn btn-secondary' id='delPic" + i + "' onclick=delPicFn('" + i + "','" + picData[i] + "')> 삭제 </button>&nbsp;<br>");			   
-	  }		   
-		$("#pInput").val('');	
+// 기존 있는 이미지 화면에 보여주기
+function displayPictureLoad() {
+    $('#displayrender').show();
+    var picNum = "<?php echo $picNum; ?>";
+    var picData = <?php echo json_encode($picData);?>;
+    console.log(picNum);
+    console.log(picData);
+    for (var i = 0; i < picNum; i++) {
+        $("#displayrender").append("<img id=pic" + i + " src ='../uploads/" + picData[i] + "' style='width:100%;' > <br>");
+        $("#displayrender").append("&nbsp;<button type='button' class='mt-2 btn btn-secondary' id='delPic" + i + "' onclick=delPicFn('" + i + "','" + picData[i] + "')> 삭제 </button>&nbsp;<br>");
+    }
+    $("#pInput").val('');
 }
 	
 
 
+
 	
-	// 도면폴더 클릭시 실행
-	$("#dwgclick").click(function() {
-		// Link = "file://nas2dual/%EC%9E%A0%EC%99%84%EB%A3%8C/"; 
-		
-		var Urls = '<?php echo $dwglocation; ?>';	
-					
-		Urls = "\\\\nas2dual\\천장완료\\" + Urls;	
-		
-	   $('#insertword').val(Urls)
-	   
-	 // var obj = document.getElementById('insertword'); 
-	 // obj.select();  //인풋 컨트롤의 내용 전체 선택  
-	 // document.execCommand("copy");  //복사    
-	 
-		tmp = "<br> 도면저장 폴더위치가 복사되었습니다. <br> 탐색기에 'Ctrl+v'로 붙여넣기 하세요! <br>";				
-		$('#alertmsg').html(tmp); 
-	   $('#myModal').modal('show');		   
-		  
-	   clipboardCopy('insertword');		
-		   
-		setTimeout(function() { 
-	  var obj = document.getElementById('insertword'); 
-	  obj.select();  //인풋 컨트롤의 내용 전체 선택  
-	  document.execCommand("copy");  //복사        
-		}, 500);	   	   
-		
-		setTimeout(function() { 
-			 $('#myModal').modal('hide');	      
-		}, 1500);	   
-	   
-	   // clipboardCopy('insertword');		
-	
-	});
+    // 도면폴더 클릭시 실행
+    $("#dwgclick").click(function() {
+        var Urls = '<?php echo $dwglocation; ?>';
+        
+        Urls = "\\\\nas2dual\\천장완료\\" + Urls;
+        
+        $('#insertword').val(Urls);
+        
+        var tmp = "<br> 도면저장 폴더위치가 복사되었습니다. <br> 탐색기에 'Ctrl+v'로 붙여넣기 하세요! <br>";
+        $('#alertmsg').html(tmp);
+        $('#myModal').modal('show');
+        
+        clipboardCopy('insertword');
+        
+        setTimeout(function() {
+            var obj = document.getElementById('insertword');
+            obj.select();  //인풋 컨트롤의 내용 전체 선택
+            document.execCommand("copy");  //복사
+        }, 500);
+        
+        setTimeout(function() {
+            $('#myModal').modal('hide');
+        }, 1500);
+    });
 	
 
-	// rendering 사진 멀티업로드	
-	$("#upfile").change(function(e) {	    
-			// 실측서 이미지 선택
-			$("#item").val('ceilingrendering');
-			var item = $("#item").val();
-			FileProcess(item);	
-			
-			
-	});	 	
+    // rendering 사진 멀티업로드
+    $("#upfile").change(function(e) {
+        // 실측서 이미지 선택
+        $("#item").val('ceilingrendering');
+        var item = $("#item").val();
+        FileProcess(item);
+    });	 	
 		
-	function FileProcess(item) {
-	//do whatever you want here
-	num = $("#num").val();
-
-	  // 사진 서버에 저장하는 구간	
-	  // 사진 서버에 저장하는 구간	
-			//tablename 설정
-		   $("#tablename").val('ceiling');  
-			// 폼데이터 전송시 사용함 Get form         
-			var form = $('#board_form')[0];  	    
-			// Create an FormData object          
-			var data = new FormData(form); 
-			
-			console.log(form);
-			console.log(data);
-
-			tmp='사진을 저장중입니다. 잠시만 기다려주세요.';					
-			$('#alertmsg').html(tmp); 			  
-			$('#myModal').modal('show'); 	
-
-			$.ajax({
-				enctype: 'multipart/form-data',  // file을 서버에 전송하려면 이렇게 해야 함 주의
-				processData: false,    
-				contentType: false,      
-				cache: false,           
-				timeout: 600000, 			
-				url: "../p/mspic_insert.php?num=" + num ,
-				type: "post",		
-				data: data,						
-				success : function(data){
-					console.log(data);
-					// opener.location.reload();
-					// window.close();	
-					setTimeout(function() {
-						$('#myModal').modal('hide');  
-						}, 1000);	
-					// 사진이 등록되었으면 100 입력됨
-					 $("#pInput").val('100');							
-
-				},
-				error : function( jqxhr , status , error ){
-					console.log( jqxhr , status , error );
-							} 			      		
-			   });	
-
-	}		   
+    function FileProcess(item) {
+        var num = $("#num").val();
+        
+        // 사진 서버에 저장하는 구간
+        // tablename 설정
+        $("#tablename").val('ceiling');
+        // 폼데이터 전송시 사용함 Get form
+        var form = $('#board_form')[0];
+        // Create an FormData object
+        var data = new FormData(form);
+        
+        console.log(form);
+        console.log(data);
+        
+        var tmp = '사진을 저장중입니다. 잠시만 기다려주세요.';
+        $('#alertmsg').html(tmp);
+        $('#myModal').modal('show');
+        
+        $.ajax({
+            enctype: 'multipart/form-data',  // file을 서버에 전송하려면 이렇게 해야 함 주의
+            processData: false,
+            contentType: false,
+            cache: false,
+            timeout: 600000,
+            url: "../p/mspic_insert.php?num=" + num,
+            type: "post",
+            data: data,
+            success: function(data) {
+                console.log(data);
+                setTimeout(function() {
+                    $('#myModal').modal('hide');
+                }, 1000);
+                // 사진이 등록되었으면 100 입력됨
+                $("#pInput").val('100');
+            },
+            error: function(jqxhr, status, error) {
+                console.log(jqxhr, status, error);
+            }
+        });
+    }		   
  
 
 
-// 첨부파일(excel) 멀티업로드	
-$("#upfileattached").change(function(e) {	    
-	    $("#id").val('<?php echo $num;?>');
-	    $("#parentid").val('<?php echo $num;?>');
-	    $("#fileorimage").val('file');
-	    $("#item").val('ceiling');
-	    $("#upfilename").val('upfileattached');
-	    $("#tablename").val('ceiling');
-	    $("#savetitle").val('비규격 엑셀파일');			
+// 첨부파일(excel) 멀티업로드
+$("#upfileattached").change(function(e) {
+    $("#id").val('<?php echo $num;?>');
+    $("#parentid").val('<?php echo $num;?>');
+    $("#fileorimage").val('file');
+    $("#item").val('ceiling');
+    $("#upfilename").val('upfileattached');
+    $("#tablename").val('ceiling');
+    $("#savetitle").val('비규격 엑셀파일');
 		  
-	  // 파일 서버에 저장하는 구간	
-			// 폼데이터 전송시 사용함 Get form         
-			var form = $('#board_form')[0];  	    
-			// Create an FormData object          
-			var data = new FormData(form); 		
-
-             console.log($("#board_form").serialize());			
-             console.log(data);			
-
-			tmp='파일을 저장중입니다. 잠시만 기다려주세요.';		
-			$('#alertmsg').html(tmp); 			  
-			$('#myModal').modal('show'); 		
-
-			$.ajax({
-				enctype: 'multipart/form-data',  // file을 서버에 전송하려면 이렇게 해야 함 주의
-				processData: false,    
-				contentType: false,      
-				cache: false,           
-				timeout: 600000, 			
-				url: "../file/file_insert.php",
-				type: "post",		
-				data: data,						
-				success : function(data){
-					console.log(data);
-					// opener.location.reload();
-					// window.close();	
-					setTimeout(function() {
-						$('#myModal').modal('hide');  
-						}, 1000);	
-					// 사진이 등록되었으면 100 입력됨
-					 $("#pInput").val('100');						
-
-				},
-				error : function( jqxhr , status , error ){
-					console.log( jqxhr , status , error );
-							} 			      		
-			   });	
-
+    // 파일 서버에 저장하는 구간
+    // 폼데이터 전송시 사용함 Get form
+    var form = $('#board_form')[0];
+    // Create an FormData object
+    var data = new FormData(form);
+    
+    console.log($("#board_form").serialize());
+    console.log(data);
+    
+    var tmp = '파일을 저장중입니다. 잠시만 기다려주세요.';
+    $('#alertmsg').html(tmp);
+    $('#myModal').modal('show');
+    
+    $.ajax({
+        enctype: 'multipart/form-data',  // file을 서버에 전송하려면 이렇게 해야 함 주의
+        processData: false,
+        contentType: false,
+        cache: false,
+        timeout: 600000,
+        url: "../file/file_insert.php",
+        type: "post",
+        data: data,
+        success: function(data) {
+            console.log(data);
+            setTimeout(function() {
+                $('#myModal').modal('hide');
+            }, 1000);
+            // 사진이 등록되었으면 100 입력됨
+            $("#pInput").val('100');
+        },
+        error: function(jqxhr, status, error) {
+            console.log(jqxhr, status, error);
+        }
+    });
 });		   
  
 
 // 첨부된 파일 불러오기
-function displayfile() {       
-	$('#displayfile').show();
-	params = $("#id").val();	
-	
-    var tablename = 'ceiling';    
+function displayfile() {
+    $('#displayfile').show();
+    var params = $("#id").val();
+    
+    var tablename = 'ceiling';
     var item = 'ceiling';
-	
-	$.ajax({
-		url:'../file/load_file.php?id=' + params + '&tablename=' + tablename + '&item=' + item ,
-		type:'post',
-		data: $("#board_form").serialize(),
-		dataType: 'json',
-		}).done(function(data){						
-		   const recid = data["recid"];		   
-		   console.log(data);
-		   $("#displayfile").html('');
-		   for(i=0;i<recid;i++) {	
-			   $("#displayfile").append("<div id=file" + i + ">  <a href='../uploads/" + data["file_arr"][i] + "' download='" +  data["realfile_arr"][i]+ "'>" +  data["realfile_arr"][i] + "</div> &nbsp;&nbsp;&nbsp;&nbsp;  " );			   
-         	   $("#displayfile").append("&nbsp;<button type='button' class='btn btn-outline-danger btn-sm' id='delFile" + i + "' onclick=delFileFn('" + i + "','" + data["file_arr"][i] + "')> 삭제 </button>&nbsp; <br>");					   
-		      }		   
-    });	
+    
+    $.ajax({
+        url: '../file/load_file.php?id=' + params + '&tablename=' + tablename + '&item=' + item,
+        type: 'post',
+        data: $("#board_form").serialize(),
+        dataType: 'json',
+    }).done(function(data) {
+        const recid = data["recid"];
+        console.log(data);
+        $("#displayfile").html('');
+        for (var i = 0; i < recid; i++) {
+            $("#displayfile").append("<div id=file" + i + ">  <a href='../uploads/" + data["file_arr"][i] + "' download='" + data["realfile_arr"][i] + "'>" + data["realfile_arr"][i] + "</div> &nbsp;&nbsp;&nbsp;&nbsp;  ");
+            $("#displayfile").append("&nbsp;<button type='button' class='btn btn-outline-danger btn-sm' id='delFile" + i + "' onclick=delFileFn('" + i + "','" + data["file_arr"][i] + "')> 삭제 </button>&nbsp; <br>");
+        }
+    });
 }
 
 // 기존 있는 파일 화면에 보여주기
-function displayfileLoad() {    
-	$('#displayfile').show();	
-	var savefilename_arr = <?php echo json_encode($savefilename_arr);?> ;	
-	var realname_arr = <?php echo json_encode($realname_arr);?> ;	
-	
-    for(i=0;i<savefilename_arr.length;i++) {
-			   $("#displayfile").append("<div id=file" + i + ">  <a href='../uploads/" + savefilename_arr[i] + "' download='" + realname_arr[i] + "'>" +  realname_arr[i] + "</div> &nbsp;&nbsp;&nbsp;&nbsp;  " );			   
-         	   $("#displayfile").append("&nbsp;<button type='button' class='btn btn-outline-danger btn-sm' id='delFile" + i + "' onclick=delFileFn('" + i + "','" +  savefilename_arr[i] + "')> 삭제 </button>&nbsp; <br>");					   
-	  }	   
-		
+function displayfileLoad() {
+    $('#displayfile').show();
+    var savefilename_arr = <?php echo json_encode($savefilename_arr);?>;
+    var realname_arr = <?php echo json_encode($realname_arr);?>;
+    
+    for (var i = 0; i < savefilename_arr.length; i++) {
+        $("#displayfile").append("<div id=file" + i + ">  <a href='../uploads/" + savefilename_arr[i] + "' download='" + realname_arr[i] + "'>" + realname_arr[i] + "</div> &nbsp;&nbsp;&nbsp;&nbsp;  ");
+        $("#displayfile").append("&nbsp;<button type='button' class='btn btn-outline-danger btn-sm' id='delFile" + i + "' onclick=delFileFn('" + i + "','" + savefilename_arr[i] + "')> 삭제 </button>&nbsp; <br>");
+    }
 }
 	 	 	  	
 
-  $("#car_insize").focusout(function(){
-
-//    $("#inseung").css("background-color", "silver");
-		const insize = $("input[name=car_insize]" ).val();
-		const wide_insize = insize.split('*');
-		const wide = Number(wide_insize[0]);
-        const depth = Number(wide_insize[1]);	
-  
-   $("#inseung").val(calinseung( wide, depth ) );
-
-  });
-	
-	
-//타입을 입력하면 회사가 바뀐다.
-$("#type").keydown(function(e) {
-	  changeType();
+$("#car_insize").focusout(function() {
+    const insize = $("input[name=car_insize]").val();
+    const wide_insize = insize.split('*');
+    const wide = Number(wide_insize[0]);
+    const depth = Number(wide_insize[1]);
+    
+    $("#inseung").val(calinseung(wide, depth));
 });
 
+// 타입을 입력하면 회사가 바뀐다.
+$("#type").keydown(function(e) {
+    changeType();
+});
 
-  $("#type").focusout(function(){
-     changeType();
-  });	
+$("#type").focusout(function() {
+    changeType();
+});	
 	
 	
 function changeType() {
-
-		const type = $("input[name=type]" ).val();
-
-		   $("input[name=order_com1]").val('');
-		   $("input[name=order_com2]").val('');		
-		   $("input[name=order_com3]").val('');		
-		   $("input[name=order_com4]").val('');		
-		   $("input[name=order_com5]").val('');		
-
-		if(type=='바리솔' )
-		  {
-		   $("input[name=order_com1]").val('투엘비');
-		   $("input[name=order_com2]").val('서한');		   
-		  }	
-		if(type=='011' || type=='012' || type=='017' || type=='013D' )
-		  {
-		   $("input[name=order_com1]").val('덴크리');
-		   $("input[name=order_com2]").val('트윈테크');		   
-		  }	
-		if(type=='N20')
-		  {
-		   $("input[name=order_com1]").val('덴크리');
-		   $("input[name=order_com2]").val('알루스');
-		   $("input[name=order_com3]").val('트윈테크');
-		  }	
-		if(type=='N21')
-		  {
-		   $("input[name=order_com1]").val('덴크리');
-		   $("input[name=order_com2]").val('서한');
-		  }		
-		if(type=='N23')
-		  {
-		   $("input[name=order_com1]").val('트윈테크');
-		   $("input[name=order_com2]").val('덴크리');
-		  }	
-		if(type=='신N20')
-		  {
-		   $("input[name=order_com1]").val('서한');
-		   $("input[name=order_com2]").val('알루스');
-		   $("input[name=order_com3]").val('트윈테크');
-		  }	
-		if(type=='N20변형')
-		  {
-		   $("input[name=order_com1]").val('서한');
-		   $("input[name=order_com2]").val('트윈테크');
-		  }	
-		if(type=='027' || type=='015' || type=='013' || type=='033' || type=='033변형' || type=='035' || type=='036')
-		  {
-		   $("input[name=order_com1]").val('서한');
-		  }	
-
-		if(type=='032' || type=='034' )
-		  {
-		   $("input[name=order_com1]").val('알루스');
-		   $("input[name=order_com2]").val('서한');
-		  }	
-		if(type=='037' ||  type=='038')
-		  {
-		   $("input[name=order_com1]").val('청디자인');
-		  }	
-		if(type=='026')
-		  {
-		   $("input[name=order_com1]").val('덴크리');		   
-		   $("input[name=order_com2]").val('트윈테크');
-		  }	
-		if(type=='026변형')
-		  {
-		   $("input[name=order_com1]").val('서한');		   
-		   $("input[name=order_com2]").val('트윈테크');
-		  }		
-		if(type=='027')
-		  {
-		   $("input[name=order_com1]").val('금성');
-		  }		
-		if(type=='031')
-		  {
-		   $("input[name=order_com1]").val('서한');
-		   $("input[name=order_com2]").val('트윈테크');
-		   $("input[name=order_com3]").val('알루스');
-		  }			
-}		  
-	
-
-	$("#type1").click(function(){
-		$("input[name=order_com1]").val('트윈테크');
-        calculateBoth('1');
-	});		
-	$("#type2").click(function(){
-		$("input[name=order_com2]").val('트윈테크');
-        calculateBoth('2');
-	});		
-	$("#type3").click(function(){
-		$("input[name=order_com3]").val('트윈테크');
-        calculateBoth('3');
-	});		
-	$("#type4").click(function(){
-		$("input[name=order_com4]").val('트윈테크');
-        calculateBoth('4');
-	});	
-	
-
-	calculateBoth = function(NUM) {
-		const type = $("input[name=type]" ).val();
-		const insize = $("input[name=car_insize]" ).val();
-		const lc_su = $("input[name=lc_su]" ).val();
-	    const first_name = "order_text" + NUM; 
-		
-		if(Number(lc_su)<1) 
-		   {
-			 alert('L/C 수량을 입력해 주세요');			 
-		   }
-		
-		let result;
-		let jungSu;
-		let divider;
-
-	
-		const wide_insize = insize.split('*');
-		const wide = Number(wide_insize[0]);
-        const depth=Number(wide_insize[1]);
-		
-		let result_wide=0;
-
-		switch(type) {
-			case '011' :
-			   result_wide=wide-730;
-			   break;
-			case '012' :
-			   result_wide=wide-750;
-			   break;
-			case '013D' :
-			   result_wide=wide-705;
-			   break;
-			case '014' :
-			   result_wide=wide/2-143;
-			   break;
-			case '017' :
-			   result_wide=wide-810;
-			   break;
-			case '017S' :
-			case '017s' :
-			   result_wide=wide-410;
-			   break;
-			case '017m' :
-			case '017M' :
-			   result_wide=wide-610;
-			   break;
-			case 'N20' :
-			   result_wide=wide-705;
-			   break;
-			case '026' :
-			   result_wide=wide-670;
-			   break;			   
-			default:
-				 break;
-		}
-
-		if(depth<1000)
-	     	{
-			   jungSu=1;
-			   divider = 1;
-	     		}
-			else if(depth>=1800)
-			   {
-				 jungSu = 3;
-				 divider = 3;
-			   }
-			   else
-			      {
-					jungSu = 2;
-					divider = 2;
-				  }
-				
-		let result_depth=0;
-
-		switch(type) {
-			case '011' :
-			   result_depth= (depth-54)/divider-11  ;
-			   break;
-			case '012' :
-			   result_depth=(depth-54)/divider -11 ;
-			   break;
-			case '013D' :
-			   result_depth=(depth-20)/divider-11 ;
-			   break;
-			case '014' :
-			   result_depth=(depth-54) -11 ;
-			   break;
-			case '017' :
-			   if(depth>=1800)
-					  result_depth=(depth-60)/3 -11;
-				  else
-					  result_depth=(depth-60)/2 -11;
-			   break;
-			case '017S' :
-			case '017s' :
-			   result_depth=(depth-60)/divider -10;
-			   break;
-			case '017m' :
-			case '017M' :
-			   result_depth=(depth-60)/divider -11;
-			   break;
-			case 'N20' :
-			   result_depth=(depth-56)/divider -10;
-			   break;
-			case '026' :
-			   result_depth=(depth-58)/divider -11;
-			   break;			   
-			default:
-				 break;
-		}					
-		let tmp="";
-		tmp = '중판:' + result_wide + "*" + Math.floor(result_depth) + "*" + jungSu*lc_su + "EA" ;
-		$("input[name=" + first_name + "]").val(tmp);
+    const type = $("input[name=type]").val();
+    
+    $("input[name=order_com1]").val('');
+    $("input[name=order_com2]").val('');
+    $("input[name=order_com3]").val('');
+    $("input[name=order_com4]").val('');
+    $("input[name=order_com5]").val('');
+    
+    if (type == '바리솔') {
+        $("input[name=order_com1]").val('투엘비');
+        $("input[name=order_com2]").val('서한');
+    }
+    if (type == '011' || type == '012' || type == '017' || type == '013D') {
+        $("input[name=order_com1]").val('덴크리');
+        $("input[name=order_com2]").val('트윈테크');
+    }
+    if (type == 'N20') {
+        $("input[name=order_com1]").val('덴크리');
+        $("input[name=order_com2]").val('알루스');
+        $("input[name=order_com3]").val('트윈테크');
+    }
+    if (type == 'N21') {
+        $("input[name=order_com1]").val('덴크리');
+        $("input[name=order_com2]").val('서한');
+    }
+    if (type == 'N23') {
+        $("input[name=order_com1]").val('트윈테크');
+        $("input[name=order_com2]").val('덴크리');
+    }
+    if (type == '신N20') {
+        $("input[name=order_com1]").val('서한');
+        $("input[name=order_com2]").val('알루스');
+        $("input[name=order_com3]").val('트윈테크');
+    }
+    if (type == 'N20변형') {
+        $("input[name=order_com1]").val('서한');
+        $("input[name=order_com2]").val('트윈테크');
+    }
+    if (type == '027' || type == '015' || type == '013' || type == '033' || type == '033변형' || type == '035' || type == '036') {
+        $("input[name=order_com1]").val('서한');
+    }
+    if (type == '032' || type == '034') {
+        $("input[name=order_com1]").val('알루스');
+        $("input[name=order_com2]").val('서한');
+    }
+    if (type == '037' || type == '038') {
+        $("input[name=order_com1]").val('청디자인');
+    }
+    if (type == '026') {
+        $("input[name=order_com1]").val('덴크리');
+        $("input[name=order_com2]").val('트윈테크');
+    }
+    if (type == '026변형') {
+        $("input[name=order_com1]").val('서한');
+        $("input[name=order_com2]").val('트윈테크');
+    }
+    if (type == '027') {
+        $("input[name=order_com1]").val('금성');
+    }
+    if (type == '031') {
+        $("input[name=order_com1]").val('서한');
+        $("input[name=order_com2]").val('트윈테크');
+        $("input[name=order_com3]").val('알루스');
+    }
 }
 
-
+$("#type1").click(function() {
+    $("input[name=order_com1]").val('트윈테크');
+    calculateBoth('1');
 });
+
+$("#type2").click(function() {
+    $("input[name=order_com2]").val('트윈테크');
+    calculateBoth('2');
+});
+
+$("#type3").click(function() {
+    $("input[name=order_com3]").val('트윈테크');
+    calculateBoth('3');
+});
+
+$("#type4").click(function() {
+    $("input[name=order_com4]").val('트윈테크');
+    calculateBoth('4');
+});	
 	
-// data 초기화
-	Swal.fire({
-	  title: '데이터 복사',
-	  text: "기본사항을 제외하고 초기화 하실래요?",
-	  icon: 'warning',
-	  showCancelButton: true,
-	  confirmButtonColor: '#3085d6',
-	  cancelButtonColor: '#d33',
-	  confirmButtonText: '네 그렇게 합시다!'
-	}).then((result) => {
-	  if (result.isConfirmed) {
-		  // 실제 코드입력
-			$('#board_form').find('input').each(function(){ $(this).val(''); });
-			$('#board_form').find('textarea').each(function(){ $(this).val(''); });
 
-			$('#workplacename').val("<? echo $workplacename; ?>");
-			$('#address').val("<? echo $address; ?>");
-			$('#firstord').val("<? echo $firstord; ?>");
-			$('#firstordman').val("<? echo $firstordman; ?>");
-			$('#firstordmantel').val("<? echo $firstordmantel; ?>");
-			$('#secondord').val("<? echo $secondord; ?>");
-			$('#secondordman').val("<? echo $secondordman; ?>");
-			$('#secondordmantel').val("<? echo $secondordmantel; ?>");
-			$('#chargedman').val("<? echo $chargedman; ?>");
-			$('#chargedmantel').val("<? echo $chargedmantel; ?>");
-			$('#orderday').val(getToday());
+calculateBoth = function(NUM) {
+    const type = $("input[name=type]").val();
+    const insize = $("input[name=car_insize]").val();
+    const lc_su = $("input[name=lc_su]").val();
+    const first_name = "order_text" + NUM;
+    
+    if (Number(lc_su) < 1) {
+        alert('L/C 수량을 입력해 주세요');
+    }
+    
+    let result;
+    let jungSu;
+    let divider;
+    
+    const wide_insize = insize.split('*');
+    const wide = Number(wide_insize[0]);
+    const depth = Number(wide_insize[1]);
+    
+    let result_wide = 0;
+    
+    switch (type) {
+        case '011':
+            result_wide = wide - 730;
+            break;
+        case '012':
+            result_wide = wide - 750;
+            break;
+        case '013D':
+            result_wide = wide - 705;
+            break;
+        case '014':
+            result_wide = wide / 2 - 143;
+            break;
+        case '017':
+            result_wide = wide - 810;
+            break;
+        case '017S':
+        case '017s':
+            result_wide = wide - 410;
+            break;
+        case '017m':
+        case '017M':
+            result_wide = wide - 610;
+            break;
+        case 'N20':
+            result_wide = wide - 705;
+            break;
+        case '026':
+            result_wide = wide - 670;
+            break;
+        default:
+            break;
+    }
+    
+    if (depth < 1000) {
+        jungSu = 1;
+        divider = 1;
+    } else if (depth >= 1800) {
+        jungSu = 3;
+        divider = 3;
+    } else {
+        jungSu = 2;
+        divider = 2;
+    }
+				
+    let result_depth = 0;
+    
+    switch (type) {
+        case '011':
+            result_depth = (depth - 54) / divider - 11;
+            break;
+        case '012':
+            result_depth = (depth - 54) / divider - 11;
+            break;
+        case '013D':
+            result_depth = (depth - 20) / divider - 11;
+            break;
+        case '014':
+            result_depth = (depth - 54) - 11;
+            break;
+        case '017':
+            if (depth >= 1800)
+                result_depth = (depth - 60) / 3 - 11;
+            else
+                result_depth = (depth - 60) / 2 - 11;
+            break;
+        case '017S':
+        case '017s':
+            result_depth = (depth - 60) / divider - 10;
+            break;
+        case '017m':
+        case '017M':
+            result_depth = (depth - 60) / divider - 11;
+            break;
+        case 'N20':
+            result_depth = (depth - 56) / divider - 10;
+            break;
+        case '026':
+            result_depth = (depth - 58) / divider - 11;
+            break;
+        default:
+            break;
+    }
+    
+    let tmp = "";
+    tmp = '중판:' + result_wide + "*" + Math.floor(result_depth) + "*" + jungSu * lc_su + "EA";
+    $("input[name=" + first_name + "]").val(tmp);
+};
 
-		Swal.fire(
-		  '처리되었습니다.',
-		  '데이터가 성공적으로 복사되었습니다.',
-		  'success'
-		)
-	  }
-	  else
-	  {  
-			$('#board_form').find('input').each(function(){ $(this).val(''); });
-			$('#board_form').find('textarea').each(function(){ $(this).val(''); });
+    // data 초기화
+    Swal.fire({
+        title: '데이터 복사',
+        text: "기본사항을 제외하고 초기화 하실래요?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: '네 그렇게 합시다!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // 실제 코드입력
+            $('#board_form').find('input').each(function() {
+                $(this).val('');
+            });
+            $('#board_form').find('textarea').each(function() {
+                $(this).val('');
+            });
+            
+            $('#workplacename').val("<?php echo $workplacename; ?>");
+            $('#address').val("<?php echo $address; ?>");
+            $('#firstord').val("<?php echo $firstord; ?>");
+            $('#firstordman').val("<?php echo $firstordman; ?>");
+            $('#firstordmantel').val("<?php echo $firstordmantel; ?>");
+            $('#secondord').val("<?php echo $secondord; ?>");
+            $('#secondordman').val("<?php echo $secondordman; ?>");
+            $('#secondordmantel').val("<?php echo $secondordmantel; ?>");
+            $('#chargedman').val("<?php echo $chargedman; ?>");
+            $('#chargedmantel').val("<?php echo $chargedmantel; ?>");
+            $('#orderday').val(getToday());
+            
+            Swal.fire(
+                '처리되었습니다.',
+                '데이터가 성공적으로 복사되었습니다.',
+                'success'
+            );
+        } else {
+            $('#board_form').find('input').each(function() {
+                $(this).val('');
+            });
+            $('#board_form').find('textarea').each(function() {
+                $(this).val('');
+            });
+            
+            $('#workplacename').val("<?php echo $workplacename; ?>");
+            $('#address').val("<?php echo $address; ?>");
+            $('#firstord').val("<?php echo $firstord; ?>");
+            $('#firstordman').val("<?php echo $firstordman; ?>");
+            $('#firstordmantel').val("<?php echo $firstordmantel; ?>");
+            $('#secondord').val("<?php echo $secondord; ?>");
+            $('#secondordman').val("<?php echo $secondordman; ?>");
+            $('#secondordmantel').val("<?php echo $secondordmantel; ?>");
+            $('#chargedman').val("<?php echo $chargedman; ?>");
+            $('#chargedmantel').val("<?php echo $chargedmantel; ?>");
+            $('#orderday').val(getToday());
+            
+            $('#type').val("<?php echo $type; ?>");
+            $('#inseung').val("<?php echo $inseung; ?>");
+            $('#car_insize').val("<?php echo $car_insize; ?>");
+            
+            $('#order_com1').val("<?php echo $order_com1; ?>");
+            $('#order_com2').val("<?php echo $order_com2; ?>");
+            $('#order_com3').val("<?php echo $order_com3; ?>");
+            $('#order_com4').val("<?php echo $order_com4; ?>");
+        }
+    });
 
-			$('#workplacename').val("<? echo $workplacename; ?>");
-			$('#address').val("<? echo $address; ?>");
-			$('#firstord').val("<? echo $firstord; ?>");
-			$('#firstordman').val("<? echo $firstordman; ?>");
-			$('#firstordmantel').val("<? echo $firstordmantel; ?>");
-			$('#secondord').val("<? echo $secondord; ?>");
-			$('#secondordman').val("<? echo $secondordman; ?>");
-			$('#secondordmantel').val("<? echo $secondordmantel; ?>");
-			$('#chargedman').val("<? echo $chargedman; ?>");
-			$('#chargedmantel').val("<? echo $chargedmantel; ?>");
-			$('#orderday').val(getToday());
-			
-			$('#type').val("<? echo $type; ?>");
-			$('#inseung').val("<? echo $inseung; ?>");
-			$('#car_insize').val("<? echo $car_insize; ?>");
-			
-			$('#order_com1').val("<? echo $order_com1; ?>");
-			$('#order_com2').val("<? echo $order_com2; ?>");
-			$('#order_com3').val("<? echo $order_com3; ?>");
-			$('#order_com4').val("<? echo $order_com4; ?>");
-			
-			
-			
+}); // End of $(document).ready
 
-	  }
-	  
-	});
-	
+// 전역 유틸리티 함수들
 
 function inputNumberFormat(obj) { 
     obj.value = comma(uncomma(obj.value)); 
@@ -1609,84 +1565,49 @@ document.getElementById("ashistory").value  += document.getElementById("asendday
    
 }  
 
-function deldate(){	
-
-document.getElementById("measureday").value  = "";
-document.getElementById("drawday").value  = "";
-document.getElementById("workday").value  = "";
-document.getElementById("deadline").value  = "";
-document.getElementById("endworkday").value  = "";
-document.getElementById("startday").value  = "";
-document.getElementById("testday").value  = "";   
-var _today = new Date();   
-
-// document.getElementById("orderday").value  = today;   
-/*
-let year = today.getFullYear(); // 년도
-let month = today.getMonth();  // 월
-let date = today.getDate();  // 날짜
-let day = today.getDay(); 
-printday = year + "-" + month + "-" + day;  */
-
-printday=_today.format('yyyy-MM-dd');   
-document.getElementById("orderday").value  = printday;
-
+function deldate() {
+    document.getElementById("measureday").value = "";
+    document.getElementById("drawday").value = "";
+    document.getElementById("workday").value = "";
+    document.getElementById("deadline").value = "";
+    document.getElementById("endworkday").value = "";
+    document.getElementById("startday").value = "";
+    document.getElementById("testday").value = "";
+    var _today = new Date();
+    
+    var printday = _today.format('yyyy-MM-dd');
+    document.getElementById("orderday").value = printday;
 }  
 
 Date.prototype.format = function (f) {
-
     if (!this.valueOf()) return " ";
-
-
-
+    
     var weekKorName = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
-
     var weekKorShortName = ["일", "월", "화", "수", "목", "금", "토"];
-
     var weekEngName = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-
     var weekEngShortName = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
     var d = this;
-
-
-
+    
     return f.replace(/(yyyy|yy|MM|dd|KS|KL|ES|EL|HH|hh|mm|ss|a\/p)/gi, function ($1) {
-
+        var h;
+        
         switch ($1) {
-
             case "yyyy": return d.getFullYear(); // 년 (4자리)
-
             case "yy": return (d.getFullYear() % 1000).zf(2); // 년 (2자리)
-
             case "MM": return (d.getMonth() + 1).zf(2); // 월 (2자리)
-
             case "dd": return d.getDate().zf(2); // 일 (2자리)
-
             case "KS": return weekKorShortName[d.getDay()]; // 요일 (짧은 한글)
-
             case "KL": return weekKorName[d.getDay()]; // 요일 (긴 한글)
-
             case "ES": return weekEngShortName[d.getDay()]; // 요일 (짧은 영어)
-
             case "EL": return weekEngName[d.getDay()]; // 요일 (긴 영어)
-
             case "HH": return d.getHours().zf(2); // 시간 (24시간 기준, 2자리)
-
             case "hh": return ((h = d.getHours() % 12) ? h : 12).zf(2); // 시간 (12시간 기준, 2자리)
-
             case "mm": return d.getMinutes().zf(2); // 분 (2자리)
-
             case "ss": return d.getSeconds().zf(2); // 초 (2자리)
-
             case "a/p": return d.getHours() < 12 ? "오전" : "오후"; // 오전/오후 구분
-
             default: return $1;
-
         }
-
     });
-
 };
 
 
@@ -1698,132 +1619,97 @@ String.prototype.zf = function (len) { return "0".string(len - this.length) + th
 Number.prototype.zf = function (len) { return this.toString().zf(len); };
 
 
-function del_below()
-     {
-     if(confirm("초기화한 자료는 복구할 방법이 없습니다.\n\n정말 초기화 하시겠습니까?")) {
-		document.getElementById("asday").value = "" ;
-		document.getElementById("aswriter").value = "" ;
-	
+function del_below() {
+    if (confirm("초기화한 자료는 복구할 방법이 없습니다.\n\n정말 초기화 하시겠습니까?")) {
+        document.getElementById("asday").value = "";
+        document.getElementById("aswriter").value = "";
     }
 }
 
 
-function Enter_Check(){
-        // 엔터키의 코드는 13입니다.
-    if(event.keyCode == 13){
-      exe_search();  // 실행할 이벤트 담당자 연락처 찾기
-    }
-}
-function Enter_firstCheck(){
-    if(event.keyCode == 13){
-      exe_firstordman();  // 원청 담당자 전번 가져오기
+function Enter_Check() {
+    // 엔터키의 코드는 13입니다.
+    if (event.keyCode == 13) {
+        exe_search();  // 실행할 이벤트 담당자 연락처 찾기
     }
 }
 
-function Enter_chargedman_Check(){
-	const data1 = "ceiling";
-	const data2 = "chargedman";
-	const data3 = "chargedmantel";	
-	const search = $("#" + data2).val();
-    if(event.keyCode == 13){     
-     window.open('load_tel.php?search=' + search +'&data1=' + data1 + '&data2=' + data2 + '&data3=' + data3,'전번 조회','top=0, left=0, width=1500px, height=600px, scrollbars=yes');	  
+function Enter_firstCheck() {
+    if (event.keyCode == 13) {
+        exe_firstordman();  // 원청 담당자 전번 가져오기
     }
 }
 
-function exe_search()
-{
-      // var postData = changeUri(document.getElementById("outworkplace").value);
-      // var sendData = $(":input:radio[name=root]:checked").val();
-     var tmp=$('#secondordman').val();
-	 switch (tmp) {
-		 case '김관' :
-         $("#secondordmantel").val("010-2648-0225");		 
-         $("#secondordman").val("김관부장");		 
-         $("#secondord").val("한산");		 
-		 break;
-		 case '정재훈' :
-         $("#secondordmantel").val("010-2102-4561");	
-         $("#secondordman").val("정재훈이사");			 
-		 break;		 
-		 case '고규천' :
-         $("#secondordmantel").val("010-6687-9535");		 
-         $("#secondordman").val("고규천이사");			 
-		 break;			
-		 case '조윤기' :
-         $("#secondordmantel").val("010-6400-4893");		 
-         $("#secondordman").val("조윤기주임");			 
-		 break;	
-		 case '서달원' :
-         $("#secondordmantel").val("010-5462-7098");		 
-         $("#secondordman").val("서달원부대표");		 
-         $("#secondord").val("다원엘리베이터");		 
-         $("#chargedmantel").val("010-3405-6669");		 		 
-         $("#chargedman").val("박경호소장");		 
-		 break;		 
-	 }
-}
-function exe_firstordman()
-{    
+function Enter_chargedman_Check() {
+    const data1 = "ceiling";
+    const data2 = "chargedman";
+    const data3 = "chargedmantel";
+    const search = $("#" + data2).val();
+    if (event.keyCode == 13) {
+        window.open('load_tel.php?search=' + search + '&data1=' + data1 + '&data2=' + data2 + '&data3=' + data3, '전번 조회', 'top=0, left=0, width=1500px, height=600px, scrollbars=yes');
+    }
 }
 
-
-function exe_chargedman()
-{    
+function exe_search() {
+    var tmp = $('#secondordman').val();
+    switch (tmp) {
+        case '김관':
+            $("#secondordmantel").val("010-2648-0225");
+            $("#secondordman").val("김관부장");
+            $("#secondord").val("한산");
+            break;
+        case '정재훈':
+            $("#secondordmantel").val("010-2102-4561");
+            $("#secondordman").val("정재훈이사");
+            break;
+        case '고규천':
+            $("#secondordmantel").val("010-6687-9535");
+            $("#secondordman").val("고규천이사");
+            break;
+        case '조윤기':
+            $("#secondordmantel").val("010-6400-4893");
+            $("#secondordman").val("조윤기주임");
+            break;
+        case '서달원':
+            $("#secondordmantel").val("010-5462-7098");
+            $("#secondordman").val("서달원부대표");
+            $("#secondord").val("다원엘리베이터");
+            $("#chargedmantel").val("010-3405-6669");
+            $("#chargedman").val("박경호소장");
+            break;
+    }
 }
 
+function exe_firstordman() {
+}
 
+function exe_chargedman() {
+}
 
 function captureReturnKey(e) {
-    if(e.keyCode==13 && e.srcElement.type != 'textarea')
-    return false;
+    if (e.keyCode == 13 && e.srcElement.type != 'textarea')
+        return false;
 }
 
 function recaptureReturnKey(e) {
-    if (e.keyCode==13)
+    if (e.keyCode == 13)
         exe_search();
 }
 
-function getToday(){   // 2021-01-28 형태리턴
+function getToday() {   // 2021-01-28 형태리턴
     var now = new Date();
     var year = now.getFullYear();
     var month = now.getMonth() + 1;    //1월이 0으로 되기때문에 +1을 함.
     var date = now.getDate();
-
-    month = month >=10 ? month : "0" + month;
-    date  = date  >= 10 ? date : "0" + date;
-     // ""을 빼면 year + month (숫자+숫자) 됨.. ex) 2018 + 12 = 2030이 리턴됨.
-
-    //console.log(""+year + month + date);
-    return today = ""+year + "-" + month + "-" + date; 
+    
+    month = month >= 10 ? month : "0" + month;
+    date = date >= 10 ? date : "0" + date;
+    // ""을 빼면 year + month (숫자+숫자) 됨.. ex) 2018 + 12 = 2030이 리턴됨.
+    
+    var today = "" + year + "-" + month + "-" + date;
+    return today;
 }
 
-
-// function load_init() {
-
-  // // 실제 코드입력
-			// $('#board_form').find('input').each(function(){ $(this).val(''); });
-			// $('#board_form').find('textarea').each(function(){ $(this).val(''); });
-
-			// $('#workplacename').val("<? echo $workplacename; ?>");
-			// $('#address').val("<? echo $address; ?>");
-			// $('#firstord').val("<? echo $firstord; ?>");
-			// $('#firstordman').val("<? echo $firstordman; ?>");
-			// $('#firstordmantel').val("<? echo $firstordmantel; ?>");
-			// $('#secondord').val("<? echo $secondord; ?>");
-			// $('#secondordman').val("<? echo $secondordman; ?>");
-			// $('#secondordmantel').val("<? echo $secondordmantel; ?>");
-			// $('#chargedman').val("<? echo $chargedman; ?>");
-			// $('#chargedmantel').val("<? echo $chargedmantel; ?>");
-			// $('#orderday').val(getToday());
-
-
-// }
-
-// // 타임함수 시간지나면 처리함
-// setTimeout(function() {
- // load_init();
-// }, 1000);
-
 </script>
-	</body>
- </html>
+</body>
+</html>

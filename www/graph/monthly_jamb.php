@@ -1,60 +1,90 @@
 <?php
 require_once __DIR__ . '/../bootstrap.php';
-// ───────────────────────────────────────────────────────────
-// JAMB 수주현황 분석 (수주금액 / 발주처순위 / 업체별 월별수주금액)
-// ───────────────────────────────────────────────────────────
+
+// 권한 확인
 if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
     sleep(1);
     header("Location:" . getBaseUrl() . "/login/login_form.php");
     exit;
 }
-$title_message = "JAMB 수주현황 분석";
 
-// ── 1) 기간 계산: start, end 둘 다 있으면 그대로, 하나만 있으면 12개월 보정 ──
+// 베이스 URL 설정 (로컬/서버 환경 자동 감지)
+$base_url = getBaseUrl();
+
+// 세션 변수 안전하게 초기화
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+$user_name = $_SESSION["user_name"] ?? '';
+
+$title_message = "JAMB 수주현황 분석";
+include includePath('load_header.php');
+
+// 기간 계산: start, end 둘 다 있으면 그대로, 하나만 있으면 12개월 보정
 if (!empty($_GET['start']) && !empty($_GET['end'])) {
     $startDate = DateTime::createFromFormat('Y-m-01', $_GET['start'] . '-01');
-    $endDate   = DateTime::createFromFormat('Y-m-01', $_GET['end']   . '-01');
+    $endDate = DateTime::createFromFormat('Y-m-01', $_GET['end'] . '-01');
 } elseif (!empty($_GET['start'])) {
     $startDate = DateTime::createFromFormat('Y-m-01', $_GET['start'] . '-01');
-    $endDate   = (clone $startDate)->modify('+11 months');
+    $endDate = (clone $startDate)->modify('+11 months');
 } elseif (!empty($_GET['end'])) {
-    $endDate   = DateTime::createFromFormat('Y-m-01', $_GET['end']   . '-01');
+    $endDate = DateTime::createFromFormat('Y-m-01', $_GET['end'] . '-01');
     $startDate = (clone $endDate)->modify('-11 months');
 } else {
-    $endDate   = new DateTime('first day of this month');
+    $endDate = new DateTime('first day of this month');
     $startDate = (clone $endDate)->modify('-11 months');
 }
 $startYM = $startDate->format('Y-m');
-$endYM   = $endDate  ->format('Y-m');
+$endYM = $endDate->format('Y-m');
 
-// ── 2) 보기 모드: revenue|vendor|topVendorMonthly ──
+// 보기 모드: revenue|vendor|topVendorMonthly
 $viewMode = $_GET['view'] ?? 'revenue';
 
-// ── 3) 단가 설정 ──
-$price_wide   = 340000;
+// 단가 설정
+$price_wide = 340000;
 $price_normal = 300000;
-$price_small  =  70000;
+$price_small = 70000;
 
-// ── 4) 월 리스트 & 레이블 생성 ──
+// 월 리스트 & 레이블 생성
 $months = $labels = [];
 for ($dt = clone $startDate; $dt <= $endDate; $dt->modify('+1 month')) {
     $ym = $dt->format('Y-m');
     $months[] = $ym;
     $labels[] = $dt->format('Y') . '년 ' . $dt->format('n') . '월';
 }
+
+// PDO 연결
+require_once __DIR__ . "/../lib/mydb.php";
+$pdo = db_connect();
 ?>
-  <title><?=$title_message?></title>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo $title_message; ?></title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Highcharts -->
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- 공통 함수 -->
+    <script src="<?php echo $base_url; ?>/js/common.js"></script>
 
-  <!-- Light & Subtle Theme CSS -->
-  <link rel="stylesheet" href="../css/dashboard-style.css" type="text/css" />
+    <!-- Light & Subtle Theme CSS -->
+    <link rel="stylesheet" href="<?php echo $base_url; ?>/css/dashboard-style.css" type="text/css" />
 
-  <style>
-    /* Monthly Jamb Specific Styles - Light & Subtle Theme */
-    body {
-      background: white;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      overflow-x: hidden;
-    } 
+    <style>
+        /* Monthly Jamb Specific Styles - Light & Subtle Theme */
+        body {
+            background: white;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            overflow-x: hidden;
+        } 
 
     .container-fluid {
       background: var(--gradient-primary);
@@ -256,8 +286,9 @@ for ($dt = clone $startDate; $dt <= $endDate; $dt->modify('+1 month')) {
 <body>
 <?php 
 if (isset($_GET['header']) && $_GET['header'] === 'header') {
-        include getDocumentRoot() . '/myheader.php';
-} ?>
+    include includePath('myheader.php');
+}
+?>
 <div id="loadingOverlay">
   <div class="spinner">
     <div class="spinner-border text-primary" role="status">
@@ -268,49 +299,55 @@ if (isset($_GET['header']) && $_GET['header'] === 'header') {
 </div>
 
 <div class="container py-2">
-  <h4 class="text-center mb-4"><?=$title_message?></h4>
-  
-  <!-- 필터: 기간 & 보기 모드 -->
-  <div class="filter-container">
-    <div class="row">
-      <div class="col-md-6 d-flex align-items-center mb-2">
-        <label class="me-2 compact-title">시작:</label>
-        <input type="month" id="startYM" class="jamb-form-control me-4" style="width:210px;" value="<?=$startYM?>">
-        <label class="me-2 compact-title">종료:</label>
-        <input type="month" id="endYM" class="jamb-form-control" style="width:210px;" value="<?=$endYM?>">
-      </div>
-      <div class="col-md-6 d-flex align-items-center mb-2">
-        <?php foreach (['revenue'=>'수주금액 기준','vendor'=>'발주처 수주순위','topVendorMonthly'=>'업체별 월별수주금액'] as $val=>$text): ?>
-        <div class="form-check form-check-inline">
-          <input class="jamb-form-check-input" type="radio" name="view" id="view<?=$val?>" value="<?=$val?>"
-            <?= $viewMode === $val ? 'checked' : '' ?>>
-          <label class="jamb-form-check-label" for="view<?=$val?>"><?=$text?></label>
+    <h4 class="text-center mb-4"><?php echo $title_message; ?></h4>
+    
+    <!-- 필터: 기간 & 보기 모드 -->
+    <div class="filter-container">
+        <div class="row">
+            <div class="col-md-6 d-flex align-items-center mb-2">
+                <label class="me-2 compact-title">시작:</label>
+                <input type="month" id="startYM" class="jamb-form-control me-4" style="width:210px;" value="<?php echo $startYM; ?>">
+                <label class="me-2 compact-title">종료:</label>
+                <input type="month" id="endYM" class="jamb-form-control" style="width:210px;" value="<?php echo $endYM; ?>">
+            </div>
+            <div class="col-md-6 d-flex align-items-center mb-2">
+                <?php foreach (['revenue'=>'수주금액 기준','vendor'=>'발주처 수주순위','topVendorMonthly'=>'업체별 월별수주금액'] as $val=>$text): ?>
+                <div class="form-check form-check-inline">
+                    <input class="jamb-form-check-input" type="radio" name="view" id="view<?php echo $val; ?>" value="<?php echo $val; ?>"
+                        <?php echo $viewMode === $val ? 'checked' : ''; ?>>
+                    <label class="jamb-form-check-label" for="view<?php echo $val; ?>"><?php echo $text; ?></label>
+                </div>
+                <?php endforeach; ?>
+            </div>
         </div>
-        <?php endforeach;?>
-      </div>
     </div>
-  </div>
 
-  <?php
-  switch ($viewMode) {
-    // 1) 월별 총수주금액
-    case 'revenue':
-      $data = [];
-      foreach ($months as $ym) {
-        $from = "$ym-01";
-        $to   = date("Y-m-t", strtotime($from));
-        $stmt = $pdo->prepare("SELECT * FROM {$DB}.work WHERE workday BETWEEN :from AND :to");
-        $stmt->execute(['from'=>$from,'to'=>$to]);
-        $rev = 0;
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-          include getDocumentRoot().'/work/_row.php';
-          $rev += intval($widejamb)*$price_wide
-                + intval($normaljamb)*$price_normal
-                + intval($smalljamb)*$price_small;
-        }
-        $data[] = $rev;
-      }
-      ?>
+    <?php
+    switch ($viewMode) {
+        // 1) 월별 총수주금액
+        case 'revenue':
+            $data = [];
+            
+            // _row.php에서 사용할 변수 초기화
+            $widejamb = 0;
+            $normaljamb = 0;
+            $smalljamb = 0;
+            
+            foreach ($months as $ym) {
+                $from = "$ym-01";
+                $to = date("Y-m-t", strtotime($from));
+                $stmt = $pdo->prepare("SELECT * FROM {$DB}.work WHERE workday BETWEEN :from AND :to");
+                $stmt->execute(['from'=>$from, 'to'=>$to]);
+                $rev = 0;
+                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    include includePath('work/_row.php');
+                    $rev += intval($widejamb) * $price_wide
+                          + intval($normaljamb) * $price_normal
+                          + intval($smalljamb) * $price_small;
+                }
+                $data[] = $rev;
+            }
+            ?>
       <div class="row">
         <div class="col-md-8">
           <div class="compact-chart-container">
@@ -346,27 +383,33 @@ if (isset($_GET['header']) && $_GET['header'] === 'header') {
       <?php
       break;
 
-    // 2) 발주처별 총합 순위 (Top20)
-    case 'vendor':
-      $vendorRev = [];
-      $stmt = $pdo->prepare("SELECT * FROM {$DB}.work WHERE workday BETWEEN :from AND :to");
-      $stmt->execute([
-        'from'=>$startDate->format('Y-m-d'),
-        'to'  =>$endDate  ->format('Y-m-t'),
-      ]);
-      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        include getDocumentRoot().'/work/_row.php';
-        $rev = intval($widejamb)*$price_wide
-             + intval($normaljamb)*$price_normal
-             + intval($smalljamb)*$price_small;
-        $vendor = $row['secondord'] ?: '기타';
-        $vendorRev[$vendor] = ($vendorRev[$vendor] ?? 0) + $rev;
-      }
-      arsort($vendorRev);
-      $top20 = array_slice($vendorRev, 0, 20, true);
-      $labels2 = array_keys($top20);
-      $data2   = array_values($top20);
-      ?>
+        // 2) 발주처별 총합 순위 (Top20)
+        case 'vendor':
+            $vendorRev = [];
+            
+            // _row.php에서 사용할 변수 초기화
+            $widejamb = 0;
+            $normaljamb = 0;
+            $smalljamb = 0;
+            
+            $stmt = $pdo->prepare("SELECT * FROM {$DB}.work WHERE workday BETWEEN :from AND :to");
+            $stmt->execute([
+                'from' => $startDate->format('Y-m-d'),
+                'to' => $endDate->format('Y-m-t'),
+            ]);
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                include includePath('work/_row.php');
+                $rev = intval($widejamb) * $price_wide
+                     + intval($normaljamb) * $price_normal
+                     + intval($smalljamb) * $price_small;
+                $vendor = $row['secondord'] ?: '기타';
+                $vendorRev[$vendor] = ($vendorRev[$vendor] ?? 0) + $rev;
+            }
+            arsort($vendorRev);
+            $top20 = array_slice($vendorRev, 0, 20, true);
+            $labels2 = array_keys($top20);
+            $data2 = array_values($top20);
+            ?>
       <div class="row">
         <div class="col-md-8">
           <div class="compact-chart-container">
@@ -403,270 +446,273 @@ if (isset($_GET['header']) && $_GET['header'] === 'header') {
       <?php
       break;
 
-    // 3) 상위20개 업체 월별 그래프·테이블 반복
-    case 'topVendorMonthly':
-      // 1) 총합으로 Top20 선정
-      $vendorRev = [];
-      $stmt = $pdo->prepare("SELECT * FROM {$DB}.work WHERE workday BETWEEN :from AND :to");
-      $stmt->execute([
-        'from'=>$startDate->format('Y-m-d'),
-        'to'  =>$endDate  ->format('Y-m-t'),
-      ]);
-      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        include getDocumentRoot().'/work/_row.php';
-        $rev = intval($widejamb)*$price_wide
-             + intval($normaljamb)*$price_normal
-             + intval($smalljamb)*$price_small;
-        $vendor = trim($row['secondord']) ?: '기타';
-        $vendorRev[$vendor] = ($vendorRev[$vendor] ?? 0) + $rev;
-      }
-      arsort($vendorRev);
-      $top20keys = array_slice(array_keys($vendorRev), 0, 20);
+        // 3) 상위20개 업체 월별 그래프·테이블 반복
+        case 'topVendorMonthly':
+            // 1) 총합으로 Top20 선정
+            $vendorRev = [];
+            
+            // _row.php에서 사용할 변수 초기화
+            $widejamb = 0;
+            $normaljamb = 0;
+            $smalljamb = 0;
+            
+            $stmt = $pdo->prepare("SELECT * FROM {$DB}.work WHERE workday BETWEEN :from AND :to");
+            $stmt->execute([
+                'from' => $startDate->format('Y-m-d'),
+                'to' => $endDate->format('Y-m-t'),
+            ]);
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                include includePath('work/_row.php');
+                $rev = intval($widejamb) * $price_wide
+                     + intval($normaljamb) * $price_normal
+                     + intval($smalljamb) * $price_small;
+                $vendor = trim($row['secondord']) ?: '기타';
+                $vendorRev[$vendor] = ($vendorRev[$vendor] ?? 0) + $rev;
+            }
+            arsort($vendorRev);
+            $top20keys = array_slice(array_keys($vendorRev), 0, 20);
 
-// ── 2) 각 업체 월별 집계 + 디버그용 카운트/합계 수집
-$vendorMonthly = [];
-$rowCounts     = [];
-$sumValues     = [];
+            // 2) 각 업체 월별 집계 + 디버그용 카운트/합계 수집
+            $vendorMonthly = [];
+            $rowCounts = [];
+            $sumValues = [];
 
-foreach ($top20keys as $vendor) {
-  $sums = [];
-  $cnts = [];
-  foreach ($months as $ym) {
-    $from = "$ym-01";
-    $to   = date("Y-m-t", strtotime($from));
+            foreach ($top20keys as $vendor) {
+                $sums = [];
+                $cnts = [];
+                foreach ($months as $ym) {
+                    $from = "$ym-01";
+                    $to = date("Y-m-t", strtotime($from));
 
-    $st2 = $pdo->prepare("
-      SELECT * FROM {$DB}.work
-       WHERE workday BETWEEN :from AND :to
-         AND TRIM(secondord) = :vendor
-    ");
-    $st2->execute(['from'=>$from,'to'=>$to,'vendor'=>$vendor]);
+                    $st2 = $pdo->prepare("
+                        SELECT * FROM {$DB}.work
+                        WHERE workday BETWEEN :from AND :to
+                            AND TRIM(secondord) = :vendor
+                    ");
+                    $st2->execute(['from'=>$from, 'to'=>$to, 'vendor'=>$vendor]);
 
-    // fetchAll 로 한꺼번에 가져온 뒤
-    $rows     = $st2->fetchAll(PDO::FETCH_ASSOC);
-    $rowCount = count($rows);
-    $cnts[]   = $rowCount;
+                    // fetchAll 로 한꺼번에 가져온 뒤
+                    $rows = $st2->fetchAll(PDO::FETCH_ASSOC);
+                    $rowCount = count($rows);
+                    $cnts[] = $rowCount;
 
-    // 합계 계산
-    $sum = 0;
-    foreach ($rows as $r) {
-      // 여기가 핵심! include 전에 $row 에 덮어써 줍니다.
-      $row = $r;
-      include getDocumentRoot().'/work/_row.php';
-      $sum += intval($widejamb)*$price_wide
-            + intval($normaljamb)*$price_normal
-            + intval($smalljamb)*$price_small;
+                    // 합계 계산
+                    $sum = 0;
+                    foreach ($rows as $r) {
+                        // 여기가 핵심! include 전에 $row 에 덮어써 줍니다.
+                        $row = $r;
+                        include includePath('work/_row.php');
+                        $sum += intval($widejamb) * $price_wide
+                              + intval($normaljamb) * $price_normal
+                              + intval($smalljamb) * $price_small;
+                    }
+                    $sums[] = $sum;
+                }
+                $rowCounts[$vendor] = $cnts;
+                $vendorMonthly[$vendor] = $sums;
+            }
+
+            // 디버그 출력 (콘솔 + 화면)
+            echo "<script>
+                console.group('🛠 Debug topVendorMonthly');
+                console.log('Top20 업체:', ". json_encode($top20keys, JSON_UNESCAPED_UNICODE) .");
+                console.log('월별 합계 sums:', ". json_encode($vendorMonthly, JSON_UNESCAPED_UNICODE) .");
+                console.log('월별 조회행수 counts:', ". json_encode($rowCounts, JSON_UNESCAPED_UNICODE) .");
+                console.groupEnd();
+            </script>";
+
+            // echo "<pre style='background:#f8f9fa; padding:1rem; border:1px solid #ccc;'>
+            // === Debug: 각 업체별 월별 합계 sums ===\n"
+            //   . htmlspecialchars(print_r($vendorMonthly, true))
+            //   . "\n\n=== Debug: 각 업체별 월별 조회행수 counts ===\n"
+            //   . htmlspecialchars(print_r($rowCounts, true))
+            //   . "</pre>";
+
+            // 3) 실제 화면 출력 (기존 코드)
+            foreach ($top20keys as $i => $vendor):
+                $canvasId = "chartV{$i}";
+            ?>
+            <div class="jamb-card mb-4">
+                <div class="jamb-card-header">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <span><?php echo ($i+1); ?>위: <?php echo htmlspecialchars($vendor); ?></span>
+                        <div class="compact-badge" style="margin: 0;">
+                            합계: <?php echo number_format(array_sum($vendorMonthly[$vendor])/1000); ?>천원
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body row" style="padding: 1.5rem;">
+                    <div class="col-md-8">
+                        <div class="compact-chart-container">
+                            <div class="compact-chart-header">
+                                <div class="compact-chart-icon">📈</div>
+                                <h6 class="compact-chart-title"><?php echo htmlspecialchars($vendor); ?> 월별 추이 (천원)</h6>
+                            </div>
+                            <div id="<?php echo $canvasId; ?>" class="jamb-chart-container"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="table-container">
+                            <table class="jamb-table table-sm table-bordered">
+                                <thead>
+                                    <tr><th>월</th><th class="text-end">수주금액(천원)</th></tr>
+                                </thead>
+                                <tbody>
+                                <?php foreach ($labels as $j => $lbl): ?>
+                                    <tr>
+                                        <td><?php echo $lbl; ?></td>
+                                        <td class="text-end">
+                                            <?php echo number_format(($vendorMonthly[$vendor][$j] ?? 0)/1000); ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                                <tr class="jamb-table-secondary fw-bold">
+                                    <td>합계</td>
+                                    <td class="text-end">
+                                        <?php echo number_format(array_sum($vendorMonthly[$vendor])/1000); ?>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <?php
+            endforeach;
+            break;
     }
-    $sums[] = $sum;
-  }
-  $rowCounts[$vendor]     = $cnts;
-  $vendorMonthly[$vendor] = $sums;
-}
-
-// ── 디버그 출력 (콘솔 + 화면) ──
-echo "<script>
-  console.group('🛠 Debug topVendorMonthly');
-  console.log('Top20 업체:', ". json_encode($top20keys, JSON_UNESCAPED_UNICODE) .");
-  console.log('월별 합계 sums:', ". json_encode($vendorMonthly, JSON_UNESCAPED_UNICODE) .");
-  console.log('월별 조회행수 counts:', ". json_encode($rowCounts, JSON_UNESCAPED_UNICODE) .");
-  console.groupEnd();
-</script>";
-
-// echo "<pre style='background:#f8f9fa; padding:1rem; border:1px solid #ccc;'>
-// === Debug: 각 업체별 월별 합계 sums ===\n"
-//   . htmlspecialchars(print_r($vendorMonthly, true))
-//   . "\n\n=== Debug: 각 업체별 월별 조회행수 counts ===\n"
-//   . htmlspecialchars(print_r($rowCounts, true))
-//   . "</pre>";
-  // ──────────────────────────────────
-
-  // 3) 실제 화면 출력 (기존 코드)
-  foreach ($top20keys as $i => $vendor):
-    $canvasId = "chartV{$i}";
-?>
-  <div class="jamb-card mb-4">
-    <div class="jamb-card-header">
-      <div class="d-flex align-items-center justify-content-between">
-        <span><?= ($i+1) ?>위: <?= htmlspecialchars($vendor) ?></span>
-        <div class="compact-badge" style="margin: 0;">
-          합계: <?= number_format(array_sum($vendorMonthly[$vendor])/1000) ?>천원
-        </div>
-      </div>
-    </div>
-    <div class="card-body row" style="padding: 1.5rem;">
-      <div class="col-md-8">
-        <div class="compact-chart-container">
-          <div class="compact-chart-header">
-            <div class="compact-chart-icon">📈</div>
-            <h6 class="compact-chart-title"><?= htmlspecialchars($vendor) ?> 월별 추이 (천원)</h6>
-          </div>
-          <div id="<?= $canvasId ?>" class="jamb-chart-container"></div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="table-container">
-          <table class="jamb-table table-sm table-bordered">
-            <thead>
-              <tr><th>월</th><th class="text-end">수주금액(천원)</th></tr>
-            </thead>
-            <tbody>
-            <?php foreach ($labels as $j => $lbl): ?>
-              <tr>
-                <td><?= $lbl ?></td>
-                <td class="text-end">
-                  <?= number_format(($vendorMonthly[$vendor][$j] ?? 0)/1000) ?>
-                </td>
-              </tr>
-            <?php endforeach; ?>
-            <tr class="jamb-table-secondary fw-bold">
-              <td>합계</td>
-              <td class="text-end">
-                <?= number_format(array_sum($vendorMonthly[$vendor])/1000) ?>
-              </td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
-<?php
-  endforeach;
-  break;
-  }
-  ?>
+    ?>
 
 </div>
 
 <script>
-  // 로딩 오버레이 보이기
-  function showLoading() {
-    document.getElementById('loadingOverlay').style.display = 'block';
-  }
-
-  // 파라미터 셋업 및 페이지 리로드
-  function reloadPage(params) {
-    showLoading();
-    const url = new URL(window.location);
-    url.searchParams.delete('start');
-    url.searchParams.delete('end');
-    url.searchParams.delete('view');
-    Object.entries(params).forEach(([k,v])=>{
-      url.searchParams.set(k,v);
-    });
-    window.location = url;
-  }
-
-  function getParams() {
-    return {
-      start: document.getElementById('startYM').value,
-      end:   document.getElementById('endYM').value,
-      view:  document.querySelector('input[name=view]:checked').value
-    };
-  }
-
-  // 이벤트 바인딩
-  document.getElementById('startYM').addEventListener('change', function(){
-    const dt = new Date(this.value + '-01');
-    dt.setMonth(dt.getMonth() + 11);
-    document.getElementById('endYM').value = dt.toISOString().slice(0,7);
-    reloadPage(getParams());
-  });
-  document.getElementById('endYM').addEventListener('change', function(){
-    const dt = new Date(this.value + '-01');
-    dt.setMonth(dt.getMonth() - 11);
-    document.getElementById('startYM').value = dt.toISOString().slice(0,7);
-    reloadPage(getParams());
-  });
-  document.querySelectorAll('input[name=view]').forEach(rb=>{
-    rb.addEventListener('change', ()=>{
-      reloadPage(getParams());
-    });
-  });
-
-  // 차트 그리기 - 컴팩트 블루 테마 적용
-  <?php if(in_array($viewMode, ['revenue','vendor'])): ?>
-  Highcharts.chart('chartMain', {
-    chart: {
-      type: 'column',
-      backgroundColor: 'rgba(255, 255, 255, 0.9)'
-    },
-    title: {
-      text: '<?=$viewMode==='revenue'? '월별 수주금액 추이 (천원)' : '발주처 수주금액(천원)'?>',
-      style: { fontSize: '14px', fontWeight: '600', color: '#334155' }
-    },
-    xAxis: {
-      categories: <?= json_encode($viewMode==='revenue'? $labels : $labels2) ?>,
-      labels: { style: { fontSize: '10px', color: '#64748b' } }
-    },
-    yAxis: {
-      title: { text: '천원', style: { fontSize: '10px', color: '#64748b' } },
-      labels: { style: { fontSize: '10px', color: '#64748b' } }
-    },
-    series: [{
-      name: '수주금액',
-      data: <?= json_encode($viewMode==='revenue'? array_map(function($x){return $x/1000;}, $data) : array_map(function($x){return $x/1000;}, $data2)) ?>,
-      color: '#64748b'
-    }],
-    tooltip: {
-      formatter: function() {
-        return this.series.name + ': <b>' + Highcharts.numberFormat(this.y, 0) + ' 천원</b>';
-      }
-    },
-    legend: { enabled: false },
-    credits: { enabled: false },
-    responsive: {
-      rules: [{
-        condition: { maxWidth: 500 },
-        chartOptions: {
-          legend: { enabled: false }
-        }
-      }]
+    // 로딩 오버레이 보이기
+    function showLoading() {
+        document.getElementById('loadingOverlay').style.display = 'block';
     }
-  });
-  <?php elseif($viewMode==='topVendorMonthly'): ?>
-  <?php foreach($top20keys as $i=>$vendor): ?>
-  Highcharts.chart('chartV<?=$i?>', {
-    chart: {
-      type: 'line',
-      backgroundColor: 'rgba(255, 255, 255, 0.9)'
-    },
-    title: {
-      text: '<?=$vendor?> 월별 추이 (천원)',
-      style: { fontSize: '12px', fontWeight: '600', color: '#334155' }
-    },
-    xAxis: {
-      categories: <?= json_encode($labels) ?>,
-      labels: { style: { fontSize: '9px', color: '#64748b' } }
-    },
-    yAxis: {
-      title: { text: '천원', style: { fontSize: '9px', color: '#64748b' } },
-      labels: { style: { fontSize: '9px', color: '#64748b' } }
-    },
-    series: [{
-      name: '수주금액',
-      data: <?= json_encode(array_map(function($x){return $x/1000;}, $vendorMonthly[$vendor])) ?>,
-      color: '#64748b',
-      lineWidth: 2
-    }],
-    tooltip: {
-      formatter: function() {
-        return this.series.name + ': <b>' + Highcharts.numberFormat(this.y, 0) + ' 천원</b>';
-      }
-    },
-    legend: { enabled: false },
-    credits: { enabled: false }
-  });
-  <?php endforeach; ?>
-  <?php endif; ?>
 
-  $(document).ready(function(){    
-   // 방문기록 남김
-   var title = '<?php echo $title_message; ?>';
-   // title = '품질방침/품질목표';
-   // title = '절곡 ' + title ;
-   saveMenuLog(title);
-});	
+    // 파라미터 셋업 및 페이지 리로드
+    function reloadPage(params) {
+        showLoading();
+        const url = new URL(window.location);
+        url.searchParams.delete('start');
+        url.searchParams.delete('end');
+        url.searchParams.delete('view');
+        Object.entries(params).forEach(([k, v]) => {
+            url.searchParams.set(k, v);
+        });
+        window.location = url;
+    }
+
+    function getParams() {
+        return {
+            start: document.getElementById('startYM').value,
+            end: document.getElementById('endYM').value,
+            view: document.querySelector('input[name=view]:checked').value
+        };
+    }
+
+    // 이벤트 바인딩
+    document.getElementById('startYM').addEventListener('change', function() {
+        const dt = new Date(this.value + '-01');
+        dt.setMonth(dt.getMonth() + 11);
+        document.getElementById('endYM').value = dt.toISOString().slice(0, 7);
+        reloadPage(getParams());
+    });
+    document.getElementById('endYM').addEventListener('change', function() {
+        const dt = new Date(this.value + '-01');
+        dt.setMonth(dt.getMonth() - 11);
+        document.getElementById('startYM').value = dt.toISOString().slice(0, 7);
+        reloadPage(getParams());
+    });
+    document.querySelectorAll('input[name=view]').forEach(rb => {
+        rb.addEventListener('change', () => {
+            reloadPage(getParams());
+        });
+    });
+
+    // 차트 그리기 - 컴팩트 블루 테마 적용
+    <?php if (in_array($viewMode, ['revenue', 'vendor'])): ?>
+    Highcharts.chart('chartMain', {
+        chart: {
+            type: 'column',
+            backgroundColor: 'rgba(255, 255, 255, 0.9)'
+        },
+        title: {
+            text: '<?php echo $viewMode === 'revenue' ? '월별 수주금액 추이 (천원)' : '발주처 수주금액(천원)'; ?>',
+            style: { fontSize: '14px', fontWeight: '600', color: '#334155' }
+        },
+        xAxis: {
+            categories: <?php echo json_encode($viewMode === 'revenue' ? $labels : $labels2); ?>,
+            labels: { style: { fontSize: '10px', color: '#64748b' } }
+        },
+        yAxis: {
+            title: { text: '천원', style: { fontSize: '10px', color: '#64748b' } },
+            labels: { style: { fontSize: '10px', color: '#64748b' } }
+        },
+        series: [{
+            name: '수주금액',
+            data: <?php echo json_encode($viewMode === 'revenue' ? array_map(function($x){return $x/1000;}, $data) : array_map(function($x){return $x/1000;}, $data2)); ?>,
+            color: '#64748b'
+        }],
+        tooltip: {
+            formatter: function() {
+                return this.series.name + ': <b>' + Highcharts.numberFormat(this.y, 0) + ' 천원</b>';
+            }
+        },
+        legend: { enabled: false },
+        credits: { enabled: false },
+        responsive: {
+            rules: [{
+                condition: { maxWidth: 500 },
+                chartOptions: {
+                    legend: { enabled: false }
+                }
+            }]
+        }
+    });
+    <?php elseif ($viewMode === 'topVendorMonthly'): ?>
+    <?php foreach ($top20keys as $i => $vendor): ?>
+    Highcharts.chart('chartV<?php echo $i; ?>', {
+        chart: {
+            type: 'line',
+            backgroundColor: 'rgba(255, 255, 255, 0.9)'
+        },
+        title: {
+            text: '<?php echo $vendor; ?> 월별 추이 (천원)',
+            style: { fontSize: '12px', fontWeight: '600', color: '#334155' }
+        },
+        xAxis: {
+            categories: <?php echo json_encode($labels); ?>,
+            labels: { style: { fontSize: '9px', color: '#64748b' } }
+        },
+        yAxis: {
+            title: { text: '천원', style: { fontSize: '9px', color: '#64748b' } },
+            labels: { style: { fontSize: '9px', color: '#64748b' } }
+        },
+        series: [{
+            name: '수주금액',
+            data: <?php echo json_encode(array_map(function($x){return $x/1000;}, $vendorMonthly[$vendor])); ?>,
+            color: '#64748b',
+            lineWidth: 2
+        }],
+        tooltip: {
+            formatter: function() {
+                return this.series.name + ': <b>' + Highcharts.numberFormat(this.y, 0) + ' 천원</b>';
+            }
+        },
+        legend: { enabled: false },
+        credits: { enabled: false }
+    });
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    $(document).ready(function() {
+        // 방문기록 남김
+        var title = '<?php echo $title_message; ?>';        
+        saveMenuLog(title);
+    });
 
 </script>
 </body>
