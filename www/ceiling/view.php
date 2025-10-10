@@ -351,10 +351,106 @@ try {
 
     $row = $stmh->fetch(PDO::FETCH_ASSOC);
 
-    include '_rowDB.php';
+    if ($row) {
+        include '_rowDB.php';
+    }
 
 } catch (PDOException $Exception) {
     print "오류: " . $Exception->getMessage();
+}
+
+// _rowDB.php에서 로드되는 변수들의 기본값 설정 (선언되지 않은 경우 대비)
+$workplacename = $workplacename ?? '';
+$address = $address ?? '';
+$firstord = $firstord ?? '';
+$firstordman = $firstordman ?? '';
+$firstordmantel = $firstordmantel ?? '';
+$secondord = $secondord ?? '';
+$secondordman = $secondordman ?? '';
+$secondordmantel = $secondordmantel ?? '';
+$chargedman = $chargedman ?? '';
+$chargedmantel = $chargedmantel ?? '';
+$designer = $designer ?? '';
+$orderday = $orderday ?? '';
+$main_draw = $main_draw ?? '';
+$lc_draw = $lc_draw ?? '';
+$etc_draw = $etc_draw ?? '';
+$deadline = $deadline ?? '';
+$workday = $workday ?? '';
+$demand = $demand ?? '';
+$worker = $worker ?? '';
+$dwglocation = $dwglocation ?? '';
+$delivery = $delivery ?? '';
+$delipay = $delipay ?? '';
+$boxwrap = $boxwrap ?? '';
+$type = $type ?? '';
+$car_insize = $car_insize ?? '';
+$inseung = $inseung ?? '';
+$su = $su ?? '';
+$bon_su = $bon_su ?? '';
+$lc_su = $lc_su ?? '';
+$etc_su = $etc_su ?? '';
+$air_su = $air_su ?? '';
+$price = $price ?? '';
+$work_order = $work_order ?? '';
+$laserdueday = $laserdueday ?? '';
+$material1 = $material1 ?? '';
+$material2 = $material2 ?? '';
+$material3 = $material3 ?? '';
+$material4 = $material4 ?? '';
+$memo = $memo ?? '';
+$memo2 = $memo2 ?? '';
+$outsourcing = $outsourcing ?? '';
+$outsourcing_memo = $outsourcing_memo ?? '';
+$first_writer = $first_writer ?? '';
+$update_log = $update_log ?? '';
+$cabledone = $cabledone ?? '';
+
+// 발주 관련 변수
+$order_com1 = $order_com1 ?? '';
+$order_text1 = $order_text1 ?? '';
+$order_date1 = $order_date1 ?? '';
+$order_input_date1 = $order_input_date1 ?? '';
+$order_com2 = $order_com2 ?? '';
+$order_text2 = $order_text2 ?? '';
+$order_date2 = $order_date2 ?? '';
+$order_input_date2 = $order_input_date2 ?? '';
+$order_com3 = $order_com3 ?? '';
+$order_text3 = $order_text3 ?? '';
+$order_date3 = $order_date3 ?? '';
+$order_input_date3 = $order_input_date3 ?? '';
+$order_com4 = $order_com4 ?? '';
+$order_text4 = $order_text4 ?? '';
+$order_date4 = $order_date4 ?? '';
+$order_input_date4 = $order_input_date4 ?? '';
+
+// LC 제조 관련 변수
+$lclaser_com = $lclaser_com ?? '';
+$lclaser_date = $lclaser_date ?? '';
+$lcbending_date = $lcbending_date ?? '';
+$lcwelding_date = $lcwelding_date ?? '';
+$lcpainting_date = $lcpainting_date ?? '';
+$lcassembly_date = $lcassembly_date ?? '';
+
+// 본천장 제조 관련 변수
+$eunsung_make_date = $eunsung_make_date ?? '';
+$eunsung_laser_date = $eunsung_laser_date ?? '';
+$mainbending_date = $mainbending_date ?? '';
+$mainwelding_date = $mainwelding_date ?? '';
+$mainpainting_date = $mainpainting_date ?? '';
+$mainassembly_date = $mainassembly_date ?? '';
+
+// 기타 제조 관련 변수
+$etclaser_date = $etclaser_date ?? '';
+$etcbending_date = $etcbending_date ?? '';
+$etcwelding_date = $etcwelding_date ?? '';
+$etcpainting_date = $etcpainting_date ?? '';
+$etcassembly_date = $etcassembly_date ?? '';
+
+// 부품 관련 변수 (part1~part20)
+for ($i = 1; $i <= 20; $i++) {
+    $varName = 'part' . $i;
+    $$varName = $$varName ?? '';
 }
  
 // 랜더링 이미지 이미 있는 것 불러오기
@@ -591,216 +687,253 @@ $material_arr = array('','304 Hair Line 1.2T','304 HL 1.2T','304 Mirror 1.2T','3
                 <input type="text" id="workplacename" name="workplacename" value="<?php echo htmlspecialchars($workplacename); ?>" class="form-control" style="text-align: left;" required>
             </td>
             <td colspan="1">
-            <?php
+                <?php
                 if ($outsourcing === '외주') {
-                    print '<h5> <span id="outsourcingBtn" class="badge bg-success ">외주가공</span>    &nbsp;	';
+                    echo '<h5><span id="outsourcingBtn" class="badge bg-success">외주가공</span>&nbsp;';
                 }
-            ?>
+                ?>
             </td>
-            </tr>
+        </tr>
+        <tr>
             <td>주소</td>
-            <td colspan="4"><input type="text" name="address" value="<?php echo htmlspecialchars($address); ?>" class="form-control" style="text-align: left;"></td>
-			  <td colspan="1">
-			   <?php
-					  if($outsourcing === '외주')
-					  {
-							print '<div class="d-flex align-items-center position-relative ms-2">';
-							print '<input type="checkbox" checked id="outsourcing" name="outsourcing" onclick="return false;" value="외주" >';
-							print '<label for="outsourcing" class="ms-2 mb-0">외주 메모</label>';
-							
-							// 외주가공 메모가 있으면 말풍선 표시
-							if(!empty($outsourcing_memo)) {
-								print '<div id="outsourcing-memo-bubble" class="outsourcing-memo-bubble" style="display: block;">';
-								print '<div class="bubble-content">';
-								print '<div class="bubble-header">';
-								print '<span class="bubble-title">외주가공 메모</span>';
-								print '<button type="button" class="bubble-close" onclick="hideOutsourcingMemo()">';
-								print '<i class="bi bi-x"></i>';
-								print '</button>';
-								print '</div>';
-								print '<div class="bubble-body">';
-								print '<textarea id="outsourcing_memo" class="form-control bubble-textarea" readonly>' . htmlspecialchars($outsourcing_memo) . '</textarea>';
-								print '<div class="bubble-footer">';
-								print '<small class="text-muted">읽기 전용</small>';
-								print '</div>';
-								print '</div>';
-								print '</div>';
-								print '</div>';
-							}
-							
-							print '</div>';
-					  }		
-				?>			  
-			</td>
-			</tr>
-			<tr>
-			  <td>원청</td>
-				  <td> <input type="text" id="firstord" name="firstord" value="<?=$firstord?>" class="form-control"></td>
-               <td>담당</td>				  
-				  <td> <input type="text" id="firstordman" name="firstordman" value="<?=$firstordman?>" class="form-control" onkeydown="JavaScript:Enter_firstCheck();"> </td>
-				<td>Tel</td>				  				  
-				  <td> <input type="text" id="firstordmantel" name="firstordmantel" value="<?=$firstordmantel?>" class="form-control" > </td>				
-			  </td>
-			</tr>
-			<tr>
-			  <td>발주처</td>
-			  <td><input type="text" id="secondord" name="secondord" value="<?=$secondord?>" class="form-control"></td>
-			  <td>담당</td>
-			  <td><input type="text" id="secondordman" name="secondordman" value="<?=$secondordman?>" class="form-control" onkeydown="JavaScript:Enter_Check();"></td>
-			  <td>Tel</td>
-			  <td><input type="text" id="secondordmantel" name="secondordmantel" value="<?=$secondordmantel?>" class="form-control"></td>
-			</tr>
-
-
-			<tr>
-			  <td>현장담당</td>
-			  <td><input type="text" name="chargedman" id="chargedman" value="<?=$chargedman?>" class="form-control" onkeydown="JavaScript:Enter_chargedman_Check();"></td>
-			  <td>Tel</td>
-			  <td><input type="text" name="chargedmantel" id="chargedmantel" value="<?=$chargedmantel?>" class="form-control"></td>
-			  <td>설계자</td>
-			  <td><input type="text" name="designer" id="designer" value="<?=$designer?>" class="form-control"></td>
-			</tr>
-		<!-- New Table Rows -->
-		<tr>
-		  <td>접수일</td>
-		  <td><input type="date" name="orderday" id="orderday" value="<?=$orderday?>" class="form-control"></td>
-
-		  <td class="text-success fw-bold"> 본천장 설계</td>
-		  <td><input type="date" name="main_draw" id="main_draw" value="<?=$main_draw?>" class="form-control"></td>
-
-		  <td class="text-info fw-bold">LC 설계</td>
-		  <td><input type="date" name="lc_draw" id="lc_draw" value="<?=$lc_draw?>" class="form-control"></td>
-		</tr>
-		<tr>
-		  <td colspan="4"></td>
-		  <td class="text-primary fw-bold">기타 설계</td>
-		  <td><input type="date" name="etc_draw" id="etc_draw" value="<?=$etc_draw?>" class="form-control"></td>
-		</tr>
-		<tr>
-		  <td style="color:red;">납기일</td>
-		  <td><input type="date" name="deadline" id="deadline" value="<?=$deadline?>" class="form-control"></td>    
-		  <td style="color:blue;">출고일</td>
-		  <td><input type="date" name="workday" id="workday" value="<?=$workday?>" class="form-control"></td>    
-		  
-		  <td class="text-danger"> 청구일</td>		   
-		  <td>
-				<input type="date" name="demand" id="demand" value="<?=$demand?>"  class="form-control" > 
-		   </td>		  
-		</tr>
-		<tr>
-		<td>미래 시공팀</td>
-		  <td ><input type="text" name="worker" value="<?=$worker?>" class="form-control"></td>
-		  <td  colspan="3">서버도면폴더</td>
-		  <td><a id="dwgclick" href="#"><?=$dwglocation?></a></td>
-		</tr>      
+            <td colspan="4">
+                <input type="text" name="address" value="<?php echo htmlspecialchars($address); ?>" class="form-control" style="text-align: left;">
+            </td>
+            <td colspan="1">
+                <?php
+                if ($outsourcing === '외주') {
+                    echo '<div class="d-flex align-items-center position-relative ms-2">';
+                    echo '<input type="checkbox" checked id="outsourcing" name="outsourcing" onclick="return false;" value="외주">';
+                    echo '<label for="outsourcing" class="ms-2 mb-0">외주 메모</label>';
+                    
+                    // 외주가공 메모가 있으면 말풍선 표시
+                    if (!empty($outsourcing_memo)) {
+                        echo '<div id="outsourcing-memo-bubble" class="outsourcing-memo-bubble" style="display: block;">';
+                        echo '<div class="bubble-content">';
+                        echo '<div class="bubble-header">';
+                        echo '<span class="bubble-title">외주가공 메모</span>';
+                        echo '<button type="button" class="bubble-close" onclick="hideOutsourcingMemo()">';
+                        echo '<i class="bi bi-x"></i>';
+                        echo '</button>';
+                        echo '</div>';
+                        echo '<div class="bubble-body">';
+                        echo '<textarea id="outsourcing_memo" class="form-control bubble-textarea" readonly>' . htmlspecialchars($outsourcing_memo) . '</textarea>';
+                        echo '<div class="bubble-footer">';
+                        echo '<small class="text-muted">읽기 전용</small>';
+                        echo '</div>';
+                        echo '</div>';
+                        echo '</div>';
+                        echo '</div>';
+                    }
+                    
+                    echo '</div>';
+                }
+                ?>
+            </td>
+        </tr>
+	        <tr>
+            <td>원청</td>
+            <td>
+                <input type="text" id="firstord" name="firstord" value="<?php echo htmlspecialchars($firstord); ?>" class="form-control">
+            </td>
+            <td>담당</td>
+            <td>
+                <input type="text" id="firstordman" name="firstordman" value="<?php echo htmlspecialchars($firstordman); ?>" class="form-control" onkeydown="JavaScript:Enter_firstCheck();">
+            </td>
+            <td>Tel</td>
+            <td>
+                <input type="text" id="firstordmantel" name="firstordmantel" value="<?php echo htmlspecialchars($firstordmantel); ?>" class="form-control">
+            </td>
+        </tr>
+        <tr>
+            <td>발주처</td>
+            <td>
+                <input type="text" id="secondord" name="secondord" value="<?php echo htmlspecialchars($secondord); ?>" class="form-control">
+            </td>
+            <td>담당</td>
+            <td>
+                <input type="text" id="secondordman" name="secondordman" value="<?php echo htmlspecialchars($secondordman); ?>" class="form-control" onkeydown="JavaScript:Enter_Check();">
+            </td>
+            <td>Tel</td>
+            <td>
+                <input type="text" id="secondordmantel" name="secondordmantel" value="<?php echo htmlspecialchars($secondordmantel); ?>" class="form-control">
+            </td>
+        </tr>
+        <tr>
+            <td>현장담당</td>
+            <td>
+                <input type="text" name="chargedman" id="chargedman" value="<?php echo htmlspecialchars($chargedman); ?>" class="form-control" onkeydown="JavaScript:Enter_chargedman_Check();">
+            </td>
+            <td>Tel</td>
+            <td>
+                <input type="text" name="chargedmantel" id="chargedmantel" value="<?php echo htmlspecialchars($chargedmantel); ?>" class="form-control">
+            </td>
+            <td>설계자</td>
+            <td>
+                <input type="text" name="designer" id="designer" value="<?php echo htmlspecialchars($designer); ?>" class="form-control">
+            </td>
+        </tr>
+	        <!-- New Table Rows -->
+        <tr>
+            <td>접수일</td>
+            <td>
+                <input type="date" name="orderday" id="orderday" value="<?php echo htmlspecialchars($orderday); ?>" class="form-control">
+            </td>
+            <td class="text-success fw-bold">본천장 설계</td>
+            <td>
+                <input type="date" name="main_draw" id="main_draw" value="<?php echo htmlspecialchars($main_draw); ?>" class="form-control">
+            </td>
+            <td class="text-info fw-bold">LC 설계</td>
+            <td>
+                <input type="date" name="lc_draw" id="lc_draw" value="<?php echo htmlspecialchars($lc_draw); ?>" class="form-control">
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4"></td>
+            <td class="text-primary fw-bold">기타 설계</td>
+            <td>
+                <input type="date" name="etc_draw" id="etc_draw" value="<?php echo htmlspecialchars($etc_draw); ?>" class="form-control">
+            </td>
+        </tr>
+        <tr>
+            <td style="color:red;">납기일</td>
+            <td>
+                <input type="date" name="deadline" id="deadline" value="<?php echo htmlspecialchars($deadline); ?>" class="form-control">
+            </td>
+            <td style="color:blue;">출고일</td>
+            <td>
+                <input type="date" name="workday" id="workday" value="<?php echo htmlspecialchars($workday); ?>" class="form-control">
+            </td>
+            <td class="text-danger">청구일</td>
+            <td>
+                <input type="date" name="demand" id="demand" value="<?php echo htmlspecialchars($demand); ?>" class="form-control">
+            </td>
+        </tr>
+        <tr>
+            <td>미래 시공팀</td>
+            <td>
+                <input type="text" name="worker" value="<?php echo htmlspecialchars($worker); ?>" class="form-control">
+            </td>
+            <td colspan="3">서버도면폴더</td>
+            <td>
+                <a id="dwgclick" href="#"><?php echo htmlspecialchars($dwglocation); ?></a>
+            </td>
+        </tr>      
 				
-		<tr>
-		  <td>운송방식 </td>
-		  <td>
-			<input type="text" name="delivery" value="<?=$delivery?>" class="form-control">
-		  </td>	
-		  <td>
-			<span style="color:red;">운임비 </span>
-		  </td>	
-		  <td>
-			<input type="text" name="delipay" value="<?=$delipay?>" class="form-control" onkeyup="inputNumberFormat(this)">
-		  </td>
-		  <td colspan="2" class="text-success fs-6"> <b>박스포장 &nbsp;
-				<input type="checkbox" id="boxwrap" onclick="return false;" name="boxwrap"  value="박스포장" <?php echo ($boxwrap === '박스포장' ? 'checked' : ''); ?>>
-			</td>		  
-		</tr>	
- <tr>
-    <td>타입(Type)</td>
-    <td><input type="text" id="type" name="type" value="<?=$type?>" class="form-control"></td>
-
-
-    <td style="color:red;">Car inside</td>
-    <td><input type="text" id="car_insize" name="car_insize" value="<?=$car_insize?>" class="form-control"></td>
-
-    <td style="color:blue;">인승</td>
-    <td><input type="text" id="inseung" name="inseung" value="<?=$inseung?>" class="form-control"></td>
-
-  </tr>
-  <tr>
-    <td>결합단위(SET)
-      <input type="text" name="su" value="<?=$su?>" class="form-control" oninput="this.value = this.value.replace(/[^0-9\-]/g,'')"></td>
-
-    <td>본천장 수량
-       <input type="text" name="bon_su" value="<?=$bon_su?>" class="form-control" oninput="this.value = this.value.replace(/[^0-9\-]/g,'')"></td>
-
-    <td>L/C 수량
-       <input type="text" name="lc_su" value="<?=$lc_su?>" class="form-control" oninput="this.value = this.value.replace(/[^0-9\-]/g,'')"></td>
-  
-    <td>기타 수량
-      <input type="text" name="etc_su" value="<?=$etc_su?>" class="form-control" oninput="this.value = this.value.replace(/[^0-9\-]/g,'')"></td>
-
-    <td>공기청정기
-       <input type="text" name="air_su" value="<?=$air_su?>" class="form-control" oninput="this.value = this.value.replace(/[^0-9\-]/g,'')"></td>
-    <td class="text-primary" >제품가격
-       <input type="text" name="price" value="<?=$price?>" class="form-control" oninput="this.value = this.value.replace(/[^0-9\-]/g,'')"></td>
-  </tr>	
-  <tr>
-    <td> 레이져가공 순서 </td>
-    <td>	
-      <input type="text" id="work_order"  name="work_order" value="<?=$work_order?>" class="form-control" >
-    </td>
-	<td> 레이져가공 예정 </td>
-    <td>	
-      <input type="date" id="laserdueday"  name="laserdueday" value="<?=$laserdueday?>" class="form-control" >
-    </td>	
-  </tr>	
+        <tr>
+            <td>운송방식</td>
+            <td>
+                <input type="text" name="delivery" value="<?php echo htmlspecialchars($delivery); ?>" class="form-control">
+            </td>
+            <td>
+                <span style="color:red;">운임비</span>
+            </td>
+            <td>
+                <input type="text" name="delipay" value="<?php echo htmlspecialchars($delipay); ?>" class="form-control" onkeyup="inputNumberFormat(this)">
+            </td>
+            <td colspan="2" class="text-success fs-6">
+                <b>박스포장 &nbsp;
+                    <input type="checkbox" id="boxwrap" onclick="return false;" name="boxwrap" value="박스포장" <?php echo ($boxwrap === '박스포장' ? 'checked' : ''); ?>>
+                </b>
+            </td>
+        </tr>
+        <tr>
+            <td>타입(Type)</td>
+            <td>
+                <input type="text" id="type" name="type" value="<?php echo htmlspecialchars($type); ?>" class="form-control">
+            </td>
+            <td style="color:red;">Car inside</td>
+            <td>
+                <input type="text" id="car_insize" name="car_insize" value="<?php echo htmlspecialchars($car_insize); ?>" class="form-control">
+            </td>
+            <td style="color:blue;">인승</td>
+            <td>
+                <input type="text" id="inseung" name="inseung" value="<?php echo htmlspecialchars($inseung); ?>" class="form-control">
+            </td>
+        </tr>
+        <tr>
+            <td>결합단위(SET)
+                <input type="text" name="su" value="<?php echo htmlspecialchars($su); ?>" class="form-control" oninput="this.value = this.value.replace(/[^0-9\-]/g,'')">
+            </td>
+            <td>본천장 수량
+                <input type="text" name="bon_su" value="<?php echo htmlspecialchars($bon_su); ?>" class="form-control" oninput="this.value = this.value.replace(/[^0-9\-]/g,'')">
+            </td>
+            <td>L/C 수량
+                <input type="text" name="lc_su" value="<?php echo htmlspecialchars($lc_su); ?>" class="form-control" oninput="this.value = this.value.replace(/[^0-9\-]/g,'')">
+            </td>
+            <td>기타 수량
+                <input type="text" name="etc_su" value="<?php echo htmlspecialchars($etc_su); ?>" class="form-control" oninput="this.value = this.value.replace(/[^0-9\-]/g,'')">
+            </td>
+            <td>공기청정기
+                <input type="text" name="air_su" value="<?php echo htmlspecialchars($air_su); ?>" class="form-control" oninput="this.value = this.value.replace(/[^0-9\-]/g,'')">
+            </td>
+            <td class="text-primary">제품가격
+                <input type="text" name="price" value="<?php echo htmlspecialchars($price); ?>" class="form-control" oninput="this.value = this.value.replace(/[^0-9\-]/g,'')">
+            </td>
+        </tr>
+        <tr>
+            <td>레이져가공 순서</td>
+            <td>
+                <input type="text" id="work_order" name="work_order" value="<?php echo htmlspecialchars($work_order); ?>" class="form-control">
+            </td>
+            <td>레이져가공 예정</td>
+            <td>
+                <input type="date" id="laserdueday" name="laserdueday" value="<?php echo htmlspecialchars($laserdueday); ?>" class="form-control">
+            </td>
+        </tr>	
 	
-<tr>
-	<td colspan="6">  
-	  <div class="d-flex justify-content-start align-items-center">
-		<h6> <span class="badge bg-success" > 하우징 소재 </span> </h6>
-      <select name="material2" id="material2" class="form-select d-block w-auto mx-2 " style="font-size: 0.7rem; height: 32px;">
-        <?php		 
-        $mat_count = sizeof($material_arr);
-        for($i=0; $i<$mat_count; $i++) {
-          if($material2==$material_arr[$i])
-            print "<option selected value='" . $material_arr[$i] . "'> " . $material_arr[$i] . "</option>";
-          else   
-            print "<option value='" . $material_arr[$i] . "'> " . $material_arr[$i] . "</option>";
-        } 		   
-        ?>	  
-      </select>     
-      <input type="text" name="material1" id="material1" value="<?=$material1?>" class="form-control w150px mx-2">      
-	  </div>
-  </td>
-  </tr>
-  <tr>
-  <td colspan="6">  
-	  <div class="d-flex justify-content-start align-items-center">
-	  <h6> <span class="badge bg-primary" > 중판 소재 </span> </h6>     
-      <select name="material4" id="material4" class="form-select w-auto mx-2" style="font-size: 0.7rem; height: 32px;">
-        <?php		 
-        $mat_count = sizeof($material_arr);
-        for($i=0; $i<$mat_count; $i++) {
-          if($material4==$material_arr[$i])
-            print "<option selected value='" . $material_arr[$i] . "'> " . $material_arr[$i] . "</option>";
-          else   
-            print "<option value='" . $material_arr[$i] . "'> " . $material_arr[$i] . "</option>";
-        } 		   
-        ?>	  
-      </select>     
-      <input type="text" name="material3" id="material3" value="<?=$material3?>" class="form-control w150px mx-2">    
-	  </div>
-  </td>
-</tr>
-<tr>
-<td>비고1</td>
-	<td colspan="6">
-		<textarea  id="memo"  name="memo" class="form-control"><?=$memo?></textarea>
-	  </td>
-</tr>
-<tr>
-<td>비고2 </td>		  
-	<td colspan="6">
-		<textarea  id="memo2"  name="memo2" class="form-control"><?=$memo2?></textarea>
-	  </td>
-	  
-</tr>
+        <tr>
+            <td colspan="6">
+                <div class="d-flex justify-content-start align-items-center">
+                    <h6><span class="badge bg-success">하우징 소재</span></h6>
+                    <select name="material2" id="material2" class="form-select d-block w-auto mx-2" style="font-size: 0.7rem; height: 32px;">
+                        <?php
+                        $mat_count = sizeof($material_arr);
+                        for ($i = 0; $i < $mat_count; $i++) {
+                            if ($material2 == $material_arr[$i]) {
+                                echo "<option selected value='" . htmlspecialchars($material_arr[$i]) . "'>" . htmlspecialchars($material_arr[$i]) . "</option>";
+                            } else {
+                                echo "<option value='" . htmlspecialchars($material_arr[$i]) . "'>" . htmlspecialchars($material_arr[$i]) . "</option>";
+                            }
+                        }
+                        ?>
+                    </select>
+                    <input type="text" name="material1" id="material1" value="<?php echo htmlspecialchars($material1); ?>" class="form-control w150px mx-2">
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="6">
+                <div class="d-flex justify-content-start align-items-center">
+                    <h6><span class="badge bg-primary">중판 소재</span></h6>
+                    <select name="material4" id="material4" class="form-select w-auto mx-2" style="font-size: 0.7rem; height: 32px;">
+                        <?php
+                        $mat_count = sizeof($material_arr);
+                        for ($i = 0; $i < $mat_count; $i++) {
+                            if ($material4 == $material_arr[$i]) {
+                                echo "<option selected value='" . htmlspecialchars($material_arr[$i]) . "'>" . htmlspecialchars($material_arr[$i]) . "</option>";
+                            } else {
+                                echo "<option value='" . htmlspecialchars($material_arr[$i]) . "'>" . htmlspecialchars($material_arr[$i]) . "</option>";
+                            }
+                        }
+                        ?>
+                    </select>
+                    <input type="text" name="material3" id="material3" value="<?php echo htmlspecialchars($material3); ?>" class="form-control w150px mx-2">
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>비고1</td>
+            <td colspan="6">
+                <textarea id="memo" name="memo" class="form-control"><?php echo htmlspecialchars($memo); ?></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>비고2</td>
+            <td colspan="6">
+                <textarea id="memo2" name="memo2" class="form-control"><?php echo htmlspecialchars($memo2); ?></textarea>
+            </td>
+        </tr>
 </tbody>
 </table>
 		
@@ -1272,157 +1405,116 @@ $material_arr = array('','304 Hair Line 1.2T','304 HL 1.2T','304 Mirror 1.2T','3
 </html>    
 
 
-<!-- Add the following JavaScript code -->
 <script>
-  // Check if all PHP variables are empty
-  function areAllVariablesEmpty() {
+// 통합된 변수 체크 함수
+function areAllVariablesEmpty(...variables) {
+    for (const variable of variables) {
+        if (typeof variable === 'string' && variable.trim() !== "") {
+            return false;
+        }
+        if (typeof variable === 'boolean' && !variable) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// Check if all PHP part variables are empty
+function areAllPartVariablesEmpty() {
     return (
-      <?php
+        <?php
         // Check if all the variables are empty and return true or false
         echo json_encode(
-          empty($part1) && empty($part2) && empty($part3) && empty($part4) &&
-          empty($part5) && empty($part6) && empty($part7) && empty($part8) &&
-          empty($part9) && empty($part10) && empty($part11) && empty($part12) &&
-          empty($part13) && empty($part14) && empty($part15) && empty($part16) &&
-          empty($part17) && empty($part18) && empty($part19) && empty($part20)
+            empty($part1) && empty($part2) && empty($part3) && empty($part4) &&
+            empty($part5) && empty($part6) && empty($part7) && empty($part8) &&
+            empty($part9) && empty($part10) && empty($part11) && empty($part12) &&
+            empty($part13) && empty($part14) && empty($part15) && empty($part16) &&
+            empty($part17) && empty($part18) && empty($part19) && empty($part20)
         );
-      ?>
+        ?>
     );
-  }
+}
 
-  // Hide the div if all variables are empty
-  if (areAllVariablesEmpty()) {
+// Hide the div if all part variables are empty
+if (areAllPartVariablesEmpty()) {
     document.getElementById("display_partInput").style.display = "none";
-  }
-</script>
+}
 
-<!-- 레이져 일자 없을 경우 -->
-<script>
-  // Check if all specified variables are empty
-  function areAllVariablesEmpty(...variables) {
-    for (const variable of variables) {
-      if (variable.trim() !== "") {
-        return false;
-      }
-    }
-    return true;
-  }
+// 레이져 일자 없을 경우
+var lclaser_date = "<?php echo htmlspecialchars($lclaser_date); ?>";
+var lcbending_date = "<?php echo htmlspecialchars($lcbending_date); ?>";
+var lcwelding_date = "<?php echo htmlspecialchars($lcwelding_date); ?>";
+var lcpainting_date = "<?php echo htmlspecialchars($lcpainting_date); ?>";
+var lcassembly_date = "<?php echo htmlspecialchars($lcassembly_date); ?>";
 
-  // Variables to check
-  var lclaser_date = "<?php echo $lclaser_date; ?>";
-  var lcbending_date = "<?php echo $lcbending_date; ?>";
-  var lcwelding_date = "<?php echo $lcwelding_date; ?>";
-  var lcpainting_date = "<?php echo $lcpainting_date; ?>";
-  var lcassembly_date = "<?php echo $lcassembly_date; ?>";
-
-  // Hide the div if all specified variables are empty
-  if (areAllVariablesEmpty(lclaser_date, lcbending_date, lcwelding_date, lcpainting_date, lcassembly_date)) {
+if (areAllVariablesEmpty(lclaser_date, lcbending_date, lcwelding_date, lcpainting_date, lcassembly_date)) {
     document.getElementById("display_process_LC").style.display = "none";
-  }
-</script>
+}
 
-<!-- 본천장  일자 없을 경우 -->
-<script>
-  // Check if all specified variables are empty
-  function areAllVariablesEmpty(...variables) {
-    for (const variable of variables) {
-      if (variable.trim() !== "") {
-        return false;
-      }
-    }
-    return true;
-  }
+// 본천장 일자 없을 경우
+var eunsung_laser_date = "<?php echo htmlspecialchars($eunsung_laser_date); ?>";
+var mainbending_date = "<?php echo htmlspecialchars($mainbending_date); ?>";
+var mainwelding_date = "<?php echo htmlspecialchars($mainwelding_date); ?>";
+var mainpainting_date = "<?php echo htmlspecialchars($mainpainting_date); ?>";
+var mainassembly_date = "<?php echo htmlspecialchars($mainassembly_date); ?>";
 
-  // Variables to check
-  var eunsung_laser_date = "<?php echo $eunsung_laser_date; ?>";
-  var mainbending_date = "<?php echo $mainbending_date; ?>";
-  var mainwelding_date = "<?php echo $mainwelding_date; ?>";
-  var mainpainting_date = "<?php echo $mainpainting_date; ?>";
-  var mainassembly_date = "<?php echo $mainassembly_date; ?>";
-
-  // Hide the div if all specified variables are empty
-  if (areAllVariablesEmpty(eunsung_laser_date, mainbending_date, mainwelding_date, mainpainting_date, mainassembly_date)) {
+if (areAllVariablesEmpty(eunsung_laser_date, mainbending_date, mainwelding_date, mainpainting_date, mainassembly_date)) {
     document.getElementById("display_process_Bon").style.display = "none";
-  }
-</script>
+}
 
-<!-- 기타사항의 일자 없을 경우 -->
-<script>
-  // Check if all specified variables are empty
-  function areAllVariablesEmpty(...variables) {
-    for (const variable of variables) {
-      if (variable.trim() !== "") {
-        return false;
-      }
-    }
-    return true;
-  }
+// 기타사항의 일자 없을 경우
+var etclaser_date = "<?php echo htmlspecialchars($etclaser_date); ?>";
+var etcbending_date = "<?php echo htmlspecialchars($etcbending_date); ?>";
+var etcwelding_date = "<?php echo htmlspecialchars($etcwelding_date); ?>";
+var etcpainting_date = "<?php echo htmlspecialchars($etcpainting_date); ?>";
+var etcassembly_date = "<?php echo htmlspecialchars($etcassembly_date); ?>";
 
-  // Variables to check
-  var etclaser_date = "<?php echo $etclaser_date; ?>";
-  var etcbending_date = "<?php echo $etcbending_date; ?>";
-  var etcwelding_date = "<?php echo $etcwelding_date; ?>";
-  var etcpainting_date = "<?php echo $etcpainting_date; ?>";
-  var etcassembly_date = "<?php echo $etcassembly_date; ?>";
-
-  // Hide the div if all specified variables are empty
-  if (areAllVariablesEmpty(etclaser_date, etcbending_date, etcwelding_date, etcpainting_date, etcassembly_date)) {
+if (areAllVariablesEmpty(etclaser_date, etcbending_date, etcwelding_date, etcpainting_date, etcassembly_date)) {
     document.getElementById("display_process_Etc").style.display = "none";
-  }
-</script>
+}
 
-<!-- 협력사의 발주가 있는 경우 -->
-<script>
-  // Check if all specified variables are empty
-  function areAllVariablesEmpty(...variables) {
-    for (const variable of variables) {
-      if (variable.trim() !== "") {
-        return false;
-      }
-    }
-    return true;
-  }
+// 협력사의 발주가 있는 경우
+var order_com1 = "<?php echo htmlspecialchars($order_com1); ?>";
+var order_text1 = "<?php echo htmlspecialchars($order_text1); ?>";
+var order_com2 = "<?php echo htmlspecialchars($order_com2); ?>";
+var order_text2 = "<?php echo htmlspecialchars($order_text2); ?>";
+var order_com3 = "<?php echo htmlspecialchars($order_com3); ?>";
+var order_text3 = "<?php echo htmlspecialchars($order_text3); ?>";
+var order_com4 = "<?php echo htmlspecialchars($order_com4); ?>";
+var order_text4 = "<?php echo htmlspecialchars($order_text4); ?>";
+var order_date1 = "<?php echo htmlspecialchars($order_date1); ?>";
+var order_date2 = "<?php echo htmlspecialchars($order_date2); ?>";
+var order_date3 = "<?php echo htmlspecialchars($order_date3); ?>";
+var order_date4 = "<?php echo htmlspecialchars($order_date4); ?>";
+var order_input_date1 = "<?php echo htmlspecialchars($order_input_date1); ?>";
+var order_input_date2 = "<?php echo htmlspecialchars($order_input_date2); ?>";
+var order_input_date3 = "<?php echo htmlspecialchars($order_input_date3); ?>";
+var order_input_date4 = "<?php echo htmlspecialchars($order_input_date4); ?>";
 
-  // Variables to check
-  var order_com1 = "<?php echo $order_com1; ?>";
-  var order_text1 = "<?php echo $order_text1; ?>";
-  var order_com2 = "<?php echo $order_com2; ?>";
-  var order_text2 = "<?php echo $order_text2; ?>";
-  var order_com3 = "<?php echo $order_com3; ?>";
-  var order_text3 = "<?php echo $order_text3; ?>";
-  var order_com4 = "<?php echo $order_com4; ?>";
-  var order_text4 = "<?php echo $order_text4; ?>";
-  var order_date1 = "<?php echo $order_date1; ?>";
-  var order_date2 = "<?php echo $order_date2; ?>";
-  var order_date3 = "<?php echo $order_date3; ?>";
-  var order_date4 = "<?php echo $order_date4; ?>";
-  var order_input_date1 = "<?php echo $order_input_date1; ?>";
-  var order_input_date2 = "<?php echo $order_input_date2; ?>";
-  var order_input_date3 = "<?php echo $order_input_date3; ?>";
-  var order_input_date4 = "<?php echo $order_input_date4; ?>";
-
-  // Hide the div if all specified variables are empty
-  if (areAllVariablesEmpty(order_com1, order_text1, order_com2, order_text2, order_com3, order_text3, order_com4, order_text4,
-    order_date1, order_date2, order_date3, order_date4, order_input_date1, order_input_date2, order_input_date3, order_input_date4)) {
+if (areAllVariablesEmpty(
+    order_com1, order_text1, order_com2, order_text2, 
+    order_com3, order_text3, order_com4, order_text4,
+    order_date1, order_date2, order_date3, order_date4, 
+    order_input_date1, order_input_date2, order_input_date3, order_input_date4
+)) {
     document.getElementById("display_partner").style.display = "none";
-  }
+}
 </script>
 
 <!-- 포장이미지가 없는 경우 -->
-
 <script>
-  // Check if the specified array is empty
-  function isArrayEmpty(arr) {
+// Check if the specified array is empty
+function isArrayEmpty(arr) {
     return arr.length === 0;
-  }
+}
 
-  // PHP array to JavaScript array conversion
-  var WrappicData = <?php echo json_encode($WrappicData); ?>;
+// PHP array to JavaScript array conversion
+var WrappicData = <?php echo json_encode($WrappicData); ?>;
 
-  // Hide the div if the PHP array is empty
-  if (isArrayEmpty(WrappicData)) {
+// Hide the div if the PHP array is empty
+if (isArrayEmpty(WrappicData)) {
     document.getElementById("display_urlcopy").style.display = "none";
-  }
+}
 </script>
 
 

@@ -1,11 +1,17 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-include getDocumentRoot() . '/session.php';   
- if(!isset($_SESSION["level"]) || $level>=5) {
-		 sleep(1);
-         header ("Location:" . $WebSite . "login/logout.php");
-         exit;
- } 
-?> 
+<?php
+require_once __DIR__ . '/../common/functions.php';
+include getDocumentRoot() . '/session.php';
+
+// 세션 변수 초기화
+$level = isset($_SESSION["level"]) ? $_SESSION["level"] : 10;
+
+// 권한 체크
+if (!isset($_SESSION["level"]) || $level >= 5) {
+    sleep(1);
+    header("Location:" . $WebSite . "login/logout.php");
+    exit;
+}
+?>
 <?php include getDocumentRoot() . '/load_header.php'; ?>
 <title> 본천장/LC Front Log</title>
 <!-- Dashboard CSS -->
@@ -397,137 +403,171 @@ body {
 }
 </style>
 </head>
-<?php require_once(includePath('myheader.php')); ?>   
+<?php require_once(includePath('myheader.php')); ?>
 <?php
-$readIni = array();   // 환경파일 불러오기
-$readIni = parse_ini_file("./estimate.ini",false);	
-// 초기 서버를 이동중에 저정해야할 변수들을 저장하면서 작업한다. 자료를 추가 불러올때 카운터 숫자등..
-$init_read = array();   // 환경파일 불러오기
-$init_read = parse_ini_file("./estimate.ini",false);	
+// 환경파일 불러오기
+$readIni = array();
+$readIni = parse_ini_file("./estimate.ini", false);
 
-// var_dump($init_read);
+// 초기 서버를 이동중에 저장해야할 변수들을 저장하면서 작업한다. 자료를 추가 불러올때 카운터 숫자등..
+$init_read = array();
+$init_read = parse_ini_file("./estimate.ini", false);
 
+// _request.php에서 정의되는 변수들을 include
 include "_request.php";
 
+// 추가 변수 초기화 (hidden input에서 사용)
+$voc_alert = isset($_REQUEST["voc_alert"]) ? $_REQUEST["voc_alert"] : '';
+$ma_alert = isset($_REQUEST["ma_alert"]) ? $_REQUEST["ma_alert"] : '';
+$order_alert = isset($_REQUEST["order_alert"]) ? $_REQUEST["order_alert"] : '';
+$page = isset($_REQUEST["page"]) ? $_REQUEST["page"] : 1;
+$scale = isset($_REQUEST["scale"]) ? $_REQUEST["scale"] : '';
+$yearcheckbox = isset($_REQUEST["yearcheckbox"]) ? $_REQUEST["yearcheckbox"] : '';
+$year = isset($_REQUEST["year"]) ? $_REQUEST["year"] : '';
+$cursort = isset($_REQUEST["cursort"]) ? $_REQUEST["cursort"] : 0;
+$sortof = isset($_REQUEST["sortof"]) ? $_REQUEST["sortof"] : 0;
+$stable = isset($_REQUEST["stable"]) ? $_REQUEST["stable"] : 0;
+$sqltext = isset($_REQUEST["sqltext"]) ? $_REQUEST["sqltext"] : '';
+$list = isset($_REQUEST["list"]) ? $_REQUEST["list"] : '';
+$num = isset($_REQUEST["num"]) ? $_REQUEST["num"] : '';
+$user_name = isset($_SESSION["user_name"]) ? $_SESSION["user_name"] : '';
+
+// 날짜 범위 체크 함수
 function check_in_range($start_date, $end_date, $user_date)
-{  
-  $start_ts = strtotime($start_date);
-  $end_ts = strtotime($end_date);
-  $user_ts = strtotime($user_date);
-  
-  return (($user_ts >= $start_ts) && ($user_ts <= $end_ts));
-}	  
+{
+    $start_ts = strtotime($start_date);
+    $end_ts = strtotime($end_date);
+    $user_ts = strtotime($user_date);
+    
+    return (($user_ts >= $start_ts) && ($user_ts <= $end_ts));
+}
 
+// 데이터베이스 연결
 require_once("../lib/mydb.php");
-$pdo = db_connect();	
+$pdo = db_connect();
 
-// /////////////////////////첨부파일 있는 것 불러오기 
-$savefilename_arr=array(); 
-$realname_arr=array(); 
-$attach_arr=array(); 
-$tablename='ceiling';
+// 첨부파일 관련 배열 초기화
+$savefilename_arr = array();
+$realname_arr = array();
+$attach_arr = array();
+$tablename = 'ceiling';
 $item = 'ceiling';
 
-  $sum=array(); 
- 
-  if(isset($_REQUEST["mode"]))
-     $mode=$_REQUEST["mode"];
-  else 
-     $mode="";     
+// 합계 배열 초기화
+$sum = array();
 
-$search=$_REQUEST["search"] ?? "";
-$now = date("Y-m-d");	 // 현재 날짜와 크거나 같으면 출고예정으로 구분
+// 모드 설정
+$mode = isset($_REQUEST["mode"]) ? $_REQUEST["mode"] : "";
 
-// 미출고 리스트
-$attached=" and ((workday='') or (workday='0000-00-00')) ";
-$whereattached=" where workday='' ";
+// 검색어 설정
+$search = isset($_REQUEST["search"]) ? $_REQUEST["search"] : "";
 
-// 서버사이드 검색 제거 - Tabulator 클라이언트 사이드 검색 사용
+// 현재 날짜 (출고예정 구분용)
+$now = date("Y-m-d");
+
+// 미출고 리스트 조건
+$attached = " and ((workday='') or (workday='0000-00-00')) ";
+$whereattached = " where workday='' ";
+
+// SQL 쿼리 (서버사이드 검색 제거 - Tabulator 클라이언트 사이드 검색 사용)
 $sql = "select * from mirae8440.ceiling " . $whereattached;
-$sqlcon = "select * from mirae8440.ceiling " . $whereattached; // 전체 레코드수를 파악하기 위함.
+$sqlcon = "select * from mirae8440.ceiling " . $whereattached; // 전체 레코드수 파악용
 
-		  		   
+
+// 인승별 합계 변수 초기화
 $lc_total_12 = 0;
 $bon_total_12 = 0;
 $lc_total_13to17 = 0;
 $bon_total_13to17 = 0;
 $lc_total_18 = 0;
 $bon_total_18 = 0;
-
 $etcsum = 0;
 
+// 데이터 조회 및 합계 계산
 try {
-  $allstmh = $pdo->query($sqlcon);
-
-  while ($row = $allstmh->fetch(PDO::FETCH_ASSOC)) {		
-    $inseung = $row["inseung"];			  		
-    $bon_su = $row["bon_su"];			  
-    $lc_su = $row["lc_su"];
-    $price = $row["price"];
+    $allstmh = $pdo->query($sqlcon);
     
-	$numericPrice = (int)str_replace(',', '', $price); // 콤마 제거 및 숫자 변환
-	$etcsum += $numericPrice;
-	
-		$inseung_num = intval($inseung);
-		$lc_su_num = intval($lc_su);
-		$bon_su_num = intval($bon_su);
-		
-		if ($inseung_num <= 12 && $lc_su_num >= 1) {
-		  $lc_total_12 += $lc_su_num ;
-		}
-		if ($inseung_num >= 13 && $inseung_num <= 17 && $lc_su_num >= 1) {
-		  $lc_total_13to17 += $lc_su_num;
-		}
-		if ($inseung_num >= 18 && $lc_su_num >= 1) {
-		  $lc_total_18 += $lc_su_num;
-		}
-		
-		if ($inseung_num <= 12 && $bon_su_num >= 1) {
-		  $bon_total_12 += $bon_su_num;
-		}
-		if ($inseung_num >= 13 && $inseung_num <= 17 && $bon_su_num >= 1) {
-		  $bon_total_13to17 +=  $bon_su_num;
-		}
-		if ($inseung_num >= 18 && $bon_su_num >= 1) {
-		  $bon_total_18 +=  $bon_su_num;
-		}
-			
-  }
+    while ($row = $allstmh->fetch(PDO::FETCH_ASSOC)) {
+        $inseung = $row["inseung"];
+        $bon_su = $row["bon_su"];
+        $lc_su = $row["lc_su"];
+        $price = $row["price"];
+        
+        // 콤마 제거 및 숫자 변환
+        $numericPrice = (int)str_replace(',', '', $price);
+        $etcsum += $numericPrice;
+        
+        $inseung_num = intval($inseung);
+        $lc_su_num = intval($lc_su);
+        $bon_su_num = intval($bon_su);
+        
+        // 12인승 이하 LC
+        if ($inseung_num <= 12 && $lc_su_num >= 1) {
+            $lc_total_12 += $lc_su_num;
+        }
+        
+        // 13~17인승 LC
+        if ($inseung_num >= 13 && $inseung_num <= 17 && $lc_su_num >= 1) {
+            $lc_total_13to17 += $lc_su_num;
+        }
+        
+        // 18인승 이상 LC
+        if ($inseung_num >= 18 && $lc_su_num >= 1) {
+            $lc_total_18 += $lc_su_num;
+        }
+        
+        // 12인승 이하 본천장
+        if ($inseung_num <= 12 && $bon_su_num >= 1) {
+            $bon_total_12 += $bon_su_num;
+        }
+        
+        // 13~17인승 본천장
+        if ($inseung_num >= 13 && $inseung_num <= 17 && $bon_su_num >= 1) {
+            $bon_total_13to17 += $bon_su_num;
+        }
+        
+        // 18인승 이상 본천장
+        if ($inseung_num >= 18 && $bon_su_num >= 1) {
+            $bon_total_18 += $bon_su_num;
+        }
+    }
 } catch (PDOException $Exception) {
-  print "오류: " . $Exception->getMessage();
+    print "오류: " . $Exception->getMessage();
 }
 
 
-$sum_12 = $lc_total_12 + $bon_total_12; 
-$sum_13to17 = $lc_total_13to17 + $bon_total_13to17; 
-$sum_18 = $lc_total_18 + $bon_total_18; 
+// 인승별 합계
+$sum_12 = $lc_total_12 + $bon_total_12;
+$sum_13to17 = $lc_total_13to17 + $bon_total_13to17;
+$sum_18 = $lc_total_18 + $bon_total_18;
 
-// 합계표 만들기
+// 합계표 계산 (천원 단위)
 
-// bon_total_12 12인승 이하 (천원 단위로 계산)
+// 12인승 이하
 $bon_total_12_amount = str_replace(',', '', $bon_total_12) * intval(str_replace(',', '', $readIni["bon_unit_12"])) / 1000;
 $lc_total_12_amount = str_replace(',', '', $lc_total_12) * intval(str_replace(',', '', $readIni["lc_unit_12"])) / 1000;
-$bon_total_12_total = $bon_total_12_amount + $lc_total_12_amount ;
+$bon_total_12_total = $bon_total_12_amount + $lc_total_12_amount;
 $bon_total_12_num = $bon_total_12 + $lc_total_12;
 
-
+// 13~17인승
 $bon_total_13to17_amount = str_replace(',', '', $bon_total_13to17) * intval(str_replace(',', '', $readIni["bon_unit_13to17"])) / 1000;
 $lc_total_13to17_amount = str_replace(',', '', $lc_total_13to17) * intval(str_replace(',', '', $readIni["lc_unit_13to17"])) / 1000;
-$bon_total_13to17_total = $bon_total_13to17_amount + $lc_total_13to17_amount ;
+$bon_total_13to17_total = $bon_total_13to17_amount + $lc_total_13to17_amount;
 $bon_total_13to17_num = $bon_total_13to17 + $lc_total_13to17;
 
-
+// 18인승 이상
 $bon_total_18_amount = str_replace(',', '', $bon_total_18) * intval(str_replace(',', '', $readIni["bon_unit_18"])) / 1000;
 $lc_total_18_amount = str_replace(',', '', $lc_total_18) * intval(str_replace(',', '', $readIni["lc_unit_18"])) / 1000;
-$bon_total_18_total = $bon_total_18_amount + $lc_total_18_amount ;
+$bon_total_18_total = $bon_total_18_amount + $lc_total_18_amount;
 $bon_total_18_num = $bon_total_18 + $lc_total_18;
 
-$total = $bon_total_12_total + $bon_total_13to17_total + $bon_total_18_total + ($etcsum/1000);     // 특정품목에 대한 갸격합도 포함시킴 (천원 단위)  
-   
-// 전체 레코드수를 파악한다.
-try{  
-	$stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-	$total_row=$stmh->rowCount();    		
+// 전체 합계 (특정품목 가격 포함, 천원 단위)
+$total = $bon_total_12_total + $bon_total_13to17_total + $bon_total_18_total + ($etcsum / 1000);
+
+// 전체 레코드수 파악
+try {
+    $stmh = $pdo->query($sql);
+    $total_row = $stmh->rowCount();    		
 			 
  ?>
  
@@ -845,136 +885,174 @@ input{
     <table id="dataSource">
       <tbody>		
 		     
-	<?php
-		$start_num=$total_row;    // 페이지당 표시되는 첫번째 글순번
-		$dataArray = [];  // Tabulator용 데이터 배열 초기화
+    <?php
+    $start_num = $total_row;    // 페이지당 표시되는 첫번째 글순번
+    $dataArray = [];  // Tabulator용 데이터 배열 초기화
+    
+    // 합계 배열 초기화
+    if (!isset($sum[0])) $sum[0] = 0;
+    if (!isset($sum[1])) $sum[1] = 0;
+    if (!isset($sum[2])) $sum[2] = 0;
+    if (!isset($sum[3])) $sum[3] = 0;
+    if (!isset($sum[4])) $sum[4] = 0;
+    if (!isset($sum[5])) $sum[5] = 0;
+    
+    $dis_text = "";
+    
+    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+        include '_row.php';
+        
+        // 첨부파일이 있는 경우 '(비규격)' 문구 추가
+        for ($i = 0; $i < count($attach_arr); $i++) {
+            if ($attach_arr[$i] == $num) {
+                $workplacename = '(비규격)' . $workplacename;
+            }
+        }
+        
+        // 합계 계산
+        $sum[0] = $sum[0] + (int)$su;
+        $sum[1] += (int)$bon_su;
+        $sum[2] += (int)$lc_su;
+        $sum[3] += (int)$etc_su;
+        $sum[4] += (int)$air_su;
+        $sum[5] += (int)$su + (int)$bon_su + (int)$lc_su + (int)$etc_su + (int)$air_su;
+        
+        $dis_text = " (종류별 합계)    결합단위 : " . $sum[0] . " (SET),  본천장 : " . $sum[1] . " (EA),  L/C : " . $sum[2] . " (EA), 기타 : " . $sum[3] . " (EA), 공기청정기 : " . $sum[4] . " (EA) "; 			   			  
 
-		while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-			  
-			  include '_row.php';
-			  
-			// 첨부파일이 있는경우 '(비규격)' 앞에 문구 넣어주는 루틴임
-			for($i=0;$i<count($attach_arr);$i++)
-	            if($attach_arr[$i] == $num)
-					  $workplacename = '(비규격)' .  $workplacename;			  
-			  
-			  $sum[0] = $sum[0] + (int)$su;
-			  $sum[1] += (int)$bon_su;
-			  $sum[2] += (int)$lc_su;
-			  $sum[3] += (int)$etc_su;
-			  $sum[4] += (int)$air_su;
-			  $sum[5] += (int)$su + (int)$bon_su + (int)$lc_su + (int)$etc_su + (int)$air_su;
-			  
-			  $dis_text = " (종류별 합계)    결합단위 : " . $sum[0] . " (SET),  본천장 : " . $sum[1] . " (EA),  L/C : "  . $sum[2] . "  (EA), 기타 : "  . $sum[3] . "  (EA), 공기청정기 : "  . $sum[4] . " (EA) "; 			   			  
-
-		      $workday=trans_date($workday);
-		      $demand=trans_date($demand);
-		      $orderday=trans_date($orderday);
-		      $deadline=trans_date($deadline);
-		      $testday=trans_date($testday);
-		      $lc_draw=trans_date($lc_draw);
-		      $lclaser_date=trans_date($lclaser_date);
-		      $lcbending_date=trans_date($lcbending_date);
-		      $lclwelding_date=trans_date($lclwelding_date);
-		      $lcwelding_date=trans_date($lcwelding_date);
-		      $lcassembly_date=trans_date($lcassembly_date);
-		      $main_draw=trans_date($main_draw);			
-		      $eunsung_make_date=trans_date($eunsung_make_date);			
-		      $eunsung_laser_date=trans_date($eunsung_laser_date);			
-		      $mainbending_date=trans_date($mainbending_date);			
-		      $mainwelding_date=trans_date($mainwelding_date);			
-		      $mainpainting_date=trans_date($mainpainting_date);			
-		      $mainassembly_date=trans_date($mainassembly_date);										
-
-		      $order_date1=trans_date($order_date1);					   
-		      $order_date2=trans_date($order_date2);					   
-		      $order_date3=trans_date($order_date3);					   
-		      $order_date4=trans_date($order_date4);					   
-		      $order_input_date1=trans_date($order_input_date1);					   
-		      $order_input_date2=trans_date($order_input_date2);					   
-		      $order_input_date3=trans_date($order_input_date3);					   
-		      $order_input_date4=trans_date($order_input_date4);				  
-			  	  				  
-			  $state_work=0;
-			  if($row["checkbox"]==0) $state_work=1;
-			  if(substr($row["workday"],0,2)=="20") $state_work=2;
-			  if(substr($row["endworkday"],0,2)=="20") $state_work=3;	
-			  
-			   $main_draw_arr="";			  
-			  if(substr($main_draw,0,2)=="20")  $main_draw_arr= iconv_substr($main_draw,5,5,"utf-8");		    
-			     elseif($bon_su<1) $main_draw_arr= "X";		    
-   
-   		        $lc_draw_arr="";			  
-			  if(substr($lc_draw,0,2)=="20")  $lc_draw_arr= iconv_substr($lc_draw,5,5,"utf-8") ;
-			     elseif($lc_su<1) $lc_draw_arr = "X";	
-			  if($type=='011'||$type=='012'|| $type=='013D'||$type=='025'||$type=='017'||$type=='014'||$type=='037')
-			                         $lc_draw_arr = "X";	
-				 
-
-			  $mainassembly_arr="";			  
-			  if(substr($mainassembly_date,0,2)=="20")  
-				      $mainassembly_arr= iconv_substr($mainassembly_date,5,5,"utf-8");		    
-			     elseif($bon_su<1) 
-				     $mainassembly_arr= "X";		    
-   
-			  $lcassembly_arr="";			  
-			  if(substr($lcassembly_date,0,2)=="20")  
-				  $lcassembly_arr= iconv_substr($lcassembly_date,5,5,"utf-8") ;
-			     elseif($lc_su<1  || $type=='011'||$type=='012'|| $type=='013D'||$type=='025'||$type=='017'||$type=='014')
-    				 $lcassembly_arr = "X";					 
-				 
-			 $workitem="";
-				 
-				 if($su!="")
-					    $workitem= $su . " , "; 
-				 if($bon_su!="")
-					    $workitem .="본 " . $bon_su . ", "; 					
-				 if($lc_su!="")
-					    $workitem .="L/C " . $lc_su . ", "; 											
-				 if($etc_su!="")
-					    $workitem .="기타 "  . $etc_su . ", "; 																	
-				 if($air_su!="")
-					    $workitem .="공기청정기 "  . $air_su . " "; 																							
-						
-				 $part="";
-				 if($order_com1!="")
-					    $part= $order_com1 . "," ; 
-				 if($order_com2!="")
-					    $part .= $order_com2 . ", " ; 						
-				 if($order_com3!="")
-					    $part .= $order_com3 . ", " ; 												
-				 if($order_com4!="")
-					    $part .= $order_com4 . ", " ; 
-						
-                 $deli_text="";
-				 if($delivery!="" || $delipay!=0)
-				 		  $deli_text = $delivery . " " . $delipay ;  
-           
-		// Tabulator용 데이터 배열에 추가
-		$dataArray[] = [
-			'num' => $num,
-			'start_num' => $start_num,
-			'orderday' => $orderday ? $orderday : '',
-			'workplacename' => $workplacename ? htmlspecialchars($workplacename, ENT_QUOTES, 'UTF-8') : '',
-			'secondord' => $secondord ? htmlspecialchars(substr($secondord, 0, 10), ENT_QUOTES, 'UTF-8') : '',
-			'type' => $type ? htmlspecialchars(substr($type, 0, 5), ENT_QUOTES, 'UTF-8') : '',
-			'inseung' => $inseung ? htmlspecialchars(substr($inseung, 0, 2), ENT_QUOTES, 'UTF-8') : '',
-			'car_insize' => $car_insize ? htmlspecialchars(substr($car_insize, 0, 9), ENT_QUOTES, 'UTF-8') : '',
-			'bon_su' => $bon_su ? $bon_su : '',
-			'lc_su' => $lc_su ? $lc_su : '',
-			'etc_su' => $etc_su ? $etc_su : '',
-			'price' => $price !== '' && $price !== null ? $price : 0,
-			'memo' => $memo ? htmlspecialchars(substr($memo, 0, 8), ENT_QUOTES, 'UTF-8') : ''
-		];
-
-		$start_num--;
-	}
-
-	// Tabulator용 JavaScript 데이터 생성
-	echo "<script>var tableData = " . json_encode($dataArray, JSON_UNESCAPED_UNICODE | JSON_HEX_QUOT | JSON_HEX_APOS) . ";</script>";
+        // 날짜 변환
+        $workday = trans_date($workday);
+        $demand = trans_date($demand);
+        $orderday = trans_date($orderday);
+        $deadline = trans_date($deadline);
+        $testday = trans_date($testday);
+        $lc_draw = trans_date($lc_draw);
+        $lclaser_date = trans_date($lclaser_date);
+        $lcbending_date = trans_date($lcbending_date);
+        $lclwelding_date = trans_date($lclwelding_date);
+        $lcwelding_date = trans_date($lcwelding_date);
+        $lcassembly_date = trans_date($lcassembly_date);
+        $main_draw = trans_date($main_draw);
+        $eunsung_make_date = trans_date($eunsung_make_date);
+        $eunsung_laser_date = trans_date($eunsung_laser_date);
+        $mainbending_date = trans_date($mainbending_date);
+        $mainwelding_date = trans_date($mainwelding_date);
+        $mainpainting_date = trans_date($mainpainting_date);
+        $mainassembly_date = trans_date($mainassembly_date);
+        
+        $order_date1 = trans_date($order_date1);
+        $order_date2 = trans_date($order_date2);
+        $order_date3 = trans_date($order_date3);
+        $order_date4 = trans_date($order_date4);
+        $order_input_date1 = trans_date($order_input_date1);
+        $order_input_date2 = trans_date($order_input_date2);
+        $order_input_date3 = trans_date($order_input_date3);
+        $order_input_date4 = trans_date($order_input_date4);				  
+        
+        // 작업 상태 설정
+        $state_work = 0;
+        if ($row["checkbox"] == 0) $state_work = 1;
+        if (substr($row["workday"], 0, 2) == "20") $state_work = 2;
+        if (substr($row["endworkday"], 0, 2) == "20") $state_work = 3;
+        
+        // 본천장 도면 표시
+        $main_draw_arr = "";
+        if (substr($main_draw, 0, 2) == "20") {
+            $main_draw_arr = iconv_substr($main_draw, 5, 5, "utf-8");
+        } elseif ($bon_su < 1) {
+            $main_draw_arr = "X";
+        }
+        
+        // LC 도면 표시
+        $lc_draw_arr = "";
+        if (substr($lc_draw, 0, 2) == "20") {
+            $lc_draw_arr = iconv_substr($lc_draw, 5, 5, "utf-8");
+        } elseif ($lc_su < 1) {
+            $lc_draw_arr = "X";
+        }
+        if ($type == '011' || $type == '012' || $type == '013D' || $type == '025' || $type == '017' || $type == '014' || $type == '037') {
+            $lc_draw_arr = "X";
+        }
+        
+        // 본천장 조립 표시
+        $mainassembly_arr = "";
+        if (substr($mainassembly_date, 0, 2) == "20") {
+            $mainassembly_arr = iconv_substr($mainassembly_date, 5, 5, "utf-8");
+        } elseif ($bon_su < 1) {
+            $mainassembly_arr = "X";
+        }
+        
+        // LC 조립 표시
+        $lcassembly_arr = "";
+        if (substr($lcassembly_date, 0, 2) == "20") {
+            $lcassembly_arr = iconv_substr($lcassembly_date, 5, 5, "utf-8");
+        } elseif ($lc_su < 1 || $type == '011' || $type == '012' || $type == '013D' || $type == '025' || $type == '017' || $type == '014') {
+            $lcassembly_arr = "X";
+        }
+        
+        // 작업 항목 문자열 생성
+        $workitem = "";
+        if ($su != "") {
+            $workitem = $su . " , ";
+        }
+        if ($bon_su != "") {
+            $workitem .= "본 " . $bon_su . ", ";
+        }
+        if ($lc_su != "") {
+            $workitem .= "L/C " . $lc_su . ", ";
+        }
+        if ($etc_su != "") {
+            $workitem .= "기타 " . $etc_su . ", ";
+        }
+        if ($air_su != "") {
+            $workitem .= "공기청정기 " . $air_su . " ";
+        }
+        
+        // 파트 문자열 생성
+        $part = "";
+        if ($order_com1 != "") {
+            $part = $order_com1 . ",";
+        }
+        if ($order_com2 != "") {
+            $part .= $order_com2 . ", ";
+        }
+        if ($order_com3 != "") {
+            $part .= $order_com3 . ", ";
+        }
+        if ($order_com4 != "") {
+            $part .= $order_com4 . ", ";
+        }
+        
+        // 배송 정보 문자열 생성
+        $deli_text = "";
+        if ($delivery != "" || $delipay != 0) {
+            $deli_text = $delivery . " " . $delipay;
+        }  
+        
+        // Tabulator용 데이터 배열에 추가
+        $dataArray[] = [
+            'num' => $num,
+            'start_num' => $start_num,
+            'orderday' => $orderday ? $orderday : '',
+            'workplacename' => $workplacename ? htmlspecialchars($workplacename, ENT_QUOTES, 'UTF-8') : '',
+            'secondord' => $secondord ? htmlspecialchars(substr($secondord, 0, 10), ENT_QUOTES, 'UTF-8') : '',
+            'type' => $type ? htmlspecialchars(substr($type, 0, 5), ENT_QUOTES, 'UTF-8') : '',
+            'inseung' => $inseung ? htmlspecialchars(substr($inseung, 0, 2), ENT_QUOTES, 'UTF-8') : '',
+            'car_insize' => $car_insize ? htmlspecialchars(substr($car_insize, 0, 9), ENT_QUOTES, 'UTF-8') : '',
+            'bon_su' => $bon_su ? $bon_su : '',
+            'lc_su' => $lc_su ? $lc_su : '',
+            'etc_su' => $etc_su ? $etc_su : '',
+            'price' => $price !== '' && $price !== null ? $price : 0,
+            'memo' => $memo ? htmlspecialchars(substr($memo, 0, 8), ENT_QUOTES, 'UTF-8') : ''
+        ];
+        
+        $start_num--;
+    }
+    
+    // Tabulator용 JavaScript 데이터 생성
+    echo "<script>var tableData = " . json_encode($dataArray, JSON_UNESCAPED_UNICODE | JSON_HEX_QUOT | JSON_HEX_APOS) . ";</script>";
 } catch (PDOException $Exception) {
-	print "오류: ".$Exception->getMessage();
-	echo "<script>var tableData = [];</script>";
+    print "오류: " . $Exception->getMessage();
+    echo "<script>var tableData = [];</script>";
 }
 ?>
       </tbody>
@@ -991,17 +1069,19 @@ input{
 </div>
 </body>
 <script>
-var table; // Tabulator 인스턴스 전역 변수
-var workfrontlogpageNumber; // 현재 페이지 번호 저장을 위한 전역 변수
+// 전역 변수 선언
+var table; // Tabulator 인스턴스
+var workfrontlogpageNumber; // 현재 페이지 번호 저장
 
-// PHP에서 생성된 데이터가 있는지 확인하고 Tabulator 초기화
+// Tabulator 초기화 함수
 function initializeTabulator() {
+    // tableData가 정의되지 않았거나 비어있는 경우 빈 배열로 초기화
     if (typeof tableData === 'undefined' || !tableData) {
         console.error('tableData is not defined or empty');
-        tableData = []; // 빈 배열로 초기화
+        tableData = [];
     }
-
-    // 데이터 확인을 위한 디버깅
+    
+    // 데이터 확인 (디버깅용)
     console.log('tableData length:', tableData.length);
     console.log('tableData sample:', tableData.slice(0, 3));
 
@@ -1046,19 +1126,19 @@ function initializeTabulator() {
         }
     });
 
-    // 검색 기능 구현
+    // 검색 함수
     function performSearch() {
         var searchValue = document.getElementById('search').value.trim();
         var searchInfo = document.getElementById('searchInfo');
-
+        
         console.log('검색어:', searchValue);
-
+        
         if (searchValue === '') {
             // 검색어가 없으면 모든 필터 제거
             table.clearFilter();
             searchInfo.textContent = '';
         } else {
-            // 공백 제거한 검색어로 더 정확한 검색
+            // 공백 제거한 검색어 생성
             var cleanSearchValue = searchValue.replace(/\s+/g, '');
 
             // 여러 컬럼에서 검색 (현장명, 발주처, 타입, 비고)
@@ -1148,13 +1228,15 @@ function initializeTabulator() {
     });
 }
 
+// 문서 준비 이벤트
 $(document).ready(function() {
-    // 잠시 후 Tabulator 초기화 (PHP 데이터 로드 대기)
+    // Tabulator 초기화 (PHP 데이터 로드 대기)
     setTimeout(function() {
         initializeTabulator();
     }, 100);
 });
 
+// 페이지 번호 복원 함수
 function restorePageNumber() {
     var savedPageNumber = getCookie('workfrontlogpageNumber');
     if (savedPageNumber && table) {
@@ -1162,49 +1244,48 @@ function restorePageNumber() {
     }
 }
 
+// 단가입력 버튼 이벤트
+$(document).ready(function() {
+    $("#writeBtn").click(function() {
+        popupCenter('./estimate.php', '쟘 제품 단가입력', 1050, 600);
+    });
+});
 
-$(document).ready(function(){
-	
-$("#writeBtn").click(function(){ 	
-    popupCenter('./estimate.php', '쟘 제품 단가입력', 1050, 600);	   
- 
-	});	
-});	
-
-function dis_text()
-{  
-	var dis_text = '<?php echo $dis_text; ?>';
-	$("#dis_text").val(dis_text);
-}	
-
-function search_condition(con)
-{				
-	$("#check").val(con);							
-	$("#page").val('1');							
-	$("#search").val('');							
-	$("#stable").val('0');							
-	$('#board_form').submit();		// 검색버튼 효과				
+// 종류별 합계 표시 함수
+function dis_text() {
+    var dis_text = '<?php echo $dis_text; ?>';
+    $("#dis_text").val(dis_text);
 }
 
-function button_condition(con)
-{				
-	$("#sortof").val(con);							
-	$("#page").val('1');											
-	$("#stable").val('0');							
-	$('#board_form').submit();		// 검색버튼 효과				
+// 검색 조건 설정 함수
+function search_condition(con) {
+    $("#check").val(con);
+    $("#page").val('1');
+    $("#search").val('');
+    $("#stable").val('0');
+    $('#board_form').submit();
 }
 
+// 버튼 조건 설정 함수
+function button_condition(con) {
+    $("#sortof").val(con);
+    $("#page").val('1');
+    $("#stable").val('0');
+    $('#board_form').submit();
+}
+
+// 상세보기 페이지로 이동
 function redirectToView(num) {
-	var page = workfrontlogpageNumber || 1; // 현재 Tabulator 페이지 번호
-	var url = "view.php?menu=no&num=" + num;         
-
-	customPopup(url, '천장 수주내역', 1800, 850); 		    
-}	
+    var page = workfrontlogpageNumber || 1;
+    var url = "view.php?menu=no&num=" + num;
+    customPopup(url, '천장 수주내역', 1800, 850);
+}
 </script>
 
 <script>
-	$(document).ready(function(){
-		saveLogData('Ceiling FrontLog'); // 다른 페이지에 맞는 menuName을 전달
-	});
+// 로그 데이터 저장
+$(document).ready(function() {
+    saveLogData('Ceiling FrontLog');
+});
 </script>   
   </html>  

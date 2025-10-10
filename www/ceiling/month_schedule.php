@@ -1,45 +1,54 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session.php'));   
-   
-if(isset($_REQUEST["check"])) 
-	 $check=$_REQUEST["check"]; 
-   else
-     $check=$_POST["check"]; 
-if($check==null)
-		$check='1';
+<?php
+require_once __DIR__ . '/../common/functions.php';
+require_once(includePath('session.php'));
 
-// 오늘 날짜를 YYYY-MM-DD 형식으로 구합니다.
+// 세션 변수 초기화
+$level = isset($_SESSION["level"]) ? $_SESSION["level"] : 10;
+
+// REQUEST/POST 변수 초기화
+if (isset($_REQUEST["check"])) {
+    $check = $_REQUEST["check"];
+} else if (isset($_POST["check"])) {
+    $check = $_POST["check"];
+} else {
+    $check = '1';
+}
+
+// 오늘 날짜 (YYYY-MM-DD 형식)
 $today = date("Y-m-d");
 
+// 페이지 제목
 $title_message = '천장(ceiling) 스케줄';
 
-// $today 변수를 JavaScript에 전달하기 위해 echo 문을 사용합니다.
+// JavaScript에 today 변수 전달
 echo "<script>var today = '$today';</script>";
 ?>
 
 <?php include getDocumentRoot() . '/load_header.php' ?>
 
-<title> <?=$title_message?> </title>
+<title><?=$title_message?></title>
 
 </head>
-<body>  
+<body>
 <? include '../myheader.php'; ?>   
 <style>
 .red-day {
-  color: red !important;
+    color: red !important;
 }
 .today {
-  background-color: #ffe5e5 !important;
+    background-color: #ffe5e5 !important;
 }
 </style>
 
-<div class="card mt-2 mb-2">	
-<div class="d-flex p-2 mt-3 mb-1 justify-content-center">	
-	<h3 id="clickableText_ceiling">  <?=$title_message?>  </h3> 
-	<button type="button" class="btn btn-dark btn-sm mx-3"  onclick='location.reload();' title="새로고침"> <i class="bi bi-arrow-clockwise"></i> </button>  	 
-</div>
-
-<div id="holder_ceiling" class="d-flex p-2 justify-content-center" ></div>
+<div class="card mt-2 mb-2">
+    <div class="d-flex p-2 mt-3 mb-1 justify-content-center">
+        <h3 id="clickableText_ceiling"><?=$title_message?></h3>
+        <button type="button" class="btn btn-dark btn-sm mx-3" onclick="location.reload();" title="새로고침">
+            <i class="bi bi-arrow-clockwise"></i>
+        </button>
+    </div>
+    
+    <div id="holder_ceiling" class="d-flex p-2 justify-content-center"></div>
  
 <script type="text/tmp1_ceiling" id="tmp1_ceiling">
   {{ 
@@ -190,346 +199,373 @@ echo "<script>var today = '$today';</script>";
 </script>
 
 <script>
-
+// 전역 변수 선언
 var ajaxRequest1 = null;
+var $currentPopover = null;
+var Objectdate = null;
+var ObjectCal = null;
 
-    var $currentPopover = null;
-  $(document).on('shown.bs.popover', function (ev) {
+// Popover 이벤트 핸들러
+$(document).on('shown.bs.popover', function (ev) {
     var $target = $(ev.target);
     if ($currentPopover && ($currentPopover.get(0) != $target.get(0))) {
-      $currentPopover.popover('toggle');
+        $currentPopover.popover('toggle');
     }
     $currentPopover = $target;
-  }).on('hidden.bs.popover', function (ev) {
+}).on('hidden.bs.popover', function (ev) {
     var $target = $(ev.target);
     if ($currentPopover && ($currentPopover.get(0) == $target.get(0))) {
-      $currentPopover = null;
+        $currentPopover = null;
     }
-  });
-
-
-//quicktmp1_ceiling is a simple template language I threw together a while ago; it is not remotely secure to xss and probably has plenty of bugs that I haven't considered, but it basically works
-//the design is a function I read in a blog post by John Resig (http://ejohn.org/blog/javascript-micro-templating/) and it is intended to be loosely translateable to a more comprehensive template language like mustache easily
-$.extend({
-    quicktmp1_ceiling: function (template) {return new Function("obj","var p=[],print=function(){p.push.apply(p,arguments);};with(obj){p.push('"+template.replace(/[\r\t\n]/g," ").split("{{").join("\t").replace(/((^|\}\})[^\t]*)'/g,"$1\r").replace(/\t:(.*?)\}\}/g,"',$1,'").split("\t").join("');").split("}}").join("p.push('").split("\r").join("\\'")+"');}return p.join('');")}
 });
 
-$.extend(Date.prototype, {
-  //provides a string that is _year_month_day, intended to be widely usable as a css class
-  toDateCssClass:  function () { 
-    return '_' + this.getFullYear() + '_' + (this.getMonth() + 1) + '_' + this.getDate(); 
-  },
-  //this generates a number useful for comparing two dates; 
-  toDateInt: function () { 
-    return ((this.getFullYear()*12) + this.getMonth())*32 + this.getDate(); 
-  },
-  toTimeString: function() {
-    var hours = this.getHours(),
-        minutes = this.getMinutes(),
-        hour = (hours > 12) ? (hours - 12) : hours,
-        ampm = (hours >= 12) ? ' pm' : ' am';
-    if (hours === 0 && minutes===0) { return ''; }
-    if (minutes > 0) {
-      return hour + ':' + minutes + ampm;
+
+// quicktmp1_ceiling: 간단한 템플릿 언어
+// John Resig의 블로그 포스트(http://ejohn.org/blog/javascript-micro-templating/)를 기반으로 함
+$.extend({
+    quicktmp1_ceiling: function (template) {
+        return new Function("obj", "var p=[],print=function(){p.push.apply(p,arguments);};with(obj){p.push('" + template.replace(/[\r\t\n]/g, " ").split("{{").join("\t").replace(/((^|\}\})[^\t]*)'/g, "$1\r").replace(/\t:(.*?)\}\}/g, "',$1,'").split("\t").join("');").split("}}").join("p.push('").split("\r").join("\\'") + "');}return p.join('');")
     }
-    return hour + ampm;
-  }
+});
+
+// Date 프로토타입 확장
+$.extend(Date.prototype, {
+    // _year_month_day 형식의 CSS 클래스 문자열 제공
+    toDateCssClass: function () {
+        return '_' + this.getFullYear() + '_' + (this.getMonth() + 1) + '_' + this.getDate();
+    },
+    // 두 날짜 비교를 위한 숫자 생성
+    toDateInt: function () {
+        return ((this.getFullYear() * 12) + this.getMonth()) * 32 + this.getDate();
+    },
+    // 시간 문자열 변환
+    toTimeString: function() {
+        var hours = this.getHours(),
+            minutes = this.getMinutes(),
+            hour = (hours > 12) ? (hours - 12) : hours,
+            ampm = (hours >= 12) ? ' pm' : ' am';
+        if (hours === 0 && minutes === 0) {
+            return '';
+        }
+        if (minutes > 0) {
+            return hour + ':' + minutes + ampm;
+        }
+        return hour + ampm;
+    }
 });
 
 
 (function ($) {
-	
-
-// 쿠키 불러옴
-let getCal_ceiling = getCookie("calendar_ceiling");
-
-	if(getCal_ceiling!=null)
-	{	
-		// console.log('자료있음');
-		 
-		var decodedString = decodeURIComponent(getCal_ceiling);
-			
-		Objectdate = JSON.parse(decodedString);
-
-		let Cartcount = Object.keys(Objectdate).length;
-
-		console.log('date : ' + Cartcount);
-}
+    // 쿠키에서 캘린더 설정 불러오기
+    let getCal_ceiling = getCookie("calendar_ceiling");
+    
+    if (getCal_ceiling != null) {
+        var decodedString = decodeURIComponent(getCal_ceiling);
+        Objectdate = JSON.parse(decodedString);
+        let Cartcount = Object.keys(Objectdate).length;
+        console.log('date : ' + Cartcount);
+    }
 		
 
-  //t here is a function which gets passed an options object and returns a string of html. I am using quicktmp1_ceiling to create it based on the template located over in the html block
-  var t = $.quicktmp1_ceiling($('#tmp1_ceiling').get(0).innerHTML);
-  
-  function calendar_ceiling($el, options) {
-    //actions aren't currently in the template, but could be added easily...
-    $el.on('click', '.js-cal-prev', function () {
-      switch(options.mode) {
-      case 'year': options.date.setFullYear(options.date.getFullYear() - 1); break;
-      case 'month': options.date.setMonth(options.date.getMonth() - 1); break;
-      case 'week': options.date.setDate(options.date.getDate() - 7); break;
-      case 'day':  options.date.setDate(options.date.getDate() - 1); break;
-      }
-      draw_ceiling();
-    }).on('click', '.js-cal-next', function () {
-      switch(options.mode) {
-      case 'year': options.date.setFullYear(options.date.getFullYear() + 1); break;
-      case 'month': options.date.setMonth(options.date.getMonth() + 1); break;
-      case 'week': options.date.setDate(options.date.getDate() + 7); break;
-      case 'day':  options.date.setDate(options.date.getDate() + 1); break;
-      }
-      draw_ceiling();
-    }).on('click', '.js-cal-option', function () {
-      var $t = $(this), o = $t.data();
-      if (o.date) { o.date = new Date(o.date); }
-      $.extend(options, o);
-      draw_ceiling();
-    }).on('click', '.js-cal-years', function () {
-      var $t = $(this), 
-          haspop = $t.data('popover'),
-          s = '', 
-          y = options.date.getFullYear() - 2, 
-          l = y + 5;
-      if (haspop) { return true; }
-      for (; y < l; y++) {
-        s += '<button type="button" class="btn btn-default btn-lg btn-block js-cal-option" data-date="' + (new Date(y, 1, 1)).toISOString() + '" data-mode="year">'+y + '</button>';
-      }
-       // $t.popover({content: s, html: true, placement: 'auto top'}).popover('toggle');
-	   
-      return false;
-  
-	  
-    }).on('click', '.event_ceiling', function () {
-		// 클릭했을때 이벤트
-      var $t = $(this), 
-          index = +($t.attr('data-index')), 
-          haspop = $t.data('popover'),
-          data, time;
-	  
-      if (haspop || isNaN(index)) { return true; }
-      data = options.data[index];
-      time = data.start.toTimeString();
-      if (time && data.end) { time = time + ' - ' + data.end.toTimeString(); }
-      $t.data('popover',true);
-      // $t.popover({content: '<p><strong>' + time + '</strong></p>'+data.text, html: true, placement: 'auto left'}).popover('toggle');
-	  
-	   // console.log(data.id); // id 추출해서
-	   popupCenter('../ceiling/view.php?menu=no&num=' + data.id   , '조명천장 수주내역', 1830, 900);		   
-	  
-      return false;
-	  
-    });
-    function dayAddEvent_ceiling(index, event) {
-      if (!!event.allDay) {
-        monthAddEvent(index, event);
-        return;
-      }
-	  // 일자별 화면에 버튼형식으로 만들어주는 부분
-	  // 선택을 시공예정일과 시공완료일에 따른 배경색등 지정할때 유용한 것
-      var $event = $('<div/>', {'class': 'event_ceiling', text: event.title, title: event.title, 'data-index': index}),
-          start = event.start,
-          end = event.end || start,
-          time = event.start.toTimeString(),
-          hour = start.getHours(),
-          timeclass = '.time-22-0',
-          startint = start.toDateInt(),
-          dateint = options.date.toDateInt(),
-          endint = end.toDateInt();
-		  	  
-		  
-      if (startint > dateint || endint < dateint) { return; }
-      
-      if (!!time) {
-        $event.html('<strong>' + time + '</strong> ' + $event.html());
-      }
-      $event.toggleClass('begin', startint === dateint);
-      $event.toggleClass('end', endint === dateint);
-      if (hour < 6) {
-        timeclass = '.time-0-0';
-      }
-      if (hour < 22) {
-        timeclass = '.time-' + hour + '-' + (start.getMinutes() < 30 ? '0' : '30');
-      }
-      $(timeclass).append($event);
-    }
+    // t는 옵션 객체를 받아 HTML 문자열을 반환하는 함수
+    // 템플릿을 기반으로 quicktmp1_ceiling을 사용하여 생성
+    var t = $.quicktmp1_ceiling($('#tmp1_ceiling').get(0).innerHTML);
     
-    function monthAddEvent(index, event) {
-		// class가 쟘과 천장이 같아서 같이 나오는 현상 같다. 
-      var $event = $('<div/>', {'class': 'event_ceiling', text: event.title, title: event.title, 'data-index': index}),
-          e = new Date(event.start),
-          dateclass = e.toDateCssClass(),
-          day = $('.' + e.toDateCssClass()),
-          empty = $('<div/>', {'class':'clear event', html:' '}), 
-          numbevents = 0, 
-          time = event.start.toTimeString(),
-          endday = event.end && $('.' + event.end.toDateCssClass()).length > 0,
-          checkanyway = new Date(e.getFullYear(), e.getMonth(), e.getDate()+40),
-          existing,
-          i;
-	
-   
-	// Add 'text-primary' class if lc_su or bon_su is greater than 0 and assembly_date is "0000-00-00" or empty
-	// 출고일이 없을 경우 , 결선완료가 아닐경우
-	if (((event.lc_su > 0 && (!event.lcassembly_date || event.lcassembly_date === "0000-00-00") && !['011', '012', '013D', '025', '017', '014','037','038'].includes(event.type)) ||
-		(event.bon_su > 0 && (!event.mainassembly_date || event.mainassembly_date === "0000-00-00")) ||
-		(event.etc_su > 0 && (!event.etcassembly_date || event.etcassembly_date === "0000-00-00")))  && (!event.workday || event.workday === "0000-00-00")  && (event.cabledone !== "결선완료")  ) {
-	  $event.addClass('text-primary');
-	}
-	  
-	 // 결선완료인경우는 danger 표시
-	else if (((event.lc_su > 0 && (!event.lcassembly_date || event.lcassembly_date === "0000-00-00") && !['011', '012', '013D', '025', '017', '014','037','038'].includes(event.type)) ||
-		(event.bon_su > 0 && (!event.mainassembly_date || event.mainassembly_date === "0000-00-00")) ||
-		(event.etc_su > 0 && (!event.etcassembly_date || event.etcassembly_date === "0000-00-00")))  && (!event.workday || event.workday === "0000-00-00")  && (event.cabledone === "결선완료")  ) {
-	  $event.addClass('text-danger fw-bold');
-	}
-	  
-	  
-      $event.toggleClass('all-day', !!event.allDay);
-      if (!!time) {
-        $event.html('<strong>' + time + '</strong> ' + $event.html());
-      }
-      if (!event.end) {
-        $event.addClass('begin end');
-        $('.' + event.start.toDateCssClass()).append($event);
-        return;
-      }
+    // 캘린더 함수
+    function calendar_ceiling($el, options) {
+        // 이전 버튼 클릭
+        $el.on('click', '.js-cal-prev', function () {
+            switch(options.mode) {
+                case 'year': options.date.setFullYear(options.date.getFullYear() - 1); break;
+                case 'month': options.date.setMonth(options.date.getMonth() - 1); break;
+                case 'week': options.date.setDate(options.date.getDate() - 7); break;
+                case 'day': options.date.setDate(options.date.getDate() - 1); break;
+            }
+            draw_ceiling();
+        })
+        // 다음 버튼 클릭
+        .on('click', '.js-cal-next', function () {
+            switch(options.mode) {
+                case 'year': options.date.setFullYear(options.date.getFullYear() + 1); break;
+                case 'month': options.date.setMonth(options.date.getMonth() + 1); break;
+                case 'week': options.date.setDate(options.date.getDate() + 7); break;
+                case 'day': options.date.setDate(options.date.getDate() + 1); break;
+            }
+            draw_ceiling();
+        })
+        // 옵션 클릭
+        .on('click', '.js-cal-option', function () {
+            var $t = $(this), o = $t.data();
+            if (o.date) {
+                o.date = new Date(o.date);
+            }
+            $.extend(options, o);
+            draw_ceiling();
+        })
+        // 년도 선택 클릭
+        .on('click', '.js-cal-years', function () {
+            var $t = $(this),
+                haspop = $t.data('popover'),
+                s = '',
+                y = options.date.getFullYear() - 2,
+                l = y + 5;
+            if (haspop) {
+                return true;
+            }
+            for (; y < l; y++) {
+                s += '<button type="button" class="btn btn-default btn-lg btn-block js-cal-option" data-date="' + (new Date(y, 1, 1)).toISOString() + '" data-mode="year">' + y + '</button>';
+            }
+            return false;
+        })
+        // 이벤트 클릭 (상세보기 팝업)
+        .on('click', '.event_ceiling', function () {
+            var $t = $(this),
+                index = +($t.attr('data-index')),
+                haspop = $t.data('popover'),
+                data, time;
             
-      while (e <= event.end && (day.length || endday || options.date < checkanyway)) {
-        if(day.length) { 
-          existing = day.find('.event_ceiling').length;
-          numbevents = Math.max(numbevents, existing);
-          for(i = 0; i < numbevents - existing; i++) {
-            day.append(empty.clone());
-          }
-          day.append(
-            $event.
-            toggleClass('begin', dateclass === event.start.toDateCssClass()).
-            toggleClass('end', dateclass === event.end.toDateCssClass())
-          );
-          $event = $event.clone();
-          $event.html(' ');
-        }
-        e.setDate(e.getDate() + 1);
-        dateclass = e.toDateCssClass();
-        day = $('.' + dateclass);
-      }
-    }
-    
-	function yearAddEvents(events, year) {
-      var counts = [0,0,0,0,0,0,0,0,0,0,0,0];
-      $.each(events, function (i, v) {
-        if (v.start.getFullYear() === year) {
-            counts[v.start.getMonth()]++;
-        }
-      });
-      $.each(counts, function (i, v) {
-        if (v!==0) {
-            $('.month-'+i).append('<span class="badge">'+v+'</span>');
-        }
-      });
-    }
-    
-    function draw_ceiling() {
-	  $("#table").show();
-	  // 최종 엘리먼트를 그려준다.	
-      $el.html(t(options));
-      //potential optimization (untested), this object could be keyed into a dictionary on the dateclass string; the object would need to be reset and the first entry would have to be made here
-      $('.' + (new Date()).toDateCssClass()).addClass('today');
-      if (options.data && options.data.length) {
-        if (options.mode === 'year') {
-            yearAddEvents(options.data, options.date.getFullYear());
-        } else if (options.mode === 'month' || options.mode === 'week') {
-            $.each(options.data, monthAddEvent);
-        } else {
-            $.each(options.data, dayAddEvent_ceiling); //day
-        }
-      }	  	  	  
-    }    	
-	draw_ceiling();         
-  }
-  
-  (function (defaults, $, window, document) {
-    $.extend({
-      calendar_ceiling: function (options) {
-        return $.extend(defaults, options);
-      }
-    }).fn.extend({
-      calendar_ceiling: function (options) {
-        options = $.extend({}, defaults, options);
-        return $(this).each(function () {
-          var $this = $(this);
-          calendar_ceiling($this, options);
+            if (haspop || isNaN(index)) {
+                return true;
+            }
+            data = options.data[index];
+            time = data.start.toTimeString();
+            if (time && data.end) {
+                time = time + ' - ' + data.end.toTimeString();
+            }
+            $t.data('popover', true);
+            
+            // 상세보기 팝업 열기
+            popupCenter('../ceiling/view.php?menu=no&num=' + data.id, '조명천장 수주내역', 1830, 900);
+            
+            return false;
         });
-      }
-    });
-  })({
-    days: ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"],
-    months: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
-    shortMonths: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
-    date: (new Date()),
+        
+        // 일자별 이벤트 추가 함수
+        function dayAddEvent_ceiling(index, event) {
+            if (!!event.allDay) {
+                monthAddEvent(index, event);
+                return;
+            }
+            
+            // 일자별 화면에 버튼 형식으로 만들어주는 부분
+            var $event = $('<div/>', {'class': 'event_ceiling', text: event.title, title: event.title, 'data-index': index}),
+                start = event.start,
+                end = event.end || start,
+                time = event.start.toTimeString(),
+                hour = start.getHours(),
+                timeclass = '.time-22-0',
+                startint = start.toDateInt(),
+                dateint = options.date.toDateInt(),
+                endint = end.toDateInt();
+            
+            if (startint > dateint || endint < dateint) {
+                return;
+            }
+            
+            if (!!time) {
+                $event.html('<strong>' + time + '</strong> ' + $event.html());
+            }
+            $event.toggleClass('begin', startint === dateint);
+            $event.toggleClass('end', endint === dateint);
+            
+            if (hour < 6) {
+                timeclass = '.time-0-0';
+            }
+            if (hour < 22) {
+                timeclass = '.time-' + hour + '-' + (start.getMinutes() < 30 ? '0' : '30');
+            }
+            $(timeclass).append($event);
+        }
+    
+        
+        // 월별 이벤트 추가 함수
+        function monthAddEvent(index, event) {
+            var $event = $('<div/>', {'class': 'event_ceiling', text: event.title, title: event.title, 'data-index': index}),
+                e = new Date(event.start),
+                dateclass = e.toDateCssClass(),
+                day = $('.' + e.toDateCssClass()),
+                empty = $('<div/>', {'class': 'clear event', html: ' '}),
+                numbevents = 0,
+                time = event.start.toTimeString(),
+                endday = event.end && $('.' + event.end.toDateCssClass()).length > 0,
+                checkanyway = new Date(e.getFullYear(), e.getMonth(), e.getDate() + 40),
+                existing,
+                i;
+            
+            // 출고일이 없고 결선완료가 아닌 경우 (포장 미완료 - 청색)
+            if (((event.lc_su > 0 && (!event.lcassembly_date || event.lcassembly_date === "0000-00-00") && !['011', '012', '013D', '025', '017', '014', '037', '038'].includes(event.type)) ||
+                (event.bon_su > 0 && (!event.mainassembly_date || event.mainassembly_date === "0000-00-00")) ||
+                (event.etc_su > 0 && (!event.etcassembly_date || event.etcassembly_date === "0000-00-00"))) && (!event.workday || event.workday === "0000-00-00") && (event.cabledone !== "결선완료")) {
+                $event.addClass('text-primary');
+            }
+            // 결선완료인 경우 (적색)
+            else if (((event.lc_su > 0 && (!event.lcassembly_date || event.lcassembly_date === "0000-00-00") && !['011', '012', '013D', '025', '017', '014', '037', '038'].includes(event.type)) ||
+                (event.bon_su > 0 && (!event.mainassembly_date || event.mainassembly_date === "0000-00-00")) ||
+                (event.etc_su > 0 && (!event.etcassembly_date || event.etcassembly_date === "0000-00-00"))) && (!event.workday || event.workday === "0000-00-00") && (event.cabledone === "결선완료")) {
+                $event.addClass('text-danger fw-bold');
+            }
+            
+            $event.toggleClass('all-day', !!event.allDay);
+            if (!!time) {
+                $event.html('<strong>' + time + '</strong> ' + $event.html());
+            }
+            
+            if (!event.end) {
+                $event.addClass('begin end');
+                $('.' + event.start.toDateCssClass()).append($event);
+                return;
+            }
+            
+            while (e <= event.end && (day.length || endday || options.date < checkanyway)) {
+                if (day.length) {
+                    existing = day.find('.event_ceiling').length;
+                    numbevents = Math.max(numbevents, existing);
+                    for (i = 0; i < numbevents - existing; i++) {
+                        day.append(empty.clone());
+                    }
+                    day.append(
+                        $event.
+                        toggleClass('begin', dateclass === event.start.toDateCssClass()).
+                        toggleClass('end', dateclass === event.end.toDateCssClass())
+                    );
+                    $event = $event.clone();
+                    $event.html(' ');
+                }
+                e.setDate(e.getDate() + 1);
+                dateclass = e.toDateCssClass();
+                day = $('.' + dateclass);
+            }
+        }
+        
+        // 년도별 이벤트 추가 함수
+        function yearAddEvents(events, year) {
+            var counts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+            $.each(events, function (i, v) {
+                if (v.start.getFullYear() === year) {
+                    counts[v.start.getMonth()]++;
+                }
+            });
+            $.each(counts, function (i, v) {
+                if (v !== 0) {
+                    $('.month-' + i).append('<span class="badge">' + v + '</span>');
+                }
+            });
+        }
+        
+        // 캘린더 그리기 함수
+        function draw_ceiling() {
+            $("#table").show();
+            
+            // 최종 엘리먼트를 그려준다
+            $el.html(t(options));
+            
+            // 오늘 날짜에 'today' 클래스 추가
+            $('.' + (new Date()).toDateCssClass()).addClass('today');
+            
+            if (options.data && options.data.length) {
+                if (options.mode === 'year') {
+                    yearAddEvents(options.data, options.date.getFullYear());
+                } else if (options.mode === 'month' || options.mode === 'week') {
+                    $.each(options.data, monthAddEvent);
+                } else {
+                    $.each(options.data, dayAddEvent_ceiling); // day
+                }
+            }
+        }
+        
+        draw_ceiling();
+    }
+  
+    
+    // jQuery 플러그인으로 캘린더 등록
+    (function (defaults, $, window, document) {
+        $.extend({
+            calendar_ceiling: function (options) {
+                return $.extend(defaults, options);
+            }
+        }).fn.extend({
+            calendar_ceiling: function (options) {
+                options = $.extend({}, defaults, options);
+                return $(this).each(function () {
+                    var $this = $(this);
+                    calendar_ceiling($this, options);
+                });
+            }
+        });
+    })({
+        days: ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"],
+        months: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+        shortMonths: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+        date: (new Date()),
         daycss: ["c-sunday", "", "", "", "", "", "c-saturday"],
-        todayname: "이번달", // 화면에 보여주는 문구
+        todayname: "이번달",  // 화면에 보여주는 문구
         thismonthcss: "current",
         lastmonthcss: "outside",
         nextmonthcss: "outside",
-    mode: "month",
-    data_ceiling: []
-  }, jQuery, window, document);
+        mode: "month",
+        data_ceiling: []
+    }, jQuery, window, document);
     
 })(jQuery);
 
+// 데이터셋 초기화
 var dataset_ceiling = [];
-  
+
+// 이전 AJAX 요청 취소
 if (ajaxRequest1 !== null) {
-	ajaxRequest1.abort();
+    ajaxRequest1.abort();
 }
 
-	 // ajax 요청 생성
-	 ajaxRequest1 = $.ajax({		
-			url: "../ceiling/deadlinedata.php?" ,
-    	  	type: "post",		
-   			data: '',
-   			dataType:"json",
-		}).done(function(data_ceiling){
-              console.log('data_ceiling' , data_ceiling);
-             // console.log(Object.values(data_ceiling)[0].length);		// 12 데이터 숫자 나옴 반복								
-	 //	console.log(Object.values(data_ceiling)[0][0]['address']);		// 참조하려면 좌측과 같이 3번의 첨자가 필요함 주의		
-	var titlename ='';
-	for(i = 0; i < Object.values(data_ceiling)[0].length ; i++) {
-		
-		// 시공팀에 따라 조회가 다름				
-			 // 신규쟘일 경우 (신규)
-		 // if(Object.values(data_ceiling)[0][i]['checkstep'] ==='신규')
-					// titlename +=  '(신규)' ;
-			titlename = Object.values(data_ceiling)[0][i]['workplacename'];
-			// 한글 유니코드 범위를 확인하는 정규표현식
-			const koreanRegex = /[\uAC00-\uD7A3]/;
-			let className = "";
-
-			if (koreanRegex.test(titlename)) {
-			  // titlename에 한글이 포함되어 있으면
-			  
-						titlename = titlename.substring(0, 6);
-						className = "brown-text"; // 클래스 이름 설정
-			 }
-			
-				titlename += '[' ;
-
-			  if(Object.values(data_ceiling)[0][i]['secondord'] !='')
-					titlename +=  Object.values(data_ceiling)[0][i]['secondord'] + '] ' ;
-															
-				
-				if(Number(Object.values(data_ceiling)[0][i]['bon_su']) > 0)
-					titlename += '본' + Object.values(data_ceiling)[0][i]['bon_su']  ;
-				if(Number(Object.values(data_ceiling)[0][i]['lc_su']) > 0)
-					titlename += 'LC' + Object.values(data_ceiling)[0][i]['lc_su']  ;
-				if(Number(Object.values(data_ceiling)[0][i]['etc_su']) > 0)
-					titlename += '기타' + Object.values(data_ceiling)[0][i]['etc_su']  ;
-				
-
-				var date = new Date(Object.values(data_ceiling)[0][i]['deadline']);
-				 d = date.getDate();				
-				 m = date.getMonth();
-				 y = date.getFullYear();	
+// AJAX 요청으로 데이터 가져오기
+ajaxRequest1 = $.ajax({
+    url: "../ceiling/deadlinedata.php?",
+    type: "post",
+    data: '',
+    dataType: "json"
+}).done(function(data_ceiling) {
+    console.log('data_ceiling', data_ceiling);
+    
+    var titlename = '';
+    
+    // 데이터 처리 루프
+    for (var i = 0; i < Object.values(data_ceiling)[0].length; i++) {
+        
+        // 현장명 설정
+        titlename = Object.values(data_ceiling)[0][i]['workplacename'];
+        
+        // 한글 유니코드 범위를 확인하는 정규표현식
+        const koreanRegex = /[\uAC00-\uD7A3]/;
+        let className = "";
+        
+        if (koreanRegex.test(titlename)) {
+            // titlename에 한글이 포함되어 있으면 6글자로 자르기
+            titlename = titlename.substring(0, 6);
+            className = "brown-text";
+        }
+        
+        titlename += '[';
+        
+        // 발주처 추가
+        if (Object.values(data_ceiling)[0][i]['secondord'] != '') {
+            titlename += Object.values(data_ceiling)[0][i]['secondord'] + '] ';
+        }
+        
+        // 수량 추가
+        if (Number(Object.values(data_ceiling)[0][i]['bon_su']) > 0) {
+            titlename += '본' + Object.values(data_ceiling)[0][i]['bon_su'];
+        }
+        if (Number(Object.values(data_ceiling)[0][i]['lc_su']) > 0) {
+            titlename += 'LC' + Object.values(data_ceiling)[0][i]['lc_su'];
+        }
+        if (Number(Object.values(data_ceiling)[0][i]['etc_su']) > 0) {
+            titlename += '기타' + Object.values(data_ceiling)[0][i]['etc_su'];
+        }
+        
+        // 날짜 변수 생성
+        var date = new Date(Object.values(data_ceiling)[0][i]['deadline']);
+        var d = date.getDate();
+        var m = date.getMonth();
+        var y = date.getFullYear();	
 
 
         var bon_su = Object.values(data_ceiling)[0][i]['bon_su'];
@@ -591,29 +627,49 @@ if (ajaxRequest1 !== null) {
             drawok = '';
         }
 
-        titlename += drawok;											
-        titlename = "[" + type + "]" + titlename;											
-				
-		dataset_ceiling.push({ title: titlename , start: new Date(y, m, d), end: null , allDay: true , text: titlename , id: Object.values(data_ceiling)[0][i]['num'], className: className,
-			  bon_su : bon_su, lc_su : lc_su, etc_su : etc_su, lcassembly_date : lcassembly_date, mainassembly_date : mainassembly_date, etcassembly_date : etcassembly_date, type : type, workday : workday , drawok : drawok, cabledone : cabledone
-			});
-		}		  
-		dataset_ceiling.sort(function(a,b) { return (+a.start) - (+b.start); });			  
-		//data must be sorted by start date
-		
-		//현재 설정 mode 쿠키에 저장함
-		ObjectCal = new Array();
-		var data_ceiling = new Object();					  
-		data_ceiling.mode = '2022-01-01';						
-		ObjectCal.push(data_ceiling);
-		// console.log('ordercart 쿠키' + JSON.stringify(ObjectCal));			
-		setCookie ('calendar_ceiling', JSON.stringify(ObjectCal), 3600);   // 쿠키에 저장함
-					
-		$('#holder_ceiling').calendar_ceiling({
-		  data: dataset_ceiling
-		});			
-	});
+        titlename += drawok;
+        titlename = "[" + type + "]" + titlename;
+        
+        // 데이터셋에 추가
+        dataset_ceiling.push({
+            title: titlename,
+            start: new Date(y, m, d),
+            end: null,
+            allDay: true,
+            text: titlename,
+            id: Object.values(data_ceiling)[0][i]['num'],
+            className: className,
+            bon_su: bon_su,
+            lc_su: lc_su,
+            etc_su: etc_su,
+            lcassembly_date: lcassembly_date,
+            mainassembly_date: mainassembly_date,
+            etcassembly_date: etcassembly_date,
+            type: type,
+            workday: workday,
+            drawok: drawok,
+            cabledone: cabledone
+        });
+    }
+    
+    // 데이터를 시작 날짜 기준으로 정렬
+    dataset_ceiling.sort(function(a, b) {
+        return (+a.start) - (+b.start);
+    });
+    
+    // 현재 설정을 쿠키에 저장
+    ObjectCal = new Array();
+    var data_ceiling_obj = new Object();
+    data_ceiling_obj.mode = '2022-01-01';
+    ObjectCal.push(data_ceiling_obj);
+    setCookie('calendar_ceiling', JSON.stringify(ObjectCal), 3600);
+    
+    // 캘린더 렌더링
+    $('#holder_ceiling').calendar_ceiling({
+        data: dataset_ceiling
+    });
+});
 </script>
 
-
 </body>
+</html>

@@ -1,25 +1,33 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-if(!isset($_SESSION))      
-		session_start(); 
-if(isset($_SESSION["DB"]))
-		$DB = $_SESSION["DB"] ;	
- $level= $_SESSION["level"];
- $user_name= $_SESSION["name"];
- $user_id= $_SESSION["userid"];	
+<?php
+require_once __DIR__ . '/../common/functions.php';
 
-  if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {          		 
-		 sleep(1);
-		  header("Location:http://8440.co.kr/login/login_form.php"); 
-         exit;
-   }  
-   
+// 세션 시작
+if (!isset($_SESSION)) {
+    session_start();
+}
+
+// 세션 변수 초기화
+$DB = isset($_SESSION["DB"]) ? $_SESSION["DB"] : "";
+$level = isset($_SESSION["level"]) ? $_SESSION["level"] : 10;
+$user_name = isset($_SESSION["name"]) ? $_SESSION["name"] : "";
+$user_id = isset($_SESSION["userid"]) ? $_SESSION["userid"] : "";
+
+// 권한 체크
+if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+    sleep(1);
+    header("Location:http://8440.co.kr/login/login_form.php");
+    exit;
+}
+
+// 페이지 제목
 $title_message = "본천장/LC 매출";
 
-$readIni = array();   // 환경파일 불러오기
-$readIni = parse_ini_file("./estimate.ini",false);	
+// 환경파일 불러오기
+$readIni = array();
+$readIni = parse_ini_file("./estimate.ini", false);
 ?>
 
-<?php include getDocumentRoot() . '/load_header.php' ?>   
+<?php include getDocumentRoot() . '/load_header.php' ?>
 
 <title> <?=$title_message?> </title> 
 
@@ -58,81 +66,64 @@ $readIni = parse_ini_file("./estimate.ini",false);
   <?php require_once(includePath('myheader.php')); ?>   
 
 
- <?php 
- 
-  if(isset($_REQUEST["load_confirm"]))   // 초기 당월 차트보이도록 변수를 저장하고 다시 부르면 실행되지 않도록 하기 위한 루틴
-	 $load_confirm=$_REQUEST["load_confirm"];	 
-  
-  if(isset($_REQUEST["display_sel"]))   //목록표에 제목,이름 등 나오는 부분
-		$display_sel=$_REQUEST["display_sel"];	 
-	 else
-		 $display_sel='bar';	
+<?php
 
-  if(isset($_REQUEST["item_sel"]))   //목록표에 제목,이름 등 나오는 부분
-		$item_sel=$_REQUEST["item_sel"];	 
-	 else
-		$item_sel='년도비교';	
-  
-  $sum=array(); 
-	 
-  if(isset($_REQUEST["mode"]))
-     $mode=$_REQUEST["mode"];
-  else 
-     $mode="";        
- 
- if(isset($_REQUEST["find"]))   //목록표에 제목,이름 등 나오는 부분
- $find=$_REQUEST["find"]; 
-  
-// 기간을 정하는 구간 
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];	 
+// REQUEST 변수 초기화
+$load_confirm = isset($_REQUEST["load_confirm"]) ? $_REQUEST["load_confirm"] : "";
+$display_sel = isset($_REQUEST["display_sel"]) ? $_REQUEST["display_sel"] : 'bar';
+$item_sel = isset($_REQUEST["item_sel"]) ? $_REQUEST["item_sel"] : '년도비교';
+$mode = isset($_REQUEST["mode"]) ? $_REQUEST["mode"] : "";
+$find = isset($_REQUEST["find"]) ? $_REQUEST["find"] : "";
+$search = isset($_REQUEST["search"]) ? $_REQUEST["search"] : "";
 
-// 올해를 날자기간으로 설정
-if($fromdate=="")
-{
-	$fromdate=substr(date("Y-m-d",time()),0,4) ;
-	$fromdate=$fromdate . "-01-01";
+// 기간 설정
+$fromdate = isset($_REQUEST["fromdate"]) ? $_REQUEST["fromdate"] : "";
+$todate = isset($_REQUEST["todate"]) ? $_REQUEST["todate"] : "";
+
+// 올해를 날짜 기간으로 설정
+if ($fromdate == "") {
+    $fromdate = substr(date("Y-m-d", time()), 0, 4);
+    $fromdate = $fromdate . "-01-01";
 }
-if($todate=="")
-{
-	$todate=substr(date("Y-m-d",time()),0,4) . "-12-31" ;
-	$Transtodate=strtotime($todate.'+1 days');
-	$Transtodate=date("Y-m-d",$Transtodate);
+
+if ($todate == "") {
+    $todate = substr(date("Y-m-d", time()), 0, 4) . "-12-31";
+    $Transtodate = strtotime($todate . '+1 days');
+    $Transtodate = date("Y-m-d", $Transtodate);
+} else {
+    $Transtodate = strtotime($todate);
+    $Transtodate = date("Y-m-d", $Transtodate);
 }
-    else
-	{
-		$Transtodate=strtotime($todate);
-		$Transtodate=date("Y-m-d",$Transtodate);
-	}
-if(isset($_REQUEST["search"]))   
-	$search=$_REQUEST["search"];
 
-$orderby=" order by workday desc "; 
-	
-$now = date("Y-m-d");	 // 현재 날짜와 크거나 같으면 출고예정으로 구분	
+// SQL 설정
+$orderby = " order by workday desc ";
+$now = date("Y-m-d"); // 현재 날짜
 
-$sql="select * from mirae8440.ceiling ";	
+// SQL 쿼리 생성
+$sql = "select * from mirae8440.ceiling ";
 
-if($search=="")
-{
-	$sql="select * from mirae8440.ceiling where workday between date('$fromdate') and date('$Transtodate')" . $orderby;  			
+if ($search == "") {
+    $sql = "select * from mirae8440.ceiling where workday between date('$fromdate') and date('$Transtodate')" . $orderby;
+} else {
+    $sql = "select * from mirae8440.ceiling where ((workplacename like '%$search%' ) or (firstordman like '%$search%' ) or (secondordman like '%$search%' ) or (chargedman like '%$search%' ) ";
+    $sql .= "or (delicompany like '%$search%' ) or (hpi like '%$search%' ) or (firstord like '%$search%' ) or (secondord like '%$search%' ) or (worker like '%$search%' ) or (memo like '%$search%' )) and ( workday between date('$fromdate') and date('$Transtodate'))" . $orderby;
 }
-else
-{ 
-	$sql ="select * from mirae8440.ceiling where ((workplacename like '%$search%' )  or (firstordman like '%$search%' )  or (secondordman like '%$search%' )  or (chargedman like '%$search%' ) ";
-	$sql .="or (delicompany like '%$search%' ) or (hpi like '%$search%' ) or (firstord like '%$search%' ) or (secondord like '%$search%' ) or (worker like '%$search%' ) or (memo like '%$search%' )) and ( workday between date('$fromdate') and date('$Transtodate'))" . $orderby;				  		  		   
- }    
 
-$item_arr = array();	
-$work_sum = array();	
-$month_sum = array();	
+// 배열 초기화
+$sum = array();
+$item_arr = array();
+$work_sum = array();
+$month_sum = array();
+$year_sum = array();
+$item_sel_choice = array('', '', '');
 
-$item_arr[0]='결합단위';
-$item_arr[1]='본천장';
-$item_arr[2]='L/C';
-$item_arr[3]='기타';
-$item_arr[4]='공기청정기';
- 
+$item_arr[0] = '결합단위';
+$item_arr[1] = '본천장';
+$item_arr[2] = 'L/C';
+$item_arr[3] = '기타';
+$item_arr[4] = '공기청정기';
+
+// 합계 변수 초기화
 $lc_total_12 = 0;
 $bon_total_12 = 0;
 $lc_total_13to17 = 0;
@@ -140,319 +131,321 @@ $bon_total_13to17 = 0;
 $lc_total_18 = 0;
 $bon_total_18 = 0;
 
-try {	
-	$allstmh = $pdo->query($sql);
-  while ($row = $allstmh->fetch(PDO::FETCH_ASSOC)) {		
-    $inseung = $row["inseung"];			  		
-    $bon_su = $row["bon_su"];			  
-    $lc_su = $row["lc_su"];
+// 데이터 조회 및 집계
+try {
+    $allstmh = $pdo->query($sql);
     
-    $inseung_num = intval($inseung);
-    $lc_su_num = intval($lc_su);
-    $bon_su_num = intval($bon_su);
-    
-    if ($inseung_num <= 12 && $lc_su_num >= 1) {
-      $lc_total_12 += $lc_su_num ;
+    while ($row = $allstmh->fetch(PDO::FETCH_ASSOC)) {
+        $inseung = $row["inseung"];
+        $bon_su = $row["bon_su"];
+        $lc_su = $row["lc_su"];
+        
+        $inseung_num = intval($inseung);
+        $lc_su_num = intval($lc_su);
+        $bon_su_num = intval($bon_su);
+        
+        // L/C 집계
+        if ($inseung_num <= 12 && $lc_su_num >= 1) {
+            $lc_total_12 += $lc_su_num;
+        }
+        if ($inseung_num >= 13 && $inseung_num <= 17 && $lc_su_num >= 1) {
+            $lc_total_13to17 += $lc_su_num;
+        }
+        if ($inseung_num >= 18 && $lc_su_num >= 1) {
+            $lc_total_18 += $lc_su_num;
+        }
+        
+        // 본천장 집계
+        if ($inseung_num <= 12 && $bon_su_num >= 1) {
+            $bon_total_12 += $bon_su_num;
+        }
+        if ($inseung_num >= 13 && $inseung_num <= 17 && $bon_su_num >= 1) {
+            $bon_total_13to17 += $bon_su_num;
+        }
+        if ($inseung_num >= 18 && $bon_su_num >= 1) {
+            $bon_total_18 += $bon_su_num;
+        }
     }
-    if ($inseung_num >= 13 && $inseung_num <= 17 && $lc_su_num >= 1) {
-      $lc_total_13to17 += $lc_su_num;
-    }
-    if ($inseung_num >= 18 && $lc_su_num >= 1) {
-      $lc_total_18 += $lc_su_num;
-    }
-    
-    if ($inseung_num <= 12 && $bon_su_num >= 1) {
-      $bon_total_12 += $bon_su_num;
-    }
-    if ($inseung_num >= 13 && $inseung_num <= 17 && $bon_su_num >= 1) {
-      $bon_total_13to17 +=  $bon_su_num;
-    }
-    if ($inseung_num >= 18 && $bon_su_num >= 1) {
-      $bon_total_18 +=  $bon_su_num;
-    }
-  }
 } catch (PDOException $Exception) {
-  print "오류: " . $Exception->getMessage();
+    print "오류: " . $Exception->getMessage();
 }
 
-$sum_12 = $lc_total_12 + $bon_total_12; 
-$sum_13to17 = $lc_total_13to17 + $bon_total_13to17; 
-$sum_18 = $lc_total_18 + $bon_total_18; 
+// 수량 합계
+$sum_12 = $lc_total_12 + $bon_total_12;
+$sum_13to17 = $lc_total_13to17 + $bon_total_13to17;
+$sum_18 = $lc_total_18 + $bon_total_18;
 
-// 합계표 만들기
-// bon_total_12 12인승 이하
+// 금액 계산
+// 12인승 이하
 $bon_total_12_amount = str_replace(',', '', $bon_total_12) * intval(str_replace(',', '', $readIni["bon_unit_12"]));
 $lc_total_12_amount = str_replace(',', '', $lc_total_12) * intval(str_replace(',', '', $readIni["lc_unit_12"]));
-$bon_total_12_total = $bon_total_12_amount + $lc_total_12_amount ;
+$bon_total_12_total = $bon_total_12_amount + $lc_total_12_amount;
 $bon_total_12_num = $bon_total_12 + $lc_total_12;
 
+// 13인승 이상 17인승 이하
 $bon_total_13to17_amount = str_replace(',', '', $bon_total_13to17) * intval(str_replace(',', '', $readIni["bon_unit_13to17"]));
 $lc_total_13to17_amount = str_replace(',', '', $lc_total_13to17) * intval(str_replace(',', '', $readIni["lc_unit_13to17"]));
-$bon_total_13to17_total = $bon_total_13to17_amount + $lc_total_13to17_amount ;
+$bon_total_13to17_total = $bon_total_13to17_amount + $lc_total_13to17_amount;
 $bon_total_13to17_num = $bon_total_13to17 + $lc_total_13to17;
 
+// 18인승 이상
 $bon_total_18_amount = str_replace(',', '', $bon_total_18) * intval(str_replace(',', '', $readIni["bon_unit_12"]));
 $lc_total_18_amount = str_replace(',', '', $lc_total_18) * intval(str_replace(',', '', $readIni["lc_unit_12"]));
-$bon_total_18_total = $bon_total_18_amount + $lc_total_18_amount ;
+$bon_total_18_total = $bon_total_18_amount + $lc_total_18_amount;
 $bon_total_18_num = $bon_total_18 + $lc_total_18;
 
-$total = $bon_total_12_total + $bon_total_13to17_total + $bon_total_18_total ;  
+// 전체 합계
+$total = $bon_total_12_total + $bon_total_13to17_total + $bon_total_18_total;
 
-$work_sum[1] =  $lc_total_12_amount + $lc_total_13to17_amount + $lc_total_18_amount  ;
-$work_sum[2] =  $bon_total_12_amount + $bon_total_13to17_amount + $bon_total_18_amount  ;
+// 종류별 합계
+$work_sum[1] = $lc_total_12_amount + $lc_total_13to17_amount + $lc_total_18_amount;
+$work_sum[2] = $bon_total_12_amount + $bon_total_13to17_amount + $bon_total_18_amount;
 
-$year=substr($fromdate,0,4) ;
-// print $year;
+// 년도 추출
+$year = substr($fromdate, 0, 4);
 
-if($item_sel==='년도비교') 
- {
-    $year_count=0;
-    $date_count=0;
-    $year_sum = array();	
-    $year=substr($fromdate,0,4) -1;				
-
-    while($year_count<2) {
-		
-        $month_count=0;		
-		
-        while($month_count<12) {	
-		
-			$month=$month_count + 1;
-			switch ($month_count) {
-				case   0   :   $day=31; break;
-				case   1   :   $day=28; break;
-				case   2   :   $day=31; break;
-				case   3   :   $day=30; break;
-				case   4   :   $day=31; break;
-				case   5   :   $day=30; break;
-				case   6   :   $day=31; break;
-				case   7   :   $day=31; break;
-				case   8   :   $day=30; break;
-				case   9   :   $day=31; break;
-				case   10  :   $day=30; break;
-				case   11  :   $day=31; break;
-			}			
-			
-			$month_fromdate = sprintf("%04d-%02d-%02d", $year, $month, 1);
-			$month_todate = sprintf("%04d-%02d-%02d", $year, $month, $day);
-
-			$sql="select * from mirae8440.ceiling where workday between date('$month_fromdate') and date('$month_todate')" ; 			
-						
-			$lc_total_12_sub = 0;
-			$bon_total_12_sub = 0;
-			$lc_total_13to17_sub = 0;
-			$bon_total_13to17_sub = 0;
-			$lc_total_18_sub = 0;
-			$bon_total_18_sub = 0;
-			
-			$sub_total = 0;
-
-			try {
-			  $allstmh = $pdo->query($sql);
-
-			  while ($row = $allstmh->fetch(PDO::FETCH_ASSOC)) {		
-				$inseung = $row["inseung"];			  		
-				$bon_su = $row["bon_su"];			  
-				$lc_su = $row["lc_su"];
-				
-				$inseung_num = intval($inseung);
-				$lc_su_num = intval($lc_su);
-				$bon_su_num = intval($bon_su);
-				
-				if ($inseung_num <= 12 && $lc_su_num >= 1) {
-				  $lc_total_12_sub += $lc_su_num ;
-				}
-				if ($inseung_num >= 13 && $inseung_num <= 17 && $lc_su_num >= 1) {
-				  $lc_total_13to17_sub += $lc_su_num;
-				}
-				if ($inseung_num >= 18 && $lc_su_num >= 1) {
-				  $lc_total_18_sub += $lc_su_num;
-				}
-				
-				if ($inseung_num <= 12 && $bon_su_num >= 1) {
-				  $bon_total_12_sub += $bon_su_num;
-				}
-				if ($inseung_num >= 13 && $inseung_num <= 17 && $bon_su_num >= 1) {
-				  $bon_total_13to17_sub +=  $bon_su_num;
-				}
-				if ($inseung_num >= 18 && $bon_su_num >= 1) {
-				  $bon_total_18_sub +=  $bon_su_num;
-				}
-
-				$sum_12_sub = $lc_total_12_sub + $bon_total_12_sub; 
-				$sum_13to17_sub = $lc_total_13to17_sub + $bon_total_13to17_sub; 
-				$sum_18_sub = $lc_total_18_sub + $bon_total_18_sub; 
-
-				// 합계표 만들기				
-				// bon_total_12_sub 12인승 이하
-				$bon_total_12_amount = str_replace(',', '', $bon_total_12_sub) * intval(str_replace(',', '', $readIni["bon_unit_12"]));
-				$lc_total_12_amount = str_replace(',', '', $lc_total_12_sub) * intval(str_replace(',', '', $readIni["lc_unit_12"]));
-				$bon_total_12_total_sub = $bon_total_12_amount + $lc_total_12_amount ;
-				$bon_total_12_num = $bon_total_12_sub + $lc_total_12_sub;
-
-				$bon_total_13to17_amount = str_replace(',', '', $bon_total_13to17_sub) * intval(str_replace(',', '', $readIni["bon_unit_13to17"]));
-				$lc_total_13to17_amount = str_replace(',', '', $lc_total_13to17_sub) * intval(str_replace(',', '', $readIni["lc_unit_13to17"]));
-				$bon_total_13to17_total_sub = $bon_total_13to17_amount + $lc_total_13to17_amount ;
-				$bon_total_13to17_num = $bon_total_13to17_sub + $lc_total_13to17_sub;
-				
-				$bon_total_18_amount = str_replace(',', '', $bon_total_18_sub) * intval(str_replace(',', '', $readIni["bon_unit_12"]));
-				$lc_total_18_amount = str_replace(',', '', $lc_total_18_sub) * intval(str_replace(',', '', $readIni["lc_unit_12"]));
-				$bon_total_18_total_sub = $bon_total_18_amount + $lc_total_18_amount ;
-				$bon_total_18_num = $bon_total_18_sub + $lc_total_18_sub;
-
-				$sub_total = $bon_total_12_total_sub + $bon_total_13to17_total_sub + $bon_total_18_total_sub ;   
-
-				} 	 
-		   } catch (PDOException $Exception) {
-			print "오류: ".$Exception->getMessage();
-		}  
-
-		$year_sum[$date_count]= $sub_total ;
-		$month_count++;
-		$date_count++;
-	   }
-	  $year_count++;
-	  $year++;	 
-	}
-}
-
-if($item_sel==='월별비교') 
-{
-	$month_count=0;      // 월별 차트 통계 내는 부분
-	while($month_count<12)		 
-	{	
-
-	$year=substr($fromdate,0,4) ;
-	
-	$month=$month_count + 1;
-		switch ($month_count) {
-			case   0   :   $day=31; break;
-			case   1   :   $day=28; break;
-			case   2   :   $day=31; break;
-			case   3   :   $day=30; break;
-			case   4   :   $day=31; break;
-			case   5   :   $day=30; break;
-			case   6   :   $day=31; break;
-			case   7   :   $day=31; break;
-			case   8   :   $day=30; break;
-			case   9   :   $day=31; break;
-			case   10  :   $day=30; break;
-			case   11  :   $day=31; break;
-
-	}
-					  
-	$month_fromdate = sprintf("%04d-%02d-%02d", $year, $month, 1);  // 날짜형식으로 바꾸기
-	$month_todate = sprintf("%04d-%02d-%02d", $year, $month, $day);  // 날짜형식으로 바꾸기
-			
-	if($search=== "" ){
-	    $sql="select * from mirae8440.ceiling where workday between date('$month_fromdate') and date('$month_todate')" ; 			
-	}
-										
-	if( $search!=="" ){
-	  $sql ="select * from mirae8440.ceiling where ((workplacename like '%$search%' )  or (firstordman like '%$search%' )  or (secondordman like '%$search%' )  or (chargedman like '%$search%' ) ";
-	  $sql .="or (delicompany like '%$search%' ) or (hpi like '%$search%' ) or (firstord like '%$search%' ) or (secondord like '%$search%' ) or (worker like '%$search%' ) or (memo like '%$search%' )) and ( workday between date('$month_fromdate') and date('$month_todate'))" ;				  		  		   
-	}					
-		$counter=0;
-		$sum1=0;
-		$sum2=0;
-		$sum3=0;
-
-		$sum1 = 0; $sum2 = 0; $sum3 = 0;
-		
-	
-			$sql="select * from mirae8440.ceiling where workday between date('$month_fromdate') and date('$month_todate')" ; 			
-						
-			$lc_total_12_sub = 0;
-			$bon_total_12_sub = 0;
-			$lc_total_13to17_sub = 0;
-			$bon_total_13to17_sub = 0;
-			$lc_total_18_sub = 0;
-			$bon_total_18_sub = 0;
-			
-			$sub_total = 0;
-
-			try {
-			  $allstmh = $pdo->query($sql);
-
-			  while ($row = $allstmh->fetch(PDO::FETCH_ASSOC)) {		
-				$inseung = $row["inseung"];			  		
-				$bon_su = $row["bon_su"];			  
-				$lc_su = $row["lc_su"];
-				
-				$inseung_num = intval($inseung);
-				$lc_su_num = intval($lc_su);
-				$bon_su_num = intval($bon_su);
-				
-				if ($inseung_num <= 12 && $lc_su_num >= 1) {
-				  $lc_total_12_sub += $lc_su_num ;
-				}
-				if ($inseung_num >= 13 && $inseung_num <= 17 && $lc_su_num >= 1) {
-				  $lc_total_13to17_sub += $lc_su_num;
-				}
-				if ($inseung_num >= 18 && $lc_su_num >= 1) {
-				  $lc_total_18_sub += $lc_su_num;
-				}
-				
-				if ($inseung_num <= 12 && $bon_su_num >= 1) {
-				  $bon_total_12_sub += $bon_su_num;
-				}
-				if ($inseung_num >= 13 && $inseung_num <= 17 && $bon_su_num >= 1) {
-				  $bon_total_13to17_sub +=  $bon_su_num;
-				}
-				if ($inseung_num >= 18 && $bon_su_num >= 1) {
-				  $bon_total_18_sub +=  $bon_su_num;
-				}
-
-				$sum_12_sub = $lc_total_12_sub + $bon_total_12_sub; 
-				$sum_13to17_sub = $lc_total_13to17_sub + $bon_total_13to17_sub; 
-				$sum_18_sub = $lc_total_18_sub + $bon_total_18_sub; 
-
-				// 합계표 만들기				
-				// bon_total_12_sub 12인승 이하
-				$bon_total_12_amount = str_replace(',', '', $bon_total_12_sub) * intval(str_replace(',', '', $readIni["bon_unit_12"]));
-				$lc_total_12_amount = str_replace(',', '', $lc_total_12_sub) * intval(str_replace(',', '', $readIni["lc_unit_12"]));
-				$bon_total_12_total_sub = $bon_total_12_amount + $lc_total_12_amount ;
-				$bon_total_12_num = $bon_total_12_sub + $lc_total_12_sub;
-
-				$bon_total_13to17_amount = str_replace(',', '', $bon_total_13to17_sub) * intval(str_replace(',', '', $readIni["bon_unit_13to17"]));
-				$lc_total_13to17_amount = str_replace(',', '', $lc_total_13to17_sub) * intval(str_replace(',', '', $readIni["lc_unit_13to17"]));
-				$bon_total_13to17_total_sub = $bon_total_13to17_amount + $lc_total_13to17_amount ;
-				$bon_total_13to17_num = $bon_total_13to17_sub + $lc_total_13to17_sub;
-				
-				$bon_total_18_amount = str_replace(',', '', $bon_total_18_sub) * intval(str_replace(',', '', $readIni["bon_unit_12"]));
-				$lc_total_18_amount = str_replace(',', '', $lc_total_18_sub) * intval(str_replace(',', '', $readIni["lc_unit_12"]));
-				$bon_total_18_total_sub = $bon_total_18_amount + $lc_total_18_amount ;
-				$bon_total_18_num = $bon_total_18_sub + $lc_total_18_sub;
-
-				$sub_total = $bon_total_12_total_sub + $bon_total_13to17_total_sub + $bon_total_18_total_sub ;   
-				
-				$counter++;	   
-				$total_row++;
-
-				 } 	 
-			   } catch (PDOException $Exception) {
-				print "오류: ".$Exception->getMessage();
-			} 				
-				
-            $month_sum[$month_count] = $sub_total ;
-            $month_count++;       
+// 년도비교 데이터 생성
+if ($item_sel === '년도비교') {
+    $year_count = 0;
+    $date_count = 0;
+    $year_sum = array();
+    $year = substr($fromdate, 0, 4) - 1;
+    
+    while ($year_count < 2) {
+        $month_count = 0;
+        
+        while ($month_count < 12) {
+            $month = $month_count + 1;
+            
+            // 각 월의 일수 설정
+            switch ($month_count) {
+                case 0:  $day = 31; break;
+                case 1:  $day = 28; break;
+                case 2:  $day = 31; break;
+                case 3:  $day = 30; break;
+                case 4:  $day = 31; break;
+                case 5:  $day = 30; break;
+                case 6:  $day = 31; break;
+                case 7:  $day = 31; break;
+                case 8:  $day = 30; break;
+                case 9:  $day = 31; break;
+                case 10: $day = 30; break;
+                case 11: $day = 31; break;
+            }
+            
+            $month_fromdate = sprintf("%04d-%02d-%02d", $year, $month, 1);
+            $month_todate = sprintf("%04d-%02d-%02d", $year, $month, $day);
+            
+            $sql = "select * from mirae8440.ceiling where workday between date('$month_fromdate') and date('$month_todate')"; 			
+			            
+            // 월별 집계 변수 초기화
+            $lc_total_12_sub = 0;
+            $bon_total_12_sub = 0;
+            $lc_total_13to17_sub = 0;
+            $bon_total_13to17_sub = 0;
+            $lc_total_18_sub = 0;
+            $bon_total_18_sub = 0;
+            $sub_total = 0;
+            
+            try {
+                $allstmh = $pdo->query($sql);
+                
+                while ($row = $allstmh->fetch(PDO::FETCH_ASSOC)) {
+                    $inseung = $row["inseung"];
+                    $bon_su = $row["bon_su"];
+                    $lc_su = $row["lc_su"];
+                    
+                    $inseung_num = intval($inseung);
+                    $lc_su_num = intval($lc_su);
+                    $bon_su_num = intval($bon_su);
+                    
+                    // L/C 집계
+                    if ($inseung_num <= 12 && $lc_su_num >= 1) {
+                        $lc_total_12_sub += $lc_su_num;
+                    }
+                    if ($inseung_num >= 13 && $inseung_num <= 17 && $lc_su_num >= 1) {
+                        $lc_total_13to17_sub += $lc_su_num;
+                    }
+                    if ($inseung_num >= 18 && $lc_su_num >= 1) {
+                        $lc_total_18_sub += $lc_su_num;
+                    }
+                    
+                    // 본천장 집계
+                    if ($inseung_num <= 12 && $bon_su_num >= 1) {
+                        $bon_total_12_sub += $bon_su_num;
+                    }
+                    if ($inseung_num >= 13 && $inseung_num <= 17 && $bon_su_num >= 1) {
+                        $bon_total_13to17_sub += $bon_su_num;
+                    }
+                    if ($inseung_num >= 18 && $bon_su_num >= 1) {
+                        $bon_total_18_sub += $bon_su_num;
+                    }
+                    
+                    // 수량 합계
+                    $sum_12_sub = $lc_total_12_sub + $bon_total_12_sub;
+                    $sum_13to17_sub = $lc_total_13to17_sub + $bon_total_13to17_sub;
+                    $sum_18_sub = $lc_total_18_sub + $bon_total_18_sub;
+                    
+                    // 금액 계산
+                    $bon_total_12_amount = str_replace(',', '', $bon_total_12_sub) * intval(str_replace(',', '', $readIni["bon_unit_12"]));
+                    $lc_total_12_amount = str_replace(',', '', $lc_total_12_sub) * intval(str_replace(',', '', $readIni["lc_unit_12"]));
+                    $bon_total_12_total_sub = $bon_total_12_amount + $lc_total_12_amount;
+                    $bon_total_12_num = $bon_total_12_sub + $lc_total_12_sub;
+                    
+                    $bon_total_13to17_amount = str_replace(',', '', $bon_total_13to17_sub) * intval(str_replace(',', '', $readIni["bon_unit_13to17"]));
+                    $lc_total_13to17_amount = str_replace(',', '', $lc_total_13to17_sub) * intval(str_replace(',', '', $readIni["lc_unit_13to17"]));
+                    $bon_total_13to17_total_sub = $bon_total_13to17_amount + $lc_total_13to17_amount;
+                    $bon_total_13to17_num = $bon_total_13to17_sub + $lc_total_13to17_sub;
+                    
+                    $bon_total_18_amount = str_replace(',', '', $bon_total_18_sub) * intval(str_replace(',', '', $readIni["bon_unit_12"]));
+                    $lc_total_18_amount = str_replace(',', '', $lc_total_18_sub) * intval(str_replace(',', '', $readIni["lc_unit_12"]));
+                    $bon_total_18_total_sub = $bon_total_18_amount + $lc_total_18_amount;
+                    $bon_total_18_num = $bon_total_18_sub + $lc_total_18_sub;
+                    
+                    $sub_total = $bon_total_12_total_sub + $bon_total_13to17_total_sub + $bon_total_18_total_sub;
+                }
+            } catch (PDOException $Exception) {
+                print "오류: " . $Exception->getMessage();
+            }
+            
+            $year_sum[$date_count] = $sub_total;
+            $month_count++;
+            $date_count++;
         }
-       
+        $year_count++;
+        $year++;
+    }
+}
+
+// 월별비교 데이터 생성
+if ($item_sel === '월별비교') {
+    $month_count = 0;
+    $counter = 0;
+    $total_row = 0;
+    
+    while ($month_count < 12) {
+        $year = substr($fromdate, 0, 4);
+        $month = $month_count + 1;
+        
+        // 각 월의 일수 설정
+        switch ($month_count) {
+            case 0:  $day = 31; break;
+            case 1:  $day = 28; break;
+            case 2:  $day = 31; break;
+            case 3:  $day = 30; break;
+            case 4:  $day = 31; break;
+            case 5:  $day = 30; break;
+            case 6:  $day = 31; break;
+            case 7:  $day = 31; break;
+            case 8:  $day = 30; break;
+            case 9:  $day = 31; break;
+            case 10: $day = 30; break;
+            case 11: $day = 31; break;
+        }
+        
+        $month_fromdate = sprintf("%04d-%02d-%02d", $year, $month, 1);
+        $month_todate = sprintf("%04d-%02d-%02d", $year, $month, $day);
+        
+        // SQL 쿼리 생성
+        if ($search === "") {
+            $sql = "select * from mirae8440.ceiling where workday between date('$month_fromdate') and date('$month_todate')";
+        } else {
+            $sql = "select * from mirae8440.ceiling where ((workplacename like '%$search%' ) or (firstordman like '%$search%' ) or (secondordman like '%$search%' ) or (chargedman like '%$search%' ) ";
+            $sql .= "or (delicompany like '%$search%' ) or (hpi like '%$search%' ) or (firstord like '%$search%' ) or (secondord like '%$search%' ) or (worker like '%$search%' ) or (memo like '%$search%' )) and ( workday between date('$month_fromdate') and date('$month_todate'))";
+        }
+        
+        // 월별 집계 변수 초기화
+        $sum1 = 0;
+        $sum2 = 0;
+        $sum3 = 0;        
+        $lc_total_12_sub = 0;
+        $bon_total_12_sub = 0;
+        $lc_total_13to17_sub = 0;
+        $bon_total_13to17_sub = 0;
+        $lc_total_18_sub = 0;
+        $bon_total_18_sub = 0;
+        $sub_total = 0;
+        
+        try {
+            $allstmh = $pdo->query($sql);
+            
+            while ($row = $allstmh->fetch(PDO::FETCH_ASSOC)) {
+                $inseung = $row["inseung"];
+                $bon_su = $row["bon_su"];
+                $lc_su = $row["lc_su"];
+                
+                $inseung_num = intval($inseung);
+                $lc_su_num = intval($lc_su);
+                $bon_su_num = intval($bon_su);
+                
+                // L/C 집계
+                if ($inseung_num <= 12 && $lc_su_num >= 1) {
+                    $lc_total_12_sub += $lc_su_num;
+                }
+                if ($inseung_num >= 13 && $inseung_num <= 17 && $lc_su_num >= 1) {
+                    $lc_total_13to17_sub += $lc_su_num;
+                }
+                if ($inseung_num >= 18 && $lc_su_num >= 1) {
+                    $lc_total_18_sub += $lc_su_num;
+                }
+                
+                // 본천장 집계
+                if ($inseung_num <= 12 && $bon_su_num >= 1) {
+                    $bon_total_12_sub += $bon_su_num;
+                }
+                if ($inseung_num >= 13 && $inseung_num <= 17 && $bon_su_num >= 1) {
+                    $bon_total_13to17_sub += $bon_su_num;
+                }
+                if ($inseung_num >= 18 && $bon_su_num >= 1) {
+                    $bon_total_18_sub += $bon_su_num;
+                }
+                
+                // 수량 합계
+                $sum_12_sub = $lc_total_12_sub + $bon_total_12_sub;
+                $sum_13to17_sub = $lc_total_13to17_sub + $bon_total_13to17_sub;
+                $sum_18_sub = $lc_total_18_sub + $bon_total_18_sub;
+                
+                // 금액 계산
+                $bon_total_12_amount = str_replace(',', '', $bon_total_12_sub) * intval(str_replace(',', '', $readIni["bon_unit_12"]));
+                $lc_total_12_amount = str_replace(',', '', $lc_total_12_sub) * intval(str_replace(',', '', $readIni["lc_unit_12"]));
+                $bon_total_12_total_sub = $bon_total_12_amount + $lc_total_12_amount;
+                $bon_total_12_num = $bon_total_12_sub + $lc_total_12_sub;
+                
+                $bon_total_13to17_amount = str_replace(',', '', $bon_total_13to17_sub) * intval(str_replace(',', '', $readIni["bon_unit_13to17"]));
+                $lc_total_13to17_amount = str_replace(',', '', $lc_total_13to17_sub) * intval(str_replace(',', '', $readIni["lc_unit_13to17"]));
+                $bon_total_13to17_total_sub = $bon_total_13to17_amount + $lc_total_13to17_amount;
+                $bon_total_13to17_num = $bon_total_13to17_sub + $lc_total_13to17_sub;
+                
+                $bon_total_18_amount = str_replace(',', '', $bon_total_18_sub) * intval(str_replace(',', '', $readIni["bon_unit_12"]));
+                $lc_total_18_amount = str_replace(',', '', $lc_total_18_sub) * intval(str_replace(',', '', $readIni["lc_unit_12"]));
+                $bon_total_18_total_sub = $bon_total_18_amount + $lc_total_18_amount;
+                $bon_total_18_num = $bon_total_18_sub + $lc_total_18_sub;
+                
+                $sub_total = $bon_total_12_total_sub + $bon_total_13to17_total_sub + $bon_total_18_total_sub;
+                
+                $counter++;
+                $total_row++;
+            }
+        } catch (PDOException $Exception) {
+            print "오류: " . $Exception->getMessage();
+        }
+        
+        $month_sum[$month_count] = $sub_total;
+        $month_count++;
+    }
 }
 
 
-
-// 차트는 바차트로 고정한다.
-$chartchoice[1] = 'checked';  // 바차트 선택
-$chart_sel = 'bar';  // 바차트 선택
+// 차트 설정
+$chartchoice = array('', 'checked', '');
+$chart_sel = 'bar';
 
 ?>
-		 
 
-<form id="board_form" name="board_form" method="post" action="output_statis.php?mode=search">  
-	<input type="hidden" id="chart_sel" name="chart_sel" value="bar">
-	<input type="hidden" id="display_sel" name="display_sel" value="bar">
-	<input type="hidden" id="item_sel" name="item_sel" value='<?=$item_sel?>'>
+<form id="board_form" name="board_form" method="post" action="output_statis.php?mode=search">
+    <input type="hidden" id="chart_sel" name="chart_sel" value="bar">
+    <input type="hidden" id="display_sel" name="display_sel" value="bar">
+    <input type="hidden" id="item_sel" name="item_sel" value="<?=$item_sel?>">
 
 <div class="container">  	
 <div class="card mt-1 mb-2">  
@@ -470,14 +463,21 @@ $chart_sel = 'bar';  // 바차트 선택
 
 <div class="row "> 		 
 <div class="d-flex justify-content-center align-items-center mt-2 mb-2 "> 		 
-	  
-	<?php			
-		switch ($item_sel) {
-			case   "년도비교"     :     $item_sel_choice[0]='checked'; break;			
-			case   "월별비교"     :     $item_sel_choice[1]='checked'; break;
-			case   "종류별비교"     :   $item_sel_choice[2]='checked'; break;
-		}		
-	 ?>    
+        
+        <?php
+        // 항목 선택 상태 설정
+        switch ($item_sel) {
+            case "년도비교":
+                $item_sel_choice[0] = 'checked';
+                break;
+            case "월별비교":
+                $item_sel_choice[1] = 'checked';
+                break;
+            case "종류별비교":
+                $item_sel_choice[2] = 'checked';
+                break;
+        }
+        ?>    
 			
 	<label class='custom-radio me-1'>				
 		<input type="radio" class="radio-input" <?=$item_sel_choice[0]?> name="item_sel" value="년도비교">

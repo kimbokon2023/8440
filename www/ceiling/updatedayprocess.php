@@ -1,38 +1,37 @@
 <?php
 
-	header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문
+header("Content-Type: application/json");
 
-	isset($_REQUEST["num"])  ? $num=$_REQUEST["num"] :   $num=''; 
-	isset($_REQUEST["laserdueday"]) ? $laserdueday = $_REQUEST["laserdueday"] :   $laserdueday=''; 
+// 변수 초기화
+$num = isset($_REQUEST["num"]) ? $_REQUEST["num"] : '';
+$laserdueday = isset($_REQUEST["laserdueday"]) ? $_REQUEST["laserdueday"] : '';
 
-	require_once("../lib/mydb.php");	
-	$pdo = db_connect();
+require_once("../lib/mydb.php");
+$pdo = db_connect();
 
-		try{		 
-			$pdo->beginTransaction();   
-			$sql = "update mirae8440.ceiling set ";
-			$sql .="laserdueday=? where num=? LIMIT 1" ;       
-			   
-			 $stmh = $pdo->prepare($sql); 
+try {
+    $pdo->beginTransaction();
+    
+    $sql = "update mirae8440.ceiling set laserdueday=? where num=? LIMIT 1";
+    
+    $stmh = $pdo->prepare($sql);
+    $stmh->bindValue(1, $laserdueday, PDO::PARAM_STR);
+    $stmh->bindValue(2, $num, PDO::PARAM_STR);
+    $stmh->execute();
+    
+    $pdo->commit();
+} catch (PDOException $Exception) {
+    $pdo->rollBack();
+    print "오류: " . $Exception->getMessage();
+}
 
-			 $stmh->bindValue(1, $laserdueday, PDO::PARAM_STR);    
-		   
-			 $stmh->bindValue(2, $num , PDO::PARAM_STR);	 
-			 $stmh->execute();
-			 $pdo->commit(); 
-				} catch (PDOException $Exception) {
-				   $pdo->rollBack();
-				   print "오류: ".$Exception->getMessage();
-			   } 
-	
-
-//각각의 정보를 하나의 배열 변수에 넣어준다.
+// 각각의 정보를 하나의 배열 변수에 넣어준다.
 $data = array(
-		"num" =>         $num,
-		"laserdueday" =>         $laserdueday
+    "num" => $num,
+    "laserdueday" => $laserdueday
 );
 
-//json 출력
+// json 출력
 echo(json_encode($data, JSON_UNESCAPED_UNICODE));
 
 ?>

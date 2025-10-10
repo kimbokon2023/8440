@@ -1,285 +1,280 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-if(!isset($_SESSION))      
-		session_start(); 
-if(isset($_SESSION["DB"]))
-		$DB = $_SESSION["DB"] ;	
- $level= $_SESSION["level"];
- $user_name= $_SESSION["name"];
- $user_id= $_SESSION["userid"];	
+<?php
+/**
+ * split_data.php
+ * 천장&조명 수주내역 데이터 분할&복사 페이지
+ */
 
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(1);
-         header("Location:".$_SESSION["WebSite"]."login/login_form.php"); 
-         exit;
-   }  
-   
+require_once __DIR__ . '/../common/functions.php';
+
+// 세션 시작
+if (!isset($_SESSION)) {
+    session_start();
+}
+
+// 세션 변수 초기화
+$DB = isset($_SESSION["DB"]) ? $_SESSION["DB"] : "";
+$level = isset($_SESSION["level"]) ? $_SESSION["level"] : 10;
+$user_name = isset($_SESSION["name"]) ? $_SESSION["name"] : "";
+$user_id = isset($_SESSION["userid"]) ? $_SESSION["userid"] : "";
+$WebSite = isset($_SESSION["WebSite"]) ? $_SESSION["WebSite"] : "http://8440.co.kr/";
+
+// 권한 체크 (레벨 5 이하만 접근 가능)
+if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+    sleep(1);
+    header("Location:" . $WebSite . "login/login_form.php");
+    exit;
+}
 ?>
 
- <?php include getDocumentRoot() . '/load_header.php' ?>
- 
- 
-<script src="../js/calinseung.js"></script>    
+<?php include getDocumentRoot() . '/load_header.php' ?>
 
+<script src="../js/calinseung.js"></script>
 
-<title> 천장&조명 수주내역 </title>
-
+<title>천장&조명 수주내역</title>
 </head>
 
 <body>
 
-<?  if($navibar!='1') include '../myheader.php'; ?>   
-
-
-  <style>
-    .table, td, input {
-      font-size: 14px !important;
-	  vertical-align: middle;
-	    padding: 2px; /* 셀 내부 여백을 5px로 설정 */
-	    border-spacing: 2px; /* 셀 간 간격을 5px로 설정 */
-		text-align:center;
-    }
-	  
-  .table td input.form-control, textarea.form-control  {
-    height: 25px;
-    border: 1px solid #392f31; /* 테두리 스타일 추가 */
-    border-radius: 4px; /* 테두리 라운드 처리 */
-  }	
-  
-    input[type="checkbox"] {
-    transform: scale(1.6); /* 크기를 1.5배로 확대 */
-    margin-right: 10px;   /* 확대 후의 여백 조정 */  
-	  	  
-  </style> 
-  
-
-   
 <?php
-//header("Refresh:0");  // reload refresh   
-
-  if(isset($_REQUEST["mode"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $mode=$_REQUEST["mode"];
-  else
-   $mode="";
-  
-  if(isset($_REQUEST["num"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $num=$_REQUEST["num"];
-  else
-   $num="";
-
-   if(isset($_REQUEST["page"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $page=$_REQUEST["page"];
-  else
-   $page=1;   
-
-  if(isset($_REQUEST["search"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $search=$_REQUEST["search"];
-  else
-   $search="";
-  
-  if(isset($_REQUEST["find"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $find=$_REQUEST["find"];
-  else
-   $find="";
-  if(isset($_REQUEST["process"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $process=$_REQUEST["process"];
-  else
-   $process="전체";
-
- $yearcheckbox=$_REQUEST["yearcheckbox"];   // 년도 체크박스
- $year=$_REQUEST["year"];   // 년도 체크박스
-      
-
-
-
-// 첨부 이미지에 대한 부분
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();	
- 
- // 이미지 이미 있는 것 불러오기 
-$picData=array(); 
-$tablename='ceiling';
-$item = 'ceilingrendering';
-
-$sql=" select * from mirae8440.picuploads where tablename ='$tablename' and item ='$item' and parentnum ='$num' ";	
-
- try{  
-   $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh   
-   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-			array_push($picData, $row["picname"]);			
-        }		 
-   } catch (PDOException $Exception) {
-    print "오류: ".$Exception->getMessage();
-  }  
-$picNum=count($picData);    
-  
-$URLsave = "http://8440.co.kr/ceilingloadpic.php?num=" . $num;  
-
- 
-// 첨부파일 있는 것 불러오기 
-$savefilename_arr=array(); 
-$realname_arr=array(); 
-$attach_arr=array(); 
-$tablename='ceiling';
-$item = 'ceiling';
-
-$sql=" select * from mirae8440.fileuploads where tablename ='$tablename' and item ='$item' and parentid ='$num' ";	
-
- try{  
-   $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh   
-   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-			array_push($realname_arr, $row["realname"]);			
-			array_push($savefilename_arr, $row["savename"]);			
-			array_push($attach_arr, $row["parentid"]);			
-        }		 
-   } catch (PDOException $Exception) {
-    print "오류: ".$Exception->getMessage();
-  }   
-  
-  if ($mode=="copy"){
-    try{
-      $sql = "select * from mirae8440.ceiling where num = ? ";
-      $stmh = $pdo->prepare($sql); 
-
-    $stmh->bindValue(1,$num,PDO::PARAM_STR); 
-      $stmh->execute();
-      $count = $stmh->rowCount();              
-    if($count<1){  
-      print "검색결과가 없습니다.<br>";
-     }else{
-      $row = $stmh->fetch(PDO::FETCH_ASSOC);
-      $item_file_0 = $row["file_name_0"];
-      $item_file_1 = $row["file_name_1"];
-
-      $copied_file_0 = "../uploads/". $row["file_copied_0"];
-      $copied_file_1 = "../uploads/". $row["file_copied_1"];
-	 }
-    
-	include '_rowDB.php';
-            
-			  $order_date1=$row["order_date1"];	
-			  $order_date2=$row["order_date2"];	
-			  $order_date3=$row["order_date3"];	
-			  $order_date4=$row["order_date4"];	
-			  $order_input_date1=$row["order_input_date1"];	
-			  $order_input_date2=$row["order_input_date2"];	
-			  $order_input_date3=$row["order_input_date3"];	
-			  $order_input_date4=$row["order_input_date4"];	
-  				
-		      $workday=trans_date($workday);
-		      $demand=trans_date($demand);
-		      $orderday=trans_date($orderday);
-		      $deadline=trans_date($deadline);
-		      $testday=trans_date($testday);
-		      $lc_draw=trans_date($lc_draw);
-		      $lclaser_date=trans_date($lclaser_date);
-		      $lcbending_date=trans_date($lcbending_date);
-		      $lcwelding_date=trans_date($lcwelding_date);
-		      $lcpainting_date=trans_date($lcpainting_date);
-		      $lcassembly_date=trans_date($lcassembly_date);
-		      $main_draw=trans_date($main_draw);			
-		      $eunsung_make_date=trans_date($eunsung_make_date);			
-		      $eunsung_laser_date=trans_date($eunsung_laser_date);			
-		      $mainbending_date=trans_date($mainbending_date);			
-		      $mainwelding_date=trans_date($mainwelding_date);			
-		      $mainpainting_date=trans_date($mainpainting_date);			
-		      $mainassembly_date=trans_date($mainassembly_date);	
-		      $etclaser_date=trans_date($etclaser_date);			
-		      $etcbending_date=trans_date($etcbending_date);			
-		      $etcwelding_date=trans_date($etcwelding_date);			
-		      $etcpainting_date=trans_date($etcpainting_date);			
-		      $etcassembly_date=trans_date($etcassembly_date);		
-			  
-		      $order_date1=trans_date($order_date1);					   
-		      $order_date2=trans_date($order_date2);					   
-		      $order_date3=trans_date($order_date3);					   
-		      $order_date4=trans_date($order_date4);					   
-		      $order_input_date1=trans_date($order_input_date1);					   
-		      $order_input_date2=trans_date($order_input_date2);					   
-		      $order_input_date3=trans_date($order_input_date3);					   
-		      $order_input_date4=trans_date($order_input_date4);					  
-
-     }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
-     }
-  }
-$mode="";
-
-// $mode를 이용해서 copy_data.php에서 기존 데이터를 사용한다.
-	 
-$material_arr = array('','304 Hair Line 1.2T','304 HL 1.2T','304 Mirror 1.2T','304 MR 1.2T','VB 1.2T','2B VB 1.2T','304 Mirror VB 1.2T', '304 Mirror Bronze 1.2T', '304 Mirror VB Ti-Bronze 1.2T', '304 Hair Line Black 1.2T', 'SPCC 1.2T(도장)', 'EGI 1.2T(도장)', 'HTM (신우)',  '기타' );
-  
+// 네비게이션 바 표시 여부
+$navibar = isset($_REQUEST["navibar"]) ? $_REQUEST["navibar"] : '0';
+if ($navibar != '1') {
+    include '../myheader.php';
+}
 ?>
 
-<?php 
-    if($mode=="modify"){
-  ?>
-	<form  id="board_form" name="board_form" onkeydown="return captureReturnKey(event)" method="post" action="insert.php?mode=modify&num=<?=$num?>&page=<?=$page?>&search=<?=$search?>&find=<?=$find?>&process=<?=$process?>&yearcheckbox=<?=$yearcheckbox?>&year=<?=$year?>&check=<?=$check?>&output_check=<?=$output_check?>&team_check=<?=$team_check?>&plan_output_check=<?=$plan_output_check?>&page=<?=$page?>&cursort=<?=$cursort?>&sortof=<?=$sortof?>&stable=1" enctype="multipart/form-data"> 
-  <?php  } else {
-  ?>
-	<form  id="board_form" name="board_form" onkeydown="return captureReturnKey(event)" method="post" action="insert.php?mode=copy" enctype="multipart/form-data"> 
-  <?php
-	}
-  ?>  
-  
-    <input type="hidden" id="num" name="num" value="<?=$num?>"  >  			
-	<input type="hidden" name="saleprice_val" id="saleprice_val" > 
-	<input type="hidden" name="cartsave" id="cartsave" > 
-
-<div class="container-fluid">	  
-<div class="card">	  
-
-   
-<div class='bigPictureWrapper'>
-	<div class='bigPicture'>
-	</div>	   
-</div>   
-   	
-  <!-- Modal -->
-  <div class="modal fade" id="myModal" role="dialog">
-    <div class="modal-dialog  modal-lg modal-center" >
+<style>
+    .table, td, input {
+        font-size: 14px !important;
+        vertical-align: middle;
+        padding: 2px;
+        border-spacing: 2px;
+        text-align: center;
+    }
     
-      <!-- Modal content-->
-      <div class="modal-content modal-lg">
-        <div class="modal-header">          
-          <h4 class="modal-title"> 알림 </h4>
-        </div>
-        <div class="modal-body fs-5">
-		
-		 <input type="text" id="insertword" name="insertword" size="70" class="text-primary" value=""> 		 
-		 
-		   <div id=alertmsg class="fs-1 mb-5 justify-content-center" >
-			<br>
-			도면저장 폴더위치가 복사되었습니다. <br>
-		    탐색기에 'Ctrl+v'로 붙여넣기 하세요!
-		  <br>
-			</div>		 
-		 
-		 
-		  			
-                    </div>			  
-        <div class="modal-footer">
-          <button id=closeModalBtn type="button" class="btn btn-default" >닫기</button>
-        </div>
-      </div>
-      
-    </div>
-  </div>
-	  
-	<div class="card-header text-center mt-1 rounded-pill">			
-	   <h3> 본천장/조명천장 내역 (데이터분할&복사) </h3>
-	</div>
-		      
-    <input type="hidden" id="first_writer" name="first_writer" value="<?=$first_writer?>"  >
-    <input type="hidden" id="update_log" name="update_log" value="<?=$update_log?>"  >
-	<div class="d-flex justify-content-center mt-2 mb-1"> 
+    .table td input.form-control, textarea.form-control {
+        height: 25px;
+        border: 1px solid #392f31;
+        border-radius: 4px;
+    }
+    
+    input[type="checkbox"] {
+        transform: scale(1.6);
+        margin-right: 10px;
+    }
+</style>
 
-    <!-- 이 부분 조회 화면과 다름 -->   
-    <button type="button" class="btn btn-dark btn-sm" onclick='javascript:form.submit();' > 완료  </button> &nbsp;&nbsp;&nbsp;	   
-		<a href="list.php?&page=<?=$page?>&search=<?=$search?>&find=<?=$find?>&process=<?=$process?>&yearcheckbox=<?=$yearcheckbox?>&year=<?=$year?>&check=<?=$check?>&output_check=<?=$output_check?>&team_check=<?=$team_check?>&plan_output_check=<?=$plan_output_check?>&cursort=<?=$cursort?>&sortof=<?=$sortof?>"> 
-		<button type="button" class="btn btn-secondary btn-sm" > 목록 </button> </a>	   
-	   
-	</div>
+<?php
+
+// REQUEST 변수 초기화
+$mode = isset($_REQUEST["mode"]) ? $_REQUEST["mode"] : "";
+$num = isset($_REQUEST["num"]) ? $_REQUEST["num"] : "";
+$page = isset($_REQUEST["page"]) ? $_REQUEST["page"] : 1;
+$search = isset($_REQUEST["search"]) ? $_REQUEST["search"] : "";
+$find = isset($_REQUEST["find"]) ? $_REQUEST["find"] : "";
+$process = isset($_REQUEST["process"]) ? $_REQUEST["process"] : "전체";
+$yearcheckbox = isset($_REQUEST["yearcheckbox"]) ? $_REQUEST["yearcheckbox"] : '';
+$year = isset($_REQUEST["year"]) ? $_REQUEST["year"] : '';
+$check = isset($_REQUEST["check"]) ? $_REQUEST["check"] : '0';
+$output_check = isset($_REQUEST["output_check"]) ? $_REQUEST["output_check"] : '0';
+$team_check = isset($_REQUEST["team_check"]) ? $_REQUEST["team_check"] : '0';
+$measure_check = isset($_REQUEST["measure_check"]) ? $_REQUEST["measure_check"] : '0';
+$plan_output_check = isset($_REQUEST["plan_output_check"]) ? $_REQUEST["plan_output_check"] : '0';
+$scale = isset($_REQUEST["scale"]) ? $_REQUEST["scale"] : 10;
+$cursort = isset($_REQUEST["cursort"]) ? $_REQUEST["cursort"] : 0;
+$sortof = isset($_REQUEST["sortof"]) ? $_REQUEST["sortof"] : 0;
+
+
+// 데이터베이스 연결
+require_once(includePath('lib/mydb.php'));
+$pdo = db_connect();
+
+// 렌더링 이미지 불러오기
+$picData = array();
+$tablename = 'ceiling';
+$item = 'ceilingrendering';
+$sql = "SELECT * FROM mirae8440.picuploads WHERE tablename = '$tablename' AND item = '$item' AND parentnum = '$num'";
+
+try {
+    $stmh = $pdo->query($sql);
+    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+        array_push($picData, $row["picname"]);
+    }
+} catch (PDOException $Exception) {
+    print "오류: " . $Exception->getMessage();
+}
+$picNum = count($picData);
+
+// URL 저장
+$URLsave = "http://8440.co.kr/ceilingloadpic.php?num=" . $num;
+
+// 첨부파일 불러오기
+$savefilename_arr = array();
+$realname_arr = array();
+$attach_arr = array();
+$tablename = 'ceiling';
+$item = 'ceiling';
+$sql = "SELECT * FROM mirae8440.fileuploads WHERE tablename = '$tablename' AND item = '$item' AND parentid = '$num'";
+
+try {
+    $stmh = $pdo->query($sql);
+    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+        array_push($realname_arr, $row["realname"]);
+        array_push($savefilename_arr, $row["savename"]);
+        array_push($attach_arr, $row["parentid"]);
+    }
+} catch (PDOException $Exception) {
+    print "오류: " . $Exception->getMessage();
+}
+
+// 모든 폼 변수 초기화 (빈 값으로)
+$workplacename = $address = $firstord = $firstordman = $firstordmantel = "";
+$secondord = $secondordman = $secondordmantel = $chargedman = $chargedmantel = "";
+$orderday = $measureday = $drawday = $deadline = $workday = $endworkday = "";
+$demand = $startday = $testday = $worker = $designer = $dwglocation = "";
+$material1 = $material2 = $material3 = $material4 = $material5 = $material6 = "";
+$type = $inseung = $su = $bon_su = $lc_su = $etc_su = $air_su = $car_insize = "";
+$price = $boxwrap = $memo = $memo2 = "";
+$order_com1 = $order_text1 = $order_date1 = $order_input_date1 = "";
+$order_com2 = $order_text2 = $order_date2 = $order_input_date2 = "";
+$order_com3 = $order_text3 = $order_date3 = $order_input_date3 = "";
+$order_com4 = $order_text4 = $order_date4 = $order_input_date4 = "";
+$lc_draw = $lclaser_com = $lclaser_date = $lcbending_date = $lcwelding_date = "";
+$lcpainting_date = $lcassembly_date = "";
+$main_draw = $eunsung_make_date = $eunsung_laser_date = $mainbending_date = "";
+$mainwelding_date = $mainpainting_date = $mainassembly_date = "";
+$etclaser_date = $etcbending_date = $etcwelding_date = $etcpainting_date = $etcassembly_date = "";
+$first_writer = $update_log = "";
+$item_file_0 = $item_file_1 = $copied_file_0 = $copied_file_1 = "";
+
+// Part 변수 초기화 (part1~part20)
+for ($i = 1; $i <= 20; $i++) {
+    ${"part" . $i} = "";
+}
+
+// 포장 이미지 변수 초기화
+$WrappicNum = 0;
+$WrappicData = array();
+
+// copy 모드인 경우 기존 데이터 로드
+if ($mode == "copy") {
+    try {
+        $sql = "SELECT * FROM mirae8440.ceiling WHERE num = ?";
+        $stmh = $pdo->prepare($sql);
+        $stmh->bindValue(1, $num, PDO::PARAM_STR);
+        $stmh->execute();
+        $count = $stmh->rowCount();
+        
+        if ($count < 1) {
+            print "검색결과가 없습니다.<br>";
+        } else {
+            $row = $stmh->fetch(PDO::FETCH_ASSOC);
+            
+            // 파일 정보
+            $item_file_0 = isset($row["file_name_0"]) ? $row["file_name_0"] : "";
+            $item_file_1 = isset($row["file_name_1"]) ? $row["file_name_1"] : "";
+            $copied_file_0 = isset($row["file_copied_0"]) ? "../uploads/" . $row["file_copied_0"] : "";
+            $copied_file_1 = isset($row["file_copied_1"]) ? "../uploads/" . $row["file_copied_1"] : "";
+            
+            // _rowDB.php에서 모든 필드 추출 (날짜 변환 포함)
+            include '_rowDB.php';
+        }
+    } catch (PDOException $Exception) {
+        print "오류: " . $Exception->getMessage();
+    }
+}
+
+// 모드 초기화
+$mode = "";
+
+// 재질 목록 배열
+$material_arr = array(
+    '',
+    '304 Hair Line 1.2T',
+    '304 HL 1.2T',
+    '304 Mirror 1.2T',
+    '304 MR 1.2T',
+    'VB 1.2T',
+    '2B VB 1.2T',
+    '304 Mirror VB 1.2T',
+    '304 Mirror Bronze 1.2T',
+    '304 Mirror VB Ti-Bronze 1.2T',
+    '304 Hair Line Black 1.2T',
+    'SPCC 1.2T(도장)',
+    'EGI 1.2T(도장)',
+    'HTM (신우)',
+    '기타'
+);
+
+?>
+
+<?php
+// 폼 액션 설정 (modify 또는 copy 모드)
+if ($mode == "modify") {
+    $form_action = "insert.php?mode=modify&num=$num&page=$page&search=$search&find=$find&process=$process&yearcheckbox=$yearcheckbox&year=$year&check=$check&output_check=$output_check&team_check=$team_check&plan_output_check=$plan_output_check&cursort=$cursort&sortof=$sortof&stable=1";
+} else {
+    $form_action = "insert.php?mode=copy";
+}
+?>
+
+<form id="board_form" name="board_form" onkeydown="return captureReturnKey(event)" method="post" action="<?=$form_action?>" enctype="multipart/form-data">  
+    
+    <input type="hidden" id="num" name="num" value="<?=$num?>">
+    <input type="hidden" name="saleprice_val" id="saleprice_val">
+    <input type="hidden" name="cartsave" id="cartsave">
+    <input type="hidden" id="first_writer" name="first_writer" value="<?=$first_writer?>">
+    <input type="hidden" id="update_log" name="update_log" value="<?=$update_log?>">
+    <input type="hidden" id="tablename" name="tablename" value="ceiling">
+    <input type="hidden" id="item" name="item" value="">
+    <input type="hidden" id="id" name="id" value="<?=$num?>">
+    <input type="hidden" id="parentid" name="parentid" value="<?=$num?>">
+    <input type="hidden" id="fileorimage" name="fileorimage" value="">
+    <input type="hidden" id="upfilename" name="upfilename" value="">
+    <input type="hidden" id="savetitle" name="savetitle" value="">
+    <input type="hidden" id="pInput" name="pInput" value="">
+
+<div class="container-fluid">
+    <div class="card">
+        <!-- 큰 이미지 표시 영역 -->
+        <div class='bigPictureWrapper'>
+            <div class='bigPicture'></div>
+        </div>
+        
+        <!-- 알림 모달 -->
+        <div class="modal fade" id="myModal" role="dialog">
+            <div class="modal-dialog modal-lg modal-center">
+                <div class="modal-content modal-lg">
+                    <div class="modal-header">
+                        <h4 class="modal-title">알림</h4>
+                    </div>
+                    <div class="modal-body fs-5">
+                        <input type="text" id="insertword" name="insertword" size="70" class="text-primary" value="">
+                        <div id="alertmsg" class="fs-1 mb-5 justify-content-center">
+                            <br>
+                            도면저장 폴더위치가 복사되었습니다.<br>
+                            탐색기에 'Ctrl+v'로 붙여넣기 하세요!
+                            <br>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="closeModalBtn" type="button" class="btn btn-default">닫기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 카드 헤더 -->
+        <div class="card-header text-center mt-1 rounded-pill">
+            <h3>본천장/조명천장 내역 (데이터분할&복사)</h3>
+        </div>
+		      
+        <!-- 버튼 그룹 -->
+        <div class="d-flex justify-content-center mt-2 mb-1">
+            <button type="button" class="btn btn-dark btn-sm" onclick='javascript:form.submit();'>완료</button> &nbsp;&nbsp;&nbsp;
+            <a href="list.php?&page=<?=$page?>&search=<?=$search?>&find=<?=$find?>&process=<?=$process?>&yearcheckbox=<?=$yearcheckbox?>&year=<?=$year?>&check=<?=$check?>&output_check=<?=$output_check?>&team_check=<?=$team_check?>&plan_output_check=<?=$plan_output_check?>&cursort=<?=$cursort?>&sortof=<?=$sortof?>">
+                <button type="button" class="btn btn-secondary btn-sm">목록</button>
+            </a>
+        </div>
 <div class="d-flex justify-content-center mb-1 mt-1"> 	
 	<div class="col-sm-5 p-1  rounded"   style=" border: 1px solid #392f31; " > 	
 		<table class="table table-reponsive">
@@ -804,7 +799,7 @@ $material_arr = array('','304 Hair Line 1.2T','304 HL 1.2T','304 Mirror 1.2T','3
 
 
 <script>
-
+// 목록 페이지로 이동
 function goToListPage() {
     // PHP 변수 값을 JavaScript 변수로 가져오기
     var page = '<?=$page?>';
@@ -820,7 +815,7 @@ function goToListPage() {
     var scale = '<?=$scale?>';
     var cursort = '<?=$cursort?>';
     var sortof = '<?=$sortof?>';
-
+    
     // 목록 페이지 URL 생성
     var url = 'list.php?' +
               '&page=' + page +
@@ -835,387 +830,353 @@ function goToListPage() {
               '&team_check=' + team_check +
               '&measure_check=' + measure_check +
               '&plan_output_check=' + plan_output_check +
-              '&page=' + page +
               '&scale=' + scale +
               '&cursort=' + cursort +
               '&sortof=' + sortof +
               '&stable=1';
-
+    
     // 페이지 이동
     window.location.href = url;
 }
 
+// 본천장 설계일 변경 시 설계자 자동 입력
 document.getElementById('main_draw').addEventListener('change', function() {
-	user_name = '<?php echo $user_name;?>';
+    var user_name = '<?php echo $user_name;?>';
     document.getElementById('designer').value = user_name;
 });
 
+// LC 설계일 변경 시 설계자 자동 입력
 document.getElementById('lc_draw').addEventListener('change', function() {
-	user_name = '<?php echo $user_name;?>';
+    var user_name = '<?php echo $user_name;?>';
     document.getElementById('designer').value = user_name;
 });
 
-$(document).ready(function(){
-	
-	// data 초기화
-	Swal.fire({
-	  title: '데이터 분할&복사',
-	  text: "기존 데이터를 여러개로 나눌때 사용합니다. \n\r 기존의 모든 데이터를 그대로 복사하는 개념입니다. ",
-	  icon: 'warning',
-	  showCancelButton: true,
-	  confirmButtonColor: '#3085d6',
-	  cancelButtonColor: '#d33',
-	  confirmButtonText: '네 합시다!'
-	}).then((result) => {
-	  if (result.isConfirmed) {
-		  // 실제 코드입력
-
-		Swal.fire(
-		  '처리되었습니다.',
-		  '데이터가 성공적으로 복사되었습니다.',
-		  'success'
-		)
-	  }
-	  
-	});
-	
-// 전체화면에 꽉찬 이미지 보여주는 루틴
-		$(document).on("click","img",function(){
-			var path = $(this).attr('src')
-			showImage(path);
-		});//end click event
-		
-		function showImage(fileCallPath){
-		    
-		    $(".bigPictureWrapper").css("display","flex").show();
-		    
-		    $(".bigPicture")
-		    .html("<img src='"+fileCallPath+"' >")
-		    .animate({width:'100%', height: '100%'}, 1000);
-		    
-		  }//end fileCallPath
-		  
-		$(".bigPictureWrapper").on("click", function(e){
-		    $(".bigPicture").animate({width:'0%', height: '0%'}, 1000);
-		    setTimeout(function(){
-		      $('.bigPictureWrapper').hide();
-		    }, 1000);
-		  });//end bigWrapperClick event	
-		  
-
-	// 매초 검사해서 이미지가 있으면 보여주기
-	$("#pInput").val('50'); // 최초화면 사진파일 보여주기
-		
-	let timer3 = setInterval(() => {  // 2초 간격으로 사진업데이트 체크한다.
-			  if($("#pInput").val()=='100')   // 사진이 등록된 경우
-			  {
-					 displayfile(); 
-					 displayPicture();  
-					 // console.log(100);
-			  }	      
-			  if($("#pInput").val()=='50')   // 사진이 등록된 경우
-			  {
-					 displayfileLoad();				 				  
-					 displayPictureLoad();				 
-			  }	     
-			   
-		 }, 2000);	
-		 
-  
-delFileFn = function(divID, delChoice) {
-	console.log(divID, delChoice);
-	if(confirm("한번 삭제한 자료는 복구할 방법이 없습니다.\n\n정말 삭제하시겠습니까?")) {
-	$.ajax({
-		url:'../file/del_file.php?savename=' + delChoice ,
-		type:'post',
-		data: $("#board_form").serialize(),
-		dataType: 'json',
-		}).done(function(data){						
-		   const savename = data["savename"];		   
-		   
-		  // 시공전사진 삭제 
-			$("#file" + divID).remove();  // 그림요소 삭제
-			$("#delFile" + divID).remove();  // 그림요소 삭제
-		    $("#pInput").val('');					
-			
-        });	
-	}		
-
-}		 
-		 
-  
-	delPicFn = function(divID, delChoice) {
-		console.log(divID, delChoice);
-	if(confirm("한번 삭제한 자료는 복구할 방법이 없습니다.\n\n정말 삭제하시겠습니까?")) {
-		$.ajax({
-			url:'../p/delpic.php?picname=' + delChoice ,
-			type:'post',
-			data: $("#board_form").serialize(),
-			dataType: 'json',
-			}).done(function(data){						
-			   const picname = data["picname"];		   
-			   
-			  // 시공전사진 삭제 
-				$("#pic" + divID).remove();  // 그림요소 삭제
-				$("#delPic" + divID).remove();  // 그림요소 삭제
-				$("#pInput").val('');						
-				
-			});		
-		}
-	}
-	  		 
-			 
-	// 천장 렌더링 이미지 불러오기
-	function displayPicture() {       
-		$('#displayrender').show();
-		params = $("#num").val();	
-		$("#tablename").val('ceiling');
-		$("#item").val('ceilingrendering');	
-		
-		var tablename = $("#tablename").val();    
-		var item = $("#item").val();	
-		
-		$.ajax({
-			url:'../p/load_pic.php?num=' + params + '&tablename=' + tablename + '&item=' + item ,
-			type:'post',
-			data: $("#board_form").serialize(),
-			dataType: 'json',
-			}).done(function(data){						
-			   const recnum = data["recnum"];		   
-			   console.log(data);
-			   $("#displayrender").html('');
-			   for(i=0;i<recnum;i++) {			   
-				   $("#displayrender").append("<img id=pic" + i + " src ='../uploads/" + data["img_arr"][i] + "' style='width:100%; '  > <br> " );			   
-				   $("#displayrender").append("&nbsp;<button type='button' class='mt-2 btn btn-secondary' id='delPic" + i + "' onclick=delPicFn('" + i + "','" +  data["img_arr"][i] + "')> 삭제 </button>&nbsp; <br>");					   
-				  }		   
-					$("#pInput").val('');			
-		});	
-	}
-		 
-		 
-WrapdisplayPictureLoad();
-
-function WrapdisplayPictureLoad() {
-  $('#displayPicture').show();
-  var picNum = "<?php echo $WrappicNum; ?>";
-  var picData = <?php echo json_encode($WrappicData); ?>;
-  
-  for (var i = 0; i < picNum; i++) {
-    var image = $("<img>", {
-      id: "pic" + i,
-      class: "mt-4 img-fluid rounded border",
-      src: "../imgceiling/" + picData[i]
+$(document).ready(function() {
+    // 데이터 분할&복사 확인 알림
+    Swal.fire({
+        title: '데이터 분할&복사',
+        text: "기존 데이터를 여러개로 나눌때 사용합니다.\n기존의 모든 데이터를 그대로 복사하는 개념입니다.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: '네 합시다!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire(
+                '처리되었습니다.',
+                '데이터가 성공적으로 복사되었습니다.',
+                'success'
+            );
+        }
     });
-    var colDiv = $("<div>", { class: "col-md-4" });
-    colDiv.append(image);
     
-    $("#displayPicture").append(colDiv);
-  }
-  
-  $("#displayPicture").append("<br><br><br>");
-}
-
-
-
-// 기존 ,fpsej있는 이미지 화면에 보여주기
-function displayPictureLoad() {    
-	$('#displayrender').show();
-	var picNum = "<? echo $picNum; ?>"; 					
-	var picData = <?php echo json_encode($picData);?> ;	
-	console.log(picNum);
-	console.log(picData);
-	for(i=0;i<picNum;i++) {
-	   $("#displayrender").append("<img id=pic" + i + " src ='../uploads/" + picData[i] + "' style='width:100%;' > <br>" );			
-	   // $("#displayPicture").zoom();
-	   $("#displayrender").append("&nbsp;<button type='button' class='mt-2 btn btn-secondary' id='delPic" + i + "' onclick=delPicFn('" + i + "','" + picData[i] + "')> 삭제 </button>&nbsp;<br>");			   
-	  }		   
-		$("#pInput").val('');	
-}
-	
-
-
-	
-	// 도면폴더 클릭시 실행
-	$("#dwgclick").click(function() {
-		// Link = "file://nas2dual/%EC%9E%A0%EC%99%84%EB%A3%8C/"; 
-		
-		var Urls = '<?php echo $dwglocation; ?>';	
-					
-		Urls = "\\\\nas2dual\\천장완료\\" + Urls;	
-		
-	   $('#insertword').val(Urls)
-	   
-	 // var obj = document.getElementById('insertword'); 
-	 // obj.select();  //인풋 컨트롤의 내용 전체 선택  
-	 // document.execCommand("copy");  //복사    
-	 
-		tmp = "<br> 도면저장 폴더위치가 복사되었습니다. <br> 탐색기에 'Ctrl+v'로 붙여넣기 하세요! <br>";				
-		$('#alertmsg').html(tmp); 
-	   $('#myModal').modal('show');		   
+    // 전체 화면 이미지 보기
+    $(document).on("click", "img", function() {
+        var path = $(this).attr('src');
+        showImage(path);
+    });
+    
+    function showImage(fileCallPath) {
+        $(".bigPictureWrapper").css("display", "flex").show();
+        $(".bigPicture")
+            .html("<img src='" + fileCallPath + "'>")
+            .animate({width: '100%', height: '100%'}, 1000);
+    }
 		  
-	   clipboardCopy('insertword');		
-		   
-		setTimeout(function() { 
-	  var obj = document.getElementById('insertword'); 
-	  obj.select();  //인풋 컨트롤의 내용 전체 선택  
-	  document.execCommand("copy");  //복사        
-		}, 500);	   	   
-		
-		setTimeout(function() { 
-			 $('#myModal').modal('hide');	      
-		}, 1500);	   
-	   
-	   // clipboardCopy('insertword');		
-	
-	});
-	
-
-	// rendering 사진 멀티업로드	
-	$("#upfile").change(function(e) {	    
-			// 실측서 이미지 선택
-			$("#item").val('ceilingrendering');
-			var item = $("#item").val();
-			FileProcess(item);	
-			
-			
-	});	 	
-		
-	function FileProcess(item) {
-	//do whatever you want here
-	num = $("#num").val();
-
-	  // 사진 서버에 저장하는 구간	
-	  // 사진 서버에 저장하는 구간	
-			//tablename 설정
-		   $("#tablename").val('ceiling');  
-			// 폼데이터 전송시 사용함 Get form         
-			var form = $('#board_form')[0];  	    
-			// Create an FormData object          
-			var data = new FormData(form); 
-			
-			console.log(form);
-			console.log(data);
-
-			tmp='사진을 저장중입니다. 잠시만 기다려주세요.';					
-			$('#alertmsg').html(tmp); 			  
-			$('#myModal').modal('show'); 	
-
-			$.ajax({
-				enctype: 'multipart/form-data',  // file을 서버에 전송하려면 이렇게 해야 함 주의
-				processData: false,    
-				contentType: false,      
-				cache: false,           
-				timeout: 600000, 			
-				url: "../p/mspic_insert.php?num=" + num ,
-				type: "post",		
-				data: data,						
-				success : function(data){
-					console.log(data);
-					// opener.location.reload();
-					// window.close();	
-					setTimeout(function() {
-						$('#myModal').modal('hide');  
-						}, 1000);	
-					// 사진이 등록되었으면 100 입력됨
-					 $("#pInput").val('100');							
-
-				},
-				error : function( jqxhr , status , error ){
-					console.log( jqxhr , status , error );
-							} 			      		
-			   });	
-
-	}		   
- 
-
-
-// 첨부파일(excel) 멀티업로드	
-$("#upfileattached").change(function(e) {	    
-	    $("#id").val('<?php echo $num;?>');
-	    $("#parentid").val('<?php echo $num;?>');
-	    $("#fileorimage").val('file');
-	    $("#item").val('ceiling');
-	    $("#upfilename").val('upfileattached');
-	    $("#tablename").val('ceiling');
-	    $("#savetitle").val('비규격 엑셀파일');			
-		  
-	  // 파일 서버에 저장하는 구간	
-			// 폼데이터 전송시 사용함 Get form         
-			var form = $('#board_form')[0];  	    
-			// Create an FormData object          
-			var data = new FormData(form); 		
-
-             console.log($("#board_form").serialize());			
-             console.log(data);			
-
-			tmp='파일을 저장중입니다. 잠시만 기다려주세요.';		
-			$('#alertmsg').html(tmp); 			  
-			$('#myModal').modal('show'); 		
-
-			$.ajax({
-				enctype: 'multipart/form-data',  // file을 서버에 전송하려면 이렇게 해야 함 주의
-				processData: false,    
-				contentType: false,      
-				cache: false,           
-				timeout: 600000, 			
-				url: "../file/file_insert.php",
-				type: "post",		
-				data: data,						
-				success : function(data){
-					console.log(data);
-					// opener.location.reload();
-					// window.close();	
-					setTimeout(function() {
-						$('#myModal').modal('hide');  
-						}, 1000);	
-					// 사진이 등록되었으면 100 입력됨
-					 $("#pInput").val('100');						
-
-				},
-				error : function( jqxhr , status , error ){
-					console.log( jqxhr , status , error );
-							} 			      		
-			   });	
-
-});		   
- 
-
-// 첨부된 파일 불러오기
-function displayfile() {       
-	$('#displayfile').show();
-	params = $("#id").val();	
-	
-    var tablename = 'ceiling';    
-    var item = 'ceiling';
-	
-	$.ajax({
-		url:'../file/load_file.php?id=' + params + '&tablename=' + tablename + '&item=' + item ,
-		type:'post',
-		data: $("#board_form").serialize(),
-		dataType: 'json',
-		}).done(function(data){						
-		   const recid = data["recid"];		   
-		   console.log(data);
-		   $("#displayfile").html('');
-		   for(i=0;i<recid;i++) {	
-			   $("#displayfile").append("<div id=file" + i + ">  <a href='../uploads/" + data["file_arr"][i] + "' download='" +  data["realfile_arr"][i]+ "'>" +  data["realfile_arr"][i] + "</div> &nbsp;&nbsp;&nbsp;&nbsp;  " );			   
-         	   $("#displayfile").append("&nbsp;<button type='button' class='btn btn-outline-danger btn-sm' id='delFile" + i + "' onclick=delFileFn('" + i + "','" + data["file_arr"][i] + "')> 삭제 </button>&nbsp; <br>");					   
-		      }		   
-    });	
-}
-
-// 기존 있는 파일 화면에 보여주기
-function displayfileLoad() {    
-	$('#displayfile').show();	
-	var savefilename_arr = <?php echo json_encode($savefilename_arr);?> ;	
-	var realname_arr = <?php echo json_encode($realname_arr);?> ;	
-	
-    for(i=0;i<savefilename_arr.length;i++) {
-			   $("#displayfile").append("<div id=file" + i + ">  <a href='../uploads/" + savefilename_arr[i] + "' download='" + realname_arr[i] + "'>" +  realname_arr[i] + "</div> &nbsp;&nbsp;&nbsp;&nbsp;  " );			   
-         	   $("#displayfile").append("&nbsp;<button type='button' class='btn btn-outline-danger btn-sm' id='delFile" + i + "' onclick=delFileFn('" + i + "','" +  savefilename_arr[i] + "')> 삭제 </button>&nbsp; <br>");					   
-	  }	   
-		
-}
+    $(".bigPictureWrapper").on("click", function(e) {
+        $(".bigPicture").animate({width: '0%', height: '0%'}, 1000);
+        setTimeout(function() {
+            $('.bigPictureWrapper').hide();
+        }, 1000);
+    });    
+    
+    // 매초 검사해서 이미지가 있으면 보여주기
+    $("#pInput").val('50'); // 최초 화면 사진파일 보여주기
+    
+    // 2초 간격으로 사진 업데이트 체크
+    let timer3 = setInterval(() => {
+        if ($("#pInput").val() == '100') {
+            // 사진이 등록된 경우
+            displayfile();
+            displayPicture();
+        }
+        if ($("#pInput").val() == '50') {
+            // 기존 사진 로드
+            displayfileLoad();
+            displayPictureLoad();
+        }
+    }, 2000);    
+    
+    // 첨부파일 삭제 함수
+    delFileFn = function(divID, delChoice) {
+        console.log(divID, delChoice);
+        
+        if (confirm("한번 삭제한 자료는 복구할 방법이 없습니다.\n\n정말 삭제하시겠습니까?")) {
+            $.ajax({
+                url: '../file/del_file.php?savename=' + delChoice,
+                type: 'post',
+                data: $("#board_form").serialize(),
+                dataType: 'json'
+            }).done(function(data) {
+                const savename = data["savename"];
+                
+                // 파일 요소 삭제
+                $("#file" + divID).remove();
+                $("#delFile" + divID).remove();
+                $("#pInput").val('');
+            });
+        }
+    }
+    
+    // 이미지 삭제 함수
+    delPicFn = function(divID, delChoice) {
+        console.log(divID, delChoice);
+        
+        if (confirm("한번 삭제한 자료는 복구할 방법이 없습니다.\n\n정말 삭제하시겠습니까?")) {
+            $.ajax({
+                url: '../p/delpic.php?picname=' + delChoice,
+                type: 'post',
+                data: $("#board_form").serialize(),
+                dataType: 'json'
+            }).done(function(data) {
+                const picname = data["picname"];
+                
+                // 이미지 요소 삭제
+                $("#pic" + divID).remove();
+                $("#delPic" + divID).remove();
+                $("#pInput").val('');
+            });
+        }
+    }
+    
+			 
+    // 천장 렌더링 이미지 불러오기
+    function displayPicture() {
+        $('#displayrender').show();
+        var params = $("#num").val();
+        $("#tablename").val('ceiling');
+        $("#item").val('ceilingrendering');
+        
+        var tablename = $("#tablename").val();
+        var item = $("#item").val();
+        
+        $.ajax({
+            url: '../p/load_pic.php?num=' + params + '&tablename=' + tablename + '&item=' + item,
+            type: 'post',
+            data: $("#board_form").serialize(),
+            dataType: 'json'
+        }).done(function(data) {
+            const recnum = data["recnum"];
+            console.log(data);
+            $("#displayrender").html('');
+            
+            for (var i = 0; i < recnum; i++) {
+                $("#displayrender").append("<img id='pic" + i + "' src='../uploads/" + data["img_arr"][i] + "' style='width:100%;'><br>");
+                $("#displayrender").append("&nbsp;<button type='button' class='mt-2 btn btn-secondary' id='delPic" + i + "' onclick='delPicFn(\"" + i + "\",\"" + data["img_arr"][i] + "\")'> 삭제 </button>&nbsp;<br>");
+            }
+            $("#pInput").val('');
+        });
+    }
+    
+    
+    // 포장 완료 사진 표시
+    WrapdisplayPictureLoad();
+    
+    function WrapdisplayPictureLoad() {
+        $('#displayPicture').show();
+        var picNum = "<?php echo $WrappicNum; ?>";
+        var picData = <?php echo json_encode($WrappicData); ?>;
+        
+        for (var i = 0; i < picNum; i++) {
+            var image = $("<img>", {
+                id: "pic" + i,
+                class: "mt-4 img-fluid rounded border",
+                src: "../imgceiling/" + picData[i]
+            });
+            var colDiv = $("<div>", { class: "col-md-4" });
+            colDiv.append(image);
+            
+            $("#displayPicture").append(colDiv);
+        }
+        
+        $("#displayPicture").append("<br><br><br>");
+    }
+    
+    // 기존 렌더링 이미지 화면에 보여주기
+    function displayPictureLoad() {
+        $('#displayrender').show();
+        var picNum = "<?php echo $picNum; ?>";
+        var picData = <?php echo json_encode($picData);?>;
+        
+        console.log(picNum);
+        console.log(picData);
+        
+        for (var i = 0; i < picNum; i++) {
+            $("#displayrender").append("<img id='pic" + i + "' src='../uploads/" + picData[i] + "' style='width:100%;'><br>");
+            $("#displayrender").append("&nbsp;<button type='button' class='mt-2 btn btn-secondary' id='delPic" + i + "' onclick='delPicFn(\"" + i + "\",\"" + picData[i] + "\")'> 삭제 </button>&nbsp;<br>");
+        }
+        $("#pInput").val('');
+    }
+    
+    
+    // 도면 폴더 클릭 시 실행
+    $("#dwgclick").click(function() {
+        var Urls = '<?php echo $dwglocation; ?>';
+        Urls = "\\\\nas2dual\\천장완료\\" + Urls;
+        
+        $('#insertword').val(Urls);
+        
+        var tmp = "<br>도면저장 폴더위치가 복사되었습니다.<br>탐색기에 'Ctrl+v'로 붙여넣기 하세요!<br>";
+        $('#alertmsg').html(tmp);
+        $('#myModal').modal('show');
+        
+        clipboardCopy('insertword');
+        
+        setTimeout(function() {
+            var obj = document.getElementById('insertword');
+            obj.select(); // 내용 전체 선택
+            document.execCommand("copy"); // 복사
+        }, 500);
+        
+        setTimeout(function() {
+            $('#myModal').modal('hide');
+        }, 1500);
+    });
+    
+    
+    // 렌더링 사진 멀티업로드
+    $("#upfile").change(function(e) {
+        // 실측서 이미지 선택
+        $("#item").val('ceilingrendering');
+        var item = $("#item").val();
+        FileProcess(item);
+    });
+    
+    function FileProcess(item) {
+        var num = $("#num").val();
+        
+        // 사진 서버에 저장
+        $("#tablename").val('ceiling');
+        
+        // 폼데이터 전송 준비
+        var form = $('#board_form')[0];
+        var data = new FormData(form);
+        
+        console.log(form);
+        console.log(data);
+        
+        var tmp = '사진을 저장중입니다. 잠시만 기다려주세요.';
+        $('#alertmsg').html(tmp);
+        $('#myModal').modal('show');
+        
+        $.ajax({
+            enctype: 'multipart/form-data',
+            processData: false,
+            contentType: false,
+            cache: false,
+            timeout: 600000,
+            url: "../p/mspic_insert.php?num=" + num,
+            type: "post",
+            data: data,
+            success: function(data) {
+                console.log(data);
+                
+                setTimeout(function() {
+                    $('#myModal').modal('hide');
+                }, 1000);
+                
+                // 사진이 등록되었으면 100 입력됨
+                $("#pInput").val('100');
+            },
+            error: function(jqxhr, status, error) {
+                console.log(jqxhr, status, error);
+            }
+        });
+    }		   
+     
+    
+    // 첨부파일(Excel) 멀티업로드
+    $("#upfileattached").change(function(e) {
+        $("#id").val('<?php echo $num;?>');
+        $("#parentid").val('<?php echo $num;?>');
+        $("#fileorimage").val('file');
+        $("#item").val('ceiling');
+        $("#upfilename").val('upfileattached');
+        $("#tablename").val('ceiling');
+        $("#savetitle").val('비규격 엑셀파일');
+        
+        // 파일 서버에 저장
+        var form = $('#board_form')[0];
+        var data = new FormData(form);
+        
+        console.log($("#board_form").serialize());
+        console.log(data);
+        
+        var tmp = '파일을 저장중입니다. 잠시만 기다려주세요.';
+        $('#alertmsg').html(tmp);
+        $('#myModal').modal('show');
+        
+        $.ajax({
+            enctype: 'multipart/form-data',
+            processData: false,
+            contentType: false,
+            cache: false,
+            timeout: 600000,
+            url: "../file/file_insert.php",
+            type: "post",
+            data: data,
+            success: function(data) {
+                console.log(data);
+                
+                setTimeout(function() {
+                    $('#myModal').modal('hide');
+                }, 1000);
+                
+                // 파일이 등록되었으면 100 입력됨
+                $("#pInput").val('100');
+            },
+            error: function(jqxhr, status, error) {
+                console.log(jqxhr, status, error);
+            }
+        });
+    });
+    
+    // 첨부된 파일 불러오기
+    function displayfile() {
+        $('#displayfile').show();
+        var params = $("#id").val();
+        var tablename = 'ceiling';
+        var item = 'ceiling';
+        
+        $.ajax({
+            url: '../file/load_file.php?id=' + params + '&tablename=' + tablename + '&item=' + item,
+            type: 'post',
+            data: $("#board_form").serialize(),
+            dataType: 'json'
+        }).done(function(data) {
+            const recid = data["recid"];
+            console.log(data);
+            $("#displayfile").html('');
+            
+            for (var i = 0; i < recid; i++) {
+                $("#displayfile").append("<div id='file" + i + "'><a href='../uploads/" + data["file_arr"][i] + "' download='" + data["realfile_arr"][i] + "'>" + data["realfile_arr"][i] + "</div> &nbsp;&nbsp;&nbsp;&nbsp;");
+                $("#displayfile").append("&nbsp;<button type='button' class='btn btn-outline-danger btn-sm' id='delFile" + i + "' onclick='delFileFn(\"" + i + "\",\"" + data["file_arr"][i] + "\")'> 삭제 </button>&nbsp;<br>");
+            }
+        });
+    }
+    
+    // 기존 있는 파일 화면에 보여주기
+    function displayfileLoad() {
+        $('#displayfile').show();
+        var savefilename_arr = <?php echo json_encode($savefilename_arr);?>;
+        var realname_arr = <?php echo json_encode($realname_arr);?>;
+        
+        for (var i = 0; i < savefilename_arr.length; i++) {
+            $("#displayfile").append("<div id='file" + i + "'><a href='../uploads/" + savefilename_arr[i] + "' download='" + realname_arr[i] + "'>" + realname_arr[i] + "</div> &nbsp;&nbsp;&nbsp;&nbsp;");
+            $("#displayfile").append("&nbsp;<button type='button' class='btn btn-outline-danger btn-sm' id='delFile" + i + "' onclick='delFileFn(\"" + i + "\",\"" + savefilename_arr[i] + "\")'> 삭제 </button>&nbsp;<br>");
+        }
+    }
 	 	 	  	
 
   $("#car_insize").focusout(function(){
