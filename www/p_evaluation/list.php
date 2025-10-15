@@ -28,52 +28,46 @@ $title_message = '협력업체 평가표';
  
 <?php
 
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(1);
-         header("Location:".$_SESSION["WebSite"]."login/login_form.php"); 
-         exit;
-   }    
-    
-$tablename = "p_evaluation";
- 
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();	
-	 
-  if(isset($_REQUEST["mode"]))
-     $mode=$_REQUEST["mode"];
-  else 
-     $mode="";
+ // 권한 체크
+if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+    sleep(1);
+    header("Location:" . ($_SESSION["WebSite"] ?? '') . "login/login_form.php");
+    exit;
+}
 
-       if(isset($_REQUEST["search"]))   // search 쿼리스트링 값 할당 체크
-         $search=$_REQUEST["search"];
-       else 
-         $search="";
+$tablename = "p_evaluation";
+
+require_once includePath('lib/mydb.php');
+$pdo = db_connect();
+
+// 요청 변수 초기화 (?? '' 형태)
+$mode = $_REQUEST["mode"] ?? '';
+$search = $_REQUEST["search"] ?? '';
      
  
-   $sqlAll="select * from mirae8440.p_evaluation where txt1 like '%$search%' or txt2 like '%$search%'  or txt3 like '%$search%'  or txt4 like '%$search%'   or txt5 like '%$search%'   or txt6 like '%$search%' "; 	 
-      
-   if($mode=="search"){
-         if(!$search) {
-				$sql ="select * from mirae8440.p_evaluation order by txt6 desc   "; 				
-             }
-              $sql= $sqlAll .  "  order by txt6 desc   ";              
-       } else {
-              $sql="select * from mirae8440.p_evaluation order by txt6 desc  ";              
-       }
+$sqlAll = "select * from mirae8440.p_evaluation where txt1 like '%$search%' or txt2 like '%$search%' or txt3 like '%$search%' or txt4 like '%$search%' or txt5 like '%$search%' or txt6 like '%$search%'";
+
+if ($mode == "search") {
+    if (!$search) {
+        $sql = "select * from mirae8440.p_evaluation order by txt6 desc";
+    } else {
+        $sql = $sqlAll . " order by txt6 desc";
+    }
+} else {
+    $sql = "select * from mirae8440.p_evaluation order by txt6 desc";
+}
 
 
-// 전체 레코드수를 파악한다.
-try{  
-	$stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-	$total_row=$stmh->rowCount();    		
-	
-   } catch (PDOException $Exception) {
-    print "오류: ".$Exception->getMessage();
-}  
+// 전체 레코드수 파악
+try {
+    $stmh = $pdo->query($sql);
+    $total_row = $stmh->rowCount();
+} catch (PDOException $Exception) {
+    print "오류: " . $Exception->getMessage();
+}
 
-try{  
-$stmh = $pdo->query($sql); 
+try {
+    $stmh = $pdo->query($sql); 
 		 
 			 
 ?>
@@ -115,20 +109,20 @@ $stmh = $pdo->query($sql);
 		<tbody> 
  
  
-<?php  
-$start_num=$total_row;  
-			 
- while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-  
-  include '_row.php';
-  
-  $item_date=substr($item_date, 0, 10);
-  $item_subject=str_replace(" ", "&nbsp;", $row["subject"]);
-   
-  if((int)$txt17 >= 60)
-	  $txt30 = '합격';
-   
- ?>
+<?php
+    $start_num = $total_row;
+
+    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+        include '_row.php';
+
+        $item_date = isset($item_date) ? substr($item_date, 0, 10) : '';
+        $item_subject = str_replace(" ", "&nbsp;", $row["subject"] ?? '');
+
+        $txt30 = '';
+        if ((int)$txt17 >= 60) {
+            $txt30 = '합격';
+        }
+    ?>
  
 			<tr onclick="redirectToView('<?=$num?>', '<?=$tablename?>')">  
 				  <td class="text-center" > <?= $start_num ?> </td>
@@ -141,12 +135,12 @@ $start_num=$total_row;
 				  <td class="text-center" > <?= $txt30 ?>  </td>        
 			</tr>
 
- <?php
-	$start_num--;
+    <?php
+        $start_num--;
     }
-  } catch (PDOException $Exception) {
-  print "오류: ".$Exception->getMessage();
-  }  
+} catch (PDOException $Exception) {
+    print "오류: " . $Exception->getMessage();
+}  
   
  ?>
   </tbody>

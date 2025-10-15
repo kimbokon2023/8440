@@ -862,12 +862,36 @@ function popupCenter(url, title, w, h) {
 // ⑤ 마우스 hover 이벤트 (jQuery) 연차리스트에 마우스를 올리면 나타나는 효과
 $(document)
   .on('mouseenter', '.leave-container', function() {
-    $(this).find('.leave-more-list')
-           .stop(true,true)
-           .slideDown(100);
+    var container = $(this);
+    var moreList = container.find('.leave-more-list');
+    var tdElement = container.closest('td');
+    
+    // td 요소의 높이가 작으면 강제로 늘리기
+    if (tdElement.length > 0) {
+      var currentHeight = tdElement.height();
+      var listHeight = moreList.outerHeight() || 200; // 예상 목록 높이
+      var minRequiredHeight = currentHeight + listHeight + 20; // 여유 공간 20px
+      
+      // 현재 높이가 필요한 높이보다 작으면 늘리기
+      if (currentHeight < minRequiredHeight) {
+        tdElement.css('height', minRequiredHeight + 'px');
+        tdElement.data('original-height', currentHeight); // 원래 높이 저장
+      }
+    }
+    
+    moreList.stop(true,true).slideDown(100);
   })
   .on('mouseleave', '.leave-container', function() {
-    $(this).find('.leave-more-list')
-           .stop(true,true)
-           .slideUp(100);
+    var container = $(this);
+    var moreList = container.find('.leave-more-list');
+    var tdElement = container.closest('td');
+    
+    // 원래 높이로 복원
+    if (tdElement.length > 0 && tdElement.data('original-height')) {
+      var originalHeight = tdElement.data('original-height');
+      tdElement.css('height', originalHeight + 'px');
+      tdElement.removeData('original-height');
+    }
+    
+    moreList.stop(true,true).slideUp(100);
   });

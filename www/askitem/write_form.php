@@ -1,107 +1,159 @@
 <?php
-require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함	
-$title_message = '품의서';    
+require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
+
+// 세션 변수 초기화
+$user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["userid"] ?? '';
+$DB = $_SESSION["DB"] ?? '';
+$chkMobile = $_SESSION["chkMobile"] ?? false;
+$admin = $_SESSION["admin"] ?? false;
+
+// 기본 변수 초기화
+$title_message = '품의서';
+$titlemsg = '품의서';
+
+// _row.php에서 사용될 변수 초기화
+$outworkplace = '';
+$al_content = '';
+$request_comment = '';
+$registdate = '';
+$e_confirm = '';
+$e_confirm_id = '';
+$al_part = '';
+$status = '';
+$author_id = '';
+$store = '';
+$suppliercost = '';
+$update_log = '';
+$first_writer = '';
+
+// 요청 파라미터 초기화
+$mode = $_REQUEST["mode"] ?? '';
+$num = $_REQUEST["num"] ?? '';
+$author = $user_name ?? '';
+$indate = date("Y-m-d");
+
+$tablename = 'eworks';
+$id = $num;
+$parentid = $num;
+$item = '';
+$savetitle = '';
+$pInput = '';
+$timekey = time();
+
+// Google Drive 파일 배열 초기화
+$savefilename_arr = array();
+$saveimagename_arr = array();
+
+// 전자결재 변수 초기화
+$mytitle = '';
+$content = '';
+$content_reason = '';
 ?>
 <?php include getDocumentRoot() . '/common.php' ?>
-<?php include getDocumentRoot() . '/load_header.php'; ?>  
+<?php include getDocumentRoot() . '/load_header.php'; ?>
 <title> <?=$titlemsg?> </title>
 </head>
 <style>
-.show {display:block} /*보여주기*/
-.hide {display:none} /*숨기기*/
-  input[type="text"] {
-    text-align: left !important ;
-  }  
-  input[type="number"] {
-    text-align: left !important ;
-  }
- td, th, tr, span, input {
-    vertical-align: middle;
-  }
-</style>	
+    .show {
+        display: block;
+    }
+
+    .hide {
+        display: none;
+    }
+
+    input[type="text"] {
+        text-align: left !important;
+    }
+
+    input[type="number"] {
+        text-align: left !important;
+    }
+
+    td,
+    th,
+    tr,
+    span,
+    input {
+        vertical-align: middle;
+    }
+</style>
 
 <body>
 
-<?php include getDocumentRoot() . "/common/modal.php"; ?>
-   
-<?php   
+    <?php include getDocumentRoot() . "/common/modal.php"; ?>
 
-$tablename = 'eworks';  
-  
-$mode=  $_REQUEST["mode"] ?? '' ;
-$num=  $_REQUEST["num"] ?? '' ;
-$author=  $user_name ?? '' ;
-$indate=date("Y-m-d") ?? '' ;
- 
-  if ($mode=="modify" or $mode=="view"){
-    try{
-      $sql = "select * from {$DB}.eworks where num = ? ";
-      $stmh = $pdo->prepare($sql); 
+    <?php
+    if ($mode == "modify" or $mode == "view") {
+        try {
+            $sql = "select * from {$DB}.eworks where num = ? ";
+            $stmh = $pdo->prepare($sql);
 
-      $stmh->bindValue(1,$num,PDO::PARAM_STR); 
-      $stmh->execute();
-      $count = $stmh->rowCount();            
-	  $row = $stmh->fetch(PDO::FETCH_ASSOC);  // $row 배열로 DB 정보를 불러온다.
-    if($count<1){  
-      print "결과가 없습니다.<br>";
-     }else{		 
- 		include  getDocumentRoot() . '/eworks/_row.php';	
-		// 전자결재의 정보를 다시 변환해 준다.		
-		$mytitle = $outworkplace ?? '';
-		$content = $al_content ?? '';
-		$content_reason = $request_comment ?? '';	
+            $stmh->bindValue(1, $num, PDO::PARAM_STR);
+            $stmh->execute();
+            $count = $stmh->rowCount();
+            $row = $stmh->fetch(PDO::FETCH_ASSOC);
 
-		$titlemsg = $mode === 'modify' ? '품의서(수정)' : '품의서(조회)'; 
-		
-      }
-     }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
-     } 
-  }
-  
-      
-  if ($mode!="modify" and $mode!="view" and $mode!="copy"){    // 수정모드가 아닐때 신규 자료일때는 변수 초기화 한다.
-          
-			  $indate=date("Y-m-d");
-			  $author = $user_name;
-			  $titlemsg	= '품의서 작성';
-  } 
-  
-  if ($mode=="copy"){
-    try{
-      $sql = "select * from {$DB}.eworks where num = ? ";
-      $stmh = $pdo->prepare($sql); 
+            if ($count < 1) {
+                error_log("품의서 데이터 없음: num=" . $num);
+            } else {
+                include getDocumentRoot() . '/eworks/_row.php';
+                // 전자결재의 정보를 다시 변환해 준다.
+                $mytitle = $outworkplace ?? '';
+                $content = $al_content ?? '';
+                $content_reason = $request_comment ?? '';
 
-      $stmh->bindValue(1,$num,PDO::PARAM_STR); 
-      $stmh->execute();
-      $count = $stmh->rowCount();            
-	  $row = $stmh->fetch(PDO::FETCH_ASSOC);  // $row 배열로 DB 정보를 불러온다.
-    if($count<1){  
-      print "결과가 없습니다.<br>";
-     }else{
-		 include getDocumentRoot() .'/eworks/_row.php';		
-		// 전자결재의 정보를 다시 변환해 준다.		
-		$mytitle = $outworkplace ?? '';
-		$content = $al_content ?? '';
-		$content_reason = $request_comment ?? '';	
-		$indate=date("Y-m-d");
-      }
-     }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
-     }
-	 
-     $titlemsg	= '(데이터 복사) 품의서';	
-	 $num='';	 
-	 $id = $num;  
-	 $parentid = $num;    
-	 $author = $user_name;
-	 $update_log='';
-  }  
-  
-// 초기 프로그램은 $num사용 이후 $id로 수정중임  
-$id=$num;    
-require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
-?>
+                $titlemsg = $mode === 'modify' ? '품의서(수정)' : '품의서(조회)';
+            }
+        } catch (PDOException $ex) {
+            error_log("품의서 조회 오류: " . $ex->getMessage());
+        }
+    }
+
+    if ($mode != "modify" and $mode != "view" and $mode != "copy") {
+        // 신규 자료일때는 변수 초기화
+        $indate = date("Y-m-d");
+        $author = $user_name;
+        $titlemsg = '품의서 작성';
+    }
+
+    if ($mode == "copy") {
+        try {
+            $sql = "select * from {$DB}.eworks where num = ? ";
+            $stmh = $pdo->prepare($sql);
+
+            $stmh->bindValue(1, $num, PDO::PARAM_STR);
+            $stmh->execute();
+            $count = $stmh->rowCount();
+            $row = $stmh->fetch(PDO::FETCH_ASSOC);
+
+            if ($count < 1) {
+                error_log("복사할 품의서 데이터 없음: num=" . $num);
+            } else {
+                include getDocumentRoot() . '/eworks/_row.php';
+                // 전자결재의 정보를 다시 변환해 준다.
+                $mytitle = $outworkplace ?? '';
+                $content = $al_content ?? '';
+                $content_reason = $request_comment ?? '';
+                $indate = date("Y-m-d");
+            }
+        } catch (PDOException $ex) {
+            error_log("품의서 복사 오류: " . $ex->getMessage());
+        }
+
+        $titlemsg = '(데이터 복사) 품의서';
+        $num = '';
+        $id = $num;
+        $parentid = $num;
+        $author = $user_name;
+        $update_log = '';
+    }
+
+    // 초기 프로그램은 $num사용 이후 $id로 수정중임
+    $id = $num;
+    require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기
+    ?>
 
 <form id="board_form" name="board_form" method="post"  onkeydown="return captureReturnKey(event)"  >	
     
@@ -385,433 +437,430 @@ require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, ima
 		</div>	  
  </div>	  
 </form>	
-<script>
+    <script>
+        $(document).ready(function() {
 
-$(document).ready(function(){
-		
-	 $("#saveBtn").click(function(){ 
-		// 조건 확인
-		if($("#mytitle").val() === '' || $("#content").val() === '' || $("#content_reason").val()  === '' ) {
-			showWarningModal();
-		} else {
-		   showMsgModal(2); // 파일저장중
-			Toastify({
-				text: "변경사항 저장중...",
-				duration: 2000,
-				close:true,
-				gravity:"top",
-				position: "center",
-				style: {
-					background: "linear-gradient(to right, #00b09b, #96c93d)"
-				},
-			}).showToast();	
-			setTimeout(function(){
-					 saveData();
-			}, 1000);
-		  
-		}
-	});
-
-	function showWarningModal() {
-		Swal.fire({                                    
-			title: '등록 오류 알림',
-			text: '제목, 내용, 사유는 필수입력 요소입니다.',
-			icon: 'warning',
-			// ... 기타 설정 ...
-		}).then(result => {
-			if (result.isConfirmed) { 
-				return; // 사용자가 확인 버튼을 누르면 아무것도 하지 않고 종료
-			}         
-		});
-	}
-
-	function saveData() {		
-		var num = $("#num").val();  		
-		// 결재상신이 아닌경우 수정안됨     
-		if(Number(num) < 1) 				
-				$("#mode").val('insert');     			  						
-		//  console.log($("#mode").val());    
-		// 폼데이터 전송시 사용함 Get form         
-		var form = $('#board_form')[0];  	    	
-		var datasource = new FormData(form); 
-
-		// console.log(data);
-		if (ajaxRequest !== null) {
-			ajaxRequest.abort();
-		}		 
-		ajaxRequest = $.ajax({
-			enctype: 'multipart/form-data',    // file을 서버에 전송하려면 이렇게 해야 함 주의
-			processData: false,    
-			contentType: false,      
-			cache: false,           
-			timeout: 600000, 			
-			url: "insert.php",
-			type: "post",		 
-			data: datasource,			
-			dataType: "json", 
-			success : function(data){
-				  console.log('data :' , data);
-				  Swal.fire(
-					  '자료등록 완료',
-					  '데이터가 성공적으로 등록되었습니다.',
-					  'success'
-					);
-				setTimeout(function(){									
-					if (window.opener && !window.opener.closed) {
-						// 부모 창에 restorePageNumber 함수가 있는지 확인
-						if (typeof window.opener.restorePageNumber === 'function') {
-							window.opener.restorePageNumber(); // 함수가 있으면 실행
-						}								
-					}
-				setTimeout(function(){		
-					hideMsgModal();	
-					// location.href = "view.php?num=" + data["num"];
-					self.close();
-				}, 1000);	
-							
-				}, 1000);						
-			},
-			error : function( jqxhr , status , error ){
-				console.log( jqxhr , status , error );
-						} 			      		
-		   });					
-	}	
-});
-
-// 기존 deleteFn(...) 함수를 아래로 교체
-function deleteFn() {
-  Swal.fire({
-    title: '자료 삭제',
-    text: "삭제는 신중! 정말 삭제하시겠습니까?",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: '삭제',
-    cancelButtonText: '취소'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      // soft-delete 모드 세팅
-      $("#mode").val('delete');
-
-      $.ajax({
-        url: 'insert.php',    // ← delete.php 대신 insert.php
-        type: 'POST',
-        data: $("#board_form").serialize(),
-        dataType: 'json',
-      }).done(function(data) {
-        Toastify({
-          text: "자료 삭제 처리 완료",
-          duration: 2000,
-          close: true,
-          gravity: "top",
-          position: "center",
-          style: {
-            background: "linear-gradient(to right, #00b09b, #96c93d)"
-          },
-        }).showToast();
-
-        setTimeout(function() {
-          if (window.opener && !window.opener.closed) {
-            window.opener.restorePageNumber();
-            window.opener.location.reload();
-          }
-          setTimeout(() => window.close(), 500);
-        }, 1000);
-      }).fail(function(jqxhr, status, error) {
-        console.error("삭제 오류:", status, error);
-        Swal.fire('오류', '삭제 처리 중 문제가 발생했습니다.', 'error');
-      });
-    }
-  });
-}
-
-	 
-function captureReturnKey(e) {
-    if(e.keyCode==13 && e.srcElement.type != 'textarea')
-    return false;
-}
-</script> 
-
-<script>
-$(document).ready(function () {
-	displayFileLoad();	// 기존파일 업로드 보이기			 
-	displayImageLoad();	// 기존이미지 업로드 보이기			 
-	
-    // 첨부파일 업로드 처리
-    $("#upfile").change(function (e) {
-		if (this.files.length === 0) {
-			// 파일이 선택되지 않았을 때
-			console.warn("파일이 선택되지 않았습니다.");
-			return;
-		}		
-		
-        const form = $('#board_form')[0];
-        const data = new FormData(form);
-
-        // 추가 데이터 설정
-        data.append("tablename", $("#tablename").val() );
-        data.append("item", "attached");
-        data.append("upfilename", "upfile"); // upfile 파일 name
-        data.append("folderPath", "미래기업/uploads");
-		data.append("DBtable", "picuploads");        
-
-		showMsgModal(2); // 파일저장중
-
-        // AJAX 요청 (Google Drive API)
-        $.ajax({
-            enctype: 'multipart/form-data',
-            processData: false,
-            contentType: false,
-            cache: false,
-            timeout: 600000,
-            url: "/filedrive/fileprocess.php",
-            type: "POST",
-            data: data,
-            success: function (response) {
-                 console.log("응답 데이터:", response);
-
-                let successCount = 0;
-                let errorCount = 0;
-                let errorMessages = [];
-
-                response.forEach((item) => {
-                    if (item.status === "success") {
-                        successCount++;
-                    } else if (item.status === "error") {
-                        errorCount++;
-                        errorMessages.push(`파일: ${item.file}, 메시지: ${item.message}`);
-                    }
-                });
-
-                if (successCount > 0) {
+            $("#saveBtn").click(function() {
+                // 조건 확인
+                if ($("#mytitle").val() === '' || $("#content").val() === '' || $("#content_reason").val() === '') {
+                    showWarningModal();
+                } else {
+                    showMsgModal(2); // 파일저장중
                     Toastify({
-                        text: `${successCount}개의 파일이 성공적으로 업로드되었습니다.`,
+                        text: "변경사항 저장중...",
                         duration: 2000,
                         close: true,
                         gravity: "top",
                         position: "center",
-                        backgroundColor: "#4fbe87",
+                        style: {
+                            background: "linear-gradient(to right, #00b09b, #96c93d)"
+                        },
                     }).showToast();
+                    setTimeout(function() {
+                        saveData();
+                    }, 1000);
+
                 }
+            });
 
-                if (errorCount > 0) {
-                    Toastify({
-                        text: `오류 발생: ${errorCount}개의 파일 업로드 실패\n상세 오류: ${errorMessages.join("\n")}`,
-                        duration: 5000,
-                        close: true,
-                        gravity: "top",
-                        position: "center",
-                        backgroundColor: "#f44336",
-                    }).showToast();
-                }
-
-                setTimeout(function () {                    
-					displayFile();
-					hideMsgModal();	
-                }, 1000);
-                
-            },
-            error: function (jqxhr, status, error) {
-                console.error("업로드 실패:", jqxhr, status, error);
-            },
-        });
-    });
-	
-    // 첨부 이미지 업로드 처리
-    $("#upfileimage").change(function (e) {
-		if (this.files.length === 0) {
-			// 파일이 선택되지 않았을 때
-			console.warn("파일이 선택되지 않았습니다.");
-			return;
-		}	
-		
-        const form = $('#board_form')[0];
-        const data = new FormData(form);
-		
-        // 추가 데이터 설정
-        data.append("tablename", $("#tablename").val() );
-        data.append("item", "image");
-        data.append("upfilename", "upfileimage"); // upfile 파일 name
-        data.append("folderPath", "미래기업/uploads");
-        data.append("DBtable", "picuploads");
-
-		showMsgModal(1); // 이미지저장중
-
-        // AJAX 요청 (Google Drive API)
-        $.ajax({
-            enctype: 'multipart/form-data',
-            processData: false,
-            contentType: false,
-            cache: false,
-            timeout: 600000,
-            url: "/filedrive/fileprocess.php",
-            type: "POST",
-            data: data,
-            success: function (response) {
-                console.log("응답 데이터:", response);
-
-                let successCount = 0;
-                let errorCount = 0;
-                let errorMessages = [];
-
-                response.forEach((item) => {
-                    if (item.status === "success") {
-                        successCount++;
-                    } else if (item.status === "error") {
-                        errorCount++;
-                        errorMessages.push(`파일: ${item.file}, 메시지: ${item.message}`);
+            function showWarningModal() {
+                Swal.fire({
+                    title: '등록 오류 알림',
+                    text: '제목, 내용, 사유는 필수입력 요소입니다.',
+                    icon: 'warning'
+                }).then(function(result) {
+                    if (result.isConfirmed) {
+                        return;
                     }
                 });
+            }
 
-                if (successCount > 0) {
-                    Toastify({
-                        text: `${successCount}개의 파일이 성공적으로 업로드되었습니다.`,
-                        duration: 2000,
-                        close: true,
-                        gravity: "top",
-                        position: "center",
-                        backgroundColor: "#4fbe87",
-                    }).showToast();
+            function saveData() {
+                var num = $("#num").val();
+                // 결재상신이 아닌경우 수정안됨
+                if (Number(num) < 1)
+                    $("#mode").val('insert');
+                // 폼데이터 전송시 사용함 Get form
+                var form = $('#board_form')[0];
+                var datasource = new FormData(form);
+
+                if (ajaxRequest !== null) {
+                    ajaxRequest.abort();
                 }
+                ajaxRequest = $.ajax({
+                    enctype: 'multipart/form-data',
+                    processData: false,
+                    contentType: false,
+                    cache: false,
+                    timeout: 600000,
+                    url: "insert.php",
+                    type: "post",
+                    data: datasource,
+                    dataType: "json",
+                    success: function(data) {
+                        console.log('data :', data);
+                        Swal.fire(
+                            '자료등록 완료',
+                            '데이터가 성공적으로 등록되었습니다.',
+                            'success'
+                        );
+                        setTimeout(function() {
+                            if (window.opener && !window.opener.closed) {
+                                // 부모 창에 restorePageNumber 함수가 있는지 확인
+                                if (typeof window.opener.restorePageNumber === 'function') {
+                                    window.opener.restorePageNumber();
+                                }
+                            }
+                            setTimeout(function() {
+                                hideMsgModal();
+                                self.close();
+                            }, 1000);
 
-                if (errorCount > 0) {
-                    Toastify({
-                        text: `오류 발생: ${errorCount}개의 파일 업로드 실패\n상세 오류: ${errorMessages.join("\n")}`,
-                        duration: 5000,
-                        close: true,
-                        gravity: "top",
-                        position: "center",
-                        backgroundColor: "#f44336",
-                    }).showToast();
-                }
-
-                setTimeout(function () {
-					displayImage();
-					hideMsgModal();						
-                }, 1000);
-                
-            },
-            error: function (jqxhr, status, error) {
-                console.error("업로드 실패:", jqxhr, status, error);
-            },
+                        }, 1000);
+                    },
+                    error: function(jqxhr, status, error) {
+                        console.log(jqxhr, status, error);
+                    }
+                });
+            }
         });
-    });
 
+        // 기존 deleteFn(...) 함수를 아래로 교체
+        function deleteFn() {
+            Swal.fire({
+                title: '자료 삭제',
+                text: "삭제는 신중! 정말 삭제하시겠습니까?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '삭제',
+                cancelButtonText: '취소'
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    // soft-delete 모드 세팅
+                    $("#mode").val('delete');
 
-});
+                    $.ajax({
+                        url: 'insert.php',
+                        type: 'POST',
+                        data: $("#board_form").serialize(),
+                        dataType: 'json',
+                    }).done(function(data) {
+                        Toastify({
+                            text: "자료 삭제 처리 완료",
+                            duration: 2000,
+                            close: true,
+                            gravity: "top",
+                            position: "center",
+                            style: {
+                                background: "linear-gradient(to right, #00b09b, #96c93d)"
+                            },
+                        }).showToast();
 
-// 화면에서 저장한 첨부된 파일 불러오기
-function displayFile() {
-    $('#displayFile').show();
-    const params = $("#timekey").val() ? $("#timekey").val() : $("#num").val();
+                        setTimeout(function() {
+                            if (window.opener && !window.opener.closed) {
+                                window.opener.restorePageNumber();
+                                window.opener.location.reload();
+                            }
+                            setTimeout(function() {
+                                window.close();
+                            }, 500);
+                        }, 1000);
+                    }).fail(function(jqxhr, status, error) {
+                        console.error("삭제 오류:", status, error);
+                        Swal.fire('오류', '삭제 처리 중 문제가 발생했습니다.', 'error');
+                    });
+                }
+            });
+        }
 
-    if (!params) {
-        console.error("ID 값이 없습니다. 파일을 불러올 수 없습니다.");
-        alert("ID 값이 유효하지 않습니다. 다시 시도해주세요.");
-        return;
-    }
+        function captureReturnKey(e) {
+            if (e.keyCode == 13 && e.srcElement.type != 'textarea')
+                return false;
+        }
+    </script> 
 
-    console.log("요청 ID:", params); // 요청 전 ID 확인
+    <script>
+        $(document).ready(function() {
+            displayFileLoad(); // 기존파일 업로드 보이기
+            displayImageLoad(); // 기존이미지 업로드 보이기
 
-    $.ajax({
-        url: '/filedrive/fileprocess.php',
-        type: 'GET',
-        data: {
-            num: params,
-			tablename: $("#tablename").val(),
-            item: 'attached',
-            folderPath: '미래기업/uploads',
-        },
-        dataType: 'json',
-    }).done(function (data) {
-        console.log("파일 데이터:", data);
-
-        $("#displayFile").html(''); // 기존 내용 초기화
-
-        if (Array.isArray(data) && data.length > 0) {
-            data.forEach(function (fileData, index) {
-                const realName = fileData.realname || '다운로드 파일';
-                const link = fileData.link || '#';
-                const fileId = fileData.fileId || null;
-
-                if (!fileId) {
-                    console.error("fileId가 누락되었습니다. index: " + index, fileData);
-                    $("#displayFile").append(
-                        "<div class='text-danger'>파일 ID가 누락되었습니다.</div>"
-                    );
+            // 첨부파일 업로드 처리
+            $("#upfile").change(function(e) {
+                if (this.files.length === 0) {
+                    // 파일이 선택되지 않았을 때
+                    console.warn("파일이 선택되지 않았습니다.");
                     return;
                 }
 
-				$("#displayFile").append(
-					"<div class='row mt-1 mb-2'>" +
-						"<div class='d-flex align-items-center justify-content-center'>" +
-							"<span id='file" + index + "'>" +
-								"<a href='#' onclick=\"popupCenter('" + link + "', 'filePopup', 800, 600); return false;\">" + realName + "</a>" +
-							"</span> &nbsp;&nbsp;" +
-							"<button type='button' class='btn btn-danger btn-sm' id='delFile" + index + "' onclick=\"delFileFn('" + index + "', '" + fileId + "')\">" +
-								"<i class='bi bi-trash'></i>" +
-							"</button>" +
-						"</div>" +
-					"</div>"
-				);
+                var form = $('#board_form')[0];
+                var data = new FormData(form);
 
+                // 추가 데이터 설정
+                data.append("tablename", $("#tablename").val());
+                data.append("item", "attached");
+                data.append("upfilename", "upfile");
+                data.append("folderPath", "미래기업/uploads");
+                data.append("DBtable", "picuploads");
 
+                showMsgModal(2); // 파일저장중
+
+                // AJAX 요청 (Google Drive API)
+                $.ajax({
+                    enctype: 'multipart/form-data',
+                    processData: false,
+                    contentType: false,
+                    cache: false,
+                    timeout: 600000,
+                    url: "/filedrive/fileprocess.php",
+                    type: "POST",
+                    data: data,
+                    success: function(response) {
+                        console.log("응답 데이터:", response);
+
+                        var successCount = 0;
+                        var errorCount = 0;
+                        var errorMessages = [];
+
+                        for (var i = 0; i < response.length; i++) {
+                            var item = response[i];
+                            if (item.status === "success") {
+                                successCount++;
+                            } else if (item.status === "error") {
+                                errorCount++;
+                                errorMessages.push("파일: " + item.file + ", 메시지: " + item.message);
+                            }
+                        }
+
+                        if (successCount > 0) {
+                            Toastify({
+                                text: successCount + "개의 파일이 성공적으로 업로드되었습니다.",
+                                duration: 2000,
+                                close: true,
+                                gravity: "top",
+                                position: "center",
+                                backgroundColor: "#4fbe87",
+                            }).showToast();
+                        }
+
+                        if (errorCount > 0) {
+                            Toastify({
+                                text: "오류 발생: " + errorCount + "개의 파일 업로드 실패\n상세 오류: " + errorMessages.join("\n"),
+                                duration: 5000,
+                                close: true,
+                                gravity: "top",
+                                position: "center",
+                                backgroundColor: "#f44336",
+                            }).showToast();
+                        }
+
+                        setTimeout(function() {
+                            displayFile();
+                            hideMsgModal();
+                        }, 1000);
+
+                    },
+                    error: function(jqxhr, status, error) {
+                        console.error("업로드 실패:", jqxhr, status, error);
+                    },
+                });
             });
-        } else {
-            $("#displayFile").append(
-                "<div class='text-center text-muted'>No files</div>"
-            );
-        }
-    }).fail(function (error) {
-        console.error("파일 불러오기 오류:", error);
-        Swal.fire({
-            title: "파일 불러오기 실패",
-            text: "파일을 불러오는 중 문제가 발생했습니다.",
-            icon: "error",
-            confirmButtonText: "확인",
+
+            // 첨부 이미지 업로드 처리
+            $("#upfileimage").change(function(e) {
+                if (this.files.length === 0) {
+                    // 파일이 선택되지 않았을 때
+                    console.warn("파일이 선택되지 않았습니다.");
+                    return;
+                }
+
+                var form = $('#board_form')[0];
+                var data = new FormData(form);
+
+                // 추가 데이터 설정
+                data.append("tablename", $("#tablename").val());
+                data.append("item", "image");
+                data.append("upfilename", "upfileimage");
+                data.append("folderPath", "미래기업/uploads");
+                data.append("DBtable", "picuploads");
+
+                showMsgModal(1); // 이미지저장중
+
+                // AJAX 요청 (Google Drive API)
+                $.ajax({
+                    enctype: 'multipart/form-data',
+                    processData: false,
+                    contentType: false,
+                    cache: false,
+                    timeout: 600000,
+                    url: "/filedrive/fileprocess.php",
+                    type: "POST",
+                    data: data,
+                    success: function(response) {
+                        console.log("응답 데이터:", response);
+
+                        var successCount = 0;
+                        var errorCount = 0;
+                        var errorMessages = [];
+
+                        for (var i = 0; i < response.length; i++) {
+                            var item = response[i];
+                            if (item.status === "success") {
+                                successCount++;
+                            } else if (item.status === "error") {
+                                errorCount++;
+                                errorMessages.push("파일: " + item.file + ", 메시지: " + item.message);
+                            }
+                        }
+
+                        if (successCount > 0) {
+                            Toastify({
+                                text: successCount + "개의 파일이 성공적으로 업로드되었습니다.",
+                                duration: 2000,
+                                close: true,
+                                gravity: "top",
+                                position: "center",
+                                backgroundColor: "#4fbe87",
+                            }).showToast();
+                        }
+
+                        if (errorCount > 0) {
+                            Toastify({
+                                text: "오류 발생: " + errorCount + "개의 파일 업로드 실패\n상세 오류: " + errorMessages.join("\n"),
+                                duration: 5000,
+                                close: true,
+                                gravity: "top",
+                                position: "center",
+                                backgroundColor: "#f44336",
+                            }).showToast();
+                        }
+
+                        setTimeout(function() {
+                            displayImage();
+                            hideMsgModal();
+                        }, 1000);
+
+                    },
+                    error: function(jqxhr, status, error) {
+                        console.error("업로드 실패:", jqxhr, status, error);
+                    },
+                });
+            });
+
+
         });
-    });
-}
 
-// 기존 파일 불러오기 (Google Drive에서 가져오기)
-function displayFileLoad() {
-    $('#displayFile').show();
-    var data = <?php echo json_encode($savefilename_arr); ?>;
+        // 화면에서 저장한 첨부된 파일 불러오기
+        function displayFile() {
+            $('#displayFile').show();
+            var params = $("#timekey").val() ? $("#timekey").val() : $("#num").val();
 
-    $("#displayFile").html(''); // 기존 내용 초기화
-
-    if (Array.isArray(data) && data.length > 0) {
-        data.forEach(function (fileData, i) {
-            const realName = fileData.realname || '다운로드 파일';
-            const link = fileData.link || '#';
-            const fileId = fileData.fileId || null;
-
-            if (!fileId) {
-                console.error("fileId가 누락되었습니다. index: " + i, fileData);
+            if (!params) {
+                console.error("ID 값이 없습니다. 파일을 불러올 수 없습니다.");
+                alert("ID 값이 유효하지 않습니다. 다시 시도해주세요.");
                 return;
             }
 
-			$("#displayFile").append(
-				"<div class='row mb-3'>" +
-					"<div class='d-flex mb-3 align-items-center justify-content-center'>" +
-						"<span id='file" + i + "'>" +
-							"<a href='#' onclick=\"popupCenter('" + link + "', 'filePopup', 800, 600); return false;\">" + realName + "</a>" +
-						"</span> &nbsp;&nbsp;" +
-						"<button type='button' class='btn btn-danger btn-sm' id='delFile" + i + "' onclick=\"delFileFn('" + i + "', '" + fileId + "')\">" +
-							"<i class='bi bi-trash'></i>" +
-						"</button>" +
-					"</div>" +
-				"</div>"
-			);
+            console.log("요청 ID:", params);
 
-        });
-    } else {
-        $("#displayFile").append(
-            "<div class='text-center text-muted'>No files</div>"
-        );
-    }
-}
+            $.ajax({
+                url: '/filedrive/fileprocess.php',
+                type: 'GET',
+                data: {
+                    num: params,
+                    tablename: $("#tablename").val(),
+                    item: 'attached',
+                    folderPath: '미래기업/uploads',
+                },
+                dataType: 'json',
+            }).done(function(data) {
+                console.log("파일 데이터:", data);
+
+                $("#displayFile").html('');
+
+                if (Array.isArray(data) && data.length > 0) {
+                    for (var index = 0; index < data.length; index++) {
+                        var fileData = data[index];
+                        var realName = fileData.realname || '다운로드 파일';
+                        var link = fileData.link || '#';
+                        var fileId = fileData.fileId || null;
+
+                        if (!fileId) {
+                            console.error("fileId가 누락되었습니다. index: " + index, fileData);
+                            $("#displayFile").append(
+                                "<div class='text-danger'>파일 ID가 누락되었습니다.</div>"
+                            );
+                            continue;
+                        }
+
+                        $("#displayFile").append(
+                            "<div class='row mt-1 mb-2'>" +
+                            "<div class='d-flex align-items-center justify-content-center'>" +
+                            "<span id='file" + index + "'>" +
+                            "<a href='#' onclick=\"popupCenter('" + link + "', 'filePopup', 800, 600); return false;\">" + realName + "</a>" +
+                            "</span> &nbsp;&nbsp;" +
+                            "<button type='button' class='btn btn-danger btn-sm' id='delFile" + index + "' onclick=\"delFileFn('" + index + "', '" + fileId + "')\">" +
+                            "<i class='bi bi-trash'></i>" +
+                            "</button>" +
+                            "</div>" +
+                            "</div>"
+                        );
+                    }
+                } else {
+                    $("#displayFile").append(
+                        "<div class='text-center text-muted'>No files</div>"
+                    );
+                }
+            }).fail(function(error) {
+                console.error("파일 불러오기 오류:", error);
+                Swal.fire({
+                    title: "파일 불러오기 실패",
+                    text: "파일을 불러오는 중 문제가 발생했습니다.",
+                    icon: "error",
+                    confirmButtonText: "확인",
+                });
+            });
+        }
+
+        // 기존 파일 불러오기 (Google Drive에서 가져오기)
+        function displayFileLoad() {
+            $('#displayFile').show();
+            var data = <?php echo json_encode($savefilename_arr); ?>;
+
+            $("#displayFile").html('');
+
+            if (Array.isArray(data) && data.length > 0) {
+                for (var i = 0; i < data.length; i++) {
+                    var fileData = data[i];
+                    var realName = fileData.realname || '다운로드 파일';
+                    var link = fileData.link || '#';
+                    var fileId = fileData.fileId || null;
+
+                    if (!fileId) {
+                        console.error("fileId가 누락되었습니다. index: " + i, fileData);
+                        continue;
+                    }
+
+                    $("#displayFile").append(
+                        "<div class='row mb-3'>" +
+                        "<div class='d-flex mb-3 align-items-center justify-content-center'>" +
+                        "<span id='file" + i + "'>" +
+                        "<a href='#' onclick=\"popupCenter('" + link + "', 'filePopup', 800, 600); return false;\">" + realName + "</a>" +
+                        "</span> &nbsp;&nbsp;" +
+                        "<button type='button' class='btn btn-danger btn-sm' id='delFile" + i + "' onclick=\"delFileFn('" + i + "', '" + fileId + "')\">" +
+                        "<i class='bi bi-trash'></i>" +
+                        "</button>" +
+                        "</div>" +
+                        "</div>"
+                    );
+                }
+            } else {
+                $("#displayFile").append(
+                    "<div class='text-center text-muted'>No files</div>"
+                );
+            }
+        }
 
 // 파일 삭제 처리 함수
 function delFileFn(divID, fileId) {

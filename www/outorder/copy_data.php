@@ -1,717 +1,774 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-if(!isset($_SESSION))      
-	session_start(); 
-if(isset($_SESSION["DB"]))
-	$DB = $_SESSION["DB"] ;	
-	$level= $_SESSION["level"];
-	$user_name= $_SESSION["name"];
-	$user_id= $_SESSION["userid"];	
+<?php
+/**
+ * 외주 주문 데이터 복사
+ * 로컬 및 서버 환경 모두 지원
+ */
 
-if(!isset($_SESSION["level"]) || $_SESSION["level"]>8) {
-		 sleep(1);
-	          header("Location:" . $WebSite . "login/login_form.php"); 
-         exit;
-   }  
-   
-    // 첫 화면 표시 문구
- $title_message = '(데이터 복사) 외주발주 관리 수주내역'; 
- 
- ?>
+require_once __DIR__ . '/../common/functions.php';
 
- <?php include getDocumentRoot() . '/load_header.php' ?>
+// 세션 시작
+if (!isset($_SESSION)) {
+    session_start();
+}
 
-<title> <?=$title_message?> </title>
+// 세션 변수 초기화 (?? '' 형태)
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+$level = $_SESSION["level"] ?? 999;
+$user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["userid"] ?? '';
+
+// 권한 체크
+if (!isset($_SESSION["level"]) || $_SESSION["level"] > 8) {
+    sleep(1);
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'];
+    header("Location: {$protocol}://{$host}/login/login_form.php");
+    exit;
+}
+
+// 첫 화면 표시 문구
+$title_message = '(데이터 복사) 외주발주 관리 수주내역';
+?>
+
+<?php include getDocumentRoot() . '/load_header.php'; ?>
+
+<title><?= htmlspecialchars($title_message, ENT_QUOTES, 'UTF-8') ?></title>
 
 <style>
-    .table, td, input {      
-	  vertical-align: middle;	    	    
-	  text-align:center;
+    .table, td, input {
+        vertical-align: middle;
+        text-align: center;
     }
-	
-  .table td input.form-control {
-    border: 1px solid #ced4da; /* 테두리 스타일 추가 */
-    border-radius: 2px; /* 테두리 라운드 처리 */
-  }	
-   	  
+    
+    .table td input.form-control {
+        border: 1px solid #ced4da; /* 테두리 스타일 추가 */
+        border-radius: 2px; /* 테두리 라운드 처리 */
+    }
 </style> 
  
 </head>
 
 <body>
 
- <?php
-  
-  if(isset($_REQUEST["mode"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $mode=$_REQUEST["mode"];
-  else
-   $mode="";
-  
-  if(isset($_REQUEST["num"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $num=$_REQUEST["num"];
-  else
-   $num="";
+<?php
+// 요청 변수 초기화 (?? '' 형태)
+$mode = $_REQUEST["mode"] ?? '';
+$num = $_REQUEST["num"] ?? '';
+$search = $_REQUEST["search"] ?? '';
+$find = $_REQUEST["find"] ?? '';
+$whichcompany = $_REQUEST["whichcompany"] ?? '';
 
+// 데이터베이스 연결
+require_once("../lib/mydb.php");
 
-  if(isset($_REQUEST["search"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $search=$_REQUEST["search"];
-  else
-   $search="";
-  
-  if(isset($_REQUEST["find"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $find=$_REQUEST["find"];
-  else
-  $find="";
+try {
+    $pdo = db_connect();
+} catch (Exception $ex) {
+    error_log("DB 연결 실패: " . $ex->getMessage());
+    die("데이터베이스 연결에 실패했습니다.");
+}
 
-      
-  require_once("../lib/mydb.php");
-  $pdo = db_connect();
+// 복사 모드일 경우 기존 데이터 불러오기
+if ($mode == "copy") {
+    try {
+        $sql = "SELECT * FROM {$DB}.outorder WHERE num = ?";
+        $stmh = $pdo->prepare($sql);
+        $stmh->bindValue(1, $num, PDO::PARAM_STR);
+        $stmh->execute();
+        $count = $stmh->rowCount();
+        
+        if ($count < 1) {
+            print "검색결과가 없습니다.<br>";
+        } else {
+            $row = $stmh->fetch(PDO::FETCH_ASSOC);
+        }
+        
+        // _row.php에서 변수 할당
+        include '_row.php';
+        
+        // 복사 시 초기화할 필드들
+        $measureday = null;
+        $drawday = null;
+        $deadline = null;
+        $workday = null;
+        $worker = $row["worker"] ?? '';
+        $endworkday = null;
+        $delicar = "없음";
+        $delipay = "";
+        $delimethod = "없음";
+        $demand = null;
+        $first_writer = '';
+        $update_log = '';
+        
+        // trans_date 함수 확인 (common/functions.php에 정의되어 있어야 함)
+        if (!function_exists('trans_date')) {
+            function trans_date($date) {
+                if (empty($date) || $date == '0000-00-00') {
+                    return '';
+                }
+                return $date;
+            }
+        }
+        
+        // 날짜 변환
+        $workday = trans_date($workday ?? '');
+        $demand = trans_date($demand ?? '');
+        $orderday = trans_date($orderday ?? '');
+        $deadline = trans_date($deadline ?? '');
+        $testday = trans_date($testday ?? '');
+        $lc_draw = trans_date($lc_draw ?? '');
+        $lclaser_date = trans_date($lclaser_date ?? '');
+        $lcbending_date = trans_date($lcbending_date ?? '');
+        $lcwelding_date = trans_date($lcwelding_date ?? '');
+        $lcpainting_date = trans_date($lcpainting_date ?? '');
+        $lcassembly_date = trans_date($lcassembly_date ?? '');
+        $main_draw = trans_date($main_draw ?? '');
+        $eunsung_make_date = trans_date($eunsung_make_date ?? '');
+        $eunsung_laser_date = trans_date($eunsung_laser_date ?? '');
+        $mainbending_date = trans_date($mainbending_date ?? '');
+        $mainwelding_date = trans_date($mainwelding_date ?? '');
+        $mainpainting_date = trans_date($mainpainting_date ?? '');
+        $mainassembly_date = trans_date($mainassembly_date ?? '');
+        
+        $order_date1 = trans_date($order_date1 ?? '');
+        $order_date2 = trans_date($order_date2 ?? '');
+        $order_date3 = trans_date($order_date3 ?? '');
+        $order_date4 = trans_date($order_date4 ?? '');
+        $order_input_date1 = trans_date($order_input_date1 ?? '');
+        $order_input_date2 = trans_date($order_input_date2 ?? '');
+        $order_input_date3 = trans_date($order_input_date3 ?? '');
+        $order_input_date4 = trans_date($order_input_date4 ?? '');
+        
+        // 덴크리 직접작업을 위한 설계내용 5개 항목추가
+        $deliverynum = "";
+        $confirm = "";
+        $submemo = "";
+        $pdffile_name = "";
+        $copied_file = "";
+        
+    } catch (PDOException $ex) {
+        error_log("데이터 복사 오류: " . $ex->getMessage());
+        print "오류: " . htmlspecialchars($ex->getMessage());
+    }
+} else {
+    // 복사 모드가 아닐 때 변수 초기화
+    $workplacename = '';
+    $address = '';
+    $firstord = '';
+    $firstordman = '';
+    $firstordmantel = '';
+    $secondord = '';
+    $secondordman = '';
+    $secondordmantel = '';
+    $chargedman = '';
+    $chargedmantel = '';
+    $memo = '';
+    $orderday = '';
+    $startday = '';
+    $deadline = '';
+    $workday = '';
+    $demand = '';
+    $delivery = '';
+    $delipay = '';
+    $deliverynum = '';
+    $submemo = '';
+    $su = '';
+    $lc_su = '';
+    $etc_su = '';
+    $first_writer = '';
+    $update_log = '';
+    $pdffile_name = '';
+    $copied_file = '';
+    $confirm = '';
+    
+    // 각 타입별 변수 초기화 (10개 항목)
+    $itemNames = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth'];
+    for ($i = 0; $i < 10; $i++) {
+        ${'type'.($i+1)} = '';
+        ${'inseung'.($i+1)} = '';
+        ${'car_inside'.($i+1)} = '';
+        ${$itemNames[$i].'_item1'} = '';
+        ${$itemNames[$i].'_item2'} = '';
+        ${$itemNames[$i].'_item3'} = '';
+        ${$itemNames[$i].'_item4'} = '';
+        ${'comment'.($i+1)} = '';
+    }
+}
 
-  if ($mode=="copy"){
-		try{
-		  $sql = "select * from mirae8440.outorder where num = ? ";
-		  $stmh = $pdo->prepare($sql); 
-
-		$stmh->bindValue(1,$num,PDO::PARAM_STR); 
-		  $stmh->execute();
-		  $count = $stmh->rowCount();              
-		if($count<1){  
-		  print "검색결과가 없습니다.<br>";
-		 }else{
-		  $row = $stmh->fetch(PDO::FETCH_ASSOC);
-
-		 }
-      
-	  include '_row.php';
-
-	  $measureday=null;
-	  $drawday=null;
-	  $deadline=null;
-	  $workday=null;
-	  $worker=$row["worker"];
-	  $endworkday=null;
-	  $delicar="없음";
-	  $delipay="";
-	  $delimethod="없음";
-	  $demand=null;
-	  $first_writer='';
-	  $update_log='';	  
-			
-	$workday=trans_date($workday);
-	$demand=trans_date($demand);
-	$orderday=trans_date($orderday);
-	$deadline=trans_date($deadline);
-	$testday=trans_date($testday);
-	$lc_draw=trans_date($lc_draw);
-	$lclaser_date=trans_date($lclaser_date);
-	$lclbending_date=trans_date($lclbending_date);
-	$lclwelding_date=trans_date($lclwelding_date);
-	$lcpainting_date=trans_date($lcpainting_date);
-	$lcassembly_date=trans_date($lcassembly_date);
-	$main_draw=trans_date($main_draw);			
-	$eunsung_make_date=trans_date($eunsung_make_date);			
-	$eunsung_laser_date=trans_date($eunsung_laser_date);			
-	$mainbending_date=trans_date($mainbending_date);			
-	$mainwelding_date=trans_date($mainwelding_date);			
-	$mainpainting_date=trans_date($mainpainting_date);			
-	$mainassembly_date=trans_date($mainassembly_date);		
-
-$order_date1=trans_date($order_date1);					   
-$order_date2=trans_date($order_date2);					   
-$order_date3=trans_date($order_date3);					   
-$order_date4=trans_date($order_date4);					   
-$order_input_date1=trans_date($order_input_date1);					   
-$order_input_date2=trans_date($order_input_date2);					   
-$order_input_date3=trans_date($order_input_date3);					   
-$order_input_date4=trans_date($order_input_date4);		
-
-  // 덴크리 직접작업을 위한 설계내용 5개 항목추가
-  
-  $deliverynum="";  
-  $confirm="";
-  $submemo="";
-  $pdffile_name = "";
-  $copied_file = "";				  
-
-     }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
-     }
-  }
-$mode="";
+$mode = "";
 
 // $mode를 이용해서 copy_data.php에서 기존 데이터를 사용한다.
-	 
-$material_arr = array('','304 Hair Line 1.2T','304 HL 1.2T','304 Mirror 1.2T','304 MR 1.2T','VB 1.2T','2B VB 1.2T','304 Mirror VB 1.2T', '304 Mirror Bronze 1.2T', '304 Mirror VB Ti-Bronze 1.2T', '304 Hair Line Black 1.2T', 'SPCC 1.2T(도장)', 'EGI 1.2T(도장)', 'HTM (신우)',  '기타' );
-  
-  
-// 초기 프로그램은 $num사용 이후 $id로 수정중임  
-$id=$num;  
-  
+
+// 재료 배열 (현재 미사용이지만 향후 확장 대비)
+$material_arr = array(
+    '', '304 Hair Line 1.2T', '304 HL 1.2T', '304 Mirror 1.2T', 
+    '304 MR 1.2T', 'VB 1.2T', '2B VB 1.2T', '304 Mirror VB 1.2T', 
+    '304 Mirror Bronze 1.2T', '304 Mirror VB Ti-Bronze 1.2T', 
+    '304 Hair Line Black 1.2T', 'SPCC 1.2T(도장)', 'EGI 1.2T(도장)', 
+    'HTM (신우)', '기타'
+);
+
+// 초기 프로그램은 $num 사용, 이후 $id로 수정중임
+$id = $num ?? '';
+
 // 첨부 파일에 대한 읽어오는 부분
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();	
- 
-// 첨부파일 있는 것 불러오기 
-$savefilename_arr=array(); 
-$realname_arr=array(); 
-$tablename='outorder';
+$savefilename_arr = array();
+$realname_arr = array();
+$tablename = 'outorder';
 $item = 'attached';
 
-$sql=" select * from mirae8440.fileuploads where tablename ='$tablename' and item ='$item' and parentid ='$id' ";	
+$sql = "SELECT * FROM {$DB}.fileuploads WHERE tablename = ? AND item = ? AND parentid = ?";
 
- try{  
-   $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh   
-   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-			array_push($realname_arr, $row["realname"]);			
-			array_push($savefilename_arr, $row["savename"]);			
-        }		 
-   } catch (PDOException $Exception) { 
-    print "오류: ".$Exception->getMessage();
-  }   
-		
-		 
+try {
+    $stmh = $pdo->prepare($sql);
+    $stmh->bindValue(1, $tablename, PDO::PARAM_STR);
+    $stmh->bindValue(2, $item, PDO::PARAM_STR);
+    $stmh->bindValue(3, $id, PDO::PARAM_STR);
+    $stmh->execute();
+    
+    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+        array_push($realname_arr, $row["realname"] ?? '');
+        array_push($savefilename_arr, $row["savename"] ?? '');
+    }
+} catch (PDOException $ex) {
+    error_log("첨부파일 조회 오류: " . $ex->getMessage());
+    print "오류: " . htmlspecialchars($ex->getMessage());
+}
+
 // 신규데이터 작성시 키값지정 parentid값이 없으면 데이터 저장안됨
-$timekey = date("Y_m_d_H_i_s");				  
+$timekey = date("Y_m_d_H_i_s");
+
+// 파일 업로드 관련 변수 초기화
+$parentid = $_REQUEST["parentid"] ?? $timekey;
+$fileorimage = $_REQUEST["fileorimage"] ?? '';
+$upfilename = $_REQUEST["upfilename"] ?? '';
+$savetitle = $_REQUEST["savetitle"] ?? '';
+$pInput = $_REQUEST["pInput"] ?? '0';				  
   
 ?>
 
-<form id="board_form" name="board_form" method="post"  onkeydown="return captureReturnKey(event)"  >		   
-
-<input type="hidden" id="first_writer" name="first_writer" value="<?=$first_writer?>"  >
-<input type="hidden" id="update_log" name="update_log" value="<?=$update_log?>"  >
-<input type="hidden" id="copied_file" name="copied_file" value="<?=$copied_file?>"  >
-<input type="hidden" id="confirm" name="confirm" value="<?=$confirm?>"  >
-
-  <!-- 파일저장 전달함수 설정 input hidden -->
-	<input type="hidden" id="id" name="id" value="<?=$id?>" >	
-	<input type="hidden" id="num" name="num" value="<?=$num?>" >		  								
-	<input type="hidden" id="parentid" name="parentid" value="<?=$parentid?>" >			  								
-	<input type="hidden" id="fileorimage" name="fileorimage" value="<?=$fileorimage?>" >			  								
-	<input type="hidden" id="item" name="item" value="<?=$item?>" >			  								
-	<input type="hidden" id="upfilename" name="upfilename" value="<?=$upfilename?>" >			  								
-	<input type="hidden" id="tablename" name="tablename" value="<?=$tablename?>" >			  								
-	<input type="hidden" id="savetitle" name="savetitle" value="<?=$savetitle?>" >			  								
-	<input type="hidden" id="pInput" name="pInput" value="<?=$pInput?>" >			  								
-	<input type="hidden" id="mode" name="mode" value="<?=$mode?>" >		
-	<input type="hidden" id="timekey" name="timekey" value="<?=$timekey?>" >  <!-- 신규데이터 작성시 parentid key값으로 사용 -->
-
-<div class="container-fluid">	  
-<div class="card p-2 m-2">	
-
- <!-- Modal -->
-  <div class="modal fade" id="myModal" role="dialog">
-    <div class="modal-dialog  modal-lg modal-center" >
+<form id="board_form" name="board_form" method="post" onkeydown="return captureReturnKey(event)">
     
-      <!-- Modal content-->
-      <div class="modal-content modal-lg">
-        <div class="modal-header">          
-          <h4 class="modal-title">알림</h4>
+    <!-- 기본 정보 hidden inputs -->
+    <input type="hidden" id="first_writer" name="first_writer" value="<?= htmlspecialchars($first_writer ?? '', ENT_QUOTES, 'UTF-8') ?>">
+    <input type="hidden" id="update_log" name="update_log" value="<?= htmlspecialchars($update_log ?? '', ENT_QUOTES, 'UTF-8') ?>">
+    <input type="hidden" id="copied_file" name="copied_file" value="<?= htmlspecialchars($copied_file ?? '', ENT_QUOTES, 'UTF-8') ?>">
+    <input type="hidden" id="confirm" name="confirm" value="<?= htmlspecialchars($confirm ?? '', ENT_QUOTES, 'UTF-8') ?>">
+    
+    <!-- 파일저장 전달함수 설정 input hidden -->
+    <input type="hidden" id="id" name="id" value="<?= htmlspecialchars($id, ENT_QUOTES, 'UTF-8') ?>">
+    <input type="hidden" id="num" name="num" value="<?= htmlspecialchars($num, ENT_QUOTES, 'UTF-8') ?>">
+    <input type="hidden" id="parentid" name="parentid" value="<?= htmlspecialchars($parentid, ENT_QUOTES, 'UTF-8') ?>">
+    <input type="hidden" id="fileorimage" name="fileorimage" value="<?= htmlspecialchars($fileorimage, ENT_QUOTES, 'UTF-8') ?>">
+    <input type="hidden" id="item" name="item" value="<?= htmlspecialchars($item, ENT_QUOTES, 'UTF-8') ?>">
+    <input type="hidden" id="upfilename" name="upfilename" value="<?= htmlspecialchars($upfilename, ENT_QUOTES, 'UTF-8') ?>">
+    <input type="hidden" id="tablename" name="tablename" value="<?= htmlspecialchars($tablename, ENT_QUOTES, 'UTF-8') ?>">
+    <input type="hidden" id="savetitle" name="savetitle" value="<?= htmlspecialchars($savetitle, ENT_QUOTES, 'UTF-8') ?>">
+    <input type="hidden" id="pInput" name="pInput" value="<?= htmlspecialchars($pInput, ENT_QUOTES, 'UTF-8') ?>">
+    <input type="hidden" id="mode" name="mode" value="<?= htmlspecialchars($mode, ENT_QUOTES, 'UTF-8') ?>">
+    <input type="hidden" id="timekey" name="timekey" value="<?= htmlspecialchars($timekey, ENT_QUOTES, 'UTF-8') ?>">  <!-- 신규데이터 작성시 parentid key값으로 사용 -->
+
+<div class="container-fluid">
+    <div class="card p-2 m-2">
+
+        <!-- Modal -->
+        <div class="modal fade" id="myModal" role="dialog">
+            <div class="modal-dialog modal-lg modal-center">
+                <!-- Modal content-->
+                <div class="modal-content modal-lg">
+                    <div class="modal-header">
+                        <h4 class="modal-title">알림</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="alertmsg" class="fs-3 mb-5 justify-content-center">
+                            품목, 비고는 그대로 유지된 후 복사됩니다. <br>
+                            <br>
+                            발주사항 꼼꼼히 확인해 주세요!
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="closeModalBtn" class="btn btn-default" data-dismiss="modal">닫기</button>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="modal-body">		
-		   <div id=alertmsg class="fs-3 mb-5 justify-content-center" >
-		     품목, 비고는 그대로 유지된 후 복사됩니다. <br> 
-		   <br> 
-		     발주사항 꼼꼼히 확인해 주세요!
-			</div>
+
+        <div class="d-flex justify-content-center mt-3 mb-1">
+            <h4><?= htmlspecialchars($title_message, ENT_QUOTES, 'UTF-8') ?></h4>
         </div>
-        <div class="modal-footer">
-          <button type="button" id="closeModalBtn" class="btn btn-default" data-dismiss="modal">닫기</button>
-        </div>
-      </div>
-      
-    </div>
-  </div>
-      
-    	
-			
-	 <div class="d-flex justify-content-center mt-3 mb-1"> 		
-	   <h4> <?=$title_message ?> </h4>
-	</div>		
-  	<div class="d-flex justify-content-start mt-2 mb-2 ">	
-		<button class="btn btn-dark btn-sm" id="closeBtn" > <ion-icon name="close-outline"></ion-icon> 창닫기 </button>&nbsp;		
-		<button type="button"  id="saveBtn"  class="btn btn-dark btn-sm" > <ion-icon name="save-outline"></ion-icon> 저장</button> 						
 					   
-	</div>
- 
-<div class="d-flex justify-content-center mb-1 mt-1"> 	
-	<div class="col-sm-5 p-1  rounded"   style=" border: 1px solid #392f31; " > 
-		<table class="table table-bordered">		 
-		  <tbody>
-			<tr>
-			  <td colspan="1" style="width:70px;" >현장명</td>
-			  <td colspan="5">
-				<input type="text" id="workplacename" name="workplacename" value="<?=$workplacename?>" class="form-control" style="text-align: left;" required>
-			  </td>
-			</tr>
-			<tr>
-			  <td>주소</td>
-			  <td colspan="5"><input type="text" name="address" value="<?=$address?>" class="form-control"  style="text-align: left;" ></td>
-			</tr>
-			<tr>
-			  <td>매입처</td>
-				  <td> 
-					  
-					<select name="firstord" id="firstord" class="form-control">
-				   <?php		 
-				   
-				   $optarr = array('서한컴퍼니','덴크리','다온텍');
+        <div class="d-flex justify-content-start mt-2 mb-2">
+            <button class="btn btn-dark btn-sm" id="closeBtn"><ion-icon name="close-outline"></ion-icon> 창닫기</button>&nbsp;
+            <button type="button" id="saveBtn" class="btn btn-dark btn-sm"><ion-icon name="save-outline"></ion-icon> 저장</button>
+        </div>
 
-				   for($i=0;$i<count($optarr);$i++) {
-						 if($firstord==$optarr[$i] || $whichcompany==$optarr[$i] )
-									print "<option selected value='" . $optarr[$i] . "'> " . $optarr[$i] .   "</option>";
-							 else   
-					   print "<option value='" . $optarr[$i] . "'> " . $optarr[$i] .   "</option>";
-				   } 		   
-						?>	  
-				</select> 		 
-				  
-				  
-				  </td>
-               <td  style="width:70px;"  >담당</td>				  
-				  <td> <input type="text" id="firstordman" name="firstordman" value="<?=$firstordman?>" class="form-control" onkeydown="JavaScript:Enter_firstCheck();"> </td>
-				<td>Tel</td>				  				  
-				  <td> <input type="text" id="firstordmantel" name="firstordmantel" value="<?=$firstordmantel?>" class="form-control" > </td>				
-			  </td>
-			</tr>
-			<tr>
-			  <td>발주처</td>
-			  <td><input type="text" id="secondord" name="secondord" value="<?=$secondord?>" class="form-control"></td>
-			  <td>담당</td>
-			  <td><input type="text" id="secondordman" name="secondordman" value="<?=$secondordman?>" class="form-control" onkeydown="JavaScript:Enter_Check();"></td>
-			  <td>Tel</td>
-			  <td><input type="text" id="secondordmantel" name="secondordmantel" value="<?=$secondordmantel?>" class="form-control"></td>
-			</tr>
-			<tr>
-			  <td>담당자</td>
-			  <td><input type="text" name="chargedman" id="chargedman" value="<?=$chargedman?>" class="form-control" onkeydown="JavaScript:Enter_chargedman_Check();"></td>
-			  <td>Tel</td>
-			  <td><input type="text" name="chargedmantel" id="chargedmantel" value="<?=$chargedmantel?>" class="form-control"></td>
-			  <td colspan="2">
+        <div class="d-flex justify-content-center mb-1 mt-1">
+            <div class="col-sm-5 p-1 rounded" style="border: 1px solid #392f31;">
+                <table class="table table-bordered">
+                    <tbody>
+                        <tr>
+                            <td colspan="1" style="width:70px;">현장명</td>
+                            <td colspan="5">
+                                <input type="text" id="workplacename" name="workplacename" value="<?= htmlspecialchars($workplacename ?? '', ENT_QUOTES, 'UTF-8') ?>" class="form-control" style="text-align: left;" required>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>주소</td>
+                            <td colspan="5">
+                                <input type="text" name="address" value="<?= htmlspecialchars($address ?? '', ENT_QUOTES, 'UTF-8') ?>" class="form-control" style="text-align: left;">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>매입처</td>
+                            <td>
+                                <select name="firstord" id="firstord" class="form-control">
+                                    <?php
+                                    $optarr = array('서한컴퍼니', '덴크리', '다온텍');
+                                    
+                                    for ($i = 0; $i < count($optarr); $i++) {
+                                        if (($firstord ?? '') == $optarr[$i] || ($whichcompany ?? '') == $optarr[$i]) {
+                                            print "<option selected value='" . htmlspecialchars($optarr[$i], ENT_QUOTES, 'UTF-8') . "'>" . htmlspecialchars($optarr[$i], ENT_QUOTES, 'UTF-8') . "</option>";
+                                        } else {
+                                            print "<option value='" . htmlspecialchars($optarr[$i], ENT_QUOTES, 'UTF-8') . "'>" . htmlspecialchars($optarr[$i], ENT_QUOTES, 'UTF-8') . "</option>";
+                                        }
+                                    }
+                                    ?>
+                                </select>
+                            </td>
+                            <td style="width:70px;">담당</td>
+                            <td>
+                                <input type="text" id="firstordman" name="firstordman" value="<?= htmlspecialchars($firstordman ?? '', ENT_QUOTES, 'UTF-8') ?>" class="form-control" onkeydown="Enter_firstCheck();">
+                            </td>
+                            <td>Tel</td>
+                            <td>
+                                <input type="text" id="firstordmantel" name="firstordmantel" value="<?= htmlspecialchars($firstordmantel ?? '', ENT_QUOTES, 'UTF-8') ?>" class="form-control">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>발주처</td>
+                            <td>
+                                <input type="text" id="secondord" name="secondord" value="<?= htmlspecialchars($secondord ?? '', ENT_QUOTES, 'UTF-8') ?>" class="form-control">
+                            </td>
+                            <td>담당</td>
+                            <td>
+                                <input type="text" id="secondordman" name="secondordman" value="<?= htmlspecialchars($secondordman ?? '', ENT_QUOTES, 'UTF-8') ?>" class="form-control" onkeydown="Enter_Check();">
+                            </td>
+                            <td>Tel</td>
+                            <td>
+                                <input type="text" id="secondordmantel" name="secondordmantel" value="<?= htmlspecialchars($secondordmantel ?? '', ENT_QUOTES, 'UTF-8') ?>" class="form-control">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>담당자</td>
+                            <td>
+                                <input type="text" name="chargedman" id="chargedman" value="<?= htmlspecialchars($chargedman ?? '', ENT_QUOTES, 'UTF-8') ?>" class="form-control" onkeydown="Enter_chargedman_Check();">
+                            </td>
+                            <td>Tel</td>
+                            <td>
+                                <input type="text" name="chargedmantel" id="chargedmantel" value="<?= htmlspecialchars($chargedmantel ?? '', ENT_QUOTES, 'UTF-8') ?>" class="form-control">
+                            </td>
+                            <td colspan="2">
+                                <label for="pdf_file" class="btn btn-primary btn-sm">첨부(pdf)</label> &nbsp;&nbsp;
+                                <input id="pdf_file" type="file" name="pdf_file" style="display:none;" accept=".pdf">
+                                <button id="delattachedfileBtn" type="button" class="btn btn-outline-danger btn-sm">첨부삭제</button>
+                                <input type="text" id="pdffile_name" name="pdffile_name" value="<?= htmlspecialchars($pdffile_name ?? '', ENT_QUOTES, 'UTF-8') ?>" style="width:200px;">
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td colspan="6">
+                                <label for="upfile" class="input-group-text btn btn-outline-primary btn-sm">추가첨부</label>
+                                <input id="upfile" name="upfile[]" type="file" onchange="this.value" multiple style="display:none">
+                                <div id="displayfile" style="display:none; text-align:left; width:500px;"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>비고</td>
+                            <td colspan="6">
+                                <textarea id="memo" name="memo" class="form-control"><?= htmlspecialchars($memo ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-			   
-				<label  for="pdf_file" class="btn btn-primary btn-sm"> 첨부(pdf)</label> &nbsp;&nbsp;
-				<input id="pdf_file" type="file" name="pdf_file" style="display:none;" accept=".pdf" />	
-				
-					<button id="delattachedfileBtn" type="button" class="btn btn-outline-danger btn-sm"  > 첨부삭제  </button> 
-					<input type="text" id="pdffile_name" name="pdffile_name" value="<?=$pdffile_name?>" style="width:200px;"  >    
-		
-			
-			  
-			  </td>
-			</tr>
-		  
-		  <tr>
-			<td colspan="6">        
-				<label for="upfile" class="input-group-text btn btn-outline-primary btn-sm"> 추가첨부 </label>						  										
-				<input id="upfile"  name="upfile[]" type="file" onchange="this.value" multiple  style="display:none" >	
-				 <div id ="displayfile" style="display:none; text-align:left; width:500px; ">  				
-				 </div>					
-			</td>	  
-		  </tr>	
-			<tr>  
-				<td>비고</td>
-					<td colspan="6">
-						<textarea  id="memo"  name="memo" class="form-control"><?=$memo?></textarea>
-					  </td>
-				</tr>
-	
-		  </tbody>
-		</table>
-	</div>			  
+            <div class="col-sm-7 p-1 rounded" style="border: 1px solid #392f31;">
+                <table id="partlist" class="table table-bordered">
+                    <tbody>
+                        <!-- New Table Rows -->
+                        <tr>
+                            <td>접수일</td>
+                            <td>
+                                <input type="date" name="orderday" id="orderday" value="<?= htmlspecialchars($orderday ?? '', ENT_QUOTES, 'UTF-8') ?>" class="form-control">
+                            </td>
+                            <td>발주일</td>
+                            <td>
+                                <input type="date" name="startday" id="startday" value="<?= htmlspecialchars($startday ?? '', ENT_QUOTES, 'UTF-8') ?>" class="form-control">
+                            </td>
+                            <td style="color:red;">납기일</td>
+                            <td>
+                                <input type="date" name="deadline" id="deadline" value="<?= htmlspecialchars($deadline ?? '', ENT_QUOTES, 'UTF-8') ?>" class="form-control">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="color:blue;">출고일</td>
+                            <td>
+                                <input type="date" name="workday" id="workday" value="<?= htmlspecialchars($workday ?? '', ENT_QUOTES, 'UTF-8') ?>" class="form-control">
+                            </td>
+                            <td class="text-danger">청구일</td>
+                            <td>
+                                <input type="date" name="demand" id="demand" value="<?= htmlspecialchars($demand ?? '', ENT_QUOTES, 'UTF-8') ?>" class="form-control">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>운송비 기록</td>
+                            <td>
+                                <input type="text" id="delivery" name="delivery" value="<?= htmlspecialchars($delivery ?? '', ENT_QUOTES, 'UTF-8') ?>" placeholder="내역">
+                            </td>
+                            <td>운임</td>
+                            <td>
+                                <input type="text" id="delipay" name="delipay" value="<?= htmlspecialchars($delipay ?? '', ENT_QUOTES, 'UTF-8') ?>" placeholder="(있을시) 금액" onkeyup="inputNumberFormat(this)">
+                            </td>
+                            <td>경동택배 송장</td>
+                            <td>
+                                <input type="text" id="deliverynum" name="deliverynum" value="<?= htmlspecialchars($deliverynum ?? '', ENT_QUOTES, 'UTF-8') ?>" size="20" placeholder="번호">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>업체 메모</td>
+                            <td colspan="6">
+                                <textarea id="memo2" name="memo2" class="form-control" placeholder="업체기록 전달내용"><?= htmlspecialchars($submemo ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>결합단위(SET)</td>
+                            <td>
+                                <input type="text" id="su" name="su" value="<?= htmlspecialchars($su ?? '', ENT_QUOTES, 'UTF-8') ?>" class="form-control" oninput="this.value = this.value.replace(/[^0-9\-]/g,'')">
+                            </td>
+                            <td>L/C 수량</td>
+                            <td>
+                                <input type="text" id="lc_su" name="lc_su" value="<?= htmlspecialchars($lc_su ?? '', ENT_QUOTES, 'UTF-8') ?>" class="form-control" oninput="this.value = this.value.replace(/[^0-9\-]/g,'')">
+                            </td>
+                            <td>기타 수량</td>
+                            <td>
+                                <input type="text" id="etc_su" name="etc_su" value="<?= htmlspecialchars($etc_su ?? '', ENT_QUOTES, 'UTF-8') ?>" class="form-control" oninput="this.value = this.value.replace(/[^0-9\-]/g,'')">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <?php print "등록 : " . htmlspecialchars($first_writer ?? '', ENT_QUOTES, 'UTF-8'); ?>
+                            </td>
+                            <td colspan="4">
+                                <?php
+                                $update_log_display = preg_replace('/(\d{4})/', "\n$1", $update_log ?? '');
+                                ?>
+                                <textarea class="form-control" readonly name="update_log"><?= htmlspecialchars($update_log_display, ENT_QUOTES, 'UTF-8') ?></textarea>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-<div class="col-sm-7 p-1  rounded"   style=" border: 1px solid #392f31; " > 	
+        </div>
+    </div>
 
-  <table id="partlist" class="table table-bordered ">
-    <tbody>	  
-    	<!-- New Table Rows -->
-		<tr>
-		  <td>접수일</td>
-		  <td><input type="date" name="orderday" id="orderday" value="<?=$orderday?>" class="form-control"></td>
-
-		  <td>발주일</td>
-		  <td><input type="date" name="startday" id="startday" value="<?=$startday?>" class="form-control"></td>
-		  
-		  <td style="color:red;">납기일</td>
-		  <td><input type="date" name="deadline" id="deadline" value="<?=$deadline?>" class="form-control"></td>    
-
-		</tr>
-		<tr>
-		  <td style="color:blue;">출고일</td>
-		  <td><input type="date" name="workday" id="workday" value="<?=$workday?>" class="form-control"></td>    
-		  
-		  <td class="text-danger"> 청구일</td>		   
-		  <td>
-				<input type="date" name="demand" id="demand" value="<?=$demand?>"  class="form-control" > 
-		   </td>		  
-		</tr>
-	  <tr>
-		<td > 운송비 기록 </td>
-		<td>
-		   <input type="text" id="delivery"  name="delivery" value="<?=$delivery?>" placeholder="내역"   > 
-		</td>
-
-		<td > 운임</td>
-		<td>
-		   <input type="text" id="delipay"  name="delipay" value="<?=$delipay?>" placeholder="(있을시) 금액 " onkeyup="inputNumberFormat(this)" >
-		</td>
-	  
-		<td >  경동택배 송장 </td>
-		<td>
-			 <input type="text" id="deliverynum" name="deliverynum" value="<?=$deliverynum?>" size="20" placeholder="번호"  >    
-		</tr>	
-		  <tr>
-				<td>업체 메모 </td>		  
-					<td colspan="6">		         
-						<textarea  id="memo2"  name="memo2" class="form-control"  placeholder="업체기록 전달내용"><?=$submemo?></textarea>
-					  </td>
-				  
-		  </tr>
-	  <tr>
-		<td>결합단위(SET) </td>
-		<td>
-		  <input type="text" id="su"  name="su"  value="<?=$su?>" class="form-control" oninput="this.value = this.value.replace(/[^0-9\-]/g,'')">
-		</td>
-
-		<td>L/C 수량</td>
-		<td>
-		   <input type="text"  id="lc_su"  name="lc_su" value="<?=$lc_su?>" class="form-control" oninput="this.value = this.value.replace(/[^0-9\-]/g,'')">
-	     </td>
-	  
-		<td >기타 수량</td>
-		<td>
-		  <input type="text"  id="etc_su"  name="etc_su" value="<?=$etc_su?>" class="form-control" oninput="this.value = this.value.replace(/[^0-9\-]/g,'')">
-		</td>    
-	  </tr>	
-    	  
-	  
-	  <tr>
-		<td colspan="2">
-		  <?php print "등록 : " . $first_writer; ?>		  
-		  </td>
-
-		<td colspan="4">
-		  <?php
-			  $update_log = preg_replace('/(\d{4})/', "\n$1", $update_log);
-			  ?>
-			<textarea class="form-control " readonly name="update_log"><?=$update_log?></textarea>
-		   </td>
-	  
-	  </tr>	      
-
-		
-    </tbody>
-  </table>
-		
-</div>  
+    <div class="card mt-1 mb-5" style="border: 1px solid #392f31;">
+        <div class="card-body">
+            <table id="itemlist" class="table table-bordered">
+                <tbody>
+                    <div class="itemlist">
+                        <?php if (($firstord ?? '') == '덴크리' || ($whichcompany ?? '') == '덴크리') { ?>
+                            <table id="itemlist" class="table table-bordered">
+                                <tbody>
+                                    <?php
+                                    $itemNames = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth'];
+                                    for ($i = 0; $i < 10; $i++) {
+                                        $type = ${'type'.($i+1)} ?? '';
+                                        $inseung = ${'inseung'.($i+1)} ?? '';
+                                        $car_inside = ${'car_inside'.($i+1)} ?? '';
+                                        $itemName = ${$itemNames[$i].'_item1'} ?? '';
+                                        $itemSpec = ${$itemNames[$i].'_item2'} ?? '';
+                                        $itemQuantity = ${$itemNames[$i].'_item3'} ?? '';
+                                        $itemUnit = ${$itemNames[$i].'_item4'} ?? '';
+                                        $comment = ${'comment'.($i+1)} ?? '';
+                                        $cal_both = "cal_both" . ($i + 1);
+                                        $cal_frame = "cal_frame" . ($i + 1);
+                                    ?>
+                                        <tr>
+                                            <td style="text-align:right; width: 40px;"><?= $i+1 ?></td>
+                                            <td><input type="text" name="type<?= $i+1 ?>" value="<?= htmlspecialchars($type, ENT_QUOTES, 'UTF-8') ?>" size="10"></td>
+                                            <td style="text-align:right; width: 50px; color: blue;">인승</td>
+                                            <td><input type="text" name="inseung<?= $i+1 ?>" value="<?= htmlspecialchars($inseung, ENT_QUOTES, 'UTF-8') ?>" size="2"></td>
+                                            <td style="text-align:right; width: 70px; color: red;">C inside</td>
+                                            <td><input type="text" name="car_inside<?= $i+1 ?>" value="<?= htmlspecialchars($car_inside, ENT_QUOTES, 'UTF-8') ?>" size="8"></td>
+                                            <td><button type="button" class="btn btn-primary btn-sm" id="<?= htmlspecialchars($cal_both, ENT_QUOTES, 'UTF-8') ?>">프레임/중판</button></td>
+                                            <td><button type="button" class="btn btn-secondary btn-sm" id="<?= htmlspecialchars($cal_frame, ENT_QUOTES, 'UTF-8') ?>">프레임/중판X</button></td>
+                                            <td style="text-align:right; width: 50px;">품목</td>
+                                            <td><input type="text" name="<?= $itemNames[$i] ?>_item1" value="<?= htmlspecialchars($itemName, ENT_QUOTES, 'UTF-8') ?>" size="12"></td>
+                                            <td style="text-align:right; width: 50px; color: blue;">규격</td>
+                                            <td><input type="text" name="<?= $itemNames[$i] ?>_item2" value="<?= htmlspecialchars($itemSpec, ENT_QUOTES, 'UTF-8') ?>" size="20"></td>
+                                            <td style="text-align:right; width: 70px; color: red;">수량:</td>
+                                            <td><input type="text" name="<?= $itemNames[$i] ?>_item3" value="<?= htmlspecialchars($itemQuantity, ENT_QUOTES, 'UTF-8') ?>" size="2"></td>
+                                            <td style="text-align:left; width: 50px;">단위</td>
+                                            <td><input type="text" name="<?= $itemNames[$i] ?>_item4" value="<?= htmlspecialchars($itemUnit, ENT_QUOTES, 'UTF-8') ?>" size="2"></td>
+                                            <td style="text-align:left; width: 50px;">비고</td>
+                                            <td><input type="text" name="comment<?= $i+1 ?>" value="<?= htmlspecialchars($comment, ENT_QUOTES, 'UTF-8') ?>" size="50"></td>
+                                        </tr>
+                                    <?php } ?>
+                                </tbody>
+                            </table>
+                        <?php } ?>
+                        <?php
+                        if (($firstord ?? '') == '서한컴퍼니' || ($whichcompany ?? '') == '서한컴퍼니' || ($firstord ?? '') == '다온텍' || ($whichcompany ?? '') == '다온텍') {
+                            $arr = ['', 'LED_BAR', 'SMPS', '프로파일', '광학산PC', '아크릴커버', '유백색아크릴'];
+                            $itemNames = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth'];
+                        ?>
+                            <table id="itemlist" class="table table-bordered">
+                                <tbody>
+                                    <?php for ($i = 0; $i < 10; $i++) {
+                                        $type = ${'type'.($i+1)} ?? '';
+                                        $inseung = ${'inseung'.($i+1)} ?? '';
+                                        $car_inside = ${'car_inside'.($i+1)} ?? '';
+                                        $itemName = ${$itemNames[$i].'_item1'} ?? '';
+                                        $itemSpec = ${$itemNames[$i].'_item2'} ?? '';
+                                        $itemQuantity = ${$itemNames[$i].'_item3'} ?? '';
+                                        $itemUnit = ${$itemNames[$i].'_item4'} ?? '';
+                                        $comment = ${'comment'.($i+1)} ?? '';
+                                    ?>
+                                        <tr>
+                                            <td style="text-align:right; width: 40px;"><?= ($i + 1) ?></td>
+                                            <td><input type="text" name="type<?= ($i + 1) ?>" value="<?= htmlspecialchars($type, ENT_QUOTES, 'UTF-8') ?>" size="8"></td>
+                                            <td style="text-align:right; width: 50px; color: blue;">인승</td>
+                                            <td><input type="text" name="inseung<?= ($i + 1) ?>" value="<?= htmlspecialchars($inseung, ENT_QUOTES, 'UTF-8') ?>" size="2"></td>
+                                            <td style="text-align:right; width: 70px; color: red;">C inside</td>
+                                            <td><input type="text" name="car_inside<?= ($i + 1) ?>" value="<?= htmlspecialchars($car_inside, ENT_QUOTES, 'UTF-8') ?>" size="8"></td>
+                                            <td style="text-align:right; width: 50px;">품목</td>
+                                            <td>
+                                                <select name="<?= $itemNames[$i] ?>_item1">
+                                                    <?php foreach ($arr as $option) {
+                                                        $selected = ($itemName == $option) ? "selected" : "";
+                                                    ?>
+                                                        <option <?= $selected ?> value="<?= htmlspecialchars($option, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($option, ENT_QUOTES, 'UTF-8') ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            </td>
+                                            <td style="text-align:center; width: 50px; color: blue;">규격</td>
+                                            <td><input type="text" name="<?= $itemNames[$i] ?>_item2" value="<?= htmlspecialchars($itemSpec, ENT_QUOTES, 'UTF-8') ?>" size="20"></td>
+                                            <td style="text-align:right; width: 50px; color: red;">수량</td>
+                                            <td><input type="text" name="<?= $itemNames[$i] ?>_item3" value="<?= htmlspecialchars($itemQuantity, ENT_QUOTES, 'UTF-8') ?>" size="2"></td>
+                                            <td style="text-align:left; width: 50px;">단위</td>
+                                            <td><input type="text" name="<?= $itemNames[$i] ?>_item4" value="<?= htmlspecialchars($itemUnit, ENT_QUOTES, 'UTF-8') ?>" size="2"></td>
+                                            <td style="text-align:left; width: 50px;">비고</td>
+                                            <td><input type="text" name="comment<?= ($i+1) ?>" value="<?= htmlspecialchars($comment, ENT_QUOTES, 'UTF-8') ?>" size="50"></td>
+                                        </tr>
+                                    <?php } ?>
+                                </tbody>
+                            </table>
+                        <?php } ?>
+                    </div>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
 </div>
-</div>
-			
-	<div class="card mt-1 mb-5" style=" border: 1px solid #392f31; ">			
-	  <div class="card-body">			
-		
-  <table id="itemlist" class="table table-bordered ">
-    <tbody>	  		
-		
-<div class="itemlist">	
-<?php if ($firstord == '덴크리' or $whichcompany == '덴크리') { ?>
-  <table id="itemlist" class="table table-bordered">
-    <tbody>
-      <?php
-        $itemNames = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth'];
-        for ($i = 0; $i < 10; $i++) {
-            $type = ${'type'.($i+1)};
-            $inseung = ${'inseung'.($i+1)};
-            $car_inside = ${'car_inside'.($i+1)};
-            $itemName = ${$itemNames[$i].'_item1'};
-            $itemSpec = ${$itemNames[$i].'_item2'};
-            $itemQuantity = ${$itemNames[$i].'_item3'};
-            $itemUnit = ${$itemNames[$i].'_item4'};
-            $comment = ${'comment'.($i+1)};
-			$cal_both = "cal_both" . ($i + 1) ;
-			$cal_frame = "cal_frame" . ($i + 1) ;
-      ?>
-        <tr>
-          <td style="text-align:right; width: 40px;"><?= $i+1 ?></td>
-          <td><input type="text" name="type<?= $i+1 ?>" value="<?= $type ?>" size="10"></td>
 
-          <td style="text-align:right; width: 50px; color: blue;">인승</td>
-          <td><input type="text" name="inseung<?= $i+1 ?>" value="<?= $inseung ?>" size="2"></td>
-
-          <td style="text-align:right; width: 70px; color: red;">C inside</td>
-          <td><input type="text" name="car_inside<?= $i+1 ?>" value="<?= $car_inside ?>" size="8"></td>
-
-		<td><button type='button' class='btn btn-primary btn-sm' id="<?=$cal_both?>" >프레임/중판</button></td>
-		<td><button type='button' class='btn btn-secondary btn-sm' id="<?=$cal_frame?>" >프레임/중판X</button></td>
-
-          <td style="text-align:right; width: 50px;">품목</td>
-          <td><input type="text" name="<?= $itemNames[$i] ?>_item1" value="<?= $itemName ?>" size="12"></td>
-
-          <td style="text-align:right; width: 50px; color: blue;">규격</td>
-          <td><input type="text" name="<?= $itemNames[$i] ?>_item2" value="<?= $itemSpec ?>" size="20"></td>
-
-          <td style="text-align:right; width: 70px; color: red;">수량:</td>
-          <td><input type="text" name="<?= $itemNames[$i] ?>_item3" value="<?= $itemQuantity ?>" size="2"></td>
-
-          <td style="text-align:left; width: 50px;">단위</td>
-          <td><input type="text" name="<?= $itemNames[$i] ?>_item4" value="<?= $itemUnit ?>" size="2"></td>
-
-          <td style="text-align:left; width: 50px;">비고</td>
-          <td><input type="text" name="comment<?= $i+1 ?>" value="<?= $comment ?>" size="50"></td>
-        </tr>
-      <?php } ?>
-    </tbody>
-  </table>
-<?php } ?>
-<?php 
-if ($firstord == '서한컴퍼니' || $whichcompany == '서한컴퍼니' || $firstord == '다온텍' || $whichcompany == '다온텍') {
-  $arr = ['','LED_BAR','SMPS','프로파일','광학산PC','아크릴커버','유백색아크릴'];
-  $itemNames = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth'];
-
-  echo "<table id='itemlist' class='table table-bordered'>";
-  echo "<tbody>";
-
-  for ($i = 0; $i < 10; $i++) {
-    $type = ${'type'.($i+1)};
-    $inseung = ${'inseung'.($i+1)};
-    $car_inside = ${'car_inside'.($i+1)};
-    $itemName = ${$itemNames[$i].'_item1'};
-    $itemSpec = ${$itemNames[$i].'_item2'};
-    $itemQuantity = ${$itemNames[$i].'_item3'};
-    $itemUnit = ${$itemNames[$i].'_item4'};
-    $comment = ${'comment'.($i+1)};
-
-    echo "<tr>";
-    echo "<td style='text-align:right; width: 40px;'>" . ($i + 1) . "</td>";
-    echo "<td><input type='text' name='type" . ($i + 1) . "' value='$type' size='8'></td>";
-    echo "<td style='text-align:right; width: 50px; color: blue;'>인승</td>";
-    echo "<td><input type='text' name='inseung" . ($i + 1) . "' value='$inseung' size='2'></td>";
-    echo "<td style='text-align:right; width: 70px; color: red;'>C inside</td>";
-    echo "<td><input type='text' name='car_inside" . ($i + 1) . "' value='$car_inside' size='8'></td>";
-    echo "<td style='text-align:right; width: 50px;'>품목</td>";
-    echo "<td><select name='" . $itemNames[$i] . "_item1'>";
-    foreach ($arr as $option) {
-      echo "<option " . (($itemName == $option) ? "selected" : "") . " value='$option'>$option</option>";
-    }
-    echo "</select></td>";
-    echo "<td style='text-align:center; width: 50px; color: blue;'>규격</td>";
-    echo "<td><input type='text' name='" . $itemNames[$i] . "_item2' value='$itemSpec' size='20'></td>";
-    echo "<td style='text-align:right; width: 50px; color: red;'>수량</td>";
-    echo "<td><input type='text' name='" . $itemNames[$i] . "_item3' value='$itemQuantity' size='2'></td>";
-    echo "<td style='text-align:left; width: 50px;'>단위</td>";
-   echo "<td><input type='text' name='" . $itemNames[$i] . "_item4' value='$itemUnit' size='2'></td>";
-    echo "<td style='text-align:left; width: 50px;'>비고</td>";
-    echo "<td><input type='text' name='comment" . ($i+1) . "' value='$comment' size='50'></td>";
-    echo "</tr>";
-  }
-
-  echo "</tbody>";
-  echo "</table>";
-}
-?>
-
-
-
-	     </div>		
-
-	  </div>
-		
-	</div>
-			 
-</div> 
-
-		
 </form>		
 
 <script>
+(function() {
+    'use strict';
+    
+    // 전역 변수
+    var ajaxRequest = null;
 
-$(document).ready(function() {
-    for (let i = 2; i <= 10; i++) {
-        $(`#type${i}`).click(function() {
-            $(`input[name=type${i}]`).val($(`input[name=type${i - 1}]`).val());
-            $(`input[name=inseung${i}]`).val($(`input[name=inseung${i - 1}]`).val());
-            $(`input[name=car_inside${i}]`).val($(`input[name=car_inside${i - 1}]`).val());
-        });
+    $(document).ready(function() {
+        // 타입 복사 버튼 이벤트
+        for (var i = 2; i <= 10; i++) {
+            (function(index) {
+                $("#type" + index).click(function() {
+                    $("input[name=type" + index + "]").val($("input[name=type" + (index - 1) + "]").val());
+                    $("input[name=inseung" + index + "]").val($("input[name=inseung" + (index - 1) + "]").val());
+                    $("input[name=car_inside" + index + "]").val($("input[name=car_inside" + (index - 1) + "]").val());
+                });
+            })(i);
+        }
+    });
+
+    $(document).ready(function() {
+        // 프레임/중판 계산 버튼 이벤트
+        for (var i = 1; i <= 10; i++) {
+            (function(index) {
+                $("#cal_both" + index).click(function() {
+                    var nextItem = (index === 10) ? 'tenth_item' : itemNumberToWord(index + 1) + '_item';
+                    calculateBoth(index, itemNumberToWord(index) + '_item', nextItem);
+                });
+            })(i);
+        }
+    });
+
+    function itemNumberToWord(number) {
+        var items = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth'];
+        return items[number - 1];
     }
-});
 
-$(document).ready(function() {
-    for (let i = 1; i <= 10; i++) {
-        $(`#cal_both${i}`).click(function() {
-            let nextItem = (i === 10) ? 'tenth_item' : `${itemNumberToWord(i+1)}_item`;
-            calculateBoth(i, `${itemNumberToWord(i)}_item`, nextItem);
-        });
+    function calculateInseung(index) {
+        var inside = $("input[name=car_inside" + index + "]").val();
+        var wide_inside = inside.split('*');
+        var wide = Number(wide_inside[0]);
+        var depth = Number(wide_inside[1]);
+        $("input[name=inseung" + index + "]").val(calinseung(wide, depth));
     }
-});
 
-function itemNumberToWord(number) {
-    const items = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth'];
-    return items[number - 1];
-}
+    $(document).ready(function() {
+        // Car inside 입력 후 인승 계산
+        for (var i = 1; i <= 10; i++) {
+            (function(index) {
+                $("input[name=car_inside" + index + "]").focusout(function() {
+                    calculateInseung(index);
+                });
+            })(i);
+        }
+    });
+
+    $(document).ready(function() {
+        // 프레임 계산 버튼 이벤트
+        for (var i = 1; i <= 10; i++) {
+            (function(index) {
+                $("#cal_frame" + index).click(function() {
+                    calculateFrame(index, itemNumberToWord(index) + '_item');
+                });
+            })(i);
+        }
+    });
 
 
-function calculateInseung(index) {
-    const inside = $(`input[name=car_inside${index}]`).val();
-    const wide_inside = inside.split('*');
-    const wide = Number(wide_inside[0]);
-    const depth = Number(wide_inside[1]);
-    $(`input[name=inseung${index}]`).val(calinseung(wide, depth));
-}
+    $(document).ready(function() {
 
-$(document).ready(function() {
-    for (let i = 1; i <= 10; i++) {
-        $(`input[name=car_inside${i}]`).focusout(function() {
-            calculateInseung(i);
+        $('#closeBtn').click(function() {
+            // if (window.opener && !window.opener.closed) {
+            //     window.opener.restorePageNumber(); // 부모 창에서 페이지 번호 복원
+            //     window.opener.location.reload(); // 부모 창 새로고침
+            // }
+            window.close(); // 현재 창 닫기
         });
-    }
-});
 
-$(document).ready(function() {
-    for (let i = 1; i <= 10; i++) {
-        $(`#cal_frame${i}`).click(function() {
-            calculateFrame(i, `${itemNumberToWord(i)}_item`);
+        // 덴크리, 서한컴퍼니 사용자 권한 제한을 위한 명령어
+        var user_name = "<?php echo $user_name; ?>";
+        var mode = "<?php echo $mode; ?>";
+
+        $("#pInput").val('50'); // 최초화면 사진파일 보여주기
+
+        var timer3 = setInterval(function() {  // 2초 간격으로 사진업데이트 체크한다.
+            if ($("#pInput").val() == '100') {   // 사진이 등록된 경우
+                displayfile();
+                $("#pInput").val('0');
+            }
+            if ($("#pInput").val() == '50') {   // 사진이 등록된 경우
+                displayfileLoad();
+                $("#pInput").val('100');
+            }
+        }, 2000);	
+	
+
+
+        $("#saveBtn").click(function() {
+            // 조건 확인
+            if ($("#workplacename").val() === '' || $("#su").val() === '') {
+                showWarningModal();
+            } else {
+                Toastify({
+                    text: "저장중...",
+                    duration: 1000,
+                    close: true,
+                    gravity: "top",
+                    position: "center",
+                    style: {
+                        background: "linear-gradient(to right, #00b09b, #96c93d)"
+                    },
+                }).showToast();
+                setTimeout(function() {
+                    saveData();
+                }, 1000);
+            }
         });
-    }
-});
 
+        function showWarningModal() {
+            Swal.fire({
+                title: '등록 오류 알림',
+                text: '현장명, 결합단위 수량은 필수입력 요소입니다.',
+                icon: 'warning',
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    return; // 사용자가 확인 버튼을 누르면 아무것도 하지 않고 종료
+                }
+            });
+        }
 
-$(document).ready(function(){	
+        function saveData() {
+            var num = $("#num").val() || '';
+            
+            $("#mode").val('insert');
+            
+            // 폼데이터 전송시 사용함 Get form
+            var form = $('#board_form')[0];
+            var datasource = new FormData(form);
 
-	$('#closeBtn').click(function() {
-		// if (window.opener && !window.opener.closed) {
-			// window.opener.restorePageNumber(); // 부모 창에서 페이지 번호 복원
-			// window.opener.location.reload(); // 부모 창 새로고침
-		// }
-		window.close(); // 현재 창 닫기
-	});
-
-
-// 덴크리,서한컴퍼니 사용자 권한 제한을 위한 명령어
- const user_name ="<?php echo $user_name; ?>";
- const mode ="<?php echo $mode; ?>";
+            if (ajaxRequest !== null) {
+                ajaxRequest.abort();
+            }
+            
+            ajaxRequest = $.ajax({
+                enctype: 'multipart/form-data', // file을 서버에 전송하려면 이렇게 해야 함 주의
+                processData: false,
+                contentType: false,
+                cache: false,
+                timeout: 1000000,
+                url: "insert.php",
+                type: "post",
+                data: datasource,
+                dataType: "json",
+                success: function(data) {
+                    setTimeout(function() {
+                        Swal.fire(
+                            '자료등록 완료',
+                            '자료를 업데이트 중입니다. 잠시 기다려주세요.',
+                            'success'
+                        );
+                        setTimeout(function() {
+                            if (window.opener && !window.opener.closed) {
+                                window.opener.restorePageNumber(); // 부모 창에서 페이지 번호 복원
+                                window.opener.location.reload(); // 부모 창 새로고침
+                            }
+                            setTimeout(function() {
+                                location.href = "view.php?num=" + (data["num"] || '');
+                            }, 1000);
+                        }, 1000);
+                    }, 1000);
+                },
+                error: function(jqxhr, status, error) {
+                    console.log(jqxhr, status, error);
+                }
+            });
+        }	 
   
-	$("#pInput").val('50'); // 최초화면 사진파일 보여주기
-	
-let timer3 = setInterval(() => {  // 2초 간격으로 사진업데이트 체크한다.
-	      if($("#pInput").val()=='100')   // 사진이 등록된 경우
-		  {
-	             displayfile();  
-				$("#pInput").val('0');				 
-		  }	      
-		  if($("#pInput").val()=='50')   // 사진이 등록된 경우
-		  {
-	             displayfileLoad();	
-				$("#pInput").val('100');
-		  }		   
-	 }, 2000);	
-	
+    delPicFn = function(divID, delChoice) {
+        console.log(divID, delChoice);
 
-	
-	 $("#saveBtn").click(function(){ 		
-		// 조건 확인
-		if($("#workplacename").val() === '' || $("#su").val()  === '' ) {
-			showWarningModal();
-		} else {
-			
-			Toastify({
-				text: "저장중...",
-				duration: 1000,
-				close:true,
-				gravity:"top",
-				position: "center",
-				style: {
-					background: "linear-gradient(to right, #00b09b, #96c93d)"
-				},
-			}).showToast();	
-			setTimeout(function(){
-					 saveData();
-			}, 1000);
-		  
-		}
-	});
-
-	function showWarningModal() {
-		Swal.fire({                                    
-			title: '등록 오류 알림',
-			text: '현장명, 결합단위 수량은 필수입력 요소입니다.',
-			icon: 'warning',
-			// ... 기타 설정 ...
-		}).then(result => {
-			if (result.isConfirmed) { 
-				return; // 사용자가 확인 버튼을 누르면 아무것도 하지 않고 종료
-			}         
-		});
-	}
-
-	function saveData() {
-		
-		var num = $("#num").val();  		
-		
-		$("#mode").val('insert');     			  			
-			
-		//  console.log($("#mode").val());    
-		// 폼데이터 전송시 사용함 Get form         
-		var form = $('#board_form')[0];  	    	
-		var datasource = new FormData(form); 
-
-		// console.log(data);
-		if (ajaxRequest !== null) {
-			ajaxRequest.abort();
-		}		 
-		ajaxRequest = $.ajax({
-			enctype: 'multipart/form-data',    // file을 서버에 전송하려면 이렇게 해야 함 주의
-			processData: false,    
-			contentType: false,      
-			cache: false,           
-			timeout: 1000000, 			
-			url: "insert.php",
-			type: "post",		
-			data: datasource,			
-			dataType: "json", 
-			success : function(data){
-				  // console.log('data :' , data);
-				setTimeout(function(){	
-				  Swal.fire(
-					  '자료등록 완료',
-					  '자료를 업데이트 중입니다. 잠시 기다려주세요.',
-					  'success'
-					);
-				setTimeout(function(){									
-							if (window.opener && !window.opener.closed) {
-								window.opener.restorePageNumber(); // 부모 창에서 페이지 번호 복원
-								window.opener.location.reload(); // 부모 창 새로고침
-							}	
-						setTimeout(function(){															
-								 location.href = "view.php?num=" + data["num"];
-						}, 1000);	
-				}, 1000);		
-			}, 1000);		
-			},
-			error : function( jqxhr , status , error ){
-				console.log( jqxhr , status , error );
-						} 			      		
-		   });		
-			
-	}	 
-  
-delPicFn = function(divID, delChoice) {
-	console.log(divID, delChoice);
-
-	$.ajax({
-		url:'../file/del_file.php?savename=' + delChoice ,
-		type:'post',
-		data: $("board_form").serialize(),
-		dataType: 'json',
-		}).done(function(data){						
-		   const savename = data["savename"];		   
-		   
-		  // 시공전사진 삭제 
-			$("#file" + divID).remove();  // 그림요소 삭제
-			$("#delPic" + divID).remove();  // 그림요소 삭제
-		    $("#pInput").val('');					
-			
-        });		
-
-}
+        $.ajax({
+            url: '../file/del_file.php?savename=' + delChoice,
+            type: 'post',
+            data: $("board_form").serialize(),
+            dataType: 'json',
+        }).done(function(data) {
+            var savename = data["savename"] || '';
+            
+            // 시공전사진 삭제
+            $("#file" + divID).remove();  // 그림요소 삭제
+            $("#delPic" + divID).remove();  // 버튼요소 삭제
+            $("#pInput").val('');
+        });
+    };
 	    
  	 
 	 
@@ -834,203 +891,190 @@ $("#delattachedfileBtn").click(function(){
 });
 
 
-calculateBoth = function(NUM, name1, name2) {
-		const type = $("input[name=type" + NUM +"]" ).val();
-		const inside = $("input[name=car_inside" + NUM +"]" ).val();
-		const lc_su = $("input[name=lc_su]" ).val();		
-	    const first_name = name1;
-	    const second_name = name2;
-		let nextNUM = NUM + 1;
-		let result;
-		let jungSu;
-		let divider;		
+    calculateBoth = function(NUM, name1, name2) {
+        var type = $("input[name=type" + NUM + "]").val() || '';
+        var inside = $("input[name=car_inside" + NUM + "]").val() || '';
+        var lc_su = $("input[name=lc_su]").val() || 0;
+        var first_name = name1;
+        var second_name = name2;
+        var nextNUM = NUM + 1;
+        var result = 0;
+        var jungSu = 1;
+        var divider = 1;
 
-		const wide_inside = inside.split('*');
-		const wide = Number(wide_inside[0]);
-        const depth=Number(wide_inside[1]);		
+        var wide_inside = inside.split('*');
+        var wide = Number(wide_inside[0]) || 0;
+        var depth = Number(wide_inside[1]) || 0;
 
-		//console.log(wide);
+        // 타입에 따른 result 계산
+        if (type == '011' || type == '012' || type == '025' || type == '017' || type == '014') {
+            result = depth - 50;
+        } else if (type == '013') {
+            result = depth - 20;
+        }
 
+        $("input[name=" + first_name + "1]").val('프레임');
+        $("input[name=" + first_name + "2]").val(result);
+        $("input[name=" + first_name + "3]").val(lc_su);
+        $("input[name=" + first_name + "4]").val('SET');
 
-		if(type=='011' || type=='012' ||type=='025' ||type=='017' ||type=='014') {
-				   result=depth - 50;	
-				   }
-				else if(type=='013')
-					{
-						result=depth - 20;	
-					}					
+        var result_wide = 0;
 
-		$("input[name=" + first_name + "1]").val('프레임');
-		$("input[name=" + first_name + "2]").val(result);
-		$("input[name=" + first_name + "3]").val(lc_su);
-		$("input[name=" + first_name + "4]").val('SET');
+        switch (type) {
+            case '011':
+                result_wide = wide - 730;
+                break;
+            case '012':
+                result_wide = wide - 750;
+                break;
+            case '013':
+                result_wide = wide - 705;
+                break;
+            case '014':
+                result_wide = wide / 2 - 143;
+                break;
+            case '017':
+                result_wide = wide - 810;
+                break;
+            case '017S':
+            case '017s':
+                result_wide = wide - 410;
+                break;
+            case '017m':
+            case '017M':
+                result_wide = wide - 610;
+                break;
+            case 'N20':
+                result_wide = wide - 705;
+                break;
+            case '026':
+                result_wide = wide - 670;
+                break;
+            default:
+                break;
+        }
 
-		let result_wide=0;
+        if (depth < 1000) {
+            jungSu = 1;
+            divider = 1;
+        } else if (depth >= 1800) {
+            jungSu = 3;
+            divider = 3;
+        } else {
+            jungSu = 2;
+            divider = 2;
+        }
 
-		switch(type) {
-			case '011' :
-			   result_wide=wide-730;
-			   break;
-			case '012' :
-			   result_wide=wide-750;
-			   break;
-			case '013' :
-			   result_wide=wide-705;
-			   break;
-			case '014' :
-			   result_wide=wide/2-143;
-			   break;
-			case '017' :
-			   result_wide=wide-810;
-			   break;
-			case '017S' :
-			case '017s' :
-			   result_wide=wide-410;
-			   break;
-			case '017m' :
-			case '017M' :
-			   result_wide=wide-610;
-			   break;
-			case 'N20' :
-			   result_wide=wide-705;
-			   break;
-			case '026' :
-			   result_wide=wide-670;
-			   break;			   
-			default:
-				 break;
-		}
+        var result_depth = 0;
 
-		if(depth<1000)
-	     	{
-			   jungSu=1;
-			   divider = 1;			   
-	     		}
-			else if(depth>=1800)
-			   {
-				 jungSu = 3;
-				 divider = 3;
-			   }
-			   else
-			      {
-					jungSu = 2;
-					divider = 2;
-				  }
-				
-		let result_depth=0;
+        switch (type) {
+            case '011':
+                result_depth = (depth - 54) / divider;
+                break;
+            case '012':
+                result_depth = (depth - 54) / divider;
+                break;
+            case '013':
+                result_depth = (depth - 20) / divider;
+                break;
+            case '014':
+                result_depth = (depth - 54);
+                break;
+            case '017':
+                if (depth >= 1800) {
+                    result_depth = (depth - 60) / 3;
+                } else if (depth >= 1000) {
+                    result_depth = (depth - 60) / 2;
+                } else {
+                    result_depth = (depth - 60);
+                }
+                break;
+            case '017S':
+            case '017s':
+                result_depth = (depth - 60) / divider;
+                break;
+            case '017m':
+            case '017M':
+                result_depth = (depth - 60) / divider;
+                break;
+            case 'N20':
+                result_depth = (depth - 56) / divider;
+                break;
+            case '026':
+                result_depth = (depth - 58) / divider;
+                break;
+            default:
+                break;
+        }
 
-		switch(type) {
-			case '011' :
-			   result_depth= (depth-54)/divider  ;
-			   break;
-			case '012' :
-			   result_depth=(depth-54)/divider ;
-			   break;
-			case '013' :
-			   result_depth=(depth-20)/divider ;
-			   break;
-			case '014' :
-			   result_depth=(depth-54)  ;
-			   break;
-			case '017' :
-			   if(depth>=1800)
-					  result_depth=(depth-60)/3 ;
-				  else if (depth>=1000)
-					  result_depth=(depth-60)/2 ;
-				  else 
-					   result_depth=(depth-60) ;
-				  
-			   break;
-			case '017S' :
-			case '017s' :
-			   result_depth=(depth-60)/divider ;
-			   break;
-			case '017m' :
-			case '017M' :
-			   result_depth=(depth-60)/divider ;
-			   break;
-			case 'N20' :
-			   result_depth=(depth-56)/divider ;
-			   break;
-			case '026' :
-			   result_depth=(depth-58)/divider ;
-			   break;			   
-			default:
-				 break;
-		}					
-				
-		$("input[name=" + second_name + "1]").val('중판');
-		$("input[name=" + second_name + "2]").val(result_wide + "*" + Math.floor(result_depth));
-		$("input[name=" + second_name + "3]").val(jungSu*lc_su);
-		$("input[name=" + second_name + "4]").val('EA');	
-
-}	   
+        $("input[name=" + second_name + "1]").val('중판');
+        $("input[name=" + second_name + "2]").val(result_wide + "*" + Math.floor(result_depth));
+        $("input[name=" + second_name + "3]").val(jungSu * lc_su);
+        $("input[name=" + second_name + "4]").val('EA');
+    };
 
 
-calculateFrame = function(NUM, name1) {
-		const type = $("input[name=type" + NUM +"]" ).val();
-		const inside = $("input[name=car_inside" + NUM +"]" ).val();
-		const lc_su = $("input[name=lc_su]" ).val();		
-	    const first_name = name1;
-		let result;
-		let jungSu;
+    calculateFrame = function(NUM, name1) {
+        var type = $("input[name=type" + NUM + "]").val() || '';
+        var inside = $("input[name=car_inside" + NUM + "]").val() || '';
+        var lc_su = $("input[name=lc_su]").val() || 0;
+        var first_name = name1;
+        var result = 0;
+        var jungSu = 1;
 
-		const wide_inside = inside.split('*');
-		const wide = Number(wide_inside[0]);
-        const depth=Number(wide_inside[1]);			
+        var wide_inside = inside.split('*');
+        var wide = Number(wide_inside[0]) || 0;
+        var depth = Number(wide_inside[1]) || 0;
 
-		if(type=='011' || type=='012' ||type=='025' ||type=='017' ||type=='014') {
-				   result=depth - 50;	
-				   }
-				else if(type=='013')
-					{
-						result=depth - 20;	
-					}					
+        if (type == '011' || type == '012' || type == '025' || type == '017' || type == '014') {
+            result = depth - 50;
+        } else if (type == '013') {
+            result = depth - 20;
+        }
 
-		$("input[name=" + first_name + "1]").val('프레임/중판X');
-		$("input[name=" + first_name + "2]").val(result);
-		$("input[name=" + first_name + "3]").val(lc_su);
-		$("input[name=" + first_name + "4]").val('SET');
-}	           
+        $("input[name=" + first_name + "1]").val('프레임/중판X');
+        $("input[name=" + first_name + "2]").val(result);
+        $("input[name=" + first_name + "3]").val(lc_su);
+        $("input[name=" + first_name + "4]").val('SET');
+    };
 	
 
 
-// 첨부된 파일 불러오기
-function displayfile() {       
-	$('#displayfile').show();
-	params = $("#id").val();	
-	
-    var tablename = 'outorder';    
-    var item = 'attached';
-	
-	$.ajax({
-		url:'../file/load_file.php?id=' + params + '&tablename=' + tablename + '&item=' + item ,
-		type:'post',
-		data: $("board_form").serialize(),
-		dataType: 'json',
-		}).done(function(data){						
-		   const recid = data["recid"];		   
-		   console.log(data);
-		   $("#displayfile").html('');
-		   for(i=0;i<recid;i++) {	
-			   $("#displayfile").append("<span id=file" + i + ">  <a href='../uploads/" + data["file_arr"][i] + "' download='" +  data["realfile_arr"][i]+ "'>" +  data["realfile_arr"][i] + "</span> &nbsp;&nbsp;&nbsp;&nbsp;  " );			   
-         	   $("#displayfile").append("&nbsp;<button type='button' class='btn btn-outline-danger btn-sm' id='delPic" + i + "' onclick=delPicFn('" + i + "','" + data["file_arr"][i] + "')> <i class='bi bi-dash-circle'></i> </button> </button>&nbsp;");					   
-		      }		   
-    });	
-}
+    // 첨부된 파일 불러오기
+    function displayfile() {
+        $('#displayfile').show();
+        var params = $("#id").val();
+        var tablename = 'outorder';
+        var item = 'attached';
+        
+        $.ajax({
+            url: '../file/load_file.php?id=' + params + '&tablename=' + tablename + '&item=' + item,
+            type: 'post',
+            data: $("board_form").serialize(),
+            dataType: 'json',
+        }).done(function(data) {
+            var recid = data["recid"] || 0;
+            console.log(data);
+            $("#displayfile").html('');
+            
+            for (var i = 0; i < recid; i++) {
+                $("#displayfile").append("<span id=file" + i + ">  <a href='../uploads/" + data["file_arr"][i] + "' download='" + data["realfile_arr"][i] + "'>" + data["realfile_arr"][i] + "</span> &nbsp;&nbsp;&nbsp;&nbsp;  ");
+                $("#displayfile").append("&nbsp;<button type='button' class='btn btn-outline-danger btn-sm' id='delPic" + i + "' onclick=delPicFn('" + i + "','" + data["file_arr"][i] + "')> <i class='bi bi-dash-circle'></i> </button> </button>&nbsp;");
+            }
+        });
+    }
 
-// 기존 있는 파일 화면에 보여주기
-function displayfileLoad() {    
-	$('#displayfile').show();	
-	var savefilename_arr = <?php echo json_encode($savefilename_arr);?> ;	
-	var realname_arr = <?php echo json_encode($realname_arr);?> ;	
-	
-    for(i=0;i<savefilename_arr.length;i++) {
-			   $("#displayfile").append("<span id=file" + i + ">  <a href='../uploads/" + savefilename_arr[i] + "' download='" + realname_arr[i] + "'>" +  realname_arr[i] + "</span> &nbsp;&nbsp;&nbsp;&nbsp;  " );			   
-         	   $("#displayfile").append("&nbsp;<button type='button' class='btn btn-outline-danger btn-sm' id='delPic" + i + "' onclick=delPicFn('" + i + "','" +  savefilename_arr[i] + "')><i class='bi bi-dash-circle'></i> </button> </button>&nbsp; ");					   
-	  }	   
-		
-}
+    // 기존 있는 파일 화면에 보여주기
+    function displayfileLoad() {
+        $('#displayfile').show();
+        var savefilename_arr = <?php echo json_encode($savefilename_arr); ?>;
+        var realname_arr = <?php echo json_encode($realname_arr); ?>;
+        
+        for (var i = 0; i < savefilename_arr.length; i++) {
+            $("#displayfile").append("<span id=file" + i + ">  <a href='../uploads/" + savefilename_arr[i] + "' download='" + realname_arr[i] + "'>" + realname_arr[i] + "</span> &nbsp;&nbsp;&nbsp;&nbsp;  ");
+            $("#displayfile").append("&nbsp;<button type='button' class='btn btn-outline-danger btn-sm' id='delPic" + i + "' onclick=delPicFn('" + i + "','" + savefilename_arr[i] + "')><i class='bi bi-dash-circle'></i> </button> </button>&nbsp; ");
+        }
+    }
 	
 	
 });  // end of ready

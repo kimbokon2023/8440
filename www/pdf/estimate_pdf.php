@@ -1,4 +1,8 @@
 <?php
+// 로컬/서버 환경 설정
+$is_local = $_SERVER['HTTP_HOST'] === 'localhost' || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false;
+$base_url = $is_local ? 'http://localhost/mirae8440/www' : 'http://8440.co.kr';
+
 // 메모리 & 타임아웃 (최상단)
 @ini_set('memory_limit', '512M');
 @set_time_limit(120);

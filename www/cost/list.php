@@ -1,56 +1,59 @@
-<?php require_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session.php')); 
+<?php
+require_once __DIR__ . '/../common/functions.php';
+require_once getDocumentRoot() . '/session.php';
+
+// 세션 변수 초기화
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+
 $title_message = '2년간 원자재 단가 추이';
-?> 
-<?php include getDocumentRoot() . '/load_header.php' ?> 
-<title> <?=$title_message?>  </title>  
-</head> 
- <body>
- <?php 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
+<title> <?= $title_message ?> </title>
+</head>
 
-$firstItem = $_REQUEST['firstItem'] ?? '';
-$scale = $_REQUEST['scale'] ?? 20;
-$page = $_REQUEST['page'] ?? 1;
-							                	
-include "_request.php";
- 
-$find=$_REQUEST["find"] ?? '전체';
-$search=$_REQUEST["search"] ?? '';
-$Bigsearch=$_REQUEST["Bigsearch"] ?? '304 HL';
-$mode=$_REQUEST["mode"] ?? 'search';
-$fromdate = $_REQUEST["fromdate"] ?? '';
-$todate = $_REQUEST["todate"] ?? '';
-
-$default_condition = false;
-
-// 기본 검색 조건 설정
-if ($Bigsearch == '304 HL') {
-    $find = '공급처';
-    $searchspec = '1.2*1219*2438';
-    $searchsupplier = '현진스텐';
-    $default_condition = true;
-}
-if ($Bigsearch == '201 2B MR') {
-    $find = '공급처';
-    $searchspec = '1.2*1219*2438';
-    $searchsupplier = '윤스틸';
-    $default_condition = true;
-}
-if ($Bigsearch == '201 HL' || $Bigsearch == '201 VB' ) {
-    $find = '공급처';
-    $searchspec = '1.2*1219*2438';
-    $searchsupplier = '우성스틸';
-    $default_condition = true;
-}
-if ($Bigsearch == '201 MR BEAD' || $Bigsearch == '2B VB'  || $Bigsearch == 'VB' ) {
-    $find = '공급처';
-    $searchspec = '1.2*1219*2438';
-    $searchsupplier = '한산엘테크';
-    $default_condition = true;
-}
+<body>
+    <?php
+    // 요청 파라미터 초기화
+    $firstItem = $_REQUEST['firstItem'] ?? '';
+    $scale = $_REQUEST['scale'] ?? 20;
+    $page = $_REQUEST['page'] ?? 1;
+    
+    include "_request.php";
+    
+    $find = $_REQUEST["find"] ?? '전체';
+    $search = $_REQUEST["search"] ?? '';
+    $Bigsearch = $_REQUEST["Bigsearch"] ?? '304 HL';
+    $mode = $_REQUEST["mode"] ?? 'search';
+    $fromdate = $_REQUEST["fromdate"] ?? '';
+    $todate = $_REQUEST["todate"] ?? '';
+    
+    // 검색 조건 변수 초기화
+    $default_condition = false;
+    $searchspec = '';
+    $searchsupplier = '';
+    
+    // 기본 검색 조건 설정
+    if ($Bigsearch == '304 HL') {
+        $find = '공급처';
+        $searchspec = '1.2*1219*2438';
+        $searchsupplier = '현진스텐';
+        $default_condition = true;
+    } elseif ($Bigsearch == '201 2B MR') {
+        $find = '공급처';
+        $searchspec = '1.2*1219*2438';
+        $searchsupplier = '윤스틸';
+        $default_condition = true;
+    } elseif ($Bigsearch == '201 HL' || $Bigsearch == '201 VB') {
+        $find = '공급처';
+        $searchspec = '1.2*1219*2438';
+        $searchsupplier = '우성스틸';
+        $default_condition = true;
+    } elseif ($Bigsearch == '201 MR BEAD' || $Bigsearch == '2B VB' || $Bigsearch == 'VB') {
+        $find = '공급처';
+        $searchspec = '1.2*1219*2438';
+        $searchsupplier = '한산엘테크';
+        $default_condition = true;
+    }
 $page_scale = 15;   // 한 페이지당 표시될 페이지 수
 $first_num = ($page - 1) * $scale;  // 리스트에 표시되는 게시글의 첫 순번
 
@@ -123,7 +126,8 @@ $nowday=date("Y-m-d");   // 현재일자 변수지정
 
 $BigsearchTag = str_replace(' ','|',$Bigsearch);
 
-$steel_items = [];
+// steel_items 배열 초기화
+$steel_items = array();
 
 try {
     $sql_items = "SELECT DISTINCT steel_item 
@@ -131,76 +135,74 @@ try {
                   WHERE (is_deleted IS NULL OR is_deleted = '') 
                   AND eworks_item = '원자재구매' 
                   ORDER BY steel_item ASC";
-
+    
     $stmt_items = $pdo->prepare($sql_items);
     $stmt_items->execute();
-
+    
     while ($row = $stmt_items->fetch(PDO::FETCH_ASSOC)) {
         $steel_items[] = trim($row['steel_item']);
     }
-} catch (PDOException $e) {
-    error_log("steel_item 목록 조회 오류: " . $e->getMessage());
+} catch (PDOException $ex) {
+    error_log("steel_item 목록 조회 오류: " . $ex->getMessage());
 }
 
-$item_arr = array();			
-	try {
-		$current_month = date('Y-m');
-		$start_month = date('Y-m', strtotime('-23 months'));
+// 배열 초기화
+$item_arr = array();
+$data = array(); // 연관 배열을 저장할 변수
 
-		$data = []; // 연관 배열을 저장할 변수
-		$stmt = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-
-		for ($i = 23; $i >= 0; $i--) {
-			array_push($item_arr,' ');
-			while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-				include getDocumentRoot() . '/request/_row.php';				  
+try {
+    $current_month = date('Y-m');
+    $start_month = date('Y-m', strtotime('-23 months'));
+    
+    $stmt = $pdo->query($sql);
+    
+    for ($i = 23; $i >= 0; $i--) {
+        array_push($item_arr, ' ');
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            include getDocumentRoot() . '/request/_row.php';
+            
+            array_push($item_arr, $steel_item);
+            
+            $temp_arr = explode('*', $spec);
+            $val1 = isset($temp_arr[0]) ? $temp_arr[0] : 0;
+            $val2 = isset($temp_arr[1]) ? $temp_arr[1] : 0;
+            $val3 = isset($temp_arr[2]) ? $temp_arr[2] : 0;
+            
+            $saved_weight = ($val1 * $val2 * $val3 * 7.93 * (int)$steelnum) / 1000000;
+            $saved_weight = sprintf('%0.1f', $saved_weight);
+            $number = (int)str_replace(',', '', $suppliercost);
+            $unit_weight = $number > 0 ? floor($number / $saved_weight) : 0;
+            
+            $month = substr($outdate, 0, 7); // 월을 추출합니다.
+            
+            if (!isset($data[$steel_item])) {
+                $data[$steel_item] = array(); // 아이템에 대한 배열을 초기화합니다.
+            }
+            
+            $data[$steel_item][$month] = $unit_weight; // 아이템의 해당 월에 단가를 저장합니다.
+        }
+    }
+} catch (PDOException $ex) {
+    error_log("원자재 단가 추이 조회 오류: " . $ex->getMessage());
+}	
 				
-				array_push($item_arr,$steel_item);
-				
-				$temp_arr = explode('*', $spec);
-				$saved_weight = ($temp_arr[0] * $temp_arr[1] * $temp_arr[2] * 7.93 * (int)$steelnum) / 1000000;
-				$saved_weight = sprintf('%0.1f', $saved_weight);
-				$number = (int)str_replace(',', '', $suppliercost);
-				$unit_weight = $number > 0 ? floor($number / $saved_weight) : 0;
-
-				$month = substr($outdate, 0, 7); // 월을 추출합니다.
-				
-				// print $month;
-
-				if (!isset($data[$steel_item])) {
-					$data[$steel_item] = []; // 아이템에 대한 배열을 초기화합니다.
-				}
-
-				$data[$steel_item][$month] = $unit_weight; // 아이템의 해당 월에 단가를 저장합니다.
-			}
-		}
-	} catch (PDOException $Exception) {
-		error_log("오류: " . $Exception->getMessage());
-	}	
-				
-		 // 배열에서 중복 값을 제거하고 빈 문자열을 필터링합니다.
-		$item_arr = array_unique($item_arr);
-		$item_arr = array_filter($item_arr, function($value) {
-			return trim($value) !== '';
-		});
-
-	// 배열을 오름차순으로 정렬합니다.
-	sort($item_arr);
-
-	// 배열 인덱스를 리셋합니다.
-	$item_arr = array_values($item_arr);
-	
-// print $sql;
-	
-// echo '<pre>';
-// print_r($data);
-// echo '</pre>';	
-		
-?>
- <form name="board_form" id="board_form"  method="post" action="list.php?mode=search">     		
-	<input type="hidden" id="BigsearchTag" name="BigsearchTag" value="<?=$BigsearchTag?>" size="5" > 						
-	<input type="hidden" id="page" name="page" value="<?=$page?>" size="5" > 	
-	<input type="hidden" id="scale" name="scale" value="<?=$scale?>" size="5" > 	
+    // 배열에서 중복 값을 제거하고 빈 문자열을 필터링합니다.
+    $item_arr = array_unique($item_arr);
+    $item_arr = array_filter($item_arr, function ($value) {
+        return trim($value) !== '';
+    });
+    
+    // 배열을 오름차순으로 정렬합니다.
+    sort($item_arr);
+    
+    // 배열 인덱스를 리셋합니다.
+    $item_arr = array_values($item_arr);
+    ?>
+    
+    <form name="board_form" id="board_form" method="post" action="list.php?mode=search">
+        <input type="hidden" id="BigsearchTag" name="BigsearchTag" value="<?= htmlspecialchars($BigsearchTag, ENT_QUOTES, 'UTF-8') ?>" size="5">
+        <input type="hidden" id="page" name="page" value="<?= htmlspecialchars($page, ENT_QUOTES, 'UTF-8') ?>" size="5">
+        <input type="hidden" id="scale" name="scale" value="<?= htmlspecialchars($scale, ENT_QUOTES, 'UTF-8') ?>" size="5"> 	
     
  <div class="container-fluid"> 						
 	<div class="d-flex mb-3 mt-2 justify-content-center align-items-center"> 
@@ -429,56 +431,55 @@ var myChart = new Chart(ctx, {
 		</thead>
 	  <tbody>
 <?php	   
-try{
-	  $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-      $total_row=$stmh->rowCount(); 
-	  
-		  $start_num=$total_row;    // 페이지당 표시되는 첫번째 글순번		  
-		  
-	       while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+// 변수 초기화
+$total_row = 0;
+$start_num = 0;
 
-             	include getDocumentRoot() . '/request/_row.php';				  
-			  	
-		    	$temp_arr = explode("*", $spec);
-			
-                $saved_weight = 0.0;					
-				$val1 = (float) preg_replace('/[^0-9\.]/', '', $temp_arr[0]);
-				$val2 = (float) preg_replace('/[^0-9\.]/', '', $temp_arr[1]);
-				$val3 = (float) preg_replace('/[^0-9\.]/', '', $temp_arr[2]);
-
-				$saved_weight += ($val1 * $val2 * $val3 * 7.93 * (int)$steelnum) / 1000000;
-				
-			    $saved_weight = sprintf('%0.1f', $saved_weight);  // 소수점 한자리 표현
-				
-				$number = (int)str_replace(',', '', $suppliercost);  // Convert the string to an integer after removing commas				
-				$unit_weight = 0 ;
-				if($number > 0 )
-				{ 
-				 $unit_weight = number_format(floor($number / $saved_weight)) ;				 
-				}					   		
-			?>
-		    <tr onclick="JavaScript:Toview('<?=$num?>');">
-			
-            <td class="text-center" > <?=$start_num?>		</td>
-            <td class="text-center" >	 <?=$indate?>		</td>						   
-            <td                     > <?=$outworkplace?> 			</td>
-            <td class="text-center" > <?=$model?>			</td>
-            <td class="text-center " > <?=$supplier?>		</td>
-            <td class="text-center text-primary" > <?=$steel_item?>			</td>
-            <td class="text-center" > <?=$spec?>			</td>
-            <td class="text-center" > <?=$steelnum?>		</td>
-            <td class="text-center text-dark" > <?=$saved_weight ==0 ? '' : $saved_weight  ?>	   </td>						            
-            <td class="text-end text-success" > <?=$unit_weight ==0 ? '' : $unit_weight  ?>			</td>						            
-            <td class="text-end text-danger" >  <?=$suppliercost?>			</td>
-            <td class="text-center"><?=mb_substr($request_comment, 0, 12) ?></td>					
-          </tr>			
-			    				
-			<?php
-			$start_num--;  
-			 } 
-		  } catch (PDOException $Exception) {
-		  print "오류: ".$Exception->getMessage();
-		  }  
+try {
+    $stmh = $pdo->query($sql);
+    $total_row = $stmh->rowCount();
+    $start_num = $total_row;    // 페이지당 표시되는 첫번째 글순번
+    
+    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+        include getDocumentRoot() . '/request/_row.php';
+        
+        $temp_arr = explode("*", $spec);
+        
+        $saved_weight = 0.0;
+        $val1 = (float)preg_replace('/[^0-9\.]/', '', isset($temp_arr[0]) ? $temp_arr[0] : '0');
+        $val2 = (float)preg_replace('/[^0-9\.]/', '', isset($temp_arr[1]) ? $temp_arr[1] : '0');
+        $val3 = (float)preg_replace('/[^0-9\.]/', '', isset($temp_arr[2]) ? $temp_arr[2] : '0');
+        
+        $saved_weight += ($val1 * $val2 * $val3 * 7.93 * (int)$steelnum) / 1000000;
+        
+        $saved_weight = sprintf('%0.1f', $saved_weight);  // 소수점 한자리 표현
+        
+        $number = (int)str_replace(',', '', $suppliercost);
+        $unit_weight = 0;
+        if ($number > 0) {
+            $unit_weight = number_format(floor($number / $saved_weight));
+        }
+        ?>
+        <tr onclick="JavaScript:Toview('<?= $num ?>');">
+            <td class="text-center"><?= $start_num ?></td>
+            <td class="text-center"><?= htmlspecialchars($indate, ENT_QUOTES, 'UTF-8') ?></td>
+            <td><?= htmlspecialchars($outworkplace, ENT_QUOTES, 'UTF-8') ?></td>
+            <td class="text-center"><?= htmlspecialchars($model, ENT_QUOTES, 'UTF-8') ?></td>
+            <td class="text-center"><?= htmlspecialchars($supplier, ENT_QUOTES, 'UTF-8') ?></td>
+            <td class="text-center text-primary"><?= htmlspecialchars($steel_item, ENT_QUOTES, 'UTF-8') ?></td>
+            <td class="text-center"><?= htmlspecialchars($spec, ENT_QUOTES, 'UTF-8') ?></td>
+            <td class="text-center"><?= htmlspecialchars($steelnum, ENT_QUOTES, 'UTF-8') ?></td>
+            <td class="text-center text-dark"><?= $saved_weight == 0 ? '' : $saved_weight ?></td>
+            <td class="text-end text-success"><?= $unit_weight == 0 ? '' : $unit_weight ?></td>
+            <td class="text-end text-danger"><?= htmlspecialchars($suppliercost, ENT_QUOTES, 'UTF-8') ?></td>
+            <td class="text-center"><?= htmlspecialchars(mb_substr($request_comment, 0, 12), ENT_QUOTES, 'UTF-8') ?></td>
+        </tr>
+        <?php
+        $start_num--;
+    }
+} catch (PDOException $ex) {
+    error_log("원자재 목록 조회 오류: " . $ex->getMessage());
+}  
 		   
 		 ?>
        </tbody>
@@ -486,63 +487,62 @@ try{
    </div>  
 </div>		
 
-<div class="container">
-<? include '../footer_sub.php'; ?>
-</div>
-
-</form>
-<script>
-$(document).ready(function(){	
-// 원자재 금액산출 클릭시
-$("#calamountBtn").click(function(){         
-	 popupCenter('calamount.php?menu=no'  , '원자재 금액 산출', 1000, 650);	
-});
-
-// 원자재현황 클릭시
-$("#rawmaterialBtn").click(function(){ 
-        
-	 popupCenter('../steel/rawmaterial.php?menu=no'  , '원자재현황보기', 1050, 950);	
-});
-
-// 원자재 가격테이블 클릭시
-$("#showmaterialfeeBtn").click(function(){ 
-        
-	 popupCenter('./settings.php'  , '원자재현황보기', 800, 500);	
-});
-
-$("#closeModalBtn").click(function(){ 
-    $('#myModal').modal('hide');
-});
-	
-$("#searchBtn").click(function(){ 
-	var str = '<?php echo $BigsearchTag; ?>' ;		  
-		 $("#BigsearchTag").val(str.replace(' ','|'));
-		 $("#stable").val('1');
-		 $("#page").val('1');
-		 $("#list").val('1');
-		 $("#board_form").submit();  		 
-		document.getElementById('board_form').submit();   
-	 });		
-		
-    $('#Bigsearch').change(function() {
-        // $BigsearchTag 설정
-        var str = $("#Bigsearch").val();
-        
-        $("#BigsearchTag").val(str.replace(' ','|'));
-        $("#list").val('1');
-        $("#board_form").submit();                
-        document.getElementById('board_form').submit();
-    });
-	
-	$("#total_row").text('<?= $total_row ?>');
-});
-
-function Toview(num) {
-    var url = "../request/view.php?num=" + num ;
+        <div class="container">
+            <?php include '../footer_sub.php'; ?>
+        </div>
+    </form>
     
-    console.log(url); // 오타 수정
-	customPopup(url, '원자재 원가', 1400, 800);     
-}
-</script>  
+    <script>
+        $(document).ready(function () {
+            // 원자재 금액산출 클릭시
+            $("#calamountBtn").click(function () {
+                popupCenter('calamount.php?menu=no', '원자재 금액 산출', 1000, 650);
+            });
+            
+            // 원자재현황 클릭시
+            $("#rawmaterialBtn").click(function () {
+                popupCenter('../steel/rawmaterial.php?menu=no', '원자재현황보기', 1050, 950);
+            });
+            
+            // 원자재 가격테이블 클릭시
+            $("#showmaterialfeeBtn").click(function () {
+                popupCenter('./settings.php', '원자재현황보기', 800, 500);
+            });
+            
+            $("#closeModalBtn").click(function () {
+                $('#myModal').modal('hide');
+            });
+            
+            $("#searchBtn").click(function () {
+                var str = '<?php echo $BigsearchTag; ?>';
+                $("#BigsearchTag").val(str.replace(' ', '|'));
+                $("#stable").val('1');
+                $("#page").val('1');
+                $("#list").val('1');
+                $("#board_form").submit();
+                document.getElementById('board_form').submit();
+            });
+            
+            $('#Bigsearch').change(function () {
+                // $BigsearchTag 설정
+                var str = $("#Bigsearch").val();
+                
+                $("#BigsearchTag").val(str.replace(' ', '|'));
+                $("#list").val('1');
+                $("#board_form").submit();
+                document.getElementById('board_form').submit();
+            });
+            
+            $("#total_row").text('<?= $total_row ?>');
+        });
+        
+        function Toview(num) {
+            var url = "../request/view.php?num=" + num;
+            
+            console.log(url);
+            customPopup(url, '원자재 원가', 1400, 800);
+        }
+    </script>
 </body>
+
 </html>

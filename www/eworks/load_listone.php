@@ -1,51 +1,107 @@
-<?php require_once __DIR__ . '/../bootstrap.php';
-header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문
+<?php
+// 로컬과 서버 호환성을 위한 설정
+if (file_exists(__DIR__ . '/../common/functions.php')) {
+    require_once __DIR__ . '/../common/functions.php';
+}
 
-isset($_REQUEST["e_num"]) ? $e_num = $_REQUEST["e_num"] :   $e_num=""; 
+// JSON 헤더 설정
+header("Content-Type: application/json; charset=utf-8");
 
+// 세션 시작
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// 변수 초기화
+$e_num = $_REQUEST["e_num"] ?? "";
+$DB = $_SESSION['DB'] ?? 'mirae8440';
+$pdo = null;
+
+// 데이터베이스 연결
 require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();	
+$pdo = db_connect();
 
- try{
-      $sql = "select * from mirae8440.eworks where num='$e_num' and is_deleted IS NULL ";
-      $stmh = $pdo->prepare($sql);       
-      $stmh->execute();
-      $count = $stmh->rowCount();         	  
-    if($count<1){  
-     // print "검색결과가 없습니다.<br>";
-	  $eworks_item = '일반';
-     }   else    {      
-		while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-			include includePath('eworks/_row.php');		
-            if($eworks_item==='연차')
-                $contents = urldecode($contents);			
-		}
-	 }     											  		      										
+// _row.php에서 사용되는 변수들 초기화
+$eworks_item = '일반';
+$e_title = '';
+$contents = '';
+$registdate = '';
+$status = '';
+$e_line = '';
+$e_line_id = '';
+$e_confirm = '';
+$e_confirm_id = '';
+$r_line = '';
+$r_line_id = '';
+$recordtime = '';
+$author = '';
+$author_id = '';
+$done = '';
 
-     }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
- }
+try {
+    // SQL Injection 방지
+    $e_num_safe = str_replace("'", "''", $e_num);
+    
+    $sql = "SELECT * FROM {$DB}.eworks WHERE num = '{$e_num_safe}' AND is_deleted IS NULL";
+    $stmh = $pdo->prepare($sql);       
+    $stmh->execute();
+    $count = $stmh->rowCount();         	  
+    
+    if ($count < 1) {  
+        // 검색결과가 없습니다.
+        $eworks_item = '일반';
+    } else {      
+        while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+            include includePath('eworks/_row.php');		
+            if ($eworks_item === '연차') {
+                $contents = urldecode($contents);
+            }
+        }
+    }
+} catch (PDOException $ex) {
+    error_log("Database error in load_listone.php: " . $ex->getMessage());
+    
+    // 오류 발생 시 기본값 설정
+    $eworks_item = '일반';
+    $e_title = '';
+    $contents = '';
+    $registdate = '';
+    $status = '';
+    $e_line = '';
+    $e_line_id = '';
+    $e_confirm = '';
+    $e_confirm_id = '';
+    $r_line = '';
+    $r_line_id = '';
+    $recordtime = '';
+    $author = '';
+    $author_id = '';
+    $done = '';
+}
  
-//각각의 정보를 하나의 배열 변수에 넣어준다.
+// 각각의 정보를 하나의 배열 변수에 넣어준다.
 $data = array(
-	"e_num" => $e_num, 
-	"eworks_item" => $eworks_item, 
-	"e_title" => $e_title, 
-	"contents" => $contents, 
-	"registdate" => $registdate, 
-	"status" => $status, 
-	"e_line" => $e_line, 
-	"e_line_id" => $e_line_id, 
-	"e_confirm" => $e_confirm, 
-	"e_confirm_id" => $e_confirm_id, 
-	"r_line" => $r_line, 
-	"r_line_id" => $r_line_id, 
-	"recordtime" => $recordtime, 
-	"author" => $author, 	
-	"author_id" => $author_id, 	
-	"done" => $done 	
+    "e_num" => $e_num, 
+    "eworks_item" => $eworks_item, 
+    "e_title" => $e_title, 
+    "contents" => $contents, 
+    "registdate" => $registdate, 
+    "status" => $status, 
+    "e_line" => $e_line, 
+    "e_line_id" => $e_line_id, 
+    "e_confirm" => $e_confirm, 
+    "e_confirm_id" => $e_confirm_id, 
+    "r_line" => $r_line, 
+    "r_line_id" => $r_line_id, 
+    "recordtime" => $recordtime, 
+    "author" => $author, 	
+    "author_id" => $author_id, 	
+    "done" => $done,
+    "success" => true,
+    "found" => ($count > 0)
 );
-//json 출력
-echo(json_encode($data, JSON_UNESCAPED_UNICODE));
+
+// JSON 출력
+echo json_encode($data, JSON_UNESCAPED_UNICODE);
 
 ?>

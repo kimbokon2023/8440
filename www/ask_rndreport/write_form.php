@@ -1,280 +1,321 @@
 <?php
-require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함	
-$title_message = '연구개발보고서';   
+require_once getDocumentRoot() . '/load_GoogleDrive.php';
+$title_message = '연구개발보고서';
 ?>
+
 <?php include getDocumentRoot() . '/common.php' ?>
-<?php include getDocumentRoot() . '/load_header.php'; ?>  
+<?php include getDocumentRoot() . '/load_header.php'; ?>
+
 <title> <?=$titlemsg?> </title>
 </head>
+
 <style>
-.show {display:block} /*보여주기*/
-.hide {display:none} /*숨기기*/
-  input[type="text"] {
-    text-align: left !important ;
-  }  
-  input[type="number"] {
-    text-align: left !important ;
-  }
- td, th, tr, span, input {
-    vertical-align: middle;
-  }
-</style>	
+    .show {
+        display: block
+    }
+
+    /*보여주기*/
+    .hide {
+        display: none
+    }
+
+    /*숨기기*/
+    input[type="text"] {
+        text-align: left !important;
+    }
+
+    input[type="number"] {
+        text-align: left !important;
+    }
+
+    td, th, tr, span, input {
+        vertical-align: middle;
+    }
+</style>
 
 <body>
 
-<?php include getDocumentRoot() . "/common/modal.php"; ?>
-   
-<?php   
+    <?php include getDocumentRoot() . "/common/modal.php"; ?>
 
-$tablename = 'eworks';  
-  
-$mode=  $_REQUEST["mode"] ?? '' ;
-$num=  $_REQUEST["num"] ?? '' ;
-$author=  $user_name ?? '' ;
-$indate=date("Y-m-d") ?? '' ;
+    <?php
+    // 세션 변수 초기화
+    $user_name = $_SESSION["name"] ?? '';
+    $user_id = $_SESSION["userid"] ?? '';
+    $DB = $_SESSION["DB"] ?? '';
+    $admin = $_SESSION["admin"] ?? '';
+    $chkMobile = $_SESSION["chkMobile"] ?? false;
+    $pdo = $_SESSION["pdo"] ?? null;
+
+    // 기본 변수 초기화
+    $tablename = 'eworks';
+    $mode = $_REQUEST["mode"] ?? '';
+    $num = $_REQUEST["num"] ?? '';
+    $author = $user_name;
+    $indate = date("Y-m-d");
+    $titlemsg = '';
+
+    // _row.php에서 사용될 변수들 초기화
+    $item = '';
+    $savetitle = '';
+    $pInput = '';
+    $timekey = '';
+    $update_log = '';
+    $first_writer = '';
+    $parentid = '';
+    $id = '';
+    $page = 1;
+
+    // load_GoogleDriveSecond.php에서 사용될 변수들 초기화
+    $savefilename_arr = array();
+    $saveimagename_arr = array();
+
+    // 전자결재 관련 변수들 초기화
+    $al_part = '';
+    $e_confirm = '';
+    $e_confirm_id = '';
+    $store = '';
+    $status = '';
+    $registdate = '';
+    $author_id = '';
+    $outworkplace = '';
+    $al_content = '';
+    $request_comment = '';
+    $mytitle = '';
+    $content = '';
+    $content_reason = '';
  
-  if ($mode=="modify" or $mode=="view"){
-    try{
-      $sql = "select * from {$DB}.eworks where num = ? ";
-      $stmh = $pdo->prepare($sql); 
+     if ($mode == "modify" or $mode == "view") {
+        try {
+            $sql = "select * from {$DB}.eworks where num = ? ";
+            $stmh = $pdo->prepare($sql);
 
-      $stmh->bindValue(1,$num,PDO::PARAM_STR); 
-      $stmh->execute();
-      $count = $stmh->rowCount();            
-	  $row = $stmh->fetch(PDO::FETCH_ASSOC);  // $row 배열로 DB 정보를 불러온다.
-    if($count<1){  
-      print "결과가 없습니다.<br>";
-     }else{		 
- 		include  getDocumentRoot() . '/eworks/_row.php';	
-		// 전자결재의 정보를 다시 변환해 준다.		
-		$mytitle = $outworkplace ?? '';
-		$content = $al_content ?? '';
-		$content_reason = $request_comment ?? '';	
+            $stmh->bindValue(1, $num, PDO::PARAM_STR);
+            $stmh->execute();
+            $count = $stmh->rowCount();
+            $row = $stmh->fetch(PDO::FETCH_ASSOC);
 
-		$titlemsg = $mode === 'modify' ? '연구개발보고서(수정)' : '연구개발보고서(조회)'; 
-		
-      }
-     }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
-     } 
-  }
+            if ($count < 1) {
+                error_log("연구개발보고서 조회 결과 없음: num=" . $num);
+                echo "결과가 없습니다.<br>";
+            } else {
+                include getDocumentRoot() . '/eworks/_row.php';
+                // 전자결재의 정보를 다시 변환해 준다.
+                $mytitle = $outworkplace ?? '';
+                $content = $al_content ?? '';
+                $content_reason = $request_comment ?? '';
+
+                $titlemsg = $mode === 'modify' ? '연구개발보고서(수정)' : '연구개발보고서(조회)';
+            }
+        } catch (PDOException $ex) {
+            error_log("연구개발보고서 조회 오류: " . $ex->getMessage());
+            echo "오류: " . $ex->getMessage();
+        }
+    }
   
-      
-  if ($mode!="modify" and $mode!="view" and $mode!="copy"){    // 수정모드가 아닐때 신규 자료일때는 변수 초기화 한다.
-          
-	$indate=date("Y-m-d");
-	$author = $user_name;
-	$titlemsg = '연구개발보고서 작성';
-  } 
-  
-  if ($mode=="copy"){
-    try{
-      $sql = "select * from {$DB}.eworks where num = ? ";
-      $stmh = $pdo->prepare($sql); 
+    if ($mode != "modify" and $mode != "view" and $mode != "copy") {
+        // 수정모드가 아닐때 신규 자료일때는 변수 초기화 한다.
+        $indate = date("Y-m-d");
+        $author = $user_name;
+        $titlemsg = '연구개발보고서 작성';
+    }
 
-      $stmh->bindValue(1,$num,PDO::PARAM_STR); 
-      $stmh->execute();
-      $count = $stmh->rowCount();            
-	  $row = $stmh->fetch(PDO::FETCH_ASSOC);  // $row 배열로 DB 정보를 불러온다.
-    if($count<1){  
-      print "결과가 없습니다.<br>";
-     }else{
-		 include getDocumentRoot() .'/eworks/_row.php';		
-		// 전자결재의 정보를 다시 변환해 준다.		
-		$mytitle = $outworkplace ?? '';
-		$content = $al_content ?? '';
-		$content_reason = $request_comment ?? '';	
-		$indate=date("Y-m-d");
-      }
-     }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
-     }
-	 
-     $titlemsg	= '(데이터 복사) 연구개발보고서';	
-	 $num='';	 
-	 $id = $num;  
-	 $parentid = $num;    
-	 $author = $user_name;
-	 $update_log='';
-  }  
-  
-// 초기 프로그램은 $num사용 이후 $id로 수정중임  
-$id=$num;    
-require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
-?>
+    if ($mode == "copy") {
+        try {
+            $sql = "select * from {$DB}.eworks where num = ? ";
+            $stmh = $pdo->prepare($sql);
 
-<form id="board_form" name="board_form" method="post"  onkeydown="return captureReturnKey(event)"  >	
-    
-	<!-- 전달함수 설정 input hidden -->
-	<input type="hidden" id="id" name="id" value="<?=$id?>" >			  								
-	<input type="hidden" id="num" name="num" value="<?=$num?>" >			  								
-	<input type="hidden" id="parentid" name="parentid" value="<?=$parentid?>" >			  									
-	<input type="hidden" id="item" name="item" value="<?=$item?>" >			  									
-	<input type="hidden" id="tablename" name="tablename" value="<?=$tablename?>" >			  								
-	<input type="hidden" id="savetitle" name="savetitle" value="<?=$savetitle?>" >			  								
-	<input type="hidden" id="pInput" name="pInput" value="<?=$pInput?>" >			  								
-	<input type="hidden" id="mode" name="mode" value="<?=$mode?>" >		
-	<input type="hidden" id="timekey" name="timekey" value="<?=$timekey?>" >  <!-- 신규데이터 작성시 parentid key값으로 사용 -->		
-	<input type="hidden" id="update_log" name="update_log" value="<?=$update_log?>"  >		
-	<input type="hidden" id="first_writer" name="first_writer" value="<?=$first_writer?>"  >		
-	
-<div class="container-fluid" >
-<div class="card">
-<div class="card-body">			   
+            $stmh->bindValue(1, $num, PDO::PARAM_STR);
+            $stmh->execute();
+            $count = $stmh->rowCount();
+            $row = $stmh->fetch(PDO::FETCH_ASSOC);
 
-<div class="row">
-	<div class="col-sm-7">
-		<div class="d-flex mb-5 mt-5 justify-content-center align-items-center ">
-			<h4> <?=$titlemsg?> 
-			</h4> 
-		</div>
-	</div>
-    <div class="col-sm-5">		
-	<?php
-		//var_dump($al_part);			
+            if ($count < 1) {
+                error_log("연구개발보고서 복사 원본 조회 결과 없음: num=" . $num);
+                echo "결과가 없습니다.<br>";
+            } else {
+                include getDocumentRoot() . '/eworks/_row.php';
+                // 전자결재의 정보를 다시 변환해 준다.
+                $mytitle = $outworkplace ?? '';
+                $content = $al_content ?? '';
+                $content_reason = $request_comment ?? '';
+                $indate = date("Y-m-d");
+            }
+        } catch (PDOException $ex) {
+            error_log("연구개발보고서 복사 원본 조회 오류: " . $ex->getMessage());
+            echo "오류: " . $ex->getMessage();
+        }
 
-		$al_part=='지원파트';
-	   if($e_confirm ==='' || $e_confirm === null) 
-	   {
-			$formattedDate = date("Y-m-d", strtotime($registdate)); // 월/일 형식으로 변환			
-			
-			if($al_part=='지원파트')
-			{
-				$approvals = array(
-					array("name" => "이사 최장중", "date" =>  $formattedDate),
-					array("name" => "대표 소현철", "date" =>  $formattedDate),
-					// 더 많은 결재권자가 있을 수 있음...
-				);	
-			}
-	   }	   
-	else
-		{
-			$approver_ids = explode('!', $e_confirm_id);
-			$approver_details = explode('!', $e_confirm);
+        $titlemsg = '(데이터 복사) 연구개발보고서';
+        $num = '';
+        $id = $num;
+        $parentid = $num;
+        $author = $user_name;
+        $update_log = '';
+    }
 
-			$approvals = array();
-			$exam = array();
+    // 초기 프로그램은 $num사용 이후 $id로 수정중임
+    $id = $num;
+    require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기
+    ?>
 
-			if (empty($store)) {
-				$exam['name'] = '안현섭 연구원';
-				$exam['date'] = '';
-			} else {
-				// 공백을 기준으로 마지막 값을 날짜로 분리
-				$parts = explode(' ', $store);
-				$exam['date'] = array_pop($parts); // 마지막 요소: '10:04:48'
-				$exam['date'] = array_pop($parts) . ' ' . $exam['date']; // 하나 더 꺼내서 날짜와 합치기
-				$exam['name'] = implode(' ', $parts); // 나머지는 이름
-			}
-			
-			foreach($approver_ids as $index => $id) {
-				if (isset($approver_details[$index])) {
+    <form id="board_form" name="board_form" method="post" onkeydown="return captureReturnKey(event)">
 
-					// 날짜 기준 (예: "2025-02-01")
-					$baseDate = $indate;
+        <!-- 전달함수 설정 input hidden -->
+        <input type="hidden" id="id" name="id" value="<?=$id?>">
+        <input type="hidden" id="num" name="num" value="<?=$num?>">
+        <input type="hidden" id="parentid" name="parentid" value="<?=$parentid?>">
+        <input type="hidden" id="item" name="item" value="<?=$item?>">
+        <input type="hidden" id="tablename" name="tablename" value="<?=$tablename?>">
+        <input type="hidden" id="savetitle" name="savetitle" value="<?=$savetitle?>">
+        <input type="hidden" id="pInput" name="pInput" value="<?=$pInput?>">
+        <input type="hidden" id="mode" name="mode" value="<?=$mode?>">
+        <input type="hidden" id="timekey" name="timekey" value="<?=$timekey?>"> <!-- 신규데이터 작성시 parentid key값으로 사용 -->
+        <input type="hidden" id="update_log" name="update_log" value="<?=$update_log?>">
+        <input type="hidden" id="first_writer" name="first_writer" value="<?=$first_writer?>">
 
-					// 대상자별 시간대 설정
-					if ($index === 0) { // 첫 번째는 연구원
-						$hour = 11;					
-					} else { // 나머지는 최종결재권자 (14시~17시)
-						$hour = rand(14, 17);
-					}
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-body">
 
-					$minute = rand(0, 59);
-					$second = rand(0, 59);
-					$randomTime = sprintf('%02d:%02d:%02d', $hour, $minute, $second);
-					$timestamp = strtotime("$baseDate $randomTime");
-					$formattedDate = date("Y-m-d H:i:s", $timestamp);
+                    <div class="row">
+                        <div class="col-sm-7">
+                            <div class="d-flex mb-5 mt-5 justify-content-center align-items-center">
+                                <h4> <?=$titlemsg?> </h4>
+                            </div>
+                        </div>
+                        <div class="col-sm-5">
+                            <?php
+                            // 결재라인 관련 변수 초기화
+                            $approvals = array();
+                            $exam = array();
+                            $formattedDate = '';
 
-					// 첫 번째는 연구원 정보 저장
-					if (empty($exam['date'])) {						
-						 // 첫 번째는 연구원
-						$hour = 10;					
-						$minute = rand(0, 59);
-						$second = rand(0, 59);
-						$randomTime = sprintf('%02d:%02d:%02d', $hour, $minute, $second);
-						$timestamp = strtotime("$baseDate $randomTime");
-						$FirstformattedDate = date("Y-m-d H:i:s", $timestamp);	
-						$exam['date'] = $FirstformattedDate;
-					}
+                            if ($al_part == '지원파트') {
+                                $formattedDate = date("Y-m-d", strtotime($registdate));
 
-					// 원래 문자열에서 이름 + 직함 추출
-					preg_match("/^(.+ \d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2})$/", $approver_details[$index], $matches);
-					if (count($matches) === 3) {
-						$nameWithTitle = $matches[1];
-						$date = substr($nameWithTitle, -10); // '2024-02-28'
-						$nameWithTitle = trim(str_replace($date, '', $nameWithTitle));
-						if (preg_match('/\d{4}-\d{2}-\d{2}/',$nameWithTitle , $secondmatches)) {
-								$date = $secondmatches[0]; // 결과: 2025-02-28
-							}
-						
-						// 날짜가 다르면만 처리
-						if ($date !== $indate) 
-							$approvals[] = array("name" => $nameWithTitle, "date" => $formattedDate);
-						else
-							$approvals[] = array("name" => $nameWithTitle, "date" => ($date . ' '. $matches[2]));
-					}
+                                if ($e_confirm === '' || $e_confirm === null) {
+                                    $approvals = array(
+                                        array("name" => "이사 최장중", "date" => $formattedDate),
+                                        array("name" => "대표 소현철", "date" => $formattedDate),
+                                    );
+                                } else {
+                                    $approver_ids = explode('!', $e_confirm_id);
+                                    $approver_details = explode('!', $e_confirm);
 
-				}
-			}
-		}	
+                                    if (empty($store)) {
+                                        $exam['name'] = '안현섭 연구원';
+                                        $exam['date'] = '';
+                                    } else {
+                                        // 공백을 기준으로 마지막 값을 날짜로 분리
+                                        $parts = explode(' ', $store);
+                                        $exam['date'] = array_pop($parts); // 마지막 요소: '10:04:48'
+                                        $exam['date'] = array_pop($parts) . ' ' . $exam['date']; // 하나 더 꺼내서 날짜와 합치기
+                                        $exam['name'] = implode(' ', $parts); // 나머지는 이름
+                                    }
 
-    // 검토자 결재정보 생성
-	$store =  $exam["name"] . ' ' .  $exam['date'] ;
-		
-	if($status === 'end' and ($e_confirm !=='' && $e_confirm !== null) )
-		{
-	?>				
-		
-	<input type="hidden" id="store" name="store" value="<?=$store?>"  >		  <!--store는 검토자와 날짜시간 기록 -->			
-	<input type="hidden" id="firstTime" name="firstTime" value="<?=$approvals[0]["date"]?>" >		
-	<input type="hidden" id="secondTime" name="secondTime" value="<?=$approvals[1]["date"]?>" >
-	
-			<div class="container mb-2">
-				<table class="table table-bordered">
-					<thead>
-						<tr>
-							<th colspan="1" class="text-center fs-6">검토</th>
-							<th id="setApprovalTime" colspan="<?php echo count($approvals); ?>" class="text-center fs-6">결재 <i class="bi bi-gear"></i></th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-						    <td class="text-center fs-6" style="height: 60px;"><?php echo $exam["name"]; ?></td>
-							<?php foreach ($approvals as $approval) { ?>
-								<td class="text-center fs-6" style="height: 60px;"><?php echo $approval["name"]; ?></td>
-							<?php } ?>
-						</tr>
-						<tr>
-							<td class="text-center"><?php echo $exam["date"]; ?></td>
-							<?php foreach ($approvals as $approval) { ?>
-								<td class="text-center"><?php echo $approval["date"]; ?></td>
-							<?php } ?>
-						</tr>
-					</tbody>
-				</table>
-			</div>			  
-		  
-		  <?  } 
-		 else
-			 {
-		   ?>
-	<div class="container mb-2">
-		<table class="table table-bordered">
-			<thead>
-				<tr>
-					<th colspan="<?php echo count($approvals); ?>" class="text-center fs-6">결재 진행 전</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>								
-				</tr>
-			</tbody>
-		</table>
-	</div>	
-  <?  }   ?>
-	  
- </div> 			
-</div> 
+                                    foreach ($approver_ids as $index => $id) {
+                                        if (isset($approver_details[$index])) {
+                                            // 날짜 기준 (예: "2025-02-01")
+                                            $baseDate = $indate;
+
+                                            // 대상자별 시간대 설정
+                                            if ($index === 0) { // 첫 번째는 연구원
+                                                $hour = 11;
+                                            } else { // 나머지는 최종결재권자 (14시~17시)
+                                                $hour = rand(14, 17);
+                                            }
+
+                                            $minute = rand(0, 59);
+                                            $second = rand(0, 59);
+                                            $randomTime = sprintf('%02d:%02d:%02d', $hour, $minute, $second);
+                                            $timestamp = strtotime("$baseDate $randomTime");
+                                            $formattedDate = date("Y-m-d H:i:s", $timestamp);
+
+                                            // 첫 번째는 연구원 정보 저장
+                                            if (empty($exam['date'])) {
+                                                // 첫 번째는 연구원
+                                                $hour = 10;
+                                                $minute = rand(0, 59);
+                                                $second = rand(0, 59);
+                                                $randomTime = sprintf('%02d:%02d:%02d', $hour, $minute, $second);
+                                                $timestamp = strtotime("$baseDate $randomTime");
+                                                $FirstformattedDate = date("Y-m-d H:i:s", $timestamp);
+                                                $exam['date'] = $FirstformattedDate;
+                                            }
+
+                                            // 원래 문자열에서 이름 + 직함 추출
+                                            preg_match("/^(.+ \d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2})$/", $approver_details[$index], $matches);
+                                            if (count($matches) === 3) {
+                                                $nameWithTitle = $matches[1];
+                                                $date = substr($nameWithTitle, -10); // '2024-02-28'
+                                                $nameWithTitle = trim(str_replace($date, '', $nameWithTitle));
+                                                if (preg_match('/\d{4}-\d{2}-\d{2}/', $nameWithTitle, $secondmatches)) {
+                                                    $date = $secondmatches[0]; // 결과: 2025-02-28
+                                                }
+
+                                                // 날짜가 다르면만 처리
+                                                if ($date !== $indate)
+                                                    $approvals[] = array("name" => $nameWithTitle, "date" => $formattedDate);
+                                                else
+                                                    $approvals[] = array("name" => $nameWithTitle, "date" => ($date . ' ' . $matches[2]));
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            // 검토자 결재정보 생성
+                            $store = $exam["name"] . ' ' . $exam['date'];
+
+                            if ($status === 'end' and ($e_confirm !== '' && $e_confirm !== null)) {
+                                ?>
+                                <input type="hidden" id="store" name="store" value="<?=$store?>"> <!--store는 검토자와 날짜시간 기록 -->
+                                <input type="hidden" id="firstTime" name="firstTime" value="<?=isset($approvals[0]) ? $approvals[0]["date"] : ''?>">
+                                <input type="hidden" id="secondTime" name="secondTime" value="<?=isset($approvals[1]) ? $approvals[1]["date"] : ''?>">
+
+                                <div class="container mb-2">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="1" class="text-center fs-6">검토</th>
+                                                <th id="setApprovalTime" colspan="<?php echo count($approvals); ?>" class="text-center fs-6">결재 <i class="bi bi-gear"></i></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="text-center fs-6" style="height: 60px;"><?php echo $exam["name"]; ?></td>
+                                                <?php foreach ($approvals as $approval) { ?>
+                                                    <td class="text-center fs-6" style="height: 60px;"><?php echo $approval["name"]; ?></td>
+                                                <?php } ?>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-center"><?php echo $exam["date"]; ?></td>
+                                                <?php foreach ($approvals as $approval) { ?>
+                                                    <td class="text-center"><?php echo $approval["date"]; ?></td>
+                                                <?php } ?>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            <?php } else { ?>
+                                <div class="container mb-2">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="<?php echo count($approvals); ?>" class="text-center fs-6">결재 진행 전</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            <?php } ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
  	
 	
 <?php if($mode!='view') { ?>		
@@ -357,80 +398,81 @@ require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, ima
 		</div>	  
  </div>	  
 </form>	
-<script>
-$(document).ready(function() {
-  // Summernote 초기화
-  $('#summernote').summernote({
-    placeholder: '내용',
-    maximumImageFileSize: 1920 * 5000,
-    tabsize: 2,
-    height: 450,
-    width: 1300,
-    toolbar: [
-      ['style', ['style']],
-      ['font', ['bold', 'underline', 'clear']],
-      ['color', ['color']],
-      ['para', ['ul', 'ol', 'paragraph']],
-      ['table', ['table']],
-      ['insert', ['link', 'picture', 'video']],
-      ['view', ['fullscreen', 'codeview', 'help']]
-    ],
-    callbacks: {
-      onImageUpload: function(files) {
-        if (files.length > 0) {
-          var file = files[0];
-          resizeImage(file, function(resizedImage) {
-            $('#summernote').summernote('insertImage', resizedImage);
-          });
-        }
-      }
-    }
-  });
+    <script>
+        // ES5 호환 코드 (PHP 7.3 환경에서 권장)
+        $(document).ready(function() {
+            // Summernote 초기화
+            $('#summernote').summernote({
+                placeholder: '내용',
+                maximumImageFileSize: 1920 * 5000,
+                tabsize: 2,
+                height: 450,
+                width: 1300,
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'underline', 'clear']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['table', ['table']],
+                    ['insert', ['link', 'picture', 'video']],
+                    ['view', ['fullscreen', 'codeview', 'help']]
+                ],
+                callbacks: {
+                    onImageUpload: function(files) {
+                        if (files.length > 0) {
+                            var file = files[0];
+                            resizeImage(file, function(resizedImage) {
+                                $('#summernote').summernote('insertImage', resizedImage);
+                            });
+                        }
+                    }
+                }
+            });
 
-  // 뷰 모드일 경우 비활성화
-  var mode = '<?php echo $mode; ?>';
-  if (mode === 'view') {
-    $('#summernote').summernote('disable');
-  }
+            // 뷰 모드일 경우 비활성화
+            var mode = '<?php echo $mode; ?>';
+            if (mode === 'view') {
+                $('#summernote').summernote('disable');
+            }
 
-  // 이미지 리사이징 함수
-  function resizeImage(file, callback) {
-    var reader = new FileReader();
-    reader.onloadend = function(e) {
-      var tempImg = new Image();
-      tempImg.src = reader.result;
-      tempImg.onload = function() {
-        var MAX_WIDTH = 800;
-        var MAX_HEIGHT = 500;
-        var tempW = tempImg.width;
-        var tempH = tempImg.height;
+            // 이미지 리사이징 함수
+            function resizeImage(file, callback) {
+                var reader = new FileReader();
+                reader.onloadend = function(e) {
+                    var tempImg = new Image();
+                    tempImg.src = reader.result;
+                    tempImg.onload = function() {
+                        var MAX_WIDTH = 800;
+                        var MAX_HEIGHT = 500;
+                        var tempW = tempImg.width;
+                        var tempH = tempImg.height;
 
-        if (tempW > tempH) {
-          if (tempW > MAX_WIDTH) {
-            tempH *= MAX_WIDTH / tempW;
-            tempW = MAX_WIDTH;
-          }
-        } else {
-          if (tempH > MAX_HEIGHT) {
-            tempW *= MAX_HEIGHT / tempH;
-            tempH = MAX_HEIGHT;
-          }
-        }
+                        if (tempW > tempH) {
+                            if (tempW > MAX_WIDTH) {
+                                tempH *= MAX_WIDTH / tempW;
+                                tempW = MAX_WIDTH;
+                            }
+                        } else {
+                            if (tempH > MAX_HEIGHT) {
+                                tempW *= MAX_HEIGHT / tempH;
+                                tempH = MAX_HEIGHT;
+                            }
+                        }
 
-        var canvas = document.createElement('canvas');
-        canvas.width = tempW;
-        canvas.height = tempH;
-        var ctx = canvas.getContext("2d");
-        ctx.drawImage(tempImg, 0, 0, tempW, tempH);
-        var dataURL = canvas.toDataURL("image/jpeg");
+                        var canvas = document.createElement('canvas');
+                        canvas.width = tempW;
+                        canvas.height = tempH;
+                        var ctx = canvas.getContext("2d");
+                        ctx.drawImage(tempImg, 0, 0, tempW, tempH);
+                        var dataURL = canvas.toDataURL("image/jpeg");
 
-        callback(dataURL);
-      };
-    };
-    reader.readAsDataURL(file);
-  }
-});
-</script>
+                        callback(dataURL);
+                    };
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
 
 
 <script>
@@ -639,200 +681,199 @@ function captureReturnKey(e) {
 }
 </script> 
 
-<script>
-$(document).ready(function() {
-    displayFileLoad();
+    <script>
+        // ES5 호환 코드 (PHP 7.3 환경에서 권장)
+        $(document).ready(function() {
+            displayFileLoad();
 
-    $('#upfile').change(function () {
-        const form = $('#board_form')[0];
-        const data = new FormData(form);
-        data.append("tablename", $('#tablename').val());
-        data.append("item", "attached");
-        data.append("upfilename", "upfile");
-        data.append("folderPath", "미래기업/uploads");
-        data.append("DBtable", "picuploads");
+            $('#upfile').change(function() {
+                var form = $('#board_form')[0];
+                var data = new FormData(form);
+                data.append("tablename", $('#tablename').val());
+                data.append("item", "attached");
+                data.append("upfilename", "upfile");
+                data.append("folderPath", "미래기업/uploads");
+                data.append("DBtable", "picuploads");
 
-        $.ajax({
-            enctype: 'multipart/form-data',
-            processData: false,
-            contentType: false,
-            cache: false,
-            timeout: 600000,
-            url: "/filedrive/fileprocess.php",
-            type: "POST",
-            data: data,
-            success: function () {
-                displayFile();
-            }
-        });
-    });
-});
-
-// 화면에서 저장한 첨부된 파일 불러오기
-function displayFile() {
-    $('#displayFile').show();
-    const params = $("#timekey").val() ? $("#timekey").val() : $("#num").val();
-
-    if (!params) {
-        console.error("ID 값이 없습니다. 파일을 불러올 수 없습니다.");
-        alert("ID 값이 유효하지 않습니다. 다시 시도해주세요.");
-        return;
-    }
-
-    console.log("요청 ID:", params); // 요청 전 ID 확인
-
-    $.ajax({
-        url: '/filedrive/fileprocess.php',
-        type: 'GET',
-        data: {
-            num: params,
-			tablename: $("#tablename").val(),
-            item: 'attached',
-            folderPath: '미래기업/uploads',
-        },
-        dataType: 'json',
-    }).done(function (data) {
-        console.log("파일 데이터:", data);
-
-        $("#displayFile").html(''); // 기존 내용 초기화
-
-        if (Array.isArray(data) && data.length > 0) {
-            data.forEach(function (fileData, index) {
-                const realName = fileData.realname || '다운로드 파일';
-                const link = fileData.link || '#';
-                const fileId = fileData.fileId || null;
-
-                if (!fileId) {
-                    console.error("fileId가 누락되었습니다. index: " + index, fileData);
-                    $("#displayFile").append(
-                        "<div class='text-danger'>파일 ID가 누락되었습니다.</div>"
-                    );
-                    return;
-                }
-
-				$("#displayFile").append(
-					"<div class='row mt-1 mb-2'>" +
-						"<div class='d-flex align-items-center justify-content-center'>" +
-							"<span id='file" + index + "'>" +
-								"<a href='#' onclick=\"popupCenter('" + link + "', 'filePopup', 800, 600); return false;\">" + realName + "</a>" +
-							"</span> &nbsp;&nbsp;" +
-							"<button type='button' class='btn btn-danger btn-sm' id='delFile" + index + "' onclick=\"delFileFn('" + index + "', '" + fileId + "')\">" +
-								"<i class='bi bi-trash'></i>" +
-							"</button>" +
-						"</div>" +
-					"</div>"
-				);
-
-
+                $.ajax({
+                    enctype: 'multipart/form-data',
+                    processData: false,
+                    contentType: false,
+                    cache: false,
+                    timeout: 600000,
+                    url: "/filedrive/fileprocess.php",
+                    type: "POST",
+                    data: data,
+                    success: function() {
+                        displayFile();
+                    }
+                });
             });
-        } else {
-            $("#displayFile").append(
-                "<div class='text-center text-muted'>No files</div>"
-            );
-        }
-    }).fail(function (error) {
-        console.error("파일 불러오기 오류:", error);
-        Swal.fire({
-            title: "파일 불러오기 실패",
-            text: "파일을 불러오는 중 문제가 발생했습니다.",
-            icon: "error",
-            confirmButtonText: "확인",
         });
-    });
-}
 
-// 기존 파일 불러오기 (Google Drive에서 가져오기)
-function displayFileLoad() {
-    $('#displayFile').show();
-    var data = <?php echo json_encode($savefilename_arr); ?>;
+        // 화면에서 저장한 첨부된 파일 불러오기
+        function displayFile() {
+            $('#displayFile').show();
+            var params = $("#timekey").val() ? $("#timekey").val() : $("#num").val();
 
-    $("#displayFile").html(''); // 기존 내용 초기화
-
-    if (Array.isArray(data) && data.length > 0) {
-        data.forEach(function (fileData, i) {
-            const realName = fileData.realname || '다운로드 파일';
-            const link = fileData.link || '#';
-            const fileId = fileData.fileId || null;
-
-            if (!fileId) {
-                console.error("fileId가 누락되었습니다. index: " + i, fileData);
+            if (!params) {
+                console.error("ID 값이 없습니다. 파일을 불러올 수 없습니다.");
+                alert("ID 값이 유효하지 않습니다. 다시 시도해주세요.");
                 return;
             }
 
-			$("#displayFile").append(
-				"<div class='row mb-3'>" +
-					"<div class='d-flex mb-3 align-items-center justify-content-center'>" +
-						"<span id='file" + i + "'>" +
-							"<a href='#' onclick=\"popupCenter('" + link + "', 'filePopup', 800, 600); return false;\">" + realName + "</a>" +
-						"</span> &nbsp;&nbsp;" +
-						"<button type='button' class='btn btn-danger btn-sm' id='delFile" + i + "' onclick=\"delFileFn('" + i + "', '" + fileId + "')\">" +
-							"<i class='bi bi-trash'></i>" +
-						"</button>" +
-					"</div>" +
-				"</div>"
-			);
+            console.log("요청 ID:", params); // 요청 전 ID 확인
 
-        });
-    } else {
-        $("#displayFile").append(
-            "<div class='text-center text-muted'>No files</div>"
-        );
-    }
-}
-
-// 파일 삭제 처리 함수
-function delFileFn(divID, fileId) {
-    Swal.fire({
-        title: "파일 삭제 확인",
-        text: "정말 삭제하시겠습니까?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "삭제",
-        cancelButtonText: "취소",
-        reverseButtons: true,
-    }).then((result) => {
-        if (result.isConfirmed) {
             $.ajax({
                 url: '/filedrive/fileprocess.php',
-                type: 'DELETE',
-                data: JSON.stringify({
-                    fileId: fileId,
+                type: 'GET',
+                data: {
+                    num: params,
                     tablename: $("#tablename").val(),
-                    item: "attached",
-                    folderPath: "미래기업/uploads",
-                    DBtable: "picuploads",
-                }),
-                contentType: "application/json",
+                    item: 'attached',
+                    folderPath: '미래기업/uploads',
+                },
                 dataType: 'json',
-            }).done(function (response) {
-                if (response.status === 'success') {
-                    console.log("삭제 완료:", response);
-                    $("#file" + divID).remove();
-                    $("#delFile" + divID).remove();
+            }).done(function(data) {
+                console.log("파일 데이터:", data);
 
-                    Swal.fire({
-                        title: "삭제 완료",
-                        text: "파일이 성공적으로 삭제되었습니다.",
-                        icon: "success",
-                        confirmButtonText: "확인",
-                    });
+                $("#displayFile").html(''); // 기존 내용 초기화
+
+                if (Array.isArray(data) && data.length > 0) {
+                    for (var index = 0; index < data.length; index++) {
+                        var fileData = data[index];
+                        var realName = fileData.realname || '다운로드 파일';
+                        var link = fileData.link || '#';
+                        var fileId = fileData.fileId || null;
+
+                        if (!fileId) {
+                            console.error("fileId가 누락되었습니다. index: " + index, fileData);
+                            $("#displayFile").append(
+                                "<div class='text-danger'>파일 ID가 누락되었습니다.</div>"
+                            );
+                            continue;
+                        }
+
+                        $("#displayFile").append(
+                            "<div class='row mt-1 mb-2'>" +
+                            "<div class='d-flex align-items-center justify-content-center'>" +
+                            "<span id='file" + index + "'>" +
+                            "<a href='#' onclick=\"popupCenter('" + link + "', 'filePopup', 800, 600); return false;\">" + realName + "</a>" +
+                            "</span> &nbsp;&nbsp;" +
+                            "<button type='button' class='btn btn-danger btn-sm' id='delFile" + index + "' onclick=\"delFileFn('" + index + "', '" + fileId + "')\">" +
+                            "<i class='bi bi-trash'></i>" +
+                            "</button>" +
+                            "</div>" +
+                            "</div>"
+                        );
+                    }
                 } else {
-                    console.log(response.message);
+                    $("#displayFile").append(
+                        "<div class='text-center text-muted'>No files</div>"
+                    );
                 }
-            }).fail(function (error) {
-                console.error("삭제 중 오류:", error);
+            }).fail(function(error) {
+                console.error("파일 불러오기 오류:", error);
                 Swal.fire({
-                    title: "삭제 실패",
-                    text: "파일 삭제 중 문제가 발생했습니다.",
+                    title: "파일 불러오기 실패",
+                    text: "파일을 불러오는 중 문제가 발생했습니다.",
                     icon: "error",
                     confirmButtonText: "확인",
                 });
             });
         }
-    });
-}
 
-</script>
+        // 기존 파일 불러오기 (Google Drive에서 가져오기)
+        function displayFileLoad() {
+            $('#displayFile').show();
+            var data = <?php echo json_encode($savefilename_arr, JSON_UNESCAPED_UNICODE); ?>;
+
+            $("#displayFile").html(''); // 기존 내용 초기화
+
+            if (Array.isArray(data) && data.length > 0) {
+                for (var i = 0; i < data.length; i++) {
+                    var fileData = data[i];
+                    var realName = fileData.realname || '다운로드 파일';
+                    var link = fileData.link || '#';
+                    var fileId = fileData.fileId || null;
+
+                    if (!fileId) {
+                        console.error("fileId가 누락되었습니다. index: " + i, fileData);
+                        continue;
+                    }
+
+                    $("#displayFile").append(
+                        "<div class='row mb-3'>" +
+                        "<div class='d-flex mb-3 align-items-center justify-content-center'>" +
+                        "<span id='file" + i + "'>" +
+                        "<a href='#' onclick=\"popupCenter('" + link + "', 'filePopup', 800, 600); return false;\">" + realName + "</a>" +
+                        "</span> &nbsp;&nbsp;" +
+                        "<button type='button' class='btn btn-danger btn-sm' id='delFile" + i + "' onclick=\"delFileFn('" + i + "', '" + fileId + "')\">" +
+                        "<i class='bi bi-trash'></i>" +
+                        "</button>" +
+                        "</div>" +
+                        "</div>"
+                    );
+                }
+            } else {
+                $("#displayFile").append(
+                    "<div class='text-center text-muted'>No files</div>"
+                );
+            }
+        }
+
+        // 파일 삭제 처리 함수
+        function delFileFn(divID, fileId) {
+            Swal.fire({
+                title: "파일 삭제 확인",
+                text: "정말 삭제하시겠습니까?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "삭제",
+                cancelButtonText: "취소",
+                reverseButtons: true,
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/filedrive/fileprocess.php',
+                        type: 'DELETE',
+                        data: JSON.stringify({
+                            fileId: fileId,
+                            tablename: $("#tablename").val(),
+                            item: "attached",
+                            folderPath: "미래기업/uploads",
+                            DBtable: "picuploads",
+                        }),
+                        contentType: "application/json",
+                        dataType: 'json',
+                    }).done(function(response) {
+                        if (response.status === 'success') {
+                            console.log("삭제 완료:", response);
+                            $("#file" + divID).remove();
+                            $("#delFile" + divID).remove();
+
+                            Swal.fire({
+                                title: "삭제 완료",
+                                text: "파일이 성공적으로 삭제되었습니다.",
+                                icon: "success",
+                                confirmButtonText: "확인",
+                            });
+                        } else {
+                            console.log(response.message);
+                        }
+                    }).fail(function(error) {
+                        console.error("삭제 중 오류:", error);
+                        Swal.fire({
+                            title: "삭제 실패",
+                            text: "파일 삭제 중 문제가 발생했습니다.",
+                            icon: "error",
+                            confirmButtonText: "확인",
+                        });
+                    });
+                }
+            });
+        }
+    </script>
 
 <script>
 $(document).ready(function () {
@@ -875,18 +916,17 @@ $(document).ready(function () {
 });
 
 
-function formatInput(input) {
-    let value = input.value;
-    value = value.replace(/,/g, ""); // Remove all existing commas
-    value = value.replace(/[^\d]/g, ""); // Remove all non-digit characters
-    input.value = numberWithCommas(value); // Add commas and update the value
-}
+        function formatInput(input) {
+            var value = input.value;
+            value = value.replace(/,/g, ""); // Remove all existing commas
+            value = value.replace(/[^\d]/g, ""); // Remove all non-digit characters
+            input.value = numberWithCommas(value); // Add commas and update the value
+        }
 
-function numberWithCommas(x) {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
-</script>
-
+        function numberWithCommas(x) {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+    </script>
 
 </body>
 </html>

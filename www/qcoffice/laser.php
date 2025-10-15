@@ -1,113 +1,112 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-if(!isset($_SESSION))      
-		session_start(); 
-if(isset($_SESSION["DB"]))
-		$DB = $_SESSION["DB"] ;	
- $level= $_SESSION["level"];
- $user_name= $_SESSION["name"];
- $user_id= $_SESSION["userid"];	
+<?php
+require_once __DIR__ . '/../common/functions.php';
 
- isset($_REQUEST["mcno"])  ? $mcno=$_REQUEST["mcno"] :   $mcno=$_REQUEST["mcname"]; 
- isset($_REQUEST["selnum"])  ? $selnum=$_REQUEST["selnum"] :   $selnum=1; 
+if (!isset($_SESSION)) {
+    session_start();
+}
 
-// 첫 화면 표시 문구
-$title_message = '사무실 (주간,정기) 점검';     
-   
+// 세션 변수 초기화
+$DB = $_SESSION["DB"] ?? '';
+$level = $_SESSION["level"] ?? 999;
+$user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["userid"] ?? '';
+
+// 권한 체크
+if (!isset($_SESSION["level"]) || $level > 8) {
+    $mcno = $_REQUEST["mcno"] ?? ($_REQUEST["mcname"] ?? '');
+    $_SESSION["url"] = 'http://8440.co.kr/qcoffice/laser.php?mcno=' . $mcno;
+    sleep(1);
+    header("Location:http://8440.co.kr/login/login_form.php");
+    exit;
+}
+
+// 요청 변수 초기화
+$mcno = $_REQUEST["mcno"] ?? ($_REQUEST["mcname"] ?? '');
+$selnum = $_REQUEST["selnum"] ?? 1;
+$mode = $_REQUEST["mode"] ?? '';
+$find = $_REQUEST["find"] ?? '';
+$fromdate = $_REQUEST["fromdate"] ?? '';
+$todate = $_REQUEST["todate"] ?? '';
+$page = $_REQUEST["page"] ?? 1;
+$scale = $_REQUEST["scale"] ?? 10;
+
+// 기타 변수 초기화
+$alerts = '';
+$mcmain = '';
+$mcsub = '';
+
+$title_message = '사무실 (주간,정기) 점검';
 ?>
-   
+
 <?php include getDocumentRoot() . '/load_header.php' ?>
- 
-<title> <?=$title_message?> </title>  
- 
-</head> 
+
+<title><?= $title_message ?></title>
+
+</head>
 
 <body>
 
 <?php include getDocumentRoot() . "/common/modal.php"; ?>
 
 <?php
- 
- if(!isset($_SESSION["level"]) || $level>8) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 $_SESSION["url"]='http://8440.co.kr/qcoffice/laser.php?mcno=' . $mcno ; 		  		 
-		 sleep(1);
-		 header("Location:http://8440.co.kr/login/login_form.php"); 
-         exit;
-}  
-   
-
 require_once(includePath('lib/mydb.php'));
-$pdo = db_connect(); 
+$pdo = db_connect();
 
 // 배열로 장비점검리스트 불러옴
-include "load_DB.php";   
+include "load_DB.php";
 
-  if(isset($_REQUEST["mode"]))
-     $mode=$_REQUEST["mode"];
-  else 
-     $mode="";     
- 
- // 기간을 정하는 구간
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];	 
-
-if($fromdate=="")	$fromdate="2010-01-01";
-
-if($todate=="")
-{
-	$todate=substr(date("Y-m-d",time()),0,4) . "-12-31" ;
-	$Transtodate=strtotime($todate.'+1 days');
-	$Transtodate=date("Y-m-d",$Transtodate);
+// 기간을 정하는 구간
+if ($fromdate == "") {
+    $fromdate = "2010-01-01";
 }
-    else
-	{
-	$Transtodate=strtotime($todate);
-	$Transtodate=date("Y-m-d",$Transtodate);
-	}
-		  
-   if(isset($_REQUEST["find"]))   //목록표에 제목,이름 등 나오는 부분
-	 $find=$_REQUEST["find"];
 
-$a= " order by checkdate desc ";   
+if ($todate == "") {
+    $todate = substr(date("Y-m-d", time()), 0, 4) . "-12-31";
+    $Transtodate = strtotime($todate . '+1 days');
+    $Transtodate = date("Y-m-d", $Transtodate);
+} else {
+    $Transtodate = strtotime($todate);
+    $Transtodate = date("Y-m-d", $Transtodate);
+}
 
+$a = " order by checkdate desc ";
 
- isset($_REQUEST["mcno"])  ? $mcno=$_REQUEST["mcno"] :   $mcno=$_REQUEST["mcname"]; 
- isset($_REQUEST["selnum"])  ? $selnum=$_REQUEST["selnum"] :   $selnum=1; 
- 
-$selnum=intval($selnum);  
- 
-if($selnum==1)
-{	
-	$sql="select * from mirae8440.myarealist where item='" . $mcno . "' " . $a; 						
-}  
- 
-if($selnum==2)
-{	
-	$sql="select * from mirae8440.myarealist where item='" . $mcno . "' and term='주간' " . $a; 						
-}  
-if($selnum==3) 
-{	
-	$sql="select * from mirae8440.myarealist where item='" . $mcno . "' and term='1개월' " . $a; 						
-}  
-if($selnum==4) 
-{	
-	$sql="select * from mirae8440.myarealist where item='" . $mcno . "' and term='2개월' " . $a; 						
-}  
-if($selnum==5) 
-{	
-	$sql="select * from mirae8440.myarealist where item='" . $mcno . "' and term='6개월' " . $a; 						
-}  
+$selnum = intval($selnum);
+
+// SQL 쿼리 초기화
+$sql = '';
+$sqlcon = '';
+$b = '';
+
+if ($selnum == 1) {
+    $sql = "select * from mirae8440.myarealist where item='" . $mcno . "' " . $a;
+}
+
+if ($selnum == 2) {
+    $sql = "select * from mirae8440.myarealist where item='" . $mcno . "' and term='주간' " . $a;
+}
+
+if ($selnum == 3) {
+    $sql = "select * from mirae8440.myarealist where item='" . $mcno . "' and term='1개월' " . $a;
+}
+
+if ($selnum == 4) {
+    $sql = "select * from mirae8440.myarealist where item='" . $mcno . "' and term='2개월' " . $a;
+}
+
+if ($selnum == 5) {
+    $sql = "select * from mirae8440.myarealist where item='" . $mcno . "' and term='6개월' " . $a;
+}
+
 // 미점검 리스트
-if($selnum==6) 
-{	 
-	// check1~check10까지 해당 질의 수를 추출해서 sql문장을 만들어 보자
-	for($j=0;$j<count($mcno_arr);$j++)
-	 {
-	  if($mcno==$mcno_arr[$j])
-	  {  
-		  $arrtmp = explode(",", $questionstep_arr[$j]);  // 이 함수 조심해야 함. 배열은 인식못함		  
-	  }
-	 }
+if ($selnum == 6) {
+    // check1~check10까지 해당 질의 수를 추출해서 sql문장을 만들어 보자
+    $arrtmp = [];
+    for ($j = 0; $j < count($mcno_arr ?? []); $j++) {
+        if ($mcno == $mcno_arr[$j]) {
+            $arrtmp = explode(",", $questionstep_arr[$j] ?? '');  // 이 함수 조심해야 함. 배열은 인식못함
+        }
+    }
 		  
   $period = array();
   array_push($period,"주간","1개월","2개월","6개월");
@@ -195,51 +194,43 @@ if($selnum==7)
 }  
 		
 
-$nowday=date("Y-m-d");   // 현재일자 변수지정   
-   
+$nowday = date("Y-m-d");   // 현재일자 변수지정
+
 // 전체 레코드수를 파악한다.
-try{  
-	$stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-	$total_row=$stmh->rowCount();    		
-			 
- ?>
-	 
-<form name="board_form" id="board_form"  method="post" action="laser.php" >    		
-	<input type="hidden" id="alerts" name="alerts" value="<?=$alerts?>" size="3" > 	
-	<input type="hidden" id="selnum" name="selnum" value="<?=$selnum?>"  > 	
-	<input type="hidden" id="mcmain" name="mcmain" value="<?=$mcmain?>"  > 	
-	<input type="hidden" id="mcsub" name="mcsub" value="<?=$mcsub?>"  > 				
-	<input type="hidden" id="page" name="page" value="<?=$page?>" size="3" > 	
-	<input type="hidden" id="scale" name="scale" value="<?=$scale?>" size="3" > 	  
-  
-<div class="container">  
-	<div class="card mt-2 mb-4">  
-	<div class="card-body">   
- <div class="d-flex mt-3 mb-1 justify-content-start">  
-   <span class="fs-4">
-		사무실 정비
-	</span>
- </div>
- <div class="d-flex mt-3 mb-1 justify-content-end">  
-<?php
-    if(!isset($_SESSION["userid"]))
-	{
-?>
-          <a href="../login/login_form.php">로그인</a> | <a href="../member/insertForm.php">회원가입</a>
-<?php
-	}
-	else
-	 {
+$total_row = 0;
+try {
+    $stmh = $pdo->query($sql);  // 검색조건에 맞는글 stmh
+    $total_row = $stmh->rowCount();
 ?>
 
-	<?=$_SESSION["name"]?> | 
-		<a href="../login/logout.php">로그아웃</a> | <a href="../member/updateForm.php?id=<?=$_SESSION["userid"]?>">정보수정</a>
-		
-<?php
-	 }
-?>
+<form name="board_form" id="board_form" method="post" action="laser.php">
+    <input type="hidden" id="alerts" name="alerts" value="<?= $alerts ?>" size="3">
+    <input type="hidden" id="selnum" name="selnum" value="<?= $selnum ?>">
+    <input type="hidden" id="mcmain" name="mcmain" value="<?= $mcmain ?>">
+    <input type="hidden" id="mcsub" name="mcsub" value="<?= $mcsub ?>">
+    <input type="hidden" id="page" name="page" value="<?= $page ?>" size="3">
+    <input type="hidden" id="scale" name="scale" value="<?= $scale ?>" size="3"> 	  
 
-</div>   
+    <div class="container">
+        <div class="card mt-2 mb-4">
+            <div class="card-body">
+                <div class="d-flex mt-3 mb-1 justify-content-start">
+                    <span class="fs-4">사무실 정비</span>
+                </div>
+                <div class="d-flex mt-3 mb-1 justify-content-end">
+                    <?php
+                    if (!isset($_SESSION["userid"])) {
+                    ?>
+                        <a href="../login/login_form.php">로그인</a> | <a href="../member/insertForm.php">회원가입</a>
+                    <?php
+                    } else {
+                    ?>
+                        <?= $_SESSION["name"] ?? '' ?> |
+                        <a href="../login/logout.php">로그아웃</a> | <a href="../member/updateForm.php?id=<?= $_SESSION["userid"] ?? '' ?>">정보수정</a>
+                    <?php
+                    }
+                    ?>
+                </div>
 	  
 	<div class="d-flex align-items-center mt-3 mb-1 justify-content-start">         
 		<select class="form-control me-2" name="mcno" id="mcno" style="width:12%;" >		  
@@ -288,24 +279,24 @@ try{
 				</tr>
 			</thead>
 			<tbody> 
-	<?php  
-	  if ($page<=1)  
-			$start_num=$total_row;    // 페이지당 표시되는 첫번째 글순번
-		  else 
-			$start_num=$total_row-($page-1) * $scale;
-	    
-	       while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-           include "rowDB.php";
-			 
-// 점검을 했는지 여부는 check1의 체크여부로 판단함
-// check1~check10까지 해당 질의 수를 추출
-for($j=0;$j<count($mcno_arr);$j++)
-	 {
-	  if($mcno==$mcno_arr[$j])
-	  {  
-		  $arrtmp = explode(",", $questionstep_arr[$j]);  
-	  }
-	 }	
+                <?php
+                if ($page <= 1) {
+                    $start_num = $total_row;  // 페이지당 표시되는 첫번째 글순번
+                } else {
+                    $start_num = $total_row - ($page - 1) * $scale;
+                }
+
+                while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+                    include "rowDB.php";
+
+                    // 점검을 했는지 여부는 check1의 체크여부로 판단함
+                    // check1~check10까지 해당 질의 수를 추출
+                    $arrtmp = [];
+                    for ($j = 0; $j < count($mcno_arr ?? []); $j++) {
+                        if ($mcno == $mcno_arr[$j]) {
+                            $arrtmp = explode(",", $questionstep_arr[$j] ?? '');
+                        }
+                    }	
 // 주간점검 / 미점검 	 
 	  for($j=1; $j<=(int)$arrtmp[0]; $j++)
 	  {

@@ -1,4 +1,9 @@
 <?php
+/**
+ * 실측서 사진 업로드 처리 (Google Drive)
+ * 로컬 및 서버 환경 모두 지원
+ */
+
 session_start();
 require_once getDocumentRoot() . '/vendor/autoload.php';
 include "../php/common.php";
@@ -75,11 +80,12 @@ function setFilePublic($service, $fileId) {
 $miraeFolderId = getOrCreateFolder($service, '미래기업');
 $uploadsFolderId = getOrCreateFolder($service, 'uploads', $miraeFolderId);
 
-$num = $_REQUEST["num"] ?? "";
-$check = $_REQUEST["check"] ?? $_POST["check"];
-$workplacename = $_REQUEST["workplacename"] ?? "";
-$tablename = $_REQUEST["tablename"] ?? "";
-$item = $_REQUEST["item"] ?? "";
+// 요청 변수 초기화 (?? '' 형태)
+$num = $_REQUEST["num"] ?? '';
+$check = $_REQUEST["check"] ?? $_POST["check"] ?? '';
+$workplacename = $_REQUEST["workplacename"] ?? '';
+$tablename = $_REQUEST["tablename"] ?? '';
+$item = $_REQUEST["item"] ?? '';
 
 $filechoice = 'upfile';
 $countfiles = count($_FILES[$filechoice]['name']);
@@ -165,7 +171,9 @@ for ($i = 0; $i < $countfiles; $i++) {
 }
 
 // 로그 기록 남기기
-$data = date("Y-m-d H:i:s") . " - " . $_SESSION["userid"] . " - " . $_SESSION["name"] . " - " . $workplacename . " - 실측서 사진기록";
+$session_userid = $_SESSION["userid"] ?? '';
+$session_name = $_SESSION["name"] ?? '';
+$data = date("Y-m-d H:i:s") . " - " . $session_userid . " - " . $session_name . " - " . $workplacename . " - 실측서 사진기록";
 $pdo = db_connect();
 $pdo->beginTransaction();
 $sql = "INSERT INTO mirae8440.logdata(data) VALUES(?)";

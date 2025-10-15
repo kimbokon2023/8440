@@ -217,9 +217,9 @@ if (!isset($pdo) || !$pdo) {
 		?>		  
 		  <button type="button" class="btn btn-danger  " onclick="javascript:move_url('<?= getBaseUrl() ?>/p/voc.php?num=<?=$num?>&check=<?=$check?>&workername=<?=$workername ?>');"> 
 		  협의사항 </button> &nbsp;
-		  <button type="button" class="btn btn-primary  " onclick="javascript:move_url('<?= getBaseUrl() ?>/p/process_DB.php?num=<?=$num?>&check=<?=$check?>&measureday=<?=$todate?>&workername =<?=$workername ?>');"> 
+		  <button type="button" class="btn btn-primary  " onclick="javascript:move_url('<?= getBaseUrl() ?>/p/process_DB.php?num=<?=$num?>&check=<?=$check?>&measureday=<?=$todate?>&workername=<?=$workername?>&from_view=1');"> 
 		  실측완료 </button> &nbsp;			
-		  <button type="button" class="btn btn-success   " onclick="javascript:move_url('<?= getBaseUrl() ?>/p/process_done.php?num=<?=$num?>&check=<?=$check?>&doneday=<?=$todate?>&workername =<?=$workername ?>');">
+		  <button type="button" class="btn btn-success   " onclick="javascript:move_url('<?= getBaseUrl() ?>/p/process_done.php?num=<?=$num?>&check=<?=$check?>&doneday=<?=$todate?>&workername=<?=$workername?>&from_view=1');">
 		  시공완료 </button> &nbsp;
 		  <button type="button" class="btn btn-secondary   " onclick="javascript:move_url('<?= getBaseUrl() ?>/p/reg_pic.php?num=<?=$num?>&check=<?=$check?>&workername=<?=$workername ?>');">
 		  전후 사진 </button> &nbsp;
@@ -234,7 +234,7 @@ if (!isset($pdo) || !$pdo) {
 		} else {
 			// 서영선 소장일때
 		?>
-		 <button type="button" class="btn btn-success   " onclick="javascript:move_url('<?= getBaseUrl() ?>/p/process_done.php?num=<?=$num?>&check=<?=$check?>&doneday=<?=$todate?>&workername =<?=$workername ?>');">시공완료 </button> &nbsp;
+		 <button type="button" class="btn btn-success   " onclick="javascript:move_url('<?= getBaseUrl() ?>/p/process_done.php?num=<?=$num?>&check=<?=$check?>&doneday=<?=$todate?>&workername=<?=$workername?>&from_view=1');">시공완료 </button> &nbsp;
 		  <button type="button" class="btn btn-secondary   " onclick="javascript:move_url('<?= getBaseUrl() ?>/p/reg_pic.php?num=<?=$num?>&check=<?=$check?>&workername=<?=$workername ?>');"> 전후 사진 </button> &nbsp;	
 		  <button type="button" class="btn btn-danger  fw-bold " onclick="javascript:popup('<?= getBaseUrl() ?>/p/customer_input_newone.php?num=<?=$num?>');">  공사완료 확인서 </button> 
 		  <button type="button" class="btn btn-outline-dark mx-1 " onclick="self.close();"> 닫기 </button> 
@@ -284,7 +284,7 @@ if (!isset($pdo) || !$pdo) {
 	<div class="d-flex p-1 m-1 mt-2 mb-2 align-items-center fs-4">    	
 		실측일(소장님 입력) : 
 	<input type="date" class="btn btn-secondary btn-lg fs-4" name=measureday id=measureday value="<?=$measureday?>"> &nbsp;
-	<input type="button" class="btn btn-secondary btn-lg fs-4" value="수정" onclick="javascript:input_measureday('<?= getBaseUrl() ?>/p/process_DB.php?num=<?=$num?>&check=<?=$check?>');"> 
+	<input type="button" class="btn btn-secondary btn-lg fs-4" value="수정" onclick="javascript:input_measureday('<?= getBaseUrl() ?>/p/process_DB.php?num=<?=$num?>&check=<?=$check?>&from_view=1');"> 
  	</div>
 	<div class="d-flex p-1 m-1 mt-2 mb-2 align-items-center fs-4">     	
 	     도면설계완료일 :  <?=$drawday?>
@@ -316,7 +316,7 @@ if (!isset($pdo) || !$pdo) {
 	<div class="d-flex p-1 m-1 mt-2 mb-3 align-items-center fs-4">  
         시공완료일(소장님 입력):<input type="date" class="btn btn-secondary btn-lg fs-4 " name=doneday id=doneday value="<?=$doneday?>">
 		&nbsp;
-		<input type="button" class="btn btn-secondary btn-lg fs-4 " value="수정" onclick="javascript:input_doneday('<?= getBaseUrl() ?>/p/process_done.php?num=<?=$num?>&check=<?=$check?>');"> 
+		<input type="button" class="btn btn-secondary btn-lg fs-4 " value="수정" onclick="javascript:input_doneday('<?= getBaseUrl() ?>/p/process_done.php?num=<?=$num?>&check=<?=$check?>&from_view=1');"> 
 	</div>
 <?php
 if($workername!='서영선')
@@ -501,9 +501,7 @@ if ($showLink) {
 	   </div> 
 	</div>
  </div>
-  </body>
-</html>    
- 
+
  
  <script language="javascript">
 function popupCenter(url, title, w, h) {
@@ -721,6 +719,6 @@ setTimeout(function() {
  rotate_image();
 }, 1000);
 
-
-
 </script>
+</body>
+</html>  

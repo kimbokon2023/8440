@@ -1,5 +1,6 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session.php'));  
+<?php
+require_once __DIR__ . '/../common/functions.php';
+require_once(includePath('session.php'));
 require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
@@ -7,8 +8,18 @@ require_once(includePath('annualleave/load_DB.php'));
 
 header("Content-Type: application/json");
 
+// 요청 파라미터 초기화
 $year = isset($_POST['year']) ? intval($_POST['year']) : date("Y");
 $user_name = isset($_POST['user_name']) ? trim($_POST['user_name']) : '';
+
+// load_DB.php에서 정의될 변수들 초기화 (정의되지 않은 경우 대비)
+$availableday_arr = $availableday_arr ?? array();
+$basic_name_arr = $basic_name_arr ?? array();
+$referencedate_arr = $referencedate_arr ?? array();
+$al_usedday_arr = $al_usedday_arr ?? array();
+$author_arr = $author_arr ?? array();
+$al_askdatefrom_arr = $al_askdatefrom_arr ?? array();
+$status_arr = $status_arr ?? array();
 
 $total = 0;
 $thisyeartotalusedday = 0;
@@ -39,3 +50,4 @@ echo json_encode([
     'remainingDays' => $thisyeartotalremainday
 ]);
 ?>
+

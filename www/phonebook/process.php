@@ -1,114 +1,92 @@
 <?php
-if(!isset($_SESSION))      
-		session_start(); 
-if(isset($_SESSION["DB"]))
-		$DB = $_SESSION["DB"] ;	
- $level= $_SESSION["level"];
- $user_name= $_SESSION["name"];
- $user_id= $_SESSION["userid"];	
+require_once __DIR__ . '/../common/functions.php';
 
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(1);
-         header("Location:".$_SESSION["WebSite"]."login/login_form.php"); 
-         exit;
-   }  
-              
-require_once("../lib/mydb.php");
-$pdo = db_connect();	
-
-include "_request.php";
-
-// DB이름 설정
-$DBtablename = $DB . "." . $tablename ;
-
-if($SelectWork=="update")  {			
-
-// var_dump($order_prod_cd);
-
-	   try{
-		 $pdo->beginTransaction();
-									// where 구문이 있음 주의 update에 해당함.
-		 $sql = "update " . $DBtablename . " set  phone_name = ?,  phonenumber = ?,  belongstr = ?   ";
-		 $sql .= " where num=? LIMIT 1 ";                               // 마지막 where num=? LIMIT 1
-			 
-			$stmh = $pdo->prepare($sql); 
-
-			$stmh->bindValue(1 ,$phone_name         , PDO::PARAM_STR);
-			$stmh->bindValue(2 ,$phonenumber         , PDO::PARAM_STR);
-			$stmh->bindValue(3 ,$belongstr         , PDO::PARAM_STR);
-			$stmh->bindValue(4 ,$num 		     , PDO::PARAM_STR);		 
-			 
-			$stmh->execute();
-			$pdo->commit(); 
-			 } catch (PDOException $Exception) {
-				  $pdo->rollBack();
-			   print "오류: ".$Exception->getMessage();
-			 }   	 
-			 
-	  
-		
-}   // end of $SelectWork if-statement
-	
-
-			
-if( $SelectWork=="insert")  {	 // 선택에 따라 index로 또는 list로 분기한다. $num이 Null일때	
-			
-	// 데이터 신규 등록하는 구간		
-	
-	   try{
-		$pdo->beginTransaction();
-		 
-		$sql = "insert into " . $DBtablename . " ( phone_name, phonenumber, belongstr) "; 		
-		$sql .= " values(?, ?, ?) ";		
-		 
- 		$stmh = $pdo->prepare($sql); 
-
-		$stmh->bindValue(1 ,$phone_name         , PDO::PARAM_STR);
-		$stmh->bindValue(2 ,$phonenumber         , PDO::PARAM_STR);
-		$stmh->bindValue(3 ,$belongstr         , PDO::PARAM_STR);
-		
-		$stmh->execute();
-		 $pdo->commit(); 
-		 } catch (PDOException $Exception) {
-			  $pdo->rollBack();
-		   print "오류: ".$Exception->getMessage();
-		 }   	 
-			 
-// parentKey 추출
-
-        $sql = "select * from  " . $DBtablename . "  order by num desc ";
-		 try{  
-			  $stmh = $pdo->query($sql);      // 검색조건에 맞는글 stmh
-			  $temp = $stmh->rowCount();
-			  $row = $stmh->fetch(PDO::FETCH_ASSOC);
-			  $num=$row["num"];
-			  
-			 } catch (PDOException $Exception) {
-					  print "오류: ".$Exception->getMessage();
-					  }			  			 					  
-  
-}   // end of $SelectWork if-statement 
-
-
-if($SelectWork=="delete")  {   // data 삭제시 
-   
-  
-   try{									// esmaindb의 자료를 삭제한다.
-     $pdo->beginTransaction();
-     $sql = "delete from  " . $DBtablename . "  where num = ?";  
-     $stmh = $pdo->prepare($sql);
-     $stmh->bindValue(1,$num,PDO::PARAM_STR);      
-     $stmh->execute();  
-
-     $pdo->commit();
-	 
-     } catch (Exception $ex) {
-        $pdo->rollBack();
-        print "오류: ".$Exception->getMessage();
-   }
-
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
 }
 
-?>
+$httpHost = $_SERVER['HTTP_HOST'] ?? '';
+$is_local = ($httpHost === 'localhost' || strpos($httpHost, '127.0.0.1') !== false);
+$base_url = $is_local ? 'http://localhost/mirae8440/www' : 'http://8440.co.kr';
 
+$DB = $_SESSION['DB'] ?? '';
+$level = $_SESSION['level'] ?? '';
+$user_name = $_SESSION['name'] ?? '';
+$user_id = $_SESSION['userid'] ?? '';
+$website = $_SESSION['WebSite'] ?? '';
+
+if ($level === '' || (is_numeric($level) && (int)$level > 5)) {
+    $loginPath = $website !== '' ? rtrim($website, '/') . '/login/login_form.php' : '/login/login_form.php';
+    header('Location:' . $loginPath);
+    exit;
+}
+
+require_once includePath('lib/mydb.php');
+$pdo = db_connect();
+
+require_once __DIR__ . '/_request.php';
+
+$tablename = $tablename !== '' ? $tablename : 'phonebook';
+$tableIdentifier = $DB !== '' ? $DB . '.' . $tablename : $tablename;
+$SelectWork = $SelectWork !== '' ? $SelectWork : '';
+$num = $num === '' ? '' : (int)$num;
+$phone_name = trim($phone_name);
+$phonenumber = trim($phonenumber);
+$belongstr = trim($belongstr);
+
+try {
+    switch ($SelectWork) {
+        case 'update':
+            if ($num === '') {
+                throw new InvalidArgumentException('수정할 항목의 번호가 없습니다.');
+            }
+
+            $pdo->beginTransaction();
+            $sql = "UPDATE {$tableIdentifier} SET phone_name = :phone_name, phonenumber = :phonenumber, belongstr = :belongstr WHERE num = :num LIMIT 1";
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindValue(':phone_name', $phone_name, PDO::PARAM_STR);
+            $stmt->bindValue(':phonenumber', $phonenumber, PDO::PARAM_STR);
+            $stmt->bindValue(':belongstr', $belongstr, PDO::PARAM_STR);
+            $stmt->bindValue(':num', $num, PDO::PARAM_INT);
+            $stmt->execute();
+            $pdo->commit();
+            echo 'success';
+            break;
+
+        case 'insert':
+            $pdo->beginTransaction();
+            $sql = "INSERT INTO {$tableIdentifier} (phone_name, phonenumber, belongstr) VALUES (:phone_name, :phonenumber, :belongstr)";
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindValue(':phone_name', $phone_name, PDO::PARAM_STR);
+            $stmt->bindValue(':phonenumber', $phonenumber, PDO::PARAM_STR);
+            $stmt->bindValue(':belongstr', $belongstr, PDO::PARAM_STR);
+            $stmt->execute();
+            $pdo->commit();
+            echo 'success';
+            break;
+
+        case 'delete':
+            if ($num === '') {
+                throw new InvalidArgumentException('삭제할 항목의 번호가 없습니다.');
+            }
+
+            $pdo->beginTransaction();
+            $sql = "DELETE FROM {$tableIdentifier} WHERE num = :num";
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindValue(':num', $num, PDO::PARAM_INT);
+            $stmt->execute();
+            $pdo->commit();
+            echo 'success';
+            break;
+
+        default:
+            echo 'no-action';
+            break;
+    }
+} catch (Throwable $exception) {
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
+    http_response_code(500);
+    echo $exception->getMessage();
+}

@@ -1,10 +1,28 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php
+/**
+ * 구매발주서 상세보기 페이지
+ * 로컬 및 서버 환경 모두 지원
+ */
+
+require_once __DIR__ . '/../common/functions.php';
 require_once(includePath('session.php'));
 
-if(!isset($_SESSION["level"]) || $level>5) {
-    $_SESSION["url"]='https://8440.co.kr/order/view.php';
+// 세션 변수 초기화 (?? '' 형태)
+$level = $_SESSION["level"] ?? 999;
+$user_name = $_SESSION["name"] ?? '';
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+
+// 동적 URL 생성
+$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+$host = $_SERVER['HTTP_HOST'];
+$base_url = "{$protocol}://{$host}";
+$WebSite = $base_url . '/';
+
+// 권한 체크
+if (!isset($_SESSION["level"]) || $level > 5) {
+    $_SESSION["url"] = "{$base_url}/order/view.php";
     sleep(1);
-    header("Location:" . $WebSite . "login/logout.php");
+    header("Location: {$WebSite}login/logout.php");
     exit;
 }
 
@@ -13,8 +31,9 @@ require_once(includePath('lib/mydb.php'));
 
 include getDocumentRoot() . '/load_header.php';
 
-// ID 확인
-$id = isset($_REQUEST["id"]) ? (int)$_REQUEST["id"] : 0;
+// ID 확인 (?? '' 형태)
+$id = $_REQUEST["id"] ?? 0;
+$id = (int)$id;
 if ($id <= 0) {
     echo "<script>alert('잘못된 요청입니다.'); location.href='index.php';</script>";
     exit;
@@ -154,7 +173,7 @@ $title_message = '구매발주서 상세보기';
                             <div class="info-row">
                                 <div class="info-label">담당업체</div>
                                 <div class="info-value">
-                                    <?php echo htmlspecialchars($order['responsible_company'] ?: '미지정'); ?>
+                                    <?php echo htmlspecialchars(($order['responsible_company'] ?? '') ?: '미지정'); ?>
                                 </div>
                             </div>
                         </div>
@@ -177,7 +196,7 @@ $title_message = '구매발주서 상세보기';
                             <div class="info-row">
                                 <div class="info-label">포토앤드/작업코드</div>
                                 <div class="info-value">
-                                    <?php echo htmlspecialchars($order['photo_work_code'] ?: '없음'); ?>
+                                    <?php echo htmlspecialchars(($order['photo_work_code'] ?? '') ?: '없음'); ?>
                                 </div>
                             </div>
                         </div>
@@ -192,7 +211,7 @@ $title_message = '구매발주서 상세보기';
                             <div class="info-row">
                                 <div class="info-label">품목/규격</div>
                                 <div class="info-value long-text">
-                                    <?php echo htmlspecialchars($order['item_specification']); ?>
+                                    <?php echo htmlspecialchars($order['item_specification'] ?? ''); ?>
                                 </div>
                             </div>
                         </div>
@@ -207,7 +226,7 @@ $title_message = '구매발주서 상세보기';
                             <div class="info-row">
                                 <div class="info-label">공급가액</div>
                                 <div class="info-value amount-value">
-                                    <?php echo number_format($order['supply_price']); ?>원
+                                    <?php echo number_format($order['supply_price'] ?? 0); ?>원
                                 </div>
                             </div>
                         </div>
@@ -215,7 +234,7 @@ $title_message = '구매발주서 상세보기';
                             <div class="info-row">
                                 <div class="info-label">세액 (부가세)</div>
                                 <div class="info-value amount-value">
-                                    <?php echo number_format($order['tax_amount']); ?>원
+                                    <?php echo number_format($order['tax_amount'] ?? 0); ?>원
                                 </div>
                             </div>
                         </div>
@@ -223,7 +242,7 @@ $title_message = '구매발주서 상세보기';
                             <div class="info-row">
                                 <div class="info-label">합계금액</div>
                                 <div class="info-value amount-value" style="font-size: 1.1em; background-color: #e3f2fd;">
-                                    <?php echo number_format($order['total_amount']); ?>원
+                                    <?php echo number_format($order['total_amount'] ?? 0); ?>원
                                 </div>
                             </div>
                         </div>
@@ -238,7 +257,7 @@ $title_message = '구매발주서 상세보기';
                             <div class="info-row">
                                 <div class="info-label">최종 마감 발송일</div>
                                 <div class="info-value">
-                                    <?php echo $order['final_send_date'] ? date('Y년 m월 d일 H:i', strtotime($order['final_send_date'])) : '미설정'; ?>
+                                    <?php echo ($order['final_send_date'] ?? '') ? date('Y년 m월 d일 H:i', strtotime($order['final_send_date'])) : '미설정'; ?>
                                 </div>
                             </div>
                         </div>
@@ -246,7 +265,7 @@ $title_message = '구매발주서 상세보기';
                             <div class="info-row">
                                 <div class="info-label">최종 팩스 발송일</div>
                                 <div class="info-value">
-                                    <?php echo $order['final_pass_send_date'] ? date('Y년 m월 d일 H:i', strtotime($order['final_pass_send_date'])) : '미설정'; ?>
+                                    <?php echo ($order['final_pass_send_date'] ?? '') ? date('Y년 m월 d일 H:i', strtotime($order['final_pass_send_date'])) : '미설정'; ?>
                                 </div>
                             </div>
                         </div>
@@ -285,19 +304,26 @@ $title_message = '구매발주서 상세보기';
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://kit.fontawesome.com/your-fontawesome-kit.js"></script>
-    <script>
-        // 발주서 삭제 함수
-        function deleteOrder() {
+    <script type="text/javascript">
+    (function() {
+        'use strict';
+        
+        /**
+         * 발주서 삭제 함수
+         */
+        window.deleteOrder = function() {
             if (confirm('정말로 이 발주서를 삭제하시겠습니까?\n\n삭제된 발주서는 복구할 수 없습니다.')) {
                 fetch('delete.php', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ id: <?php echo $order['id']; ?> })
                 })
-                .then(response => response.json())
-                .then(data => {
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(data) {
                     if (data.success) {
                         alert('발주서가 삭제되었습니다.');
                         location.href = 'index.php';
@@ -305,18 +331,20 @@ $title_message = '구매발주서 상세보기';
                         alert('삭제 중 오류가 발생했습니다: ' + data.message);
                     }
                 })
-                .catch(error => {
+                .catch(function(error) {
                     console.error('Error:', error);
                     alert('삭제 중 오류가 발생했습니다.');
                 });
             }
-        }
-
-        // 인쇄 기능 (추가 기능)
-        function printOrder() {
+        };
+        
+        /**
+         * 인쇄 기능
+         */
+        window.printOrder = function() {
             window.print();
-        }
-
+        };
+        
         // 키보드 단축키
         document.addEventListener('keydown', function(e) {
             // Ctrl + E: 수정
@@ -334,6 +362,8 @@ $title_message = '구매발주서 상세보기';
                 location.href = 'index.php';
             }
         });
+        
+    })();
     </script>
 </body>
 </html>

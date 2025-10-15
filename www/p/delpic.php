@@ -1,10 +1,15 @@
 <?php
+/**
+ * Google Drive 사진 삭제 처리
+ * 로컬 및 서버 환경 모두 지원
+ */
 
 header("Content-Type: application/json"); // JSON 응답 설정
 
-isset($_REQUEST["picname"]) ? $picname = $_REQUEST["picname"] : $picname = '';
+// 요청 변수 초기화 (?? '' 형태)
+$picname = $_REQUEST["picname"] ?? '';
 
-require_once("../lib/mydb.php");
+require_once "../lib/mydb.php";
 require_once getDocumentRoot() . '/vendor/autoload.php';
 
 // Google Drive 서비스 계정 설정

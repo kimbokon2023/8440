@@ -1,161 +1,181 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-include getDocumentRoot() . '/session.php';   
+<?php
+require_once __DIR__ . '/../common/functions.php';
+require_once getDocumentRoot() . '/session.php';
 
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {          
-		 sleep(1);
-         header ("Location:https://8440.co.kr/login/logout.php");
-         exit;
- }    
+// 세션 변수 초기화
+$level = $_SESSION["level"] ?? 10;
+$user_name = $_SESSION["name"] ?? '';
+
+// 권한 체크
+if (!isset($_SESSION["level"]) || $level > 5) {
+    sleep(1);
+    
+    // 로컬/서버 환경에 따른 동적 리다이렉션
+    $host = $_SERVER['HTTP_HOST'] ?? '';
+    if (strpos($host, 'localhost') !== false || strpos($host, '127.0.0.1') !== false) {
+        header("Location: http://" . $host . "/login/logout.php");
+    } else {
+        header("Location: https://8440.co.kr/login/logout.php");
+    }
+    exit;
+}
 ?>
- 
+
 <?php include getDocumentRoot() . '/load_header.php' ?>
 
-<title> 전산실장 정산 </title> 
+<title> 전산실장 정산 </title>
 </head>
+
 <body>
+
+    <?php require_once(includePath('myheader.php')); ?>
+
+    <?php
+    // 요청 파라미터 초기화
+    $search = $_REQUEST["search"] ?? '';
+    $separate_date = $_REQUEST["separate_date"] ?? '';
+    $list = $_REQUEST["list"] ?? 0;
+    $page = $_REQUEST["page"] ?? 1;
+    $mode = $_REQUEST["mode"] ?? '';
+    $cursort = $_REQUEST["cursort"] ?? '';
+    $fromdate = $_REQUEST["fromdate"] ?? '';
+    $todate = $_REQUEST["todate"] ?? '';
+    
+    // 추가 파라미터 초기화
+    $find = $_REQUEST["find"] ?? '';
+    $year = $_REQUEST["year"] ?? '';
+    $process = $_REQUEST["process"] ?? '전체';
+    $asprocess = $_REQUEST["asprocess"] ?? '';
+    $yearcheckbox = $_REQUEST["yearcheckbox"] ?? '';
+    $up_fromdate = $_REQUEST["up_fromdate"] ?? '';
+    $up_todate = $_REQUEST["up_todate"] ?? '';
+    
+    // 페이징 변수 초기화
+    $scale = 50; // 한 페이지에 보여질 게시글 수
+    $page_scale = 15; // 한 페이지당 표시될 페이지 수
+    $first_num = ($page - 1) * $scale; // 리스트에 표시되는 게시글의 첫 순번
+    
+    // 데이터베이스 변수 초기화
+    $num = '';
+    $proDate = '';
+    $writer = '';
+    $amount = '';
+    $memo = '';
+    $which = '';
+    $regist_state = null;
+    
+    require_once(includePath('lib/mydb.php'));
+    $pdo = db_connect();
+
+    // 기간 설정
+    if (empty($fromdate) or empty($todate)) {
+        $fromdate = "2021-01-01";
+        $todate = substr(date("Y-m-d", time()), 0, 4) . "-12-31";
+        $Transtodate = strtotime($todate . '+1 days');
+        $Transtodate = date("Y-m-d", $Transtodate);
+    } else {
+        $Transtodate = strtotime($todate);
+        $Transtodate = date("Y-m-d", $Transtodate);
+    }
+
+    $SettingDate = "proDate";
+
+    $common = " where " . $SettingDate . " between date('$fromdate') and date('$Transtodate') order by " . $SettingDate;
+    $a = $common . " desc, num desc limit $first_num, $scale"; // 내림차순
+    $b = $common . " desc, num desc "; // 내림차순 전체
+
+    $sum_title = array();
+    $input_sum = 0;
+    $output_sum = 0;
+
+    // 수입, 지출 처리하는 부분
+    $sql = "select * from mirae8440.automan where proDate between date('2010-01-01') and date('$todate') order by proDate ";
+
+    try {
+        // 레코드 전체 sql 설정
+        $stmh = $pdo->query($sql); // 검색조건에 맞는글 stmh
+        while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+
+            $num = $row["num"];
+            $proDate = $row["proDate"];
+            $writer = $row["writer"];
+            $amount = $row["amount"];
+            $memo = $row["memo"];
+            $which = $row["which"];
+
+            if ($which == '1')
+                $input_sum += (int) conv_num($amount);
+            else
+                $output_sum += (int) conv_num($amount);
+        }
+    } catch (PDOException $ex) {
+        error_log("Automan 합계 조회 오류: " . $ex->getMessage());
+    }  
  
-<?php require_once(includePath('myheader.php')); ?>   
- 
-<?php 
- $search=$_REQUEST["search"] ?? '';
- $separate_date=$_REQUEST["separate_date"] ?? '';	 
- 
- $list=$_REQUEST["list"] ?? 0 ;
-  
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();  
- 
- $page = $_REQUEST["page"] ?? 1;  // 페이지 번호
-  
-  $scale = 50;       // 한 페이지에 보여질 게시글 수
-  $page_scale = 15;   // 한 페이지당 표시될 페이지 수  10페이지
-  $first_num = ($page-1) * $scale;  // 리스트에 표시되는 게시글의 첫 순번.
-	 
-  $mode=$_REQUEST["mode"] ?? '' ;
- 
- $cursort=$_REQUEST["cursort"] ?? '';    // 현재 정렬모드 지정
- 
- // 기간을 정하는 구간
-$fromdate=$_REQUEST["fromdate"] ?? '';	 
-$todate=$_REQUEST["todate"] ?? '';	 
+    $remain_sum = $input_sum - $output_sum;
 
-if(empty($fromdate) or empty($todate))
-{
-	// $fromdate=substr(date("Y-m-d",time()),0,4) ;
-	$fromdate=$fromdate . "2021-01-01";
-	$todate=substr(date("Y-m-d",time()),0,4) . "-12-31" ;
-	$Transtodate=strtotime($todate.'+1 days');
-	$Transtodate=date("Y-m-d",$Transtodate);
-}
-    else
-	{
-	$Transtodate=strtotime($todate);
-	$Transtodate=date("Y-m-d",$Transtodate);
-	}
-		  
-$process = "전체";  // 기본 전체로 정한다.   
-	
-$SettingDate = "proDate";
+    $resultText = "총수입(" . number_format($input_sum) . "원) -  총지출(" . number_format($output_sum) . "원) = 보유 잔액(" . number_format($remain_sum) . "원)";
 
-$common="   where " . $SettingDate . " between date('$fromdate') and date('$Transtodate') order by " . $SettingDate;
-$a= $common . " desc, num desc limit $first_num, $scale";    //내림차순
-$b= $common . " desc, num desc ";    //내림차순 전체
-  
-$sum_title=array(); 
-$input_sum = 0;
-$output_sum = 0;
- 
-// 수입, 지출 처리하는 부분  
-$sql="select * from mirae8440.automan where proDate between date('2010-01-01') and date('$todate') order by  proDate " ; 
+    // SQL 쿼리 설정
+    if ($mode == "search") {
+        if ($search == "") {
+            $sql = "select * from mirae8440.automan " . $a;
+            $sqlcon = "select * from mirae8440.automan " . $b; // 전체 레코드수를 파악하기 위함
+        } else {
+            // 각 필드별로 검색어가 있는지 쿼리주는 부분
+            $sql = "select * from mirae8440.automan where (" . $SettingDate . " between date('$fromdate') and date('$Transtodate')) and ( (memo like '%$search%') or (writer like '%$search%') ) ";
+            $sql .= " order by " . $SettingDate . " desc, num desc limit $first_num, $scale ";
+            $sqlcon = "select * from mirae8440.automan where (" . $SettingDate . " between date('$fromdate') and date('$Transtodate')) and ( (memo like '%$search%') or (writer like '%$search%') ) ";
+            $sqlcon .= " order by " . $SettingDate . " desc, num desc ";
+        }
+    }
+    if ($mode == "") {
+        $sql = "select * from mirae8440.automan " . $a;
+        $sqlcon = "select * from mirae8440.automan " . $b; // 전체 레코드수를 파악하기 위함
+    }
 
-try{  
-// 레코드 전체 sql 설정
-   $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-	   
-		$num=$row["num"];
-		$proDate=$row["proDate"];			  			  
-		$writer=$row["writer"];			  			  
-		$amount=$row["amount"];			  			  
-		$memo=$row["memo"];
-		$which=$row["which"];
+    $nowday = date("Y-m-d"); // 현재일자 변수지정
 
-		if($which=='1') 	  
-		$input_sum += (int)conv_num($amount);
-		else
-		$output_sum += (int)conv_num($amount);
+    try {
+        // 레코드 전체 sql 설정
+        $stmh = $pdo->query($sql); // 검색조건에 맞는글 stmh
+        while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+            $num = $row["num"];
+            $proDate = $row["proDate"];
+            $writer = $row["writer"];
+            $amount = $row["amount"];
+            $memo = $row["memo"];
+            $which = $row["which"];
+        }
+    } catch (PDOException $ex) {
+        error_log("Automan 목록 조회 오류: " . $ex->getMessage());
+    }
 
-		}		 
-   } catch (PDOException $Exception) {
-    print "오류: ".$Exception->getMessage();
-}  
- 
-$remain_sum = $input_sum - $output_sum ;
+    try {
+        $allstmh = $pdo->query($sqlcon); // 검색 조건에 맞는 쿼리 전체 개수
+        $temp2 = $allstmh->rowCount();
+        $stmh = $pdo->query($sql); // 검색조건에 맞는글 stmh
+        $temp1 = $stmh->rowCount();
 
-$resultText = "총수입(" . number_format($input_sum) . "원) -  총지출(" . number_format($output_sum) . "원) = 보유 잔액(" . number_format($remain_sum) ."원)" ;
- 
-if($mode=="search"){
-	if($search==""){
-			 $sql="select * from mirae8440.automan " . $a; 					
-			 $sqlcon = "select * from mirae8440.automan " . $b;   // 전체 레코드수를 파악하기 위함.					
-	}
-	else { // 각 필드별로 검색어가 있는지 쿼리주는 부분	                                                      							   
-			  $sql ="select * from mirae8440.automan where (" . $SettingDate . " between date('$fromdate') and date('$Transtodate')) and ( (memo like '%$search%') or (writer like '%$search%') ) ";
-			  $sql .=" order by " . $SettingDate . " desc, num desc limit $first_num, $scale ";
-			  $sqlcon ="select * from mirae8440.automan where (" . $SettingDate . " between date('$fromdate') and date('$Transtodate'))  and ( (memo like '%$search%') or (writer like '%$search%') ) ";
-			  $sqlcon .="  order by " . $SettingDate . " desc, num desc "; 
-			  }
-	}
-if($mode=="") {
-				 $sql="select * from mirae8440.automan " . $a; 					
-				 $sqlcon = "select * from mirae8440.automan " . $b;   // 전체 레코드수를 파악하기 위함.					
-	}		
+        $total_row = $temp2; // 전체 글수
 
-				
-$nowday=date("Y-m-d");   // 현재일자 변수지정    		   
+        $total_page = ceil($total_row / $scale); // 검색 전체 페이지 블록 수
+        $current_page = ceil($page / $page_scale); // 현재 페이지 블록 위치계산
 
- try{  
-// 레코드 전체 sql 설정
+        if ($regist_state == null)
+            $regist_state = "1";
 
-   $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+        $date_font = "black"; // 현재일자 Red 색상으로 표기
+        if ($nowday == $proDate) {
+            $date_font = "red";
+        }
 
-              $num=$row["num"];
- 			  $proDate=$row["proDate"];			  			  
- 			  $writer=$row["writer"];			  			  
- 			  $amount=$row["amount"];			  			  
- 			  $memo=$row["memo"];
-			  $which=$row["which"];	 				  
-			}		 
-   } catch (PDOException $Exception) {
-    print "오류: ".$Exception->getMessage();
-}     
-	 try{  
-	  $allstmh = $pdo->query($sqlcon);         // 검색 조건에 맞는 쿼리 전체 개수
-      $temp2=$allstmh->rowCount();  
-	  $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-      $temp1=$stmh->rowCount();
-	      
-	  $total_row = $temp2;     // 전체 글수	  		
-         					 
-     $total_page = ceil($total_row / $scale); // 검색 전체 페이지 블록 수
-	 $current_page = ceil($page/$page_scale); //현재 페이지 블록 위치계산			 
-   //   print "$page&nbsp;$total_page&nbsp;$current_page&nbsp;$search&nbsp;$mode";
-		
-		if($regist_state==null)
-			 $regist_state="1";
-		 
-			  $date_font="black";  // 현재일자 Red 색상으로 표기
-			  if($nowday==$proDate) {
-                            $date_font="red";
-						}
-												
-$font="black";																									  
- if($proDate!="") {
-    $week = array("(일)" , "(월)"  , "(화)" , "(수)" , "(목)" , "(금)" ,"(토)") ;
-    $proDate = $proDate . $week[ date('w',  strtotime($proDate)  ) ] ;
-}				 
-?>
+        $font = "black";
+        if ($proDate != "") {
+            $week = array("(일)", "(월)", "(화)", "(수)", "(목)", "(금)", "(토)");
+            $proDate = $proDate . $week[date('w', strtotime($proDate))];
+        }
+        ?>
 
 <div class="container">  			
 	 
@@ -295,11 +315,11 @@ $font="black";
 			</tr>
 			    
 		<?php
-			$start_num--;  
-			 } 
-  } catch (PDOException $Exception) {
-  print "오류: ".$Exception->getMessage();
-  }  
+            $start_num--;
+        }
+    } catch (PDOException $ex) {
+        error_log("Automan 데이터 표시 오류: " . $ex->getMessage());
+    }  
    // 페이지 구분 블럭의 첫 페이지 수 계산 ($start_page)
       $start_page = ($current_page - 1) * $page_scale + 1;
    // 페이지 구분 블럭의 마지막 페이지 수 계산 ($end_page)
@@ -348,99 +368,78 @@ if($page!=1 && $page>$page_scale){
 <? include '../footer_sub.php'; ?>
 </div>
 	 
-<script>
+    <script>
+        $(document).ready(function() {
 
-$(document).ready(function(){	
-	
-  $('a').children().css('textDecoration','none');  // a tag 전체 밑줄없앰.	
-  $('a').parent().css('textDecoration','none');
-		
-	$("#writebtn").click(function() { 
-		location.href="write_form.php";
-	});
-    	
-	$("#saveBtn").click(function() { 
-		document.getElementById('board_form').submit();  // form의 검색버튼 누른 효과  
-	});
-		
-});
+            $('a').children().css('textDecoration', 'none'); // a tag 전체 밑줄없앰
+            $('a').parent().css('textDecoration', 'none');
 
-function blinker() {
-	$('.blinking').fadeOut(700);
-	$('.blinking').fadeIn(700);
-}
-setInterval(blinker, 1500);
+            $("#writebtn").click(function() {
+                location.href = "write_form.php";
+            });
 
- 
-function process_list(){   // 접수일 출고일 라디오버튼 클릭시
+            $("#saveBtn").click(function() {
+                document.getElementById('board_form').submit(); // form의 검색버튼 누른 효과
+            });
+            
+            $("#searchBtn").click(function() {
+                document.getElementById('board_form').submit();
+            });
 
-document.getElementById('search').value=null; 
+            // 서버에 작업 기록
+            saveLogData('전산실장 정산');
+        });
 
-document.getElementById('board_form').submit();  // form의 검색버튼 누른 효과  
+        function blinker() {
+            $('.blinking').fadeOut(700);
+            $('.blinking').fadeIn(700);
+        }
+        setInterval(blinker, 1500);
 
-} 
+        function process_list() { // 접수일 출고일 라디오버튼 클릭시
+            document.getElementById('search').value = null;
+            document.getElementById('board_form').submit(); // form의 검색버튼 누른 효과
+        }
 
+        function comma(str) {
+            str = String(str);
+            return str.replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
+        }
 
-function comma(str) { 
-    str = String(str); 
-    return str.replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,'); 
-} 
-function uncomma(str) { 
-    str = String(str); 
-	tmp = Number(str.replace(/[^\d]+/g, ''));
-    return tmp; 
-}
+        function uncomma(str) {
+            str = String(str);
+            var tmp = Number(str.replace(/[^\d]+/g, ''));
+            return tmp;
+        }
 
-</script>
+        function check_alert() {
 
-<?php
-if($mode==""&&$fromdate==null)  
-{
-  echo ("<script language=javascript> this_year();</script>");  // 당해년도 화면에 초기세팅하기
-}
+        }
 
-?>
+        // 3초마다 알람상황을 체크합니다.
+        var timer;
+        timer = setInterval(function() {
+            check_alert();
+        }, 3000);
 
-<script> 
+        function movetoPage(page) {
+            $("#page").val(page);
+            $("#board_form").submit();
+        }
 
-function check_alert()
-{	
-										
-}
+        function SearchEnter() {
+            if (event.keyCode == 13) {
+                document.getElementById('board_form').submit();
+            }
+        }
+    </script>
 
-// 5초마다 알람상황을 체크합니다.
-	var timer;
-	timer=setInterval(function(){
-		check_alert();
-	},3000); 
+    <?php
+    if ($mode == "" && $fromdate == null) {
+        echo ("<script language=javascript> this_year();</script>"); // 당해년도 화면에 초기세팅하기
+    }
+    ?>
 
-
-function movetoPage(page){ 	  
-	  $("#page").val(page); 
-      // var echo="<?php echo $partOpt; ?>"; 
-      // var searchOpt="<?php echo $searchOpt; ?>"; 
-      // var search="<?php echo $search; ?>"; 
-
-     // $("#partOpt").val(partOpt);
-     // $("#searchOpt").val(searchOpt);
-     // $("#search").val(search);
-	 $("#board_form").submit();  
-	}		
-
-
-	
-function SearchEnter(){
-    if(event.keyCode == 13){
-		document.getElementById('board_form').submit(); 
-    }	
-}	
-
-</script>
-
-<script>
-	$(document).ready(function(){
-		saveLogData('전산실장 정산'); // 다른 페이지에 맞는 menuName을 전달
-	});
-</script> 
 </body>
-  </html>
+
+</html>

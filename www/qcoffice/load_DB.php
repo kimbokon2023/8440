@@ -1,4 +1,8 @@
 <?php require_once __DIR__ . '/../bootstrap.php';
+
+// 요청 변수 초기화
+$mcno = $_REQUEST["mcno"] ?? '';
+
 $num_arr = array();
 $checkdate_arr = array();
 $item_arr = array();
@@ -91,9 +95,11 @@ $questionstep_arr=array();
 
 
 // mcmain mcsub 찾아 정하기
+$mcmain = '';  // 변수 초기화
+$mcsub = '';   // 변수 초기화
 for($i=0;$i<count($mcmain_arr);$i++)
 {
-	if($mcno_arr[$i] == $mcno ?? '')
+	if($mcno_arr[$i] == $mcno)
 	{
 		$mcmain= $mcmain_arr[$i];
 		$mcsub= $mcsub_arr[$i];

@@ -1,79 +1,82 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-include getDocumentRoot() . '/session.php';   
+<?php
+require_once __DIR__ . '/../common/functions.php';
+require_once getDocumentRoot() . '/session.php';
 
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(1);
-         header("Location:".$_SESSION["WebSite"]."login/login_form.php"); 
-         exit;
- }  
- 
+// 세션 변수 초기화
+$level = $_SESSION["level"] ?? 10;
+$WebSite = $_SESSION["WebSite"] ?? '';
+
+// 권한 체크
+if (!isset($_SESSION["level"]) || $level > 5) {
+    sleep(1);
+    
+    // 로컬/서버 환경에 따른 동적 리다이렉션
+    $host = $_SERVER['HTTP_HOST'] ?? '';
+    if (strpos($host, 'localhost') !== false || strpos($host, '127.0.0.1') !== false) {
+        header("Location: http://" . $host . "/login/login_form.php");
+    } else {
+        header("Location: " . $WebSite . "login/login_form.php");
+    }
+    exit;
+}
 ?>
 
 <?php include getDocumentRoot() . '/load_header.php' ?>
 
- <title> 전산실장 정산 </title> 
- </head>
- <body> 
- <?php require_once(includePath('myheader.php')); ?>   
- 
- <?php
-   if(isset($_REQUEST["mode"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $mode=$_REQUEST["mode"];
-  else
-   $mode="";
-    
- $num=$_REQUEST["num"] ?? '';
+<title> 전산실장 정산 </title>
+</head>
 
-   if(isset($_REQUEST["page"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $page=$_REQUEST["page"];
-  else
-   $page=1;   
+<body>
+    <?php require_once(includePath('myheader.php')); ?>
 
-  if(isset($_REQUEST["search"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $search=$_REQUEST["search"];
-  else
-   $search="";
-  
-  if(isset($_REQUEST["find"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $find=$_REQUEST["find"];
-  else
-   $find="";
-
-  if(isset($_REQUEST["process"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $process=$_REQUEST["process"];
-  else
-   $process="전체";
-
-$fromdate=$_REQUEST["fromdate"] ?? '';	 
-$todate=$_REQUEST["todate"] ?? '';
-
- $year=$_REQUEST["year"] ?? '';   // 년도 체크박스
- $separate_date=$_REQUEST["separate_date"] ?? '';   
+    <?php
+    // 요청 파라미터 초기화
+    $mode = $_REQUEST["mode"] ?? '';
+    $num = $_REQUEST["num"] ?? '';
+    $page = $_REQUEST["page"] ?? 1;
+    $search = $_REQUEST["search"] ?? '';
+    $find = $_REQUEST["find"] ?? '';
+    $process = $_REQUEST["process"] ?? '전체';
+    $fromdate = $_REQUEST["fromdate"] ?? '';
+    $todate = $_REQUEST["todate"] ?? '';
+    $year = $_REQUEST["year"] ?? '';
+    $separate_date = $_REQUEST["separate_date"] ?? '';   
       
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();
+    // 데이터베이스 변수 초기화
+    $numtmp = '';
+    $proDate = '';
+    $writer = '';
+    $amount = '';
+    $memo = '';
+    $which = '1';
+    $first_writer = '';
+    $update_log = '';
 
-    try{
-      $sql = "select * from mirae8440.automan where num = ? ";
-      $stmh = $pdo->prepare($sql); 
+    require_once(includePath('lib/mydb.php'));
+    $pdo = db_connect();
 
-      $stmh->bindValue(1,$num,PDO::PARAM_STR); 
-      $stmh->execute();
-      $count = $stmh->rowCount();            
-	  $row = $stmh->fetch(PDO::FETCH_ASSOC);  // $row 배열로 DB 정보를 불러온다.    
-	  $numtmp = $row["num"] ?? '';
-	  $num = $row["num"] ?? '';
-	  $proDate=$row["proDate"]  ?? '' ;			  			  
-	  $writer=$row["writer"];			  			  
-	  $amount=$row["amount"];			  			  
-	  $memo=$row["memo"];
-	  $which=$row["which"] ?? '1';		
-	  
-     }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
-     }   
-  ?>
+    try {
+        $sql = "select * from mirae8440.automan where num = ? ";
+        $stmh = $pdo->prepare($sql);
+
+        $stmh->bindValue(1, $num, PDO::PARAM_STR);
+        $stmh->execute();
+        $count = $stmh->rowCount();
+        $row = $stmh->fetch(PDO::FETCH_ASSOC);
+
+        if ($row) {
+            $numtmp = $row["num"] ?? '';
+            $num = $row["num"] ?? '';
+            $proDate = $row["proDate"] ?? '';
+            $writer = $row["writer"] ?? '';
+            $amount = $row["amount"] ?? '';
+            $memo = $row["memo"] ?? '';
+            $which = $row["which"] ?? '1';
+        }
+    } catch (PDOException $ex) {
+        error_log("Automan 상세 조회 오류: " . $ex->getMessage());
+    }
+    ?>
 
 <div class="container">   
 <div class="card mt-2 mb-1">  			
@@ -125,128 +128,131 @@ $pdo = db_connect();
 </div> 
 </div> 
 
-<script>
-$(document).ready(function(){
-	$("#saveBtn").click(function(){   	
-	   // grid 배열 form에 전달하기						    						    
-	  $("#board_form").submit(); 								 
-	 });	
-		 
-   $("div *").find("input,textarea").prop("disabled",true);	
- });		 
-	
-function inputNumberFormat(obj) { 
-    obj.value = comma(uncomma(obj.value)); 
-} 
-function comma(str) { 
-    str = String(str); 
-    return str.replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,'); 
-} 
-function uncomma(str) { 
-    str = String(str); 
-    return str.replace(/[^\d]+/g, ''); 
-}
+    <script>
+        $(document).ready(function() {
+            $("#saveBtn").click(function() {
+                // grid 배열 form에 전달하기
+                $("#board_form").submit();
+            });
 
-function date_mask(formd, textid) {
-	var form = eval("document."+formd);
-	var text = eval("form."+textid);
+            $("div *").find("input,textarea").prop("disabled", true);
+        });
 
-	var textlength = text.value.length;
+        function inputNumberFormat(obj) {
+            obj.value = comma(uncomma(obj.value));
+        }
 
-	if (textlength == 4) {
-	text.value = text.value + "-";
-	} else if (textlength == 7) {
-	text.value = text.value + "-";
-	} else if (textlength > 9) {
-	//날짜 수동 입력 Validation 체크
-	var chk_date = checkdate(text);
+        function comma(str) {
+            str = String(str);
+            return str.replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
+        }
 
-		if (chk_date == false) {
-			return;
-		}
-	}
-}
+        function uncomma(str) {
+            str = String(str);
+            return str.replace(/[^\d]+/g, '');
+        }
 
-function del(href) 
- {	 
-	if(confirm("한번 삭제한 자료는 복구할 방법이 없습니다.\n\n정말 삭제하시겠습니까?")) {
-		document.location.href = href;
-	}
- }
- 
-function checkdate(input) {
-   var validformat = /^\d{4}\-\d{2}\-\d{2}$/; //Basic check for format validity 
-   var returnval = false;
+        function date_mask(formd, textid) {
+            var form = eval("document." + formd);
+            var text = eval("form." + textid);
 
-   if (!validformat.test(input.value)) {
-    alert("날짜 형식이 올바르지 않습니다. YYYY-MM-DD");
-   } else { //Detailed check for valid date ranges 
-    var yearfield = input.value.split("-")[0];
-    var monthfield = input.value.split("-")[1];
-    var dayfield = input.value.split("-")[2];
-    var dayobj = new Date(yearfield, monthfield - 1, dayfield);
-   }
+            var textlength = text.value.length;
 
-   if ((dayobj.getMonth() + 1 != monthfield)
-     || (dayobj.getDate() != dayfield)
-     || (dayobj.getFullYear() != yearfield)) {
-    alert("날짜 형식이 올바르지 않습니다. YYYY-MM-DD");
-   } else {
-    //alert ('Correct date'); 
-    returnval = true;
-   }
-   if (returnval == false) {
-    input.select();
-   }
-   return returnval;
-  }
-  
-function input_Text(){
-    document.getElementById("test").value = comma(Math.floor(uncomma(document.getElementById("test").value)*1.1));   // 콤마를 계산해 주고 다시 붙여주고
-  var copyText = document.getElementById("test");   // 클립보드 복사 
-  copyText.select();
-  document.execCommand("Copy");
-}  
+            if (textlength == 4) {
+                text.value = text.value + "-";
+            } else if (textlength == 7) {
+                text.value = text.value + "-";
+            } else if (textlength > 9) {
+                // 날짜 수동 입력 Validation 체크
+                var chk_date = checkdate(text);
 
-function captureReturnKey(e) {
-    if(e.keyCode==13 && e.srcElement.type != 'textarea')
-    return false;
-}
+                if (chk_date == false) {
+                    return;
+                }
+            }
+        }
 
-function recaptureReturnKey(e) {
-    if (e.keyCode==13)
-        exe_search();
-}
-function Enter_Check(){
-        // 엔터키의 코드는 13입니다.
-    if(event.keyCode == 13){
-      exe_search();  // 실행할 이벤트
-    }
-}
-function Enter_CheckTel(){
-        // 엔터키의 코드는 13입니다.
-    if(event.keyCode == 13){
-      exe_searchTel();  // 실행할 이벤트
-    }
-}
+        function del(href) {
+            if (confirm("한번 삭제한 자료는 복구할 방법이 없습니다.\n\n정말 삭제하시겠습니까?")) {
+                document.location.href = href;
+            }
+        }
 
-function exe_search()
-{
-	var postData = changeUri(document.getElementById("outworkplace").value);
-	var sendData = $(":input:radio[name=root]:checked").val();
+        function checkdate(input) {
+            var validformat = /^\d{4}\-\d{2}\-\d{2}$/; // Basic check for format validity
+            var returnval = false;
 
-	$("#displaysearch").show();
-	if(sendData=='주일')
-	 $("#displaysearch").load("./search.php?mode=search&search=" + postData);
-	if(sendData=='경동') 
-	 $("#displaysearch").load("./searchkd.php?mode=search&search=" + postData);	  
-}
-function exe_searchTel()
-{
-	  var postData =  changeUri(document.getElementById("receiver").value);
-      $("#displaysearchworker").show();
-      $("#displaysearchworker").load("./workerlist.php?mode=search&search=" + postData);
-}
-</script> 
+            if (!validformat.test(input.value)) {
+                alert("날짜 형식이 올바르지 않습니다. YYYY-MM-DD");
+            } else {
+                // Detailed check for valid date ranges
+                var yearfield = input.value.split("-")[0];
+                var monthfield = input.value.split("-")[1];
+                var dayfield = input.value.split("-")[2];
+                var dayobj = new Date(yearfield, monthfield - 1, dayfield);
+            }
+
+            if ((dayobj.getMonth() + 1 != monthfield) ||
+                (dayobj.getDate() != dayfield) ||
+                (dayobj.getFullYear() != yearfield)) {
+                alert("날짜 형식이 올바르지 않습니다. YYYY-MM-DD");
+            } else {
+                returnval = true;
+            }
+            if (returnval == false) {
+                input.select();
+            }
+            return returnval;
+        }
+
+        function input_Text() {
+            document.getElementById("test").value = comma(Math.floor(uncomma(document.getElementById("test").value) * 1.1));
+            var copyText = document.getElementById("test");
+            copyText.select();
+            document.execCommand("Copy");
+        }
+
+        function captureReturnKey(e) {
+            if (e.keyCode == 13 && e.srcElement.type != 'textarea')
+                return false;
+        }
+
+        function recaptureReturnKey(e) {
+            if (e.keyCode == 13)
+                exe_search();
+        }
+
+        function Enter_Check() {
+            // 엔터키의 코드는 13입니다.
+            if (event.keyCode == 13) {
+                exe_search(); // 실행할 이벤트
+            }
+        }
+
+        function Enter_CheckTel() {
+            // 엔터키의 코드는 13입니다.
+            if (event.keyCode == 13) {
+                exe_searchTel(); // 실행할 이벤트
+            }
+        }
+
+        function exe_search() {
+            var postData = changeUri(document.getElementById("outworkplace").value);
+            var sendData = $(":input:radio[name=root]:checked").val();
+
+            $("#displaysearch").show();
+            if (sendData == '주일')
+                $("#displaysearch").load("./search.php?mode=search&search=" + postData);
+            if (sendData == '경동')
+                $("#displaysearch").load("./searchkd.php?mode=search&search=" + postData);
+        }
+
+        function exe_searchTel() {
+            var postData = changeUri(document.getElementById("receiver").value);
+            $("#displaysearchworker").show();
+            $("#displaysearchworker").load("./workerlist.php?mode=search&search=" + postData);
+        }
+    </script>
 </body>
+
 </html>

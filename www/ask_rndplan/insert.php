@@ -1,7 +1,14 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php
+require_once __DIR__ . '/../common/functions.php';
 require_once getDocumentRoot() . '/session.php';
 header("Content-Type: application/json");
 
+// 세션 변수 초기화
+$DB = $_SESSION["DB"] ?? '';
+$user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["user_id"] ?? '';
+
+// 요청 파라미터 초기화
 $mode = $_REQUEST["mode"] ?? 'insert';
 $num = $_REQUEST["num"] ?? '';
 $indate = $_REQUEST["indate"] ?? '';
@@ -12,11 +19,13 @@ $first_writer = $_REQUEST["first_writer"] ?? '';
 $update_log = $_REQUEST["update_log"] ?? '';
 $timekey = $_REQUEST["timekey"] ?? '';
 
+// 데이터 매핑
 $outworkplace = $mytitle;
 $al_content = $content;
 $e_title = '연구개발계획서';
 $eworks_item = '연구개발계획서';
 
+// JSON 데이터 생성
 $data = [
     "e_title" => $e_title,
     "indate" => $indate,
@@ -30,10 +39,12 @@ $contents = json_encode($data, JSON_UNESCAPED_UNICODE);
 require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
+// 수정 모드
 if ($mode === "modify") {
     try {
         $pdo->beginTransaction();
-        $data = date("Y-m-d H:i:s") . " - " . $_SESSION["name"] . "  ";
+        
+        $data = date("Y-m-d H:i:s") . " - " . $user_name . "  ";
         $update_log = $data . $update_log . "&#10";
 
         $sql = "UPDATE {$DB}.eworks SET 
@@ -49,42 +60,53 @@ if ($mode === "modify") {
 
         $stmh = $pdo->prepare($sql);
         $stmh->execute([
-            $indate, $outworkplace, $author, $update_log, $contents,
-            $e_title, $eworks_item, $al_content, $num
+            $indate, 
+            $outworkplace, 
+            $author, 
+            $update_log, 
+            $contents,
+            $e_title, 
+            $eworks_item, 
+            $al_content, 
+            $num
         ]);
+        
         $pdo->commit();
-    } catch (PDOException $e) {
+    } catch (PDOException $ex) {
         $pdo->rollBack();
-        echo json_encode(["error" => $e->getMessage()]);
+        error_log("연구개발계획서 수정 오류: " . $ex->getMessage());
+        echo json_encode(["error" => $ex->getMessage()], JSON_UNESCAPED_UNICODE);
         exit;
     }
 } else {
+    // 신규 등록 모드
     $registdate = date("Y-m-d H:i:s");
-    $first_writer = $_SESSION["name"] . " _" . $registdate;
+    $first_writer = $user_name . " _" . $registdate;
     $author_id = $user_id;
     $status = 'send';
-	
-    // JSON에서 결재라인 정보 가져오기
-    $jsonString = file_get_contents(getDocumentRoot() . '/member/Company_approvalLine_.json');
-    $approvalLines = json_decode($jsonString, true);
 
-    // 결재라인 기본값 설정
+    // JSON에서 결재라인 정보 가져오기
     $e_line_id = '';
     $e_line = '';
     $al_part = "지원파트";
 
-    if (is_array($approvalLines)) {
-        foreach ($approvalLines as $line) {
-            if ($al_part == $line['savedName']) {
-                foreach ($line['approvalOrder'] as $order) {
-                    $e_line_id .= $order['user-id'] . '!';
-                    $e_line .= $order['name'] . '!';
+    $jsonFilePath = getDocumentRoot() . '/member/Company_approvalLine_.json';
+    if (file_exists($jsonFilePath)) {
+        $jsonString = file_get_contents($jsonFilePath);
+        $approvalLines = json_decode($jsonString, true);
+
+        if (is_array($approvalLines)) {
+            foreach ($approvalLines as $line) {
+                if ($al_part == $line['savedName']) {
+                    foreach ($line['approvalOrder'] as $order) {
+                        $e_line_id .= $order['user-id'] . '!';
+                        $e_line .= $order['name'] . '!';
+                    }
+                    break;
                 }
-                break;
             }
         }
     }
-	
 
     try {
         $pdo->beginTransaction();
@@ -97,28 +119,45 @@ if ($mode === "modify") {
 
         $stmh = $pdo->prepare($sql);
         $stmh->execute([
-            $indate, $outworkplace, $first_writer, $author,
-            $update_log, $contents, $e_title, $eworks_item,
-            $registdate, $author_id, $status, $al_content, rtrim($e_line_id, '!'), rtrim($e_line, '!')
+            $indate, 
+            $outworkplace, 
+            $first_writer, 
+            $author,
+            $update_log, 
+            $contents, 
+            $e_title, 
+            $eworks_item,
+            $registdate, 
+            $author_id, 
+            $status, 
+            $al_content, 
+            rtrim($e_line_id, '!'), 
+            rtrim($e_line, '!')
         ]);
+        
         $pdo->commit();
 
+        // 생성된 레코드의 num 가져오기
         $stmh = $pdo->prepare("SELECT num FROM {$DB}.eworks ORDER BY num DESC LIMIT 1");
         $stmh->execute();
         $row = $stmh->fetch(PDO::FETCH_ASSOC);
         $num = $row["num"] ?? '';
 
         // 첨부파일의 parentnum 업데이트
-        $pdo->beginTransaction();
-        $sql = "UPDATE {$DB}.picuploads SET parentnum = ? WHERE parentnum = ?";
-        $stmh = $pdo->prepare($sql);
-        $stmh->execute([$num, $timekey]);
-        $pdo->commit();
-    } catch (PDOException $e) {
+        if ($timekey) {
+            $pdo->beginTransaction();
+            $sql = "UPDATE {$DB}.picuploads SET parentnum = ? WHERE parentnum = ?";
+            $stmh = $pdo->prepare($sql);
+            $stmh->execute([$num, $timekey]);
+            $pdo->commit();
+        }
+    } catch (PDOException $ex) {
         $pdo->rollBack();
-        echo json_encode(["error" => $e->getMessage()]);
+        error_log("연구개발계획서 등록 오류: " . $ex->getMessage());
+        echo json_encode(["error" => $ex->getMessage()], JSON_UNESCAPED_UNICODE);
         exit;
     }
 }
 
+// 결과 반환
 echo json_encode(["num" => $num, "mode" => $mode], JSON_UNESCAPED_UNICODE);

@@ -56,10 +56,20 @@ try {
     $temp1 = $stmh->rowCount();
     $total_row = $temp1;
     $sum = array(0, 0, 0, 0);  // Initialize sum array with default values
+    $sum1 = array();  // 배열 초기화
+    $sum2 = array();  // 배열 초기화
+    $sum3 = array();  // 배열 초기화
+    $sum4 = array();  // 배열 초기화
+    $counter = 0;  // 카운터 초기화
     $preceilinglist = ""; // 변수 초기화
-    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) { 
         include './ceiling/_rowDB.php';			 
 		  
+        if (!isset($sum1[$counter])) $sum1[$counter] = 0;
+        if (!isset($sum2[$counter])) $sum2[$counter] = 0;
+        if (!isset($sum3[$counter])) $sum3[$counter] = 0;
+        if (!isset($sum4[$counter])) $sum4[$counter] = 0;
+        
         $sum1[$counter] += (int)$su;
         $sum2[$counter] += (int)$bon_su;
         $sum3[$counter] += (int)$lc_su;
@@ -70,7 +80,8 @@ try {
         $sum[2] += (int)$lc_su;
         $sum[3] += (int)$etc_su;			  			  
 		  
-        $preceilinglist = " 천장 : " . $sum[0] . ",  본천장 : " . $sum[1] . " ,  L/C : "  . $sum[2] . "  , 기타 : "  . $sum[3]; 			   			  			  
+        $preceilinglist = " 천장 : " . $sum[0] . ",  본천장 : " . $sum[1] . " ,  L/C : "  . $sum[2] . "  , 기타 : "  . $sum[3];
+        $counter++;  // 카운터 증가		   			  			  
     } 
 } catch (PDOException $Exception) {
     print "오류: " . $Exception->getMessage();
@@ -86,10 +97,20 @@ try {
     $temp1 = $stmh->rowCount();
     $total_row = $temp1;
     $sum = array(0, 0, 0, 0);  // Initialize sum array with default values
+    $sum1 = array();  // 배열 초기화
+    $sum2 = array();  // 배열 초기화
+    $sum3 = array();  // 배열 초기화
+    $sum4 = array();  // 배열 초기화
+    $counter = 0;  // 카운터 초기화
     $beforedayceilinglist = ""; // 변수 초기화
     while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
         include './ceiling/_rowDB.php';			 
 		  
+        if (!isset($sum1[$counter])) $sum1[$counter] = 0;
+        if (!isset($sum2[$counter])) $sum2[$counter] = 0;
+        if (!isset($sum3[$counter])) $sum3[$counter] = 0;
+        if (!isset($sum4[$counter])) $sum4[$counter] = 0;
+        
         $sum1[$counter] += (int)$su;
         $sum2[$counter] += (int)$bon_su;
         $sum3[$counter] += (int)$lc_su;
@@ -100,7 +121,8 @@ try {
         $sum[2] += (int)$lc_su;
         $sum[3] += (int)$etc_su;			  			  
 		  
-        $beforedayceilinglist = " 천장 : " . $sum[0] . ",  본천장 : " . $sum[1] . " ,  L/C : "  . $sum[2] . "  , 기타 : "  . $sum[3]; 			   			  			  
+        $beforedayceilinglist = " 천장 : " . $sum[0] . ",  본천장 : " . $sum[1] . " ,  L/C : "  . $sum[2] . "  , 기타 : "  . $sum[3];
+        $counter++;  // 카운터 증가		   			  			  
     } 
 } catch (PDOException $Exception) {
     print "오류: " . $Exception->getMessage();

@@ -21,7 +21,9 @@ api/
 
 ### 1. PHP에서 사용
 ```php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/api/file_api.php';
+// common/functions.php 먼저 로드
+require_once __DIR__ . '/../common/functions.php';
+require_once getDocumentRoot() . '/api/file_api.php';
 
 $options = [
     'tablename' => 'my_table',
@@ -29,14 +31,23 @@ $options = [
     'parentnum' => '123',
     'folderPath' => 'MyProject/uploads'
 ];
-$result = uploadFilesToGoogleDrive($_FILES, $options);
+
+try {
+    $result = uploadFilesToGoogleDrive($_FILES, $options);
+    if ($result) {
+        error_log("파일 업로드 성공: " . count($result) . "개");
+    }
+} catch (Exception $e) {
+    error_log("파일 업로드 오류: " . $e->getMessage());
+}
 ```
 
-### 2. JavaScript에서 사용
+### 2. JavaScript에서 사용 (ES5 호환)
 ```html
 <script src="api/file_manager.js"></script>
 <script>
-const fileManager = new GoogleDriveFileManager({
+// ES5 호환 방식 (PHP 7.3 환경에서 권장)
+var fileManager = new GoogleDriveFileManager({
     tablename: 'my_table',
     item: 'attached',
     parentnum: '123',

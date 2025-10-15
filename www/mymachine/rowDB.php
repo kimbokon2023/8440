@@ -1,5 +1,5 @@
-<?
-$num=$row["num"];
+<?php
+$num = $row["num"];
 $checkdate = $row["checkdate"];		
 $item = $row["item"];		
 $term = $row["term"];		

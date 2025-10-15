@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/project/mirae8440/www/lib/**)",
+      "Read(//c/project/mirae8440/www/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -1,313 +1,294 @@
- <?php  
- session_start();  
- 
- /*  파일 및 이미지를 서버에 올리기 위한 통합 모듈 제작
- 서버 저장위치 : 일반 첨부파일 이미지 함께 사용 fileuploads
- fileuploads 필드구성 (id, tablename, item, parentid, realname, savename) 
- 본문의 form에 hidden 형식으로 전달되도록 반드시 지정할 것
- 
- <!-- 전달함수 설정 input hidden -->
-	<input type="hidden" id="id" name="id" value="<?=$id?>" >			  								
-	<input type="hidden" id="parentid" name="parentid" value="<?=$parentid?>" >			  								
-	<input type="hidden" id="fileorimage" name="fileorimage" value="<?=$fileorimage?>" >			  								
-	<input type="hidden" id="item" name="item" value="<?=$item?>" >			  								
-	<input type="hidden" id="upfile" name="upfile" value="<?=$upfile?>" >			  								
-	<input type="hidden" id="tablename" name="tablename" value="<?=$tablename?>" >			  								
-	<input type="hidden" id="savetitle" name="savetitle" value="<?=$savetitle?>" >	
-	<input type="hidden" id="pInput" name="pInput" value="<?=$pInput?>" >			  								
-	<input type="hidden" id="mode" name="mode" value="<?=$mode?>" >			
-	<input type="hidden" id="timekey" name="timekey" value="<?=$timekey?>" >			
- 
- 파일 저장시 new파일인 경우는 난수를 발생시켜 저장한 후 그 이름을 전달해서 파일의 수정/신규 저장시 기록하고, (임시저장기술 적용)
- 아닐경우 그 파일을 삭제하는 루틴제작
- 
+<?php
+/**
+ * 파일 및 이미지 업로드 통합 모듈
+ * 
+ * 서버 저장위치: uploads/
+ * DB 테이블: fileuploads (id, tablename, item, parentid, realname, savename)
+ * 
+ * 필수 전달 파라미터 (form hidden):
+ * - id: 사용자 ID
+ * - parentid: 부모 레코드 ID
+ * - fileorimage: 'file' 또는 'image'
+ * - item: 항목명
+ * - upfilename: 업로드 파일 input name
+ * - tablename: 대상 테이블명
+ * - savetitle: 로그 저장 타이틀
  */
- 
- ini_set('display_errors', 1);
- 
-include "../php/common.php";
- 
-isset($_REQUEST["id"])  ? $id=$_REQUEST["id"] :   $id=''; 
-isset($_REQUEST["fileorimage"])  ? $fileorimage=$_REQUEST["fileorimage"] : $fileorimage=''; // file or image
-isset($_REQUEST["item"])  ? $item=$_REQUEST["item"] :   $item=''; 
-isset($_REQUEST["upfilename"])  ? $upfilename=$_REQUEST["upfilename"] : $upfilename=''; 
-isset($_REQUEST["tablename"])  ? $tablename=$_REQUEST["tablename"] :  $tablename=''; 
-isset($_REQUEST["savetitle"])  ? $savetitle=$_REQUEST["savetitle"] :  $savetitle='';   // log기록 저장 타이틀
 
-// var_dump($upfilename);
-// var_dump($_FILES[$upfilename]['name']);
-
-$countfiles = count($_FILES[$upfilename]['name']);
-
- require_once("../lib/mydb.php");
- $pdo = db_connect();
-
-// 이미지인 경우
-if($fileorimage=='image') {
-	for($i=0;$i<$countfiles;$i++){
-		$filename = $_FILES[$upfilename]['name'][$i];
-			if($filename !='') {   			
-				//Auth key
-				define('UPLOAD_ERR_INI_SIZE',"100000000");
-
-				$uploads_dir = '../uploads'; //업로드 폴더 상위 uploads 폴더선택
-				$allowed_ext = array('jpg','jpeg','png','gif','JPG','JPEG','PNG','GIF'); //이미지 파일만 허용
-			 
-			 
-				//첨부파일이 있다면
-				$uploadSize = 100000000;
-				@mkdir("$upload_dir", 0707);
-				@chmod("$upload_dir", 0707);
-				
-				// 올라간 파일의 퍼미션을 변경합니다.
-				chmod("$uploads_dir", 0755);
-
-				// 변수 정리
-				$error = $_FILES[$upfilename]['name'][$i];
-				$name = $_FILES[$upfilename]['name'][$i];     
-				$tmpNm =  explode( '.', $name );
-				$ext = strtolower(end($tmpNm));
-
-				 echo "$ext <br>";
-				// 확장자 확인
-				if( !in_array($ext, $allowed_ext) ) {
-					echo "허용되지 않는 확장자입니다.";
-					exit;
-				}
-								
-			   // $newfile=$tmpNm[0].".".$ext ;
-				$new_file_name = date("Y_m_d_H_i_s");
-				$newfilename1 = $new_file_name."_" . $i . "." . $ext;      
-				$url1 = $uploads_dir.'/'.$newfilename1; //올린 파일 명 그대로 복사해라.  시간초 등으로 파일이름 만들기
-				
-				// 사진회전시키기
-			// 이미지 로드 및 회전 처리 부분
-			if ($ext == 'jpg' || $ext == 'jpeg') {
-				// JPEG 이미지인 경우
-				 // $tmpimage = imagecreatefromjpeg($url1);
-				 $exif = exif_read_data($url1);
-				 
-				 print '사진 정보' . $exif['Orientation'] . "<br>";
-				 
-						if(!empty($exif['Orientation']))
-							{
-								switch($exif['Orientation'])
-								{
-									case 8:
-										$url1 = imagerotate($url1,90,0);
-										break;
-									case 3:
-										$url1 = imagerotate($url1,180,0);
-										break;
-									case 6:
-										$url1 = imagerotate($url1,-90,0);
-										break;
-
-								}
-							}
-
-
-				//요기부분 수정했습니다.
-				$filename1 = compress_image($_FILES[$upfilename]["tmp_name"][$i], $url1, 70); //실제 파일용량 줄이는 부분
-
-				list($width, $height, $type, $attr) = getImagesize($_FILES[$upfilename]["tmp_name"][$i]);
-
-				if($width > 700){
-				 $switch_s=80;
-				}else{
-				 $switch_s=100;
-				}
-				$buffer = file_get_contents($url1);
-			 
-				// 파일 정보 출력
-				echo "<h2>파일 정보</h2> <h1>
-					<ul>
-						<li>자료번호: $num</li>
-						<li>파일명: $name</li>
-						<li>확장자: $ext</li>
-						<li>url: {$url1}</li>
-						<li>filename: {$filename1}</li>
-					</ul> </h1>";
-				
-				$re_image = new Image($filename1);
-				$rate=$width/$height;
-				if($width>$height) {
-						$re_image -> width(800);
-						$re_image -> height(800/$rate);
-					}
-					else
-					{
-						$re_image -> width(800*$rate);
-						$re_image -> height(800);
-					}
-					$re_image -> save();
-			// insert
-					try{		 
-						$pdo->beginTransaction();   
-						$sql = "insert into mirae8440.fileuploads ";
-						$sql .=" (tablename, item, parentid, realname, savename) " ;        
-						$sql .=" values(?, ?, ?, ?, ?) " ;        
-						   
-						 $stmh = $pdo->prepare($sql); 
-						 
-						 $stmh->bindValue(1, $tablename, PDO::PARAM_STR);   
-						 $stmh->bindValue(2, $item, PDO::PARAM_STR);   
-						 $stmh->bindValue(3, $id, PDO::PARAM_STR);             
-						 $stmh->bindValue(4, $filename, PDO::PARAM_STR);   
-						 $stmh->bindValue(5, $newfilename1, PDO::PARAM_STR);   
-						 
-						 
-						 $stmh->execute();
-						 $pdo->commit(); 
-							} catch (PDOException $Exception) {
-							   $pdo->rollBack();
-							   print "오류: ".$Exception->getMessage();
-						 }  					
-			}			
-			elseif ($ext == 'png') {
-				// PNG 이미지인 경우				
-				// $tmpimage = imagecreatefrompng($url1);
-					// PNG 이미지 압축 및 저장 로직					
-
-				//요기부분 수정했습니다.
-				$filename1 = compress_image($_FILES[$upfilename]["tmp_name"][$i], $url1, 70); //실제 파일용량 줄이는 부분
-
-				list($width, $height, $type, $attr) = getImagesize($_FILES[$upfilename]["tmp_name"][$i]);
-
-				if($width > 700){
-				 $switch_s=80;
-				}else{
-				 $switch_s=100;
-				}
-				$buffer = file_get_contents($url1);
-			 
-				// 파일 정보 출력
-				echo "<h2>파일 정보</h2> <h1>
-					<ul>
-						<li>자료번호: $num</li>
-						<li>파일명: $name</li>
-						<li>확장자: $ext</li>
-						<li>url: {$url1}</li>
-						<li>filename: {$filename1}</li>
-					</ul> </h1>";
-				
-				$re_image = new Image($filename1);
-				$rate=$width/$height;
-				if($width>$height) {
-						$re_image -> width(800);
-						$re_image -> height(800/$rate);
-					}
-					else
-					{
-						$re_image -> width(800*$rate);
-						$re_image -> height(800);
-					}
-					$re_image -> save();
-
-
-			// insert
-					try{		 
-						$pdo->beginTransaction();   
-						$sql = "insert into mirae8440.fileuploads ";
-						$sql .=" (tablename, item, parentid, realname, savename) " ;        
-						$sql .=" values(?, ?, ?, ?, ?) " ;        
-						   
-						 $stmh = $pdo->prepare($sql); 
-						 
-						 $stmh->bindValue(1, $tablename, PDO::PARAM_STR);   
-						 $stmh->bindValue(2, $item, PDO::PARAM_STR);   
-						 $stmh->bindValue(3, $id, PDO::PARAM_STR);             
-						 $stmh->bindValue(4, $filename, PDO::PARAM_STR);   
-						 $stmh->bindValue(5, $newfilename1, PDO::PARAM_STR);   
-						 
-						 
-						 $stmh->execute();
-						 $pdo->commit(); 
-							} catch (PDOException $Exception) {
-							   $pdo->rollBack();
-							   print "오류: ".$Exception->getMessage();
-						 }  													
-			} 	
-	  } 
-	} // end of for statement    
-} // end of if
-else  
-{		
-// file인 경우	
-		for($i=0;$i<$countfiles;$i++){
-			$filename = $_FILES[$upfilename]['name'][$i];
-		if($filename !='') {   			
-			//Auth key
-			define('UPLOAD_ERR_INI_SIZE',"100000000");
-
-			$uploads_dir = '../uploads'; //업로드 폴더 상위 uploads 폴더선택
-		 
-			//첨부파일이 있다면
-			$uploadSize = 100000000;
-			@mkdir("$upload_dir", 0707);
-			@chmod("$upload_dir", 0707);
-			
-			// 올라간 파일의 퍼미션을 변경합니다.
-			chmod("$uploads_dir", 0755);
-
-			// 변수 정리
-			$error = $_FILES[$upfilename]['name'][$i];
-			$name = $_FILES[$upfilename]['name'][$i];    // 파일의 이름 
-			$tmp_file = $_FILES[$upfilename]['tmp_name'][$i];  // 서버에 업로드시 필요함
-			$tmpNm =  explode( '.', $name );
-			$ext = strtolower(end($tmpNm));
-			
-		   // $newfile=$tmpNm[0].".".$ext ;
-			$new_file_name = date("Y_m_d_H_i_s");
-			$newfilename1 = $new_file_name."_" . $i . "." . $ext;      
-			$url1 = $uploads_dir.'/'.$newfilename1; //올린 파일 명 그대로 복사해라.  시간초 등으로 파일이름 만들기
-			
-			//서버에 임시로 저장된 파일은 스크립트가 종료되면 사라지므로 파일을 이동해야함.
-		     move_uploaded_file($tmp_file, $url1);
-		// insert
-				try{		 
-					$pdo->beginTransaction();   
-					$sql = "insert into mirae8440.fileuploads ";
-					$sql .=" (tablename, item, parentid, realname, savename) " ;        
-					$sql .=" values(?, ?, ?, ?, ?) " ;        
-					   
-					 $stmh = $pdo->prepare($sql); 
-					 
-					 $stmh->bindValue(1, $tablename, PDO::PARAM_STR);   
-					 $stmh->bindValue(2, $item, PDO::PARAM_STR);   
-					 $stmh->bindValue(3, $id, PDO::PARAM_STR);             
-					 $stmh->bindValue(4, $filename, PDO::PARAM_STR);   
-					 $stmh->bindValue(5, $newfilename1, PDO::PARAM_STR);   
-					 
-					 
-					 $stmh->execute();
-					 $pdo->commit(); 
-						} catch (PDOException $Exception) {
-						   $pdo->rollBack();
-						   print "오류: ".$Exception->getMessage();
-					 }  	
-
-			}
-
-		} // end of for statement   
-	
-	
+// 로컬과 서버 호환성을 위한 설정
+if (file_exists(__DIR__ . '/../common/functions.php')) {
+    require_once __DIR__ . '/../common/functions.php';
 }
 
-// log 기록 남기기
+// 세션 시작
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
- $data=date("Y-m-d H:i:s") . " - " . $_SESSION["userid"] . " - " . $_SESSION["name"] . "  " . $tablename . "  " . $savetitle . " - file 기록" ;	
- require_once("../lib/mydb.php");
- $pdo = db_connect();
- $pdo->beginTransaction();
- $sql = "insert into mirae8440.logdata(data) values(?) " ;
- $stmh = $pdo->prepare($sql); 
- $stmh->bindValue(1, $data, PDO::PARAM_STR);   
- $stmh->execute();
- $pdo->commit(); 
+// 에러 표시 설정 (개발 환경에서만 사용)
+// ini_set('display_errors', 1);
 
-?>  
-  
-  
- 
+// common.php 포함
+include __DIR__ . "/../php/common.php";
 
+// 세션 변수 초기화
+$user_id = $_SESSION['userid'] ?? '';
+$user_name = $_SESSION['name'] ?? '';
+$DB = $_SESSION['DB'] ?? 'mirae8440';
+
+// 요청 파라미터 초기화
+$id = $_REQUEST["id"] ?? '';
+$fileorimage = $_REQUEST["fileorimage"] ?? 'file'; // file or image
+$item = $_REQUEST["item"] ?? '';
+$upfilename = $_REQUEST["upfilename"] ?? '';
+$tablename = $_REQUEST["tablename"] ?? '';
+$savetitle = $_REQUEST["savetitle"] ?? ''; // 로그 기록 저장 타이틀
+
+// 파일 업로드 관련 변수 초기화
+$countfiles = 0;
+$uploads_dir = __DIR__ . '/../uploads'; // 업로드 폴더
+$allowed_image_ext = array('jpg', 'jpeg', 'png', 'gif', 'JPG', 'JPEG', 'PNG', 'GIF');
+$uploadSize = 100000000; // 최대 업로드 크기
+$num = ''; // 자료번호
+
+// 입력 검증
+if (empty($upfilename) || !isset($_FILES[$upfilename])) {
+    error_log("File upload error: No file uploaded or invalid file name");
+    die("업로드할 파일이 지정되지 않았습니다.");
+}
+
+if (empty($tablename)) {
+    error_log("File upload error: No tablename specified");
+    die("테이블명이 지정되지 않았습니다.");
+}
+
+// 파일 개수 확인
+$countfiles = count($_FILES[$upfilename]['name']);
+
+// 데이터베이스 연결
+require_once(includePath('lib/mydb.php'));
+$pdo = db_connect();
+
+// 업로드 디렉토리 생성 및 권한 설정
+if (!is_dir($uploads_dir)) {
+    if (!mkdir($uploads_dir, 0755, true)) {
+        error_log("Failed to create upload directory: {$uploads_dir}");
+        die("업로드 디렉토리 생성 실패");
+    }
+}
+chmod($uploads_dir, 0755);
+
+// 이미지 업로드 처리
+if ($fileorimage == 'image') {
+    for ($i = 0; $i < $countfiles; $i++) {
+        $filename = $_FILES[$upfilename]['name'][$i];
+        
+        if (empty($filename)) {
+            continue;
+        }
+        
+        try {
+            // 파일 정보 추출
+            $error = $_FILES[$upfilename]['error'][$i];
+            $name = $_FILES[$upfilename]['name'][$i];
+            $tmp_file = $_FILES[$upfilename]['tmp_name'][$i];
+            $tmpNm = explode('.', $name);
+            $ext = strtolower(end($tmpNm));
+            
+            // 에러 확인
+            if ($error !== UPLOAD_ERR_OK) {
+                error_log("File upload error code: {$error} for file: {$name}");
+                continue;
+            }
+            
+            // 확장자 확인
+            if (!in_array($ext, $allowed_image_ext)) {
+                echo "허용되지 않는 이미지 확장자입니다: {$ext}<br>";
+                continue;
+            }
+            
+            // 새 파일명 생성
+            $new_file_name = date("Y_m_d_H_i_s");
+            $newfilename1 = $new_file_name . "_" . $i . "." . $ext;
+            $url1 = $uploads_dir . '/' . $newfilename1;
+            
+            // 이미지 압축 및 저장
+            $filename1 = compress_image($tmp_file, $url1, 70);
+            
+            if ($filename1 === false) {
+                error_log("Image compression failed for: {$name}");
+                continue;
+            }
+            
+            // 이미지 크기 확인
+            $image_info = getimagesize($tmp_file);
+            if ($image_info === false) {
+                error_log("Failed to get image size for: {$name}");
+                continue;
+            }
+            
+            list($width, $height, $type, $attr) = $image_info;
+            
+            // JPEG 이미지 회전 처리
+            if ($ext == 'jpg' || $ext == 'jpeg') {
+                $exif = @exif_read_data($url1);
+                
+                if ($exif && !empty($exif['Orientation'])) {
+                    $image = imagecreatefromjpeg($url1);
+                    $rotated = null;
+                    
+                    switch ($exif['Orientation']) {
+                        case 8:
+                            $rotated = imagerotate($image, 90, 0);
+                            break;
+                        case 3:
+                            $rotated = imagerotate($image, 180, 0);
+                            break;
+                        case 6:
+                            $rotated = imagerotate($image, -90, 0);
+                            break;
+                    }
+                    
+                    if ($rotated !== null) {
+                        imagejpeg($rotated, $url1, 90);
+                        imagedestroy($rotated);
+                    }
+                    imagedestroy($image);
+                }
+            }
+            
+            // 이미지 리사이징
+            if (class_exists('Image')) {
+                $re_image = new Image($filename1);
+                $rate = $width / $height;
+                
+                if ($width > $height) {
+                    $re_image->width(800);
+                    $re_image->height(800 / $rate);
+                } else {
+                    $re_image->width(800 * $rate);
+                    $re_image->height(800);
+                }
+                $re_image->save();
+            }
+            
+            // 파일 정보 출력
+            echo "<h2>파일 정보</h2>
+                <ul>
+                    <li>파일명: " . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . "</li>
+                    <li>확장자: {$ext}</li>
+                    <li>저장명: {$newfilename1}</li>
+                    <li>크기: {$width}x{$height}</li>
+                </ul>";
+            
+            // DB에 파일 정보 저장
+            try {
+                $pdo->beginTransaction();
+                
+                $sql = "INSERT INTO {$DB}.fileuploads (tablename, item, parentid, realname, savename) VALUES (?, ?, ?, ?, ?)";
+                $stmh = $pdo->prepare($sql);
+                $stmh->bindValue(1, $tablename, PDO::PARAM_STR);
+                $stmh->bindValue(2, $item, PDO::PARAM_STR);
+                $stmh->bindValue(3, $id, PDO::PARAM_STR);
+                $stmh->bindValue(4, $filename, PDO::PARAM_STR);
+                $stmh->bindValue(5, $newfilename1, PDO::PARAM_STR);
+                $stmh->execute();
+                
+                $pdo->commit();
+            } catch (PDOException $ex) {
+                $pdo->rollBack();
+                error_log("DB insert error: " . $ex->getMessage());
+                echo "DB 저장 오류: " . htmlspecialchars($ex->getMessage(), ENT_QUOTES, 'UTF-8') . "<br>";
+            }
+            
+        } catch (Exception $ex) {
+            error_log("Image upload error: " . $ex->getMessage());
+            echo "이미지 업로드 오류: " . htmlspecialchars($ex->getMessage(), ENT_QUOTES, 'UTF-8') . "<br>";
+        }
+    }
+} else {
+    // 일반 파일 업로드 처리
+    for ($i = 0; $i < $countfiles; $i++) {
+        $filename = $_FILES[$upfilename]['name'][$i];
+        
+        if (empty($filename)) {
+            continue;
+        }
+        
+        try {
+            // 파일 정보 추출
+            $error = $_FILES[$upfilename]['error'][$i];
+            $name = $_FILES[$upfilename]['name'][$i];
+            $tmp_file = $_FILES[$upfilename]['tmp_name'][$i];
+            $tmpNm = explode('.', $name);
+            $ext = strtolower(end($tmpNm));
+            
+            // 에러 확인
+            if ($error !== UPLOAD_ERR_OK) {
+                error_log("File upload error code: {$error} for file: {$name}");
+                continue;
+            }
+            
+            // 새 파일명 생성
+            $new_file_name = date("Y_m_d_H_i_s");
+            $newfilename1 = $new_file_name . "_" . $i . "." . $ext;
+            $url1 = $uploads_dir . '/' . $newfilename1;
+            
+            // 파일 이동
+            if (!move_uploaded_file($tmp_file, $url1)) {
+                error_log("Failed to move uploaded file: {$name}");
+                echo "파일 이동 실패: " . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . "<br>";
+                continue;
+            }
+            
+            // 파일 정보 출력
+            echo "<h2>파일 정보</h2>
+                <ul>
+                    <li>파일명: " . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . "</li>
+                    <li>확장자: {$ext}</li>
+                    <li>저장명: {$newfilename1}</li>
+                </ul>";
+            
+            // DB에 파일 정보 저장
+            try {
+                $pdo->beginTransaction();
+                
+                $sql = "INSERT INTO {$DB}.fileuploads (tablename, item, parentid, realname, savename) VALUES (?, ?, ?, ?, ?)";
+                $stmh = $pdo->prepare($sql);
+                $stmh->bindValue(1, $tablename, PDO::PARAM_STR);
+                $stmh->bindValue(2, $item, PDO::PARAM_STR);
+                $stmh->bindValue(3, $id, PDO::PARAM_STR);
+                $stmh->bindValue(4, $filename, PDO::PARAM_STR);
+                $stmh->bindValue(5, $newfilename1, PDO::PARAM_STR);
+                $stmh->execute();
+                
+                $pdo->commit();
+            } catch (PDOException $ex) {
+                $pdo->rollBack();
+                error_log("DB insert error: " . $ex->getMessage());
+                echo "DB 저장 오류: " . htmlspecialchars($ex->getMessage(), ENT_QUOTES, 'UTF-8') . "<br>";
+            }
+            
+        } catch (Exception $ex) {
+            error_log("File upload error: " . $ex->getMessage());
+            echo "파일 업로드 오류: " . htmlspecialchars($ex->getMessage(), ENT_QUOTES, 'UTF-8') . "<br>";
+        }
+    }
+}
+
+// 로그 기록 남기기
+try {
+    $data = date("Y-m-d H:i:s") . " - " . $user_id . " - " . $user_name . " " . $tablename . " " . $savetitle . " - file 기록";
+    
+    $pdo->beginTransaction();
+    $sql = "INSERT INTO {$DB}.logdata (data) VALUES (?)";
+    $stmh = $pdo->prepare($sql);
+    $stmh->bindValue(1, $data, PDO::PARAM_STR);
+    $stmh->execute();
+    $pdo->commit();
+} catch (PDOException $ex) {
+    $pdo->rollBack();
+    error_log("Log insert error: " . $ex->getMessage());
+}
+
+?>

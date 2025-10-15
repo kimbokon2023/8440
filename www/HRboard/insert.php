@@ -1,143 +1,239 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
+<?php
+/**
+ * HRboard 입력/수정 처리 페이지
+ * HRboard 게시글을 등록하거나 수정합니다.
+ */
 
-header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문 받는측에서 필요한 정보임 ajax로 보내는 쪽에서 type : json
-   
-// 임시저장된 첨부파일을 확정하기 위해 검사하기  
-isset($_REQUEST["timekey"])  ? $timekey=$_REQUEST["timekey"] :  $timekey='';   // 신규데이터에 생성할때 임시저장키  
-  
- if(isset($_REQUEST["mode"]))  //modify_form에서 호출할 경우
-    $mode=$_REQUEST["mode"];
- else 
-    $mode="";
- 
- if(isset($_REQUEST["num"]))
-    $num=$_REQUEST["num"];
- else 
-    $num="";
-
- if(isset($_REQUEST["tablename"]))
-    $tablename=$_REQUEST["tablename"];
- else 
-    $tablename="";
-       
- if(isset($_REQUEST["is_html"]))  //checkbox는 체크해야 변수명 전달됨.
-    $is_html=$_REQUEST["is_html"];
-  else
-    $is_html="";  
-
- if(isset($_REQUEST["noticecheck"])) 
-    $noticecheck=$_REQUEST["noticecheck"];
-  else
-    $noticecheck="";
-   
-  $subject=$_REQUEST["subject"];
-  $content=$_REQUEST["content"];
-  $division=$_REQUEST["division"];
-  $searchtext=$_REQUEST["searchtext"];
-   
-        
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();
-    
- if ($mode=="modify"){     
- 
-      try{
-        $sql = "select * from {$DB}.{$tablename}  where num=?";  // get target record
-        $stmh = $pdo->prepare($sql); 
-        $stmh->bindValue(1,$num,PDO::PARAM_STR); 
-        $stmh->execute(); 
-        $row = $stmh->fetch(PDO::FETCH_ASSOC);
-     } catch (PDOException $Exception) {
-        $pdo->rollBack();
-        print "오류: ".$Exception->getMessage();
-     } 
-              
-     try{
-        $pdo->beginTransaction();   
-        $sql = "update {$DB}.{$tablename}  set subject=?, content=?, is_html=?, division=?, searchtext=? where num=?  ";
-        $stmh = $pdo->prepare($sql); 
-        $stmh->bindValue(1, $subject, PDO::PARAM_STR);  
-        $stmh->bindValue(2, $content, PDO::PARAM_STR);  
-        $stmh->bindValue(3, $is_html, PDO::PARAM_STR);             
-        $stmh->bindValue(4, $division, PDO::PARAM_STR);             
-        $stmh->bindValue(5, $searchtext, PDO::PARAM_STR);             
-        $stmh->bindValue(6, $num, PDO::PARAM_STR);   
-        $stmh->execute();
-        $pdo->commit(); 
-        } catch (PDOException $Exception) {
-           $pdo->rollBack();
-           print "오류: ".$Exception->getMessage();
-       }                         
-       
- } else	{
-    if ($is_html =="y"){
-	         $content = htmlspecialchars($content);
-       }
-   try{
-     $pdo->beginTransaction();
-     $sql = "insert into {$DB}.{$tablename}  (id, name, nick, subject, content, regist_day, hit, is_html, division, searchtext) ";     
-     $sql .= "values(?, ?, ?, ?, ?, now(), 0, ?, ?, ?)";
-     $stmh = $pdo->prepare($sql); 
-     $stmh->bindValue(1, $_SESSION["userid"], PDO::PARAM_STR);  
-     $stmh->bindValue(2, $_SESSION["name"], PDO::PARAM_STR);  
-     $stmh->bindValue(3, $_SESSION["nick"], PDO::PARAM_STR);   
-     $stmh->bindValue(4, $subject, PDO::PARAM_STR);  
-     $stmh->bindValue(5, $content, PDO::PARAM_STR);  
-     $stmh->bindValue(6, $is_html, PDO::PARAM_STR);   
-     $stmh->bindValue(7, $division, PDO::PARAM_STR);   
-     $stmh->bindValue(8, $searchtext, PDO::PARAM_STR);   
-     
-     $stmh->execute();
-     $pdo->commit(); 
-     } catch (PDOException $Exception) {
-          $pdo->rollBack();
-       print "오류: ".$Exception->getMessage();
-     }   
-}   
- 
-  
-if ($mode!=="modify"){
-	
-// 신규데이터인경우 num을 추출한 후 view로 보여주기
- $sql="select * from {$DB}.{$tablename}  order by num asc"; 					
-
-  try{  
-   $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-   $rowNum = $stmh->rowCount();  
-   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {	   
- 			  $num=$row["num"];			   			 
-	 } 	 
-   } catch (PDOException $Exception) {
-    print "오류: ".$Exception->getMessage();
-}    
-
-
-// 신규데이터인 경우 첨부파일/첨부이미지 추가한 것이 있으면 parentid 변경해줌
-// 신규데이터인경우 num을 추출한 후 view로 보여주기
- 
- $id = $num;
- 
-  try{
-        $pdo->beginTransaction();   
-        $sql = "update ".$DB.".picuploads set parentnum=? where parentnum=?";
-        $stmh = $pdo->prepare($sql); 
-        $stmh->bindValue(1, $id, PDO::PARAM_STR);  
-        $stmh->bindValue(2, $timekey, PDO::PARAM_STR);   
-        $stmh->execute();
-        $pdo->commit(); 
-        } catch (PDOException $Exception) {
-           $pdo->rollBack();
-           print "오류: ".$Exception->getMessage();
-       }                         
+// 로컬과 서버 호환성을 위한 설정
+if (file_exists(__DIR__ . '/../common/functions.php')) {
+    require_once __DIR__ . '/../common/functions.php';
 }
 
- $data = [   
- 'num' => $num, 
- 'tablename' => $tablename
- ]; 
- 
- echo json_encode($data, JSON_UNESCAPED_UNICODE);
+// 세션 시작
+require_once getDocumentRoot() . '/session.php';
 
- ?>
+// JSON 응답 헤더 설정
+header("Content-Type: application/json; charset=utf-8");
 
+// 세션 변수 초기화
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+$user_id = $_SESSION["userid"] ?? '';
+$user_name = $_SESSION["name"] ?? '';
+$user_nick = $_SESSION["nick"] ?? '';
+
+// 로그인 확인
+if (empty($user_id)) {
+    echo json_encode([
+        'success' => false,
+        'message' => '로그인이 필요합니다.',
+        'num' => ''
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+// 요청 파라미터 초기화
+$timekey = $_REQUEST["timekey"] ?? '';
+$mode = $_REQUEST["mode"] ?? '';
+$num = $_REQUEST["num"] ?? '';
+$tablename = $_REQUEST["tablename"] ?? '';
+$is_html = $_REQUEST["is_html"] ?? '';
+$noticecheck = $_REQUEST["noticecheck"] ?? '';
+$subject = $_REQUEST["subject"] ?? '';
+$content = $_REQUEST["content"] ?? '';
+$division = $_REQUEST["division"] ?? '';
+$searchtext = $_REQUEST["searchtext"] ?? '';
+
+// 변수 초기화
+$success = false;
+$message = '';
+$id = '';
+
+// 입력 검증
+if (empty($tablename)) {
+    echo json_encode([
+        'success' => false,
+        'message' => '잘못된 접근입니다. (tablename 누락)',
+        'num' => $num
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if (empty($subject)) {
+    echo json_encode([
+        'success' => false,
+        'message' => '제목을 입력해주세요.',
+        'num' => $num
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if (empty($content)) {
+    echo json_encode([
+        'success' => false,
+        'message' => '내용을 입력해주세요.',
+        'num' => $num
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+// 데이터베이스 연결
+require_once(includePath('lib/mydb.php'));
+$pdo = db_connect();
+
+// 수정 모드
+if ($mode === "modify") {
+    if (empty($num)) {
+        echo json_encode([
+            'success' => false,
+            'message' => '잘못된 접근입니다. (num 누락)',
+            'num' => $num
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    
+    try {
+        // 기존 레코드 확인
+        $sql = "SELECT * FROM {$DB}.{$tablename} WHERE num = ?";
+        $stmh = $pdo->prepare($sql);
+        $stmh->bindValue(1, $num, PDO::PARAM_STR);
+        $stmh->execute();
+        $row = $stmh->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$row) {
+            echo json_encode([
+                'success' => false,
+                'message' => '수정할 레코드를 찾을 수 없습니다.',
+                'num' => $num
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+        
+        // 수정 처리
+        $pdo->beginTransaction();
+        
+        $sql = "UPDATE {$DB}.{$tablename} SET ";
+        $sql .= "subject = ?, content = ?, is_html = ?, division = ?, searchtext = ? ";
+        $sql .= "WHERE num = ? LIMIT 1";
+        
+        $stmh = $pdo->prepare($sql);
+        $stmh->bindValue(1, $subject, PDO::PARAM_STR);
+        $stmh->bindValue(2, $content, PDO::PARAM_STR);
+        $stmh->bindValue(3, $is_html, PDO::PARAM_STR);
+        $stmh->bindValue(4, $division, PDO::PARAM_STR);
+        $stmh->bindValue(5, $searchtext, PDO::PARAM_STR);
+        $stmh->bindValue(6, $num, PDO::PARAM_STR);
+        
+        $stmh->execute();
+        $rowCount = $stmh->rowCount();
+        
+        $pdo->commit();
+        
+        if ($rowCount > 0) {
+            $success = true;
+            $message = '수정되었습니다.';
+        } else {
+            $success = false;
+            $message = '수정할 내용이 없습니다.';
+        }
+        
+    } catch (PDOException $ex) {
+        if ($pdo && $pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        error_log("Update error in HRboard/insert.php: " . $ex->getMessage());
+        
+        echo json_encode([
+            'success' => false,
+            'message' => '수정 중 오류가 발생했습니다.',
+            'num' => $num
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    
+} else {
+    // 신규 등록 모드
+    
+    // HTML이 아닌 경우 XSS 방지
+    if ($is_html !== "y") {
+        $content = htmlspecialchars($content, ENT_QUOTES, 'UTF-8');
+    }
+    
+    try {
+        $pdo->beginTransaction();
+        
+        $sql = "INSERT INTO {$DB}.{$tablename} (";
+        $sql .= "id, name, nick, subject, content, regist_day, hit, is_html, division, searchtext";
+        $sql .= ") VALUES (?, ?, ?, ?, ?, NOW(), 0, ?, ?, ?)";
+        
+        $stmh = $pdo->prepare($sql);
+        $stmh->bindValue(1, $user_id, PDO::PARAM_STR);
+        $stmh->bindValue(2, $user_name, PDO::PARAM_STR);
+        $stmh->bindValue(3, $user_nick, PDO::PARAM_STR);
+        $stmh->bindValue(4, $subject, PDO::PARAM_STR);
+        $stmh->bindValue(5, $content, PDO::PARAM_STR);
+        $stmh->bindValue(6, $is_html, PDO::PARAM_STR);
+        $stmh->bindValue(7, $division, PDO::PARAM_STR);
+        $stmh->bindValue(8, $searchtext, PDO::PARAM_STR);
+        
+        $stmh->execute();
+        $num = $pdo->lastInsertId();
+        
+        $pdo->commit();
+        
+        $success = true;
+        $message = '등록되었습니다.';
+        
+    } catch (PDOException $ex) {
+        if ($pdo && $pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        error_log("Insert error in HRboard/insert.php: " . $ex->getMessage());
+        
+        echo json_encode([
+            'success' => false,
+            'message' => '등록 중 오류가 발생했습니다.',
+            'num' => ''
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    
+    // 신규 등록 시 첨부파일 parentnum 업데이트
+    if (!empty($timekey) && !empty($num)) {
+        try {
+            $pdo->beginTransaction();
+            
+            $sql = "UPDATE {$DB}.picuploads SET parentnum = ? WHERE parentnum = ?";
+            $stmh = $pdo->prepare($sql);
+            $stmh->bindValue(1, $num, PDO::PARAM_STR);
+            $stmh->bindValue(2, $timekey, PDO::PARAM_STR);
+            $stmh->execute();
+            
+            $updatedPictures = $stmh->rowCount();
+            
+            $pdo->commit();
+            
+            if ($updatedPictures > 0) {
+                $message .= " (첨부파일 {$updatedPictures}개 연결됨)";
+            }
+            
+        } catch (PDOException $ex) {
+            if ($pdo && $pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            error_log("Picture update error in HRboard/insert.php: " . $ex->getMessage());
+            // 첨부파일 업데이트 실패는 경고만 (본문 등록은 성공)
+        }
+    }
+}
+
+// JSON 응답 생성
+$response = [
+    'success' => $success,
+    'message' => $message,
+    'num' => $num,
+    'tablename' => $tablename
+];
+
+echo json_encode($response, JSON_UNESCAPED_UNICODE);
+exit;
+?>

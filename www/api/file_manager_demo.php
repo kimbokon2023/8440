@@ -5,6 +5,11 @@
  * 이 파일은 file_api.php와 file_manager.js를 사용하는 방법을 보여줍니다.
  */
 
+// common/functions.php 로드
+if (file_exists(__DIR__ . '/../common/functions.php')) {
+    require_once __DIR__ . '/../common/functions.php';
+}
+
 require_once getDocumentRoot() . '/load_GoogleDrive.php';
 require_once __DIR__ . '/file_api.php';
 
@@ -16,36 +21,36 @@ $title_message = 'Google Drive 파일 관리 API 데모';
 </head>
 
 <style>
-.drag-over {
-    border: 2px dashed #007bff !important;
-    background-color: #f8f9fa !important;
-}
+    .drag-over {
+        border: 2px dashed #007bff !important;
+        background-color: #f8f9fa !important;
+    }
 
-.file-upload-area {
-    border: 2px dashed #dee2e6;
-    border-radius: 8px;
-    padding: 20px;
-    text-align: center;
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
+    .file-upload-area {
+        border: 2px dashed #dee2e6;
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
 
-.file-upload-area:hover {
-    border-color: #007bff;
-    background-color: #f8f9fa;
-}
+    .file-upload-area:hover {
+        border-color: #007bff;
+        background-color: #f8f9fa;
+    }
 
-.file-item {
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    padding: 10px;
-    margin: 5px 0;
-    background-color: #fff;
-}
+    .file-item {
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 10px;
+        margin: 5px 0;
+        background-color: #fff;
+    }
 
-.file-item:hover {
-    background-color: #f8f9fa;
-}
+    .file-item:hover {
+        background-color: #f8f9fa;
+    }
 </style>
 
 <body>
@@ -124,17 +129,17 @@ $files = getFilesFromGoogleDrive($options);
 $result = deleteFileFromGoogleDrive($fileId, $options);</code></pre>
                                 </div>
                                 <div class="col-md-6">
-                                    <h6>JavaScript에서 사용</h6>
+                                    <h6>JavaScript에서 사용 (ES5 호환)</h6>
                                     <pre class="bg-light p-3"><code>// 파일 매니저 초기화
-const fileManager = new GoogleDriveFileManager({
+var fileManager = new GoogleDriveFileManager({
     tablename: 'my_table',
     item: 'attached',
     parentnum: '123',
     folderPath: 'MyProject/uploads',
-    onUploadSuccess: (response) => {
+    onUploadSuccess: function(response) {
         console.log('업로드 완료:', response);
     },
-    onDeleteSuccess: (response) => {
+    onDeleteSuccess: function(response) {
         console.log('삭제 완료:', response);
     }
 });
@@ -229,95 +234,96 @@ fileManager.init();</code></pre>
 </div>
 
 <!-- JavaScript 파일 매니저 초기화 -->
-    <script src="file_manager.js"></script>
+<script src="file_manager.js"></script>
 <script>
-$(document).ready(function() {
-    // 파일 매니저 초기화
-    const fileManager = new GoogleDriveFileManager({
-        containerId: 'fileManager',
-        displayContainerId: 'displayFile',
-        uploadInputId: 'upfile',
-        tablename: 'demo_table',
-        item: 'attached',
-        parentnum: '<?=date("YmdHis")?>', // 데모용 고유 ID
-        folderPath: '미래기업/demo',
-        DBtable: 'picuploads',
-        showDeleteButton: true,
-        showDownloadButton: true,
-        allowMultiple: true,
-        maxFileSize: 10 * 1024 * 1024, // 10MB
-        allowedTypes: ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt'],
-        onUploadSuccess: function(response) {
-            console.log('업로드 성공:', response);
-        },
-        onUploadError: function(xhr, status, error) {
-            console.error('업로드 실패:', error);
-        },
-        onDeleteSuccess: function(response, index) {
-            console.log('삭제 성공:', response);
-        },
-        onDeleteError: function(xhr, status, error) {
-            console.error('삭제 실패:', error);
-        },
-        onLoadSuccess: function(data) {
-            console.log('파일 목록 로드 성공:', data);
-        },
-        onLoadError: function(xhr, status, error) {
-            console.error('파일 목록 로드 실패:', error);
-        }
-    });
-    
-    fileManager.init();
-    
-    // 전역 변수로 설정 (테스트 함수에서 사용)
-    window.demoFileManager = fileManager;
-});
-
-// 테스트 함수들
-function testUpload() {
-    // 가상의 파일 업로드 테스트
-    const input = document.getElementById('upfile');
-    input.click();
-}
-
-function testLoad() {
-    if (window.demoFileManager) {
-        window.demoFileManager.loadFiles();
-    }
-}
-
-function testUpdateIds() {
-    // PHP에서 파일 ID 업데이트 테스트
-    $.ajax({
-        url: 'file_api_test.php',
-        type: 'POST',
-        data: {
-            action: 'updateIds',
+    // ES5 호환 코드 (PHP 7.3 환경에서 권장)
+    $(document).ready(function() {
+        // 파일 매니저 초기화
+        var fileManager = new GoogleDriveFileManager({
+            containerId: 'fileManager',
+            displayContainerId: 'displayFile',
+            uploadInputId: 'upfile',
             tablename: 'demo_table',
             item: 'attached',
-            parentnum: '<?=date("YmdHis")?>'
-        },
-        dataType: 'json',
-        success: function(response) {
-            if (response.status === 'success') {
-                alert(`파일 ID 업데이트 완료: ${response.updated}개 파일`);
-                testLoad(); // 목록 새로고침
-            } else {
-                alert('파일 ID 업데이트 실패: ' + response.message);
+            parentnum: '<?=date("YmdHis")?>', // 데모용 고유 ID
+            folderPath: '미래기업/demo',
+            DBtable: 'picuploads',
+            showDeleteButton: true,
+            showDownloadButton: true,
+            allowMultiple: true,
+            maxFileSize: 10 * 1024 * 1024, // 10MB
+            allowedTypes: ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt'],
+            onUploadSuccess: function(response) {
+                console.log('업로드 성공:', response);
+            },
+            onUploadError: function(xhr, status, error) {
+                console.error('업로드 실패:', error);
+            },
+            onDeleteSuccess: function(response, index) {
+                console.log('삭제 성공:', response);
+            },
+            onDeleteError: function(xhr, status, error) {
+                console.error('삭제 실패:', error);
+            },
+            onLoadSuccess: function(data) {
+                console.log('파일 목록 로드 성공:', data);
+            },
+            onLoadError: function(xhr, status, error) {
+                console.error('파일 목록 로드 실패:', error);
             }
-        },
-        error: function(xhr, status, error) {
-            alert('파일 ID 업데이트 실패: ' + error);
-        }
-    });
-}
+        });
 
-function showCurrentOptions() {
-    if (window.demoFileManager) {
-        console.log('현재 설정:', window.demoFileManager.options);
-        alert('현재 설정을 콘솔에서 확인하세요.');
+        fileManager.init();
+
+        // 전역 변수로 설정 (테스트 함수에서 사용)
+        window.demoFileManager = fileManager;
+    });
+
+    // 테스트 함수들
+    function testUpload() {
+        // 가상의 파일 업로드 테스트
+        var input = document.getElementById('upfile');
+        input.click();
     }
-}
+
+    function testLoad() {
+        if (window.demoFileManager) {
+            window.demoFileManager.loadFiles();
+        }
+    }
+
+    function testUpdateIds() {
+        // PHP에서 파일 ID 업데이트 테스트
+        $.ajax({
+            url: 'file_api_test.php',
+            type: 'POST',
+            data: {
+                action: 'updateIds',
+                tablename: 'demo_table',
+                item: 'attached',
+                parentnum: '<?=date("YmdHis")?>'
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.status === 'success') {
+                    alert('파일 ID 업데이트 완료: ' + response.updated + '개 파일');
+                    testLoad(); // 목록 새로고침
+                } else {
+                    alert('파일 ID 업데이트 실패: ' + response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                alert('파일 ID 업데이트 실패: ' + error);
+            }
+        });
+    }
+
+    function showCurrentOptions() {
+        if (window.demoFileManager) {
+            console.log('현재 설정:', window.demoFileManager.options);
+            alert('현재 설정을 콘솔에서 확인하세요.');
+        }
+    }
 </script>
 
 </body>

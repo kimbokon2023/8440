@@ -1,81 +1,80 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php
+/**
+ * QC 공정표 목록 페이지
+ * QC 공정표 게시판의 목록을 표시
+ */
+require_once __DIR__ . '/../common/functions.php';
 require_once(includePath('session.php'));
-  // 첫 화면 표시 문구
- $title_message = 'QC 공정표';   
+
+// 첫 화면 표시 문구
+$title_message = 'QC 공정표';
 ?>
-   
-<?php include getDocumentRoot() . '/load_header.php' ?> 
-<title> <?=$title_message?> </title>   
-</head> 
+
+<?php include getDocumentRoot() . '/load_header.php' ?>
+<title> <?=$title_message?> </title>
+</head>
 <body>
 
 <?php include getDocumentRoot() . "/common/modal.php"; ?>
-   
-<?php require_once(includePath('myheader.php')); ?>   
+
+<?php require_once(includePath('myheader.php')); ?>
 
 <?php
 
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(1);
-         header("Location:".$_SESSION["WebSite"]."login/login_form.php"); 
-         exit;
-   }       
-   
+if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
+	/*   alert("관리자 승인이 필요합니다."); */
+	sleep(1);
+	header("Location:".$_SESSION["WebSite"]."login/login_form.php");
+	exit;
+}
+
 $tablename = "p_qccontrol";
 
 require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
-	 
-if(isset($_REQUEST["mode"]))
-     $mode=$_REQUEST["mode"];
-  else 
-     $mode="";
 
-       if(isset($_REQUEST["search"]))   // search 쿼리스트링 값 할당 체크
-         $search=$_REQUEST["search"];
-       else 
-         $search="";
-	  
-      
-   if($mode=="search"){
-         if(!$search) {
-				$sql ="select * from mirae8440." . $tablename . " order  by num desc   "; 				
-             }
-              $sql="select * from mirae8440." . $tablename . " where name like '%$search%' or subject like '%$search%'  or nick like '%$search%'  or regist_day like '%$search%'  order by num desc   ";              
-       } else {
-              $sql="select * from mirae8440." . $tablename . " order  by num desc  ";
-       }
+// 요청 변수 안전하게 초기화
+$mode = $_REQUEST["mode"] ?? '';
+$search = $_REQUEST["search"] ?? '';
+
+if($mode=="search"){
+	if(!$search) {
+		$sql ="select * from mirae8440." . $tablename . " order  by num desc   ";
+	}
+	$sql="select * from mirae8440." . $tablename . " where name like '%$search%' or subject like '%$search%'  or nick like '%$search%'  or regist_day like '%$search%'  order by num desc   ";
+} else {
+	$sql="select * from mirae8440." . $tablename . " order  by num desc  ";
+}
 
 
 // 전체 레코드수를 파악한다.
-try{  
+try{
 	$stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-	$total_row=$stmh->rowCount();    		
-			 
- ?>
- 
+	$total_row=$stmh->rowCount();
+
+?>
+
 <form name="board_form" id="board_form"  method="post" action="list.php?mode=search&search=<?=$search?>">
 
-  <input type="hidden" id="page" name="page" value="<?=$page?>"  > 
+  <input type="hidden" id="page" name="page" value="<?=$page ?? ''?>"  >
 
-  <div class="container justify-content-center">  
-	<div class="card mt-2 mb-4">  
-	<div class="card-body">  
- 
- <div class="d-flex mt-3 mb-1 justify-content-center">  
+  <div class="container justify-content-center">
+	<div class="card mt-2 mb-4">
+	<div class="card-body">
+
+ <div class="d-flex mt-3 mb-1 justify-content-center">
     <img src="../img/qc_control.jpg" class="form-control">
-  </div>	 
- <div class="d-flex mt-3 mb-1 justify-content-center">  
-  <h3> <?=$title_message?> </h3>  
-  </div>	 
-  
-	<div class="d-flex mb-2 px-5 px-lg-2 mt-2  justify-content-center align-items-center">                
-		▷ <?= $total_row ?> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+  </div>
+ <div class="d-flex mt-3 mb-1 justify-content-center">
+  <h3> <?=$title_message?> </h3>
+  </div>
+
+	<div class="d-flex mb-2 px-5 px-lg-2 mt-2  justify-content-center align-items-center">
+		▷ <?= $total_row ?> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 		<input type="text" class="form-control me-2" style="width:150px;height:32px;" name="search" id="search" value="<?=$search?>" onkeydown="JavaScript:SearchEnter();" placeholder="검색어" autocomplete="off" >
-		<button type="button" id="searchBtn" class="btn btn-dark btn-sm me-2"> <i class="bi bi-search"></i> 검색 </button>			
-		<button type="button" class="btn btn-dark btn-sm" id="writeBtn" >  <i class="bi bi-pencil"></i>  신규 </button> &nbsp;&nbsp;&nbsp;				
-	</div>	
+		<button type="button" id="searchBtn" class="btn btn-dark btn-sm me-2"> <i class="bi bi-search"></i> 검색 </button>
+		<button type="button" class="btn btn-dark btn-sm" id="writeBtn" >  <i class="bi bi-pencil"></i>  신규 </button> &nbsp;&nbsp;&nbsp;
+	</div>
 
 <div class="row d-flex"  >
 <table class="table table-hover" id="myTable">
@@ -84,58 +83,59 @@ try{
 				 <th class="text-center" > 번호  </td>
 				 <th class="text-center" > QC공정표명  </td>
 				 <th class="text-center" > 등록인 </td>
-				 <th class="text-center" > 등록일자 </td>      
-				 <th class="text-center" > 조회수 </td>      
+				 <th class="text-center" > 등록일자 </td>
+				 <th class="text-center" > 조회수 </td>
 			 </tr>
 		</thead>
-		<tbody> 
-	
-<?php  
+		<tbody>
+
+<?php
   $start_num=$total_row;    // 페이지당 표시되는 첫번째 글순번
-  
+
  while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-  $item_num=$row["num"];
-  $item_id=$row["id"];
-  $item_name=$row["name"];
-  $item_nick=$row["nick"];
-  $item_hit=$row["hit"];
-  $item_date=$row["regist_day"];
-  $item_date=substr($item_date, 0, 10);
-  $item_subject=str_replace(" ", "&nbsp;", $row["subject"]);  
+  $item_num = $row["num"] ?? '';
+  $item_id = $row["id"] ?? '';
+  $item_name = $row["name"] ?? '';
+  $item_nick = $row["nick"] ?? '';
+  $item_hit = $row["hit"] ?? 0;
+  $item_date = $row["regist_day"] ?? '';
+  $item_date = substr($item_date, 0, 10);
+  $item_subject = str_replace(" ", "&nbsp;", $row["subject"] ?? '');
  ?>
 
     <tr onclick="redirectToView('<?=$item_num?>', '<?=$tablename?>')">
-  
-				  <td class="text-center" ><?= $start_num ?> </td>
-				  <td class="text-start" > <?= $item_subject ?>  </td>
-				  <td class="text-center" ><?= $item_nick ?> </td>
-				  <td class="text-center" ><?= $item_date ?> </td>     
-				  <td class="text-center" ><?= $item_hit ?> </td>     
-			    </tr>	  
-  
+
+			  <td class="text-center" ><?= $start_num ?> </td>
+			  <td class="text-start" > <?= $item_subject ?>  </td>
+			  <td class="text-center" ><?= $item_nick ?> </td>
+			  <td class="text-center" ><?= $item_date ?> </td>
+			  <td class="text-center" ><?= $item_hit ?> </td>
+		    </tr>
+
  <?php
 	$start_num--;
     }
   } catch (PDOException $Exception) {
   print "오류: ".$Exception->getMessage();
-  }  
-  
- ?>
-  	  </tbody>
-		  </table>  
-</div>  
-   
-   </div>
-   </div>
-</div>  
+  }
 
-</form>   
+ ?>
+
+  	  </tbody>
+		  </table>
+</div>
+
+   </div>
+   </div>
+</div>
+
+</form>
 
 <script>
 var dataTable; // DataTables 인스턴스 전역 변수
 var QCcontrolpageNumber; // 현재 페이지 번호 저장을 위한 전역 변수
 
-$(document).ready(function() {			
+$(document).ready(function() {
     // DataTables 초기 설정
     dataTable = $('#myTable').DataTable({
         "paging": true,
@@ -185,27 +185,27 @@ function restorePageNumber() {
 
 function redirectToView(num, tablename) {
     var page = QCcontrolpageNumber; // 현재 페이지 번호 (+1을 해서 1부터 시작하도록 조정)
-    	
-    var url = "view.php?num=" + num + "&tablename=" + tablename;          
 
-	customPopup(url, 'QC 공정표', 1200, 900); 		    
+    var url = "view.php?num=" + num + "&tablename=" + tablename;
+
+	customPopup(url, 'QC 공정표', 1200, 900);
 }
 
 $(document).ready(function(){
-	
-	$("#writeBtn").click(function(){ 
-		var page = QCcontrolpageNumber; // 현재 페이지 번호 (+1을 해서 1부터 시작하도록 조정)	
-		var tablename = '<?php echo $tablename; ?>';		
-		var url = "write_form.php?tablename=" + tablename; 				
-		customPopup(url, 'QC 공정표', 1300, 850); 	
-	 });			 
-		
-});	
+
+	$("#writeBtn").click(function(){
+		var page = QCcontrolpageNumber; // 현재 페이지 번호 (+1을 해서 1부터 시작하도록 조정)
+		var tablename = '<?php echo $tablename; ?>';
+		var url = "write_form.php?tablename=" + tablename;
+		customPopup(url, 'QC 공정표', 1300, 850);
+	 });
+
+});
 
 // 서버에 작업 기록
 $(document).ready(function(){
 	saveLogData('QC 공정도'); // 다른 페이지에 맞는 menuName을 전달
 });
-</script> 
+</script>
 </body>
 </html>

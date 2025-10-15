@@ -1,6 +1,11 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php
+require_once __DIR__ . '/../common/functions.php';
 require_once getDocumentRoot() . '/session.php';
-require_once(includePath('lib/mydb.php'));
+
+// 세션 변수 초기화
+$level = $_SESSION["level"] ?? 10;
+$WebSite = $_SESSION["WebSite"] ?? '';
+$DB = $_SESSION["DB"] ?? '';
 
 $title_message = '거래처 상세보기';
 
@@ -12,38 +17,59 @@ if (!$num) {
     exit;
 }
 
-if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
+// 권한 체크
+if (!isset($_SESSION["level"]) || $level > 5) {
     sleep(1);
-    header("Location:" . $WebSite . "login/login_form.php"); 
+    
+    // 로컬/서버 환경에 따른 동적 리다이렉션
+    $host = $_SERVER['HTTP_HOST'] ?? '';
+    if (strpos($host, 'localhost') !== false || strpos($host, '127.0.0.1') !== false) {
+        header("Location: http://" . $host . "/login/login_form.php");
+    } else {
+        header("Location: " . $WebSite . "login/login_form.php");
+    }
     exit;
 }
 
-include getDocumentRoot() . '/load_header.php';   
+include getDocumentRoot() . '/load_header.php';
 ?>
 <title> <?=$title_message?> </title>
 
 <body>
-<?php require_once(includePath('myheader.php')); ?>   
+    <?php require_once(includePath('myheader.php')); ?>
 
-<?php
-// 거래처 정보 조회
-$pdo = db_connect();
-$sql = "SELECT * FROM mirae8440.customer WHERE num = ? AND is_deleted = 'N'";
-
-try {
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$num]);
-    $customer = $stmt->fetch(PDO::FETCH_ASSOC);
+    <?php
+    // 거래처 정보 조회
+    require_once(includePath('lib/mydb.php'));
+    $pdo = db_connect();
     
-    if (!$customer) {
-        echo "<script>alert('거래처 정보를 찾을 수 없습니다.'); window.close();</script>";
+    $sql = "SELECT * FROM {$DB}.customer WHERE num = ? AND is_deleted = 'N'";
+
+    // 변수 초기화
+    $customer = array();
+    $contacts = array();
+
+    try {
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(array($num));
+        $customer = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$customer) {
+            echo "<script>alert('거래처 정보를 찾을 수 없습니다.'); window.close();</script>";
+            exit;
+        }
+        
+        // 담당자 정보 조회
+        $contactSQL = "SELECT * FROM {$DB}.customer_contact WHERE customer_id = ? AND is_deleted = 'N' ORDER BY num";
+        $contactStmt = $pdo->prepare($contactSQL);
+        $contactStmt->execute(array($num));
+        $contacts = $contactStmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $ex) {
+        error_log("거래처 상세보기 오류: " . $ex->getMessage());
+        echo "<script>alert('데이터베이스 오류가 발생했습니다.'); window.close();</script>";
         exit;
     }
-} catch (PDOException $e) {
-    echo "<script>alert('데이터베이스 오류가 발생했습니다.'); window.close();</script>";
-    exit;
-}
-?>
+    ?>
 
 <style>
 .customer-detail-container {
@@ -436,48 +462,51 @@ try {
     </div>
 </div>
 
-<script>
-// 거래처 수정 함수
-function editCustomer(num) {
-    var url = "edit.php?num=" + num;
-    window.open(url, '_blank', 'width=1000,height=700,scrollbars=yes,resizable=yes');
-}
+    <script>
+        // 거래처 수정 함수
+        function editCustomer(num) {
+            var url = "edit.php?num=" + num;
+            window.open(url, '_blank', 'width=1000,height=700,scrollbars=yes,resizable=yes');
+        }
 
-// 거래처 삭제 함수
-function deleteCustomer(num) {
-    if (confirm('정말로 이 거래처를 삭제하시겠습니까?\n삭제된 데이터는 복구할 수 없습니다.')) {
-        $.ajax({
-            url: 'delete.php',
-            type: 'POST',
-            data: { num: num },
-            dataType: 'json',
-            success: function(response) {
-                if (response.success) {
-                    alert('거래처가 성공적으로 삭제되었습니다.');
-                    // 부모 창 새로고침
-                    if (window.opener) {
-                        window.opener.location.reload();
+        // 거래처 삭제 함수
+        function deleteCustomer(num) {
+            if (confirm('정말로 이 거래처를 삭제하시겠습니까?\n삭제된 데이터는 복구할 수 없습니다.')) {
+                $.ajax({
+                    url: 'delete.php',
+                    type: 'POST',
+                    data: {
+                        num: num
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            alert('거래처가 성공적으로 삭제되었습니다.');
+                            // 부모 창 새로고침
+                            if (window.opener) {
+                                window.opener.location.reload();
+                            }
+                            closeWindow();
+                        } else {
+                            alert('오류가 발생했습니다: ' + response.message);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        alert('서버 오류가 발생했습니다: ' + error);
                     }
-                    closeWindow();
-                } else {
-                    alert('오류가 발생했습니다: ' + response.message);
-                }
-            },
-            error: function(xhr, status, error) {
-                alert('서버 오류가 발생했습니다: ' + error);
+                });
             }
-        });
-    }
-}
+        }
 
-// 창 닫기 함수
-function closeWindow() {
-    window.close();
-}
-</script>
+        // 창 닫기 함수
+        function closeWindow() {
+            window.close();
+        }
+    </script>
 
-<div class="container-fluid mt-3 mb-3">
-    <? include '../footer_sub.php'; ?>
-</div>
+    <div class="container-fluid mt-3 mb-3">
+        <?php include '../footer_sub.php'; ?>
+    </div>
 </body>
+
 </html>

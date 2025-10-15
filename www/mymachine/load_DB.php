@@ -39,8 +39,9 @@ $sql="select * from mirae8440.mymclist " ;
 			array_push($check10_arr, $row["check10"]);		
 			array_push($writer_arr, $row["writer"]);	          
 		}		 
-   } catch (PDOException $Exception) {
-    print "오류: ".$Exception->getMessage();
+   } catch (PDOException $ex) {
+    error_log("장비 점검 데이터 조회 오류: " . $ex->getMessage());
+    echo "<div class='alert alert-danger'>오류: 데이터를 불러오는 중 문제가 발생했습니다.</div>";
 }  
     
 $todate=date("Y-m-d");   // 현재일자 변수지정   
@@ -73,14 +74,17 @@ $questionstep_arr=array();
 		  $mcmain_arr[$counter] = $row["mcmain"];
 		  $mcsub_arr[$counter] = $row["mcsub"];
 		  $qrcode = $row["qrcode"];
-		  $qrcode_tmp = 'https://8440.co.kr/img/' . $qrcode . '.png' ;
-		  $qrcode_arr[$counter] = 'https://8440.co.kr/img/' . $qrcode . '.png' ;
+		  $protocol_qr = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+		  $host_qr = $_SERVER['HTTP_HOST'];
+		  $qrcode_tmp = "{$protocol_qr}://{$host_qr}/img/" . $qrcode . ".png";
+		  $qrcode_arr[$counter] = "{$protocol_qr}://{$host_qr}/img/" . $qrcode . ".png";
 		  $questionstep_arr[$counter]=$row["questionstep"];	  	  
 	  
       $counter++;		 		
       }
-     }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
+     } catch (PDOException $ex) {
+       error_log("장비 정보 조회 오류: " . $ex->getMessage());
+       echo "<div class='alert alert-danger'>오류: 장비 정보를 불러오는 중 문제가 발생했습니다.</div>";
 }	
 
 

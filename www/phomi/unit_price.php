@@ -1,4 +1,9 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php
+// 로컬/서버 환경 설정
+$is_local = $_SERVER['HTTP_HOST'] === 'localhost' || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false;
+$base_url = $is_local ? 'http://localhost/mirae8440/www' : 'http://8440.co.kr';
+
+require_once __DIR__ . '/../common/functions.php';
 // =================================================================================
 // 1. unit_price.php - 데이터 목록 조회 페이지
 // =================================================================================

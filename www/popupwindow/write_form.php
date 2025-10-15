@@ -1,134 +1,133 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php
+require_once __DIR__ . '/../common/functions.php';
 require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
+
+// 세션 변수 초기화
+$DB = $_SESSION["DB"] ?? '';
+$WebSite = $_SESSION["WebSite"] ?? '';
+
+// 권한 체크
+if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+    sleep(1);
+    header("Location:" . $WebSite . "login/login_form.php");
+    exit;
+}
+
 $title_message = '팝업창 관리';
 ?>
-<?php include getDocumentRoot() . '/load_header.php' ?> 
-<title> <?=$title_message?> </title>  
-</head> 
+
+<?php include getDocumentRoot() . '/load_header.php' ?>
+<title><?= $title_message ?></title>
+</head>
 <body>
+
 <?php include getDocumentRoot() . '/common/modal.php'; ?>
 
 <?php
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(1);
-         header("Location:".$_SESSION["WebSite"]."login/login_form.php"); 
-         exit;
-   }    
+// 요청 변수 초기화
+$id = $_REQUEST["id"] ?? '';
+$fileorimage = $_REQUEST["fileorimage"] ?? '';  // file or image
+$item = $_REQUEST["item"] ?? '';
+$upfilename = $_REQUEST["upfilename"] ?? '';
+$tablename = $_REQUEST["tablename"] ?? '';
+$savetitle = $_REQUEST["savetitle"] ?? '';  // log기록 저장 타이틀
+$mode = $_REQUEST["mode"] ?? '';  // 수정 버튼을 클릭해서 호출했는지 체크
+$num = $_REQUEST["num"] ?? '';
 
+// 데이터 변수 초기화
+$item_subject = '';
+$is_html = '';
+$content = '';
+$qnacheck = '';
+$division = '표시';  // 기본값
+$searchtext = '';
 
-isset($_REQUEST["id"])  ? $id=$_REQUEST["id"] :   $id=''; 
-isset($_REQUEST["fileorimage"])  ? $fileorimage=$_REQUEST["fileorimage"] :   $fileorimage=''; // file or image
-isset($_REQUEST["item"])  ? $item=$_REQUEST["item"] :   $item=''; 
-isset($_REQUEST["upfilename"])  ? $upfilename=$_REQUEST["upfilename"] :   $upfilename=''; 
-isset($_REQUEST["tablename"])  ? $tablename=$_REQUEST["tablename"] :  $tablename=''; 
-isset($_REQUEST["savetitle"])  ? $savetitle=$_REQUEST["savetitle"] :  $savetitle='';   // log기록 저장 타이틀
-    
-if(isset($_REQUEST["mode"]))  //수정 버튼을 클릭해서 호출했는지 체크
-	$mode=$_REQUEST["mode"];
-else
-	$mode="";
-
-if(isset($_REQUEST["num"]))  //수정 버튼을 클릭해서 호출했는지 체크
-	$num=$_REQUEST["num"];
-else
-	$num="";
-	  
 require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
+// 수정 모드일 경우 데이터 불러오기
+if ($mode == "modify") {
+    try {
+        $sql = "select * from {$DB}.{$tablename} where num = ?";
+        $stmh = $pdo->prepare($sql);
+        $stmh->bindValue(1, $num, PDO::PARAM_STR);
+        $stmh->execute();
+        $count = $stmh->rowCount();
 
-  if ($mode=="modify"){
-    try{
-      $sql = "select * from {$DB}.{$tablename} where num = ? ";
-      $stmh = $pdo->prepare($sql); 
+        if ($count < 1) {
+            print "검색결과가 없습니다.<br>";
+        } else {
+            $row = $stmh->fetch(PDO::FETCH_ASSOC);
+            $item_subject = $row["subject"] ?? '';
+            $is_html = $row["is_html"] ?? '';
+            $content = $row["content"] ?? '';
+            $qnacheck = $row["qnacheck"] ?? '';
+            $division = $row["division"] ?? '표시';
+            $searchtext = $row["searchtext"] ?? '';
+        }
+    } catch (PDOException $Exception) {
+        print "오류: " . $Exception->getMessage();
+    }
+}
 
-    $stmh->bindValue(1,$num,PDO::PARAM_STR); 
-      $stmh->execute();
-      $count = $stmh->rowCount();              
-    if($count<1){  
-      print "검색결과가 없습니다.<br>";
-     }else{
-      $row = $stmh->fetch(PDO::FETCH_ASSOC);
-      $item_subject = $row["subject"];
-      $is_html = $row["is_html"];
-      $content = $row["content"];
-      $qnacheck = $row["qnacheck"];
-      $division = $row["division"];
-      $searchtext = $row["searchtext"];
-      }
-     }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
-     }
-  }
-
-// 초기 프로그램은 $num사용 이후 $id로 수정중임  
-$id=$num;    
-require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
+// 초기 프로그램은 $num사용 이후 $id로 수정중임
+$id = $num;
+require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기
 ?>
- 
-<form  id="board_form" name="board_form" method="post" enctype="multipart/form-data"> 
-  <!-- 전달함수 설정 input hidden -->
-	<input type="hidden" id="tablename" name="tablename" value="<?=$tablename?>" >			  								
-	<input type="hidden" id="id" name="id" value="<?=$id?>" >			  								
-	<input type="hidden" id="num" name="num" value="<?=$num?>" >			  									
-	<input type="hidden" id="item" name="item" value="<?=$item?>" >			  										
-	<input type="hidden" id="mode" name="mode" value="<?=$mode?>" >		
-	<input type="hidden" id="timekey" name="timekey" value="<?=$timekey?>" >  <!-- 신규데이터 작성시 parentid key값으로 사용 -->				
-	<input type="hidden" id="searchtext" name="searchtext" value="<?=$searchtext?>" >  <!-- summernote text저장 -->		
 
-<div class="container">  
-	<div class="d-flex mt-3 mb-1 justify-content-center align-items-center"> 
-			<span class="badge bg-success text-white fs-5 " > &nbsp;&nbsp;  <?=$title_message?> &nbsp;&nbsp;</span>	
-	</div>	      
-	<div class="d-flex mt-2 mb-1 justify-content-center align-items-center"> 		
-		<div class="card mt-2" style="width:60%;">  
-			<div class="card-body">  					
-				 <div class="row"> 					 
-						<div class="d-flex justify-content-center align-items-center"> 							 
-							작성자  : &nbsp;    <?=$_SESSION["nick"]?>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;							
-						</div>					
-						<div class="d-flex  mt-2 justify-content-center align-items-center"> 							 
-							<span class="form-control me-2" style="width: 150px; border: 0px;">화면표시/숨김</span>
-								<select id="division" name="division" class="form-select form-select-sm w-auto me-2 text-center" >
-									<option value="표시" <?= ($division == '표시') ? 'selected' : ''; ?>>표시</option>
-									<option value="숨김" <?= ($division == '숨김') ? 'selected' : ''; ?>>숨김</option>
-								</select>&nbsp;
 
-							<span class="form-control me-2" style="width: 50px;border:0px;" > 제목 </span>
-							<input id="subject" name="subject" type="text" required class="form-control" style="width:500px;"  autocomplete="off"   <?php if($mode=="modify"){ ?> value="<?=$item_subject?>" <?php }?>>&nbsp;														
-						</div>						
-				</div>
-				</div>			
-			</div>
-		</div>
-	<div class="d-flex mt-1 mb-1 justify-content-start align-items-center"> 					 
-		<button class="btn btn-dark btn-sm me-1" onclick="self.close();" > &times; 닫기 </button>
-		<button type="button"   class="btn btn-dark btn-sm" id="saveBtn"  >  <i class="bi bi-floppy-fill"></i> 저장 </button>	
-		
-	</div>
-	 <div class="d-flex mt-3 mb-1 justify-content-center">
-	 <textarea id="summernote" name="content" rows="20" ><?=$content?></textarea>
-	</div>
- 
-	<div class="d-flex mt-3 mb-1 justify-content-center">  	 		 
-			 <label for="upfile" class="input-group-text btn btn-outline-primary btn-sm"> 파일(10M 이하) pdf파일 첨부 </label>						  							
-			 <input id="upfile"  name="upfile[]" type="file" onchange="this.value" multiple  style="display:none" >
-	</div>	
-	
-	<div id ="displayFile" class="d-flex mt-1 mb-1 justify-content-center" style="display:none;">  	 		 					
-		 
-	</div>			
-	<div id ="displayImage" class="row d-flex mt-1 mb-1 justify-content-center" style="display:none;">  	 		 					
-		 
-	</div>		
-	
-	<div class="d-flex mt-1 mb-1 justify-content-center">  	 	
-			<label  for="upfileimage" class="input-group-text btn btn-outline-dark btn-sm ">  사진 첨부 </label>	
-			 <input id="upfileimage"  name="upfileimage[]" type="file" onchange="this.value" multiple accept=".gif, .jpg, .png" style="display:none">
-	</div>	
-	
-	</div>  	
+<form id="board_form" name="board_form" method="post" enctype="multipart/form-data">
+    <!-- 전달함수 설정 input hidden -->
+    <input type="hidden" id="tablename" name="tablename" value="<?= $tablename ?>">
+    <input type="hidden" id="id" name="id" value="<?= $id ?>">
+    <input type="hidden" id="num" name="num" value="<?= $num ?>">
+    <input type="hidden" id="item" name="item" value="<?= $item ?>">
+    <input type="hidden" id="mode" name="mode" value="<?= $mode ?>">
+    <input type="hidden" id="timekey" name="timekey" value="<?= $timekey ?>">  <!-- 신규데이터 작성시 parentid key값으로 사용 -->
+    <input type="hidden" id="searchtext" name="searchtext" value="<?= $searchtext ?>">  <!-- summernote text저장 -->
+
+    <div class="container">
+        <div class="d-flex mt-3 mb-1 justify-content-center align-items-center">
+            <span class="badge bg-success text-white fs-5">&nbsp;&nbsp;<?= $title_message ?>&nbsp;&nbsp;</span>
+        </div>
+        <div class="d-flex mt-2 mb-1 justify-content-center align-items-center">
+            <div class="card mt-2" style="width:60%;">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="d-flex justify-content-center align-items-center">
+                            작성자 : &nbsp; <?= $_SESSION["nick"] ?? '' ?> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        </div>
+                        <div class="d-flex mt-2 justify-content-center align-items-center">
+                            <span class="form-control me-2" style="width: 150px; border: 0px;">화면표시/숨김</span>
+                            <select id="division" name="division" class="form-select form-select-sm w-auto me-2 text-center">
+                                <option value="표시" <?= ($division == '표시') ? 'selected' : ''; ?>>표시</option>
+                                <option value="숨김" <?= ($division == '숨김') ? 'selected' : ''; ?>>숨김</option>
+                            </select>&nbsp;
+                            <span class="form-control me-2" style="width: 50px;border:0px;">제목</span>
+                            <input id="subject" name="subject" type="text" required class="form-control" style="width:500px;" autocomplete="off" <?php if ($mode == "modify") { ?> value="<?= $item_subject ?>" <?php } ?>>&nbsp;
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex mt-1 mb-1 justify-content-start align-items-center">
+            <button class="btn btn-dark btn-sm me-1" onclick="self.close();">&times; 닫기</button>
+            <button type="button" class="btn btn-dark btn-sm" id="saveBtn"><i class="bi bi-floppy-fill"></i> 저장</button>
+        </div>
+        <div class="d-flex mt-3 mb-1 justify-content-center">
+            <textarea id="summernote" name="content" rows="20"><?= $content ?></textarea>
+        </div>
+        <div class="d-flex mt-3 mb-1 justify-content-center">
+            <label for="upfile" class="input-group-text btn btn-outline-primary btn-sm">파일(10M 이하) pdf파일 첨부</label>
+            <input id="upfile" name="upfile[]" type="file" onchange="this.value" multiple style="display:none">
+        </div>
+        <div id="displayFile" class="d-flex mt-1 mb-1 justify-content-center" style="display:none;"></div>
+        <div id="displayImage" class="row d-flex mt-1 mb-1 justify-content-center" style="display:none;"></div>
+        <div class="d-flex mt-1 mb-1 justify-content-center">
+            <label for="upfileimage" class="input-group-text btn btn-outline-dark btn-sm">사진 첨부</label>
+            <input id="upfileimage" name="upfileimage[]" type="file" onchange="this.value" multiple accept=".gif, .jpg, .png" style="display:none">
+        </div>
+    </div>
 </form>	
 <script> 
 
@@ -512,7 +511,7 @@ function displayFile() {
 // 기존 파일 불러오기 (Google Drive에서 가져오기)
 function displayFileLoad() {
     $('#displayFile').show();
-    var data = <?php echo json_encode($savefilename_arr); ?>;
+    var data = <?php echo json_encode($savefilename_arr ?? []); ?>;
 
     $("#displayFile").html(''); // 기존 내용 초기화
 
@@ -676,7 +675,7 @@ function displayImage() {
 // 기존 이미지 불러오기 (Google Drive에서 가져오기)
 function displayImageLoad() {
     $('#displayImage').show();
-    var data = <?php echo json_encode($saveimagename_arr); ?>;
+    var data = <?php echo json_encode($saveimagename_arr ?? []); ?>;
 
     $("#displayImage").html(''); // 기존 내용 초기화
 

@@ -1,142 +1,133 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-include getDocumentRoot() . '/session.php';   
+<?php
+require_once __DIR__ . '/../common/functions.php';
+include getDocumentRoot() . '/session.php';
 
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {          
-		 sleep(1);
-         header ("Location:https://8440.co.kr/login/logout.php");
-         exit;
- }  
- ?>
- 
+// 세션 변수 초기화
+$menu = $_SESSION["menu"] ?? '';
+$user_name = $_SESSION["name"] ?? '';
+$DB = $_SESSION["DB"] ?? '';
+
+if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+    sleep(1);
+    // 로컬, 서버 환경 모두에서 동작하도록 document root 기반 경로 사용
+    header("Location:" . (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https://" : "http://")
+        . $_SERVER['HTTP_HOST']
+        . "/login/logout.php");
+    exit;
+}
+?>
+
 <?php include getDocumentRoot() . '/load_header.php' ?>
 
-<?php  
-// // ctrl shift R 키를 누르지 않고 cache를 새로고침하는 구문....
-// header("Expires: Tue, 01 Jan 2000 00:00:00 GMT");
-// header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
-// header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-// header("Cache-Control: post-check=0, pre-check=0", false);
-// header("Pragma: no-cache");
-
-//header("Refresh:0");  // reload refresh   
-
+<?php
 require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
-	
+
 // 배열로 기본정보 불러옴
- include "load_DB.php";
- 
- // var_dump($basic_name_arr);
- // var_dump('<br>');
- // var_dump('<br>');
- // var_dump('<br>');
- // var_dump($totalused_arr);
+include "load_DB.php";
 
- ?>
+// load_DB.php에서 정의될 변수들 초기화 (정의되지 않은 경우 대비)
+$basic_name_arr = $basic_name_arr ?? array();
+$totalname_arr = $totalname_arr ?? array();
+$totalused_arr = $totalused_arr ?? array();
+$totalusedYear_arr = $totalusedYear_arr ?? array();
+?>
 
- <title> 직원 연차 관리 </title> 
+<title> 직원 연차 관리 </title>
 
 <body>
 
-<?php if( $menu!=='no')  require_once(includePath('myheader.php')); ?>    
+    <?php if ($menu !== 'no') require_once(includePath('myheader.php')); ?>
 
- <?php
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();
+    <?php
+    require_once(includePath('lib/mydb.php'));
+    $pdo = db_connect();
 
-if (isset($_REQUEST["search"])) {
-    $search = $_REQUEST["search"];
-}
+    // 요청 파라미터 초기화
+    $search = $_REQUEST["search"] ?? '';
+    $mode = $_REQUEST["mode"] ?? '';
+    $list = $_REQUEST["list"] ?? 0;
+    $page = $_REQUEST["page"] ?? 1;
+    $year = $_REQUEST["year"] ?? date("Y");
+    $showRetired = $_POST['showRetired'] ?? 0;
+    $find = $_REQUEST["find"] ?? '';
+    $fromdate = $_REQUEST["fromdate"] ?? '';
+    $todate = $_REQUEST["todate"] ?? '';
+    $up_fromdate = $_REQUEST["up_fromdate"] ?? '';
+    $up_todate = $_REQUEST["up_todate"] ?? '';
+    $separate_date = $_REQUEST["separate_date"] ?? '';
 
-if (isset($_REQUEST["mode"])) {
-    $mode = $_REQUEST["mode"];
-}
+    // 기타 변수 초기화
+    $voc_alert = '';
+    $ma_alert = '';
+    $order_alert = '';
 
-if (isset($_REQUEST["list"])) {
-    $list = $_REQUEST["list"];
-} else {
-    $list = 0;
-}
-
-if (isset($_REQUEST["page"])) {
-    $page = $_REQUEST["page"];
-} else {
-    $page = 1;
-}
-
-isset($_REQUEST["year"]) ? $year = $_REQUEST["year"] : $year = date("Y");
-$showRetired = isset($_POST['showRetired']) ? $_POST['showRetired'] : 0;
-
-$whereCondition = " WHERE referencedate = '$year' ";
-$andCondition = " AND referencedate = '$year' ";
-if (!$showRetired) {
-    $whereCondition .= " AND (comment IS NULL or comment ='') ";
-}
-else
-	$whereCondition .= " AND comment = '퇴사' ";
-
-$scale = 100;       // 한 페이지에 보여질 게시글 수
-$page_scale = 15;   // 한 페이지당 표시될 페이지 수  10페이지
-$first_num = ($page - 1) * $scale;  // 리스트에 표시되는 게시글의 첫 순번.
-
-if ($mode == "search") {
-    if (empty($search)) {
-        $sql = "SELECT * FROM ".$DB.".almember ".$whereCondition." ORDER BY referencedate DESC, dateofentry ASC, num DESC LIMIT $first_num, $scale";
-        $sqlcon = "SELECT * FROM ".$DB.".almember ".$whereCondition." ORDER BY referencedate DESC, dateofentry ASC, num DESC";
-    } elseif (!empty($search)) {
-        $sql = "SELECT * FROM ".$DB.".almember WHERE (name LIKE '%$search%') OR (part LIKE '%$search%') OR (referencedate LIKE '%$search%')";
-        $sql .= " ".$andCondition." ORDER BY referencedate DESC, dateofentry ASC, num DESC LIMIT $first_num, $scale";
-        $sqlcon = "SELECT * FROM ".$DB.".almember WHERE (name LIKE '%$search%') OR (part LIKE '%$search%') OR (referencedate LIKE '%$search%') ";
-        $sqlcon .= " ".$andCondition." ORDER BY referencedate DESC, dateofentry ASC, num DESC";
+    $whereCondition = " WHERE referencedate = '$year' ";
+    $andCondition = " AND referencedate = '$year' ";
+    if (!$showRetired) {
+        $whereCondition .= " AND (comment IS NULL or comment ='') ";
+    } else {
+        $whereCondition .= " AND comment = '퇴사' ";
     }
-} else {
-    $sql = "SELECT * FROM ".$DB.".almember ".$whereCondition." ORDER BY referencedate DESC, dateofentry ASC, num DESC LIMIT $first_num, $scale";
-    $sqlcon = "SELECT * FROM ".$DB.".almember ".$whereCondition." ORDER BY referencedate DESC, dateofentry ASC, num DESC";
-}
-   
- try{  
-	  $allstmh = $pdo->query($sqlcon);       
-      $temp2=$allstmh->rowCount();  
-	  $stmh = $pdo->query($sql);           
-      $temp1=$stmh->rowCount();
-	      
-	  $total_row = $temp2;     // 전체 글수	  	
 
-    // echo $total_row . '  ';
-	// echo $sql;	
-         					 
-     $total_page = ceil($total_row / $scale);
-	 $current_page = ceil($page/$page_scale);
-			 
-?>   
-<form name="board_form" id="board_form"  method="post" action="admin.php?mode=search&search=<?=$search?>&find=<?=$find?>&year=<?=$year?>&search=<?=$search?>&fromdate=<?=$fromdate?>&todate=<?=$todate?>&up_fromdate=<?=$up_fromdate?>&up_todate=<?=$up_todate?>&separate_date=<?=$separate_date?>">    
-  
-<div class="container">  
-	<div class="card mt-2 mb-4">  
-	<div class="card-body"> 		 
-	  
-	<!-- Modal -->
-	<div class="modal fade" id="myModal" role="dialog">
-		<div class="modal-dialog  modal-lg modal-center" >
-		
-		  <!-- Modal content-->
-		  <div class="modal-content modal-lg">
-			<div class="modal-header">          
-			  <h4 class="modal-title">알림</h4>
-			</div>
-			<div class="modal-body">		
-			   <div class="row gx-4 gx-lg-4 align-items-center">		  
-					   <br>
-					   <div id="alertmsg" class="fs-3" > </div> <br>
-					  <br>		  									
-					</div>
-				</div>		  
-			<div class="modal-footer">
-			  <button id="closeModalBtn" type="button" class="btn btn-default" data-dismiss="modal">닫기</button>
-			</div>
-			</div>
-			</div>
-	</div>         
+    $scale = 100;
+    $page_scale = 15;
+    $first_num = ($page - 1) * $scale;
+
+    if ($mode == "search") {
+        if (empty($search)) {
+            $sql = "SELECT * FROM " . $DB . ".almember " . $whereCondition . " ORDER BY referencedate DESC, dateofentry ASC, num DESC LIMIT $first_num, $scale";
+            $sqlcon = "SELECT * FROM " . $DB . ".almember " . $whereCondition . " ORDER BY referencedate DESC, dateofentry ASC, num DESC";
+        } elseif (!empty($search)) {
+            $sql = "SELECT * FROM " . $DB . ".almember WHERE (name LIKE '%$search%') OR (part LIKE '%$search%') OR (referencedate LIKE '%$search%')";
+            $sql .= " " . $andCondition . " ORDER BY referencedate DESC, dateofentry ASC, num DESC LIMIT $first_num, $scale";
+            $sqlcon = "SELECT * FROM " . $DB . ".almember WHERE (name LIKE '%$search%') OR (part LIKE '%$search%') OR (referencedate LIKE '%$search%') ";
+            $sqlcon .= " " . $andCondition . " ORDER BY referencedate DESC, dateofentry ASC, num DESC";
+        }
+    } else {
+        $sql = "SELECT * FROM " . $DB . ".almember " . $whereCondition . " ORDER BY referencedate DESC, dateofentry ASC, num DESC LIMIT $first_num, $scale";
+        $sqlcon = "SELECT * FROM " . $DB . ".almember " . $whereCondition . " ORDER BY referencedate DESC, dateofentry ASC, num DESC";
+    }
+
+    try {
+        $allstmh = $pdo->query($sqlcon);
+        $temp2 = $allstmh->rowCount();
+        $stmh = $pdo->query($sql);
+        $temp1 = $stmh->rowCount();
+
+        $total_row = $temp2;
+
+        $total_page = ceil($total_row / $scale);
+        $current_page = ceil($page / $page_scale);
+    ?>
+
+        <form name="board_form" id="board_form" method="post" action="admin.php?mode=search&search=<?= $search ?>&find=<?= $find ?>&year=<?= $year ?>&search=<?= $search ?>&fromdate=<?= $fromdate ?>&todate=<?= $todate ?>&up_fromdate=<?= $up_fromdate ?>&up_todate=<?= $up_todate ?>&separate_date=<?= $separate_date ?>">
+
+            <div class="container">
+                <div class="card mt-2 mb-4">
+                    <div class="card-body">
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="myModal" role="dialog">
+                            <div class="modal-dialog modal-lg modal-center">
+                                <!-- Modal content-->
+                                <div class="modal-content modal-lg">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">알림</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row gx-4 gx-lg-4 align-items-center">
+                                            <br>
+                                            <div id="alertmsg" class="fs-3"> </div> <br>
+                                            <br>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button id="closeModalBtn" type="button" class="btn btn-default" data-dismiss="modal">닫기</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>         
    
 	<input type="hidden" id="voc_alert" name="voc_alert" value="<?=$voc_alert?>" size="5" > 	
 	<input type="hidden" id="ma_alert" name="ma_alert" value="<?=$ma_alert?>" size="5" > 
@@ -214,224 +205,209 @@ if ($mode == "search") {
 		     else 
 		      	$start_num=$total_row-($page-1) * $scale;
 	    
-	       while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-	           include "rowDB.php";  
+                        // rowDB.php에서 사용될 변수 초기화
+                        $num = '';
+                        $name = '';
+                        $part = '';
+                        $dateofentry = '';
+                        $referencedate = '';
+                        $availableday = 0;
+                        $comment = '';
 
+                        while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+                            include "rowDB.php";
 
-        // var_dump($totalused_arr);
-		$totalusedday = 0;
-		$totalremainday = $availableday;		
-		
-		 for($i=0;$i<count($totalname_arr);$i++)
-		 {			 
+                            $totalusedday = 0;
+                            $totalremainday = $availableday;
 
-             // 해당년도가 같고 이름이 같으면 계산			 
-			 if(trim($name) == trim($totalname_arr[$i]) && $referencedate == $totalusedYear_arr[$i] )
-			 {				 
-				$totalusedday = $totalused_arr[$i];
-				$totalremainday = floatval($availableday) - floatval($totalusedday) ;	
-				// print 	$basic_name_arr[$i];	
-				// print 	$totalname_arr[$i];				
-			 }
-			 
-			// print '<tr>';
-			// print '<td> ' . $totalused_arr[$i] . '</td>';
-			// print '</tr>';
-
-		 }
+                            for ($i = 0; $i < count($totalname_arr); $i++) {
+                                // 해당년도가 같고 이름이 같으면 계산
+                                if (trim($name) == trim($totalname_arr[$i]) && $referencedate == $totalusedYear_arr[$i]) {
+                                    $totalusedday = $totalused_arr[$i];
+                                    $totalremainday = floatval($availableday) - floatval($totalusedday);
+                                }
+                            }
 		 			 
           
  
-				?>		
-				
-		<tr onclick="popupCenter('write_form.php?num=<?=$num?>', '데이터등록', 600, 700)">  
-		    <td class="text-center"><?=$start_num?>	</td>
-            <td class="text-center"><?=$comment?>	</td>
-            <td class="text-center"><?=$name?>	    </td>
-            <td class="text-center"><?=$part?>   	</td>
-            <td class="text-center"><?=$dateofentry?>	</td>
-            <td class="text-center"><?=$referencedate?>	</td>
-			
-			<?php 
-						
-			// DateTime 객체로 변환
-			$entryDate = new DateTime($dateofentry);
-			$referenceDate = new DateTime($referencedate);
+                        ?>
 
-			// 두 날짜 간의 차이 계산
-			$interval = $entryDate->diff($referenceDate);
+                            <tr onclick="popupCenter('write_form.php?num=<?= $num ?>', '데이터등록', 600, 700)">
+                                <td class="text-center"><?= $start_num ?>	</td>
+                                <td class="text-center"><?= $comment ?>	</td>
+                                <td class="text-center"><?= $name ?>	    </td>
+                                <td class="text-center"><?= $part ?>   	</td>
+                                <td class="text-center"><?= $dateofentry ?>	</td>
+                                <td class="text-center"><?= $referencedate ?>	</td>
 
-			// 총 년수 계산
-			$years = $interval->y;
+                                <?php
+                                // DateTime 객체로 변환
+                                $entryDate = new DateTime($dateofentry);
+                                $referenceDate = new DateTime($referencedate);
 
-			// 총 월수 계산
-			$months = $interval->m;
+                                // 두 날짜 간의 차이 계산
+                                $interval = $entryDate->diff($referenceDate);
 
-			// 근속년수 계산 (년 + (월 / 12)), 소수점 첫째 자리까지 반올림
-			$continueYear = round($years + ($months / 12), 1);
+                                // 총 년수 계산
+                                $years = $interval->y;
 
-			// 단순 월 계산
-			$continueMonth = intval($years)*12 + $interval->m;
-			?>
-			
-            <td class="text-center"><?=$continueYear?>	</td>
-            <td class="text-center"><?=$continueMonth?>	</td>			
-            <td class="text-center text-primary"><b><?=$availableday?></b>	</td>            			
-            <td class="text-center text-success"><b><?=$totalusedday?></b>	</td>            			
-            <td class="text-center text-danger"><b> <?=$totalremainday?></b>	</td>            			         
-            </tr>
+                                // 총 월수 계산
+                                $months = $interval->m;
 
-<?php
-			$start_num--;
-			 } 
-  } catch (PDOException $Exception) {
-  print "오류: ".$Exception->getMessage();
-  }  
-   // 페이지 구분 블럭의 첫 페이지 수 계산 ($start_page)
-      $start_page = ($current_page - 1) * $page_scale + 1;
-   // 페이지 구분 블럭의 마지막 페이지 수 계산 ($end_page)
-      $end_page = $start_page + $page_scale - 1;  
- ?>
- 
-        </tbody>
-	</table>
-  </div> 
-  
- 
-  <div class="row row-cols-auto mt-4 justify-content-center align-items-center"> 
- <?php
-	if($page!=1 && $page>$page_scale){
-              $prev_page = $page - $page_scale;    
-              // 이전 페이지값은 해당 페이지 수에서 리스트에 표시될 페이지수 만큼 감소
-              if($prev_page <= 0) 
-              $prev_page = 1;  // 만약 감소한 값이 0보다 작거나 같으면 1로 고정
-		      print '<button class="btn btn-outline-secondary btn-sm" type="button" id=previousListBtn  onclick="javascript:movetoPage(' . $prev_page . ')"> ◀ </button> &nbsp;' ;              
-            }
-            for($i=$start_page; $i<=$end_page && $i<= $total_page; $i++) {        // [1][2][3] 페이지 번호 목록 출력
-              if($page==$i) // 현재 위치한 페이지는 링크 출력을 하지 않도록 설정.
-                print '<span class="text-secondary" >  ' . $i . '  </span>'; 
-              else 
-                   print '<button class="btn btn-outline-secondary btn-sm" type="button" id=moveListBtn onclick="javascript:movetoPage(' . $i . ')">' . $i . '</button> &nbsp;' ;     			
-            }
+                                // 근속년수 계산 (년 + (월 / 12)), 소수점 첫째 자리까지 반올림
+                                $continueYear = round($years + ($months / 12), 1);
 
-            if($page<$total_page){
-              $next_page = $page + $page_scale;
-              if($next_page > $total_page) 
-                     $next_page = $total_page;
-                // netx_page 값이 전체 페이지수 보다 크면 맨 뒤 페이지로 이동시킴
-				  print '<button class="btn btn-outline-secondary btn-sm" type="button" id=nextListBtn onclick="javascript:movetoPage(' . $next_page . ')"> ▶ </button> &nbsp;' ; 
-            }
-            ?>         
-   </div>
+                                // 단순 월 계산
+                                $continueMonth = intval($years) * 12 + $interval->m;
+                                ?>
+
+                                <td class="text-center"><?= $continueYear ?>	</td>
+                                <td class="text-center"><?= $continueMonth ?>	</td>
+                                <td class="text-center text-primary"><b><?= $availableday ?></b>	</td>
+                                <td class="text-center text-success"><b><?= $totalusedday ?></b>	</td>
+                                <td class="text-center text-danger"><b> <?= $totalremainday ?></b>	</td>
+                            </tr>
+
+                        <?php
+                            $start_num--;
+                        }
+                    } catch (PDOException $ex) {
+                        error_log("almember 조회 오류: " . $ex->getMessage());
+                    }
+
+                    // 페이지 구분 블럭의 첫 페이지 수 계산 ($start_page)
+                    $start_page = ($current_page - 1) * $page_scale + 1;
+                    // 페이지 구분 블럭의 마지막 페이지 수 계산 ($end_page)
+                    $end_page = $start_page + $page_scale - 1;  
+                    ?>
+
+                    </tbody>
+                </table>
+            </div>
 
 
-   </div>	 
-   </div>	 
-   </div>	 
-  
-  
-  	</form>	   	
-    
-<br>
-<br>
-<div class="container">
-<? include '../footer_sub.php'; ?>
-</div>
-  
+            <div class="row row-cols-auto mt-4 justify-content-center align-items-center">
+                <?php
+                if ($page != 1 && $page > $page_scale) {
+                    $prev_page = $page - $page_scale;
+                    if ($prev_page <= 0)
+                        $prev_page = 1;
+                    print '<button class="btn btn-outline-secondary btn-sm" type="button" id=previousListBtn onclick="javascript:movetoPage(' . $prev_page . ')"> ◀ </button> &nbsp;';
+                }
+                for ($i = $start_page; $i <= $end_page && $i <= $total_page; $i++) {
+                    if ($page == $i)
+                        print '<span class="text-secondary">  ' . $i . '  </span>';
+                    else
+                        print '<button class="btn btn-outline-secondary btn-sm" type="button" id=moveListBtn onclick="javascript:movetoPage(' . $i . ')">' . $i . '</button> &nbsp;';
+                }
+
+                if ($page < $total_page) {
+                    $next_page = $page + $page_scale;
+                    if ($next_page > $total_page)
+                        $next_page = $total_page;
+                    print '<button class="btn btn-outline-secondary btn-sm" type="button" id=nextListBtn onclick="javascript:movetoPage(' . $next_page . ')"> ▶ </button> &nbsp;';
+                }
+                ?>
+            </div>
+
+
+        </div>
+    </div>
+    </div>
+
+
+        </form>
+
+        <br>
+        <br>
+        <div class="container">
+            <? include '../footer_sub.php'; ?>
+        </div>
+
 </body>
+
 </html>
 
 <script>
-$(document).ready(function(){	
+    $(document).ready(function() {
+        $('select[name="year"]').change(function() {
+            var val = $('input[name="year"]:checked').val();
+            document.getElementById('board_form').submit();
+        });
 
-	$('select[name="year"]').change(function(){
-	   var val = $('input[name="year"]:checked').val();	   
-	   document.getElementById('board_form').submit(); 
-	});	
+        $("#massBtn").click(function() {
+            popupCenter('write_form_init.php', '연초 대량등록', 420, 460);
+        });
 
-	$("#massBtn").click(function(){ 
-		popupCenter('write_form_init.php', '연초 대량등록', 420, 460);	  
-	});
+        $("#closeModalBtn").click(function() {
+            $('#myModal').modal('hide');
+        });
 
+        $("#searchBtn").click(function() {
+            document.getElementById('board_form').submit();
+        });
 
-$("#closeModalBtn").click(function(){ 
-    $('#myModal').modal('hide');
-});
+        $("#backBtn").click(function() {
+            location.href = '/annualleave/index.php';
+        });
 
-
-$("#searchBtn").click(function(){  document.getElementById('board_form').submit();   });		
-$("#backBtn").click(function(){  location.href='/annualleave/index.php';   });		
-	
-$('a').children().css('textDecoration','none');  // a tag 전체 밑줄없앰.	
-$('a').parent().css('textDecoration','none');
-
-});
-
-
-function SearchEnter(){
-    if(event.keyCode == 13){
-		document.getElementById('board_form').submit(); 
-    }
-}
-
-
-function movetoPage(page){ 	  
-	  $("#page").val(page); 
-      // var echo="<?php echo $partOpt; ?>"; 
-      // var searchOpt="<?php echo $searchOpt; ?>"; 
-      // var search="<?php echo $search; ?>"; 
-
-     // $("#partOpt").val(partOpt);
-     // $("#searchOpt").val(searchOpt);
-     // $("#search").val(search);
-	 $("#board_form").submit();  
-}	
-	
-document.getElementById("csvDownload").addEventListener("click", function() {
-  const table = document.getElementById("csvTable");
-  const theadRow = table.querySelector("thead tr");
-  const rows = table.querySelectorAll("tbody tr");
-  
-  const csvRows = [];
-  
-  // Include the header row
-  const headerData = [];
-  theadRow.querySelectorAll("th").forEach(function(cell) {
-    headerData.push(cell.textContent.trim());
-  });
-  csvRows.push(headerData.join(","));
-
-  // Include the data rows
-  rows.forEach(function(row) {
-    const rowData = [];
-    row.querySelectorAll("td").forEach(function(cell) {
-      let cellValue = cell.textContent.trim();
-
-      // 숫자인지 확인 (정수 또는 소수)
-      if (/^\d+(\.\d+)?$/.test(cellValue)) {
-        // 숫자인 경우 좌우 공백 제거 후 숫자로 변환하여 다시 문자열로
-        cellValue = parseFloat(cellValue).toString();
-      }
-
-      rowData.push(cellValue);
+        $('a').children().css('textDecoration', 'none');
+        $('a').parent().css('textDecoration', 'none');
     });
-    csvRows.push(rowData.join(","));
-  });
 
-  const csvContent = csvRows.join("\n");
-   // 한글깨짐문제 '\ufeff' + data 이것 참조
-  const blob = new Blob(['\ufeff' + csvContent], { type: "text/csv;charset=utf-8;" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.setAttribute("download", "직원연차정보.csv");
-  document.body.appendChild(link);
-  link.click();
-});
+    function SearchEnter() {
+        if (event.keyCode == 13) {
+            document.getElementById('board_form').submit();
+        }
+    }
 
-function filterRetired() {
-    // 퇴사자 체크박스 상태 확인
-    // const showRetired = document.getElementById('showRetired').checked;	
-	document.getElementById('board_form').submit(); 
+    function movetoPage(page) {
+        $("#page").val(page);
+        $("#board_form").submit();
+    }
 
-}
+    document.getElementById("csvDownload").addEventListener("click", function() {
+        var table = document.getElementById("csvTable");
+        var theadRow = table.querySelector("thead tr");
+        var rows = table.querySelectorAll("tbody tr");
+
+        var csvRows = [];
+
+        // Include the header row
+        var headerData = [];
+        theadRow.querySelectorAll("th").forEach(function(cell) {
+            headerData.push(cell.textContent.trim());
+        });
+        csvRows.push(headerData.join(","));
+
+        // Include the data rows
+        rows.forEach(function(row) {
+            var rowData = [];
+            row.querySelectorAll("td").forEach(function(cell) {
+                var cellValue = cell.textContent.trim();
+
+                // 숫자인지 확인 (정수 또는 소수)
+                if (/^\d+(\.\d+)?$/.test(cellValue)) {
+                    cellValue = parseFloat(cellValue).toString();
+                }
+
+                rowData.push(cellValue);
+            });
+            csvRows.push(rowData.join(","));
+        });
+
+        var csvContent = csvRows.join("\n");
+        var blob = new Blob(['\ufeff' + csvContent], {
+            type: "text/csv;charset=utf-8;"
+        });
+        var link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute("download", "직원연차정보.csv");
+        document.body.appendChild(link);
+        link.click();
+    });
+
+    function filterRetired() {
+        document.getElementById('board_form').submit();
+    }
 </script>

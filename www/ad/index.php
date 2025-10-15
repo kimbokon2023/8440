@@ -385,7 +385,7 @@
         </div>
 
         <div class="menu-container">
-            <div class="menu-item web-dev" onclick="navigateTo('website.html')">
+            <div class="menu-item web-dev" data-url="website.html">
                 <div class="pulse-effect"></div>
                 <div class="menu-icon">💻</div>
                 <h2 class="menu-title">업무용 웹프로그램<br>개발</h2>
@@ -395,7 +395,7 @@
                 </p>
             </div>
 
-            <div class="menu-item elevator-new" onclick="navigateTo('elevator_jamb.html')">
+            <div class="menu-item elevator-new" data-url="elevator_jamb.html">
                 <div class="pulse-effect"></div>
                 <div class="menu-icon">🏗️</div>
                 <h2 class="menu-title">엘리베이터 신규쟘<br>자동작도</h2>
@@ -405,7 +405,7 @@
                 </p>
             </div>
 
-            <div class="menu-item elevator-panel" onclick="navigateTo('elevator_panel.html')">
+            <div class="menu-item elevator-panel" data-url="elevator_panel.html">
                 <div class="pulse-effect"></div>
                 <div class="menu-icon">⚙️</div>
                 <h2 class="menu-title">엘리베이터 판넬<br>자동작도</h2>
@@ -420,81 +420,93 @@
     <script>
         // 페이지 로드 시 애니메이션 효과
         document.addEventListener('DOMContentLoaded', function() {
-            // 메뉴 아이템에 호버 효과 추가
-            const menuItems = document.querySelectorAll('.menu-item');
-            
-            menuItems.forEach(item => {
+            // 메뉴 아이템에 호버 효과 및 클릭 이벤트 추가
+            var menuItems = document.querySelectorAll('.menu-item');
+
+            menuItems.forEach(function(item) {
                 item.addEventListener('mouseenter', function() {
                     this.style.transform = 'translateY(-10px) scale(1.05)';
                 });
-                
+
                 item.addEventListener('mouseleave', function() {
                     this.style.transform = 'translateY(0) scale(1)';
+                });
+
+                // 클릭 이벤트 추가
+                item.addEventListener('click', function(e) {
+                    var url = this.getAttribute('data-url');
+                    if (url) {
+                        navigateTo(url, e);
+                    }
                 });
             });
         });
 
         // 네비게이션 함수
-        function navigateTo(url) {
+        function navigateTo(url, e) {
             if (url === '#') {
                 // 준비 중인 기능에 대한 알림
                 showNotification('해당 기능은 준비 중입니다.', 'info');
                 return;
             }
-            
+
             // 로딩 스피너 표시
-            const loading = document.getElementById('loading');
+            var loading = document.getElementById('loading');
             loading.style.display = 'block';
-            
+
             // 클릭 효과 추가
-            event.currentTarget.style.transform = 'translateY(-5px) scale(1.02)';
-            
+            if (e && e.currentTarget) {
+                e.currentTarget.style.transform = 'translateY(-5px) scale(1.02)';
+            }
+
             // 약간의 지연 후 페이지 이동 (UX 향상)
-            setTimeout(() => {
+            setTimeout(function() {
                 window.location.href = url;
             }, 500);
         }
 
         // 알림 함수
-        function showNotification(message, type = 'info') {
+        function showNotification(message, type) {
+            type = type || 'info';
+
             // 기존 알림 제거
-            const existingNotification = document.querySelector('.notification');
+            var existingNotification = document.querySelector('.notification');
             if (existingNotification) {
                 existingNotification.remove();
             }
-            
+
             // 새 알림 생성
-            const notification = document.createElement('div');
+            var notification = document.createElement('div');
             notification.className = 'notification';
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: rgba(255, 255, 255, 0.95);
-                backdrop-filter: blur(10px);
-                color: #333;
-                padding: 20px 30px;
-                border-radius: 15px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-                z-index: 10000;
-                font-weight: 500;
-                border-left: 4px solid ${type === 'info' ? '#3498db' : '#e74c3c'};
-                transform: translateX(400px);
-                transition: all 0.3s ease;
-            `;
+            var borderColor = type === 'info' ? '#3498db' : '#e74c3c';
+            notification.style.cssText =
+                'position: fixed;' +
+                'top: 20px;' +
+                'right: 20px;' +
+                'background: rgba(255, 255, 255, 0.95);' +
+                'backdrop-filter: blur(10px);' +
+                'color: #333;' +
+                'padding: 20px 30px;' +
+                'border-radius: 15px;' +
+                'box-shadow: 0 10px 30px rgba(0,0,0,0.3);' +
+                'z-index: 10000;' +
+                'font-weight: 500;' +
+                'border-left: 4px solid ' + borderColor + ';' +
+                'transform: translateX(400px);' +
+                'transition: all 0.3s ease;';
             notification.textContent = message;
-            
+
             document.body.appendChild(notification);
-            
+
             // 애니메이션으로 표시
-            setTimeout(() => {
+            setTimeout(function() {
                 notification.style.transform = 'translateX(0)';
             }, 100);
-            
+
             // 3초 후 제거
-            setTimeout(() => {
+            setTimeout(function() {
                 notification.style.transform = 'translateX(400px)';
-                setTimeout(() => {
+                setTimeout(function() {
                     if (notification.parentNode) {
                         notification.remove();
                     }
@@ -511,15 +523,16 @@
 
         // 터치 디바이스 지원
         if ('ontouchstart' in window) {
-            const menuItems = document.querySelectorAll('.menu-item');
-            menuItems.forEach(item => {
+            var menuItems = document.querySelectorAll('.menu-item');
+            menuItems.forEach(function(item) {
                 item.addEventListener('touchstart', function() {
                     this.style.transform = 'translateY(-5px) scale(1.02)';
                 });
-                
+
                 item.addEventListener('touchend', function() {
-                    setTimeout(() => {
-                        this.style.transform = 'translateY(0) scale(1)';
+                    var self = this;
+                    setTimeout(function() {
+                        self.style.transform = 'translateY(0) scale(1)';
                     }, 150);
                 });
             });

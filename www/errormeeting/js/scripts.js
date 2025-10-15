@@ -350,50 +350,6 @@ function reloadShopCart() {
 	
 }
 
-/*
-
-for (key in shoppingCartList) {
-    $('#orderList').append($('<div />', {
-        class: 'orderMenu',
-        id: key // 여기서 shoppingCartList의 key는 menuNo
-    }).append($('<div />', {
-        class: 'orderMenuName',
-        text: shoppingCartList[key]["menuName"]
-    })).append($('<div />', {
-        class: 'orderMenuPrice',
-        text: shoppingCartList[key]["totalPrice"],
-        id: 'price' + key
-    })).append($('<div />', {
-        class: 'orderQuantity',
-    }).append($('<div />', {
-        text: '▼',
-        class: 'orderMenuQuantityDec',
-        click: function() {
-                // 개수 증가                 
-        }
-    })).append($('<div />', {
-        text: shoppingCartList[key]["count"],
-        class: 'orderMenuQuantity',
-        id: "cntNum" + key
-    })).append($('<div />', {
-        text: '▲',
-        class: 'orderMenuQuantityInc',
-        id: 'orderMenuIc',
-        click: function() {
-                // 개수 감소
-        }
-    }))).append($('<div />', {
-        class: 'orderMenuCancel', 
-        text: 'CANCEL',
-        click: function() {
-                // 해당 메뉴 삭제
-        }
-    })));
-}
-
-*/
-
-
 // 쿠키 전체 삭제하기
 const allDelCookies = (domain, path) => {
   // const doc = document;

@@ -1,29 +1,73 @@
 <?php
-error_reporting(0); // 오류 리포팅 비활성화
+require_once __DIR__ . '/../common/functions.php';
+require_once(includePath('session.php'));
 
-if (!isset($_SESSION)) {
-    session_start();
-}
+// JSON 헤더 설정
+header("Content-Type: application/json; charset=utf-8");
 
-header("Content-Type: application/json");
+// 세션 변수 초기화
+$userid = $_SESSION['userid'] ?? '';
 
-// POST 데이터 수신
+// 요청 파라미터 초기화
 $savedName = $_POST['savedName'] ?? '';
-$filePath = './RefLine/RefLine_' . $_SESSION['userid'] . '.json';
 
-if(file_exists($filePath)) {
-    $data = json_decode(file_get_contents($filePath), true);
+// 참조라인 파일 경로
+$refLineDir = './RefLine';
+$filePath = $refLineDir . '/RefLine_' . $userid . '.json';
+
+try {
+    // 디렉토리 존재 확인
+    if (!file_exists($refLineDir)) {
+        @mkdir($refLineDir, 0755, true);
+    }
     
-    foreach ($data as $RefLine) {
-        if ($RefLine['savedName'] === $savedName) {
-			echo json_encode($RefLine, JSON_UNESCAPED_UNICODE);            
-			// echo json_encode(["status" => "success", "num" => "num"], JSON_UNESCAPED_UNICODE);          
-			// echo json_encode(array('status' => 'success', 'message' => 'Ref line saved successfully.'));
+    // 파일 존재 확인
+    if (!file_exists($filePath)) {
+        http_response_code(404);
+        echo json_encode(array(
+            "status" => "error",
+            "message" => "참조라인 파일을 찾을 수 없습니다."
+        ), JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    
+    // JSON 파일 읽기
+    $jsonContent = file_get_contents($filePath);
+    $data = json_decode($jsonContent, true);
+    
+    if (!is_array($data)) {
+        http_response_code(400);
+        echo json_encode(array(
+            "status" => "error",
+            "message" => "잘못된 데이터 형식입니다."
+        ), JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    
+    // 해당 참조라인 찾기
+    foreach ($data as $refLine) {
+        if (isset($refLine['savedName']) && $refLine['savedName'] === $savedName) {
+            echo json_encode($refLine, JSON_UNESCAPED_UNICODE);
             exit;
         }
-    }	
-	
+    }
+    
+    // 참조라인을 찾지 못한 경우
+    http_response_code(404);
+    echo json_encode(array(
+        "status" => "error",
+        "message" => "해당 참조라인을 찾을 수 없습니다."
+    ), JSON_UNESCAPED_UNICODE);
+    
+} catch (Exception $ex) {
+    error_log("참조라인 조회 오류: " . $ex->getMessage());
+    
+    http_response_code(500);
+    echo json_encode(array(
+        "status" => "error",
+        "message" => "참조라인 조회 중 오류가 발생했습니다.",
+        "error" => $ex->getMessage()
+    ), JSON_UNESCAPED_UNICODE);
 }
-
 
 ?>

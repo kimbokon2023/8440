@@ -1,6 +1,70 @@
-<h2 data-ke-size="size26"><b><span style="color: #002060;"><span>FMEA (Failure Mode and Effect Analysis) 무엇인가?</span></span></b></h2>
-<p data-ke-size="size16">&nbsp;</p>
-<p data-ke-size="size16"><b><span style="color: #002060;"><span>장애 모드 및 영향 분석</span><span>(Failure Mode and Effect Analysis)<span>&nbsp;</span></span><span>정의</span></span></b></p>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FMEA (Failure Mode and Effect Analysis)</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #002060;
+            border-bottom: 2px solid #002060;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #002060;
+        }
+        ul {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+        li {
+            margin: 10px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+        table th {
+            background-color: #002060;
+            color: white;
+            font-weight: bold;
+        }
+        table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .highlight {
+            background-color: #fff3cd;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h2>FMEA (Failure Mode and Effect Analysis) 무엇인가?</h2>
+        
+        <h3>장애 모드 및 영향 분석 (Failure Mode and Effect Analysis) 정의</h3>
 <ul style="list-style-type: disc;" data-ke-list-type="disc">
 <li>제품 또는 프로세스의 잠재적인 장애 모드<span>(failure modes)</span>와 그 영향<span>(the effect of a failure mode)</span>을 체계적으로 분석하는 기법</li>
 <li>장애 모드<span>(Failure Mode):<span>&nbsp;</span></span>컴포넌트<span>,<span>&nbsp;</span></span>하위 부품<span>(subassembly),<span>&nbsp;</span></span>제품<span>,<span>&nbsp;</span></span>입력물<span>,<span>&nbsp;</span></span>프로세스<span>,<span>&nbsp;</span></span>서브 프로세스 등이 의도한 일을 제대로 수행하지 못하는 상황<span>.<span>&nbsp;</span></span>이전 오퍼레이션의 결과로 나타날 수도 있고 다음 오퍼레이션을 실패하도록 만들 수도 있다<span>.</span></li>
@@ -167,5 +231,9 @@
 <li>유사한 설계나 프로세스를 개선할 수 있는 새로운 아이디어를 제공한다<span>.</span></li>
 </ul>
 <p data-ke-size="size16">&nbsp;</p>
-<p data-ke-size="size16"><b><span style="color: #002060;"><span>품질 시스템</span><span>(Quality System)<span>&nbsp;</span></span><span>구성 요소로서의</span><span><span><span>&nbsp;</span>FMEA</span></span></span></b></p>
-<p data-ke-size="size16"><span>FMEA</span>를 단독으로 사용하는 것도 효과적이지만 조직 전반의 품질 시스템 체계가 갖추어진 환경에서 적용될 때 최대 효과를 얻을 수 있다<span>.<span>&nbsp;</span></span>이런 포괄적인 품질 시스템으로<span>&nbsp;</span><span>Malcolm Baldrige, ISO 9001, QS-9000<span>&nbsp;</span></span>가이드라인<span>, Six Sigma<span>&nbsp;</span></span>관리 시스템<span>, NY Empire State Advantage<span>&nbsp;</span></span>기준 등이 있다<span>.</span></p>
+        
+        <h3>품질 시스템 (Quality System) 구성 요소로서의 FMEA</h3>
+        <p>FMEA를 단독으로 사용하는 것도 효과적이지만 조직 전반의 품질 시스템 체계가 갖추어진 환경에서 적용될 때 최대 효과를 얻을 수 있다. 이런 포괄적인 품질 시스템으로 Malcolm Baldrige, ISO 9001, QS-9000 가이드라인, Six Sigma 관리 시스템, NY Empire State Advantage 기준 등이 있다.</p>
+    </div>
+</body>
+</html>

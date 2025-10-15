@@ -37,13 +37,14 @@ include getDocumentRoot() . "/common.php";
 
 
 <?php
-   
- $num=$_REQUEST["num"];
- $search=$_REQUEST["search"];  //검색어
- $find=$_REQUEST["find"];      // 검색항목
- $tablename=$_REQUEST["tablename"] ?? 'outorder' ;
-	 
-require_once(includePath('lib/mydb.php'));
+
+// 요청 변수 초기화 (?? '' 형태)
+$num = $_REQUEST["num"] ?? '';
+$search = $_REQUEST["search"] ?? '';
+$find = $_REQUEST["find"] ?? '';
+$tablename = $_REQUEST["tablename"] ?? 'outorder';
+
+require_once includePath('lib/mydb.php');
 $pdo = db_connect();	
  
  try{

@@ -1,7 +1,24 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
+<?php
+/**
+ * 구매발주서 등록/수정 처리
+ * 로컬 및 서버 환경 모두 지원
+ */
+
+require_once __DIR__ . '/../common/functions.php';
+require_once getDocumentRoot() . '/session.php';
 require_once(includePath('lib/mydb.php'));
 include getDocumentRoot() . "/common.php";
+
+// 세션 변수 초기화 (?? '' 형태)
+$level = $_SESSION["level"] ?? 999;
+$user_name = $_SESSION["name"] ?? '';
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+
+// 동적 URL 생성
+$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+$host = $_SERVER['HTTP_HOST'];
+$base_url = "{$protocol}://{$host}";
+$WebSite = $base_url . '/';
 
 // AJAX 요청 여부 확인
 $is_ajax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
@@ -17,37 +34,37 @@ debug_log("AJAX 요청: " . ($is_ajax ? "YES" : "NO"));
 debug_log("POST 데이터", $_POST);
 
 // 권한 확인
-if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-    debug_log("권한 확인 실패 - level: " . ($_SESSION["level"] ?? 'not set'));
-
+if (!isset($_SESSION["level"]) || $level > 5) {
+    debug_log("권한 확인 실패 - level: " . $level);
+    
     if ($is_ajax) {
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode([
             'success' => false,
             'message' => '로그인이 필요합니다.',
             'redirect_url' => $WebSite . "login/login_form.php"
-        ]);
+        ], JSON_UNESCAPED_UNICODE);
         exit;
     }
-
+    
     sleep(1);
-    header("Location:" . $WebSite . "login/login_form.php");
+    header("Location: {$WebSite}login/login_form.php");
     exit;
 }
 
 // POST 요청만 허용
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     debug_log("잘못된 요청 메소드: " . $_SERVER['REQUEST_METHOD']);
-
+    
     if ($is_ajax) {
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode([
             'success' => false,
             'message' => 'POST 요청만 허용됩니다.'
-        ]);
+        ], JSON_UNESCAPED_UNICODE);
         exit;
     }
-
+    
     header('HTTP/1.0 405 Method Not Allowed');
     exit;
 }
@@ -58,16 +75,16 @@ try {
     debug_log("데이터베이스 연결 성공");
 } catch (Exception $e) {
     debug_log("데이터베이스 연결 실패: " . $e->getMessage());
-
+    
     if ($is_ajax) {
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode([
             'success' => false,
             'message' => '데이터베이스 연결 실패: ' . $e->getMessage()
-        ]);
+        ], JSON_UNESCAPED_UNICODE);
         exit;
     }
-
+    
     echo "<script>alert('데이터베이스 연결 실패: " . addslashes($e->getMessage()) . "'); history.back();</script>";
     exit;
 }
@@ -87,16 +104,16 @@ $required_fields = ['supplier_name', 'issue_date'];
 foreach ($required_fields as $field) {
     if (!isset($_POST[$field]) || trim($_POST[$field]) === '') {
         debug_log("필수 필드 누락: " . $field);
-
+        
         if ($is_ajax) {
             header('Content-Type: application/json; charset=utf-8');
             echo json_encode([
                 'success' => false,
                 'message' => "필수 항목이 누락되었습니다: " . $field
-            ]);
+            ], JSON_UNESCAPED_UNICODE);
             exit;
         }
-
+        
         echo "<script>alert('필수 항목이 누락되었습니다: " . $field . "'); history.back();</script>";
         exit;
     }
@@ -128,16 +145,16 @@ $order_items = json_decode($order_items_json, true);
 
 if (json_last_error() !== JSON_ERROR_NONE) {
     debug_log("JSON 파싱 오류: " . json_last_error_msg());
-
+    
     if ($is_ajax) {
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode([
             'success' => false,
             'message' => '품목 데이터 형식이 올바르지 않습니다: ' . json_last_error_msg()
-        ]);
+        ], JSON_UNESCAPED_UNICODE);
         exit;
     }
-
+    
     echo "<script>alert('품목 데이터 형식이 올바르지 않습니다.'); history.back();</script>";
     exit;
 }
@@ -162,16 +179,16 @@ if (!empty($delivery_date) && !DateTime::createFromFormat('Y-m-d', $delivery_dat
 // 발행일 유효성 검사
 if (!DateTime::createFromFormat('Y-m-d', $issue_date)) {
     debug_log("발행일 형식 오류: " . $issue_date);
-
+    
     if ($is_ajax) {
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode([
             'success' => false,
             'message' => '발행일 형식이 올바르지 않습니다.'
-        ]);
+        ], JSON_UNESCAPED_UNICODE);
         exit;
     }
-
+    
     echo "<script>alert('발행일 형식이 올바르지 않습니다.'); history.back();</script>";
     exit;
 }
@@ -243,7 +260,7 @@ try {
 
         if ($stmt->execute($params)) {
             debug_log("수정 완료 - ID: " . $id);
-
+            
             if ($is_ajax) {
                 header('Content-Type: application/json; charset=utf-8');
                 echo json_encode([
@@ -251,10 +268,10 @@ try {
                     'message' => '발주서가 성공적으로 수정되었습니다.',
                     'id' => $id,
                     'redirect_url' => 'write_form.php?id=' . $id
-                ]);
+                ], JSON_UNESCAPED_UNICODE);
                 exit;
             }
-
+            
             echo "<script>
                 alert('발주서가 성공적으로 수정되었습니다.');
                 location.href='write_form.php?id=" . $id . "';
@@ -303,7 +320,7 @@ try {
         if ($stmt->execute($params)) {
             $new_id = $pdo->lastInsertId();
             debug_log("등록 완료 - 새 ID: " . $new_id);
-
+            
             if ($is_ajax) {
                 header('Content-Type: application/json; charset=utf-8');
                 echo json_encode([
@@ -311,10 +328,10 @@ try {
                     'message' => '발주서가 성공적으로 등록되었습니다.',
                     'id' => $new_id,
                     'redirect_url' => 'write_form.php?id=' . $new_id
-                ]);
+                ], JSON_UNESCAPED_UNICODE);
                 exit;
             }
-
+            
             echo "<script>
                 alert('발주서가 성공적으로 등록되었습니다.');
                 location.href='write_form.php?id=" . $new_id . "';
@@ -328,25 +345,25 @@ try {
     // 데이터베이스 오류
     debug_log("PDO 오류: " . $e->getMessage());
     error_log("Order Insert/Update Error: " . $e->getMessage());
-
+    
     if ($is_ajax) {
         header('Content-Type: application/json; charset=utf-8');
-
+        
         // 중복 제약 조건 등 특정 오류 처리
         if ($e->getCode() == 23000) {
             echo json_encode([
                 'success' => false,
                 'message' => '중복된 데이터가 존재합니다.'
-            ]);
+            ], JSON_UNESCAPED_UNICODE);
         } else {
             echo json_encode([
                 'success' => false,
                 'message' => '데이터베이스 오류가 발생했습니다: ' . $e->getMessage()
-            ]);
+            ], JSON_UNESCAPED_UNICODE);
         }
         exit;
     }
-
+    
     // 중복 제약 조건 등 특정 오류 처리
     if ($e->getCode() == 23000) {
         echo "<script>alert('중복된 데이터가 존재합니다.'); history.back();</script>";
@@ -354,21 +371,21 @@ try {
         echo "<script>alert('데이터베이스 오류가 발생했습니다.'); history.back();</script>";
     }
     exit;
-
+    
 } catch (Exception $e) {
     // 기타 오류
     debug_log("일반 오류: " . $e->getMessage());
     error_log("Order Process Error: " . $e->getMessage());
-
+    
     if ($is_ajax) {
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode([
             'success' => false,
             'message' => $e->getMessage()
-        ]);
+        ], JSON_UNESCAPED_UNICODE);
         exit;
     }
-
+    
     echo "<script>alert('" . addslashes($e->getMessage()) . "'); history.back();</script>";
     exit;
 }

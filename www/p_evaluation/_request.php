@@ -1,26 +1,32 @@
 <?php
-$num=$_REQUEST["num"];
-$txt1=$_REQUEST["txt1"];
-$txt2=$_REQUEST["txt2"];
-$txt3=$_REQUEST["txt3"];
-$txt4=$_REQUEST["txt4"];
-$txt5=$_REQUEST["txt5"];
-$txt6=$_REQUEST["txt6"];
-$txt7=$_REQUEST["txt7"];
-$txt8=$_REQUEST["txt8"];
-$txt9=$_REQUEST["txt9"];
-$txt10=$_REQUEST["txt10"];
-$txt11=$_REQUEST["txt11"];
-$txt12=$_REQUEST["txt12"];
-$txt13=$_REQUEST["txt13"];
-$txt14=$_REQUEST["txt14"];
-$txt15=$_REQUEST["txt15"];
-$txt16=$_REQUEST["txt16"];
-$txt17=$_REQUEST["txt17"];
-$txt18=$_REQUEST["txt18"];
-$txt19=$_REQUEST["txt19"];
-$txt20=$_REQUEST["txt20"];
-$txt21=$_REQUEST["txt21"];
-$txt22=$_REQUEST["txt22"];
-$txt23=$_REQUEST["txt23"];
+/**
+ * 협력업체 평가표 - 요청 변수 초기화
+ * 로컬 및 서버 환경 모두 지원
+ */
+
+// 요청 변수 초기화 (?? '' 형태)
+$num = $_REQUEST["num"] ?? '';
+$txt1 = $_REQUEST["txt1"] ?? '';
+$txt2 = $_REQUEST["txt2"] ?? '';
+$txt3 = $_REQUEST["txt3"] ?? '';
+$txt4 = $_REQUEST["txt4"] ?? '';
+$txt5 = $_REQUEST["txt5"] ?? '';
+$txt6 = $_REQUEST["txt6"] ?? '';
+$txt7 = $_REQUEST["txt7"] ?? '';
+$txt8 = $_REQUEST["txt8"] ?? '';
+$txt9 = $_REQUEST["txt9"] ?? '';
+$txt10 = $_REQUEST["txt10"] ?? '';
+$txt11 = $_REQUEST["txt11"] ?? '';
+$txt12 = $_REQUEST["txt12"] ?? '';
+$txt13 = $_REQUEST["txt13"] ?? '';
+$txt14 = $_REQUEST["txt14"] ?? '';
+$txt15 = $_REQUEST["txt15"] ?? '';
+$txt16 = $_REQUEST["txt16"] ?? '';
+$txt17 = $_REQUEST["txt17"] ?? '';
+$txt18 = $_REQUEST["txt18"] ?? '';
+$txt19 = $_REQUEST["txt19"] ?? '';
+$txt20 = $_REQUEST["txt20"] ?? '';
+$txt21 = $_REQUEST["txt21"] ?? '';
+$txt22 = $_REQUEST["txt22"] ?? '';
+$txt23 = $_REQUEST["txt23"] ?? '';
 ?>

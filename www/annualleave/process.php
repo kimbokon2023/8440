@@ -1,94 +1,111 @@
 <?php
+require_once __DIR__ . '/../common/functions.php';
+require_once getDocumentRoot() . '/session.php';
 
-if(!isset($_SESSION))      
-    session_start(); 
-if(isset($_SESSION["DB"]))
-    $DB = $_SESSION["DB"];  
-$level = $_SESSION["level"];
-$user_name = $_SESSION["name"];
-$user_id = $_SESSION["userid"]; 
+// 세션 변수 초기화
+$DB = $_SESSION["DB"] ?? '';
+$level = $_SESSION["level"] ?? 0;
+$user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["userid"] ?? '';
+$admin_name = $_SESSION["name"] ?? '';
 
 $tablename = "eworks";
-										  
-isset($_REQUEST["num"])  ? $num=$_REQUEST["num"] :   $num=''; 
-require_once("../lib/mydb.php");
-$pdo = db_connect();	
 
- try{
-	  $sql = "select * from " . $DB . "." . $tablename . "  where num = ? ";
-	  $stmh = $pdo->prepare($sql); 
-      $stmh->bindValue(1,$num,PDO::PARAM_STR); 
-      $stmh->execute();
-      $count = $stmh->rowCount();            
-	  $row = $stmh->fetch(PDO::FETCH_ASSOC);  // $row 배열로 DB 정보를 불러온다.		
-		 
-	  include 'rowDBask.php';
-	  
-	 }catch (PDOException $Exception) {
-	   print "오류: ".$Exception->getMessage();
-	 }
- // end of if	
-	  
-require_once("../lib/mydb.php");
-$pdo = db_connect();	
+// 요청 파라미터 초기화
+$num = $_REQUEST["num"] ?? '';
+
+require_once(includePath('lib/mydb.php'));
+$pdo = db_connect();
+
+// rowDBask.php에서 사용될 변수 초기화
+$author_id = '';
+$author = '';
+$al_part = '';
+$registdate = '';
+$al_item = '';
+$al_askdatefrom = '';
+$al_askdateto = '';
+$al_usedday = 0;
+$al_content = '';
+$status = '';
+
+try {
+    $sql = "select * from " . $DB . "." . $tablename . " where num = ?";
+    $stmh = $pdo->prepare($sql);
+    $stmh->bindValue(1, $num, PDO::PARAM_STR);
+    $stmh->execute();
+    $count = $stmh->rowCount();
+    $row = $stmh->fetch(PDO::FETCH_ASSOC);
+
+    include 'rowDBask.php';
+} catch (PDOException $ex) {
+    error_log("eworks 연차 조회 오류: " . $ex->getMessage());
+}
+
+require_once(includePath('lib/mydb.php'));
+$pdo = db_connect();
 
 // 배열로 기본정보 불러옴
- include "load_DB.php";
- 
-// print $totalremainday;
+include "load_DB.php";
 
-// 잔여일수 개인별 산출 루틴   
-try{  
-	// 연차 잔여일수 산출
-		$totalusedday = 0;
-		$totalremainday = 0;		
-		 for($i=0;$i<count($totalname_arr);$i++)	 
-			 if($author== $totalname_arr[$i])
-			 {
-				$availableday  = $availableday_arr[$i];
-			 }	
+// load_DB.php에서 정의될 변수들 초기화 (정의되지 않은 경우 대비)
+$totalname_arr = $totalname_arr ?? array();
+$totalused_arr = $totalused_arr ?? array();
+$availableday_arr = $availableday_arr ?? array();
 
-        // 연차 사용일수 계산		
-		 for($i=0;$i<count($totalname_arr);$i++)	 
-			 if($author== $totalname_arr[$i])
-			 {
-				$totalusedday = $totalused_arr[$i];
-				$totalremainday = $availableday - $totalusedday;	
-				
-			 }			   					
-			
-	  } catch (PDOException $Exception) {
-	  print "오류: ".$Exception->getMessage();
-  }  
-  
-?>  
+// 잔여일수 개인별 산출 루틴
+try {
+    // 연차 잔여일수 산출
+    $totalusedday = 0;
+    $totalremainday = 0;
+    $availableday = 0;
+
+    for ($i = 0; $i < count($totalname_arr); $i++) {
+        if ($author == $totalname_arr[$i]) {
+            $availableday = $availableday_arr[$i];
+        }
+    }
+
+    // 연차 사용일수 계산
+    for ($i = 0; $i < count($totalname_arr); $i++) {
+        if ($author == $totalname_arr[$i]) {
+            $totalusedday = $totalused_arr[$i];
+            $totalremainday = $availableday - $totalusedday;
+        }
+    }
+} catch (PDOException $ex) {
+    error_log("잔여일수 산출 오류: " . $ex->getMessage());
+}
+
+$today = date("Y-m-d");
+?>
+
 
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-<meta name="description" content="">
-<meta name="author" content="">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 
-<!-- Bootstrap CSS -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" >
-<!-- Optional JavaScript -->
-<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>	    
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" ></script> 
-
+    <style>
+        html,
+        body {
+            height: 100%;
+        }
+    </style>
 </head>
-
-<style>  
- html,body {
-      height: 100%;
-}
-</style>
 
 <body>
 
@@ -218,13 +235,13 @@ $(document).ready(function(){
 	// 파트 가져옴 (제조파트, 지원파트)
 	var al_part = '<?php echo $al_part; ?>';
 
-// 신청일 변경시 종료일도 변경함
-$("#al_askdatefrom").change(function(){
-   var radioVal = $('input[name="al_item"]:checked').val();	
-   console.log(radioVal);
-   $('#al_askdateto').val($("#al_askdatefrom").val());      
-   
-   const result = getDateDiff($("#al_askdatefrom").val(), $("#al_askdateto").val()) + 1;
+    // 신청일 변경시 종료일도 변경함
+    $("#al_askdatefrom").change(function() {
+        var radioVal = $('input[name="al_item"]:checked').val();
+        console.log(radioVal);
+        $('#al_askdateto').val($("#al_askdatefrom").val());
+
+        var result = getDateDiff($("#al_askdatefrom").val(), $("#al_askdateto").val()) + 1;
    
    switch(radioVal)
    {
@@ -242,13 +259,11 @@ $("#al_askdatefrom").change(function(){
    }
 });	
 	
-$('input[name="al_item"]').change(function(){
-   var radioVal = $('input[name="al_item"]:checked').val();	
-   console.log(radioVal);
-   
-   // $('#al_askdateto').val($("#al_askdatefrom").val());      
-   
-   const result = getDateDiff($("#al_askdatefrom").val(), $("#al_askdateto").val()) + 1;
+    $('input[name="al_item"]').change(function() {
+        var radioVal = $('input[name="al_item"]:checked').val();
+        console.log(radioVal);
+
+        var result = getDateDiff($("#al_askdatefrom").val(), $("#al_askdateto").val()) + 1;
    
    switch(radioVal)
    {
@@ -266,13 +281,12 @@ $('input[name="al_item"]').change(function(){
    }
 });	
 
-// 종료일을 변경해도 자동계산해 주기	
-$("#al_askdateto").change(function(){
-   var radioVal = $('input[name="al_item"]:checked').val();	
-   console.log(radioVal);
-   // $('#al_askdateto').val($("#al_askdatefrom").val());      
-   
-   const result = getDateDiff($("#al_askdatefrom").val(), $("#al_askdateto").val()) + 1;
+    // 종료일을 변경해도 자동계산해 주기
+    $("#al_askdateto").change(function() {
+        var radioVal = $('input[name="al_item"]:checked').val();
+        console.log(radioVal);
+
+        var result = getDateDiff($("#al_askdatefrom").val(), $("#al_askdateto").val()) + 1;
    
    switch(radioVal)
    {
@@ -391,17 +405,16 @@ $("#delBtn").click(function(){      // del
 
 }); // end of ready document
 
-// 두날짜 사이 일자 구하기 
-const getDateDiff = (d1, d2) => {
-  const date1 = new Date(d1);
-  const date2 = new Date(d2);
-  
-  const diffDate = date1.getTime() - date2.getTime();
-  
-  return Math.abs(diffDate / (1000 * 60 * 60 * 24)); // 밀리세컨 * 초 * 분 * 시 = 일
+// 두날짜 사이 일자 구하기
+function getDateDiff(d1, d2) {
+    var date1 = new Date(d1);
+    var date2 = new Date(d2);
+    var diffDate = date1.getTime() - date2.getTime();
+    return Math.abs(diffDate / (1000 * 60 * 60 * 24)); // 밀리세컨 * 초 * 분 * 시 = 일
 }
-
 </script>
 </body>
+
 </html>
+
 

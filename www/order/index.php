@@ -1,10 +1,28 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php
+/**
+ * 구매발주서 관리 메인 페이지
+ * 로컬 및 서버 환경 모두 지원
+ */
+
+require_once __DIR__ . '/../common/functions.php';
 require_once(includePath('session.php'));
 
-if(!isset($_SESSION["level"]) || $level>5) {
-    $_SESSION["url"]='https://8440.co.kr/order/index.php';
+// 세션 변수 초기화 (?? '' 형태)
+$level = $_SESSION["level"] ?? 999;
+$user_name = $_SESSION["name"] ?? '';
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+
+// 동적 URL 생성
+$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+$host = $_SERVER['HTTP_HOST'];
+$base_url = "{$protocol}://{$host}";
+$WebSite = $base_url . '/';
+
+// 권한 체크
+if (!isset($_SESSION["level"]) || $level > 5) {
+    $_SESSION["url"] = "{$base_url}/order/index.php";
     sleep(1);
-    header("Location:" . $WebSite . "login/logout.php");
+    header("Location: {$base_url}/login/logout.php");
     exit;
 }
 
@@ -14,6 +32,7 @@ require_once(includePath('lib/mydb.php'));
 // 첫 화면 표시 문구
 $title_message = '구매발주서 관리';
 
+// 요청 변수 초기화 (?? '' 형태)
 $page = $_REQUEST["page"] ?? '';
 $scale = $_REQUEST["scale"] ?? '';
 
@@ -27,15 +46,16 @@ try {
     exit;
 }
 
-// 페이지네이션 설정
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+// 페이지네이션 설정 (?? '' 형태)
+$page = $_GET['page'] ?? 1;
+$page = (int)$page;
 $per_page = 20;
 $offset = ($page - 1) * $per_page;
 
-// 검색 조건
+// 검색 조건 (?? '' 형태)
 $search_supplier = isset($_GET['search_supplier']) ? trim($_GET['search_supplier']) : '';
-$search_date_from = isset($_GET['search_date_from']) ? $_GET['search_date_from'] : '';
-$search_date_to = isset($_GET['search_date_to']) ? $_GET['search_date_to'] : '';
+$search_date_from = $_GET['search_date_from'] ?? '';
+$search_date_to = $_GET['search_date_to'] ?? '';
 
 // WHERE 조건 구성
 $where_conditions = ["is_deleted = 0"];
@@ -456,22 +476,32 @@ $orders = $stmt->fetchAll();
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
+    <script type="text/javascript">
+    (function() {
+        'use strict';
+        
         // 전체 선택/해제
-        document.getElementById('selectAll').addEventListener('change', function() {
-            const checkboxes = document.querySelectorAll('.order-checkbox');
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = this.checked;
+        var selectAllElement = document.getElementById('selectAll');
+        if (selectAllElement) {
+            selectAllElement.addEventListener('change', function() {
+                var checkboxes = document.querySelectorAll('.order-checkbox');
+                var self = this;
+                checkboxes.forEach(function(checkbox) {
+                    checkbox.checked = self.checked;
+                });
             });
-        });
-
+        }
+        
         // 개별 체크박스 변경 시 전체 선택 체크박스 상태 업데이트
-        document.querySelectorAll('.order-checkbox').forEach(checkbox => {
+        var orderCheckboxes = document.querySelectorAll('.order-checkbox');
+        orderCheckboxes.forEach(function(checkbox) {
             checkbox.addEventListener('change', function() {
-                const allCheckboxes = document.querySelectorAll('.order-checkbox');
-                const checkedCheckboxes = document.querySelectorAll('.order-checkbox:checked');
-                const selectAll = document.getElementById('selectAll');
-
+                var allCheckboxes = document.querySelectorAll('.order-checkbox');
+                var checkedCheckboxes = document.querySelectorAll('.order-checkbox:checked');
+                var selectAll = document.getElementById('selectAll');
+                
+                if (!selectAll) return;
+                
                 if (checkedCheckboxes.length === 0) {
                     selectAll.indeterminate = false;
                     selectAll.checked = false;
@@ -484,19 +514,23 @@ $orders = $stmt->fetchAll();
                 }
             });
         });
-
-        // 발주서 삭제 함수
-        function deleteOrder(id) {
+        
+        /**
+         * 발주서 삭제 함수
+         */
+        window.deleteOrder = function(id) {
             if (confirm('정말로 이 발주서를 삭제하시겠습니까?')) {
                 fetch('delete.php', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ id: id })
                 })
-                .then(response => response.json())
-                .then(data => {
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(data) {
                     if (data.success) {
                         alert('발주서가 삭제되었습니다.');
                         location.reload();
@@ -504,31 +538,36 @@ $orders = $stmt->fetchAll();
                         alert('삭제 중 오류가 발생했습니다: ' + data.message);
                     }
                 })
-                .catch(error => {
+                .catch(function(error) {
                     console.error('Error:', error);
                     alert('삭제 중 오류가 발생했습니다.');
                 });
             }
-        }
-
-        // 선택된 발주서들 일괄 삭제 함수
-        function deleteSelected() {
-            const selectedCheckboxes = document.querySelectorAll('.order-checkbox:checked');
-
+        };
+        
+        /**
+         * 선택된 발주서들 일괄 삭제 함수
+         */
+        window.deleteSelected = function() {
+            var selectedCheckboxes = document.querySelectorAll('.order-checkbox:checked');
+            
             if (selectedCheckboxes.length === 0) {
                 alert('삭제할 발주서를 선택해주세요.');
                 return;
             }
-
-            const selectedIds = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value));
-            const count = selectedIds.length;
-
-            if (!confirm(`선택된 ${count}개의 발주서를 정말로 삭제하시겠습니까?\n삭제된 데이터는 복구할 수 없습니다.`)) {
+            
+            var selectedIds = [];
+            for (var i = 0; i < selectedCheckboxes.length; i++) {
+                selectedIds.push(parseInt(selectedCheckboxes[i].value));
+            }
+            var count = selectedIds.length;
+            
+            if (!confirm('선택된 ' + count + '개의 발주서를 정말로 삭제하시겠습니까?\n삭제된 데이터는 복구할 수 없습니다.')) {
                 return;
             }
-
-            console.log('🗑️ [DEBUG] 일괄 삭제 요청 - IDs:', selectedIds);
-
+            
+            console.log('일괄 삭제 요청 - IDs:', selectedIds);
+            
             fetch('delete.php', {
                 method: 'POST',
                 headers: {
@@ -540,28 +579,29 @@ $orders = $stmt->fetchAll();
                     bulk: true
                 })
             })
-            .then(response => {
-                console.log('📡 [DEBUG] 일괄 삭제 응답 상태:', response.status);
+            .then(function(response) {
+                console.log('일괄 삭제 응답 상태:', response.status);
                 return response.json();
             })
-            .then(data => {
-                console.log('📥 [DEBUG] 일괄 삭제 응답:', data);
-
+            .then(function(data) {
+                console.log('일괄 삭제 응답:', data);
+                
                 if (data.success) {
-                    alert(`${data.deleted_count || count}개의 발주서가 성공적으로 삭제되었습니다.`);
+                    alert((data.deleted_count || count) + '개의 발주서가 성공적으로 삭제되었습니다.');
                     location.reload();
                 } else {
                     alert('삭제 중 오류가 발생했습니다: ' + (data.message || '알 수 없는 오류'));
                 }
             })
-            .catch(error => {
-                console.error('❌ [DEBUG] 일괄 삭제 오류:', error);
+            .catch(function(error) {
+                console.error('일괄 삭제 오류:', error);
                 alert('삭제 중 오류가 발생했습니다: ' + error.message);
             });
-        }
-
+        };
+        
         // 검색 폼 엔터키 이벤트
-        document.querySelectorAll('.search-form input').forEach(input => {
+        var searchInputs = document.querySelectorAll('.search-form input');
+        searchInputs.forEach(function(input) {
             input.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
@@ -569,6 +609,8 @@ $orders = $stmt->fetchAll();
                 }
             });
         });
+        
+    })();
     </script>
 </body>
 </html>

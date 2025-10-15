@@ -1,92 +1,86 @@
- <?php session_start(); 
+<?php
+/**
+ * 시공 사진 업로드 처리
+ * 로컬 및 서버 환경 모두 지원
+ */
 
-$workplacename=$_REQUEST["workplacename"];
-$workername = $_REQUEST["workername"];
+session_start();
 
+// 요청 변수 초기화 (?? '' 형태)
+$workplacename = $_REQUEST["workplacename"] ?? '';
+$workername = $_REQUEST["workername"] ?? '';
+$num = $_REQUEST["num"] ?? '';
+$filedelete = $_REQUEST["filedelete"] ?? '';
 
- if(isset($_REQUEST["num"]))
-    $num=$_REQUEST["num"];
-		 else 
-			$num="";
-		
- if(isset($_REQUEST["filedelete"]))
-    $filedelete=$_REQUEST["filedelete"];
-		 else 
-			$filedelete="";		
-		
-// 파일 삭제에 대한 처부부분
+// 파일 삭제에 대한 처리부분
 
-if($filedelete=='before' || $filedelete=='after')
-{
-$newfilename = '';
+if ($filedelete == 'before' || $filedelete == 'after') {
+    $newfilename = '';
 
-if($filedelete=='before')
-	$delfile = " filename1=? ";   // before
-  else
-	  $delfile = " filename2=? ";   //after
-	
-		 require_once("../lib/mydb.php");
-		 $pdo = db_connect();
+    if ($filedelete == 'before') {
+        $delfile = " filename1=? "; // before
+    } else {
+        $delfile = " filename2=? "; // after
+    }
 
-		try{		 
-			$pdo->beginTransaction();   
-			$sql = "update mirae8440.work set ";
-			$sql .= $delfile . " where num=? LIMIT 1" ;        
-			   
-			 $stmh = $pdo->prepare($sql); 
-			 
-			 $stmh->bindValue(1, $newfilename, PDO::PARAM_STR);             
-			 $stmh->bindValue(2, $num, PDO::PARAM_STR);             
-			 
-			 $stmh->execute();
-			 $pdo->commit(); 
-				} catch (PDOException $Exception) {
-				   $pdo->rollBack();
-				   print "오류: ".$Exception->getMessage();
-			 }  
+    require_once "../lib/mydb.php";
+    $pdo = db_connect();
 
-header("Location:http://8440.co.kr/p/reg_pic.php?num=$num&check=$check");			 
+    try {
+        $pdo->beginTransaction();
+        $sql = "update mirae8440.work set " . $delfile . " where num=? LIMIT 1";
+
+        $stmh = $pdo->prepare($sql);
+        $stmh->bindValue(1, $newfilename, PDO::PARAM_STR);
+        $stmh->bindValue(2, $num, PDO::PARAM_STR);
+
+        $stmh->execute();
+        $pdo->commit();
+    } catch (PDOException $Exception) {
+        $pdo->rollBack();
+        print "오류: " . $Exception->getMessage();
+    }
+
+    $check = $_REQUEST["check"] ?? $_POST["check"] ?? '';
+    header("Location:http://8440.co.kr/p/reg_pic.php?num=$num&check=$check");
 }
 	
 		
- require_once("../lib/mydb.php");
- $pdo = db_connect();     
-      
- try{
-     $sql = "select * from mirae8440.work where num=?";
-     $stmh = $pdo->prepare($sql);  
-     $stmh->bindValue(1, $num, PDO::PARAM_STR);      
-     $stmh->execute();            
-      
-     $row = $stmh->fetch(PDO::FETCH_ASSOC); 	 
-     $update_log=$row["update_log"];
-     }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
-     }
-	 
- $data=date("Y-m-d H:i:s") . " - "  . $_SESSION["name"] . "  " ;	
- $update_log = $data . $update_log . "&#10";  // 개행문자 Textarea      
- 	  
-	  
-	try{
-        $pdo->beginTransaction();   
-        $sql = "update mirae8440.work set update_log=? where num=?  LIMIT 1";            
-	   
-     $stmh = $pdo->prepare($sql); 
-     $stmh->bindValue(1, $update_log, PDO::PARAM_STR);  	 
-     $stmh->bindValue(2, $num, PDO::PARAM_STR);           //고유키값이 같나?의 의미로 ?로 num으로 맞춰야 합니다. where 구문 
-	 
-	 $stmh->execute();
-     $pdo->commit(); 
-        } catch (PDOException $Exception) {
-           $pdo->rollBack();
-           print "오류: ".$Exception->getMessage();
-       }     
-	   		 
-  if(isset($_REQUEST["check"])) 
-	 $check=$_REQUEST["check"]; 
-   else
-     $check=$_POST["check"]; 			
+require_once "../lib/mydb.php";
+$pdo = db_connect();
+
+try {
+    $sql = "select * from mirae8440.work where num=?";
+    $stmh = $pdo->prepare($sql);
+    $stmh->bindValue(1, $num, PDO::PARAM_STR);
+    $stmh->execute();
+
+    $row = $stmh->fetch(PDO::FETCH_ASSOC);
+    $update_log = $row["update_log"] ?? '';
+} catch (PDOException $Exception) {
+    print "오류: " . $Exception->getMessage();
+}
+
+$session_name = $_SESSION["name"] ?? '';
+$data = date("Y-m-d H:i:s") . " - " . $session_name . " ";
+$update_log = $data . $update_log . "&#10"; // 개행문자 Textarea
+
+try {
+    $pdo->beginTransaction();
+    $sql = "update mirae8440.work set update_log=? where num=? LIMIT 1";
+
+    $stmh = $pdo->prepare($sql);
+    $stmh->bindValue(1, $update_log, PDO::PARAM_STR);
+    $stmh->bindValue(2, $num, PDO::PARAM_STR);
+
+    $stmh->execute();
+    $pdo->commit();
+} catch (PDOException $Exception) {
+    $pdo->rollBack();
+    print "오류: " . $Exception->getMessage();
+}
+
+$check = $_REQUEST["check"] ?? $_POST["check"] ?? ''; 			
 
 class Image {
     
@@ -444,36 +438,36 @@ if($width>$height) {
 
 
 
-// 파일 압축 메소드 
-    function compress_image($source, $destination, $quality) { 
-        $info = getimagesize($source); 
-        if ($info['mime'] == 'image/jpeg') 
-            $image = imagecreatefromjpeg($source); 
-        elseif ($info['mime'] == 'image/gif') 
-            $image = imagecreatefromgif($source); 
-        elseif ($info['mime'] == 'image/png') 
-            $image = imagecreatefrompng($source); 
-
-     elseif ($info['mime'] == 'image/x-ms-bmp') 
-      $image = imagecreatefrombmp($source);
-
-        imagejpeg($image, $destination, $quality); 
-        return $destination;
+// 파일 압축 메소드
+function compress_image($source, $destination, $quality)
+{
+    $info = getimagesize($source);
+    if ($info['mime'] == 'image/jpeg') {
+        $image = imagecreatefromjpeg($source);
+    } elseif ($info['mime'] == 'image/gif') {
+        $image = imagecreatefromgif($source);
+    } elseif ($info['mime'] == 'image/png') {
+        $image = imagecreatefrompng($source);
+    } elseif ($info['mime'] == 'image/x-ms-bmp') {
+        $image = imagecreatefrombmp($source);
     }
 
+    imagejpeg($image, $destination, $quality);
+    return $destination;
+}
 
 // log 기록 남기기
-
- $data=date("Y-m-d H:i:s") . " - " . $_SESSION["userid"] . " - " . $_SESSION["name"] . "  " . $workplacename . " - 사진기록" ;	
- require_once("../lib/mydb.php");
- $pdo = db_connect();
- $pdo->beginTransaction();
- $sql = "insert into mirae8440.logdata(data) values(?) " ;
- $stmh = $pdo->prepare($sql); 
- $stmh->bindValue(1, $data, PDO::PARAM_STR);   
- $stmh->execute();
- $pdo->commit(); 
-
+$session_userid = $_SESSION["userid"] ?? '';
+$session_name = $_SESSION["name"] ?? '';
+$data = date("Y-m-d H:i:s") . " - " . $session_userid . " - " . $session_name . " " . $workplacename . " - 사진기록";
+require_once "../lib/mydb.php";
+$pdo = db_connect();
+$pdo->beginTransaction();
+$sql = "insert into mirae8440.logdata(data) values(?)";
+$stmh = $pdo->prepare($sql);
+$stmh->bindValue(1, $data, PDO::PARAM_STR);
+$stmh->execute();
+$pdo->commit();
 
 header("Location:http://8440.co.kr/p/reg_pic.php?num=$num&check=$check&workername=$workername");
 

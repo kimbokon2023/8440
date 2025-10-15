@@ -1,29 +1,35 @@
-<?php require_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session.php')); 
-include getDocumentRoot() . '/load_header.php' ;
+<?php
+require_once __DIR__ . '/../common/functions.php';
+require_once getDocumentRoot() . '/session.php';
 
-$search = isset($_REQUEST['search']) ? $_REQUEST['search'] : '';  
+// 세션 변수 초기화
+$DB = $_SESSION["DB"] ?? '';
+
+// 페이지 헤더 로드
+include getDocumentRoot() . '/load_header.php';
+
+// 요청 파라미터 초기화
+$search = $_REQUEST['search'] ?? '';
 $option = $_REQUEST['option'] ?? '';
 $materialRaw = $_REQUEST['materialRaw'] ?? '';
-
 $item = $_REQUEST["item"] ?? "304 HL";   // steel_item
 $spec = $_REQUEST["spec"] ?? "";
 $steelnum = $_REQUEST["steelnum"] ?? 1;
-$mode = isset($_REQUEST["mode"]) ? $_REQUEST["mode"] : 'search';
-$fromdate = date("Y-m-d", strtotime("-2 years"));
-$todate = date("Y-m-d");
-$Transtodate = date("Y-m-d", strtotime($todate . ' +1 day'));
-
-// Initialize variables to prevent undefined variable warnings
+$mode = $_REQUEST["mode"] ?? 'search';
 $num = $_REQUEST['num'] ?? '';
 $page = $_REQUEST['page'] ?? '';
 $calculate = $_REQUEST['calculate'] ?? '';
 
+// 날짜 관련 변수 초기화
+$fromdate = date("Y-m-d", strtotime("-2 years"));
+$todate = date("Y-m-d");
+$Transtodate = date("Y-m-d", strtotime($todate . ' +1 day'));
+
+// 검색 조건 변수 초기화
 $default_condition = false;
 $searchspec = '';
 $searchsupplier = '';
-
-$tablename ='eworks';
+$tablename = 'eworks';
 
 // 조건 분기: 단가 추정 기준 정의
 if ($item == '304 HL') {
@@ -57,8 +63,13 @@ if ($item == '304 HL') {
 }
 
 
-$data = [];
-$item_arr = [];
+// 데이터베이스 연결
+require_once(includePath('lib/mydb.php'));
+$pdo = db_connect();
+
+// 데이터 배열 초기화
+$data = array();
+$item_arr = array();
 
 try {
     for ($i = 23; $i >= 0; $i--) {
@@ -91,9 +102,9 @@ try {
             $suppliercost = (int)str_replace(',', '', $row['suppliercost']);
             $spec_parts = explode('*', $row['spec']);
 
-            $val1 = (float)preg_replace('/[^0-9.]/', '', $spec_parts[0] ?? 0);
-            $val2 = (float)preg_replace('/[^0-9.]/', '', $spec_parts[1] ?? 0);
-            $val3 = (float)preg_replace('/[^0-9.]/', '', $spec_parts[2] ?? 0);
+            $val1 = (float)preg_replace('/[^0-9.]/', '', isset($spec_parts[0]) ? $spec_parts[0] : '0');
+            $val2 = (float)preg_replace('/[^0-9.]/', '', isset($spec_parts[1]) ? $spec_parts[1] : '0');
+            $val3 = (float)preg_replace('/[^0-9.]/', '', isset($spec_parts[2]) ? $spec_parts[2] : '0');
 
             $weight = ($val1 * $val2 * $val3 * 7.93 * (int)$row['steelnum']) / 1000000;
             $weight = $weight > 0 ? $weight : 1;
@@ -104,17 +115,18 @@ try {
             $item_arr[] = $steel_item;
         }
     }
-} catch (PDOException $e) {
-    error_log("단가 계산 오류: " . $e->getMessage());
+} catch (PDOException $ex) {
+    error_log("단가 계산 오류: " . $ex->getMessage());
 }
 
 $item_arr = array_unique($item_arr);
-$item_arr = array_filter($item_arr, function($v) {
+$item_arr = array_filter($item_arr, function ($v) {
     return trim($v) !== '';
 });
 $item_arr = array_values($item_arr); // 인덱스 재정렬
 
-$steel_items = [];
+// steel_items 배열 초기화
+$steel_items = array();
 
 try {
     $sql_items = "SELECT DISTINCT steel_item 
@@ -129,8 +141,8 @@ try {
     while ($row = $stmt_items->fetch(PDO::FETCH_ASSOC)) {
         $steel_items[] = trim($row['steel_item']);
     }
-} catch (PDOException $e) {
-    error_log("steel_item 목록 조회 오류: " . $e->getMessage());
+} catch (PDOException $ex) {
+    error_log("steel_item 목록 조회 오류: " . $ex->getMessage());
 }
 
 // 현재 선택한 철판의 최신 단가 추정
@@ -150,9 +162,9 @@ if (isset($data[$item])) {
 
 // 중량 계산
 $spec_parts = explode('*', $spec);
-$val1 = (float)preg_replace('/[^0-9.]/', '', $spec_parts[0] ?? 0);
-$val2 = (float)preg_replace('/[^0-9.]/', '', $spec_parts[1] ?? 0);
-$val3 = (float)preg_replace('/[^0-9.]/', '', $spec_parts[2] ?? 0);
+$val1 = (float)preg_replace('/[^0-9.]/', '', isset($spec_parts[0]) ? $spec_parts[0] : '0');
+$val2 = (float)preg_replace('/[^0-9.]/', '', isset($spec_parts[1]) ? $spec_parts[1] : '0');
+$val3 = (float)preg_replace('/[^0-9.]/', '', isset($spec_parts[2]) ? $spec_parts[2] : '0');
 $weight = ($val1 * $val2 * $val3 * 7.93) / 1000000;
 $totalweight = number_format(intval($weight * $steelnum));
 $totalamount = $weight * $steelnum * $unitprice;
@@ -161,24 +173,26 @@ $totalamount = $weight * $steelnum * $unitprice;
 <title> 원자재 금액 산출 </title>
 </head>
 <body>
+    <div class="container-fluid">
+        <form id="board_form" name="board_form" method="post" enctype="multipart/form-data">
+            <input type="hidden" id="materialRawData" value="<?= htmlspecialchars($materialRaw) ?>">
 
-<div class ="container-fluid">
-<form id="board_form"  name="board_form"  method="post" enctype="multipart/form-data" >		
-
-  <input type="hidden" id="materialRawData" value="<?= htmlspecialchars($materialRaw) ?>">
-
-	<div class ="card">
-	<div class ="card-body">	
-		<div class="card-header justify-content-center"> 	
-			<div class ="d-flex align-items-center justify-content-center fs-5 mt-3 mb-2">
-				현시세 원자재 금액 산출 
-				<button type="button" class="btn btn-dark btn-sm mx-2"  onclick='location.reload();' > <i class="bi bi-arrow-clockwise"></i> </button>  	   		  								
-				<button type="button" class="btn btn-outline-dark btn-sm mx-5"  onclick='window.close();' >  &times; 닫기 </button>  	   		  								
-			</div>
-		</div>
-		<div class="alert alert-primary d-flex mt-4 mb-2 align-items-center justify-content-center" role="alert">       
-			  304 HL 등 기본소재는 주거래처인 '현진스텐' 1219 * 2438 기준의 단가로 추정함. 기초단가는 2년간 거래기록을 이용한 참고자료입니다.
-		</div>   
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-header justify-content-center">
+                        <div class="d-flex align-items-center justify-content-center fs-5 mt-3 mb-2">
+                            현시세 원자재 금액 산출
+                            <button type="button" class="btn btn-dark btn-sm mx-2" onclick="location.reload();">
+                                <i class="bi bi-arrow-clockwise"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-dark btn-sm mx-5" onclick="window.close();">
+                                &times; 닫기
+                            </button>
+                        </div>
+                    </div>
+                    <div class="alert alert-primary d-flex mt-4 mb-2 align-items-center justify-content-center" role="alert">
+                        304 HL 등 기본소재는 주거래처인 '현진스텐' 1219 * 2438 기준의 단가로 추정함. 기초단가는 2년간 거래기록을 이용한 참고자료입니다.
+                    </div>   
 	
 	<div class ="d-flex align-items-center justify-content-center">
 	 <div class="col-sm-7">	  		 
@@ -278,41 +292,39 @@ $totalamount = $weight * $steelnum * $unitprice;
 											  
 						<?php	
 
-							// 철판 규격 불러오기
-							$sql="select * from mirae8440.steelspec"; 					
+                            // 철판 규격 불러오기
+                            $sql = "SELECT * FROM {$DB}.steelspec";
+                            $spec_arr = array();
+                            $counter = 0;
 
-								 try{  
+                            try {
+                                $stmh = $pdo->query($sql);
+                                $rowNum = $stmh->rowCount();
 
-							   $stmh = $pdo->query($sql);            
-							   $rowNum = $stmh->rowCount();  
-							   $counter=0;
-							   $spec_arr=array();
+                                while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+                                    $spec_arr[$counter] = trim($row["spec"]);
+                                    $counter++;
+                                }
+                            } catch (PDOException $ex) {
+                                error_log("철판 규격 조회 오류: " . $ex->getMessage());
+                            }    
 
-							   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-								   
-										  $spec_arr[$counter]=trim($row["spec"]);
-										 
-										  $counter++;
-								 } 	 
-							   } catch (PDOException $Exception) {
-								print "오류: ".$Exception->getMessage();
-							}    
+                            $spec_counter = count($spec_arr);
+                            sort($spec_arr);  // 오름차순으로 배열 정렬
 
-							   $spec_counter=count($spec_arr);
-							   sort($spec_arr);  // 오름차순으로 배열 정렬
-							   
-							   
-							   if($spec==='')
-									 $spec ="1.2*1219*2438";
+                            if ($spec === '') {
+                                $spec = "1.2*1219*2438";
+                            }
 
-					   for($i=0;$i<$spec_counter;$i++) {
-							   if(trim($spec) == $spec_arr[$i])
-									   print "<option selected value='" . $spec_arr[$i] . "'> " . $spec_arr[$i] .   "</option>";
-								   else
-										print "<option value='" . $spec_arr[$i] . "'> " . $spec_arr[$i] .   "</option>";
-					   } 	
-					?>	 				   							   
-				   </select>	
+                            for ($i = 0; $i < $spec_counter; $i++) {
+                                if (trim($spec) == $spec_arr[$i]) {
+                                    print "<option selected value='" . $spec_arr[$i] . "'> " . $spec_arr[$i] . "</option>";
+                                } else {
+                                    print "<option value='" . $spec_arr[$i] . "'> " . $spec_arr[$i] . "</option>";
+                                }
+                            }
+                        ?>
+                    </select>	
                 </td>
 				</tr>
 			    <tr>
@@ -417,82 +429,83 @@ $totalamount = $weight * $steelnum * $unitprice;
 </form>		  
 </div>	 
 
-<script>
+    <script>
+        // 원자재 단가 가져오기 (비동기 방식)
+        // 서버와 로컬 모두에서 동작하도록 절대경로 대신 상대경로 사용
+        function fetchUnitPrice(item) {
+            return $.ajax({
+                url: 'fetch_unitprice.php',
+                type: 'POST',
+                data: {
+                    item: item
+                },
+                dataType: 'json'
+            });
+        }
 
-// 원자재 단가 가져오기 (비동기 방식)
-// 서버와 로컬 모두에서 동작하도록 절대경로 대신 상대경로 사용
-function fetchUnitPrice(item) {
-    return $.ajax({
-        url: 'fetch_unitprice.php',
-        type: 'POST',
-        data: { item: item },
-        dataType: 'json'
-    });
-}
+        function numberWithCommas(x) {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
 
-function numberWithCommas(x) {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
+        function calculateSteelWeightAndAmount() {
+            var spec = document.getElementById('spec').value.trim();
+            var steelnum = parseFloat(document.getElementById('steelnum').value.replace(/[^0-9.]/g, '')) || 0;
+            var unitprice = parseFloat(document.getElementById('unitprice').value.replace(/[^0-9.]/g, '')) || 0;
 
-function calculateSteelWeightAndAmount() {
-    let spec = document.getElementById('spec').value.trim();
-    let steelnum = parseFloat(document.getElementById('steelnum').value.replace(/[^0-9.]/g, '')) || 0;
-    let unitprice = parseFloat(document.getElementById('unitprice').value.replace(/[^0-9.]/g, '')) || 0;
+            var parts = spec.split('*');
+            var val1 = parseFloat(parts[0].replace(/[^0-9.]/g, '')) || 0;
+            var val2 = parseFloat(parts[1].replace(/[^0-9.]/g, '')) || 0;
+            var val3 = parseFloat(parts[2].replace(/[^0-9.]/g, '')) || 0;
 
-    let parts = spec.split('*');
-    let val1 = parseFloat(parts[0].replace(/[^0-9.]/g, '')) || 0;
-    let val2 = parseFloat(parts[1].replace(/[^0-9.]/g, '')) || 0;
-    let val3 = parseFloat(parts[2].replace(/[^0-9.]/g, '')) || 0;
+            var weight = (val1 * val2 * val3 * 7.93) / 1000000;
+            var totalweight = weight * steelnum;
+            var totalamount = totalweight * unitprice;
 
-    let weight = (val1 * val2 * val3 * 7.93) / 1000000;
-    let totalweight = weight * steelnum;
-    let totalamount = totalweight * unitprice;
+            document.getElementById('weight').value = numberWithCommas(weight.toFixed(1));
+            document.getElementById('totalweight').value = numberWithCommas(Math.floor(totalweight));
+            document.getElementById('totalamount').value = numberWithCommas(Math.floor(totalamount));
+        }
 
-    document.getElementById('weight').value = numberWithCommas(weight.toFixed(1));
-    document.getElementById('totalweight').value = numberWithCommas(Math.floor(totalweight));
-    document.getElementById('totalamount').value = numberWithCommas(Math.floor(totalamount));
-}
+        $(document).ready(function () {
 
-$(document).ready(function () {
+            $('#item').change(function () {
+                var selectedItem = $(this).val();
+                fetchUnitPrice(selectedItem).done(function (data) {
+                    if (data.unitprice !== undefined) {
+                        var formatted = numberWithCommas(data.unitprice);
+                        $('#unitprice').val(formatted);
+                        calculateSteelWeightAndAmount();
+                    } else {
+                        $('#unitprice').val('0');
+                        calculateSteelWeightAndAmount();
+                    }
+                }).fail(function (xhr, status, error) {
+                    console.error('단가 가져오기 실패:', error);
+                });
+            });
 
-    $('#item').change(function () {
-        const selectedItem = $(this).val();
-        fetchUnitPrice(selectedItem).done(function (data) {
-			console.log('data : ',data);
-            if (data.unitprice !== undefined) {
-                const formatted = numberWithCommas(data.unitprice);
-                $('#unitprice').val(formatted);
-                calculateSteelWeightAndAmount();
-            } else {
-                $('#unitprice').val('0');
-                calculateSteelWeightAndAmount();
-            }
-        }).fail(function (xhr, status, error) {
-            console.error('단가 가져오기 실패:', error);
-        });
-    });
+            $('#unitprice').on('change', function () {
+                this.value = this.value.replace(/[^0-9]/g, '');
+                if (this.value != '') {
+                    this.value = numberWithCommas(this.value.replace(/,/g, ''));
+                }
+            });
 
-    $('#unitprice').on('change', function () {
-        this.value = this.value.replace(/[^0-9]/g, '');
-        if (this.value != '') this.value = numberWithCommas(this.value.replace(/,/g, ''));
-    });
-
-    $('.clickbtn').click(function () {
-			const selectedItem = $("#item").val();
-			fetchUnitPrice(selectedItem).done(function (data) {
-				console.log('data : ',data);
-				if (data.unitprice !== undefined) {
-					const formatted = numberWithCommas(data.unitprice);
-					$('#unitprice').val(formatted);
-					calculateSteelWeightAndAmount();
-				} else {
-					$('#unitprice').val('0');
-					calculateSteelWeightAndAmount();
-				}
-			}).fail(function (xhr, status, error) {
-				console.error('단가 가져오기 실패:', error);
-			});		
-    });
+            $('.clickbtn').click(function () {
+                var selectedItem = $("#item").val();
+                fetchUnitPrice(selectedItem).done(function (data) {
+                    if (data.unitprice !== undefined) {
+                        var formatted = numberWithCommas(data.unitprice);
+                        $('#unitprice').val(formatted);
+                        calculateSteelWeightAndAmount();
+                    } else {
+                        $('#unitprice').val('0');
+                        calculateSteelWeightAndAmount();
+                    }
+                }).fail(function (xhr, status, error) {
+                    console.error('단가 가져오기 실패:', error);
+                });
+            });
 
     $("#calBtn").click(function () {
         var steelnum = $('#steelnum').val();
@@ -516,91 +529,98 @@ $(document).ready(function () {
         calculateSteelWeightAndAmount();
     });
 
-    $('#addMaterialRow').on('click', function () {
-        const item = $('#item').val();
-        const spec = $('#spec').val();
-        const count = $('#steelnum').val();
-        const amount = $('#totalamount').val();
+            $('#addMaterialRow').on('click', function () {
+                var item = $('#item').val();
+                var spec = $('#spec').val();
+                var count = $('#steelnum').val();
+                var amount = $('#totalamount').val();
 
-        let newRow = `
-            <tr>
-                <td><input type="text" name="mat_item[]" class="form-control text-center" value="${item}" readonly></td>
-                <td><input type="text" name="mat_spec[]" class="form-control text-center" value="${spec}" readonly></td>
-                <td><input type="text" name="mat_count[]" class="form-control text-center" value="${count}" readonly></td>
-                <td><input type="text" name="mat_amount[]" class="form-control text-end amount-cell" value="${amount}" readonly></td>
-                <td><button type="button" class="btn btn-danger btn-sm remove-row">-</button></td>
-            </tr>
-        `;
-        $('#materialTable tbody').append(newRow);
-        updateMaterialTotal();
-    });
-
-    $(document).on('click', '.remove-row', function () {
-        $(this).closest('tr').remove();
-        updateMaterialTotal();
-    });
-
-    function updateMaterialTotal() {
-        let total = 0;
-        $('.amount-cell').each(function () {
-            let val = $(this).val().replace(/,/g, '') || '0';
-            total += parseInt(val, 10);
-        });
-        $('#materialTotal').text(total.toLocaleString());
-    }
-
-    const rawData = $('#materialRawData').val();
-    if (rawData && rawData.includes('{')) {
-        const matches = rawData.match(/\{([^}]+)\}/g);
-        if (matches) {
-            matches.forEach(entry => {
-                const clean = entry.replace(/[{}]/g, '');
-                const [item, spec, count, amount] = clean.split('|');
-                if (item && spec && count) {
-                    let amountVal = amount || '0';
-                    let newRow = `
-                        <tr>
-                            <td><input type="text" name="mat_item[]" class="form-control text-center" value="${item}" readonly></td>
-                            <td><input type="text" name="mat_spec[]" class="form-control text-center" value="${spec}" readonly></td>
-                            <td><input type="text" name="mat_count[]" class="form-control text-center" value="${count}" readonly></td>
-                            <td><input type="text" name="mat_amount[]" class="form-control text-end amount-cell" value="${amountVal}" readonly></td>
-                            <td><button type="button" class="btn btn-danger btn-sm remove-row">-</button></td>
-                        </tr>
-                    `;
-                    $('#materialTable tbody').append(newRow);
-                }
+                var newRow = '<tr>' +
+                    '<td><input type="text" name="mat_item[]" class="form-control text-center" value="' + item + '" readonly></td>' +
+                    '<td><input type="text" name="mat_spec[]" class="form-control text-center" value="' + spec + '" readonly></td>' +
+                    '<td><input type="text" name="mat_count[]" class="form-control text-center" value="' + count + '" readonly></td>' +
+                    '<td><input type="text" name="mat_amount[]" class="form-control text-end amount-cell" value="' + amount + '" readonly></td>' +
+                    '<td><button type="button" class="btn btn-danger btn-sm remove-row">-</button></td>' +
+                    '</tr>';
+                $('#materialTable tbody').append(newRow);
+                updateMaterialTotal();
             });
-        }
-        updateMaterialTotal();
-    }
 
-    $('.parentadaptBtn').on('click', function () {
-        var totalAmount = $('#materialTotal').text();
-        window.opener.$('#materialFee').val(totalAmount);
+            $(document).on('click', '.remove-row', function () {
+                $(this).closest('tr').remove();
+                updateMaterialTotal();
+            });
 
-        var encodedRows = [];
-        $('#materialTable tbody tr').each(function () {
-            var item = $(this).find('input[name="mat_item[]"]').val()?.trim() || '';
-            var spec = $(this).find('input[name="mat_spec[]"]').val()?.trim() || '';
-            var count = $(this).find('input[name="mat_count[]"]').val()?.trim() || '';
-            var amount = $(this).find('input[name="mat_amount[]"]').val()?.trim().replace(/,/g, '') || '';
-
-            if (item && spec && count) {
-                encodedRows.push(`{${item}|${spec}|${count}|${amount}}`);
+            function updateMaterialTotal() {
+                var total = 0;
+                $('.amount-cell').each(function () {
+                    var val = $(this).val().replace(/,/g, '') || '0';
+                    total += parseInt(val, 10);
+                });
+                $('#materialTotal').text(total.toLocaleString());
             }
+
+            var rawData = $('#materialRawData').val();
+            if (rawData && rawData.indexOf('{') !== -1) {
+                var matches = rawData.match(/\{([^}]+)\}/g);
+                if (matches) {
+                    for (var i = 0; i < matches.length; i++) {
+                        var entry = matches[i];
+                        var clean = entry.replace(/[{}]/g, '');
+                        var parts = clean.split('|');
+                        var item = parts[0];
+                        var spec = parts[1];
+                        var count = parts[2];
+                        var amount = parts[3];
+                        
+                        if (item && spec && count) {
+                            var amountVal = amount || '0';
+                            var newRow = '<tr>' +
+                                '<td><input type="text" name="mat_item[]" class="form-control text-center" value="' + item + '" readonly></td>' +
+                                '<td><input type="text" name="mat_spec[]" class="form-control text-center" value="' + spec + '" readonly></td>' +
+                                '<td><input type="text" name="mat_count[]" class="form-control text-center" value="' + count + '" readonly></td>' +
+                                '<td><input type="text" name="mat_amount[]" class="form-control text-end amount-cell" value="' + amountVal + '" readonly></td>' +
+                                '<td><button type="button" class="btn btn-danger btn-sm remove-row">-</button></td>' +
+                                '</tr>';
+                            $('#materialTable tbody').append(newRow);
+                        }
+                    }
+                }
+                updateMaterialTotal();
+            }
+
+            $('.parentadaptBtn').on('click', function () {
+                var totalAmount = $('#materialTotal').text();
+                window.opener.$('#materialFee').val(totalAmount);
+
+                var encodedRows = [];
+                $('#materialTable tbody tr').each(function () {
+                    var itemInput = $(this).find('input[name="mat_item[]"]').val();
+                    var specInput = $(this).find('input[name="mat_spec[]"]').val();
+                    var countInput = $(this).find('input[name="mat_count[]"]').val();
+                    var amountInput = $(this).find('input[name="mat_amount[]"]').val();
+                    
+                    var item = itemInput ? itemInput.trim() : '';
+                    var spec = specInput ? specInput.trim() : '';
+                    var count = countInput ? countInput.trim() : '';
+                    var amount = amountInput ? amountInput.trim().replace(/,/g, '') : '';
+
+                    if (item && spec && count) {
+                        encodedRows.push('{' + item + '|' + spec + '|' + count + '|' + amount + '}');
+                    }
+                });
+
+                var encodedString = encodedRows.join('');
+                window.opener.$('#materialRaw').val(encodedString);
+
+                if (window.opener && typeof window.opener.updateTotalFee === 'function') {
+                    window.opener.updateTotalFee();
+                }
+
+                window.close();
+            });
         });
-
-        var encodedString = encodedRows.join('');
-        window.opener.$('#materialRaw').val(encodedString);
-
-        if (window.opener && typeof window.opener.updateTotalFee === 'function') {
-            window.opener.updateTotalFee();
-        }
-
-        window.close();
-    });
-});
-</script>
+    </script>
 
 
 </body>

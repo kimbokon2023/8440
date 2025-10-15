@@ -15,7 +15,8 @@
 
 ```php
 // PHP 파일 상단에 추가
-require_once $_SERVER['DOCUMENT_ROOT'] . '/file_api.php';
+require_once __DIR__ . '/../common/functions.php';
+require_once getDocumentRoot() . '/api/file_api.php';
 ```
 
 ```html
@@ -33,20 +34,39 @@ $options = [
     'parentnum' => '123',
     'folderPath' => 'MyProject/uploads'
 ];
-$result = uploadFilesToGoogleDrive($_FILES, $options);
+
+try {
+    $result = uploadFilesToGoogleDrive($_FILES, $options);
+    if ($result) {
+        // 업로드 성공 처리
+        error_log("파일 업로드 성공: " . count($result) . "개");
+    }
+} catch (Exception $e) {
+    error_log("파일 업로드 오류: " . $e->getMessage());
+}
 
 // 파일 목록 조회
-$files = getFilesFromGoogleDrive($options);
+try {
+    $files = getFilesFromGoogleDrive($options);
+} catch (Exception $e) {
+    error_log("파일 목록 조회 오류: " . $e->getMessage());
+    $files = [];
+}
 
 // 파일 삭제
-$result = deleteFileFromGoogleDrive($fileId, $options);
+$fileId = '파일ID';
+try {
+    $result = deleteFileFromGoogleDrive($fileId, $options);
+} catch (Exception $e) {
+    error_log("파일 삭제 오류: " . $e->getMessage());
+}
 ```
 
 ### 3. JavaScript에서 사용
 
 ```javascript
-// 파일 매니저 초기화
-const fileManager = new GoogleDriveFileManager({
+// 파일 매니저 초기화 (ES5 호환)
+var fileManager = new GoogleDriveFileManager({
     tablename: 'my_table',
     item: 'attached',
     parentnum: '123',
@@ -128,13 +148,15 @@ $options = [
 #### GoogleDriveFileManager 클래스
 
 ```javascript
-const fileManager = new GoogleDriveFileManager(options);
+// ES5 호환 방식
+var fileManager = new GoogleDriveFileManager(options);
 ```
 
 #### 설정 옵션
 
 ```javascript
-const options = {
+// ES5 호환 방식
+var options = {
     // 기본 설정
     containerId: 'fileManager',           // 컨테이너 요소 ID
     displayContainerId: 'displayFile',    // 파일 목록 표시 영역 ID
@@ -183,7 +205,7 @@ fileManager.init();
 파일을 업로드합니다.
 
 ```javascript
-const files = document.getElementById('fileInput').files;
+var files = document.getElementById('fileInput').files;
 fileManager.uploadFiles(files);
 ```
 
@@ -239,8 +261,8 @@ $result = updateFileIdsInGoogleDrive($options);
 ### JavaScript 헬퍼 함수
 
 ```javascript
-// 파일 매니저 초기화
-const fileManager = initFileManager(options);
+// 파일 매니저 초기화 (ES5 호환)
+var fileManager = initFileManager(options);
 
 // 팝업 창 열기
 popupCenter(url, 'filePopup', 800, 600);
@@ -266,7 +288,8 @@ popupCenter(url, 'filePopup', 800, 600);
     <div id="displayFile"></div>
     
     <script>
-        const fileManager = new GoogleDriveFileManager({
+        // ES5 호환 코드 (PHP 7.3 환경에서 권장)
+        var fileManager = new GoogleDriveFileManager({
             tablename: 'my_table',
             item: 'attached',
             parentnum: '123',
@@ -282,20 +305,35 @@ popupCenter(url, 'filePopup', 800, 600);
 
 ```php
 <?php
-require_once 'file_api.php';
+require_once __DIR__ . '/../common/functions.php';
+require_once getDocumentRoot() . '/api/file_api.php';
 
-if ($_POST) {
-    $options = [
-        'tablename' => 'documents',
-        'item' => 'attached',
-        'parentnum' => $_POST['document_id'],
-        'folderPath' => 'Documents/' . $_POST['category']
-    ];
+// 요청 메서드 확인
+$requestMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+
+if ($requestMethod === 'POST') {
+    // POST 데이터 초기화
+    $document_id = $_POST['document_id'] ?? '';
+    $category = $_POST['category'] ?? '';
     
-    $result = uploadFilesToGoogleDrive($_FILES, $options);
-    
-    if ($result) {
-        echo "업로드 완료: " . count($result) . "개 파일";
+    if ($document_id && $category) {
+        $options = [
+            'tablename' => 'documents',
+            'item' => 'attached',
+            'parentnum' => $document_id,
+            'folderPath' => 'Documents/' . $category
+        ];
+        
+        try {
+            $result = uploadFilesToGoogleDrive($_FILES, $options);
+            
+            if ($result) {
+                echo "업로드 완료: " . count($result) . "개 파일";
+            }
+        } catch (Exception $e) {
+            error_log("파일 업로드 오류: " . $e->getMessage());
+            echo "업로드 실패: " . htmlspecialchars($e->getMessage());
+        }
     }
 }
 ?>
@@ -311,7 +349,8 @@ if ($_POST) {
 ### 3. 고급 설정 예제
 
 ```javascript
-const fileManager = new GoogleDriveFileManager({
+// ES5 호환 코드 (PHP 7.3 환경에서 권장)
+var fileManager = new GoogleDriveFileManager({
     tablename: 'projects',
     item: 'attached',
     parentnum: 'project_456',
@@ -340,21 +379,25 @@ fileManager.init();
 
 ### API 테스트
 
-`file_api_test.php`를 사용하여 API 기능을 테스트할 수 있습니다.
+`file_api_test.php` 또는 `api_test_simple.php`를 사용하여 API 기능을 테스트할 수 있습니다.
 
 ```javascript
-// 연결 테스트
+// 연결 테스트 (ES5 호환)
 $.ajax({
-    url: 'file_api_test.php',
+    url: 'api/api_test_simple.php',
     type: 'POST',
     data: { action: 'testConnection' },
+    dataType: 'json',
     success: function(response) {
         console.log('연결 테스트:', response);
+    },
+    error: function(xhr, status, error) {
+        console.error('연결 테스트 오류:', error);
     }
 });
 
 // 파일 업로드 테스트
-const formData = new FormData();
+var formData = new FormData();
 formData.append('action', 'upload');
 formData.append('tablename', 'test_table');
 formData.append('files', fileInput.files[0]);
@@ -365,8 +408,12 @@ $.ajax({
     data: formData,
     processData: false,
     contentType: false,
+    dataType: 'json',
     success: function(response) {
         console.log('업로드 테스트:', response);
+    },
+    error: function(xhr, status, error) {
+        console.error('업로드 테스트 오류:', error);
     }
 });
 ```

@@ -1,21 +1,18 @@
 <?php
-session_start(); 
-header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문  
- 
-$num=$_REQUEST["num"];
-if(isset($_REQUEST["strtmp"]))
-  {
-  // confirm에 내용을 넣고 저장할시 사용함
-  $confirm=$_REQUEST["strtmp"];
-  }
-  else
-  {	  
-	// 확인완료 'y' 저장
-    $confirm = date("Y-m-d");
-  }
+/**
+ * 외주 주문 상태 업데이트 (확인 처리)
+ * 로컬 및 서버 환경 모두 지원
+ */
+
+session_start();
+header("Content-Type: application/json");
+
+// 요청 변수 초기화 (?? '' 형태)
+$num = $_REQUEST["num"] ?? '';
+$confirm = $_REQUEST["strtmp"] ?? date("Y-m-d");
   
  
- require_once("../lib/mydb.php");
+require_once "../lib/mydb.php";
  $pdo = db_connect(); 
  
  try{
@@ -31,8 +28,9 @@ if(isset($_REQUEST["strtmp"]))
        print "오류: ".$Exception->getMessage();
      }
  
-    $data=date("Y-m-d H:i:s") . " - "  . $_SESSION["name"] . "  " ;	
-	$update_log = $data . $update_log . "&#10";  // 개행문자 Textarea   	
+$session_name = $_SESSION["name"] ?? '';
+$data = date("Y-m-d H:i:s") . " - " . $session_name . " ";
+$update_log = $data . $update_log . "&#10"; // 개행문자 Textarea   	
  
  	 try{		 
     $pdo->beginTransaction();   
@@ -59,7 +57,4 @@ $data = array(
 );
 
 //json 출력
-echo(json_encode($data, JSON_UNESCAPED_UNICODE));   
-   	   
-	   
-?>
+echo json_encode($data, JSON_UNESCAPED_UNICODE);

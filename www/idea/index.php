@@ -1,396 +1,536 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session.php'));  
+<?php
+/**
+ * Idea 직원 제안제도 운영 페이지
+ * 직원들의 제안사항을 관리하고 검색합니다.
+ */
 
-$menu=$_REQUEST["menu"];
+// 로컬과 서버 호환성을 위한 설정
+if (file_exists(__DIR__ . '/../common/functions.php')) {
+    require_once __DIR__ . '/../common/functions.php';
+}
 
-$title_message = '직원 제안제도 운영';   
+// 세션 시작
+require_once(includePath('session.php'));
 
-?>
-  
-<?php include getDocumentRoot() . '/load_header.php' ?>
+// 세션 변수 초기화
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+$level = $_SESSION["level"] ?? '';
+$user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["userid"] ?? '';
+$WebSite = $_SESSION["WebSite"] ?? '';
+
+// 로그인 확인
+if (!isset($_SESSION["level"])) {
+    $baseUrl = getBaseUrl();
+    $_SESSION["url"] = $baseUrl . '/idea/index.php?user_name=' . urlencode($user_name);
+    header("Location: " . $baseUrl . "/login/login_form.php");
+    exit;
+}
+
+// 요청 파라미터 초기화
+$menu = $_REQUEST["menu"] ?? '';
+$search = $_REQUEST["search"] ?? '';
+$mode = $_REQUEST["mode"] ?? '';
+$fromdate = $_REQUEST["fromdate"] ?? '';
+$todate = $_REQUEST["todate"] ?? '';
+$view_table = $_REQUEST["view_table"] ?? '';
+$voc_alert = $_REQUEST["voc_alert"] ?? '';
+$ma_alert = $_REQUEST["ma_alert"] ?? '';
+$order_alert = $_REQUEST["order_alert"] ?? '';
+$page = $_REQUEST["page"] ?? 1;
+
+// 변수 초기화
+$title_message = '직원 제안제도 운영';
+$tablename = 'idea';
+$admin = 0;
+$total_row = 0;
+$approvalwait = 0;
+$Transtodate = '';
+
+// rowDB.php에서 사용될 변수들 사전 초기화
+$num = '';
+$place = '';
+$occur = '';
+$errortype = '';
+$emember = '';
+$content = '';
+$method = '';
+$filename = '';
+$serverfilename = '';
+$approve = '';
+$payment = '';
+$firstone = '';
+
+// 관리자 권한 확인
+if (in_array($user_name, array('소현철', '김보곤', '최장중', '이경묵'))) {
+    $admin = 1;
+}
+
+// 데이터베이스 연결
+require_once(includePath('lib/mydb.php'));
+$pdo = db_connect();
+
+// IP 주소 기록
+$ip_address = $_SERVER["REMOTE_ADDR"] ?? 'unknown';
+$ip_address = 'ip_(아이디어) : ' . $ip_address;
+
+// 접속 로그 기록
+try {
+    $data = date("Y-m-d H:i:s") . " - " . $user_id . " - " . $user_name . '  ' . $ip_address;
     
-<title> <?=$title_message?> </title> 
+    $pdo->beginTransaction();
+    $sql = "INSERT INTO {$DB}.logdata(data) VALUES(?)";
+    $stmh = $pdo->prepare($sql);
+    $stmh->bindValue(1, $data, PDO::PARAM_STR);
+    $stmh->execute();
+    $pdo->commit();
+    
+} catch (PDOException $ex) {
+    if ($pdo && $pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
+    error_log("Log insert error in idea/index.php: " . $ex->getMessage());
+    // 로그 실패는 계속 진행
+}
+
+// 결재권자 결재정보 보기
+if ($admin == 1) {
+    try {
+        $sql = "SELECT * FROM {$DB}.idea WHERE approve <> '처리완료'";
+        $stmh = $pdo->query($sql);
+        
+        while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+            include "rowDB.php";
+            $approvalwait += 1;
+        }
+        
+    } catch (PDOException $ex) {
+        error_log("Approval query error in idea/index.php: " . $ex->getMessage());
+    }
+}
+
+// 기간 설정
+if (empty($fromdate)) {
+    $fromdate = substr(date("Y-m-d", time()), 0, 4);
+    $fromdate = $fromdate . "-01-01";
+}
+
+if (empty($todate)) {
+    $todate = substr(date("Y-m-d", time()), 0, 4) . "-12-31";
+    $Transtodate = strtotime($todate . ' +1 days');
+    $Transtodate = date("Y-m-d", $Transtodate);
+} else {
+    $Transtodate = strtotime($todate);
+    $Transtodate = date("Y-m-d", $Transtodate);
+}
+
+// SQL 쿼리 생성
+if ($mode === "search" || empty($mode)) {
+    if (empty($search)) {
+        $sql = "SELECT * FROM {$DB}.idea ORDER BY num DESC";
+    } elseif ($search === "결재상신 1차결재") {
+        $sql = "SELECT * FROM {$DB}.idea WHERE approve = '결재상신' OR approve = '1차결재' ORDER BY num DESC";
+        $search = null;
+    } else {
+        // SQL Injection 방지를 위한 Prepared Statement 사용
+        $sql = "SELECT * FROM {$DB}.idea 
+                WHERE emember LIKE ? OR place LIKE ? OR content LIKE ? 
+                OR method LIKE ? OR approve LIKE ? 
+                ORDER BY occur DESC";
+        $searchParam = '%' . $search . '%';
+        $usesPrepared = true;
+    }
+} else {
+    $sql = "SELECT * FROM {$DB}.idea ORDER BY num DESC";
+}
+
+// numarr 배열 초기화
+$numarr = array();
+
+try {
+    if (isset($usesPrepared) && $usesPrepared === true) {
+        $stmh = $pdo->prepare($sql);
+        $stmh->bindValue(1, $searchParam, PDO::PARAM_STR);
+        $stmh->bindValue(2, $searchParam, PDO::PARAM_STR);
+        $stmh->bindValue(3, $searchParam, PDO::PARAM_STR);
+        $stmh->bindValue(4, $searchParam, PDO::PARAM_STR);
+        $stmh->bindValue(5, $searchParam, PDO::PARAM_STR);
+        $stmh->execute();
+    } else {
+        $stmh = $pdo->query($sql);
+    }
+    
+    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+        include "rowDB.php";
+    }
+    
+} catch (PDOException $ex) {
+    error_log("DB query error in idea/index.php: " . $ex->getMessage());
+}
+
+include getDocumentRoot() . '/load_header.php';
+?>
+
+<title><?php echo htmlspecialchars($title_message, ENT_QUOTES, 'UTF-8'); ?></title>
 
 <style>
 .modal .modal-full {
-    max-width: 94%
+    max-width: 94%;
 }
 
 .modal .white {
-    color: #fff
+    color: #fff;
 }
 
 .modal .modal-header {
     display: flex;
     justify-content: space-between;
-    align-items: center
+    align-items: center;
 }
 
 .modal .modal-header .modal-title {
-    font-size: 1.1rem
+    font-size: 1.1rem;
 }
 
 .modal .modal-header .close {
     padding: 7px 10px;
     border-radius: 50%;
     background: none;
-    border: none
+    border: none;
 }
 
 .modal .modal-header .close:hover {
-    background: #dee2e6
+    background: #dee2e6;
 }
 
-.modal .modal-header i,.modal .modal-header svg {
+.modal .modal-header i,
+.modal .modal-header svg {
     font-size: 12px;
     height: 12px;
-    width: 12px
+    width: 12px;
 }
 
 .modal .modal-footer {
-    padding: 1rem
+    padding: 1rem;
 }
 
 .modal.modal-borderless .modal-header {
-    border-bottom: 0
+    border-bottom: 0;
 }
 
 .modal.modal-borderless .modal-footer {
-    border-top: 0
+    border-top: 0;
 }
-</style>  
-   
-</head>
- 
- <body>   
-<?php require_once(includePath('common/modal.php')); ?>   
-<?php   if( $menu!=='no') 
-	require_once(includePath('myheader.php')); ?>   
 
-<?php	   
-if(!isset($_SESSION["level"]) ) {	          
-		 $_SESSION["url"]='http://8440.co.kr/idea/index.php?user_name=' . $user_name; 	
-         header("Location:".$_SESSION["WebSite"]."login/login_form.php"); 
-         exit;
-} 
-   
-if($user_name=='소현철' ||$user_name=='김보곤' ||$user_name=='최장중' ||$user_name=='이경묵')
-	  $admin = 1;
-
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();	
-
-$ip_address = $_SERVER["REMOTE_ADDR"];
-
-$ip_address = 'ip_(아이디어) : '.$ip_address;  
-
-// 접속 ip 기록
-$data=date("Y-m-d H:i:s") . " - " . $_SESSION["userid"] . " - " . $_SESSION["name"] . '  ' . $ip_address ;	 
-$pdo->beginTransaction();
-$sql = "insert into mirae8440.logdata(data) values(?) " ;
-$stmh = $pdo->prepare($sql); 
-$stmh->bindValue(1, $data, PDO::PARAM_STR);   
-$stmh->execute();
-$pdo->commit(); 
- 
-$tablename = 'idea';
- 
-// 결재권자 결재정보 보기 			
-if($admin==1)
-{	
-	$sql="select * from mirae8440.idea where approve<>'처리완료' " ; 					
-	$approvalwait = 0 ;
-
-	try{  
-	   $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-	   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-				  include "rowDB.php";
-				  $approvalwait += 1;
-				}		 
-	   } catch (PDOException $Exception) {
-		print "오류: ".$Exception->getMessage();
-	}  
-}
- 
-// 서버의 정보를 읽어와 랜덤으로 메인화면 꾸미기
- 				
-$sql="select * from mirae8440.idea order by num desc " ; 					
-
-$numarr = array();
-
-try{  
-   $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-              include "rowDB.php";
-			}		 
-   } catch (PDOException $Exception) {
-    print "오류: ".$Exception->getMessage();
-}  
-
-?>
-
-<form name="board_form" id="board_form"  method="post" action="./index.php" >  
-
-	<input id="view_table" name="view_table" type='hidden' value='<?=$view_table?>' >
-	<input type="hidden" id="voc_alert" name="voc_alert" value="<?=$voc_alert?>" size="5" > 	
-	<input type="hidden" id="ma_alert" name="ma_alert" value="<?=$ma_alert?>" size="5" > 
-	<input type="hidden" id="order_alert" name="order_alert" value="<?=$order_alert?>" size="5" > 					
-	<input type="hidden" id="page" name="page" value="<?=$page?>" size="5" > 	
-	
-<div class="container-fluid mb-5">  
-<div class="modal fade" id="notice_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-  <div class="modal-dialog modal-lg" role="document" >
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-		<div class="modal-header text-center">
-			  <h2 > 알림</h2>							
-		</div>
-      </div>
-      <div class="modal-body">
-			<img src="../img/norice_errorreport1.png">		
-      </div>
-      <div class="modal-footer">
-			<button type="button" class="btn btn-default" data-dismiss="modal">닫기</button>
-      </div>
-    </div>
-  </div>
-  </div>	
-		
- <div class="card mt-2 mb-2">  
-	<div class="card-body">  
-	  
- <div class="d-flex mt-3 mb-1 justify-content-center">  
-      <span class="fs-5" > <?=$title_message?> </span>
-  </div>	 
-        
- <?php 
-  if(isset($_REQUEST["search"]))   //목록표에 제목,이름 등 나오는 부분
-	 $search=$_REQUEST["search"];
-
-  require_once("../lib/mydb.php");
-  $pdo = db_connect();	
-	 
-if(isset($_REQUEST["mode"]))
-     $mode=$_REQUEST["mode"];
-  else 
-     $mode="";     
- 
- // 기간을 정하는 구간
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];	 
-
-if($fromdate=="")
-{
-	$fromdate=substr(date("Y-m-d",time()),0,4) ;
-	$fromdate=$fromdate . "-01-01";
-}
-if($todate=="")
-{
-	$todate=substr(date("Y-m-d",time()),0,4) . "-12-31" ;
-	$Transtodate=strtotime($todate.'+1 days');
-	$Transtodate=date("Y-m-d",$Transtodate);
-}
-    else
-	{
-	$Transtodate=strtotime($todate);
-	$Transtodate=date("Y-m-d",$Transtodate);
-	}
-		
-if($mode=="search" || $mode==""){
-	  if($search==""){
-				$sql="select * from mirae8440.idea order by num desc   " ; 									
-			         }
-	    if($search=="결재상신 1차결재"){
-				$sql="select * from mirae8440.idea where approve = '결재상신' or  approve = '1차결재'  order by num desc   " ; 									
-				$search = null;
-			         }
-		 elseif($search!="") {
-									  $sql ="select * from mirae8440.idea where (emember like '%$search%') or (place like '%$search%')  or (content like '%$search%')  or (method like '%$search%')  or  (approve like '%$search%') ";
-									  $sql .=" order by   occur desc    ";									  
-							}				
-}  
-							
-try{  
-// 레코드 전체 sql 설정
-
-   $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-                include "rowDB.php"; 				  
-			}		 
-   } catch (PDOException $Exception) {
-    print "오류: ".$Exception->getMessage();
-}  
-   
-// 전체 레코드수를 파악한다.
-try{  
-	$stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-	$total_row=$stmh->rowCount();    					 
- ?>    		  
-	<div class="d-flex mb-2 px-5 px-lg-2 mt-2  justify-content-center align-items-center">                
-		▷ <?= $total_row ?> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-		<input type="text" class="form-control mx-1" style="width:150px;" name="search" id="search" value="<?=$search?>" autocomplete="off" onkeydown="JavaScript:SearchEnter();" placeholder="검색어"> 			   
-		<button type="button" id="searchBtn" class="btn btn-dark btn-sm me-2"  ><i class="bi bi-search"></i> 검색</button>	
-		<button type="button" class="btn btn-dark btn-sm mx-1" id="writeBtn" > <i class="bi bi-pencil"></i> 신규  </button> 		
-	</div>			
-			
-<div class="row d-flex"  >
- <style>
 th {
     white-space: nowrap;
 }
 </style>
+</head>
 
-<table class="table table-hover" id="myTable">
-	<thead class="table-primary" >
-	    <tr>
-			 <th class="text-center" > 번호    </th>
-			 <th class="text-center w100px" > 등록일   </th>
-			 <th class="text-center text-danger fw-bold" > 제안등급   </th>
-			 <th class="text-center w130px" > 종류   </th>
-			 <th class="text-center" > 제안명 </th>   
-			 <th class="text-center" > 개선 내용   </th>   
-			 <th class="text-center" > 개선 효과   </th>   
-			 <th class="text-center" > 최초 제안자   </th>   
-			 <th class="text-center" > 제안 참여자   </th>   
-			 <th class="text-center" > 포상지급여부   </th>   
-		 </tr>
-	</thead>
-	<tbody>  
-  <?php
-	$start_num=$total_row;    // 페이지당 표시되는 첫번째 글순번
-		while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-		     include "rowDB.php";			  
-	?>
-	<tr onclick="redirectToView('<?=$num?>', '<?=$tablename?>')">  
-		  <td class="text-center" >  <?=$start_num?>	</td>       
-		  <td class="text-center" >  <?=$occur?>	</td>  
-		  <td class="text-center" >  <?=$approve?> </td>			  
-			<td class="text-center">
-				<?= str_replace('!', ',', $errortype) ?>
-			</td>
-		  
-		  <td class="text-start" >  <?=$place?> </td>             
-		  <td class="text-start" >  <?=$content?> </td>  
-		  <td class="text-start" >  <?=$method?> </td>  
-		  <td class="text-center" >  <?=$firstone?> </td>           
-		  <td class="text-start" >  <?=$emember?> </td>           
-		  <td class="text-center" >  <?=$payment?> </td>           
-	</tr>								
-	<?php
-		$start_num--;  
-		 } 					 
-	  } catch (PDOException $Exception) {
-	  print "오류: ".$Exception->getMessage();
-	  }  			
-	 ?>
-  	  </tbody>
-		  </table>  
-</div>
-</div>
-</div>
-</div>
-</div>
-	<!-- Footer-->
-<? include "footer.php" ?>  
+<body>
 
+<?php 
+require_once(includePath('common/modal.php'));
 
-<!-- Core theme JS-->
+if ($menu !== 'no') {
+    require_once(includePath('myheader.php'));
+}
+?>
+
+<?php
+// 전체 레코드수 파악
+try {
+    if (isset($usesPrepared) && $usesPrepared === true) {
+        $stmh = $pdo->prepare($sql);
+        $stmh->bindValue(1, $searchParam, PDO::PARAM_STR);
+        $stmh->bindValue(2, $searchParam, PDO::PARAM_STR);
+        $stmh->bindValue(3, $searchParam, PDO::PARAM_STR);
+        $stmh->bindValue(4, $searchParam, PDO::PARAM_STR);
+        $stmh->bindValue(5, $searchParam, PDO::PARAM_STR);
+        $stmh->execute();
+    } else {
+        $stmh = $pdo->query($sql);
+    }
+    
+    $total_row = $stmh->rowCount();
+?>
+
+<form name="board_form" id="board_form" method="post" action="./index.php">
+    <input id="view_table" name="view_table" type="hidden" value="<?php echo htmlspecialchars($view_table, ENT_QUOTES, 'UTF-8'); ?>">
+    <input type="hidden" id="voc_alert" name="voc_alert" value="<?php echo htmlspecialchars($voc_alert, ENT_QUOTES, 'UTF-8'); ?>" size="5">
+    <input type="hidden" id="ma_alert" name="ma_alert" value="<?php echo htmlspecialchars($ma_alert, ENT_QUOTES, 'UTF-8'); ?>" size="5">
+    <input type="hidden" id="order_alert" name="order_alert" value="<?php echo htmlspecialchars($order_alert, ENT_QUOTES, 'UTF-8'); ?>" size="5">
+    <input type="hidden" id="page" name="page" value="<?php echo htmlspecialchars($page, ENT_QUOTES, 'UTF-8'); ?>" size="5">
+    
+    <div class="container-fluid mb-5">
+        <!-- 알림 모달 -->
+        <div class="modal fade" id="notice_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <div class="modal-header text-center">
+                            <h2>알림</h2>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <img src="../img/norice_errorreport1.png" alt="알림 이미지">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">닫기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-2 mb-2">
+            <div class="card-body">
+                <div class="d-flex mt-3 mb-1 justify-content-center">
+                    <span class="fs-5"><?php echo htmlspecialchars($title_message, ENT_QUOTES, 'UTF-8'); ?></span>
+                </div>
+                
+                <div class="d-flex mb-2 px-5 px-lg-2 mt-2 justify-content-center align-items-center">
+                    ▷ <?php echo htmlspecialchars($total_row, ENT_QUOTES, 'UTF-8'); ?> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <input type="text" class="form-control mx-1" style="width:150px;" name="search" id="search" value="<?php echo htmlspecialchars($search, ENT_QUOTES, 'UTF-8'); ?>" autocomplete="off" onkeydown="JavaScript:SearchEnter();" placeholder="검색어">
+                    <button type="button" id="searchBtn" class="btn btn-dark btn-sm me-2">
+                        <i class="bi bi-search"></i> 검색
+                    </button>
+                    <button type="button" class="btn btn-dark btn-sm mx-1" id="writeBtn">
+                        <i class="bi bi-pencil"></i> 신규
+                    </button>
+                </div>
+                
+                <div class="row d-flex">
+                    <table class="table table-hover" id="myTable">
+                        <thead class="table-primary">
+                            <tr>
+                                <th class="text-center">번호</th>
+                                <th class="text-center w100px">등록일</th>
+                                <th class="text-center text-danger fw-bold">제안등급</th>
+                                <th class="text-center w130px">종류</th>
+                                <th class="text-center">제안명</th>
+                                <th class="text-center">개선 내용</th>
+                                <th class="text-center">개선 효과</th>
+                                <th class="text-center">최초 제안자</th>
+                                <th class="text-center">제안 참여자</th>
+                                <th class="text-center">포상지급여부</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $start_num = $total_row;
+                            
+                            while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+                                include "rowDB.php";
+                            ?>
+                            <tr onclick="redirectToView('<?php echo htmlspecialchars($num, ENT_QUOTES, 'UTF-8'); ?>', '<?php echo htmlspecialchars($tablename, ENT_QUOTES, 'UTF-8'); ?>')">
+                                <td class="text-center"><?php echo htmlspecialchars($start_num, ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td class="text-center"><?php echo htmlspecialchars($occur, ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td class="text-center"><?php echo htmlspecialchars($approve, ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td class="text-center"><?php echo htmlspecialchars(str_replace('!', ',', $errortype), ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td class="text-start"><?php echo htmlspecialchars($place, ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td class="text-start"><?php echo htmlspecialchars($content, ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td class="text-start"><?php echo htmlspecialchars($method, ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td class="text-center"><?php echo htmlspecialchars($firstone, ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td class="text-start"><?php echo htmlspecialchars($emember, ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td class="text-center"><?php echo htmlspecialchars($payment, ENT_QUOTES, 'UTF-8'); ?></td>
+                            </tr>
+                            <?php
+                                $start_num--;
+                            }
+                            ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <?php include "footer.php"; ?>
 </form>
 
+<?php
+} catch (PDOException $ex) {
+    error_log("DB query error in idea/index.php: " . $ex->getMessage());
+    ?>
+    <div class="container">
+        <div class="alert alert-danger" role="alert">
+            데이터 조회 중 오류가 발생했습니다.
+        </div>
+    </div>
+    <?php
+}
+?>
+
 <script src="js/scripts.js"></script>
-</body>
-</html>
 
 <script>
-
-var dataTable; // DataTables 인스턴스 전역 변수
-var ideapageNumber; // 현재 페이지 번호 저장을 위한 전역 변수
-
-$(document).ready(function() {			
-    // DataTables 초기 설정
-    dataTable = $('#myTable').DataTable({
-        "paging": true,
-        "ordering": true,
-        "searching": true,
-        "pageLength": 50,
-        "lengthMenu": [25, 50, 100, 200, 500, 1000],
-        "language": {
-            "lengthMenu": "Show _MENU_ entries",
-            "search": "Live Search:"
-        },
-        "order": [[0, 'desc']]
-    });
-
-    // 페이지 번호 복원 (초기 로드 시)
-    var savedPageNumber = getCookie('ideapageNumber');
-    if (savedPageNumber) {
-        dataTable.page(parseInt(savedPageNumber) - 1).draw(false);
-    }
-
-    // 페이지 변경 이벤트 리스너
-    dataTable.on('page.dt', function() {
-        var ideapageNumber = dataTable.page.info().page + 1;
-        setCookie('ideapageNumber', ideapageNumber, 10); // 쿠키에 페이지 번호 저장
-    });
-
-    // 페이지 길이 셀렉트 박스 변경 이벤트 처리
-    $('#myTable_length select').on('change', function() {
-        var selectedValue = $(this).val();
-        dataTable.page.len(selectedValue).draw(); // 페이지 길이 변경 (DataTable 파괴 및 재초기화 없이)
-
-        // 변경 후 현재 페이지 번호 복원
-        savedPageNumber = getCookie('ideapageNumber');
+(function() {
+    'use strict';
+    
+    var dataTable; // DataTables 인스턴스 전역 변수
+    var ideapageNumber; // 현재 페이지 번호 저장을 위한 전역 변수
+    
+    $(document).ready(function() {
+        // DataTables 초기 설정
+        dataTable = $('#myTable').DataTable({
+            paging: true,
+            ordering: true,
+            searching: true,
+            pageLength: 50,
+            lengthMenu: [25, 50, 100, 200, 500, 1000],
+            language: {
+                lengthMenu: 'Show _MENU_ entries',
+                search: 'Live Search:'
+            },
+            order: [[0, 'desc']]
+        });
+        
+        // 페이지 번호 복원 (초기 로드 시)
+        var savedPageNumber = getCookie('ideapageNumber');
         if (savedPageNumber) {
-            dataTable.page(parseInt(savedPageNumber) - 1).draw(false);
+            dataTable.page(parseInt(savedPageNumber, 10) - 1).draw(false);
+        }
+        
+        // 페이지 변경 이벤트 리스너
+        dataTable.on('page.dt', function() {
+            ideapageNumber = dataTable.page.info().page + 1;
+            setCookie('ideapageNumber', ideapageNumber, 10);
+        });
+        
+        // 페이지 길이 셀렉트 박스 변경 이벤트 처리
+        $('#myTable_length select').on('change', function() {
+            var selectedValue = $(this).val();
+            dataTable.page.len(selectedValue).draw();
+            
+            savedPageNumber = getCookie('ideapageNumber');
+            if (savedPageNumber) {
+                dataTable.page(parseInt(savedPageNumber, 10) - 1).draw(false);
+            }
+        });
+        
+        // 신규 버튼 클릭
+        $('#writeBtn').on('click', function() {
+            ideapageNumber = dataTable.page.info().page + 1;
+            var tablename = '<?php echo addslashes($tablename); ?>';
+            var url = 'write_form.php?tablename=' + encodeURIComponent(tablename);
+            
+            if (typeof customPopup === 'function') {
+                customPopup(url, '직원 제안제도', 1100, 850);
+            } else {
+                window.open(url, '직원 제안제도', 'width=1100,height=850');
+            }
+        });
+        
+        // 모달 닫기 버튼
+        $('#closeModalBtn').on('click', function() {
+            $('#myModal').modal('hide');
+        });
+        
+        // 관리자 결재 대기 버튼
+        $('#adminprocess').on('click', function() {
+            $('#search').val('결재상신 1차결재');
+            document.getElementById('board_form').submit();
+        });
+        
+        // 검색 초기화 버튼
+        $('#searchNoinputBtn').on('click', function() {
+            $('#search').val('');
+            document.getElementById('board_form').submit();
+        });
+        
+        // 검색 버튼
+        $('#searchBtn').on('click', function() {
+            $('#board_form').submit();
+        });
+        
+        // 서버에 작업 기록
+        if (typeof saveLogData === 'function') {
+            saveLogData('직원 제안제도 운영');
         }
     });
-});
-
-function restorePageNumber() {
-    var savedPageNumber = getCookie('ideapageNumber');
-    if (savedPageNumber) {
-        dataTable.page(parseInt(savedPageNumber) - 1).draw('page');
+    
+    /**
+     * 페이지 번호 복원 함수
+     */
+    window.restorePageNumber = function() {
+        var savedPageNumber = getCookie('ideapageNumber');
+        if (savedPageNumber && dataTable) {
+            dataTable.page(parseInt(savedPageNumber, 10) - 1).draw('page');
+        }
+    };
+    
+    /**
+     * 상세보기 페이지로 이동
+     * @param {string} num - 게시글 번호
+     * @param {string} tablename - 테이블명
+     */
+    window.redirectToView = function(num, tablename) {
+        if (dataTable) {
+            ideapageNumber = dataTable.page.info().page + 1;
+        }
+        
+        var url = 'write_form.php?num=' + encodeURIComponent(num) + 
+                  '&tablename=' + encodeURIComponent(tablename);
+        
+        if (typeof customPopup === 'function') {
+            customPopup(url, '직원 제안제도', 1100, 900);
+        } else {
+            window.open(url, '직원 제안제도', 'width=1100,height=900');
+        }
+    };
+    
+    /**
+     * Enter 키 검색 처리
+     */
+    window.SearchEnter = function() {
+        if (window.event && window.event.keyCode === 13) {
+            $('#searchBtn').click();
+            return false;
+        }
+        return true;
+    };
+    
+    /**
+     * 쿠키 설정 함수 (존재하지 않을 경우 대비)
+     */
+    if (typeof setCookie !== 'function') {
+        window.setCookie = function(name, value, days) {
+            var expires = '';
+            if (days) {
+                var date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = '; expires=' + date.toUTCString();
+            }
+            document.cookie = name + '=' + (value || '') + expires + '; path=/';
+        };
     }
-}
+    
+    /**
+     * 쿠키 가져오기 함수 (존재하지 않을 경우 대비)
+     */
+    if (typeof getCookie !== 'function') {
+        window.getCookie = function(name) {
+            var nameEQ = name + '=';
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) === ' ') {
+                    c = c.substring(1, c.length);
+                }
+                if (c.indexOf(nameEQ) === 0) {
+                    return c.substring(nameEQ.length, c.length);
+                }
+            }
+            return null;
+        };
+    }
+})();
+</script>
 
-
-function redirectToView(num, tablename) {
-    var page = ideapageNumber; // 현재 페이지 번호 (+1을 해서 1부터 시작하도록 조정)    	
-    var url = "write_form.php?num=" + num + "&tablename=" + tablename;          
-	customPopup(url, '직원 제안제도', 1100, 900); 		    
-}
-
-$(document).ready(function(){
-	
-	$("#writeBtn").click(function(){ 
-		var page = ideapageNumber; // 현재 페이지 번호 (+1을 해서 1부터 시작하도록 조정)	
-		var tablename = '<?php echo $tablename; ?>';		
-		var url = "write_form.php?tablename=" + tablename; 				
-		customPopup(url, '직원 제안제도', 1100, 850); 	
-	 });	
-
-	$("#closeModalBtn").click(function(){ 
-		$('#myModal').modal('hide');
-	});
-
-
-	$("#adminprocess").click(function(){  
-	   $('#search').val('결재상신 1차결재');
-	   document.getElementById('board_form').submit();   
-	});		
-
-	$("#searchNoinputBtn").click(function(){  
-	   $('#search').val('');
-	   document.getElementById('board_form').submit();   
-	});		
-	
-});	
-
-// 서버에 작업 기록
-$(document).ready(function(){
-	saveLogData('직원 제안제도 운영'); // 다른 페이지에 맞는 menuName을 전달
-});
-</script> 
 </body>
 </html>

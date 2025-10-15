@@ -1,8 +1,15 @@
- <?php session_start(); 
-   
-isset($_REQUEST["mcname"])  ? $mcname=$_REQUEST["mcname"] :   $mcname=''; 
-isset($_REQUEST["selnum"])  ? $selnum=$_REQUEST["selnum"] :   $selnum=1;  
+<?php
+if (!isset($_SESSION)) {
+    session_start();
+}
 
-header("Location:http://8440.co.kr/qcoffce/laser.php?mcname=$mcname&selnum=$selnum");  
-	
- ?>
+// 요청 변수 초기화
+$mcname = $_REQUEST["mcname"] ?? '';
+$selnum = $_REQUEST["selnum"] ?? 1;
+
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
+$host = $_SERVER['HTTP_HOST'];
+$basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
+$target = $protocol . $host . $basePath . "/laser.php?mcname=" . urlencode($mcname) . "&selnum=" . urlencode($selnum);
+header("Location:$target");
+?>

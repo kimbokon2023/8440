@@ -1,84 +1,125 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-if(!isset($_SESSION))      
-		session_start(); 
-if(isset($_SESSION["DB"]))
-		$DB = $_SESSION["DB"] ;	
- $level= $_SESSION["level"];
- $user_name= $_SESSION["name"];
- $user_id= $_SESSION["userid"];	
- 
-$r_line_id = isset($_GET['r_line_id']) ? $_GET['r_line_id'] : '';  
+<?php
+/**
+ * 참조라인 지정 페이지
+ * 사용자가 참조라인을 설정하고 관리합니다.
+ */
 
+// 로컬과 서버 호환성을 위한 설정
+if (file_exists(__DIR__ . '/../common/functions.php')) {
+    require_once __DIR__ . '/../common/functions.php';
+}
+
+// 세션 시작
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// 세션 변수 초기화
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+$level = $_SESSION["level"] ?? '';
+$user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["userid"] ?? '';
+
+// GET 파라미터 초기화
+$r_line_id = $_GET['r_line_id'] ?? '';
+
+// 폼 관련 변수 초기화
+$SelectWork = $_REQUEST['SelectWork'] ?? '';
+$num = $_REQUEST['num'] ?? '';
+$page = $_REQUEST['page'] ?? '';
+$mode = $_REQUEST['mode'] ?? '';
+$partsep = $_REQUEST['partsep'] ?? '';
+$workprocessval = $_REQUEST['workprocessval'] ?? '';
+
+// common.php 포함
 include getDocumentRoot() . '/common.php';
-require_once(includePath('lib/mydb.php'));
 
-$_SESSION["partsep"] = ''; 
+// 데이터베이스 연결
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
+// 세션 변수 설정
+$_SESSION["partsep"] = ''; 
+
+// 배열 초기화
 $firstStep = array();
 $secondStep = array();
 
-function getRefData($pdo) {
-	// print ('tlfgod');
-    $RefData = ['firstStep' => [], 'secondStep' => []];
+/**
+ * 참조 권한자 데이터를 가져오는 함수
+ * @param PDO $pdo 데이터베이스 연결 객체
+ * @param string $DB 데이터베이스명
+ * @return array 참조 권한자 데이터 배열
+ */
+function getRefData($pdo, $DB = 'mirae8440') {
+    $RefData = array('firstStep' => array(), 'secondStep' => array());
 		
     try {
-        $sql = "SELECT id, name, position, part, eworks_level FROM mirae8440.member WHERE part LIKE '%제조%' or  part LIKE '%지원%' ";
+        $sql = "SELECT id, name, position, part, eworks_level FROM {$DB}.member WHERE part LIKE '%제조%' OR part LIKE '%지원%'";
         $stmh = $pdo->prepare($sql);    
         $stmh->execute();
 
-        while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-            if($row["eworks_level"] !== null) {
+        while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+            if ($row["eworks_level"] !== null) {
                 $RefData['firstStep'][] = $row;
-            } elseif($row["eworks_level"] == "1") {
+            } elseif ($row["eworks_level"] == "1") {
                 $RefData['secondStep'][] = $row;
             }
-			
-			// var_dump($row);			
         }
-    } catch (PDOException $Exception) {
-        print "오류: " . $Exception->getMessage();
+    } catch (PDOException $ex) {
+        error_log("getRefData Error: " . $ex->getMessage());
     }
+    
     return $RefData;
 }
 
-$RefData = getRefData($pdo);
+// 참조 데이터 가져오기
+$RefData = getRefData($pdo, $DB);
 
-// var_dump($RefData);
-
+// 페이지 제목
 $title_message = "참조라인 지정";
 
+// 헤더 포함
 include getDocumentRoot() . '/load_header.php';
 
+// JSON 파일 경로 설정 (보안 처리)
+$safeUserId = preg_replace('/[^a-zA-Z0-9_-]/', '_', $user_id);
+$dirPath = __DIR__ . '/RefLine';
+$filePath = $dirPath . '/RefLine_' . $safeUserId . '.json';
 
-// JSON 파일 경로
-$filePath = './RefLine/RefLine_' . $user_id . '.json';
+// select 옵션 초기화
+$selectOptions = "";
 
-// print_r($filePath);
-
-if(file_exists($filePath)) {
-    $data = json_decode(file_get_contents($filePath), true);
-
-
-    // var_dump($data);
-    // select 요소의 옵션 초기화
-    $selectOptions = "";
-
-    // JSON 데이터가 배열인 경우 각 요소 처리
-    if(is_array($data)) {
-        foreach($data as $RefLine) {
-            if(isset($RefLine['savedName'])) {
-                $savedName = htmlspecialchars($RefLine['savedName'], ENT_QUOTES, 'UTF-8');
-                $selectOptions .= "<option value='{$savedName}'>{$savedName}</option>";
+// JSON 파일이 존재하는 경우
+if (file_exists($filePath)) {
+    try {
+        $fileContent = file_get_contents($filePath);
+        if ($fileContent !== false) {
+            $data = json_decode($fileContent, true);
+            
+            if (json_last_error() === JSON_ERROR_NONE && is_array($data)) {
+                foreach ($data as $RefLine) {
+                    if (isset($RefLine['savedName']) && !empty($RefLine['savedName'])) {
+                        $savedName = htmlspecialchars($RefLine['savedName'], ENT_QUOTES, 'UTF-8');
+                        $selectOptions .= "<option value='{$savedName}'>{$savedName}</option>";
+                    }
+                }
+                
+                // 참조라인이 없는 경우
+                if (empty($selectOptions)) {
+                    $selectOptions = "<option> </option>";
+                }
+            } else {
+                $selectOptions = "<option>Invalid data format in file</option>";
+                error_log("JSON decode error in setRef.php: " . json_last_error_msg());
             }
+        } else {
+            $selectOptions = "<option>File read error</option>";
+            error_log("Failed to read ref line file: " . $filePath);
         }
-
-        // 참조라인이 없는 경우
-        if(empty($selectOptions)) {
-            $selectOptions = "<option> </option>";
-        }
-    } else {
-        $selectOptions = "<option>Invalid data format in file</option>";
+    } catch (Exception $ex) {
+        $selectOptions = "<option>Error loading data</option>";
+        error_log("Exception in setRef.php: " . $ex->getMessage());
     }
 } else {
     $selectOptions = "<option> </option>";

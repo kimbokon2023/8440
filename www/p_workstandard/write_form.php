@@ -1,14 +1,20 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php
+/**
+ * 작업표준서 작성/수정 폼 페이지
+ * 작업표준서 게시글을 작성하거나 수정하는 폼을 표시
+ */
+require_once __DIR__ . '/../common/functions.php';
 require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
- $title_message = '작업표준서';        
+
+$title_message = '작업표준서';
 ?>
-   
+
 <?php include getDocumentRoot() . '/load_header.php' ?>
 
- 
-<title> <?=$title_message?> </title>  
- 
- </head> 
+
+<title> <?=$title_message?> </title>
+
+ </head>
 
 <body>
 
@@ -16,130 +22,126 @@ require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러�
 
 <?php
 
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(1);
-         header("Location:".$_SESSION["WebSite"]."login/login_form.php"); 
-         exit;
-   }    
+if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
+	/*   alert("관리자 승인이 필요합니다."); */
+	sleep(1);
+	header("Location:".$_SESSION["WebSite"]."login/login_form.php");
+	exit;
+}
 
-isset($_REQUEST["id"])  ? $id=$_REQUEST["id"] :   $id=''; 
-isset($_REQUEST["num"])  ? $num=$_REQUEST["num"] :   $num=''; 
-isset($_REQUEST["fileorimage"])  ? $fileorimage=$_REQUEST["fileorimage"] :   $fileorimage=''; // file or image
-isset($_REQUEST["item"])  ? $item=$_REQUEST["item"] :   $item=''; 
-isset($_REQUEST["upfilename"])  ? $upfilename=$_REQUEST["upfilename"] :   $upfilename=''; 
-isset($_REQUEST["tablename"])  ? $tablename=$_REQUEST["tablename"] :  $tablename=''; 
-isset($_REQUEST["savetitle"])  ? $savetitle=$_REQUEST["savetitle"] :  $savetitle='';   // log기록 저장 타이틀
+// 요청 변수 안전하게 초기화
+$id = $_REQUEST["id"] ?? '';
+$num = $_REQUEST["num"] ?? '';
+$fileorimage = $_REQUEST["fileorimage"] ?? '';  // file or image
+$item = $_REQUEST["item"] ?? '';
+$upfilename = $_REQUEST["upfilename"] ?? '';
+$tablename = $_REQUEST["tablename"] ?? '';
+$savetitle = $_REQUEST["savetitle"] ?? '';   // log기록 저장 타이틀
+$mode = $_REQUEST["mode"] ?? '';   //수정 버튼을 클릭해서 호출했는지 체크
 
-// print '$tablename' . $tablename;
-    
-  if(isset($_REQUEST["mode"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $mode=$_REQUEST["mode"];
-  else
-   $mode="";
-  
-  if(isset($_REQUEST["num"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $num=$_REQUEST["num"];
-  else
-   $num="";
-          
+// 초기화
+$item_subject = '';
+$is_html = '';
+$item_content = '';
+$qnacheck = '';
+
 require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
-  if ($mode=="modify"){
-    try{
-      $sql = "select * from mirae8440." . $tablename . " where num = ? ";
-      $stmh = $pdo->prepare($sql); 
+if ($mode=="modify"){
+	try{
+		$sql = "select * from mirae8440." . $tablename . " where num = ? ";
+		$stmh = $pdo->prepare($sql);
 
-    $stmh->bindValue(1,$num,PDO::PARAM_STR); 
-      $stmh->execute();
-      $count = $stmh->rowCount();              
-    if($count<1){  
-      print "검색결과가 없습니다.<br>";
-     }else{
-      $row = $stmh->fetch(PDO::FETCH_ASSOC);
-      $item_subject = $row["subject"];
-      $is_html = $row["is_html"];
-      $item_content = $row["content"];
-      $qnacheck = $row["qnacheck"];
-      }
-     }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
-     }
-  }
+		$stmh->bindValue(1, $num, PDO::PARAM_STR);
+		$stmh->execute();
+		$count = $stmh->rowCount();
+		if($count<1){
+			print "검색결과가 없습니다.<br>";
+		}else{
+			$row = $stmh->fetch(PDO::FETCH_ASSOC);
+			$item_subject = $row["subject"] ?? '';
+			$is_html = $row["is_html"] ?? '';
+			$item_content = $row["content"] ?? '';
+			$qnacheck = $row["qnacheck"] ?? '';
+		}
+	}catch (PDOException $Exception) {
+		print "오류: ".$Exception->getMessage();
+	}
+}
 
 
-// 초기 프로그램은 $num사용 이후 $id로 수정중임  
-$id=$num;    
-require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
+// 초기 프로그램은 $num사용 이후 $id로 수정중임
+$id=$num;
+require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기
 ?>
- 
-<form  id="board_form" name="board_form" method="post" enctype="multipart/form-data"> 
+
+<form  id="board_form" name="board_form" method="post" enctype="multipart/form-data">
   <!-- 전달함수 설정 input hidden -->
-	<input type="hidden" id="tablename" name="tablename" value="<?=$tablename?>" >			  								
-	<input type="hidden" id="id" name="id" value="<?=$id?>" >			  								
-	<input type="hidden" id="num" name="num" value="<?=$num?>" >			  									
-	<input type="hidden" id="item" name="item" value="<?=$item?>" >			  										
-	<input type="hidden" id="mode" name="mode" value="<?=$mode?>" >		
-	<input type="hidden" id="timekey" name="timekey" value="<?=$timekey?>" >  <!-- 신규데이터 작성시 parentid key값으로 사용 -->				
-	<input type="hidden" id="searchtext" name="searchtext" value="<?=$searchtext?>" >  <!-- summernote text저장 -->		
+	<input type="hidden" id="tablename" name="tablename" value="<?=$tablename?>" >
+	<input type="hidden" id="id" name="id" value="<?=$id?>" >
+	<input type="hidden" id="num" name="num" value="<?=$num?>" >
+	<input type="hidden" id="item" name="item" value="<?=$item?>" >
+	<input type="hidden" id="mode" name="mode" value="<?=$mode?>" >
+	<input type="hidden" id="timekey" name="timekey" value="<?=$timekey ?? ''?>" >  <!-- 신규데이터 작성시 parentid key값으로 사용 -->
+	<input type="hidden" id="searchtext" name="searchtext" value="<?=$searchtext ?? ''?>" >  <!-- summernote text저장 -->
 
 
-<div class="container">  
-	<div class="d-flex mt-3 mb-1 justify-content-center align-items-center"> 
-			<span class="fs-5" > &nbsp;&nbsp;  <?=$title_message?> &nbsp;&nbsp;</span>	
-	</div>	      
-	<div class="d-flex mt-2 mb-1 justify-content-center align-items-center"> 		
-		<div class="card mt-2" style="width:60%;">  
-			<div class="card-body">  					
-				 <div class="row"> 					 
-						<div class="d-flex justify-content-center align-items-center"> 							 
-							작성자  : &nbsp;    <?=$_SESSION["nick"]?>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;							
-						</div>					
-						<div class="d-flex  mt-2 justify-content-center align-items-center"> 							 							
+<div class="container">
+	<div class="d-flex mt-3 mb-1 justify-content-center align-items-center">
+			<span class="fs-5" > &nbsp;&nbsp;  <?=$title_message?> &nbsp;&nbsp;</span>
+	</div>
+	<div class="d-flex mt-2 mb-1 justify-content-center align-items-center">
+		<div class="card mt-2" style="width:60%;">
+			<div class="card-body">
+				 <div class="row">
+						<div class="d-flex justify-content-center align-items-center">
+							작성자  : &nbsp;    <?=$_SESSION["nick"] ?? ''?>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						</div>
+						<div class="d-flex  mt-2 justify-content-center align-items-center">
 							<span class="form-control me-2" style="width: 50px;border:0px;" > 제목 </span>
-							<input id="subject" name="subject" type="text" required class="form-control" style="width:500px;"  autocomplete="off"  <?php if($mode=="modify"){ ?> value="<?=$item_subject?>" <?php }?>>&nbsp;														
-						</div>						
+							<input id="subject" name="subject" type="text" required class="form-control" style="width:500px;"  autocomplete="off"  <?php if($mode=="modify"){ ?> value="<?=$item_subject?>" <?php }?>>&nbsp;
+						</div>
 				</div>
-				</div>			
+				</div>
 			</div>
 		</div>
-	<div class="d-flex mt-1 mb-1 justify-content-start align-items-center"> 					 
+	<div class="d-flex mt-1 mb-1 justify-content-start align-items-center">
 		<button class="btn btn-dark btn-sm me-1" onclick="self.close();" > &times; 닫기</button>
-		<button type="button"   class="btn btn-dark btn-sm" id="saveBtn"  >   <i class="bi bi-floppy-fill"></i> 저장  </button>	
-		
+		<button type="button"   class="btn btn-dark btn-sm" id="saveBtn"  >   <i class="bi bi-floppy-fill"></i> 저장  </button>
+
 	</div>
-	 <div class="d-flex mt-3 mb-1 justify-content-center">  
+	 <div class="d-flex mt-3 mb-1 justify-content-center">
 	 <textarea id="summernote" name="content" rows="20" ><?=$item_content?></textarea>
 	</div>
- 
-	<div class="d-flex mt-3 mb-1 justify-content-center">  	 		 
-			 <label for="upfile" class="input-group-text btn btn-outline-primary btn-sm"> 파일(10M 이하) pdf파일 첨부 </label>						  							
+
+	<div class="d-flex mt-3 mb-1 justify-content-center">
+			 <label for="upfile" class="input-group-text btn btn-outline-primary btn-sm"> 파일(10M 이하) pdf파일 첨부 </label>
 			 <input id="upfile"  name="upfile[]" type="file" onchange="this.value" multiple  style="display:none" >
-	</div>	
-	
-	<div id ="displayFile" class="d-flex mt-1 mb-1 justify-content-center" style="display:none;">  	 		 					
-		 
-	</div>			
-	<div id ="displayImage" class="row d-flex mt-1 mb-1 justify-content-center" style="display:none;">  	 		 					
-		 
-	</div>		
-	
-	<div class="d-flex mt-1 mb-1 justify-content-center">  	 	
-			<label  for="upfileimage" class="input-group-text btn btn-outline-dark btn-sm ">  사진 첨부 </label>	
+	</div>
+
+	<div id ="displayFile" class="d-flex mt-1 mb-1 justify-content-center" style="display:none;">
+
+	</div>
+	<div id ="displayImage" class="row d-flex mt-1 mb-1 justify-content-center" style="display:none;">
+
+	</div>
+
+	<div class="d-flex mt-1 mb-1 justify-content-center">
+			<label  for="upfileimage" class="input-group-text btn btn-outline-dark btn-sm ">  사진 첨부 </label>
 			 <input id="upfileimage"  name="upfileimage[]" type="file" onchange="this.value" multiple accept=".gif, .jpg, .png" style="display:none">
-	</div>	
-	
-	</div>  	
+	</div>
+
+	</div>
 </form>
- 
-<script> 
-$(document).ready(function(){	
+
+<script>
+$(document).ready(function(){
 
       $('#summernote').summernote({
         placeholder: '내용 작성',
 		// maximumImageFileSize: 500*1024, // 500 KB
-		maximumImageFileSize: 1920*5000, 		
+		maximumImageFileSize: 1920*5000,
         tabsize: 2,
         height: 500,
         width: 1200,
@@ -152,7 +154,7 @@ $(document).ready(function(){
           ['insert', ['link', 'picture', 'video']],
           ['view', ['fullscreen', 'codeview', 'help']]
         ],
-		
+
 		callbacks: {
         onImageUpload: function(files) {
             if (files.length > 0) {
@@ -165,30 +167,30 @@ $(document).ready(function(){
                 }
             }
       });
-	   
- 	 	 
-$("#closeModalBtn").click(function(){ 
+
+
+$("#closeModalBtn").click(function(){
     $('#myModal').modal('hide');
-}); 	 
+});
 
 // 하단복사 버튼
-$("#closeBtn1").click(function(){ 
+$("#closeBtn1").click(function(){
    $("#closeBtn").click();
 })
-	
-$("#closeBtn").click(function(){    // 저장하고 창닫기	    
-	self.close();
-});	
 
- 	 
-$("#saveBtn").click(function(){ 
+$("#closeBtn").click(function(){    // 저장하고 창닫기
+	self.close();
+});
+
+
+$("#saveBtn").click(function(){
     Fninsert();
-}); 	
-		
-// 자료의 삽입/수정하는 모듈 
-function Fninsert() {	 
-		   
-	console.log($("#mode").val());    
+});
+
+// 자료의 삽입/수정하는 모듈
+function Fninsert() {
+
+	console.log($("#mode").val());
 
 	// Summernote 초기화 후
 	let content = $('#summernote').summernote('code'); // 에디터의 내용을 HTML 형태로 가져옵니다.
@@ -215,22 +217,22 @@ function Fninsert() {
 
     var form = $('#board_form')[0];
     var data = new FormData(form);
- 
-    
-    showMsgModal(2); // 파일저장중   
+
+
+    showMsgModal(2); // 파일저장중
 	ajaxRequest = $.ajax({
 		enctype: 'multipart/form-data',    // file을 서버에 전송하려면 이렇게 해야 함 주의
-		processData: false,    
-		contentType: false,      
-		cache: false,           
-		timeout: 600000, 			
+		processData: false,
+		contentType: false,
+		cache: false,
+		timeout: 600000,
 		url: "insert.php",
-		type: "post",		
-		data: data,			
-		dataType:"json",  
-		success : function(data){			
+		type: "post",
+		data: data,
+		dataType:"json",
+		success : function(data){
 				// console.log(data);
-				setTimeout(function() {						
+				setTimeout(function() {
 						Toastify({
 							text: "파일 저장완료 ",
 							duration: 1500,
@@ -240,56 +242,56 @@ function Fninsert() {
 							style: {
 								background: "linear-gradient(to right, #00b09b, #96c93d)"
 							},
-						}).showToast();	
-						
+						}).showToast();
+
 						setTimeout(function(){
 							if (window.opener && !window.opener.closed) {
-								// 작업 완료 후 모달 닫기								
+								// 작업 완료 후 모달 닫기
 								opener.location.reload();
-							}		
-						}, 1000);																		
+							}
+						}, 1000);
 
 						var num = data["num"];
 						var tablename = data["tablename"];
-						
+
 						setTimeout(function(){
 							hideMsgModal();
-							location.href='view.php?page=1&num=' + num + "&tablename=" + tablename ;					
-						}, 1000);													
-							
+							location.href='view.php?page=1&num=' + num + "&tablename=" + tablename ;
+						}, 1000);
+
 					}, 1000);
 
 		},
 		error : function( jqxhr , status , error ){
 			console.log( jqxhr , status , error );
-					} 			      		
-	   });				
-	} 	
+					}
+	   });
+	}
 }); // end of ready document
- 
+
 
 
 function deleteLastchar(str)
 // 마지막 문자 제거하는 함수
 {
-  return str = str.substr(0, str.length - 1);		
+  return str = str.substr(0, str.length - 1);
 }
-   
+
 </script>
 
 <script>
 $(document).ready(function () {
-	displayFileLoad();	// 기존파일 업로드 보이기			 
-	displayImageLoad();	// 기존이미지 업로드 보이기			 
-	
+	displayFileLoad();	// 기존파일 업로드 보이기
+	displayImageLoad();	// 기존이미지 업로드 보이기
+
     // 첨부파일 업로드 처리
     $("#upfile").change(function (e) {
 		if (this.files.length === 0) {
 			// 파일이 선택되지 않았을 때
 			console.warn("파일이 선택되지 않았습니다.");
 			return;
-		}		
-		
+		}
+
         const form = $('#board_form')[0];
         const data = new FormData(form);
 
@@ -298,7 +300,7 @@ $(document).ready(function () {
         data.append("item", "attached");
         data.append("upfilename", "upfile"); // upfile 파일 name
         data.append("folderPath", "미래기업/uploads");
-		data.append("DBtable", "picuploads");        
+		data.append("DBtable", "picuploads");
 
 		showMsgModal(2); // 파일저장중
 
@@ -350,29 +352,29 @@ $(document).ready(function () {
                     }).showToast();
                 }
 
-                setTimeout(function () {                    
+                setTimeout(function () {
 					displayFile();
-					hideMsgModal();	
+					hideMsgModal();
                 }, 1000);
-                
+
             },
             error: function (jqxhr, status, error) {
                 console.error("업로드 실패:", jqxhr, status, error);
             },
         });
     });
-	
+
     // 첨부 이미지 업로드 처리
     $("#upfileimage").change(function (e) {
 		if (this.files.length === 0) {
 			// 파일이 선택되지 않았을 때
 			console.warn("파일이 선택되지 않았습니다.");
 			return;
-		}	
-		
+		}
+
         const form = $('#board_form')[0];
         const data = new FormData(form);
-		
+
         // 추가 데이터 설정
         data.append("tablename", $("#tablename").val() );
         data.append("item", "image");
@@ -432,9 +434,9 @@ $(document).ready(function () {
 
                 setTimeout(function () {
 					displayImage();
-					hideMsgModal();						
+					hideMsgModal();
                 }, 1000);
-                
+
             },
             error: function (jqxhr, status, error) {
                 console.error("업로드 실패:", jqxhr, status, error);
@@ -779,7 +781,3 @@ function delImageFn(divID, fileId) {
 
 </body>
 </html>
-
-
-
-

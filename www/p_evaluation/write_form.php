@@ -23,76 +23,66 @@ require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
 <?php
 
 
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(1);
-         header("Location:".$_SESSION["WebSite"]."login/login_form.php"); 
-         exit;
-   } 
-   
+// 권한 체크
+if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+    sleep(1);
+    header("Location:" . ($_SESSION["WebSite"] ?? '') . "login/login_form.php");
+    exit;
+}
 
-   if(isset($_REQUEST["num"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $num=$_REQUEST["num"];
-  else
-   $num="";
+// 요청 변수 초기화 (?? '' 형태)
+$num = $_REQUEST["num"] ?? '';
+$mode = $_REQUEST["mode"] ?? '';
+$tablename = $_REQUEST["tablename"] ?? '';
+$page = $_REQUEST["page"] ?? '';
+$create = $_REQUEST["create"] ?? '';
 
-$mode=$_REQUEST["mode"] ?? '';
+if ((int)$num > 0) {
+    $SelectWork = 'update';
+} else {
+    $SelectWork = 'insert';
+}
 
-if((int)$num > 0 )
-	$SelectWork = 'update';
-  else
-	  $SelectWork = 'insert';
-  
-isset($_REQUEST["tablename"]) ? $tablename=$_REQUEST["tablename"] :  $tablename=''; 
- 
-require_once(includePath('lib/mydb.php'));
+require_once includePath('lib/mydb.php');
 $pdo = db_connect();
 
-if($mode!=='copy')
-{
-     try{
-      $sql = "select * from mirae8440.p_evaluation where num = ? ";
-      $stmh = $pdo->prepare($sql); 
+if ($mode !== 'copy') {
+    try {
+        $sql = "select * from mirae8440.p_evaluation where num = ?";
+        $stmh = $pdo->prepare($sql);
+        $stmh->bindValue(1, $num, PDO::PARAM_STR);
+        $stmh->execute();
+        $count = $stmh->rowCount();
+        $row = $stmh->fetch(PDO::FETCH_ASSOC);
 
-      $stmh->bindValue(1,$num,PDO::PARAM_STR); 
-      $stmh->execute();
-      $count = $stmh->rowCount();            
-	  $row = $stmh->fetch(PDO::FETCH_ASSOC);  // $row 배열로 DB 정보를 불러온다.
-    if($count<1){  
-		  print "신규작성.<br>";
+        if ($count < 1) {
+            print "신규작성.<br>";
 
-		for($i=1;$i<24;$i++)
-		{
-		   $txtname = 'txt' . $i ;   
-		   $$txtname = null ;
-
-		}	
-	  
-     }else{
-
-			include '_row.php';
-					
-      }
-     }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
-     }
-}
-else
-{
-	 try{
-      $sql = "select * from mirae8440.p_evaluation where num = ? ";
-      $stmh = $pdo->prepare($sql); 
-
-      $stmh->bindValue(1,$num,PDO::PARAM_STR); 
-      $stmh->execute();
-      $count = $stmh->rowCount();            
-	  $row = $stmh->fetch(PDO::FETCH_ASSOC);  // $row 배열로 DB 정보를 불러온다.    
-	   include '_row.php';
-     }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
-     }
-	 // 복사시 공백 설정
-	 $num = '';
+            // txt1부터 txt23까지 null로 초기화
+            for ($i = 1; $i < 24; $i++) {
+                $txtname = 'txt' . $i;
+                $$txtname = null;
+            }
+        } else {
+            include '_row.php';
+        }
+    } catch (PDOException $Exception) {
+        print "오류: " . $Exception->getMessage();
+    }
+} else {
+    try {
+        $sql = "select * from mirae8440.p_evaluation where num = ?";
+        $stmh = $pdo->prepare($sql);
+        $stmh->bindValue(1, $num, PDO::PARAM_STR);
+        $stmh->execute();
+        $count = $stmh->rowCount();
+        $row = $stmh->fetch(PDO::FETCH_ASSOC);
+        include '_row.php';
+    } catch (PDOException $Exception) {
+        print "오류: " . $Exception->getMessage();
+    }
+    // 복사 시 num 공백 설정
+    $num = '';
 }
  
 
@@ -100,12 +90,12 @@ else
 
 <form id="board_form" name="board_form" method="post" enctype="multipart/form-data">	
   
-	<input type="hidden" id="SelectWork" name="SelectWork" value="<?=$SelectWork?>">             
-	<input type="hidden" id="num" name="num" value=<?=$num?> > 
-	<input type="hidden" id="tablename" name="tablename" value="<?=$tablename?>" >	
-	<input type="hidden" id="page" name="page" value=<?=$page?> > 
-	<input type="hidden" id="mode" name="mode" value=<?=$mode?> > 
-	<input type="hidden" id="create" name="create" value=<?=$create?> >   
+	<input type="hidden" id="SelectWork" name="SelectWork" value="<?= $SelectWork ?>">
+	<input type="hidden" id="num" name="num" value="<?= $num ?>">
+	<input type="hidden" id="tablename" name="tablename" value="<?= $tablename ?>">
+	<input type="hidden" id="page" name="page" value="<?= $page ?>">
+	<input type="hidden" id="mode" name="mode" value="<?= $mode ?>">
+	<input type="hidden" id="create" name="create" value="<?= $create ?>">   
  
 <div class="container">  
 	<div class="card mt-2 mb-4">  
@@ -129,19 +119,19 @@ else
 	
     <div class="img">      
 	<div class="clear"> </div>
-    <div id="row1">  
-	<input id="txt1"  name="txt1" value="<?=$txt1?>" type="text" size="10" style="border-color: blue;width:130px;height:30px;" > 
-	<input id="txt2"  name="txt2" value="<?=$txt2?>"  type="text" size="10" style="margin-left:165px;border-color: blue;width:100px;height:30px;" > 	
-	</div>    
+    <div id="row1">
+	<input id="txt1" name="txt1" value="<?= $txt1 ?? '' ?>" type="text" size="10" style="border-color: blue;width:130px;height:30px;">
+	<input id="txt2" name="txt2" value="<?= $txt2 ?? '' ?>" type="text" size="10" style="margin-left:165px;border-color: blue;width:100px;height:30px;">
+	</div>
 	<div class="clear"> </div>
-    <div id="row2">  
-	<input id="txt3"  name="txt3" value="<?=$txt3?>" type="text" size="10" style="border-color: blue;width:130px;height:30px;" > 
-	<input id="txt4"  name="txt4" value="<?=$txt4?>"  type="text" size="10" style="margin-left:165px;border-color: blue;width:100px;height:30px;" > 	
-	</div>        
-    <div class="clear"> </div>	
-    <div id="row3">  
-	<input id="txt5"  name="txt5" value="<?=$txt5?>" type="text" size="10" style="border-color: blue;width:130px;height:30px;" > 
-	<input id="txt6"  name="txt6" value="<?=$txt6?>"  type="date" size="10" style="font-size:12px;margin-left:165px;border-color: blue;width:100px;height:30px;" > 	
+    <div id="row2">
+	<input id="txt3" name="txt3" value="<?= $txt3 ?? '' ?>" type="text" size="10" style="border-color: blue;width:130px;height:30px;">
+	<input id="txt4" name="txt4" value="<?= $txt4 ?? '' ?>" type="text" size="10" style="margin-left:165px;border-color: blue;width:100px;height:30px;">
+	</div>
+    <div class="clear"> </div>
+    <div id="row3">
+	<input id="txt5" name="txt5" value="<?= $txt5 ?? '' ?>" type="text" size="10" style="border-color: blue;width:130px;height:30px;">
+	<input id="txt6" name="txt6" value="<?= $txt6 ?? '' ?>" type="date" size="10" style="font-size:12px;margin-left:165px;border-color: blue;width:100px;height:30px;"> 	
 	</div>        
     <div class="clear"> </div>		
     <div id="row4">  

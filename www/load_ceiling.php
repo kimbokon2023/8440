@@ -103,10 +103,22 @@ if ($page<=1)
 else 
 	$start_num=$total_row-($page-1) * $scale;
 		
-		   $sum = array();
+		   $sum = array(0, 0, 0, 0, 0, 0);  // 배열 초기화 (인덱스 0~5)
+		   $sum1 = array();  // 배열 초기화
+		   $sum2 = array();  // 배열 초기화
+		   $sum3 = array();  // 배열 초기화
+		   $sum4 = array();  // 배열 초기화
+		   $sum5 = array();  // 배열 초기화
+		   $counter = 0;  // 카운터 초기화
 	       while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
 		     
                include './ceiling/_rowDB.php';			 
+			  
+			  if (!isset($sum1[$counter])) $sum1[$counter] = 0;
+			  if (!isset($sum2[$counter])) $sum2[$counter] = 0;
+			  if (!isset($sum3[$counter])) $sum3[$counter] = 0;
+			  if (!isset($sum4[$counter])) $sum4[$counter] = 0;
+			  if (!isset($sum5[$counter])) $sum5[$counter] = 0;
 			  
 			  $sum1[$counter] += (int)$su;
 			  $sum2[$counter] += (int)$bon_su;
@@ -122,7 +134,9 @@ else
 			  $sum[4] += (int)$air_su;
 			  $sum[5] += (int)$su + (int)$bon_su + (int)$lc_su + (int)$etc_su + (int)$air_su;
 			  
-			  $dis_text2 = " 총 : " . $sum[0] . " (SET),  본천장 : " . $sum[1] . " ,  L/C : "  . $sum[2] . "  , 기타 : "  . $sum[3] ; 			   			  			  
+			  $dis_text2 = " 총 : " . $sum[0] . " (SET),  본천장 : " . $sum[1] . " ,  L/C : "  . $sum[2] . "  , 기타 : "  . $sum[3] ;
+			  
+			  $counter++;  // 카운터 증가
 			  
 		      $main_draw_arr="";			  
 			  if(substr($main_draw,0,2)=="20")  $main_draw_arr= iconv_substr($main_draw,5,5,"utf-8");		    

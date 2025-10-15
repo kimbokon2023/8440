@@ -112,8 +112,8 @@ a {
 		    $jamb_registedate = 0 ;
 		    $jamb_outputdonedate = 0 ;
 	    
-		   $sum = array();
-		   $out_sum = array();
+		   $sum = array(0, 0, 0, 0);  // 배열 초기화
+		   $out_sum = array(0, 0, 0, 0);  // 배열 초기화
 		   $check_outsourcing = 0;
 		   
 	       while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
@@ -171,9 +171,9 @@ a {
 					else $demand="";						
 			  
 			  $state_work=0;
-			  if($row["checkbox"]==0) $state_work=1;
-			  if(substr($row["workday"],0,2)=="20") $state_work=2;
-			  if(substr($row["endworkday"],0,2)=="20") $state_work=3;
+			  if($checkbox==0) $state_work=1;
+			  if(substr($workday,0,2)=="20") $state_work=2;
+			  if(substr($endworkday,0,2)=="20") $state_work=3;
 			  			  
 			  $font="black";
 			  switch ($state_work) {

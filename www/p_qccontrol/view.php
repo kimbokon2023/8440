@@ -1,180 +1,196 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php
+/**
+ * QC 공정표 상세보기 페이지
+ * QC 공정표 게시글의 상세 내용을 표시
+ */
+require_once __DIR__ . '/../common/functions.php';
 require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
 
-  // 첫 화면 표시 문구
- $title_message = 'QC 공정도';   
-   
+// 첫 화면 표시 문구
+$title_message = 'QC 공정도';
+
 ?>
-   
+
 <?php include getDocumentRoot() . '/load_header.php' ?>
 
-<title> <?=$title_message?> </title>  
- 
- </head> 
+<title> <?=$title_message?> </title>
+
+ </head>
 
 <body>
 
 <?php include getDocumentRoot() . "/common/modal.php"; ?>
- 
+
 <?php
 
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(1);
-         header("Location:".$_SESSION["WebSite"]."login/login_form.php"); 
-         exit;
-   }    
- 
- $num=$_REQUEST["num"];
- $page=$_REQUEST["page"];   //페이지번호
- $tablename=$_REQUEST["tablename"];  
+if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
+	/*   alert("관리자 승인이 필요합니다."); */
+	sleep(1);
+	header("Location:".$_SESSION["WebSite"]."login/login_form.php");
+	exit;
+}
+
+// 요청 변수 안전하게 초기화
+$num = $_REQUEST["num"] ?? '';
+$page = $_REQUEST["page"] ?? '';   //페이지번호
+$tablename = $_REQUEST["tablename"] ?? '';
+$search = $_REQUEST["search"] ?? '';
+$Bigsearch = $_REQUEST["Bigsearch"] ?? '';
+$find = $_REQUEST["find"] ?? '';
+$year = $_REQUEST["year"] ?? '';
+$process = $_REQUEST["process"] ?? '';
+$asprocess = $_REQUEST["asprocess"] ?? '';
+$fromdate = $_REQUEST["fromdate"] ?? '';
+$todate = $_REQUEST["todate"] ?? '';
+$separate_date = $_REQUEST["separate_date"] ?? '';
+
 require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
- 
- try{
+
+try{
 	$sql = "select * from mirae8440." . $tablename . " where num=?";
-	$stmh = $pdo->prepare($sql);  
-	$stmh->bindValue(1, $num, PDO::PARAM_STR);      
-	$stmh->execute();            
+	$stmh = $pdo->prepare($sql);
+	$stmh->bindValue(1, $num, PDO::PARAM_STR);
+	$stmh->execute();
 
 	$row = $stmh->fetch(PDO::FETCH_ASSOC);
-	$item_num     = $row["num"];
-	$item_id      = $row["id"];
-	$item_name    = $row["name"];
-	$item_nick    = $row["nick"];   
-	$item_subject = str_replace(" ", "&nbsp;", $row["subject"]);
-	$content = $row["content"];
-	$item_date    = $row["regist_day"];
-	$item_date    = substr($item_date, 0, 10);   
-	$item_hit     = $row["hit"];     
+	$item_num = $row["num"] ?? '';
+	$item_id = $row["id"] ?? '';
+	$item_name = $row["name"] ?? '';
+	$item_nick = $row["nick"] ?? '';
+	$item_subject = str_replace(" ", "&nbsp;", $row["subject"] ?? '');
+	$content = $row["content"] ?? '';
+	$item_date = $row["regist_day"] ?? '';
+	$item_date = substr($item_date, 0, 10);
+	$item_hit = $row["hit"] ?? 0;
 
-       } catch (PDOException $Exception) {
-         $pdo->rollBack();
-       print "오류: ".$Exception->getMessage();
-  }	 
-	 
-     $new_hit = $item_hit + 1;
-     try{
-       $pdo->beginTransaction(); 
-       $sql = "update mirae8440." . $tablename . " set hit=? where num=?";   // 글 조회수 증가
-       $stmh = $pdo->prepare($sql);  
-       $stmh->bindValue(1, $new_hit, PDO::PARAM_STR);      
-       $stmh->bindValue(2, $num, PDO::PARAM_STR);           
-       $stmh->execute();
-       $pdo->commit(); 
-       } catch (PDOException $Exception) {
-         $pdo->rollBack();
-       print "오류: ".$Exception->getMessage();
-  }
-  
+} catch (PDOException $Exception) {
+	$pdo->rollBack();
+	print "오류: ".$Exception->getMessage();
+}
 
-// 초기 프로그램은 $num사용 이후 $id로 수정중임  
-$id=$num;  
-$author_id = $item_id  ;
-  
-require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
-?> 
+$new_hit = $item_hit + 1;
+try{
+	$pdo->beginTransaction();
+	$sql = "update mirae8440." . $tablename . " set hit=? where num=?";   // 글 조회수 증가
+	$stmh = $pdo->prepare($sql);
+	$stmh->bindValue(1, $new_hit, PDO::PARAM_STR);
+	$stmh->bindValue(2, $num, PDO::PARAM_STR);
+	$stmh->execute();
+	$pdo->commit();
+} catch (PDOException $Exception) {
+	$pdo->rollBack();
+	print "오류: ".$Exception->getMessage();
+}
 
 
-<form  id="board_form" name="board_form" method="post" enctype="multipart/form-data"> 
-	<input type="hidden" id="tablename" name="tablename" value="<?=$tablename?>" >			  								
-	<input type="hidden" id="id" name="id" value="<?=$id?>" >			  								
-	<input type="hidden" id="num" name="num" value="<?=$num?>" >			  									
-	<input type="hidden" id="item" name="item" value="<?=$item?>" >			  										
-	<input type="hidden" id="mode" name="mode" value="<?=$mode?>" >		
-	<input type="hidden" id="timekey" name="timekey" value="<?=$timekey?>" >  <!-- 신규데이터 작성시 parentid key값으로 사용 -->				
-	<input type="hidden" id="searchtext" name="searchtext" value="<?=$searchtext?>" >  <!-- summernote text저장 -->				    
-</form>  
-   
-      
-<div class="container">  
-	<div class="card mt-2 mb-4">  
-	<div class="card-body">  
-		<div class="d-flex mt-3 mb-4 justify-content-center">  
-			<h5>  <?=$title_message?> </h5> 
-		</div>	
-	 <div class="d-flex  p-1 m-1 mt-1 mb-1 justify-content-left  align-items-center">  				
-		
+// 초기 프로그램은 $num사용 이후 $id로 수정중임
+$id=$num;
+$author_id = $item_id;
+
+require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기
+?>
+
+
+<form  id="board_form" name="board_form" method="post" enctype="multipart/form-data">
+	<input type="hidden" id="tablename" name="tablename" value="<?=$tablename?>" >
+	<input type="hidden" id="id" name="id" value="<?=$id?>" >
+	<input type="hidden" id="num" name="num" value="<?=$num?>" >
+	<input type="hidden" id="item" name="item" value="<?=$item ?? ''?>" >
+	<input type="hidden" id="mode" name="mode" value="<?=$mode ?? ''?>" >
+	<input type="hidden" id="timekey" name="timekey" value="<?=$timekey ?? ''?>" >  <!-- 신규데이터 작성시 parentid key값으로 사용 -->
+	<input type="hidden" id="searchtext" name="searchtext" value="<?=$searchtext ?? ''?>" >  <!-- summernote text저장 -->
+</form>
+
+
+<div class="container">
+	<div class="card mt-2 mb-4">
+	<div class="card-body">
+		<div class="d-flex mt-3 mb-4 justify-content-center">
+			<h5>  <?=$title_message?> </h5>
+		</div>
+	 <div class="d-flex  p-1 m-1 mt-1 mb-1 justify-content-left  align-items-center">
+
 		<button type="button" id="closeBtn"  class="btn btn-dark btn-sm me-1" > &times; 닫기 </button>
 		<?php
 		// 삭제 수정은 관리자와 글쓴이만 가능토록 함
-		
+
 		if($_SESSION["userid"]==$item_id || $_SESSION["userid"]=="admin" ||
 			   $_SESSION["level"]===1 )
 			{
-		?>			
-				<button type="button"   class="btn btn-dark btn-sm me-1" onclick="location.href='write_form.php?tablename=<?=$tablename?>&mode=modify&num=<?=$num?>&page=<?=$page?>&search=<?=$search?>&Bigsearch=<?=$Bigsearch?>&find=<?=$find?>&year=<?=$year?>&search=<?=$search?>&process=<?=$process?>&asprocess=<?=$asprocess?>&fromdate=<?=$fromdate?>&todate=<?=$todate?>&separate_date=<?=$separate_date?>'" >  <i class="bi bi-pencil-square"></i>  수정  </button>			
-				<button type="button"   class="btn btn-dark btn-sm me-1" onclick="location.href='write_form.php?tablename=<?=$tablename?>'" >  <i class="bi bi-pencil"></i>  신규  </button>			
-				<button type="button"   class="btn btn-danger btn-sm me-1" onclick="javascript:del('delete.php?tablename=<?=$tablename?>&num=<?=$num?>&page=<?=$page?>')" > <i class="bi bi-trash"></i>  삭제   </button>		
-		<?php  }  ?>				
-		
-	</div>  
-	  
-		<div class="card">  
-			<div class="card-body">  	 
-				<div class="row d-flex  p-2 m-2 mt-1 mb-1 justify-content-center bg-secondary text-white align-items-center"> 		   
+		?>
+				<button type="button"   class="btn btn-dark btn-sm me-1" onclick="location.href='write_form.php?tablename=<?=$tablename?>&mode=modify&num=<?=$num?>&page=<?=$page?>&search=<?=$search?>&Bigsearch=<?=$Bigsearch?>&find=<?=$find?>&year=<?=$year?>&search=<?=$search?>&process=<?=$process?>&asprocess=<?=$asprocess?>&fromdate=<?=$fromdate?>&todate=<?=$todate?>&separate_date=<?=$separate_date?>'" >  <i class="bi bi-pencil-square"></i>  수정  </button>
+				<button type="button"   class="btn btn-dark btn-sm me-1" onclick="location.href='write_form.php?tablename=<?=$tablename?>'" >  <i class="bi bi-pencil"></i>  신규  </button>
+				<button type="button"   class="btn btn-danger btn-sm me-1" onclick="javascript:del('delete.php?tablename=<?=$tablename?>&num=<?=$num?>&page=<?=$page?>')" > <i class="bi bi-trash"></i>  삭제   </button>
+		<?php  }  ?>
+
+	</div>
+
+		<div class="card">
+			<div class="card-body">
+				<div class="row d-flex  p-2 m-2 mt-1 mb-1 justify-content-center bg-secondary text-white align-items-center">
 				  <div class="col-7 text-start fw-bold fs-6" > <?= $item_subject ?> </div>
-				  <div class="col-5 text-end" > <?= $noticecheck_memo ?> |<?= $item_nick ?> | 조회 : <?= $item_hit ?> | <?= $item_date ?>   </div>   
+				  <div class="col-5 text-end" > <?= $noticecheck_memo ?? '' ?> |<?= $item_nick ?> | 조회 : <?= $item_hit ?> | <?= $item_date ?>   </div>
 				</div>
-	  
-				<div class="row d-flex  p-2 m-2 mt-1 mb-1 justify-content-left"> 	  
+
+				<div class="row d-flex  p-2 m-2 mt-1 mb-1 justify-content-left">
 					<?=$content ?>
 				</div>
 			</div>
 		</div>
-	   <div class="row d-flex  p-2 m-2 mt-1 mb-1 justify-content-left "> 	
-			<div id ="displayImage" class="row d-flex mt-1 mb-1 justify-content-center" style="display:none;">  	 		 					 
-		</div>		
-		
+	   <div class="row d-flex  p-2 m-2 mt-1 mb-1 justify-content-left ">
+			<div id ="displayImage" class="row d-flex mt-1 mb-1 justify-content-center" style="display:none;">
+		</div>
+
 		<div id ="displayFile" class="d-flex mt-1 mb-1 justify-content-center" style="display:none;">
-		
-		</div>			
-		</div>			
-			
- </div> 
- </div> 
- </div> 
+
+		</div>
+		</div>
+
+ </div>
+ </div>
+ </div>
 
  </body>
- </html>     
- 
- 
-<script> 
+ </html>
 
-$(document).ready(function(){	
+
+<script>
+
+$(document).ready(function(){
 
 	$('#summernote').summernote({
         placeholder: '게시글 내용을 작성하세요!',
         tabsize: 2,
         height: 800,
       });
-	  
-$('#summernote').summernote('disable');	  
+
+$('#summernote').summernote('disable');
  // $('#summernote').summernote('enable');
 
   // // 페이지 로드 시 $content의 값을 에
 
-	 	 
-$("#closeModalBtn").click(function(){ 
+
+$("#closeModalBtn").click(function(){
     $('#myModal').modal('hide');
-}); 
+});
 
 // 하단복사 버튼
-$("#closeBtn1").click(function(){ 
+$("#closeBtn1").click(function(){
    $("#closeBtn").click();
 })
-	
-$("#closeBtn").click(function(){    // 저장하고 창닫기	    
+
+$("#closeBtn").click(function(){    // 저장하고 창닫기
 	self.close();
-});	
+});
 
 
 }); // end of ready document
- 
-function del(href) {    
-    var user_id  = '<?php echo  $user_id ; ?>' ;
-    var author_id  = '<?php echo  $author_id ; ?>' ;
-    var admin  = '<?php echo  $admin ; ?>' ;
+
+function del(href) {
+    var user_id  = '<?php echo  $user_id ?? ''; ?>' ;
+    var author_id  = '<?php echo  $author_id ?? ''; ?>' ;
+    var admin  = '<?php echo  $admin ?? ''; ?>' ;
 	if( user_id !== author_id && admin !== '1' )
 	{
         Swal.fire({
@@ -197,7 +213,7 @@ function del(href) {
             if (result.isConfirmed) {
 				$.ajax({
 					url: "delete.php",
-					type: "post",		
+					type: "post",
 					data: $("#board_form").serialize(),
 					dataType:"json",
 					success : function( data ){
@@ -211,42 +227,42 @@ function del(href) {
 							style: {
 								background: "linear-gradient(to right, #00b09b, #96c93d)"
 							},
-						}).showToast();	
+						}).showToast();
 						setTimeout(function(){
 							if (window.opener && !window.opener.closed) {
 								window.opener.restorePageNumber(); // 부모 창에서 페이지 번호 복원
 								window.opener.location.reload(); // 부모 창 새로고침
 								window.close();
-							}							
-							
-						}, 1000);	
+							}
+
+						}, 1000);
 					},
 					error : function( jqxhr , status , error ){
 						console.log( jqxhr , status , error );
-					} 			      		
-				   });	
-                    
+					}
+				   });
+
 
             }
         });
     }
 }
- 
+
 </script>
 
 
 <script>
 $(document).ready(function(){
 
-	 displayFileLoad();				 
-	 displayImageLoad();	
+	 displayFileLoad();
+	 displayImageLoad();
 
 }); // end of ready document
- 
+
 // 기존 있는 이미지 화면에 보여주기
-function displayImageLoad() { 
-	$('#displayImage').show();	
-	var saveimagename_arr = <?php echo json_encode($saveimagename_arr);?> ;	
+function displayImageLoad() {
+	$('#displayImage').show();
+	var saveimagename_arr = <?php echo json_encode($saveimagename_arr);?> ;
 
     $("#displayImage").html('');
     saveimagename_arr.forEach(function(pic, index) {
@@ -270,8 +286,8 @@ function displayImageLoad() {
 			"</div>"
 		);
 
-    });    
-}		
+    });
+}
 
 // 기존 파일 불러오기 (Google Drive에서 가져오기)
 function displayFileLoad() {
@@ -313,4 +329,4 @@ function displayFileLoad() {
 </script>
 
 </body>
-</html>    
+</html>

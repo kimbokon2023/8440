@@ -1,24 +1,37 @@
 <?php
-require_once __DIR__ . '/../bootstrap.php';
+require_once __DIR__ . '/../common/functions.php';
+require_once getDocumentRoot() . '/session.php';
+
+// 세션 변수 초기화
+$level = $_SESSION["level"] ?? 10;
+$WebSite = $_SESSION["WebSite"] ?? '';
 
 // 첫 화면 표시 문구
-$title_message = '거래처 조회'; 
+$title_message = '거래처 조회';
 
-if(!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+// 권한 체크
+if (!isset($_SESSION["level"]) || $level > 5) {
     sleep(1);
-    header("Location:" . getBaseUrl() . "/login/login_form.php"); 
+    
+    // 로컬/서버 환경에 따른 동적 리다이렉션
+    $host = $_SERVER['HTTP_HOST'] ?? '';
+    if (strpos($host, 'localhost') !== false || strpos($host, '127.0.0.1') !== false) {
+        header("Location: http://" . $host . "/login/login_form.php");
+    } else {
+        header("Location: " . $WebSite . "login/login_form.php");
+    }
     exit;
 }
 
-include includePath('load_header.php');   
+include getDocumentRoot() . '/load_header.php';
 ?>
 <title> <?=$title_message?> </title>
 <!-- Tabulator CSS and JS -->
 <link href="https://unpkg.com/tabulator-tables@6.2.1/dist/css/tabulator.min.css" rel="stylesheet">
 <script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.2.1/dist/js/tabulator.min.js"></script>
 
-<body>		 
-<?php include includePath('myheader.php'); ?>   
+<body>
+    <?php require_once(includePath('myheader.php')); ?>   
 
 <style>
 /* Light mode styles */
@@ -427,11 +440,13 @@ body {
     </div>
 </div>
 
-<?php
-// bootstrap.php에서 이미 DB 연결됨
+    <?php
+    // 데이터베이스 연결
+    require_once(includePath('lib/mydb.php'));
+    $pdo = db_connect();
 
-// 거래처 테이블이 없으면 생성
-$createTableSQL = "
+    // 거래처 테이블이 없으면 생성
+    $createTableSQL = "
 CREATE TABLE IF NOT EXISTS mirae8440.customer (
     num INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
     classification ENUM('사업자', '개인') DEFAULT '사업자' COMMENT '구분',
@@ -506,52 +521,54 @@ try {
         "ALTER TABLE mirae8440.customer ADD COLUMN attached_files TEXT DEFAULT NULL COMMENT '첨부파일 정보 (JSON)'"
     ];
     
-    foreach ($alterColumns as $sql) {
+    for ($i = 0; $i < count($alterColumns); $i++) {
+        $sql = $alterColumns[$i];
         try {
             $pdo->exec($sql);
-        } catch (PDOException $e) {
+        } catch (PDOException $ex) {
             // 컬럼이 이미 존재하는 경우 무시
-            if (strpos($e->getMessage(), 'Duplicate column name') === false && 
-                strpos($e->getMessage(), 'already exists') === false) {
-                error_log("테이블 구조 업데이트 오류: " . $e->getMessage());
+            if (strpos($ex->getMessage(), 'Duplicate column name') === false &&
+                strpos($ex->getMessage(), 'already exists') === false) {
+                error_log("테이블 구조 업데이트 오류: " . $ex->getMessage());
             }
         }
     }
-    
+
     // 인덱스 추가
     try {
         $pdo->exec("ALTER TABLE mirae8440.customer ADD INDEX idx_classification (classification)");
-    } catch (PDOException $e) {
+    } catch (PDOException $ex) {
         // 인덱스가 이미 존재하는 경우 무시
-        if (strpos($e->getMessage(), 'Duplicate key name') === false) {
-            error_log("인덱스 추가 오류: " . $e->getMessage());
+        if (strpos($ex->getMessage(), 'Duplicate key name') === false) {
+            error_log("인덱스 추가 오류: " . $ex->getMessage());
         }
     }
     
     // 샘플 데이터 삽입 (테이블이 비어있을 때만)
     $countSQL = "SELECT COUNT(*) as count FROM mirae8440.customer";
     $countResult = $pdo->query($countSQL);
-    $count = $countResult->fetch(PDO::FETCH_ASSOC)['count'];
-    
+    $countRow = $countResult->fetch(PDO::FETCH_ASSOC);
+    $count = $countRow ? $countRow['count'] : 0;
+
     if ($count == 0) {
-        $sampleData = [
-            ['사업자', '(주)한산엘테크', '(주)한산엘테크', '136-81-19428', '이세원', '', '031-981-6108', '', '제조', '금속표면처리', '엘리베이터', '', '경기도 김포시 하성면 원산리 603-3', '', '2018-05-03', 'Y', 'Y', 'N', '기업은행', '123-456789-01-012', '이세원'],
-            ['사업자', '(주)일해이엔지', '(주)일해이엔지', '121-81-40915', '권영창', '031-3667-5058', '', '031-366-7509', '제조', '부동산', '엘리베이터', '', '경기도 화성시 마도면 마도로574-116', '', '2018-05-03', 'Y', 'N', 'Y', '신한은행', '110-456-789012', '권영창'],
-            ['사업자', '태광기전', '태광기전', '113-81-66495', '최승범', '02-2101-3060', '', '02-2101-3063', '도소매', '전기용품', '전기부품', '', '서울시 구로구 구로동 중앙유통단지', '', '2019-12-01', 'N', 'Y', 'N', '국민은행', '123456-78-901234', '최승범'],
-            ['사업자', '대한전기', '대한전기', '123-45-67890', '김대한', '02-1234-5678', '010-1234-5678', '02-1234-5679', '제조', '전기기기', '전기부품', '우수거래처', '서울시 강남구 테헤란로 123', '123-45-67890', '2020-01-15', 'Y', 'Y', 'N', '우리은행', '1002-123-456789', '김대한'],
-            ['사업자', '미래건설', '미래건설', '234-56-78901', '박미래', '031-234-5678', '010-2345-6789', '031-234-5679', '건설', '건축', '건설자재', '장기거래', '경기도 성남시 분당구 판교로 456', '234-56-78901', '2020-03-20', 'N', 'N', 'Y', '하나은행', '123-456789-12345', '박미래']
-        ];
-        
+        $sampleData = array(
+            array('사업자', '(주)한산엘테크', '(주)한산엘테크', '136-81-19428', '이세원', '', '031-981-6108', '', '제조', '금속표면처리', '엘리베이터', '', '경기도 김포시 하성면 원산리 603-3', '', '2018-05-03', 'Y', 'Y', 'N', '기업은행', '123-456789-01-012', '이세원'),
+            array('사업자', '(주)일해이엔지', '(주)일해이엔지', '121-81-40915', '권영창', '031-3667-5058', '', '031-366-7509', '제조', '부동산', '엘리베이터', '', '경기도 화성시 마도면 마도로574-116', '', '2018-05-03', 'Y', 'N', 'Y', '신한은행', '110-456-789012', '권영창'),
+            array('사업자', '태광기전', '태광기전', '113-81-66495', '최승범', '02-2101-3060', '', '02-2101-3063', '도소매', '전기용품', '전기부품', '', '서울시 구로구 구로동 중앙유통단지', '', '2019-12-01', 'N', 'Y', 'N', '국민은행', '123456-78-901234', '최승범'),
+            array('사업자', '대한전기', '대한전기', '123-45-67890', '김대한', '02-1234-5678', '010-1234-5678', '02-1234-5679', '제조', '전기기기', '전기부품', '우수거래처', '서울시 강남구 테헤란로 123', '123-45-67890', '2020-01-15', 'Y', 'Y', 'N', '우리은행', '1002-123-456789', '김대한'),
+            array('사업자', '미래건설', '미래건설', '234-56-78901', '박미래', '031-234-5678', '010-2345-6789', '031-234-5679', '건설', '건축', '건설자재', '장기거래', '경기도 성남시 분당구 판교로 456', '234-56-78901', '2020-03-20', 'N', 'N', 'Y', '하나은행', '123-456789-12345', '박미래')
+        );
+
         $insertSQL = "INSERT INTO mirae8440.customer (classification, trade_name, company_name, registration_number, representative_name, phone_number, mobile_number, fax_number, business_type, business_category, remarks, address, business_registration_number, registration_date, is_sales_customer, is_purchase_customer, is_other_customer, bank_name, account_number, account_holder) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $pdo->prepare($insertSQL);
-        
-        foreach ($sampleData as $data) {
+
+        for ($j = 0; $j < count($sampleData); $j++) {
+            $data = $sampleData[$j];
             $stmt->execute($data);
         }
     }
-    
-} catch (PDOException $e) {
-    error_log("거래처 테이블 생성 오류: " . $e->getMessage());
+} catch (PDOException $ex) {
+    error_log("거래처 테이블 생성 오류: " . $ex->getMessage());
 }
 
 // 거래처 데이터 조회
@@ -587,26 +604,20 @@ try {
         );
         $table_data[] = $js_data;
     }
-} catch (PDOException $Exception) {
-    print "오류: " . $Exception->getMessage();
+} catch (PDOException $ex) {
+    error_log("거래처 데이터 조회 오류: " . $ex->getMessage());
 }
-
-// 디버그: 조회된 데이터 확인
-echo "<script>console.log('🔍 PHP에서 조회된 거래처 데이터:', " . json_encode($table_data) . ");</script>";
-echo "<script>console.log('🔍 조회된 거래처 개수:', " . count($table_data) . ");</script>";
 ?>
 
-<script>
-// PHP에서 전달된 테이블 데이터
-var phpTableData = <?php echo json_encode($table_data); ?>;
-console.log('PHP Table Data:', phpTableData);
+    <script>
+        // PHP에서 전달된 테이블 데이터
+        var phpTableData = <?php echo json_encode($table_data); ?>;
 
-var table; // Tabulator 인스턴스 전역 변수
+        var table; // Tabulator 인스턴스 전역 변수
 
-$(document).ready(function() {
-    // PHP에서 전달받은 데이터 사용
-    var tableData = phpTableData || [];
-    console.log('🚀 Initializing Tabulator with data count:', tableData.length);
+        $(document).ready(function() {
+            // PHP에서 전달받은 데이터 사용
+            var tableData = phpTableData || [];
     
     // Tabulator 컬럼 정의
     var columns = [
@@ -788,50 +799,36 @@ $(document).ready(function() {
         initialSort: [
             {column: "num", dir: "desc"}
         ],
-        rowClick: function(e, row) {
-            console.log('🔥🔥🔥 Tabulator rowClick 이벤트 발생!');
-            console.log('이벤트 객체:', e);
-            console.log('행 객체:', row);
-            console.log('행 데이터:', row.getData());
-            
-            var rowData = row.getData();
-            var num = rowData.num;
-            
-            console.log('🔍 Tabulator 내장 이벤트 rowData.num 값:', num, '타입:', typeof num);
-            
-            if (num && num > 0) {
-                var url = window.baseUrl + "/corp/edit.php?num=" + encodeURIComponent(num);
-                console.log('Tabulator 내장 이벤트로 열릴 URL:', url);
-                var newWindow = window.open(url, '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
-                if (!newWindow) {
-                    alert('팝업이 차단되었습니다. 팝업 차단을 해제하고 다시 시도해주세요.');
+            rowClick: function(e, row) {
+                var rowData = row.getData();
+                var num = rowData.num;
+
+                if (num && num > 0) {
+                    var baseUrl = getBaseUrl();
+                    var url = baseUrl + "/corp/edit.php?num=" + encodeURIComponent(num);
+                    var newWindow = window.open(url, '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
+                    if (!newWindow) {
+                        alert('팝업이 차단되었습니다. 팝업 차단을 해제하고 다시 시도해주세요.');
+                    }
+                } else {
+                    alert('거래처 번호를 찾을 수 없습니다.');
                 }
-            } else {
-                console.error('❌ Tabulator 내장 이벤트에서 거래처 번호가 없거나 유효하지 않습니다! num:', num);
-                alert('거래처 번호를 찾을 수 없습니다. num: ' + num);
-            }
-        },
-        rowDblClick: function(e, row) {
-            console.log('🔥🔥🔥 Tabulator rowDblClick 이벤트 발생!');
-            console.log('행 데이터:', row.getData());
-            
-            var rowData = row.getData();
-            var num = rowData.num;
-            
-            console.log('🔍 Tabulator 더블클릭 rowData.num 값:', num, '타입:', typeof num);
-            
-            if (num && num > 0) {
-                var url = window.baseUrl + "/corp/edit.php?num=" + encodeURIComponent(num);
-                console.log('더블클릭으로 열릴 URL:', url);
-                var newWindow = window.open(url, '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
-                if (!newWindow) {
-                    alert('팝업이 차단되었습니다. 팝업 차단을 해제하고 다시 시도해주세요.');
+            },
+            rowDblClick: function(e, row) {
+                var rowData = row.getData();
+                var num = rowData.num;
+
+                if (num && num > 0) {
+                    var baseUrl = getBaseUrl();
+                    var url = baseUrl + "/corp/edit.php?num=" + encodeURIComponent(num);
+                    var newWindow = window.open(url, '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
+                    if (!newWindow) {
+                        alert('팝업이 차단되었습니다. 팝업 차단을 해제하고 다시 시도해주세요.');
+                    }
+                } else {
+                    alert('거래처 번호를 찾을 수 없습니다.');
                 }
-            } else {
-                console.error('❌ Tabulator 더블클릭에서 거래처 번호가 없거나 유효하지 않습니다! num:', num);
-                alert('거래처 번호를 찾을 수 없습니다. num: ' + num);
-            }
-        },
+            },
         locale: "ko-kr",
         langs: {
             "ko-kr": {
@@ -856,268 +853,202 @@ $(document).ready(function() {
                 }
             }
         }
-    });
-    
-    // 테이블 초기화 완료 후 페이지네이션 정보 업데이트
-    setTimeout(function() {
-        console.log('🔍 Tabulator 초기화 완료 후 디버그 시작');
-        console.log('테이블 객체:', table);
-        console.log('테이블 DOM 요소:', $('#tabulator-table'));
-        console.log('행 개수:', $('#tabulator-table .tabulator-row').length);
-        
-        if (table && typeof table.getDataCount === 'function') {
-            updatePaginationInfo();
-        }
-        
-        // 행 클릭 가능함을 사용자에게 알리는 툴팁 추가
-        $('#tabulator-table .tabulator-row').attr('title', '클릭하여 거래처 정보를 수정합니다');
-        
-        // 백업 jQuery 클릭 이벤트 핸들러 (Tabulator 내장 이벤트가 작동하지 않을 경우)
-        $('#tabulator-table').off('click.rowClick').on('click.rowClick', '.tabulator-row', function(e) {
-            console.log('🔥 jQuery 백업 클릭 이벤트 발생!');
-            console.log('클릭된 요소:', this);
-            
-            var $row = $(this);
-            var rowIndex = $row.index();
-            console.log('행 인덱스:', rowIndex);
-            
-            if (table) {
-                try {
-                    var allRows = table.getRows();
-                    console.log('jQuery 백업 - 전체 행 개수:', allRows.length);
-                    
-                    if (allRows && allRows.length > rowIndex) {
-                        var row = allRows[rowIndex];
-                        var rowData = row.getData();
-                        console.log('jQuery 백업으로 가져온 행 데이터:', rowData);
-                        
-                        var num = rowData.num;
-                        console.log('🔍 jQuery 백업 rowData.num 값:', num, '타입:', typeof num);
-                        
-                        if (num && num > 0) {
-                            var url = window.baseUrl + "/corp/edit.php?num=" + encodeURIComponent(num);
-                            console.log('jQuery 백업으로 열릴 URL:', url);
-                            var newWindow = window.open(url, '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
-                            if (!newWindow) {
-                                alert('팝업이 차단되었습니다. 팝업 차단을 해제하고 다시 시도해주세요.');
-                            }
-                        } else {
-                            console.error('❌ jQuery 백업에서 거래처 번호가 없거나 유효하지 않습니다! num:', num);
-                            alert('거래처 번호를 찾을 수 없습니다. num: ' + num);
-                        }
-                    } else {
-                        console.error('❌ jQuery 백업에서 행을 찾을 수 없습니다. 인덱스:', rowIndex, '전체 행 개수:', allRows.length);
-                    }
-                } catch (error) {
-                    console.error('❌ jQuery 백업 클릭 처리 오류:', error);
+        });
+
+            // 테이블 초기화 완료 후 페이지네이션 정보 업데이트
+            setTimeout(function() {
+                if (table && typeof table.getDataCount === 'function') {
+                    updatePaginationInfo();
                 }
+
+                // 행 클릭 가능함을 사용자에게 알리는 툴팁 추가
+                $('#tabulator-table .tabulator-row').attr('title', '클릭하여 거래처 정보를 수정합니다');
+            }, 200);
+
+            // 테이블 데이터 변경 시 페이지네이션 정보 업데이트
+            table.on("dataLoaded", function(data) {
+                setTimeout(function() {
+                    if (table && typeof table.getDataCount === 'function') {
+                        updatePaginationInfo();
+                    }
+                    $('#tabulator-table .tabulator-row').attr('title', '클릭하여 거래처 정보를 수정합니다');
+                }, 100);
+            });
+
+            table.on("pageLoaded", function(pageno) {
+                setTimeout(function() {
+                    if (table && typeof table.getDataCount === 'function') {
+                        updatePaginationInfo();
+                    }
+                }, 100);
+            });
+        });
+
+        // BaseURL 가져오기 함수
+        function getBaseUrl() {
+            var host = window.location.hostname;
+            var protocol = window.location.protocol;
+            var port = window.location.port;
+
+            if (host === 'localhost' || host === '127.0.0.1') {
+                return protocol + '//' + host + (port ? ':' + port : '');
+            } else {
+                return protocol + '//' + host;
+            }
+        }
+
+        // 검색 기능
+        $('#searchInput').on('input', function() {
+            var searchValue = $(this).val();
+            table.setFilter([
+                {field: "company_name", type: "like", value: searchValue},
+                {field: "trade_name", type: "like", value: searchValue},
+                {field: "representative_name", type: "like", value: searchValue},
+                {field: "registration_number", type: "like", value: searchValue},
+                {field: "phone_number", type: "like", value: searchValue},
+                {field: "business_type", type: "like", value: searchValue},
+                {field: "business_category", type: "like", value: searchValue},
+                {field: "bank_name", type: "like", value: searchValue},
+                {field: "account_number", type: "like", value: searchValue}
+            ], "or");
+        });
+
+        // 필터 버튼 클릭 이벤트
+        $('.filter-buttons .btn').on('click', function() {
+            $('.filter-buttons .btn').removeClass('active');
+            $(this).addClass('active');
+
+            var filter = $(this).data('filter');
+
+            switch (filter) {
+                case 'all':
+                    table.clearFilter();
+                    break;
+                case 'group1':
+                    // 매출거래처만 필터
+                    table.setFilter("is_sales_customer", "=", "Y");
+                    break;
+                case 'date':
+                    // 최종수정일 기준 정렬
+                    table.setSort([
+                        {column: "last_modified_date", dir: "desc"}
+                    ]);
+                    break;
+                case 'memo':
+                    // 메모가 있는 항목만 필터
+                    table.setFilter("remarks", "!=", "");
+                    break;
             }
         });
-        
-        console.log('jQuery 백업 클릭 이벤트 핸들러가 설정되었습니다.');
-        
-        console.log('✅ 모든 이벤트 핸들러 설정 완료');
-        
-    }, 200);
-    
-    // 테이블 데이터 변경 시 페이지네이션 정보 업데이트
-    table.on("dataLoaded", function(data) {
-        console.log('📊 데이터 로드 완료:', data);
-        setTimeout(function() {
-            if (table && typeof table.getDataCount === 'function') {
-                updatePaginationInfo();
-            }
-            
-            // 새로 로드된 행에도 툴팁 추가
-            $('#tabulator-table .tabulator-row').attr('title', '클릭하여 거래처 정보를 수정합니다');
-            
-            // 데이터 로드 후 이벤트 핸들러 비활성화 (Tabulator 내장 이벤트 사용)
-            console.log('데이터 로드 후 jQuery 클릭 이벤트 핸들러는 비활성화되었습니다.');
-            
-            console.log('✅ 데이터 로드 후 이벤트 핸들러 재설정 완료');
-        }, 100);
-    });
-    
-    table.on("pageLoaded", function(pageno) {
-        console.log('📄 페이지 로드 완료:', pageno);
-        setTimeout(function() {
-            if (table && typeof table.getDataCount === 'function') {
-                updatePaginationInfo();
-            }
-            
-            // 페이지 로드 후 이벤트 핸들러 비활성화 (Tabulator 내장 이벤트 사용)
-            console.log('페이지 로드 후 jQuery 클릭 이벤트 핸들러는 비활성화되었습니다.');
-            
-            console.log('✅ 페이지 로드 후 이벤트 핸들러 재설정 완료');
-        }, 100);
-    });
-});
 
-// 검색 기능
-$('#searchInput').on('input', function() {
-    var searchValue = $(this).val();
-    table.setFilter([
-        {field: "company_name", type: "like", value: searchValue},
-        {field: "trade_name", type: "like", value: searchValue},
-        {field: "representative_name", type: "like", value: searchValue},
-        {field: "registration_number", type: "like", value: searchValue},
-        {field: "phone_number", type: "like", value: searchValue},
-        {field: "business_type", type: "like", value: searchValue},
-        {field: "business_category", type: "like", value: searchValue},
-        {field: "bank_name", type: "like", value: searchValue},
-        {field: "account_number", type: "like", value: searchValue}
-    ], "or");
-});
+        // 페이지네이션 정보 업데이트 함수
+        function updatePaginationInfo() {
+            if (table) {
+                try {
+                    // Tabulator 버전에 따라 다른 함수명 사용
+                    var pageInfo = null;
+                    var totalRows = 0;
 
-// 필터 버튼 클릭 이벤트
-$('.filter-buttons .btn').on('click', function() {
-    $('.filter-buttons .btn').removeClass('active');
-    $(this).addClass('active');
-    
-    var filter = $(this).data('filter');
-    
-    switch(filter) {
-        case 'all':
-            table.clearFilter();
-            break;
-        case 'group1':
-            // 매출거래처만 필터
-            table.setFilter("is_sales_customer", "=", "Y");
-            break;
-        case 'date':
-            // 최종수정일 기준 정렬
-            table.setSort([
-                {column: "last_modified_date", dir: "desc"}
-            ]);
-            break;
-        case 'memo':
-            // 메모가 있는 항목만 필터
-            table.setFilter("remarks", "!=", "");
-            break;
-    }
-});
+                    // 다양한 방법으로 페이지 정보 가져오기 시도
+                    if (typeof table.getPageInfo === 'function') {
+                        pageInfo = table.getPageInfo();
+                    } else if (typeof table.getPage === 'function') {
+                        var currentPage = table.getPage();
+                        var pageSize = table.getPageSize();
+                        var totalData = table.getDataCount();
+                        var totalPages = Math.ceil(totalData / pageSize);
+                        pageInfo = {
+                            page: currentPage,
+                            pages: totalPages
+                        };
+                    }
 
-// 페이지네이션 정보 업데이트 함수
-function updatePaginationInfo() {
-    if (table) {
-        try {
-            // Tabulator 버전에 따라 다른 함수명 사용
-            var pageInfo = null;
-            var totalRows = 0;
-            
-            // 다양한 방법으로 페이지 정보 가져오기 시도
-            if (typeof table.getPageInfo === 'function') {
-                pageInfo = table.getPageInfo();
-            } else if (typeof table.getPage === 'function') {
-                var currentPage = table.getPage();
-                var pageSize = table.getPageSize();
-                var totalData = table.getDataCount();
-                var totalPages = Math.ceil(totalData / pageSize);
-                pageInfo = {
-                    page: currentPage,
-                    pages: totalPages
-                };
+                    // 총 행 수 가져오기
+                    if (typeof table.getDataCount === 'function') {
+                        totalRows = table.getDataCount();
+                    } else if (typeof table.getData === 'function') {
+                        totalRows = table.getData().length;
+                    }
+
+                    // 페이지 정보 표시
+                    if (pageInfo && pageInfo.page && pageInfo.pages) {
+                        $('#pageInfo').text(pageInfo.page + ' / ' + pageInfo.pages);
+                    }
+
+                    // 총 개수 표시
+                    if (totalRows !== undefined && totalRows >= 0) {
+                        $('#totalCount').text('총 ' + totalRows + '건');
+                    }
+                } catch (error) {
+                    // 기본값 설정
+                    $('#pageInfo').text('1 / 1');
+                    $('#totalCount').text('총 0건');
+                }
             }
-            
-            // 총 행 수 가져오기
-            if (typeof table.getDataCount === 'function') {
-                totalRows = table.getDataCount();
-            } else if (typeof table.getData === 'function') {
-                totalRows = table.getData().length;
-            }
-            
-            // 페이지 정보 표시
-            if (pageInfo && pageInfo.page && pageInfo.pages) {
-                $('#pageInfo').text(pageInfo.page + ' / ' + pageInfo.pages);
-            }
-            
-            // 총 개수 표시
-            if (totalRows !== undefined && totalRows >= 0) {
-                $('#totalCount').text('총 ' + totalRows + '건');
-            }
-            
-        } catch (error) {
-            console.log('페이지네이션 정보 업데이트 오류:', error);
-            // 기본값 설정
-            $('#pageInfo').text('1 / 1');
-            $('#totalCount').text('총 0건');
         }
-    }
-}
 
-// 페이지 크기 변경
-function changePageSize() {
-    var pageSize = $('#pageSize').val();
-    table.setPageSize(parseInt(pageSize));
-}
+        // 페이지 크기 변경
+        function changePageSize() {
+            var pageSize = $('#pageSize').val();
+            table.setPageSize(parseInt(pageSize));
+        }
 
-// 페이지네이션 컨트롤 함수들
-function goToFirstPage() {
-    table.setPage(1);
-}
+        // 페이지네이션 컨트롤 함수들
+        function goToFirstPage() {
+            table.setPage(1);
+        }
 
-function goToPrevPage() {
-    var currentPage = table.getPage();
-    if (currentPage > 1) {
-        table.setPage(currentPage - 1);
-    }
-}
-
-function goToNextPage() {
-    if (table) {
-        try {
+        function goToPrevPage() {
             var currentPage = table.getPage();
-            var pageSize = table.getPageSize();
-            var totalData = table.getDataCount();
-            var totalPages = Math.ceil(totalData / pageSize);
-            
-            if (currentPage < totalPages) {
-                table.setPage(currentPage + 1);
+            if (currentPage > 1) {
+                table.setPage(currentPage - 1);
             }
-        } catch (error) {
-            console.log('다음 페이지 이동 오류:', error);
         }
-    }
-}
 
-function goToLastPage() {
-    if (table) {
-        try {
-            var pageSize = table.getPageSize();
-            var totalData = table.getDataCount();
-            var totalPages = Math.ceil(totalData / pageSize);
-            
-            if (totalPages > 0) {
-                table.setPage(totalPages);
+        function goToNextPage() {
+            if (table) {
+                try {
+                    var currentPage = table.getPage();
+                    var pageSize = table.getPageSize();
+                    var totalData = table.getDataCount();
+                    var totalPages = Math.ceil(totalData / pageSize);
+
+                    if (currentPage < totalPages) {
+                        table.setPage(currentPage + 1);
+                    }
+                } catch (error) {
+                    // 오류 무시
+                }
             }
-        } catch (error) {
-            console.log('마지막 페이지 이동 오류:', error);
         }
-    }
-}
 
-// 거래처 등록 함수
-function addCustomer() {
-    var url = window.baseUrl + "/corp/add.php";
-    window.open(url, '_blank', 'width=1200,height=900,scrollbars=yes,resizable=yes');
-}
+        function goToLastPage() {
+            if (table) {
+                try {
+                    var pageSize = table.getPageSize();
+                    var totalData = table.getDataCount();
+                    var totalPages = Math.ceil(totalData / pageSize);
 
-// 페이지 로드 시 초기화
-$(document).ready(function() {
-    console.log('🚀 거래처 조회 페이지 로드 완료');
-    console.log('jQuery 버전:', $.fn.jquery);
-    console.log('Tabulator 테이블 요소 존재 여부:', $('#tabulator-table').length > 0);
-    console.log('Tabulator 행 요소 개수:', $('.tabulator-row').length);
-    
-    // 전역 클릭 이벤트 비활성화 (Tabulator 내장 이벤트 사용)
-    console.log('전역 클릭 이벤트 핸들러는 비활성화되었습니다. Tabulator 내장 이벤트를 사용합니다.');
-    
-    console.log('✅ 전역 클릭 이벤트 핸들러 설정 완료');
-});
-</script>
+                    if (totalPages > 0) {
+                        table.setPage(totalPages);
+                    }
+                } catch (error) {
+                    // 오류 무시
+                }
+            }
+        }
 
-<div class="container-fluid mt-3 mb-3">
-    <?php include '../footer_sub.php'; ?>
-</div>
+        // 거래처 등록 함수
+        function addCustomer() {
+            var baseUrl = getBaseUrl();
+            var url = baseUrl + "/corp/add.php";
+            window.open(url, '_blank', 'width=1200,height=900,scrollbars=yes,resizable=yes');
+        }
+    </script>
+
+    <div class="container-fluid mt-3 mb-3">
+        <?php include '../footer_sub.php'; ?>
+    </div>
 </body>
+
 </html>

@@ -26,22 +26,31 @@ www/
 
 ```php
 <?php
-// 환경별 설정 로드
-require_once __DIR__ . '/config/environment.php';
-// 또는 공통 함수를 사용하려면
-require_once __DIR__ . '/common/functions.php';
+require_once __DIR__ . '/../common/functions.php';
+require_once getDocumentRoot() . '/session.php';
+
+// 세션 변수 초기화
+$DB = $_SESSION["DB"] ?? '';
+$user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["userid"] ?? '';
+$level = $_SESSION["level"] ?? 10;
 ```
 
-### 2. URL 생성
+### 2. URL 생성 및 리다이렉션
 
-하드코딩된 URL 대신 환경별 함수 사용:
+하드코딩된 URL 대신 환경별 동적 URL 생성:
 
 ```php
 // ❌ 기존 방식 (하드코딩)
-echo "https://8440.co.kr/css/style.css";
+header("Location: http://8440.co.kr/login/logout.php");
 
 // ✅ 새로운 방식 (환경별 자동 적용)
-echo asset('css/style.css');
+$host = $_SERVER['HTTP_HOST'] ?? '';
+if (strpos($host, 'localhost') !== false || strpos($host, '127.0.0.1') !== false) {
+    header("Location: http://" . $host . "/login/logout.php");
+} else {
+    header("Location: http://8440.co.kr/login/logout.php");
+}
 ```
 
 ### 3. 환경 확인
@@ -61,7 +70,7 @@ if (isLocal()) {
 ### 4. 데이터베이스 연결
 
 ```php
-require_once __DIR__ . '/lib/mydb.php';
+require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();  // 환경에 맞는 설정으로 자동 연결
 ```
 
@@ -118,77 +127,207 @@ $pdo = db_connect();  // 환경에 맞는 설정으로 자동 연결
 
 ## 예제
 
-### 예제 1: CSS 파일 로드
-
-```php
-<!DOCTYPE html>
-<html>
-<head>
-    <?php
-    require_once __DIR__ . '/common/functions.php';
-    echo css('css/style.css');
-    echo css('css/dashboard.css');
-    ?>
-</head>
-<body>
-    <!-- 내용 -->
-</body>
-</html>
-```
-
-### 예제 2: JavaScript 파일 로드
+### 예제 1: 데이터베이스 조회 및 에러 처리
 
 ```php
 <?php
-require_once __DIR__ . '/common/functions.php';
-echo js('js/jquery.min.js');
-echo js('js/common.js');
+require_once __DIR__ . '/../common/functions.php';
+require_once getDocumentRoot() . '/session.php';
+
+// 세션 변수 초기화
+$DB = $_SESSION["DB"] ?? '';
+
+// 요청 파라미터 초기화
+$num = $_REQUEST["num"] ?? '';
+
+require_once(includePath('lib/mydb.php'));
+$pdo = db_connect();
+
+try {
+    $sql = "select * from {$DB}.tablename where num = ? ";
+    $stmh = $pdo->prepare($sql);
+    $stmh->bindValue(1, $num, PDO::PARAM_STR);
+    $stmh->execute();
+    $row = $stmh->fetch(PDO::FETCH_ASSOC);
+    
+    if ($row) {
+        // 데이터 처리
+    }
+} catch (PDOException $ex) {
+    error_log("데이터 조회 오류: " . $ex->getMessage());
+}
 ?>
 ```
 
-### 예제 3: 이미지 URL
-
-```php
-<?php require_once __DIR__ . '/common/functions.php'; ?>
-<img src="<?= asset('img/logo.png') ?>" alt="로고">
-```
-
-### 예제 4: 폼 액션 URL
-
-```php
-<?php require_once __DIR__ . '/common/functions.php'; ?>
-<form action="<?= url('api/login.php') ?>" method="POST">
-    <!-- 폼 필드 -->
-</form>
-```
-
-### 예제 5: 디버그 정보 출력
+### 예제 2: 데이터 삽입 및 트랜잭션
 
 ```php
 <?php
-require_once __DIR__ . '/common/functions.php';
+require_once __DIR__ . '/../common/functions.php';
+require_once getDocumentRoot() . '/session.php';
 
-$data = ['name' => '홍길동', 'age' => 30];
-debug($data, '사용자 정보');  // 로컬 환경에서만 출력됨
+$DB = $_SESSION["DB"] ?? '';
+$mode = $_REQUEST["mode"] ?? 'insert';
+$name = $_REQUEST["name"] ?? '';
+
+require_once(includePath('lib/mydb.php'));
+$pdo = db_connect();
+
+try {
+    $pdo->beginTransaction();
+    
+    $sql = "INSERT INTO {$DB}.tablename (name) VALUES (?)";
+    $stmh = $pdo->prepare($sql);
+    $stmh->bindValue(1, $name, PDO::PARAM_STR);
+    $stmh->execute();
+    
+    $pdo->commit();
+    
+    echo json_encode(array("status" => "success"), JSON_UNESCAPED_UNICODE);
+} catch (PDOException $ex) {
+    $pdo->rollBack();
+    error_log("데이터 삽입 오류: " . $ex->getMessage());
+    echo json_encode(array("error" => "삽입 실패"), JSON_UNESCAPED_UNICODE);
+}
 ?>
+```
+
+### 예제 3: 환경별 리다이렉션
+
+```php
+<?php
+require_once __DIR__ . '/../common/functions.php';
+
+// 로컬/서버 환경에 따른 동적 리다이렉션
+$host = $_SERVER['HTTP_HOST'] ?? '';
+$protocol = 'http://';
+
+if (strpos($host, 'localhost') === false && strpos($host, '127.0.0.1') === false) {
+    $host = '8440.co.kr';
+    $protocol = 'https://';
+}
+
+header("Location: " . $protocol . $host . "/login/logout.php");
+exit;
+?>
+```
+
+### 예제 4: URL 파라미터 처리
+
+```php
+<?php
+require_once __DIR__ . '/../common/functions.php';
+
+$num = $_REQUEST["num"] ?? '';
+$page = $_REQUEST["page"] ?? 1;
+$search = $_REQUEST["search"] ?? '';
+
+$params = http_build_query(array(
+    'num' => $num,
+    'page' => $page,
+    'search' => $search
+));
+
+header("Location: view.php?" . $params);
+exit;
+?>
+```
+
+### 예제 5: JavaScript ES5 호환 코드
+
+```javascript
+$(document).ready(function() {
+    $("#saveBtn").click(function() {
+        var formData = new FormData($('#myForm')[0]);
+        
+        $.ajax({
+            url: 'insert.php',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            dataType: 'json',
+            success: function(data) {
+                console.log('성공:', data);
+            },
+            error: function(jqxhr, status, error) {
+                console.error('오류:', error);
+            }
+        });
+    });
+});
+```
+
+## 주요 개선 패턴
+
+### 1. 변수 초기화 패턴
+```php
+// NULL 병합 연산자 사용
+$variable = $_REQUEST["name"] ?? '';
+$session_var = $_SESSION["key"] ?? '';
+$server_var = $_SERVER['HTTP_HOST'] ?? '';
+```
+
+### 2. 에러 처리 패턴
+```php
+try {
+    $pdo->beginTransaction();
+    // 데이터베이스 작업
+    $pdo->commit();
+} catch (PDOException $ex) {
+    $pdo->rollBack();
+    error_log("작업명 오류: " . $ex->getMessage());
+}
+```
+
+### 3. JavaScript ES5 패턴
+```javascript
+// var 사용 (let/const 대신)
+var myVar = 'value';
+
+// 전통적 function 사용 (화살표 함수 대신)
+function myFunction() {
+    // 코드
+}
+
+// 문자열 연결 (템플릿 리터럴 대신)
+var message = "안녕하세요 " + name + "님";
+
+// for 루프 (forEach 대신)
+for (var i = 0; i < array.length; i++) {
+    var item = array[i];
+}
 ```
 
 ## 주의사항
 
-1. **보안**: `environment.php`에 DB 비밀번호가 포함되어 있으므로 Git에 커밋하지 마세요 (이미 .gitignore에 포함됨)
+1. **보안**: 민감한 정보는 절대 Git에 커밋하지 마세요
 2. **세션**: `session.php`를 include하면 자동으로 환경별 설정이 적용됩니다
-3. **캐싱**: 환경 감지 결과는 요청당 한 번만 수행되므로 성능 걱정 없습니다
+3. **에러 로깅**: `print` 대신 `error_log()` 사용으로 보안 강화
+4. **PHP 7.3 호환**: NULL 병합 연산자(`??`) 사용
+5. **ES5 호환**: IE11+ 브라우저 지원을 위해 ES5 문법 사용
 
 ## 문제 해결
 
-### 환경이 잘못 감지되는 경우
-`config/environment.php`의 `getCurrent()` 메서드에서 환경 감지 조건을 수정하세요.
+### 변수 미선언 경고
+모든 변수를 NULL 병합 연산자로 초기화:
+```php
+$var = $_REQUEST["key"] ?? '';
+```
+
+### 로컬/서버 환경 구분 오류
+`$_SERVER['HTTP_HOST']`를 확인하여 localhost 여부 체크:
+```php
+$host = $_SERVER['HTTP_HOST'] ?? '';
+if (strpos($host, 'localhost') !== false || strpos($host, '127.0.0.1') !== false) {
+    // 로컬 환경
+} else {
+    // 서버 환경
+}
+```
 
 ### 데이터베이스 연결 오류
-1. 환경별 DB 설정 확인: `config/environment.php`의 `getDatabaseConfig()` 함수
+1. `includePath('lib/mydb.php')` 사용 확인
 2. 로컬 MySQL 서버 실행 확인
 3. DB 사용자 권한 확인
-
-### URL이 잘못 생성되는 경우
-`config/environment.php`의 `getBaseUrl()` 함수 확인
 

@@ -1,10 +1,15 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php
+require_once __DIR__ . '/../common/functions.php';
 require_once getDocumentRoot() . '/session.php';
-require_once(includePath('lib/mydb.php'));
+
+// 세션 변수 초기화
+$level = $_SESSION["level"] ?? 10;
+$WebSite = $_SESSION["WebSite"] ?? '';
+$DB = $_SESSION["DB"] ?? '';
 
 $title_message = '거래처 등록/수정';
 
-// 거래처 번호 확인 - 더 안전한 방법
+// 거래처 번호 확인
 $num = 0;
 if (isset($_GET['num'])) {
     $num = intval($_GET['num']);
@@ -12,109 +17,100 @@ if (isset($_GET['num'])) {
     $num = intval($_POST['num']);
 }
 
-// 디버그: 파라미터 확인
-echo "<script>console.log('🔍 GET 파라미터:', " . json_encode($_GET) . ");</script>";
-echo "<script>console.log('🔍 POST 파라미터:', " . json_encode($_POST) . ");</script>";
-echo "<script>console.log('🔍 REQUEST 파라미터:', " . json_encode($_REQUEST) . ");</script>";
-echo "<script>console.log('🔍 num 값:', " . $num . ");</script>";
+// 서버 변수 초기화
+$REQUEST_URI = $_SERVER['REQUEST_URI'] ?? '';
 
 // URL에서 직접 파라미터 추출 시도
-$url_parts = parse_url($_SERVER['REQUEST_URI']);
-if (isset($url_parts['query'])) {
-    parse_str($url_parts['query'], $query_params);
-    echo "<script>console.log('🔍 URL 쿼리 파라미터:', " . json_encode($query_params) . ");</script>";
-    if (isset($query_params['num'])) {
-        $num = intval($query_params['num']);
-        echo "<script>console.log('🔍 URL에서 추출한 num:', " . $num . ");</script>";
+if (!$num && $REQUEST_URI) {
+    $url_parts = parse_url($REQUEST_URI);
+    if (isset($url_parts['query'])) {
+        parse_str($url_parts['query'], $query_params);
+        if (isset($query_params['num'])) {
+            $num = intval($query_params['num']);
+        }
     }
 }
 
 if (!$num) {
-    echo "<script>alert('잘못된 접근입니다. (num 파라미터가 없거나 0입니다)\\n\\n현재 URL: " . $_SERVER['REQUEST_URI'] . "\\nGET: " . json_encode($_GET) . "'); window.close();</script>";
+    echo "<script>alert('잘못된 접근입니다. (num 파라미터가 없거나 0입니다)'); window.close();</script>";
     exit;
 }
 
-if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
+// 권한 체크
+if (!isset($_SESSION["level"]) || $level > 5) {
     sleep(1);
-    header("Location:" . $WebSite . "login/login_form.php"); 
+    
+    // 로컬/서버 환경에 따른 동적 리다이렉션
+    $host = $_SERVER['HTTP_HOST'] ?? '';
+    if (strpos($host, 'localhost') !== false || strpos($host, '127.0.0.1') !== false) {
+        header("Location: http://" . $host . "/login/login_form.php");
+    } else {
+        header("Location: " . $WebSite . "login/login_form.php");
+    }
     exit;
 }
 
-include getDocumentRoot() . '/load_header.php';   
+include getDocumentRoot() . '/load_header.php';
 ?>
 <title> <?=$title_message?> </title>
 
 <body>
-<?php
-// 거래처 정보 조회
-$pdo = db_connect();
+    <?php
+    // 거래처 정보 조회
+    require_once(includePath('lib/mydb.php'));
+    $pdo = db_connect();
 
-// 디버그: 전체 거래처 목록 확인
-$debugSQL = "SELECT num, company_name, is_deleted FROM mirae8440.customer ORDER BY num";
-$debugStmt = $pdo->query($debugSQL);
-$allCustomers = $debugStmt->fetchAll(PDO::FETCH_ASSOC);
+    $sql = "SELECT * FROM {$DB}.customer WHERE num = ? AND is_deleted = 'N'";
 
-echo "<script>console.log('🔍 전체 거래처 목록:', " . json_encode($allCustomers) . ");</script>";
-echo "<script>console.log('🔍 찾고 있는 거래처 번호:', " . $num . ");</script>";
-echo "<script>console.log('🔍 num 변수 타입:', '" . gettype($num) . "');</script>";
-echo "<script>console.log('🔍 num 변수 값 (직접):', " . var_export($num, true) . ");</script>";
+    // 변수 초기화
+    $customer = array();
+    $contacts = array();
 
-$sql = "SELECT * FROM mirae8440.customer WHERE num = ? AND is_deleted = 'N'";
+    try {
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(array($num));
+        $customer = $stmt->fetch(PDO::FETCH_ASSOC);
 
-try {
-    echo "<script>console.log('🔍 실행할 SQL:', '" . $sql . "');</script>";
-    echo "<script>console.log('🔍 SQL 파라미터:', " . json_encode([$num]) . ");</script>";
-    
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$num]);
-    $customer = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    echo "<script>console.log('🔍 조회된 거래처 정보:', " . json_encode($customer) . ");</script>";
-    
-    if (!$customer) {
-        // 거래처 정보가 없으면 기본값으로 생성
-        echo "<script>console.log('거래처 정보가 없어서 기본값으로 생성합니다. 거래처 번호: " . $num . "');</script>";
-        
-        $customer = array(
-            'num' => $num,
-            'classification' => '사업자',
-            'trade_name' => '',
-            'company_name' => '새 거래처',
-            'registration_number' => '',
-            'representative_name' => '',
-            'phone_number' => '',
-            'mobile_number' => '',
-            'fax_number' => '',
-            'business_type' => '',
-            'business_category' => '',
-            'remarks' => '',
-            'address' => '',
-            'business_registration_number' => '',
-            'registration_date' => date('Y-m-d'),
-            'is_sales_customer' => 'N',
-            'is_purchase_customer' => 'N',
-            'is_other_customer' => 'N',
-            'bank_name' => '',
-            'account_number' => '',
-            'account_holder' => '',
-            'my_account_id' => null,
-            'attached_files' => null
-        );
-        
-        echo "<script>console.log('🔍 생성된 기본 거래처 정보:', " . json_encode($customer) . ");</script>";
+        if (!$customer) {
+            // 거래처 정보가 없으면 기본값으로 생성
+            $customer = array(
+                'num' => $num,
+                'classification' => '사업자',
+                'trade_name' => '',
+                'company_name' => '새 거래처',
+                'registration_number' => '',
+                'representative_name' => '',
+                'phone_number' => '',
+                'mobile_number' => '',
+                'fax_number' => '',
+                'business_type' => '',
+                'business_category' => '',
+                'remarks' => '',
+                'address' => '',
+                'business_registration_number' => '',
+                'registration_date' => date('Y-m-d'),
+                'is_sales_customer' => 'N',
+                'is_purchase_customer' => 'N',
+                'is_other_customer' => 'N',
+                'bank_name' => '',
+                'account_number' => '',
+                'account_holder' => '',
+                'my_account_id' => null,
+                'attached_files' => null
+            );
+        }
+
+        // 담당자 정보 조회
+        $contactSQL = "SELECT * FROM {$DB}.customer_contact WHERE customer_id = ? AND is_deleted = 'N' ORDER BY num";
+        $contactStmt = $pdo->prepare($contactSQL);
+        $contactStmt->execute(array($num));
+        $contacts = $contactStmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $ex) {
+        error_log("거래처 정보 조회 오류: " . $ex->getMessage());
+        echo "<script>alert('데이터베이스 오류가 발생했습니다.'); window.close();</script>";
+        exit;
     }
-    
-    // 담당자 정보 조회
-    $contactSQL = "SELECT * FROM mirae8440.customer_contact WHERE customer_id = ? AND is_deleted = 'N' ORDER BY num";
-    $contactStmt = $pdo->prepare($contactSQL);
-    $contactStmt->execute([$num]);
-    $contacts = $contactStmt->fetchAll(PDO::FETCH_ASSOC);
-    
-} catch (PDOException $e) {
-    echo "<script>console.log('데이터베이스 오류가 발생했습니다.');</script>";
-    exit;
-}
-?>
+    ?>
 
 <style>
 .customer-form-container {
@@ -678,121 +674,122 @@ try {
     </div>
 </div>
 
-<script>
-$(document).ready(function() {
-    // 폼 제출 이벤트
-    $('#customerForm').on('submit', function(e) {
-        e.preventDefault();
-        
-        // 필수 필드 검증
-        var companyName = $('#company_name').val().trim();
-        if (!companyName) {
-            alert('거래처명을 입력해주세요.');
-            $('#company_name').focus();
-            return false;
-        }
-        
-        // 폼 데이터 수집
-        var formData = new FormData(this);
-        
-        // AJAX로 데이터 전송
-        $.ajax({
-            url: 'update.php',
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            dataType: 'json',
-            success: function(response) {
-                if (response.success) {
-                    alert('거래처가 성공적으로 수정되었습니다.');
-                    // 부모 창 새로고침
-                    if (window.opener) {
-                        window.opener.location.reload();
-                    }
-                    closeWindow();
-                } else {
-                    alert('오류가 발생했습니다: ' + response.message);
+    <script>
+        $(document).ready(function() {
+            // 폼 제출 이벤트
+            $('#customerForm').on('submit', function(e) {
+                e.preventDefault();
+
+                // 필수 필드 검증
+                var companyName = $('#company_name').val().trim();
+                if (!companyName) {
+                    alert('거래처명을 입력해주세요.');
+                    $('#company_name').focus();
+                    return false;
                 }
-            },
-            error: function(xhr, status, error) {
-                alert('서버 오류가 발생했습니다: ' + error);
-            }
+
+                // 폼 데이터 수집
+                var formData = new FormData(this);
+
+                // AJAX로 데이터 전송
+                $.ajax({
+                    url: 'update.php',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            alert('거래처가 성공적으로 수정되었습니다.');
+                            // 부모 창 새로고침
+                            if (window.opener) {
+                                window.opener.location.reload();
+                            }
+                            closeWindow();
+                        } else {
+                            alert('오류가 발생했습니다: ' + response.message);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        alert('서버 오류가 발생했습니다: ' + error);
+                    }
+                });
+            });
+
+            // 전화번호 자동 포맷팅
+            $('input[name="phone_number"]').on('input', function() {
+                var value = $(this).val().replace(/[^0-9]/g, '');
+                if (value.length >= 10) {
+                    if (value.length === 10) {
+                        value = value.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+                    } else if (value.length === 11) {
+                        value = value.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+                    }
+                }
+                $(this).val(value);
+            });
+
+            // 사업자번호 자동 포맷팅
+            $('#registration_number').on('input', function() {
+                var value = $(this).val().replace(/[^0-9]/g, '');
+                if (value.length === 10) {
+                    value = value.replace(/(\d{3})(\d{2})(\d{5})/, '$1-$2-$3');
+                }
+                $(this).val(value);
+            });
         });
-    });
-    
-    // 전화번호 자동 포맷팅
-    $('input[name="phone_number"]').on('input', function() {
-        var value = $(this).val().replace(/[^0-9]/g, '');
-        if (value.length >= 10) {
-            if (value.length === 10) {
-                value = value.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
-            } else if (value.length === 11) {
-                value = value.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+
+        // 전화번호 추가
+        function addPhoneNumber() {
+            var phoneGroup = $('.phone-input-group').first();
+            var newGroup = phoneGroup.clone();
+            newGroup.find('input').val('');
+            phoneGroup.after(newGroup);
+        }
+
+        // 주소 추가
+        function addAddress() {
+            var addressGroup = $('.address-input-group').first();
+            var newGroup = addressGroup.clone();
+            newGroup.find('input').val('');
+            addressGroup.after(newGroup);
+        }
+
+        // 계좌 추가
+        function addAccount() {
+            var accountGroup = $('.address-input-group').last();
+            var newGroup = accountGroup.clone();
+            newGroup.find('input').val('');
+            newGroup.find('select').val('');
+            accountGroup.after(newGroup);
+        }
+
+        // 담당자 행 추가
+        function addContactRow() {
+            var tbody = $('#contactTableBody');
+            var newRow = tbody.find('tr').first().clone();
+            newRow.find('input').val('');
+            newRow.find('input[type="checkbox"]').prop('checked', false);
+            tbody.append(newRow);
+        }
+
+        // 담당자 행 삭제
+        function removeContactRow(button) {
+            var tbody = $('#contactTableBody');
+            if (tbody.find('tr').length > 1) {
+                $(button).closest('tr').remove();
+            } else {
+                alert('최소 하나의 담당자 정보는 필요합니다.');
             }
         }
-        $(this).val(value);
-    });
-    
-    // 사업자번호 자동 포맷팅
-    $('#registration_number').on('input', function() {
-        var value = $(this).val().replace(/[^0-9]/g, '');
-        if (value.length === 10) {
-            value = value.replace(/(\d{3})(\d{2})(\d{5})/, '$1-$2-$3');
+
+        // 창 닫기 함수
+        function closeWindow() {
+            window.close();
         }
-        $(this).val(value);
-    });
-});
-
-// 전화번호 추가
-function addPhoneNumber() {
-    var phoneGroup = $('.phone-input-group').first();
-    var newGroup = phoneGroup.clone();
-    newGroup.find('input').val('');
-    phoneGroup.after(newGroup);
-}
-
-// 주소 추가
-function addAddress() {
-    var addressGroup = $('.address-input-group').first();
-    var newGroup = addressGroup.clone();
-    newGroup.find('input').val('');
-    addressGroup.after(newGroup);
-}
-
-// 계좌 추가
-function addAccount() {
-    var accountGroup = $('.address-input-group').last();
-    var newGroup = accountGroup.clone();
-    newGroup.find('input').val('');
-    newGroup.find('select').val('');
-    accountGroup.after(newGroup);
-}
-
-// 담당자 행 추가
-function addContactRow() {
-    var tbody = $('#contactTableBody');
-    var newRow = tbody.find('tr').first().clone();
-    newRow.find('input').val('');
-    newRow.find('input[type="checkbox"]').prop('checked', false);
-    tbody.append(newRow);
-}
-
-// 담당자 행 삭제
-function removeContactRow(button) {
-    var tbody = $('#contactTableBody');
-    if (tbody.find('tr').length > 1) {
-        $(button).closest('tr').remove();
-    } else {
-        alert('최소 하나의 담당자 정보는 필요합니다.');
-    }
-}
-
-// 창 닫기 함수
-function closeWindow() {
-    window.close();
-}
-</script>
+    </script>
 
 </body>
+
 </html>

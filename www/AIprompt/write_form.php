@@ -1,307 +1,286 @@
 <?php
-require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
+require_once getDocumentRoot() . '/load_GoogleDrive.php';
+
+// 세션 변수 초기화
+$WebSite = $_SESSION["WebSite"] ?? '';
+$nick = $_SESSION["nick"] ?? '';
 
 // 첫 화면 표시 문구
-$title_message = 'AI prompt'; 
+$title_message = 'AI prompt';
 ?>
-<?php include getDocumentRoot() . '/load_header.php' ?> 
-<title> <?=$title_message?> </title>  
-</head> 
+<?php include getDocumentRoot() . '/load_header.php' ?>
+<title> <?= $title_message ?> </title>
+</head>
+
 <body>
-<?php include getDocumentRoot() . '/common/modal.php'; ?>
+    <?php include getDocumentRoot() . '/common/modal.php'; ?>
 
-<?php
+    <?php
+    if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+        sleep(1);
+        header("Location:" . $WebSite . "login/login_form.php");
+        exit;
+    }
 
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(1);
-         header("Location:".$_SESSION["WebSite"]."login/login_form.php"); 
-         exit;
-   }    
+    // 요청 파라미터 초기화
+    $id = $_REQUEST["id"] ?? '';
+    $fileorimage = $_REQUEST["fileorimage"] ?? '';
+    $item = $_REQUEST["item"] ?? '';
+    $upfilename = $_REQUEST["upfilename"] ?? '';
+    $tablename = $_REQUEST["tablename"] ?? '';
+    $savetitle = $_REQUEST["savetitle"] ?? '';
+    $mode = $_REQUEST["mode"] ?? '';
+    $num = $_REQUEST["num"] ?? '';
 
-isset($_REQUEST["id"])  ? $id=$_REQUEST["id"] :   $id=''; 
-isset($_REQUEST["fileorimage"])  ? $fileorimage=$_REQUEST["fileorimage"] :   $fileorimage=''; // file or image
-isset($_REQUEST["item"])  ? $item=$_REQUEST["item"] :   $item=''; 
-isset($_REQUEST["upfilename"])  ? $upfilename=$_REQUEST["upfilename"] :   $upfilename=''; 
-isset($_REQUEST["tablename"])  ? $tablename=$_REQUEST["tablename"] :  $tablename=''; 
-isset($_REQUEST["savetitle"])  ? $savetitle=$_REQUEST["savetitle"] :  $savetitle='';   // log기록 저장 타이틀
+    // 기타 변수 초기화
+    $timekey = date('YmdHis');
+    $searchtext = '';
+    $item_subject = '';
+    $is_html = '';
+    $content = '';
+    $qnacheck = '';
+    $division = '';
 
-    
-  if(isset($_REQUEST["mode"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $mode=$_REQUEST["mode"];
-  else
-   $mode="";
-  
-  if(isset($_REQUEST["num"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $num=$_REQUEST["num"];
-  else
-   $num="";
-          
-  $pdo = db_connect();
+    $pdo = db_connect();
 
-  if ($mode=="modify"){
-    try{
-      $sql = "select * from mirae8440." . $tablename . " where num = ? ";
-      $stmh = $pdo->prepare($sql); 
+    if ($mode == "modify") {
+        try {
+            $sql = "select * from mirae8440." . $tablename . " where num = ?";
+            $stmh = $pdo->prepare($sql);
+            $stmh->bindValue(1, $num, PDO::PARAM_STR);
+            $stmh->execute();
+            $count = $stmh->rowCount();
+            if ($count < 1) {
+                error_log("검색결과가 없습니다.");
+            } else {
+                $row = $stmh->fetch(PDO::FETCH_ASSOC);
+                $item_subject = $row["subject"];
+                $is_html = $row["is_html"];
+                $content = $row["content"];
+                $qnacheck = $row["qnacheck"];
+                $division = $row["division"];
+            }
+        } catch (PDOException $ex) {
+            error_log($tablename . " 조회 오류: " . $ex->getMessage());
+        }
+    }
 
-    $stmh->bindValue(1,$num,PDO::PARAM_STR); 
-      $stmh->execute();
-      $count = $stmh->rowCount();              
-    if($count<1){  
-      print "검색결과가 없습니다.<br>";
-     }else{
-      $row = $stmh->fetch(PDO::FETCH_ASSOC);
-      $item_subject = $row["subject"];
-      $is_html = $row["is_html"];
-      $content = $row["content"];
-      $qnacheck = $row["qnacheck"];
-      $division = $row["division"];
-      }
-     }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
-     }
-  }
+    // 초기 프로그램은 $num사용 이후 $id로 수정중임
+    $id = $num;
+    require_once getDocumentRoot() . '/load_GoogleDriveSecond.php';
 
-// 초기 프로그램은 $num사용 이후 $id로 수정중임  
-$id=$num;    
-require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
-?>
- 
-<form  id="board_form" name="board_form" method="post" enctype="multipart/form-data"> 
-  <!-- 전달함수 설정 input hidden -->
-	<input type="hidden" id="tablename" name="tablename" value="<?=$tablename?>" >			  								
-	<input type="hidden" id="id" name="id" value="<?=$id?>" >			  								
-	<input type="hidden" id="num" name="num" value="<?=$num?>" >			  									
-	<input type="hidden" id="item" name="item" value="<?=$item?>" >			  										
-	<input type="hidden" id="mode" name="mode" value="<?=$mode?>" >		
-	<input type="hidden" id="timekey" name="timekey" value="<?=$timekey?>" >  <!-- 신규데이터 작성시 parentid key값으로 사용 -->				
-	<input type="hidden" id="searchtext" name="searchtext" value="<?=$searchtext?>" >  <!-- summernote text저장 -->		
+    // load_GoogleDriveSecond.php에서 정의될 변수들 초기화 (정의되지 않은 경우 대비)
+    $savefilename_arr = $savefilename_arr ?? array();
+    $saveimagename_arr = $saveimagename_arr ?? array();
+    ?>
 
-<div class="container">  
-	<div class="d-flex mt-3 mb-1 justify-content-center align-items-center"> 
-			<span class="fs-5" > &nbsp;&nbsp;  <?=$title_message?> &nbsp;&nbsp;</span>	
-	</div>	      
-	<div class="d-flex mt-2 mb-1 justify-content-center align-items-center"> 		
-		<div class="card mt-2" style="width:60%;">  
-			<div class="card-body">  					
-				 <div class="row"> 					 
-						<div class="d-flex justify-content-center align-items-center"> 							 
-							작성자  : &nbsp;    <?=$_SESSION["nick"]?>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;							
-						</div>					
-						<div class="d-flex  mt-2 justify-content-center align-items-center"> 							 
-							<span class="form-control me-2" style="width: 50px;border:0px;" > 구분 </span>
-							<input id="division" name="division" type="text" class="form-control me-2" style="width:200px;"  autocomplete="off" <?php if($mode=="modify"){ ?> value="<?=$division?>" <?php }?>>&nbsp;														
-							<span class="form-control me-2" style="width: 50px;border:0px;" > 제목 </span>
-							<input id="subject" name="subject" type="text" required class="form-control" style="width:500px;"  autocomplete="off" <?php if($mode=="modify"){ ?> value="<?=$item_subject?>" <?php }?>>&nbsp;														
-						</div>						
-				</div>
-				</div>			
-			</div>
-		</div>
-	<div class="d-flex mt-1 mb-1 justify-content-start align-items-center"> 					 
-		<button class="btn btn-dark btn-sm me-1" onclick="self.close();" > &times; 닫기 </button>
-		<button type="button"   class="btn btn-dark btn-sm" id="saveBtn"  >  <i class="bi bi-floppy-fill"></i> 저장 </button>	
-		
-	</div>
-	 <div class="d-flex mt-3 mb-1 justify-content-center">  
-	 <textarea id="summernote" name="content" rows="20" ><?=$content?></textarea>
-	</div>
- 
-	<div class="d-flex mt-3 mb-1 justify-content-center">  	 		 
-			 <label for="upfile" class="input-group-text btn btn-outline-primary btn-sm"> 파일(10M 이하) pdf파일 첨부 </label>						  							
-			 <input id="upfile"  name="upfile[]" type="file" onchange="this.value" multiple  style="display:none" >
-	</div>	
-	
-	<div id ="displayFile" class="d-flex mt-1 mb-1 justify-content-center" style="display:none;">  	 		 					
-		 
-	</div>			
-	<div id ="displayImage" class="row d-flex mt-1 mb-1 justify-content-center" style="display:none;">  	 		 					
-		 
-	</div>		
-	
-	<div class="d-flex mt-1 mb-1 justify-content-center">  	 	
-			<label  for="upfileimage" class="input-group-text btn btn-outline-dark btn-sm ">  사진 첨부 </label>	
-			 <input id="upfileimage"  name="upfileimage[]" type="file" onchange="this.value" multiple accept=".gif, .jpg, .png" style="display:none">
-	</div>	
-	
-	</div>  	
-</form>	
- 
-<script> 
+    <form id="board_form" name="board_form" method="post" enctype="multipart/form-data">
+        <!-- 전달함수 설정 input hidden -->
+        <input type="hidden" id="tablename" name="tablename" value="<?= $tablename ?>">
+        <input type="hidden" id="id" name="id" value="<?= $id ?>">
+        <input type="hidden" id="num" name="num" value="<?= $num ?>">
+        <input type="hidden" id="item" name="item" value="<?= $item ?>">
+        <input type="hidden" id="mode" name="mode" value="<?= $mode ?>">
+        <input type="hidden" id="timekey" name="timekey" value="<?= $timekey ?>">
+        <input type="hidden" id="searchtext" name="searchtext" value="<?= $searchtext ?>">
 
-$(document).ready(function(){	
+        <div class="container">
+            <div class="d-flex mt-3 mb-1 justify-content-center align-items-center">
+                <span class="fs-5"> &nbsp;&nbsp;  <?= $title_message ?> &nbsp;&nbsp;</span>
+            </div>
+            <div class="d-flex mt-2 mb-1 justify-content-center align-items-center">
+                <div class="card mt-2" style="width:60%;">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="d-flex justify-content-center align-items-center">
+                                작성자  : &nbsp;    <?= $nick ?>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            </div>
+                            <div class="d-flex mt-2 justify-content-center align-items-center">
+                                <span class="form-control me-2" style="width: 50px;border:0px;"> 구분 </span>
+                                <input id="division" name="division" type="text" class="form-control me-2" style="width:200px;" autocomplete="off" <?php if ($mode == "modify") { ?> value="<?= $division ?>" <?php } ?>>&nbsp;
+                                <span class="form-control me-2" style="width: 50px;border:0px;"> 제목 </span>
+                                <input id="subject" name="subject" type="text" required class="form-control" style="width:500px;" autocomplete="off" <?php if ($mode == "modify") { ?> value="<?= $item_subject ?>" <?php } ?>>&nbsp;
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex mt-1 mb-1 justify-content-start align-items-center">
+                <button class="btn btn-dark btn-sm me-1" onclick="self.close();"> &times; 닫기 </button>
+                <button type="button" class="btn btn-dark btn-sm" id="saveBtn">  <i class="bi bi-floppy-fill"></i> 저장 </button>
+            </div>
+            <div class="d-flex mt-3 mb-1 justify-content-center">
+                <textarea id="summernote" name="content" rows="20"><?= $content ?></textarea>
+            </div>
 
-      $('#summernote').summernote({
-        placeholder: '내용 작성',
-		// maximumImageFileSize: 500*1024, // 500 KB
-		maximumImageFileSize: 1920*5000, 		
-        tabsize: 2,
-        height: 500,
-        width: 1200,
-        toolbar: [
-          ['style', ['style']],
-          ['font', ['bold', 'underline', 'clear']],
-          ['color', ['color']],
-          ['para', ['ul', 'ol', 'paragraph']],
-          ['table', ['table']],
-          ['insert', ['link', 'picture', 'video']],
-          ['view', ['fullscreen', 'codeview', 'help']]
-        ],
-		
-		callbacks: {
-        onImageUpload: function(files) {
-            if (files.length > 0) {
-                var file = files[0];
-                resizeImage(file, function(resizedImage) {
-                    // resizedImage는 처리된 이미지의 데이터 URL입니다.
-                    $('#summernote').summernote('insertImage', resizedImage);
-                        });
+            <div class="d-flex mt-3 mb-1 justify-content-center">
+                <label for="upfile" class="input-group-text btn btn-outline-primary btn-sm"> 파일(10M 이하) pdf파일 첨부 </label>
+                <input id="upfile" name="upfile[]" type="file" onchange="this.value" multiple style="display:none">
+            </div>
+
+            <div id="displayFile" class="d-flex mt-1 mb-1 justify-content-center" style="display:none;">
+            </div>
+            <div id="displayImage" class="row d-flex mt-1 mb-1 justify-content-center" style="display:none;">
+            </div>
+
+            <div class="d-flex mt-1 mb-1 justify-content-center">
+                <label for="upfileimage" class="input-group-text btn btn-outline-dark btn-sm">  사진 첨부 </label>
+                <input id="upfileimage" name="upfileimage[]" type="file" onchange="this.value" multiple accept=".gif, .jpg, .png" style="display:none">
+            </div>
+
+        </div>
+    </form>
+
+    <script>
+        $(document).ready(function() {
+            $('#summernote').summernote({
+                placeholder: '내용 작성',
+                maximumImageFileSize: 1920 * 5000,
+                tabsize: 2,
+                height: 500,
+                width: 1200,
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'underline', 'clear']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['table', ['table']],
+                    ['insert', ['link', 'picture', 'video']],
+                    ['view', ['fullscreen', 'codeview', 'help']]
+                ],
+                callbacks: {
+                    onImageUpload: function(files) {
+                        if (files.length > 0) {
+                            var file = files[0];
+                            resizeImage(file, function(resizedImage) {
+                                $('#summernote').summernote('insertImage', resizedImage);
+                            });
+                        }
                     }
                 }
+            });
+
+            function resizeImage(file, callback) {
+                var reader = new FileReader();
+                reader.onloadend = function(e) {
+                    var tempImg = new Image();
+                    tempImg.src = reader.result;
+                    tempImg.onload = function() {
+                        var MAX_WIDTH = 800;
+                        var MAX_HEIGHT = 500;
+                        var tempW = tempImg.width;
+                        var tempH = tempImg.height;
+
+                        if (tempW > tempH) {
+                            if (tempW > MAX_WIDTH) {
+                                tempH *= MAX_WIDTH / tempW;
+                                tempW = MAX_WIDTH;
+                            }
+                        } else {
+                            if (tempH > MAX_HEIGHT) {
+                                tempW *= MAX_HEIGHT / tempH;
+                                tempH = MAX_HEIGHT;
+                            }
+                        }
+
+                        var canvas = document.createElement('canvas');
+                        canvas.width = tempW;
+                        canvas.height = tempH;
+                        var ctx = canvas.getContext("2d");
+                        ctx.drawImage(tempImg, 0, 0, tempW, tempH);
+                        var dataURL = canvas.toDataURL("image/jpeg");
+
+                        callback(dataURL);
+                    };
+                };
+                reader.readAsDataURL(file);
             }
-      });
-	  
-function resizeImage(file, callback) {
-    var reader = new FileReader();
-    reader.onloadend = function(e) {
-        var tempImg = new Image();
-        tempImg.src = reader.result;
-        tempImg.onload = function() {
-            // 여기서 원하는 이미지 크기로 설정
-            var MAX_WIDTH = 800;
-            var MAX_HEIGHT = 500;
-            var tempW = tempImg.width;
-            var tempH = tempImg.height;
 
-            if (tempW > tempH) {
-                if (tempW > MAX_WIDTH) {
-                    tempH *= MAX_WIDTH / tempW;
-                    tempW = MAX_WIDTH;
-                }
-            } else {
-                if (tempH > MAX_HEIGHT) {
-                    tempW *= MAX_HEIGHT / tempH;
-                    tempH = MAX_HEIGHT;
-                }
+            $("#closeModalBtn").click(function() {
+                $('#myModal').modal('hide');
+            });
+
+            $("#closeBtn1").click(function() {
+                $("#closeBtn").click();
+            });
+
+            $("#closeBtn").click(function() {
+                self.close();
+            });
+
+            $("#saveBtn").click(function() {
+                Fninsert();
+            });
+
+            function Fninsert() {
+                console.log($("#mode").val());
+                var content = $('#summernote').summernote('code');
+                var tempDiv = document.createElement('div');
+                tempDiv.innerHTML = content;
+                var elements = tempDiv.querySelectorAll('p, b');
+                var extractedTexts = [];
+                elements.forEach(function(element) {
+                    extractedTexts.push(element.textContent);
+                });
+                var extractedText = extractedTexts.join(',');
+                console.log('extractedTexts');
+                console.log(extractedTexts);
+                $("#searchtext").val(extractedText);
+
+                showMsgModal(2);
+
+                var form = $('#board_form')[0];
+                var data = new FormData(form);
+
+                ajaxRequest = $.ajax({
+                    enctype: 'multipart/form-data',
+                    processData: false,
+                    contentType: false,
+                    cache: false,
+                    timeout: 600000,
+                    url: "insert.php",
+                    type: "post",
+                    data: data,
+                    dataType: "json",
+                    success: function(data) {
+                        setTimeout(function() {
+                            Toastify({
+                                text: "파일 저장완료 ",
+                                duration: 1500,
+                                close: true,
+                                gravity: "top",
+                                position: "center",
+                                style: {
+                                    background: "linear-gradient(to right, #00b09b, #96c93d)"
+                                },
+                            }).showToast();
+
+                            setTimeout(function() {
+                                if (window.opener && !window.opener.closed) {
+                                    opener.location.reload();
+                                }
+                            }, 1000);
+
+                            var num = data["num"];
+                            var tablename = data["tablename"];
+
+                            setTimeout(function() {
+                                hideMsgModal();
+                                location.href = 'view.php?page=1&num=' + num + "&tablename=" + tablename;
+                            }, 1000);
+                        }, 1000);
+                    },
+                    error: function(jqxhr, status, error) {
+                        console.log(jqxhr, status, error);
+                    }
+                });
             }
+        });
 
-            var canvas = document.createElement('canvas');
-            canvas.width = tempW;
-            canvas.height = tempH;
-            var ctx = canvas.getContext("2d");
-            ctx.drawImage(tempImg, 0, 0, tempW, tempH);
-            var dataURL = canvas.toDataURL("image/jpeg");
-
-            callback(dataURL);
-        };
-    };
-    reader.readAsDataURL(file);
-}	  
- 	 	 
-$("#closeModalBtn").click(function(){ 
-    $('#myModal').modal('hide');
-}); 	 
-
-// 하단복사 버튼
-$("#closeBtn1").click(function(){ 
-   $("#closeBtn").click();
-});
-	
-$("#closeBtn").click(function(){    // 저장하고 창닫기	
-	self.close();
-});	
-  	 	 
-$("#saveBtn").click(function(){ 
-    Fninsert();
-}); 	
-		
-// 자료의 삽입/수정하는 모듈 
-function Fninsert() {	 		   
-	console.log($("#mode").val());    
-	// Summernote 초기화 후
-	let content = $('#summernote').summernote('code'); // 에디터의 내용을 HTML 형태로 가져옵니다.
-
-	// HTML 문자열을 DOM 요소로 변환
-	let tempDiv = document.createElement('div');
-	tempDiv.innerHTML = content;
-
-	// 이제 tempDiv 내부에서 원하는 태그를 선택할 수 있습니다.
-	let elements = tempDiv.querySelectorAll('p, b');
-
-	let extractedTexts = [];
-	elements.forEach(element => {
-		extractedTexts.push(element.textContent);
-	});
-
-	// console.log(extractedTexts.join(','));
-
-    var extractedText = extractedTexts.join(',');
-
-	console.log('extractedTexts');
-	console.log(extractedTexts);
-	$("#searchtext").val(extractedText);
-	
-   showMsgModal(2); // 파일저장중	
-
-    var form = $('#board_form')[0];
-    var data = new FormData(form);
- 
-	ajaxRequest = $.ajax({
-		enctype: 'multipart/form-data',    // file을 서버에 전송하려면 이렇게 해야 함 주의
-		processData: false,    
-		contentType: false,      
-		cache: false,           
-		timeout: 600000, 			
-		url: "insert.php",
-		type: "post",		
-		data: data,			
-		dataType:"json",  
-		success : function(data){			
-				// console.log(data);
-				setTimeout(function() {						
-						Toastify({
-							text: "파일 저장완료 ",
-							duration: 1500,
-							close:true,
-							gravity:"top",
-							position: "center",
-							style: {
-								background: "linear-gradient(to right, #00b09b, #96c93d)"
-							},
-						}).showToast();	
-						
-						setTimeout(function(){
-							if (window.opener && !window.opener.closed) {
-								// 작업 완료 후 모달 닫기								
-								opener.location.reload();
-							}		
-						}, 1000);																		
-
-						var num = data["num"];
-						var tablename = data["tablename"];
-						
-						setTimeout(function(){
-							hideMsgModal();
-							location.href='view.php?page=1&num=' + num + "&tablename=" + tablename ;					
-						}, 1000);													
-							
-					}, 1000);
-
-		},
-		error : function( jqxhr , status , error ){
-			console.log( jqxhr , status , error );
-					} 			      		
-	   });				
-	} 	
-}); // end of ready document
-
-function deleteLastchar(str)
-// 마지막 문자 제거하는 함수
-{
-  return str = str.substr(0, str.length - 1);		
-}
-   
-</script>
+        function deleteLastchar(str) {
+            return str = str.substr(0, str.length - 1);
+        }
+    </script>
 
 
 <script>

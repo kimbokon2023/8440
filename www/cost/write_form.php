@@ -1,312 +1,280 @@
- <?php
-  session_start(); 
-  
- $level= $_SESSION["level"];
- if(!isset($_SESSION["level"]) || $level>=5) {
-         echo "<script> alert('관리자 승인이 필요합니다.') </script>";
-		 sleep(2);
-         header ("Location:http://8440.co.kr/login/logout.php");
-         exit;
-   }   
-   
- include "../load_company.php";
- $companycount = count($suply_company_arr);   
- // var_dump($suply_company_arr);
- // 납품업체 숫자 넘겨줌 
-  
-$callback=$_REQUEST["callback"];  // 출고현황에서 체크번호
-  
-  if(isset($_REQUEST["mode"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $mode=$_REQUEST["mode"];
-  else
-   $mode="";
+<?php
+require_once __DIR__ . '/../common/functions.php';
+require_once getDocumentRoot() . '/session.php';
 
-  if(isset($_REQUEST["which"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $which=$_REQUEST["which"];
-  else
-   $which="2";
-  
-  if(isset($_REQUEST["num"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $num=$_REQUEST["num"];
-  else
-   $num="";
+// 세션 변수 초기화
+$level = $_SESSION["level"] ?? 5;
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+$chkMobile = $_SESSION["chkMobile"] ?? false;
 
-   if(isset($_REQUEST["page"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $page=$_REQUEST["page"];
-  else
-   $page=1;   
+// 권한 체크
+if (!isset($_SESSION["level"]) || $level >= 5) {
+    echo "<script> alert('관리자 승인이 필요합니다.') </script>";
+    sleep(2);
+    
+    // 동적 리다이렉트 (로컬/서버 환경)
+    $isLocal = (strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false || strpos($_SERVER['HTTP_HOST'], 'localhost') !== false);
+    $baseUrl = $isLocal ? 'http://127.0.0.1:8000' : 'http://8440.co.kr';
+    
+    header("Location: {$baseUrl}/login/logout.php");
+    exit;
+}
 
-  if(isset($_REQUEST["search"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $search=$_REQUEST["search"];
-  else
-   $search="";
-  
-  if(isset($_REQUEST["find"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $find=$_REQUEST["find"];
-  else
-   $find="";
+// 납품업체 로드
+include "../load_company.php";
+$companycount = isset($suply_company_arr) ? count($suply_company_arr) : 0;
+$suply_company_arr = $suply_company_arr ?? array();
+$supplier_arr = $supplier_arr ?? array();
 
-  if(isset($_REQUEST["process"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $process=$_REQUEST["process"];
-  else
-   $process="전체";
+// 요청 파라미터 초기화
+$callback = $_REQUEST["callback"] ?? '';  // 출고현황에서 체크번호
+$mode = $_REQUEST["mode"] ?? '';
+$which = $_REQUEST["which"] ?? '2';
+$num = $_REQUEST["num"] ?? '';
+$page = $_REQUEST["page"] ?? 1;
+$search = $_REQUEST["search"] ?? '';
+$find = $_REQUEST["find"] ?? '';
+$process = $_REQUEST["process"] ?? '전체';
+$fromdate = $_REQUEST["fromdate"] ?? '';
+$todate = $_REQUEST["todate"] ?? '';
+$regist_state = $_REQUEST["regist_state"] ?? '1';
+$year = $_REQUEST["year"] ?? '';
+$asprocess = $_REQUEST["asprocess"] ?? '';
+$separate_date = $_REQUEST["separate_date"] ?? '';
 
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];
+// 데이터베이스 연결
+require_once(includePath('lib/mydb.php'));
+$pdo = db_connect();
 
+// 철판 소스 배열 초기화
+$steelsource_num = array();
+$steelsource_item = array();
+$steelsource_spec = array();
+$steelsource_take = array();
+$steelsource_item_yes = array();
+$steelsource_spec_yes = array();
+$spec_arr = array();
+$company_arr = array();
+$title_arr = array();
 
-  if(isset($_REQUEST["regist_state"]))  // 등록하면 1로 설정 접수상태
-   $regist_state=$_REQUEST["regist_state"];
-  else
-   $regist_state="1";
-
- $year=$_REQUEST["year"];   // 년도 체크박스
- 
- 
-//  철판리스트 뽑기 
-   
-  require_once("../lib/mydb.php");
-  $pdo = db_connect();	
-  
-
-// 구매처 읽어오기  
-     
 // 철판종류에 대한 추출부분
-  
-   $sql="select * from mirae8440.steelsource order by sortorder asc, item desc "; 					
+$sql = "SELECT * FROM {$DB}.steelsource ORDER BY sortorder ASC, item DESC";
 
-	 try{  
-
-   $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-   $counter=0;
-   $item_counter=1;
-   $steelsource_num=array();
-   $steelsource_item=array();
-   $steelsource_spec=array();
-   $steelsource_take=array();
-   $steelsource_item_yes=array();
-   $steelsource_spec_yes=array();
-   $spec_arr=array();
-   $company_arr=array();
-   $title_arr=array();
-   $last_item="";
-   $last_spec="";
-   $pass='0';
-   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-
+try {
+    $stmh = $pdo->query($sql);
+    
+    $counter = 0;
+    $item_counter = 1;
+    $last_item = "";
+    $last_spec = "";
+    $pass = '0';
 	   
- 			  $steelsource_num[$counter]=$row["num"];			  
- 			  $steelsource_item[$counter]=trim($row["item"]);
- 			  $steelsource_spec[$counter]=trim($row["spec"]);
-		      $steelsource_take[$counter]=trim($row["take"]);   
-			  
-			  if($steelsource_item[$counter]!=$last_item)
-			  {
-				 $last_item= $steelsource_item[$counter];
-			     $steelsource_item_yes[$item_counter]=$last_item;
-				 $item_counter++;
-			  }
-			 
-			  $counter++;
-	 } 	 
-   } catch (PDOException $Exception) {
-    print "오류: ".$Exception->getMessage();
-}    
+    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+        $steelsource_num[$counter] = $row["num"];
+        $steelsource_item[$counter] = trim($row["item"]);
+        $steelsource_spec[$counter] = trim($row["spec"]);
+        $steelsource_take[$counter] = trim($row["take"]);
+        
+        if ($steelsource_item[$counter] != $last_item) {
+            $last_item = $steelsource_item[$counter];
+            $steelsource_item_yes[$item_counter] = $last_item;
+            $item_counter++;
+        }
+        
+        $counter++;
+    }
+} catch (PDOException $ex) {
+    error_log("철판 소스 조회 오류: " . $ex->getMessage());
+}
 
-array_push($steelsource_item_yes," ");
+array_push($steelsource_item_yes, " ");
 $steelsource_item_yes = array_unique($steelsource_item_yes);
 sort($steelsource_item_yes);
 
 $sumcount = count($steelsource_item_yes);
-	
-	
- // 기간을 정하는 구간
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];	 
 
-if($fromdate=="")
-{
-	$fromdate=substr(date("Y-m-d",time()),0,4) ;
-	$fromdate=$fromdate . "-01-01";
+// 기간을 정하는 구간
+if ($fromdate == "") {
+    $fromdate = substr(date("Y-m-d", time()), 0, 4);
+    $fromdate = $fromdate . "-01-01";
 }
-if($todate=="")
-{
-	$todate=substr(date("Y-m-d",time()),0,4) . "-12-31" ;
-	$Transtodate=strtotime($todate.'+1 days');
-	$Transtodate=date("Y-m-d",$Transtodate);
+
+if ($todate == "") {
+    $todate = substr(date("Y-m-d", time()), 0, 4) . "-12-31";
+    $Transtodate = strtotime($todate . '+1 days');
+    $Transtodate = date("Y-m-d", $Transtodate);
+} else {
+    $Transtodate = strtotime($todate);
+    $Transtodate = date("Y-m-d", $Transtodate);
 }
-    else
-	{
-	$Transtodate=strtotime($todate);
-	$Transtodate=date("Y-m-d",$Transtodate);
-	}
+
+// 철판소스 전체 조회 (정렬순서별)
+$sql = "SELECT * FROM {$DB}.steelsource ORDER BY sortorder ASC, item ASC, spec ASC";
+
+$sum_title = array();
+$sum = array();
+
+try {
+    $stmh = $pdo->query($sql);
+    $rowNum = $stmh->rowCount();
 		  
-   if(isset($_REQUEST["find"]))   //목록표에 제목,이름 등 나오는 부분
-	 $find=$_REQUEST["find"];
- 
-$sql="select * from mirae8440.steelsource order by sortorder asc, item asc, spec asc"; 	// 정렬순서 정함.				
-
-$sum_title=array(); 
-$sum= array();
-
- try{  
-   $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-   $rowNum = $stmh->rowCount();  
-   $counter=0;
-   $steelsource_num=array();
-   $steelsource_item=array();
-   $steelsource_spec=array();
-   $steelsource_take=array();   
-   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {	   
- 			  $steelsource_num[$counter]=$row["num"];			  
- 			  $steelsource_item[$counter]=trim($row["item"]);
- 			  $steelsource_spec[$counter]=trim($row["spec"]);
-		      $steelsource_take[$counter]=trim($row["take"]);  
-              array_push($sum_title, $steelsource_item[$counter] . $steelsource_spec[$counter]. $steelsource_take[$counter]) ;
-              array_push($company_arr, $steelsource_take[$counter]) ;
-	   $counter++;
-	 } 	 
-   } catch (PDOException $Exception) {
-    print "오류: ".$Exception->getMessage();
-}  
+    $counter = 0;
+    $steelsource_num = array();
+    $steelsource_item = array();
+    $steelsource_spec = array();
+    $steelsource_take = array();
+    
+    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+        $steelsource_num[$counter] = $row["num"];
+        $steelsource_item[$counter] = trim($row["item"]);
+        $steelsource_spec[$counter] = trim($row["spec"]);
+        $steelsource_take[$counter] = trim($row["take"]);
+        
+        array_push($sum_title, $steelsource_item[$counter] . $steelsource_spec[$counter] . $steelsource_take[$counter]);
+        array_push($company_arr, $steelsource_take[$counter]);
+        
+        $counter++;
+    }
+} catch (PDOException $ex) {
+    error_log("철판 소스 전체 조회 오류: " . $ex->getMessage());
+}
 
 $sum_title = array_unique($sum_title);  // 고유번호이름만 살리기
 sort($sum_title);  // 고유번호이름만 살리기
 
- // 전체합계(입고부분)를 산출하는 부분 
-$sql="select * from mirae8440.steel order by outdate";
- 
-$tmpsum = 0; 
+// 전체합계(입고부분)를 산출하는 부분
+$sql = "SELECT * FROM {$DB}.steel ORDER BY outdate";
 
- try{  
-// 레코드 전체 sql 설정
-   $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+$tmpsum = 0;
 
-			  $outdate=$row["outdate"];			  
-			  $item=trim($row["item"]);			  
-			  $spec=trim($row["spec"]);
-			  $steelnum=$row["steelnum"];			  
-			  $company=$row["company"];
-			  $comment=$row["comment"];
-			  $which=$row["which"];	 	
-			  
-			  
-        // 일반매입처리
+try {
+    $stmh = $pdo->query($sql);
+    
+    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+        $outdate = $row["outdate"];
+        $item = trim($row["item"]);
+        $spec = trim($row["spec"]);
+        $steelnum = $row["steelnum"];
+        $company = $row["company"];
+        $comment = $row["comment"];
+        $which = $row["which"];
+        
+        // 일반매입처리 (자체 구매는 공란 처리)
         if ($company == '미래기업' || $company == '윤스틸' || $company == '현진스텐') {
             $company = '';
         }
-			  
-			  $tmp=$item . $spec . $company;
-	
-        for($i=0;$i<count($sum_title) ; $i++) {  	          
-			  if($which=='1' and $tmp==$sum_title[$i])
-				     $sum[$i]= $sum[$i] + (int)$steelnum;		// 입고숫자 더해주기 합계표	
-			  if($which=='2' and $tmp==$sum_title[$i])
-				    $sum[$i] =  $sum[$i] - (int)$steelnum;
-		           }
-			}		 
-   } catch (PDOException $Exception) {
-    print "오류: ".$Exception->getMessage();
-}  
-      
+        
+        $tmp = $item . $spec . $company;
+        
+        for ($i = 0; $i < count($sum_title); $i++) {
+            if ($which == '1' && $tmp == $sum_title[$i]) {
+                $sum[$i] = ($sum[$i] ?? 0) + (int)$steelnum;  // 입고숫자 더해주기 합계표
+            }
+            if ($which == '2' && $tmp == $sum_title[$i]) {
+                $sum[$i] = ($sum[$i] ?? 0) - (int)$steelnum;
+            }
+        }
+    }
+} catch (PDOException $ex) {
+    error_log("철판 재고 합계 산출 오류: " . $ex->getMessage());
+}
+
 // 철판 종류 불러오기
-$sql="select * from mirae8440.steelitem"; 					
+$sql = "SELECT * FROM {$DB}.steelitem";
 
-	 try{  
+$steelitem_arr = array();
 
-   $stmh = $pdo->query($sql);            
-   $rowNum = $stmh->rowCount();     
-   $steelitem_arr=array();
-
-   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+try {
+    $stmh = $pdo->query($sql);
+    $rowNum = $stmh->rowCount();
 	   
- 			 array_push($steelitem_arr, trim($row["item"]));
-			 
-			  $counter++;
-	 } 	 
-   } catch (PDOException $Exception) {
-    print "오류: ".$Exception->getMessage();
-}    
-   $item_counter=count($steelitem_arr);
-   
-$steelitem_arr = array_unique($steelitem_arr); 
-sort($steelitem_arr);  // 오름차순으로 배열 정렬      
-   
+    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+        array_push($steelitem_arr, trim($row["item"]));
+    }
+} catch (PDOException $ex) {
+    error_log("철판 종류 조회 오류: " . $ex->getMessage());
+}
+
+$item_counter = count($steelitem_arr);
+
+$steelitem_arr = array_unique($steelitem_arr);
+sort($steelitem_arr);  // 오름차순으로 배열 정렬
+
 // 철판 규격 불러오기
-$sql="select * from mirae8440.steelspec"; 					
+$sql = "SELECT * FROM {$DB}.steelspec";
 
-	 try{  
+$spec_arr = array();
 
-   $stmh = $pdo->query($sql);            
-   $rowNum = $stmh->rowCount();  
-   $counter=0;
-   $spec_arr=array();
-
-   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-	   
- 			  $spec_arr[$counter]=trim($row["spec"]);
+try {
+    $stmh = $pdo->query($sql);
+    $rowNum = $stmh->rowCount();
+    $counter = 0;
 			 
-			  $counter++;
-	 } 	 
-   } catch (PDOException $Exception) {
-    print "오류: ".$Exception->getMessage();
-}    
+    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+        $spec_arr[$counter] = trim($row["spec"]);
+        $counter++;
+    }
+} catch (PDOException $ex) {
+    error_log("철판 규격 조회 오류: " . $ex->getMessage());
+}
 
-   $spec_counter=count($spec_arr);
-   sort($spec_arr);  // 오름차순으로 배열 정렬
-   
-    
-  if ($mode=="modify"){
-    try{
-      $sql = "select * from mirae8440.cost where num = ? ";
-      $stmh = $pdo->prepare($sql); 
+$spec_counter = count($spec_arr);
+sort($spec_arr);  // 오름차순으로 배열 정렬
 
-      $stmh->bindValue(1,$num,PDO::PARAM_STR); 
-      $stmh->execute();
-      $count = $stmh->rowCount();            
-	  $row = $stmh->fetch(PDO::FETCH_ASSOC);  // $row 배열로 DB 정보를 불러온다.
-    if($count<1){  
-      print "결과가 없습니다.<br>";
-     }else{
-		  include '_row.php';		  
-	  
-			 if($indate!="0000-00-00") $indate = date("Y-m-d", strtotime( $indate) );
-					else $indate="";	 
-			 if($outdate!="0000-00-00") $outdate = date("Y-m-d", strtotime( $outdate) );
-					else $outdate="";	 					
-			  
-      }
-     }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
-     }
-  }
-    
-  if ($mode!="modify"){    // 수정모드가 아닐때 신규 자료일때는 변수 초기화 한다.
-          
-			  $outdate=date("Y-m-d");
-			  $requestdate=null;
-			  $indate=null;
-			  $outworkplace=$row["outworkplace"];
-			  
-			  $model=null;			  
-			  $item=null;			  
-			  $spec=null;
-			  $steelnum=null;			  
-			  $company="";
-			  $supplier="";
-			  $comment=null;
-			  $which="1";	 			   // 요청 
-  } 
+// 변수 초기화 (수정 모드가 아닐 경우 기본값)
+$outdate = date("Y-m-d");
+$requestdate = null;
+$indate = null;
+$outworkplace = '';
+$model = null;
+$item = null;
+$spec = null;
+$steelnum = null;
+$company = "";
+$supplier = "";
+$comment = null;
+$which = "1";  // 요청
+$stock = 0;
+$suppliercost = '';
+$first_writer = '';
+$update_log = '';
 
-// print '$item';
-// var_dump($item);
-// var_dump($steelitem_arr);
+if ($mode == "modify") {
+    try {
+        $sql = "SELECT * FROM {$DB}.cost WHERE num = ?";
+        $stmh = $pdo->prepare($sql);
+        
+        $stmh->bindValue(1, $num, PDO::PARAM_STR);
+        $stmh->execute();
+        $count = $stmh->rowCount();
+        $row = $stmh->fetch(PDO::FETCH_ASSOC);  // $row 배열로 DB 정보를 불러온다.
+        
+        if ($count < 1) {
+            error_log("원자재 데이터를 찾을 수 없습니다. num: " . $num);
+        } else {
+            include '_row.php';
+            
+            if ($indate != "0000-00-00") {
+                $indate = date("Y-m-d", strtotime($indate));
+            } else {
+                $indate = "";
+            }
+            
+            if ($outdate != "0000-00-00") {
+                $outdate = date("Y-m-d", strtotime($outdate));
+            } else {
+                $outdate = "";
+            }
+        }
+    } catch (PDOException $ex) {
+        error_log("원자재 데이터 조회 오류: " . $ex->getMessage());
+    }
+}
 
-     $titlemsg	= '원자재 단가 등록';	
+$titlemsg = '원자재 단가 등록';
 
-?> 
- <?php include getDocumentRoot() . '/load_header.php' ?>
+?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
   
 <title> 원자재 발주 </title>
 
@@ -601,7 +569,7 @@ $sql="select * from mirae8440.steelspec";
 
 <script>
 function formatInput(input) {
-    let value = input.value;
+    var value = input.value;
     value = value.replace(/,/g, ""); // Remove all existing commas
     value = value.replace(/[^\d]/g, ""); // Remove all non-digit characters
     input.value = numberWithCommas(value); // Add commas and update the value
@@ -637,17 +605,16 @@ $("#saveBtn").click(function(){
 });
 
 	function showWarningModal() {
-		Swal.fire({                                    
+		Swal.fire({
 			title: '등록 오류 알림',
 			text: '현장명, 수량은 필수입력 요소입니다.',
-			icon: 'warning',
-			// ... 기타 설정 ...
-		}).then(result => {
-			if (result.isConfirmed) { 
+			icon: 'warning'
+		}).then(function(result) {
+			if (result.isConfirmed) {
 				return; // 사용자가 확인 버튼을 누르면 아무것도 하지 않고 종료
 			} else {
 				saveData(); // 그렇지 않으면 데이터 저장 함수 실행
-			}               
+			}
 		});
 	}
 
@@ -731,111 +698,87 @@ $("#saveBtn").click(function(){
 });			
 
 
-// 
-function searchSimilarStock(){
+// 유사 재고 검색
+function searchSimilarStock() {
+	var arr1 = <?php echo json_encode($sum_title, JSON_UNESCAPED_UNICODE);?>;
+	var arr2 = <?php echo json_encode($sum, JSON_UNESCAPED_UNICODE);?>;
+	var arr3 = <?php echo $sumcount; ?>;
+	var arr4 = <?php echo json_encode($company_arr, JSON_UNESCAPED_UNICODE);?>;
 	
-	   // 한글,소문자대문자영어,숫자만 읽는 정규식
-	   // const regex = /^[ㄱ-ㅎ|가-힣|a-z|A-Z|0-9|]+$/;
-	   // 영어와 숫자만 읽는 정규식	   
-	   
-	   var arr1 = <?php echo json_encode($sum_title);?> ;
-	   var arr2 = <?php echo json_encode($sum);?> ;	   
-	   var arr3 = <?php echo $sumcount; ?> ; 
-	   var arr4 = <?php echo json_encode($company_arr);?> ;
-	   
-	   console.log(arr3);
-	   
-		  var a = $('#item').val();
-		  var b = $('#spec').val();
-		  var c = $('#company').val();
-		  
-		console.log(a);
-		console.log(b);
-		console.log(arr1);
-		console.log(arr2);
-		console.log(arr3);
-		console.log(arr4);
-		
-		let tmp = '';
-		let temptext='';
-		// console.clear();
-		for(i=0;i<arr1.length;i++)
-		{
-			temptext = arr1[i];		
-			if(temptext.includes(a))
-			{
-			   
-			   if(arr2[i] > 0)
-			   {
-			     tmp += arr1[i] + '     수량 ' + arr2[i] + "<br>";
-			     console.log(temptext.includes(a));				
-			   }
+	console.log(arr3);
+	
+	var a = $('#item').val();
+	var b = $('#spec').val();
+	var c = $('#company').val();
+	
+	console.log(a);
+	console.log(b);
+	console.log(arr1);
+	console.log(arr2);
+	console.log(arr3);
+	console.log(arr4);
+	
+	var tmp = '';
+	var temptext = '';
+	
+	for (var i = 0; i < arr1.length; i++) {
+		temptext = arr1[i];
+		if (temptext.indexOf(a) !== -1) {
+			if (arr2[i] > 0) {
+				tmp += arr1[i] + '     수량 ' + arr2[i] + "<br>";
+				console.log(temptext.indexOf(a) !== -1);
 			}
 		}
-		  if(tmp=='')
-		     {
-                 tmp='자재 없음';
-				 $('#stock').val(0);  
-			 }
-		  $('#alertmsg').html(tmp); 
-		  
-		  $('#myModal').modal('show'); 
+	}
+	
+	if (tmp == '') {
+		tmp = '자재 없음';
+		$('#stock').val(0);
+	}
+	
+	$('#alertmsg').html(tmp);
+	$('#myModal').modal('show');
 }
 
-function searchStock(){
-	 // 한글,소문자대문자영어,숫자만 읽는 정규식
-	   // const regex = /^[ㄱ-ㅎ|가-힣|a-z|A-Z|0-9|]+$/;
-	   // 영어와 숫자만 읽는 정규식	   
-	   var arr1 = <?php echo json_encode($sum_title);?> ;
-	   var arr2 = <?php echo json_encode($sum);?> ;	   
-	   var arr3 = <?php echo $sumcount; ?> ; 
-       var company;	   
-	   
-	   console.log('원자재 Full name '  + arr1);
-	   console.log(arr3);
-	   
-		  var a = $('#item').val();
-		  var b = $('#spec').val();
-		  var c = $('#company').val();
-		  
-		var title = a + b + c;
-		let tmp = '';
-		let temptext='';
-		for(i=0;i<arr1.length;i++)
-		{
-			temptext = arr1[i];			
-			// console.log(temptext);
-			// console.log(title);
-			// temptext = temptext.replace("기타업체","");
-			// temptext = temptext.replace("한산엘테크","");
-			// temptext = temptext.replace("윤스틸","");
-			// temptext = temptext.replace("신우","");
-			// temptext = temptext.replace("한ST","");
-			// temptext = temptext.replace("바세라","");
-			// temptext = temptext.replace("엘리브","");			
-			//temptext = temptext.replace(/^[a-z|A-Z|0-9]/gi,"");			
-			// temptext = temptext.replace("기타업체","");
-				if(temptext==title)
-				{
-				   console.clear();
-				   if(arr2[i] > 0)
-				   {
-					 company = temptext.replace(a, '');
-					 company = company.replace(b, '');
-					 tmp += a + ' ' + b + ' ' + company + ' 수량 ' + arr2[i] + "<br>";
-					 console.log(company);
-					$('#stock').val(arr2[i]);  
-				   }
-				}
+function searchStock() {
+	var arr1 = <?php echo json_encode($sum_title, JSON_UNESCAPED_UNICODE);?>;
+	var arr2 = <?php echo json_encode($sum, JSON_UNESCAPED_UNICODE);?>;
+	var arr3 = <?php echo $sumcount; ?>;
+	var company;
+	
+	console.log('원자재 Full name ' + arr1);
+	console.log(arr3);
+	
+	var a = $('#item').val();
+	var b = $('#spec').val();
+	var c = $('#company').val();
+	
+	var title = a + b + c;
+	var tmp = '';
+	var temptext = '';
+	
+	for (var i = 0; i < arr1.length; i++) {
+		temptext = arr1[i];
+		
+		if (temptext == title) {
+			console.clear();
+			if (arr2[i] > 0) {
+				company = temptext.replace(a, '');
+				company = company.replace(b, '');
+				tmp += a + ' ' + b + ' ' + company + ' 수량 ' + arr2[i] + "<br>";
+				console.log(company);
+				$('#stock').val(arr2[i]);
+			}
 		}
-		  if(tmp=='')
-		     {
-                 tmp='자재 없음';
-				 $('#stock').val(0);  
-			 }
-		  $('#alertmsg').html(tmp); 
-		  
-		  $('#myModal').modal('show'); 
+	}
+	
+	if (tmp == '') {
+		tmp = '자재 없음';
+		$('#stock').val(0);
+	}
+	
+	$('#alertmsg').html(tmp);
+	$('#myModal').modal('show');
 }
 
 function inputNumberFormat(obj) { 
@@ -935,104 +878,77 @@ function Enter_CheckTel(){
 }
 
 // 일자초기화
-function deldate(){	
-document.getElementById("requestdate").value  = "";  // 필요일자
-document.getElementById("indate").value  = "";
-var _today = new Date();   
-
-// document.getElementById("orderday").value  = today;   
-/*
-let year = today.getFullYear(); // 년도
-let month = today.getMonth();  // 월
-let date = today.getDate();  // 날짜
-let day = today.getDay(); 
-printday = year + "-" + month + "-" + day;  */
-
-printday=_today.format('yyyy-MM-dd');   
-document.getElementById("outdate").value  = printday;
-$("input[name='which']:radio[value='1']").prop("checked", true);
-}  
-function exe_search()
-{
-	  var ua = window.navigator.userAgent;
-      var postData; 	 
-	  var text1= document.getElementById("outworkplace").value;
+function deldate() {
+	document.getElementById("requestdate").value = "";  // 필요일자
+	document.getElementById("indate").value = "";
+	var _today = new Date();
 	
-	     if (ua.indexOf('MSIE') > 0 || ua.indexOf('Trident') > 0) {
-                postData = encodeURI(text1);
-            } else {
-                postData = text1;
-            }
+	var printday = _today.format('yyyy-MM-dd');
+	document.getElementById("outdate").value = printday;
+	$("input[name='which']:radio[value='1']").prop("checked", true);
+}
 
-      $("#displaysearch").show();
-      $("#displaysearch").load("./search.php?mode=search&search=" + postData);
+function exe_search() {
+	var ua = window.navigator.userAgent;
+	var postData;
+	var text1 = document.getElementById("outworkplace").value;
+	
+	if (ua.indexOf('MSIE') > 0 || ua.indexOf('Trident') > 0) {
+		postData = encodeURI(text1);
+	} else {
+		postData = text1;
+	}
+	
+	$("#displaysearch").show();
+	$("#displaysearch").load("./search.php?mode=search&search=" + postData);
 } 
 
-// _today.format   사용하려면 아래 내용이 함께 포함되어야 합니다.
-
+// Date.prototype.format - 날짜 포맷팅 함수
 Date.prototype.format = function (f) {
-
     if (!this.valueOf()) return " ";
-
-
-
+    
     var weekKorName = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
-
     var weekKorShortName = ["일", "월", "화", "수", "목", "금", "토"];
-
     var weekEngName = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-
     var weekEngShortName = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
     var d = this;
-
-
-
+    
     return f.replace(/(yyyy|yy|MM|dd|KS|KL|ES|EL|HH|hh|mm|ss|a\/p)/gi, function ($1) {
-
+        var h;
         switch ($1) {
-
             case "yyyy": return d.getFullYear(); // 년 (4자리)
-
             case "yy": return (d.getFullYear() % 1000).zf(2); // 년 (2자리)
-
             case "MM": return (d.getMonth() + 1).zf(2); // 월 (2자리)
-
             case "dd": return d.getDate().zf(2); // 일 (2자리)
-
             case "KS": return weekKorShortName[d.getDay()]; // 요일 (짧은 한글)
-
             case "KL": return weekKorName[d.getDay()]; // 요일 (긴 한글)
-
             case "ES": return weekEngShortName[d.getDay()]; // 요일 (짧은 영어)
-
             case "EL": return weekEngName[d.getDay()]; // 요일 (긴 영어)
-
             case "HH": return d.getHours().zf(2); // 시간 (24시간 기준, 2자리)
-
             case "hh": return ((h = d.getHours() % 12) ? h : 12).zf(2); // 시간 (12시간 기준, 2자리)
-
             case "mm": return d.getMinutes().zf(2); // 분 (2자리)
-
             case "ss": return d.getSeconds().zf(2); // 초 (2자리)
-
             case "a/p": return d.getHours() < 12 ? "오전" : "오후"; // 오전/오후 구분
-
             default: return $1;
-
         }
-
     });
-
 };
 
+String.prototype.string = function (len) { 
+    var s = '', i = 0; 
+    while (i++ < len) { 
+        s += this; 
+    } 
+    return s; 
+};
 
+String.prototype.zf = function (len) { 
+    return "0".string(len - this.length) + this; 
+};
 
-String.prototype.string = function (len) { var s = '', i = 0; while (i++ < len) { s += this; } return s; };
-
-String.prototype.zf = function (len) { return "0".string(len - this.length) + this; };
-
-Number.prototype.zf = function (len) { return this.toString().zf(len); };
+Number.prototype.zf = function (len) { 
+    return this.toString().zf(len); 
+};
 
 
 // 새로운 사급업체가 추가된 것을 update함

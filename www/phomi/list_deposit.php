@@ -1,4 +1,9 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php
+// 로컬/서버 환경 설정
+$is_local = $_SERVER['HTTP_HOST'] === 'localhost' || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false;
+$base_url = $is_local ? 'http://localhost/mirae8440/www' : 'http://8440.co.kr';
+
+require_once __DIR__ . '/../common/functions.php';
 require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
 require_once getDocumentRoot() . '/vendor/autoload.php';
 require_once(includePath('lib/mydb.php'));

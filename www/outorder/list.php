@@ -36,20 +36,19 @@ include '_request.php';
     
   $sum=array();
 	 
-  if(isset($_REQUEST["mode"]))
-     $mode=$_REQUEST["mode"];
-  else 
-     $mode="";      
-   
-   if(isset($_REQUEST["find"]))   //목록표에 제목,이름 등 나오는 부분
-   $find=$_REQUEST["find"];
+// 요청 변수 초기화 (?? '' 형태)
+$mode = $_REQUEST["mode"] ?? '';
+$find = $_REQUEST["find"] ?? '';
   	
 $now = date("Y-m-d");	 // 현재 날짜와 크거나 같으면 출고예정으로 구분
 
- $orderby="order by num desc ";	
- 
+// 세션 변수 안전하게 초기화
+$user_name = $_SESSION["name"] ?? '';
+
+$orderby = "order by num desc";
+
 // 외주업체인 경우 해당업체만 볼 수 있도록 화면구성함
-if($user_name === '덴크리'  or  $user_name === '서한컴퍼니'   or  $user_name === '다온텍'  )  
+if ($user_name === '덴크리' || $user_name === '서한컴퍼니' || $user_name === '다온텍')  
 {
 	switch ($check) {
 		case 1:  // 미출고 리스트 체크된 경우

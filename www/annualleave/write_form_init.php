@@ -1,73 +1,89 @@
-<?php include getDocumentRoot() . '/session.php';  ?>
-<?php include getDocumentRoot() . '/load_header.php' ?>
- 
- <style>
-.table-bordered,
-.table-bordered td,
-.table-bordered th {
-    border-color: #000000 !important; /* 더 진한 테두리 색상 */
-}
-</style>
- 
-<body>
-  <!-- Modal -->
-  <div class="modal fade" id="myModal" role="dialog">
-    <div class="modal-dialog  modal-lg modal-center" >    
-      <!-- Modal al_content-->
-      <div class="modal-al_content modal-lg">
-        <div class="modal-header">          
-          <h4 class="modal-title">알림</h4>
-        </div>
-        <div class="modal-body">		
-		   <div id=alertmsg class="fs-1 mb-5 justify-al_content-center" >
-		     결재가 진행중입니다. <br> 
-		   <br> 
-		  수정사항이 있으면 결재권자에게 말씀해 주세요.
-			</div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" id="closeModalBtn" class="btn btn-default" data-dismiss="modal">닫기</button>
-        </div>
-      </div>      
-    </div>
- </div>
- 
 <?php
+require_once __DIR__ . '/../common/functions.php';
+include getDocumentRoot() . '/session.php';
 
-session_start();
+// 세션 변수 초기화
+$level = $_SESSION["level"] ?? 0;
+$user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["userid"] ?? '';
+$DB = $_SESSION["DB"] ?? '';
+?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
 
-$level= $_SESSION["level"];
-$user_name= $_SESSION["name"];
-										  
-isset($_REQUEST["num"])  ? $num=$_REQUEST["num"] :   $num=$_REQUEST["num"]; 
-require_once("../lib/mydb.php");
-$pdo = db_connect();	
+<style>
+    .table-bordered,
+    .table-bordered td,
+    .table-bordered th {
+        border-color: #000000 !important;
+    }
+</style>
 
- try{
-	  $sql = "select * from mirae8440.almember where num = ? ";
-	  $stmh = $pdo->prepare($sql); 
-      $stmh->bindValue(1,$num,PDO::PARAM_STR); 
-      $stmh->execute();
-      $count = $stmh->rowCount();            
-	  $row = $stmh->fetch(PDO::FETCH_ASSOC);  // $row 배열로 DB 정보를 불러온다.		
-		 
-	  include 'rowDB.php';
-	  
-	 }catch (PDOException $Exception) {
-	   print "오류: ".$Exception->getMessage();
-	 }
- // end of if	
+<body>
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal-dialog modal-lg modal-center">
+            <!-- Modal content-->
+            <div class="modal-content modal-lg">
+                <div class="modal-header">
+                    <h4 class="modal-title">알림</h4>
+                </div>
+                <div class="modal-body">
+                    <div id=alertmsg class="fs-1 mb-5 justify-content-center">
+                        결재가 진행중입니다. <br>
+                        <br>
+                        수정사항이 있으면 결재권자에게 말씀해 주세요.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="closeModalBtn" class="btn btn-default" data-dismiss="modal">닫기</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-// 배열로 기본정보 불러옴
- include "load_DB.php";		
+    <?php
+    // 요청 파라미터 초기화
+    $num = $_REQUEST["num"] ?? '';
+
+    require_once(includePath('lib/mydb.php'));
+    $pdo = db_connect();
+
+    // rowDB.php에서 사용될 변수 초기화
+    $name = '';
+    $part = '';
+    $dateofentry = '';
+    $referencedate = '';
+    $availableday = 0;
+    $comment = '';
+    $author_id = '';
+    $registdate = '';
+    $author = '';
+
+    try {
+        $sql = "select * from mirae8440.almember where num = ?";
+        $stmh = $pdo->prepare($sql);
+        $stmh->bindValue(1, $num, PDO::PARAM_STR);
+        $stmh->execute();
+        $count = $stmh->rowCount();
+        $row = $stmh->fetch(PDO::FETCH_ASSOC);
+
+        include 'rowDB.php';
+    } catch (PDOException $ex) {
+        error_log("almember 조회 오류: " . $ex->getMessage());
+    }
+
+    // 배열로 기본정보 불러옴
+    include "load_DB.php";
+
+    // load_DB.php에서 정의될 변수들 초기화 (정의되지 않은 경우 대비)
+    $employee_name_arr = $employee_name_arr ?? array();
+    $employee_id_arr = $employee_id_arr ?? array();
+    $employee_part_arr = $employee_part_arr ?? array();
+    $dateofentry_arr = $dateofentry_arr ?? array();
+
+    $currentYear = date("Y");
+    ?>
   
- $currentYear = date("Y"); // 현재 년도 가져오기  
- 
- // echo '<pre>';
-// print_r($dateofentry_arr);
-// echo '</pre>';
- 
-?>  
 <form id="board_form"  name="board_form" class="form-signin" method="post"  >  
 <div class="container-fluid" style="width:380px;">   
     <div class="row d-flex justify-al_content-center align-items-center h-50">	

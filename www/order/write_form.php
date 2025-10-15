@@ -1,10 +1,28 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php
+/**
+ * 구매발주서 작성/수정 폼 페이지
+ * 로컬 및 서버 환경 모두 지원
+ */
+
+require_once __DIR__ . '/../common/functions.php';
 require_once(includePath('session.php'));
 
-if(!isset($_SESSION["level"]) || $level>5) {
-    $_SESSION["url"]='https://8440.co.kr/order/write_form.php';
+// 세션 변수 초기화 (?? '' 형태)
+$level = $_SESSION["level"] ?? 999;
+$user_name = $_SESSION["name"] ?? '';
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+
+// 동적 URL 생성
+$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+$host = $_SERVER['HTTP_HOST'];
+$base_url = "{$protocol}://{$host}";
+$WebSite = $base_url . '/';
+
+// 권한 체크
+if (!isset($_SESSION["level"]) || $level > 5) {
+    $_SESSION["url"] = "{$base_url}/order/write_form.php";
     sleep(1);
-    header("Location:" . $WebSite . "login/logout.php");
+    header("Location: {$WebSite}login/logout.php");
     exit;
 }
 
@@ -13,9 +31,10 @@ require_once(includePath('lib/mydb.php'));
 
 include getDocumentRoot() . '/load_header.php';
 
-// 모드 확인 (새로 작성 또는 수정)
-$mode = isset($_REQUEST["mode"]) ? $_REQUEST["mode"] : "";
-$id = isset($_REQUEST["id"]) ? (int)$_REQUEST["id"] : 0;
+// 모드 확인 (새로 작성 또는 수정) - ?? '' 형태
+$mode = $_REQUEST["mode"] ?? '';
+$id = $_REQUEST["id"] ?? 0;
+$id = (int)$id;
 
 // 데이터베이스 연결
 try {
@@ -49,7 +68,7 @@ if ($mode === 'copy') {
 
 // 자동 발주서 번호 생성
 $order_no = date('Ymd') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
-if ($order_data && $order_data['order_no']) {
+if ($order_data && isset($order_data['order_no']) && $order_data['order_no']) {
     $order_no = $order_data['order_no'];
 }
 ?>
@@ -398,19 +417,19 @@ body {
                 <div class="info-grid">
                     <div class="info-label">거래처명</div>
                     <div class="info-value">
-                        <input type="text" name="contact_name" value="<?php echo $order_data ? htmlspecialchars($order_data['contact_name']) : ''; ?>" placeholder="거래처명을 입력하세요">
+                        <input type="text" name="contact_name" value="<?php echo $order_data ? htmlspecialchars($order_data['contact_name'] ?? '') : ''; ?>" placeholder="거래처명을 입력하세요">
                     </div>
                     <div class="info-label">발주일자</div>
                     <div class="info-value">
-                        <input type="date" name="issue_date" value="<?php echo $order_data ? $order_data['issue_date'] : date('Y-m-d'); ?>" required>
+                        <input type="date" name="issue_date" value="<?php echo $order_data ? ($order_data['issue_date'] ?? date('Y-m-d')) : date('Y-m-d'); ?>" required>
                     </div>
                     <div class="info-label">전화번호</div>
                     <div class="info-value">
-                        <input type="text" name="phone" value="<?php echo $order_data ? htmlspecialchars($order_data['phone']) : ''; ?>" placeholder="전화번호를 입력하세요">
+                        <input type="text" name="phone" value="<?php echo $order_data ? htmlspecialchars($order_data['phone'] ?? '') : ''; ?>" placeholder="전화번호를 입력하세요">
                     </div>
                     <div class="info-label">팩스번호</div>
                     <div class="info-value">
-                        <input type="text" name="fax" value="<?php echo $order_data ? htmlspecialchars($order_data['fax']) : ''; ?>" placeholder="팩스번호를 입력하세요">
+                        <input type="text" name="fax" value="<?php echo $order_data ? htmlspecialchars($order_data['fax'] ?? '') : ''; ?>" placeholder="팩스번호를 입력하세요">
                     </div>
                     <div class="info-label">합계금액</div>
                     <div class="info-value">
@@ -469,19 +488,19 @@ body {
                 <div class="delivery-grid">
                     <div class="info-label">납기일자</div>
                     <div class="info-value">
-                        <input type="date" name="delivery_date" value="<?php echo $order_data ? $order_data['delivery_date'] : ''; ?>">
+                        <input type="date" name="delivery_date" value="<?php echo $order_data ? ($order_data['delivery_date'] ?? '') : ''; ?>">
                     </div>
                     <div class="info-label">유효일자</div>
                     <div class="info-value">
-                        <input type="date" name="valid_date" value="<?php echo $order_data ? $order_data['valid_date'] : ''; ?>">
+                        <input type="date" name="valid_date" value="<?php echo $order_data ? ($order_data['valid_date'] ?? '') : ''; ?>">
                     </div>
                     <div class="info-label">납품장소</div>
                     <div class="info-value">
-                        <input type="text" name="delivery_location" value="<?php echo $order_data ? htmlspecialchars($order_data['delivery_location']) : ''; ?>">
+                        <input type="text" name="delivery_location" value="<?php echo $order_data ? htmlspecialchars($order_data['delivery_location'] ?? '') : ''; ?>">
                     </div>
                     <div class="info-label">결제조건</div>
                     <div class="info-value">
-                        <input type="text" name="payment_terms" value="<?php echo $order_data ? htmlspecialchars($order_data['payment_terms']) : ''; ?>">
+                        <input type="text" name="payment_terms" value="<?php echo $order_data ? htmlspecialchars($order_data['payment_terms'] ?? '') : ''; ?>">
                     </div>
                 </div>
             </div>
@@ -498,20 +517,23 @@ body {
         <div class="note-section">
             <div class="note-header">비고</div>
             <div class="note-content">
-                <textarea name="note" placeholder="정보를 입력합니다."><?php echo $order_data ? htmlspecialchars($order_data['note']) : ''; ?></textarea>
+                <textarea name="note" placeholder="정보를 입력합니다."><?php echo $order_data ? htmlspecialchars($order_data['note'] ?? '') : ''; ?></textarea>
             </div>
         </div>
 
     </form>
 </div>
 
-<script>
+<script type="text/javascript">
+(function() {
+    'use strict';
+    
 // 전역 변수
-let orderTable;
-let orderItems = [];
+var orderTable;
+var orderItems = [];
 
 // 초기 데이터
-<?php if ($order_data && $order_data['order_items']): ?>
+<?php if ($order_data && isset($order_data['order_items']) && $order_data['order_items']): ?>
 orderItems = <?php echo $order_data['order_items']; ?>;
 <?php else: ?>
 orderItems = [
@@ -533,29 +555,29 @@ document.addEventListener('DOMContentLoaded', function() {
         columns: [
             {title: "순번", field: "순번", width: 50, editor: "input", resizable: false},
             {title: "품목", field: "품목", width: 350, editor: "input", resizable: false,
-             cellClick: function() { return true; }}, // 품목 폭 대폭 증가
+             cellClick: function() { return true; }},
             {title: "규격", field: "규격", width: 250, editor: "input", resizable: false,
-             cellClick: function() { return true; }}, // 규격 폭 대폭 증가
+             cellClick: function() { return true; }},
             {title: "수량", field: "수량", width: 70, editor: "input", validator: "numeric", resizable: false,
              cellClick: function() { return true; }},
-            {title: "단가", field: "단가", width: 80, editor: "input", validator: "numeric", resizable: false, // 최소 크기
+            {title: "단가", field: "단가", width: 80, editor: "input", validator: "numeric", resizable: false,
              formatter: function(cell) {
-                 const value = cell.getValue();
+                 var value = cell.getValue();
                  return value ? Number(value).toLocaleString() : '';
              },
              cellClick: function() { return true; }},
-            {title: "공급가액", field: "공급가액", width: 90, editor: false, validator: "numeric", resizable: false, // 최소 크기
+            {title: "공급가액", field: "공급가액", width: 90, editor: false, validator: "numeric", resizable: false,
              formatter: function(cell) {
-                 const value = cell.getValue();
+                 var value = cell.getValue();
                  return value ? Number(value).toLocaleString() : '';
              },
              cellClick: function(e, cell) {
                  console.log('공급가액은 자동 계산됩니다 (수량 × 단가)');
                  return false;
              }},
-            {title: "세액", field: "세액", width: 70, editor: false, validator: "numeric", resizable: false, // 최소 크기
+            {title: "세액", field: "세액", width: 70, editor: false, validator: "numeric", resizable: false,
              formatter: function(cell) {
-                 const value = cell.getValue();
+                 var value = cell.getValue();
                  return value ? Number(value).toLocaleString() : '';
              },
              cellClick: function(e, cell) {
@@ -574,59 +596,59 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // 초기 로드 시 합계 계산
-    setTimeout(() => {
+    setTimeout(function() {
         updateTotalAmount();
     }, 100);
 });
 
 // 계산 업데이트
 function updateCalculations(cell) {
-    const row = cell.getRow();
-    const data = row.getData();
-
+    var row = cell.getRow();
+    var data = row.getData();
+    
     // 수량 또는 단가가 변경된 경우 자동 계산
     if (cell.getField() === '수량' || cell.getField() === '단가') {
         // 입력값 정리 (쉼표 제거 후 숫자 변환)
-        let 수량 = data.수량;
-        let 단가 = data.단가;
-
+        var 수량 = data.수량;
+        var 단가 = data.단가;
+        
         if (typeof 수량 === 'string') {
             수량 = parseFloat(수량.replace(/,/g, '')) || 0;
         } else {
             수량 = parseFloat(수량) || 0;
         }
-
+        
         if (typeof 단가 === 'string') {
             단가 = parseFloat(단가.replace(/,/g, '')) || 0;
         } else {
             단가 = parseFloat(단가) || 0;
         }
-
+        
         // 공급가액 = 수량 × 단가 (정확한 계산)
-        const 공급가액 = Math.round(수량 * 단가);
-
+        var 공급가액 = Math.round(수량 * 단가);
+        
         // 세액 = 공급가액 × 10% (부가세, 소수점 반올림)
-        const 세액 = Math.round(공급가액 * 0.1);
-
-        console.log(`📊 [DEBUG] 자동 계산 상세:`);
-        console.log(`   - 수량: ${수량} (원본: ${data.수량})`);
-        console.log(`   - 단가: ${단가.toLocaleString()} (원본: ${data.단가})`);
-        console.log(`   - 공급가액: ${공급가액.toLocaleString()} (${수량} × ${단가})`);
-        console.log(`   - 세액: ${세액.toLocaleString()} (공급가액의 10%)`);
-
+        var 세액 = Math.round(공급가액 * 0.1);
+        
+        console.log('📊 [DEBUG] 자동 계산 상세:');
+        console.log('   - 수량: ' + 수량 + ' (원본: ' + data.수량 + ')');
+        console.log('   - 단가: ' + 단가.toLocaleString() + ' (원본: ' + data.단가 + ')');
+        console.log('   - 공급가액: ' + 공급가액.toLocaleString() + ' (' + 수량 + ' × ' + 단가 + ')');
+        console.log('   - 세액: ' + 세액.toLocaleString() + ' (공급가액의 10%)');
+        
         // 한 번에 업데이트 (이벤트 루프 방지)
         row.update({
             공급가액: 공급가액,
             세액: 세액
         });
-
+        
         // 행 별 계산 완료 후 전체 합계 업데이트
-        setTimeout(() => {
+        setTimeout(function() {
             updateTotalAmount();
         }, 10);
     } else {
         // 다른 필드 변경 시에도 합계 업데이트
-        setTimeout(() => {
+        setTimeout(function() {
             updateTotalAmount();
         }, 10);
     }
@@ -634,38 +656,38 @@ function updateCalculations(cell) {
 
 // 전체 합계 업데이트
 function updateTotalAmount() {
-    const data = orderTable.getData();
-    let totalSupply = 0; // 공급가액 합계
-    let totalTax = 0;    // 세액 합계
-    let grandTotal = 0;  // 총 합계
-
-    data.forEach(row => {
-        const 공급가액 = parseFloat(row.공급가액) || 0;
-        const 세액 = parseFloat(row.세액) || 0;
-
+    var data = orderTable.getData();
+    var totalSupply = 0; // 공급가액 합계
+    var totalTax = 0;    // 세액 합계
+    var grandTotal = 0;  // 총 합계
+    
+    data.forEach(function(row) {
+        var 공급가액 = parseFloat(row.공급가액) || 0;
+        var 세액 = parseFloat(row.세액) || 0;
+        
         totalSupply += 공급가액;
         totalTax += 세액;
     });
-
+    
     grandTotal = totalSupply + totalTax;
-
+    
     // 합계금액 필드 업데이트
     document.getElementById('totalAmount').value = '₩' + grandTotal.toLocaleString();
-
+    
     // 하단 요약 정보가 있다면 업데이트
-    const summaryElement = document.getElementById('summaryTotal');
+    var summaryElement = document.getElementById('summaryTotal');
     if (summaryElement) {
         summaryElement.textContent = grandTotal.toLocaleString();
     }
-
-    console.log(`💰 [DEBUG] 합계 계산: 공급가액(${totalSupply.toLocaleString()}) + 세액(${totalTax.toLocaleString()}) = 총액(${grandTotal.toLocaleString()})`);
+    
+    console.log('💰 [DEBUG] 합계 계산: 공급가액(' + totalSupply.toLocaleString() + ') + 세액(' + totalTax.toLocaleString() + ') = 총액(' + grandTotal.toLocaleString() + ')');
 }
 
 // 행 추가
-function addRow() {
-    const data = orderTable.getData();
-    const newRowNum = data.length + 1;
-
+window.addRow = function() {
+    var data = orderTable.getData();
+    var newRowNum = data.length + 1;
+    
     orderTable.addRow({
         순번: newRowNum,
         품목: '',
@@ -676,27 +698,27 @@ function addRow() {
         세액: '',
         비고: ''
     });
-}
+};
 
 // AJAX 저장 함수 - 디버그 코드 포함
-function saveOrder() {
+window.saveOrder = function() {
     console.log('🚀 [DEBUG] 저장 프로세스 시작');
-
+    
     if (!validateForm()) {
         console.error('❌ [DEBUG] 폼 검증 실패');
         return;
     }
-
+    
     console.log('✅ [DEBUG] 폼 검증 통과');
-
+    
     // 로딩 표시
     showLoadingSpinner();
-
+    
     try {
         // 폼 데이터 수집
-        const formData = collectFormData();
+        var formData = collectFormData();
         console.log('📋 [DEBUG] 수집된 폼 데이터:', formData);
-
+        
         // AJAX 요청
         fetch('insert.php', {
             method: 'POST',
@@ -706,26 +728,26 @@ function saveOrder() {
             },
             body: formData
         })
-        .then(response => {
+        .then(function(response) {
             console.log('📡 [DEBUG] 서버 응답 상태:', response.status, response.statusText);
-
+            
             if (!response.ok) {
-                throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
+                throw new Error('HTTP Error: ' + response.status + ' ' + response.statusText);
             }
-
+            
             return response.text();
         })
-        .then(data => {
+        .then(function(data) {
             console.log('📥 [DEBUG] 서버 응답 데이터:', data);
-
+            
             hideLoadingSpinner();
-
+            
             // 응답 데이터 파싱
             try {
                 // JSON 응답인지 확인
-                const jsonData = JSON.parse(data);
+                var jsonData = JSON.parse(data);
                 console.log('📊 [DEBUG] JSON 파싱 성공:', jsonData);
-
+                
                 handleJsonResponse(jsonData);
             } catch (e) {
                 // HTML 응답 처리
@@ -733,79 +755,79 @@ function saveOrder() {
                 handleHtmlResponse(data);
             }
         })
-        .catch(error => {
+        .catch(function(error) {
             console.error('❌ [DEBUG] AJAX 오류:', error);
             hideLoadingSpinner();
             showErrorMessage('저장 중 오류가 발생했습니다: ' + error.message);
         });
-
+        
     } catch (error) {
         console.error('❌ [DEBUG] 폼 데이터 수집 오류:', error);
         hideLoadingSpinner();
         showErrorMessage('폼 데이터 처리 중 오류가 발생했습니다.');
     }
-}
+};
 
 // 폼 데이터 수집
 function collectFormData() {
     console.log('📋 [DEBUG] 폼 데이터 수집 시작');
-
-    const formData = new URLSearchParams();
-
+    
+    var formData = new URLSearchParams();
+    
     // 기본 필드들
-    const basicFields = [
+    var basicFields = [
         'action', 'id', 'order_no', 'issue_date', 'supplier_code',
         'supplier_name', 'supplier_address', 'business_type', 'business_item',
         'supplier_phone', 'supplier_fax', 'contact_name', 'phone', 'fax',
         'delivery_date', 'delivery_location', 'payment_terms', 'note', 'status'
     ];
-
-    basicFields.forEach(fieldName => {
-        const element = document.getElementById(fieldName) || document.querySelector(`[name="${fieldName}"]`);
+    
+    basicFields.forEach(function(fieldName) {
+        var element = document.getElementById(fieldName) || document.querySelector('[name="' + fieldName + '"]');
         if (element) {
-            const value = element.value || '';
+            var value = element.value || '';
             formData.append(fieldName, value);
-            console.log(`📌 [DEBUG] ${fieldName}:`, value);
+            console.log('📌 [DEBUG] ' + fieldName + ':', value);
         } else {
-            console.warn(`⚠️ [DEBUG] 필드를 찾을 수 없음: ${fieldName}`);
+            console.warn('⚠️ [DEBUG] 필드를 찾을 수 없음: ' + fieldName);
         }
     });
-
+    
     // Tabulator 데이터 수집
     try {
-        const orderItems = orderTable.getData();
-        const orderItemsJson = JSON.stringify(orderItems);
+        var orderItems = orderTable.getData();
+        var orderItemsJson = JSON.stringify(orderItems);
         formData.append('order_items', orderItemsJson);
-
+        
         console.log('📦 [DEBUG] Tabulator 데이터:', orderItems);
         console.log('📦 [DEBUG] JSON 문자열:', orderItemsJson);
         console.log('📦 [DEBUG] JSON 문자열 길이:', orderItemsJson.length);
-
+        
     } catch (error) {
         console.error('❌ [DEBUG] Tabulator 데이터 수집 오류:', error);
         throw new Error('품목 데이터 수집 실패');
     }
-
+    
     return formData;
 }
 
 // JSON 응답 처리
 function handleJsonResponse(data) {
     console.log('📊 [DEBUG] JSON 응답 처리:', data);
-
+    
     if (data.success) {
         console.log('✅ [DEBUG] 저장 성공');
         showSuccessMessage(data.message || '발주서가 성공적으로 저장되었습니다.');
-
+        
         if (data.redirect_url) {
             console.log('🔄 [DEBUG] 리다이렉트:', data.redirect_url);
-            setTimeout(() => {
+            setTimeout(function() {
                 window.location.href = data.redirect_url;
             }, 1500);
         } else if (data.id) {
             console.log('🔄 [DEBUG] view.php로 이동, ID:', data.id);
-            setTimeout(() => {
-                window.location.href = `view.php?id=${data.id}`;
+            setTimeout(function() {
+                window.location.href = 'view.php?id=' + data.id;
             }, 1500);
         }
     } else {
@@ -817,22 +839,22 @@ function handleJsonResponse(data) {
 // HTML 응답 처리 (기존 스크립트 태그가 포함된 응답)
 function handleHtmlResponse(data) {
     console.log('📄 [DEBUG] HTML 응답 처리');
-
+    
     // alert 및 location.href 추출
-    const alertMatch = data.match(/alert\(['"]([^'"]+)['"]\)/);
-    const locationMatch = data.match(/location\.href\s*=\s*['"]([^'"]+)['"]/);
-
+    var alertMatch = data.match(/alert\(['"]([^'"]+)['"]\)/);
+    var locationMatch = data.match(/location\.href\s*=\s*['"]([^'"]+)['"]/);
+    
     if (alertMatch) {
-        const message = alertMatch[1];
+        var message = alertMatch[1];
         console.log('📢 [DEBUG] 추출된 알림 메시지:', message);
-
+        
         if (message.includes('성공')) {
             showSuccessMessage(message);
-
+            
             if (locationMatch) {
-                const url = locationMatch[1];
+                var url = locationMatch[1];
                 console.log('🔄 [DEBUG] 추출된 리다이렉트 URL:', url);
-                setTimeout(() => {
+                setTimeout(function() {
                     window.location.href = url;
                 }, 1500);
             }
@@ -848,31 +870,28 @@ function handleHtmlResponse(data) {
 // UI 헬퍼 함수들
 function showLoadingSpinner() {
     // 로딩 스피너 표시
-    const loadingHtml = `
-        <div id="loadingOverlay" style="
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 9999;
-            display: flex; justify-content: center; align-items: center;
-        ">
-            <div style="background: white; padding: 20px; border-radius: 8px; text-align: center;">
-                <div style="border: 4px solid #f3f3f3; border-radius: 50%; border-top: 4px solid #3498db; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px;"></div>
-                <div>저장 중...</div>
-            </div>
-        </div>
-        <style>
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        </style>
-    `;
-
+    var loadingHtml = '<div id="loadingOverlay" style="' +
+        'position: fixed; top: 0; left: 0; width: 100%; height: 100%;' +
+        'background: rgba(0,0,0,0.5); z-index: 9999;' +
+        'display: flex; justify-content: center; align-items: center;">' +
+        '<div style="background: white; padding: 20px; border-radius: 8px; text-align: center;">' +
+        '<div style="border: 4px solid #f3f3f3; border-radius: 50%; border-top: 4px solid #3498db; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px;"></div>' +
+        '<div>저장 중...</div>' +
+        '</div>' +
+        '</div>' +
+        '<style>' +
+        '@keyframes spin {' +
+        '0% { transform: rotate(0deg); }' +
+        '100% { transform: rotate(360deg); }' +
+        '}' +
+        '</style>';
+    
     document.body.insertAdjacentHTML('beforeend', loadingHtml);
     console.log('🔄 [DEBUG] 로딩 스피너 표시');
 }
 
 function hideLoadingSpinner() {
-    const overlay = document.getElementById('loadingOverlay');
+    var overlay = document.getElementById('loadingOverlay');
     if (overlay) {
         overlay.remove();
         console.log('✅ [DEBUG] 로딩 스피너 숨김');
@@ -881,94 +900,89 @@ function hideLoadingSpinner() {
 
 function showSuccessMessage(message) {
     console.log('✅ [DEBUG] 성공 메시지 표시:', message);
-
+    
     // Toast 스타일 성공 메시지
-    const toastHtml = `
-        <div id="successToast" style="
-            position: fixed; top: 20px; right: 20px; z-index: 10000;
-            background: #28a745; color: white; padding: 15px 20px;
-            border-radius: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            animation: slideIn 0.3s ease-out;
-        ">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="font-size: 18px;">✅</span>
-                <span>${message}</span>
-            </div>
-        </div>
-        <style>
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        </style>
-    `;
-
+    var toastHtml = '<div id="successToast" style="' +
+        'position: fixed; top: 20px; right: 20px; z-index: 10000;' +
+        'background: #28a745; color: white; padding: 15px 20px;' +
+        'border-radius: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);' +
+        'animation: slideIn 0.3s ease-out;">' +
+        '<div style="display: flex; align-items: center; gap: 10px;">' +
+        '<span style="font-size: 18px;">✅</span>' +
+        '<span>' + message + '</span>' +
+        '</div>' +
+        '</div>' +
+        '<style>' +
+        '@keyframes slideIn {' +
+        'from { transform: translateX(100%); opacity: 0; }' +
+        'to { transform: translateX(0); opacity: 1; }' +
+        '}' +
+        '</style>';
+    
     document.body.insertAdjacentHTML('beforeend', toastHtml);
-
+    
     // 3초 후 자동 제거
-    setTimeout(() => {
-        const toast = document.getElementById('successToast');
+    setTimeout(function() {
+        var toast = document.getElementById('successToast');
         if (toast) toast.remove();
     }, 3000);
 }
 
 function showErrorMessage(message) {
     console.error('❌ [DEBUG] 오류 메시지 표시:', message);
-
+    
     // Toast 스타일 오류 메시지
-    const toastHtml = `
-        <div id="errorToast" style="
-            position: fixed; top: 20px; right: 20px; z-index: 10000;
-            background: #dc3545; color: white; padding: 15px 20px;
-            border-radius: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            animation: slideIn 0.3s ease-out; max-width: 400px;
-        ">
-            <div style="display: flex; align-items: flex-start; gap: 10px;">
-                <span style="font-size: 18px;">❌</span>
-                <div>
-                    <div style="font-weight: bold; margin-bottom: 5px;">오류가 발생했습니다</div>
-                    <div style="font-size: 14px; line-height: 1.4;">${message}</div>
-                </div>
-            </div>
-        </div>
-    `;
-
+    var toastHtml = '<div id="errorToast" style="' +
+        'position: fixed; top: 20px; right: 20px; z-index: 10000;' +
+        'background: #dc3545; color: white; padding: 15px 20px;' +
+        'border-radius: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);' +
+        'animation: slideIn 0.3s ease-out; max-width: 400px;">' +
+        '<div style="display: flex; align-items: flex-start; gap: 10px;">' +
+        '<span style="font-size: 18px;">❌</span>' +
+        '<div>' +
+        '<div style="font-weight: bold; margin-bottom: 5px;">오류가 발생했습니다</div>' +
+        '<div style="font-size: 14px; line-height: 1.4;">' + message + '</div>' +
+        '</div>' +
+        '</div>' +
+        '</div>';
+    
     document.body.insertAdjacentHTML('beforeend', toastHtml);
-
+    
     // 5초 후 자동 제거
-    setTimeout(() => {
-        const toast = document.getElementById('errorToast');
+    setTimeout(function() {
+        var toast = document.getElementById('errorToast');
         if (toast) toast.remove();
     }, 5000);
 }
 
-function submitOrder() {
+window.submitOrder = function() {
     if (validateForm()) {
         document.getElementById('orderForm').submit();
     }
-}
+};
 
-function cancelOrder() {
+window.cancelOrder = function() {
     if (confirm('작성 중인 내용이 사라집니다. 계속하시겠습니까?')) {
         location.href = 'index.php';
     }
-}
+};
 
-function deleteOrder() {
+window.deleteOrder = function() {
     if (!confirm('정말로 이 발주서를 삭제하시겠습니까?\n삭제된 데이터는 복구할 수 없습니다.')) {
         return;
     }
-
-    const orderId = document.querySelector('input[name="id"]')?.value;
+    
+    var idInput = document.querySelector('input[name="id"]');
+    var orderId = idInput ? idInput.value : null;
     if (!orderId) {
         alert('삭제할 발주서 ID를 찾을 수 없습니다.');
         return;
     }
-
+    
     console.log('🗑️ [DEBUG] 삭제 요청 시작 - ID:', orderId);
-
+    
     showLoadingSpinner();
-
+    
     fetch('delete.php', {
         method: 'POST',
         headers: {
@@ -977,14 +991,14 @@ function deleteOrder() {
         },
         body: JSON.stringify({ id: parseInt(orderId) })
     })
-    .then(response => {
+    .then(function(response) {
         console.log('📡 [DEBUG] 삭제 응답 상태:', response.status, response.statusText);
         return response.json();
     })
-    .then(data => {
+    .then(function(data) {
         console.log('📥 [DEBUG] 삭제 응답 데이터:', data);
         hideLoadingSpinner();
-
+        
         if (data.success) {
             alert('발주서가 성공적으로 삭제되었습니다.');
             location.href = 'index.php';
@@ -992,36 +1006,36 @@ function deleteOrder() {
             alert('삭제 중 오류가 발생했습니다: ' + (data.message || '알 수 없는 오류'));
         }
     })
-    .catch(error => {
+    .catch(function(error) {
         console.error('❌ [DEBUG] 삭제 오류:', error);
         hideLoadingSpinner();
         alert('삭제 중 오류가 발생했습니다: ' + error.message);
     });
-}
+};
 
 // 폼 유효성 검사
 function validateForm() {
-    const supplierName = document.querySelector('input[name="supplier_name"]').value.trim();
-    const issueDate = document.querySelector('input[name="issue_date"]').value;
-
+    var supplierName = document.querySelector('input[name="supplier_name"]').value.trim();
+    var issueDate = document.querySelector('input[name="issue_date"]').value;
+    
     if (!supplierName) {
         alert('공급업체 상호를 입력해주세요.');
         return false;
     }
-
+    
     if (!issueDate) {
         alert('발주일자를 선택해주세요.');
         return false;
     }
-
+    
     // Tabulator 데이터를 hidden input에 저장
-    const tableData = orderTable.getData();
-    const orderItemsInput = document.createElement('input');
+    var tableData = orderTable.getData();
+    var orderItemsInput = document.createElement('input');
     orderItemsInput.type = 'hidden';
     orderItemsInput.name = 'order_items';
     orderItemsInput.value = JSON.stringify(tableData);
     document.getElementById('orderForm').appendChild(orderItemsInput);
-
+    
     return true;
 }
 
@@ -1029,6 +1043,8 @@ function validateForm() {
 window.onload = function() {
     setTimeout(updateTotalAmount, 500);
 };
+
+})();
 </script>
 
 </body>

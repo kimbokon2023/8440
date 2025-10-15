@@ -1,40 +1,42 @@
-
 <?php
 
- session_start();
+session_start();
 
-   $level= $_SESSION["level"];
-   $id_name= $_SESSION["name"];   
- if(!isset($_SESSION["level"]) || $level>10) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(2);
-         header ("Location:https://8440.co.kr/login/logout.php");
-         exit;
-   }  
+// 로컬/서버 환경 설정
+$is_local = $_SERVER['HTTP_HOST'] === 'localhost' || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false;
+$base_url = $is_local ? 'http://localhost/mirae8440/www' : 'http://8440.co.kr';
 
- ?>
- <!DOCTYPE HTML>
- <html>
- <head>
- <meta charset="UTF-8">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" >
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
- <!-- JavaScript -->
-<script src="//cdn.jsdelivr.net/npm/alertifyjs@1.12.0/build/alertify.min.js"></script>
+// 세션 변수 안전하게 초기화
+$level = $_SESSION["level"] ?? '';
+$id_name = $_SESSION["name"] ?? '';
 
-<!-- CSS -->
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.12.0/build/css/alertify.min.css"/>
-<!-- Default theme -->
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.12.0/build/css/themes/default.min.css"/>
-<!-- Semantic UI theme -->
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.12.0/build/css/themes/semantic.min.css"/>
-<!-- Bootstrap theme -->
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.12.0/build/css/themes/bootstrap.min.css"/> 
-  
-<link rel="stylesheet" href="../css/partner.css" type="text/css" />
+if (!isset($_SESSION["level"]) || $level > 10) {
+    /*   alert("관리자 승인이 필요합니다."); */
+    sleep(2);
+    header("Location: {$base_url}/login/logout.php");
+    exit;
+}
 
- <title> 미래기업 쟘공사 관리시스템 </title>
+?>
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- JavaScript -->
+    <script src="//cdn.jsdelivr.net/npm/alertifyjs@1.12.0/build/alertify.min.js"></script>
+    <!-- CSS -->
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.12.0/build/css/alertify.min.css"/>
+    <!-- Default theme -->
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.12.0/build/css/themes/default.min.css"/>
+    <!-- Semantic UI theme -->
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.12.0/build/css/themes/semantic.min.css"/>
+    <!-- Bootstrap theme -->
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.12.0/build/css/themes/bootstrap.min.css"/>
+    <link rel="stylesheet" href="../css/partner.css" type="text/css"/>
+    <title>미래기업 쟘공사 관리시스템</title>
  
  
  <style>
@@ -68,27 +70,25 @@
  
  </head>
 
- <?php
- 
-// 10일 후의 날짜 산출 
- $aftertenday = strtotime("+10 days");
+<?php
 
- 
-  if(isset($_REQUEST["search"]))   //목록표에 제목,이름 등 나오는 부분
-	 $search=$_REQUEST["search"];
-	  
-  require_once("../lib/mydb.php");
-  $pdo = db_connect();	
+// 10일 후의 날짜 산출
+$aftertenday = strtotime("+10 days");
 
+// 요청 변수 안전하게 초기화
+$search = $_REQUEST["search"] ?? '';
+$check = $_REQUEST["check"] ?? $_POST["check"] ?? '';
+$mode = $_REQUEST["mode"] ?? '';
+$sqltext = $_REQUEST["sqltext"] ?? '';
 
- if(isset($_REQUEST["check"])) 
-	 $check=$_REQUEST["check"]; // request 사용 페이지 이동버튼 누를시`
-   else
-     $check=$_POST["check"]; //  POST사용 
+if ($check == null) {
+    $check = 5;  // 초기화면 검사일 기준으로 자료 보기
+}
 
-if($check==null) $check=5;	 // 초기화면 검사일 기준으로 자료 보기
-    
-  $sum=array();
+$sum = [];
+
+require_once("../lib/mydb.php");
+$pdo = db_connect();
 
 	 
   if(isset($_REQUEST["mode"]))

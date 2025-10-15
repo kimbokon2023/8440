@@ -1,58 +1,55 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session.php'));  
+<?php
+require_once __DIR__ . '/../common/functions.php';
+require_once(includePath('session.php'));
 
-if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+// 세션 변수 초기화
+$level = $_SESSION["level"] ?? 5;
+$WebSite = $_SESSION["WebSite"] ?? '';
+$user_name = $_SESSION["name"] ?? '';
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+
+// 권한 체크
+if (!isset($_SESSION["level"]) || $level > 5) {
     sleep(1);
     header("Location:" . $WebSite . "login/login_form.php");
     exit;
-}  
- 
-include getDocumentRoot() . '/load_header.php';
-$title_message = '경동화물/택배'; 
-?>
- 
-<link href="css/style.css" rel="stylesheet">   
-<title> <?=$title_message?> </title> 
-</head> 
+}
 
-<body>         
-<?php
-$header = isset($_REQUEST['header']) ? $_REQUEST['header'] : '';  
-require_once(includePath('myheader.php'));
-
-$search = isset($_REQUEST['search']) ? $_REQUEST['search'] : '';  
-$mode = isset($_REQUEST["mode"]) ? $_REQUEST["mode"] : '';
-$fromdate = $_REQUEST["fromdate"] ?? '' ;
-$todate = $_REQUEST["todate"] ?? '' ;
+// 요청 파라미터 초기화
+$header = $_REQUEST['header'] ?? '';
+$search = $_REQUEST['search'] ?? '';
+$mode = $_REQUEST["mode"] ?? '';
+$fromdate = $_REQUEST["fromdate"] ?? '';
+$todate = $_REQUEST["todate"] ?? '';
 
 $tablename = 'delivery';
+$title_message = '경동화물/택배';
 
 // 현재 날짜
 $currentDate = date("Y-m-d");
+$today = $currentDate;
 
-// fromdate 또는 todate가 빈 문자열이거나 null인 경우
+// 기간이 비어있으면 현재 날짜로 설정
 if ($fromdate === "" || $fromdate === null || $todate === "" || $todate === null) {
-   // $fromdate = date("Y-m-d", strtotime("-1 weeks", strtotime($currentDate))); // 1주일 전
     $fromdate = $currentDate;
-    $todate = $currentDate; // 현재 날짜
+    $todate = $currentDate;
 }
 
+// 데이터베이스 연결
 require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
-$order = " ORDER BY registedate DESC ";
-
-// SQL 기본 구조 (날짜 범위 필터링 추가)
-$sql = "SELECT * FROM ".$DB.".".$tablename." 
+// SQL 쿼리 생성 (날짜 범위 필터링)
+$sql = "SELECT * FROM {$DB}.{$tablename} 
         WHERE is_deleted IS NULL 
-        AND registedate BETWEEN :fromdate AND :todate";
+          AND registedate BETWEEN :fromdate AND :todate";
 
 // 검색어가 있을 경우 추가
 if (!empty($search)) {
-    $sql .= " AND searchtag LIKE :search ";
+    $sql .= " AND searchtag LIKE :search";
 }
 
-$sql .= $order;
+$sql .= " ORDER BY registedate DESC";
 
 try {
     $stmh = $pdo->prepare($sql);
@@ -60,151 +57,165 @@ try {
     // 바인딩
     $stmh->bindValue(":fromdate", $fromdate, PDO::PARAM_STR);
     $stmh->bindValue(":todate", $todate, PDO::PARAM_STR);
-
+    
     if (!empty($search)) {
         $stmh->bindValue(":search", "%{$search}%", PDO::PARAM_STR);
     }
-
+    
     $stmh->execute();
-    $total_row = $stmh->rowCount();  
+    $total_row = $stmh->rowCount();
+?>
 
-// } catch (PDOException $Exception) {
-    // print "오류: " . $Exception->getMessage();
-    // exit;
-// }
+<?php include getDocumentRoot() . '/load_header.php'; ?>
 
-  // print $fromdate;
-  // print $todate;
-  // print $sql;
-				
-// try {      
-	// $stmh = $pdo->prepare($sql);
-	// $total_row = $stmh->rowCount();   	 	 
-?>    
+<link href="css/style.css" rel="stylesheet">
+<title><?= htmlspecialchars($title_message) ?></title>
+</head>
 
-<form id="board_form" name="board_form" method="post" enctype="multipart/form-data">             
-    <input type="hidden" id="mode" name="mode" value="<?=$mode?>">             
-    <input type="hidden" id="num" name="num"> 
-    <input type="hidden" id="tablename" name="tablename" value="<?=$tablename?>">                 
-    <input type="hidden" id="header" name="header" value="<?=$header?>">      
+<body>
+<?php require_once(includePath('myheader.php')); ?>
 
-<div class="container-fluid">
-	<!-- Modal -->
-	<div id="myModal" class="modal">
-		<div class="modal-content">
-			<div class="modal-header">
-				<span class="modal-title">경동화물/택배 등록/수정</span>
-				<span class="close">&times;</span>
-			</div>
-			<div class="modal-body">
-				<div class="custom-card"></div>
-			</div>
-		</div>
-	</div>
-</div>
-
-<div class="container">    
-	<div class="d-flex mt-4 mb-2 align-items-center justify-content-center">         
-		<span class="text-center fs-5"> <?=$title_message?> </span>       
-		<button type="button" class="btn btn-dark btn-sm mx-2"  onclick='location.reload();' > <i class="bi bi-arrow-clockwise"></i> </button>  	   		  								
-	</div>        
-	<div class="d-flex mt-2 mb-3 align-items-center justify-content-center">         
-		▷ <?= $total_row ?> 건  
-
-			<!-- 기간부터 검색까지 연결 묶음 start -->
-			<span id="showdate" class="btn btn-dark btn-sm mx-1" > 기간 </span>	&nbsp; 
-			
-			<div id="showframe" class="card">
-				<div class="card-header " style="padding:2px;">
-					<div class="d-flex justify-content-center align-items-center">  
-						기간 설정
-					</div>
-				</div>
-				<div class="card-body">
-					<div class="d-flex justify-content-center align-items-center">  	
-						<button type="button" class="btn btn-outline-success btn-sm me-1 change_dateRange"   onclick='alldatesearch()' > 전체 </button>  
-						<button type="button" id="preyear" class="btn btn-outline-primary btn-sm me-1 change_dateRange"   onclick='pre_year()' > 전년도 </button>  
-						<button type="button" id="three_month" class="btn btn-dark btn-sm me-1  change_dateRange"  onclick='three_month_ago()' > M-3월 </button>
-						<button type="button" id="prepremonth" class="btn btn-dark btn-sm me-1  change_dateRange"  onclick='prepre_month()' > 전전월 </button>	
-						<button type="button" id="premonth" class="btn btn-dark btn-sm me-1  change_dateRange"  onclick='pre_month()' > 전월 </button> 						
-						<button type="button" class="btn btn-outline-danger btn-sm me-1  change_dateRange"  onclick='this_today()' > 오늘 </button>
-						<button type="button" id="thismonth" class="btn btn-dark btn-sm me-1  change_dateRange"  onclick='this_month()' > 당월 </button>
-						<button type="button" id="thisyear" class="btn btn-dark btn-sm me-1  change_dateRange"  onclick='this_year()' > 당해년도 </button> 
-					</div>
-				</div>
-			</div>		
-
-		   <input type="date" id="fromdate" name="fromdate" size="12"  class="form-control"   style="width:100px;" value="<?=$fromdate?>" >  &nbsp;   ~ &nbsp;  
-		   <input type="date" id="todate" name="todate" size="12"   class="form-control"   style="width:100px;" value="<?=$todate?>" >  &nbsp;     </span> 
-		   &nbsp;&nbsp;		
-		
-		
-		<div class="inputWrap30">            
-			<input type="text" id="search" class="form-control" style="width:150px;" name="search" autocomplete="off" value="<?=$search?>" onKeyPress="if (event.keyCode==13){ enter(); }">
-			<button class="btnClear"></button>
-		</div>            
-		<button class="btn btn-dark btn-sm mx-1" type="button" id="searchBtn"> <i class="bi bi-search"></i> </button>             
-		<button id="newBtn" type="button" class="btn btn-dark btn-sm mx-1"> <i class="bi bi-pencil-square"></i> 신규 </button>                		
-	</div>       
-</div>  
-<div class="container-fluid"> 
-    <div class="d-flex mt-1 mb-1 align-items-center justify-content-center">  
-        <button type="button" class="btn btn-success btn-sm downloadExcel mx-2">📥 선택행 엑셀 다운로드</button>       
-        <button type="button" class="btn btn-secondary btn-sm downloadPDF mx-2">📥 선택행 PDF 다운로드</button>       
-    </div>      
-    <div class="d-flex mt-1 mb-1 align-items-center justify-content-center">         
-       <table class="table table-hover" id="myTable">         
-            <thead class="table-primary">
-                <th class="text-center" style="width:40px;">
-                    <input type="checkbox" id="selectAll">
-                </th>
-                <th class="text-center" style="width:60px;">번호</th>
-                <th class="text-center" style="width:100px;">등록일자</th>                 
-                <th class="text-center" style="width:150px;">받을 분</th>
-                <th class="text-center" style="width:200px;">연락처</th>                 
-                <th class="text-center" style="width:300px;">도착지 주소</th>                
-                <th class="text-center" style="width:150px;">보내는 사람</th>
-                <th class="text-center" style="width:200px;">품명/현장명</th>                
-                <th class="text-center" style="width:100px;">포장</th>                 
-                <th class="text-center" style="width:80px;">수량</th>
-                <th class="text-center" style="width:80px;">운임</th>
-                <th class="text-center" style="width:100px;">운임구분</th>
-                <th class="text-center" style="width:150px;">물품가액</th>
-            </thead>
-            <tbody>                  
-            <?php          
-                $start_num = $total_row;                  
-                while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-                    include '_row.php';                                        
-            ?>                     
-            <tr onclick="loadForm('update', <?= $num ?>)">
-                <td class="text-center">
-                    <input type="checkbox" class="rowCheckbox">
-                </td>
-                <td class="text-center"><?= $start_num ?></td>
-                <td class="text-center"><?= $registedate ?></td>                
-                <td class="text-start fw-bold text-primary"><?= $receiver ?></td>                
-                <td class="text-center"><?= $receiver_tel ?></td>                
-                <td class="text-start"><?= $address ?></td>                
-                <td class="text-start"><?= $sender ?></td>                
-                <td class="text-start"><?= $item_name ?></td>                
-                <td class="text-center"><?= $unit ?></td>                
-                <td class="text-end"><?= is_numeric($surang) ? number_format($surang) : htmlspecialchars($surang) ?></td>                
-                <td class="text-end"><?= is_numeric($fee) ? number_format($fee) : htmlspecialchars($fee) ?></td>                
-                <td class="text-center"><?= $fee_type ?></td>                
-                <td class="text-end"><?= is_numeric($goods_price) ? number_format($goods_price) : htmlspecialchars($goods_price) ?></td>                
-            </tr>
-        <?php
-            $start_num--;
-                 } 
-              } catch (PDOException $Exception) {
-                  print "오류: ".$Exception->getMessage();
-              }  
-        ?>         
-      </tbody>
-     </table>
+<form id="board_form" name="board_form" method="post" enctype="multipart/form-data">
+    <input type="hidden" id="mode" name="mode" value="<?= htmlspecialchars($mode) ?>">
+    <input type="hidden" id="num" name="num">
+    <input type="hidden" id="tablename" name="tablename" value="<?= htmlspecialchars($tablename) ?>">
+    <input type="hidden" id="header" name="header" value="<?= htmlspecialchars($header) ?>">
+    
+    <div class="container-fluid">
+        <!-- Modal -->
+        <div id="myModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="modal-title">경동화물/택배 등록/수정</span>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="custom-card"></div>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
+    
+    <div class="container">
+        <div class="d-flex mt-4 mb-2 align-items-center justify-content-center">
+            <span class="text-center fs-5"><?= htmlspecialchars($title_message) ?></span>
+            <button type="button" class="btn btn-dark btn-sm mx-2" onclick="location.reload();">
+                <i class="bi bi-arrow-clockwise"></i>
+            </button>
+        </div>
+        
+        <div class="d-flex mt-2 mb-3 align-items-center justify-content-center">
+            ▷ <?= $total_row ?> 건
+            
+            <!-- 기간 설정 -->
+            <span id="showdate" class="btn btn-dark btn-sm mx-1">기간</span>&nbsp;
+            
+            <div id="showframe" class="card">
+                <div class="card-header" style="padding:2px;">
+                    <div class="d-flex justify-content-center align-items-center">
+                        기간 설정
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-center align-items-center">
+                        <button type="button" class="btn btn-outline-success btn-sm me-1 change_dateRange" onclick="alldatesearch()">전체</button>
+                        <button type="button" id="preyear" class="btn btn-outline-primary btn-sm me-1 change_dateRange" onclick="pre_year()">전년도</button>
+                        <button type="button" id="three_month" class="btn btn-dark btn-sm me-1 change_dateRange" onclick="three_month_ago()">M-3월</button>
+                        <button type="button" id="prepremonth" class="btn btn-dark btn-sm me-1 change_dateRange" onclick="prepre_month()">전전월</button>
+                        <button type="button" id="premonth" class="btn btn-dark btn-sm me-1 change_dateRange" onclick="pre_month()">전월</button>
+                        <button type="button" class="btn btn-outline-danger btn-sm me-1 change_dateRange" onclick="this_today()">오늘</button>
+                        <button type="button" id="thismonth" class="btn btn-dark btn-sm me-1 change_dateRange" onclick="this_month()">당월</button>
+                        <button type="button" id="thisyear" class="btn btn-dark btn-sm me-1 change_dateRange" onclick="this_year()">당해년도</button>
+                    </div>
+                </div>
+            </div>
+            
+            <input type="date" id="fromdate" name="fromdate" size="12" class="form-control" 
+                   style="width:100px;" value="<?= htmlspecialchars($fromdate) ?>">&nbsp;~&nbsp;
+            <input type="date" id="todate" name="todate" size="12" class="form-control" 
+                   style="width:100px;" value="<?= htmlspecialchars($todate) ?>">&nbsp;&nbsp;
+            
+            <div class="inputWrap30">
+                <input type="text" id="search" class="form-control" style="width:150px;" 
+                       name="search" autocomplete="off" value="<?= htmlspecialchars($search) ?>" 
+                       onKeyPress="if (event.keyCode==13){ enter(); }">
+                <button class="btnClear"></button>
+            </div>
+            <button class="btn btn-dark btn-sm mx-1" type="button" id="searchBtn">
+                <i class="bi bi-search"></i>
+            </button>
+            <button id="newBtn" type="button" class="btn btn-dark btn-sm mx-1">
+                <i class="bi bi-pencil-square"></i> 신규
+            </button>
+        </div>
+    </div>
+    
+    <div class="container-fluid">
+        <div class="d-flex mt-1 mb-1 align-items-center justify-content-center">
+            <button type="button" class="btn btn-success btn-sm downloadExcel mx-2">
+                📥 선택행 엑셀 다운로드
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm downloadPDF mx-2">
+                📥 선택행 PDF 다운로드
+            </button>
+        </div>
+        
+        <div class="d-flex mt-1 mb-1 align-items-center justify-content-center">
+            <table class="table table-hover" id="myTable">
+                <thead class="table-primary">
+                    <tr>
+                        <th class="text-center" style="width:40px;">
+                            <input type="checkbox" id="selectAll">
+                        </th>
+                        <th class="text-center" style="width:60px;">번호</th>
+                        <th class="text-center" style="width:100px;">등록일자</th>
+                        <th class="text-center" style="width:150px;">받을 분</th>
+                        <th class="text-center" style="width:200px;">연락처</th>
+                        <th class="text-center" style="width:300px;">도착지 주소</th>
+                        <th class="text-center" style="width:150px;">보내는 사람</th>
+                        <th class="text-center" style="width:200px;">품명/현장명</th>
+                        <th class="text-center" style="width:100px;">포장</th>
+                        <th class="text-center" style="width:80px;">수량</th>
+                        <th class="text-center" style="width:80px;">운임</th>
+                        <th class="text-center" style="width:100px;">운임구분</th>
+                        <th class="text-center" style="width:150px;">물품가액</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    $start_num = $total_row;
+                    
+                    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+                        include '_row.php';
+                    ?>
+                        <tr onclick="loadForm('update', <?= $num ?>)" style="cursor: pointer;">
+                            <td class="text-center" onclick="event.stopPropagation();">
+                                <input type="checkbox" class="rowCheckbox">
+                            </td>
+                            <td class="text-center"><?= $start_num ?></td>
+                            <td class="text-center"><?= htmlspecialchars($registedate) ?></td>
+                            <td class="text-start fw-bold text-primary"><?= htmlspecialchars($receiver) ?></td>
+                            <td class="text-center"><?= htmlspecialchars($receiver_tel) ?></td>
+                            <td class="text-start"><?= htmlspecialchars($address) ?></td>
+                            <td class="text-start"><?= htmlspecialchars($sender) ?></td>
+                            <td class="text-start"><?= htmlspecialchars($item_name) ?></td>
+                            <td class="text-center"><?= htmlspecialchars($unit) ?></td>
+                            <td class="text-end"><?= is_numeric($surang) ? number_format($surang) : htmlspecialchars($surang) ?></td>
+                            <td class="text-end"><?= is_numeric($fee) ? number_format($fee) : htmlspecialchars($fee) ?></td>
+                            <td class="text-center"><?= htmlspecialchars($fee_type) ?></td>
+                            <td class="text-end"><?= is_numeric($goods_price) ? number_format($goods_price) : htmlspecialchars($goods_price) ?></td>
+                        </tr>
+                    <?php
+                        $start_num--;
+                    }
+                    } catch (PDOException $ex) {
+                        error_log("배송 리스트 조회 오류: " . $ex->getMessage());
+                    }
+                    ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
      
 </form>
 
@@ -214,7 +225,9 @@ var ajaxRequest_write = null;
 var dataTable; // DataTables 인스턴스 전역 변수
 var material_regpageNumber; // 현재 페이지 번호 저장을 위한 전역 변수
 
-function loadForm(mode, num = null) {
+function loadForm(mode, num) {
+    num = num || null;
+    
     if (mode === 'copy' && num) {
         $("#mode").val('copy');
         $("#num").val(num); // 기존 데이터 복사할 num 유지
@@ -223,8 +236,8 @@ function loadForm(mode, num = null) {
     } else {
         $("#mode").val('update');
         $("#num").val(num);
-    }   
-	
+    }
+    
     $.ajax({
         type: "POST",
         url: "fetch_modal.php",
@@ -233,30 +246,28 @@ function loadForm(mode, num = null) {
         success: function(response) {
             document.querySelector(".modal-body .custom-card").innerHTML = response;
             $("#myModal").show();
-
+            
             $("#closeBtn").off("click").on("click", function() {
                 $("#myModal").hide();
             });
-
+            
             // 기존 이벤트 제거 후 재등록
             $(document).off('click', '.specialbtnClear').on('click', '.specialbtnClear', function(e) {
-                e.preventDefault(); // 기본 동작을 방지합니다.                
-                $('#item_name').val('');                
+                e.preventDefault();
+                $('#item_name').val('');
             });
-			
-
-			// Log 파일보기
-			$("#showlogBtn").click( function() {     	
-				var num = $(this).data("num"); // 'data-num' 속성 값 가져오기
-				// table 이름을 넣어야 함
-				var tablename =   $("#tablename").val() ;
-				// 버튼 비활성화
-				var btn = $(this);		
-					popupCenter("../Showlog.php?num=" + num + "&workitem=" + tablename , '로그기록 보기', 500, 500);								 
-				btn.prop('disabled', false);	
-			});				
-
-            let isSaving = false;
+            
+            // Log 파일보기
+            $("#showlogBtn").click(function() {
+                var num = $(this).data("num");
+                var tablename = $("#tablename").val();
+                var btn = $(this);
+                
+                popupCenter("../Showlog.php?num=" + num + "&workitem=" + tablename, '로그기록 보기', 500, 500);
+                btn.prop('disabled', false);
+            });
+            
+            var isSaving = false;
 
             // 저장 버튼 (기존 이벤트 제거 후 재등록)
             $("#saveBtn").off("click").on("click", function() {
@@ -363,7 +374,9 @@ function loadForm(mode, num = null) {
     });
 }
 
-function copyForm(mode, num = null) {
+function copyForm(mode, num) {
+    num = num || null;
+    
     if (mode === 'copy' && num) {
         $("#mode").val('copy');
         $("#num").val(num); // 기존 데이터 복사할 num 유지
@@ -372,8 +385,8 @@ function copyForm(mode, num = null) {
     } else {
         $("#mode").val('update');
         $("#num").val(num);
-    }   
-	
+    }
+    
     $.ajax({
         type: "POST",
         url: "fetch_modal.php",
@@ -382,18 +395,18 @@ function copyForm(mode, num = null) {
         success: function(response) {
             document.querySelector(".modal-body .custom-card").innerHTML = response;
             $("#myModal").show();
-
+            
             $("#closeBtn").off("click").on("click", function() {
                 $("#myModal").hide();
             });
-
+            
             // 기존 이벤트 제거 후 재등록
             $(document).off('click', '.specialbtnClear').on('click', '.specialbtnClear', function(e) {
-                e.preventDefault(); // 기본 동작을 방지합니다.                
-                $('#item_name').val('');                
+                e.preventDefault();
+                $('#item_name').val('');
             });
-
-            let isSaving = false;
+            
+            var isSaving = false;
 
             // 저장 버튼 (기존 이벤트 제거 후 재등록)
             $("#saveBtn").off("click").on("click", function() {
@@ -536,7 +549,7 @@ function inputNumberFormat(obj) {
     obj.value = obj.value.replace(/[^0-9]/g, '');
     
     // 콤마를 제거하고 숫자를 포맷팅
-    let value = obj.value.replace(/,/g, '');
+    var value = obj.value.replace(/,/g, '');
     obj.value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
@@ -551,22 +564,22 @@ $(document).ready(function(){
    saveMenuLog(title_message);
 });
 
-$(document).ready(function(){
+$(document).ready(function() {
     // 전체 선택 체크박스 클릭 이벤트
     $('#selectAll').on('click', function() {
         $('.rowCheckbox').prop('checked', this.checked);
     });
-
+    
     // 개별 체크박스 클릭 시 전체 선택 체크박스 상태 업데이트
     $('.rowCheckbox').on('click', function() {
         $('#selectAll').prop('checked', $('.rowCheckbox:checked').length === $('.rowCheckbox').length);
     });
- 
+    
     // 엑셀 다운로드 버튼 클릭 이벤트
     $('.downloadExcel').on('click', function() {
         var data = [];
         var rows = $('#myTable tbody tr');
-
+        
         // 체크된 행만 수집
         rows.each(function() {
             if ($(this).find('.rowCheckbox').is(':checked')) {
@@ -586,14 +599,14 @@ $(document).ready(function(){
                 data.push(rowData);
             }
         });
-
+        
         if (data.length === 0) {
             alert("선택된 데이터가 없습니다.");
             return;
         }
-
+        
         // 엑셀 파일 생성 요청
-        $.ajax({ 
+        $.ajax({
             url: '/delivery/dl_ex_deliveryfee.php',
             method: 'POST',
             contentType: 'application/json',
@@ -602,14 +615,14 @@ $(document).ready(function(){
                 if (typeof response === 'string') {
                     try {
                         response = JSON.parse(response);
-                    } catch(e) {
+                    } catch (e) {
                         alert('서버에서 유효하지 않은 응답을 받았습니다.');
                         console.error("응답 파싱 오류:", e);
                         return;
                     }
                 }
-
-                if(response.success){
+                
+                if (response.success) {
                     var filename = response.filename.split('/').pop();
                     var downloadUrl = '/excelsave/' + encodeURIComponent(filename);
                     window.location.href = downloadUrl;
@@ -626,41 +639,42 @@ $(document).ready(function(){
 });
 
 $(document).off('click', '.downloadPDF').on('click', '.downloadPDF', function(event) {
-    event.preventDefault(); // 기본 이벤트 방지
+    event.preventDefault();
     console.log("📌 PDF 다운로드 버튼 클릭됨");
-
+    
     var deadline = '<?php echo $today; ?>';
     var deadlineDate = new Date(deadline);
-    var formattedDate = "(" + String(deadlineDate.getFullYear()).slice(-2) + "." + 
-                        ("0" + (deadlineDate.getMonth() + 1)).slice(-2) + "." + 
+    var formattedDate = "(" + String(deadlineDate.getFullYear()).slice(-2) + "." +
+                        ("0" + (deadlineDate.getMonth() + 1)).slice(-2) + "." +
                         ("0" + deadlineDate.getDate()).slice(-2) + ")";
     
     console.log("✅ PDF 파일명:", formattedDate);
-
+    
     // 선택된 행만 가져오기
     var selectedRows = $('#myTable tbody tr').has('.rowCheckbox:checked').clone();
     console.log("✅ 선택된 행 개수:", selectedRows.length);
-
+    
     if (selectedRows.length === 0) {
         alert('선택된 행이 없습니다.');
         return;
     }
-
+    
     // 첫 번째 선택된 행에서 등록일자 가져오기
-    var firstDate = selectedRows.first().find('td:eq(2)').text().trim(); // 등록일자 위치 (0-based index)
+    var firstDate = selectedRows.first().find('td:eq(2)').text().trim();
     console.log("✅ 등록일자:", firstDate);
-
-    // 등록일자 컬럼 및 체크박스 컬럼 제거 (thead에서 해당 컬럼 삭제)
+    
+    // 등록일자 컬럼 및 체크박스 컬럼 제거
     var tableHeader = $('#myTable thead').clone();
-    tableHeader.find('th:eq(0), th:eq(2)').remove(); // 첫 번째 열(체크박스), 세 번째 열(등록일자) 제거
-
+    tableHeader.find('th:eq(0), th:eq(2)').remove();
+    
     // 선택된 행에서 체크박스 및 등록일자 컬럼 제거
     selectedRows.each(function() {
-        $(this).find('td:eq(0), td:eq(2)').remove(); // 첫 번째 열(체크박스), 세 번째 열(등록일자) 제거
+        $(this).find('td:eq(0), td:eq(2)').remove();
     });
-
+    
     // 제목을 등록일자 포함하여 설정
-    var titleText = `<h2 class="text-center" style="font-size: 25px; font-weight: bold;">${firstDate} 📦 경동화물/택배</h2>`;
+    var titleText = '<h2 class="text-center" style="font-size: 25px; font-weight: bold;">' + 
+                    firstDate + ' 📦 경동화물/택배</h2>';
 
     // 임시 컨테이너 생성 후 선택된 데이터 추가
     var tempContainer = $('<div>').attr('id', 'temp-pdf-container').css({ 
@@ -778,45 +792,44 @@ $(document).off('click', '.downloadPDF').on('click', '.downloadPDF', function(ev
     console.log("✅ 임시 컨테이너 생성 완료:", tempContainer.html());
 
     // 300ms 지연 후 실행하여 렌더링 문제 해결
-    setTimeout(() => {
+    setTimeout(function() {
         console.log("📌 PDF 생성 시작");
-
+        
         var opt = {
-            margin: [5, 3, 5, 3], // 여백 더 줄임 (상, 우, 하, 좌)
-            filename: `경동화물_택배_${formattedDate}.pdf`,
+            margin: [5, 3, 5, 3], // 여백 (상, 우, 하, 좌)
+            filename: '경동화물_택배_' + formattedDate + '.pdf',
             image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { 
-                scale: 2.2, // 스케일 더 줄임으로 더 많은 내용 표시
-                useCORS: true, 
-                logging: false, // 로깅 비활성화
+            html2canvas: {
+                scale: 2.2,
+                useCORS: true,
+                logging: false,
                 windowWidth: document.body.scrollWidth,
                 windowHeight: document.body.scrollHeight,
                 allowTaint: true,
                 backgroundColor: '#ffffff',
-                letterRendering: true // 글자 렌더링 최적화
+                letterRendering: true
             },
-            jsPDF: { 
-                unit: 'mm', 
-                format: 'a4', 
+            jsPDF: {
+                unit: 'mm',
+                format: 'a4',
                 orientation: 'landscape',
-                compress: true, // PDF 압축 활성화
-                precision: 2 // 정밀도 설정
+                compress: true,
+                precision: 2
             },
-            pagebreak: { 
+            pagebreak: {
                 mode: ['avoid-all', 'css', 'legacy'],
                 before: '.page-break-before',
                 after: '.page-break-after',
-                avoid: ['tr', 'td', 'th', 'table', 'tbody', 'thead'] // 테이블 요소들의 페이지 브레이크 방지
+                avoid: ['tr', 'td', 'th', 'table', 'tbody', 'thead']
             }
         };
-
-        html2pdf().from(tempContainer[0]).set(opt).save().then(() => {
+        
+        html2pdf().from(tempContainer[0]).set(opt).save().then(function() {
             console.log("✅ PDF 생성 완료");
-            tempContainer.remove(); // PDF 생성 후 임시 컨테이너 삭제
-        }).catch(err => {
+            tempContainer.remove();
+        }).catch(function(err) {
             console.error("❌ PDF 생성 오류:", err);
         });
-
     }, 300);
 });
 

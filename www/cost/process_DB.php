@@ -1,70 +1,85 @@
- <?php   
-  session_start();   
- $level= $_SESSION["level"];
- if(!isset($_SESSION["level"]) || $level>=8) {
-         echo "<script> alert('관리자 승인이 필요합니다.') </script>";
-		 sleep(2);
-         header ("Location:http://8440.co.kr/login/logout.php");
-         exit;
-   }
-   
-  if(isset($_REQUEST["page"]))
-    $page=$_REQUEST["page"];
-  else 
-    $page=1;   // 1로 설정해야 함
- if(isset($_REQUEST["mode"]))  //modify_form에서 호출할 경우
-    $mode=$_REQUEST["mode"];
- else 
-    $mode="";
- 
- if(isset($_REQUEST["num"]))
-    $num=$_REQUEST["num"];
- else 
-    $num="";
+<?php
+require_once __DIR__ . '/../common/functions.php';
+require_once getDocumentRoot() . '/session.php';
 
-  if(isset($_REQUEST["search"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $search=$_REQUEST["search"];
-  else
-   $search="";
-  if(isset($_REQUEST["find"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $find=$_REQUEST["find"];
-  else
-   $find="";
-  if(isset($_REQUEST["process"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $process=$_REQUEST["process"];
-  else
-   $process="전체";
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];
+// 세션 변수 초기화
+$level = $_SESSION["level"] ?? 10;
+$DB = $_SESSION["DB"] ?? 'mirae8440';
 
-  if(isset($_REQUEST["separate_date"]))   //출고일 완료일
-	 $separate_date=$_REQUEST["separate_date"];	 
+// 권한 체크
+if (!isset($_SESSION["level"]) || $level >= 8) {
+    echo "<script> alert('관리자 승인이 필요합니다.') </script>";
+    sleep(2);
+    
+    // 로컬/서버 환경에 따른 동적 리다이렉션
+    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+    if (strpos($host, 'localhost') !== false || strpos($host, '127.0.0.1') !== false) {
+        header("Location: http://" . $host . "/login/logout.php");
+    } else {
+        header("Location: http://8440.co.kr/login/logout.php");
+    }
+    exit;
+}
 
-// code는 접수완료, 처리완료를 표시해 준다.
-$code=$_REQUEST["code"];
+// 요청 파라미터 초기화
+$page = $_REQUEST["page"] ?? 1;
+$mode = $_REQUEST["mode"] ?? "";
+$num = $_REQUEST["num"] ?? "";
+$search = $_REQUEST["search"] ?? "";
+$find = $_REQUEST["find"] ?? "";
+$process = $_REQUEST["process"] ?? "전체";
+$fromdate = $_REQUEST["fromdate"] ?? "";
+$todate = $_REQUEST["todate"] ?? "";
+$separate_date = $_REQUEST["separate_date"] ?? "";
+$code = $_REQUEST["code"] ?? "";
+$yearcheckbox = $_REQUEST["yearcheckbox"] ?? "";
+$year = $_REQUEST["year"] ?? "";
 
-$which='3';
+// 처리 변수 초기화
+$which = '3';
+$indate = date("Y-m-d");   // 현재일자 변수지정
 
-$indate= date("Y-m-d");   // 현재일자 변수지정   
- 		
- require_once("../lib/mydb.php");
- $pdo = db_connect();
-       
-	try{
-        $pdo->beginTransaction();   
-        $sql = "update mirae8440.request set which=? , indate=? where num=?  LIMIT 1";            
-	   
-     $stmh = $pdo->prepare($sql); 
-     $stmh->bindValue(1, $which, PDO::PARAM_STR);         
-     $stmh->bindValue(2, $indate, PDO::PARAM_STR);         
-     $stmh->bindValue(3, $num, PDO::PARAM_STR);           //고유키값이 같나?의 의미로 ?로 num으로 맞춰야 합니다. where 구문 
-	 
-	 $stmh->execute();
-     $pdo->commit(); 
-        } catch (PDOException $Exception) {
-           $pdo->rollBack();
-           print "오류: ".$Exception->getMessage();
-       }                         
-       
-    header("Location:http://8440.co.kr/request/view.php?num=$num&page=$page&search=$search&find=$find&process=$process&yearcheckbox=$yearcheckbox&year=$year&fromdate=$fromdate&todate=$todate&separate_date=$separate_date");  
- ?>
+// 데이터베이스 연결
+require_once(includePath('lib/mydb.php'));
+$pdo = db_connect();
+
+// 입고완료 처리
+try {
+    $pdo->beginTransaction();
+    
+    $sql = "UPDATE {$DB}.request SET which = ?, indate = ? WHERE num = ? LIMIT 1";
+    
+    $stmh = $pdo->prepare($sql);
+    $stmh->bindValue(1, $which, PDO::PARAM_STR);
+    $stmh->bindValue(2, $indate, PDO::PARAM_STR);
+    $stmh->bindValue(3, $num, PDO::PARAM_STR);
+    
+    $stmh->execute();
+    $pdo->commit();
+} catch (PDOException $ex) {
+    $pdo->rollBack();
+    error_log("입고완료 처리 오류: " . $ex->getMessage());
+}
+
+// 로컬/서버 환경에 따른 동적 리다이렉션
+$host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$redirect_params = http_build_query(array(
+    'num' => $num,
+    'page' => $page,
+    'search' => $search,
+    'find' => $find,
+    'process' => $process,
+    'yearcheckbox' => $yearcheckbox,
+    'year' => $year,
+    'fromdate' => $fromdate,
+    'todate' => $todate,
+    'separate_date' => $separate_date
+));
+
+if (strpos($host, 'localhost') !== false || strpos($host, '127.0.0.1') !== false) {
+    header("Location: http://{$host}/request/view.php?{$redirect_params}");
+} else {
+    header("Location: http://8440.co.kr/request/view.php?{$redirect_params}");
+}
+
+?>

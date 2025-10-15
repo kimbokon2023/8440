@@ -1,117 +1,140 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-include getDocumentRoot() . '/session.php';  ?>
-<?php include getDocumentRoot() . '/load_header.php' ?> 
- <style>
-.table-bordered,
-.table-bordered td,
-.table-bordered th {
-    border-color: #000000 !important; /* 더 진한 테두리 색상 */
-}
+<?php
+require_once __DIR__ . '/../common/functions.php';
+include getDocumentRoot() . '/session.php';
+
+// 세션 변수 초기화
+$user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["userid"] ?? '';
+$DB = $_SESSION["DB"] ?? '';
+$admin = 0;
+?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
+<style>
+    .table-bordered,
+    .table-bordered td,
+    .table-bordered th {
+        border-color: #000000 !important;
+    }
 </style>
- 
+
 <body>
     <!-- Modal -->
-  <div class="modal fade" id="myModal" role="dialog">
-    <div class="modal-dialog  modal-lg modal-center" >
-    
-      <!-- Modal al_content-->
-      <div class="modal-al_content modal-lg">
-        <div class="modal-header">          
-          <h4 class="modal-title">알림</h4>
+    <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal-dialog modal-lg modal-center">
+            <!-- Modal content-->
+            <div class="modal-content modal-lg">
+                <div class="modal-header">
+                    <h4 class="modal-title">알림</h4>
+                </div>
+                <div class="modal-body">
+                    <div id=alertmsg class="fs-1 mb-5 justify-content-center">
+                        결재가 진행중입니다. <br>
+                        <br>
+                        수정사항이 있으면 결재권자에게 말씀해 주세요.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="closeModalBtn" class="btn btn-default" data-dismiss="modal">닫기</button>
+                </div>
+            </div>
         </div>
-        <div class="modal-body">		
-		   <div id=alertmsg class="fs-1 mb-5 justify-al_content-center" >
-		     결재가 진행중입니다. <br> 
-		   <br> 
-		  수정사항이 있으면 결재권자에게 말씀해 주세요.
-			</div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" id="closeModalBtn" class="btn btn-default" data-dismiss="modal">닫기</button>
-        </div>
-      </div>
-      
     </div>
-  </div>    
-  <?php
 
-$tablename = "eworks";
-										  
-isset($_REQUEST["num"])  ? $num=$_REQUEST["num"] :   $num=''; 
+    <?php
+    $tablename = "eworks";
 
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();	
+    // 요청 파라미터 초기화
+    $num = $_REQUEST["num"] ?? '';
 
- try{
-	  $sql = "select * from " . $DB . "." . $tablename . "  where num = ? ";
-	  $stmh = $pdo->prepare($sql); 
-      $stmh->bindValue(1,$num,PDO::PARAM_STR); 
-      $stmh->execute();
-      $count = $stmh->rowCount();            
-	  $row = $stmh->fetch(PDO::FETCH_ASSOC);  // $row 배열로 DB 정보를 불러온다.		
-		 
-	  include 'rowDBask.php';
-	  
-	 }catch (PDOException $Exception) {
-	   print "오류: ".$Exception->getMessage();
-	 }
- // end of if	
+    require_once(includePath('lib/mydb.php'));
+    $pdo = db_connect();
 
-// 배열로 기본정보 불러옴
- include "load_DB.php"; 
-	
-if(empty($num))
-{
-	$registdate = date("Y-m-d H:i:s");
-	$al_askdatefrom=date("Y-m-d");		
-	$al_askdateto=date("Y-m-d");	
-	// 신규데이터인 경우			
-	$al_usedday = abs(strtotime($al_askdateto) - strtotime($al_askdatefrom)) + 1;  // 날짜 빼기 계산	
-	$al_item='연차';
-	$status='send';
-	$statusstr='결재상신';
-	$author= $_SESSION["name"];	
-	$author_id= $user_id;
+    // rowDBask.php에서 사용될 변수 초기화
+    $author_id = '';
+    $author = '';
+    $al_part = '';
+    $registdate = '';
+    $al_item = '';
+    $al_askdatefrom = '';
+    $al_askdateto = '';
+    $al_usedday = 0;
+    $al_content = '';
+    $status = '';
+    $e_confirm = '';
+    $e_confirm_id = '';
 
-// DB에서 al_part 찾아서 넣어주기
+    try {
+        $sql = "select * from " . $DB . "." . $tablename . " where num = ?";
+        $stmh = $pdo->prepare($sql);
+        $stmh->bindValue(1, $num, PDO::PARAM_STR);
+        $stmh->execute();
+        $count = $stmh->rowCount();
+        $row = $stmh->fetch(PDO::FETCH_ASSOC);
 
-	// 전 직원 배열로 계산 후 사용일수 남은일수 값 넣기 
-	for($i=0;$i<count($basic_name_arr);$i++)  
-	{	
-	  if(trim($basic_name_arr[$i]) == trim($author))   
-	  {
-				$al_part = $basic_al_part_arr[$i];
-				break;
-	  }
-	}
-}
+        include 'rowDBask.php';
+    } catch (PDOException $ex) {
+        error_log("eworks 연차 조회 오류: " . $ex->getMessage());
+    }
 
-// 잔여일수 개인별 산출 루틴   
-try{  
-	       
-		// 연차 잔여일수 산출
-		$totalusedday = 0;
-		$totalremainday = 0;		
-		 for($i=0;$i<count($totalname_arr);$i++)	 
-			 if($author== $totalname_arr[$i])
-			 {
-				$availableday  = $availableday_arr[$i];
-			 }	
+    // 배열로 기본정보 불러옴
+    include "load_DB.php";
 
-        // 연차 사용일수 계산		
-		 for($i=0;$i<count($totalname_arr);$i++)	 
-			 if($author== $totalname_arr[$i])
-			 {
-				$totalusedday = $totalused_arr[$i];
-				$totalremainday = $availableday - $totalusedday;	
-				
-			 }			   					
-			
-  } catch (PDOException $Exception) {
-  print "오류: ".$Exception->getMessage();
-  }  
- 
-?>  
+    // load_DB.php에서 정의될 변수들 초기화 (정의되지 않은 경우 대비)
+    $basic_name_arr = $basic_name_arr ?? array();
+    $basic_part_arr = $basic_part_arr ?? array();
+    $totalname_arr = $totalname_arr ?? array();
+    $totalused_arr = $totalused_arr ?? array();
+    $availableday_arr = $availableday_arr ?? array();
+    $employee_name_arr = $employee_name_arr ?? array();
+    $employee_part_arr = $employee_part_arr ?? array();
+    $employee_id_arr = $employee_id_arr ?? array(); 
+
+    if (empty($num)) {
+        // 신규데이터인 경우
+        $registdate = date("Y-m-d H:i:s");
+        $al_askdatefrom = date("Y-m-d");
+        $al_askdateto = date("Y-m-d");
+        $al_usedday = abs(strtotime($al_askdateto) - strtotime($al_askdatefrom)) + 1;
+        $al_item = '연차';
+        $status = 'send';
+        $statusstr = '결재상신';
+        $author = $_SESSION["name"];
+        $author_id = $user_id;
+        $al_part = '';
+
+        // DB에서 al_part 찾아서 넣어주기
+        for ($i = 0; $i < count($basic_name_arr); $i++) {
+            if (trim($basic_name_arr[$i]) == trim($author)) {
+                $al_part = $basic_part_arr[$i];
+                break;
+            }
+        }
+    }
+
+    // 잔여일수 개인별 산출 루틴
+    try {
+        // 연차 잔여일수 산출
+        $totalusedday = 0;
+        $totalremainday = 0;
+        $availableday = 0;
+
+        for ($i = 0; $i < count($totalname_arr); $i++) {
+            if ($author == $totalname_arr[$i]) {
+                $availableday = $availableday_arr[$i];
+            }
+        }
+
+        // 연차 사용일수 계산
+        for ($i = 0; $i < count($totalname_arr); $i++) {
+            if ($author == $totalname_arr[$i]) {
+                $totalusedday = $totalused_arr[$i];
+                $totalremainday = $availableday - $totalusedday;
+            }
+        }
+    } catch (PDOException $ex) {
+        error_log("잔여일수 산출 오류: " . $ex->getMessage());
+    }
+    ?>  
  
 <form id="board_form"  name="board_form" class="form-signin" method="post"  >  
 
@@ -358,13 +381,13 @@ $("#closeModalBtn").click(function(){
 });
 	
 	
-// 신청일 변경시 종료일도 변경함
-$("#al_askdatefrom").change(function(){
-   var radioVal = $('input[name="al_item"]:checked').val();	
-   console.log(radioVal);
-   $('#al_askdateto').val($("#al_askdatefrom").val());      
-   
-   const result = getDateDiff($("#al_askdatefrom").val(), $("#al_askdateto").val()) + 1;
+    // 신청일 변경시 종료일도 변경함
+    $("#al_askdatefrom").change(function() {
+        var radioVal = $('input[name="al_item"]:checked').val();
+        console.log(radioVal);
+        $('#al_askdateto').val($("#al_askdatefrom").val());
+
+        var result = getDateDiff($("#al_askdatefrom").val(), $("#al_askdateto").val()) + 1;
    
    switch(radioVal)
    {
@@ -386,12 +409,11 @@ $("#al_askdatefrom").change(function(){
 		 
 });	
 	
-$('input[name="al_item"]').change(function(){
-   var radioVal = $('input[name="al_item"]:checked').val();	
-   console.log(radioVal);
-   // $('#al_askdateto').val($("#al_askdatefrom").val());      
-   
-   const result = getDateDiff($("#al_askdatefrom").val(), $("#al_askdateto").val()) + 1;
+    $('input[name="al_item"]').change(function() {
+        var radioVal = $('input[name="al_item"]:checked').val();
+        console.log(radioVal);
+
+        var result = getDateDiff($("#al_askdatefrom").val(), $("#al_askdateto").val()) + 1;
    
    switch(radioVal)
    {
@@ -412,13 +434,12 @@ $('input[name="al_item"]').change(function(){
    }
 });	
 
-// 종료일을 변경해도 자동계산해 주기	
-$("#al_askdateto").change(function(){
-   var radioVal = $('input[name="al_item"]:checked').val();	
-   console.log(radioVal);
-   // $('#al_askdateto').val($("#al_askdatefrom").val());      
-   
-   const result = getDateDiff($("#al_askdatefrom").val(), $("#al_askdateto").val()) + 1;
+    // 종료일을 변경해도 자동계산해 주기
+    $("#al_askdateto").change(function() {
+        var radioVal = $('input[name="al_item"]:checked').val();
+        console.log(radioVal);
+
+        var result = getDateDiff($("#al_askdatefrom").val(), $("#al_askdateto").val()) + 1;
    
    switch(radioVal)
    {
@@ -586,29 +607,29 @@ if(status=='send' || user_name=='김보곤') {
 
 }); // end of ready document
 
-// 두날짜 사이 일자 구하기 
-const getDateDiff = (d1, d2) => {
-  const date1 = new Date(d1);
-  const date2 = new Date(d2);
-  
-  let count = 0;
-  const oneDay = 24 * 60 * 60 * 1000; // 하루의 밀리세컨드 수
+// 두날짜 사이 일자 구하기
+function getDateDiff(d1, d2) {
+    var date1 = new Date(d1);
+    var date2 = new Date(d2);
+    var count = 0;
+    var oneDay = 24 * 60 * 60 * 1000;
 
-  while (date1 < date2) {
-    const dayOfWeek = date1.getDay(); // 요일 (0:일, 1:월, ..., 6:토)
+    while (date1 < date2) {
+        var dayOfWeek = date1.getDay();
 
-    // 토요일(6)이나 일요일(0)이 아닌 경우에만 count 증가
-    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-      count++;
+        // 토요일(6)이나 일요일(0)이 아닌 경우에만 count 증가
+        if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+            count++;
+        }
+
+        date1.setTime(date1.getTime() + oneDay);
     }
 
-    date1.setTime(date1.getTime() + oneDay); // 다음 날짜로 이동
-  }
-
-  return count;
+    return count;
 }
-
 </script>
 </body>
+
 </html>
+
 

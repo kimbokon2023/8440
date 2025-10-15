@@ -1,60 +1,91 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-include getDocumentRoot() . '/session.php';    
-if(!isset($_SESSION["name"]) ) {	          
-		 $_SESSION["url"]='https://8440.co.kr/annualleave/index.php?user_name=' . $user_name; 	
-		 sleep(1);
-         header ("Location:https://8440.co.kr/login/logout.php");
-         exit;
-} 
-$title_message = '직원 연차'; 
+<?php
+require_once __DIR__ . '/../common/functions.php';
+include getDocumentRoot() . '/session.php';
 
-?> 
-<?php include getDocumentRoot() . '/load_header.php' ?>
-<title> <?=$title_message?> </title>
-</head>
-<body>
-<?php require_once(includePath('myheader.php')); ?>   
+// 세션 변수 초기화
+$user_name = $_SESSION["name"] ?? '';
+$DB = $_SESSION["DB"] ?? '';
+$level = $_SESSION["level"] ?? 0;
+$chkMobile = $_SESSION["chkMobile"] ?? false;
 
-<?php  
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();		
-// 배열로 기본정보 불러옴
-include getDocumentRoot() . '/annualleave/load_DB.php';
-
-  if($user_name=='소현철' || $user_name=='김보곤' || $user_name=='최장중' || $user_name=='이경묵' || $user_name=='소민지')
-	  $admin = 1;
-  
-// var_dump($level);
+if (!isset($_SESSION["name"])) {
+    $_SESSION["url"] = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https://" : "http://")
+        . $_SERVER['HTTP_HOST']
+        . '/annualleave/index.php?user_name=' . $user_name;
+    sleep(1);
+    header("Location:" . (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https://" : "http://")
+        . $_SERVER['HTTP_HOST']
+        . "/login/logout.php");
+    exit;
+}
+$title_message = '직원 연차';
 ?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
+<title> <?= $title_message ?> </title>
+</head>
 
-<form name="board_form" id="board_form"  method="post" action="index.php?mode=search&search=<?=$search?>&find=<?=$find?>&year=<?=$year?>&search=<?=$search?>&fromdate=<?=$fromdate?>&todate=<?=$todate?>&up_fromdate=<?=$up_fromdate?>&up_todate=<?=$up_todate?>&separate_date=<?=$separate_date?>">  
-	
-	<input type="hidden" id="voc_alert" name="voc_alert" value="<?=$voc_alert?>"  > 	
-	<input type="hidden" id="ma_alert" name="ma_alert" value="<?=$ma_alert?>"  > 
-	<input type="hidden" id="order_alert" name="order_alert" value="<?=$order_alert?>"  > 					
-	<input type="hidden" id="username" name="username" value="<?=$user_name?>"  > 		
+<body>
+    <?php require_once(includePath('myheader.php')); ?>
 
- <?php if($chkMobile==false) { ?>
-	<div class="container">     
- <?php } else { ?>
- 	<div class="container-fluid">     
-	<?php } ?>	 
-	
-	<div class="card"> 						
-	<div class="card-body"> 							
-		<div class="d-flex justify-content-center align-items-center mt-3 mb-2">
-			<span class=" fs-5"> <?=$title_message?> </span>
-			<button type="button" class="btn btn-dark btn-sm mx-2" onclick='location.reload()'>  <i class="bi bi-arrow-clockwise"></i> </button>
-			&nbsp;&nbsp;&nbsp;&nbsp;
-			<? if ($admin == 1) { ?>
-				  <!-- <button type="button" id="openAlmemberBtn" class="btn btn-success btn-sm me-2">
-					<i class="bi bi-pencil-square"></i> 직원 정보 -->
-					<button type="button" class="btn btn-primary btn-sm" onclick="location.href='./admin.php'">
-						<i class="bi bi-pencil-square"></i>
-						관리자모드
-					</button>
-				<? } ?>
-		</div>				
+    <?php
+    require_once(includePath('lib/mydb.php'));
+    $pdo = db_connect();
+
+    // 배열로 기본정보 불러옴
+    include getDocumentRoot() . '/annualleave/load_DB.php';
+
+    // load_DB.php에서 정의될 변수들 초기화 (정의되지 않은 경우 대비)
+    $total = $total ?? 0;
+    $thisyeartotalusedday = $thisyeartotalusedday ?? 0;
+    $thisyeartotalremainday = $thisyeartotalremainday ?? 0;
+
+    // 관리자 권한 확인
+    $admin = 0;
+    if ($user_name == '소현철' || $user_name == '김보곤' || $user_name == '최장중' || $user_name == '이경묵' || $user_name == '소민지') {
+        $admin = 1;
+    }
+    // 요청 파라미터 초기화
+    $search = $_REQUEST["search"] ?? '';
+    $find = $_REQUEST["find"] ?? '';
+    $year = $_REQUEST["year"] ?? date("Y");
+    $fromdate = $_REQUEST["fromdate"] ?? '';
+    $todate = $_REQUEST["todate"] ?? '';
+    $up_fromdate = $_REQUEST["up_fromdate"] ?? '';
+    $up_todate = $_REQUEST["up_todate"] ?? '';
+    $separate_date = $_REQUEST["separate_date"] ?? '';
+
+    // 기타 변수 초기화
+    $voc_alert = '';
+    $ma_alert = '';
+    $order_alert = '';
+    ?>
+
+    <form name="board_form" id="board_form" method="post" action="index.php?mode=search&search=<?= $search ?>&find=<?= $find ?>&year=<?= $year ?>&search=<?= $search ?>&fromdate=<?= $fromdate ?>&todate=<?= $todate ?>&up_fromdate=<?= $up_fromdate ?>&up_todate=<?= $up_todate ?>&separate_date=<?= $separate_date ?>">
+
+        <input type="hidden" id="voc_alert" name="voc_alert" value="<?= $voc_alert ?>">
+        <input type="hidden" id="ma_alert" name="ma_alert" value="<?= $ma_alert ?>">
+        <input type="hidden" id="order_alert" name="order_alert" value="<?= $order_alert ?>">
+        <input type="hidden" id="username" name="username" value="<?= $user_name ?>">
+
+        <?php if ($chkMobile == false) { ?>
+            <div class="container">
+            <?php } else { ?>
+                <div class="container-fluid">
+                <?php } ?>
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-center align-items-center mt-3 mb-2">
+                            <span class="fs-5"> <?= $title_message ?> </span>
+                            <button type="button" class="btn btn-dark btn-sm mx-2" onclick='location.reload()'>  <i class="bi bi-arrow-clockwise"></i> </button>
+                            &nbsp;&nbsp;&nbsp;&nbsp;
+                            <?php if ($admin == 1) { ?>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="location.href='./admin.php'">
+                                    <i class="bi bi-pencil-square"></i>
+                                    관리자모드
+                                </button>
+                            <?php } ?>
+                        </div>				
 		<div class="d-flex justify-content-center align-items-center mt-3 mb-1">
 			<h6 class="text-center mb-1"> 
 				<div class="d-flex justify-content-center align-items-center mb-1">
@@ -92,272 +123,259 @@ include getDocumentRoot() . '/annualleave/load_DB.php';
 	</div>    
 <?php
  
-$tablename = "eworks";
+                        $tablename = "eworks";
 
-$search = isset($_REQUEST["search"]) ? $_REQUEST["search"] : null;
-$mode = isset($_REQUEST["mode"]) ? $_REQUEST["mode"] : null;
-$list = isset($_REQUEST["list"]) ? $_REQUEST["list"] : 0;
-$page = isset($_REQUEST["page"]) ? $_REQUEST["page"] : 1;
+                        // 요청 파라미터 초기화 (이미 위에서 초기화했지만 여기서 다시 확인)
+                        $mode = $_REQUEST["mode"] ?? '';
+                        $list = $_REQUEST["list"] ?? 0;
+                        $page = $_REQUEST["page"] ?? 1;
 
-  $scale = 50;       // 한 페이지에 보여질 게시글 수
-  $page_scale = 15;   // 한 페이지당 표시될 페이지 수  10페이지
-  $first_num = ($page-1) * $scale;  // 리스트에 표시되는 게시글의 첫 순번.	  
+                        $scale = 50;
+                        $page_scale = 15;
+                        $first_num = ($page - 1) * $scale;
 
-$AndisDeleted = " AND is_deleted IS NULL "  ;
-$WhereisDeleted = " where is_deleted IS NULL "  ;
+                        $AndisDeleted = " AND is_deleted IS NULL ";
+                        $WhereisDeleted = " where is_deleted IS NULL ";
 
-if($mode=="search" || $mode==""){
-	  if($search==""){
-		  if($admin==1) {
-				$sql="select * from " . $DB . "." . $tablename . $WhereisDeleted . " order by   al_askdatefrom desc, registdate desc  limit $first_num, $scale " ;
-				$sqlcon="select * from " . $DB . "." . $tablename . $WhereisDeleted . "  order by   al_askdatefrom desc, registdate desc  " ;
-		                }
-						else {
-						$sql="select * from " . $DB . "." . $tablename . "  where author like '%$user_name%' " . $AndisDeleted  . " order by   al_askdatefrom desc, registdate desc  limit $first_num, $scale " ;
-						$sqlcon="select * from " . $DB . "." . $tablename . "   where author like '%$user_name%'  " . $AndisDeleted  . "order by   al_askdatefrom desc, registdate desc  " ;
-		                }
-			       }
-             elseif($search!="") {
-				  if($admin==1) {
-										  $sql ="select * from " . $DB . "." . $tablename . "  where (author like '%$search%')  " . $AndisDeleted ;
-										  $sql .=" order by   al_askdatefrom desc, registdate desc  limit $first_num, $scale ";
-										  $sqlcon ="select * from " . $DB . "." . $tablename . "  where (author like '%$search%') " . $AndisDeleted ;
-										  $sqlcon .=" order by   al_askdatefrom desc, registdate desc ";
-								}
-								else {
-										  $sql ="select * from " . $DB . "." . $tablename . "  where (author = '$user_name' ) and (author like '%$search%')   " . $AndisDeleted ;
-										  $sql .=" order by   al_askdatefrom desc, registdate desc  limit $first_num, $scale ";
-										  $sqlcon ="select * from " . $DB . "." . $tablename . "  where (author = '$user_name' ) and (author like '%$search%')  " . $AndisDeleted ;
-										  $sqlcon .=" order by   al_askdatefrom desc, registdate desc ";
-								}
-										 
-								}				
-	      	 }     
-			 
+                        if ($mode == "search" || $mode == "") {
+                            if ($search == "") {
+                                if ($admin == 1) {
+                                    $sql = "select * from " . $DB . "." . $tablename . $WhereisDeleted . " order by al_askdatefrom desc, registdate desc limit $first_num, $scale";
+                                    $sqlcon = "select * from " . $DB . "." . $tablename . $WhereisDeleted . " order by al_askdatefrom desc, registdate desc";
+                                } else {
+                                    $sql = "select * from " . $DB . "." . $tablename . " where author like '%$user_name%' " . $AndisDeleted . " order by al_askdatefrom desc, registdate desc limit $first_num, $scale";
+                                    $sqlcon = "select * from " . $DB . "." . $tablename . " where author like '%$user_name%' " . $AndisDeleted . " order by al_askdatefrom desc, registdate desc";
+                                }
+                            } elseif ($search != "") {
+                                if ($admin == 1) {
+                                    $sql = "select * from " . $DB . "." . $tablename . " where (author like '%$search%') " . $AndisDeleted;
+                                    $sql .= " order by al_askdatefrom desc, registdate desc limit $first_num, $scale";
+                                    $sqlcon = "select * from " . $DB . "." . $tablename . " where (author like '%$search%') " . $AndisDeleted;
+                                    $sqlcon .= " order by al_askdatefrom desc, registdate desc";
+                                } else {
+                                    $sql = "select * from " . $DB . "." . $tablename . " where (author = '$user_name') and (author like '%$search%') " . $AndisDeleted;
+                                    $sql .= " order by al_askdatefrom desc, registdate desc limit $first_num, $scale";
+                                    $sqlcon = "select * from " . $DB . "." . $tablename . " where (author = '$user_name') and (author like '%$search%') " . $AndisDeleted;
+                                    $sqlcon .= " order by al_askdatefrom desc, registdate desc";
+                                }
+                            }
+                        }
 
- try{  
-// 레코드 전체 sql 설정
+                        // rowDBask.php에서 사용될 변수 초기화
+                        $num = '';
+                        $author_id = '';
+                        $author = '';
+                        $al_part = '';
+                        $registdate = '';
+                        $al_item = '';
+                        $al_askdatefrom = '';
+                        $al_askdateto = '';
+                        $al_usedday = 0;
+                        $al_content = '';
+                        $status = '';
 
-   $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-	   
-	   include "rowDBask.php";
-			  
-			}		 
-   } catch (PDOException $Exception) {
-    print "오류: ".$Exception->getMessage();
-}  
+                        try {
+                            $stmh = $pdo->query($sql);
+                            while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+                                include "rowDBask.php";
+                            }
+                        } catch (PDOException $ex) {
+                            error_log("eworks 연차 조회 오류: " . $ex->getMessage());
+                        }
 
-try{   
-	$allstmh = $pdo->query($sqlcon);         // 검색 조건에 맞는 쿼리 전체 개수
-	$temp2=$allstmh->rowCount();  
-	$stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-	$temp1=$stmh->rowCount();
-	  
-	$total_row = $temp2;     // 전체 글수	
-	
-	$total_page = ceil($total_row / $scale); // 검색 전체 페이지 블록 수
-	$current_page = ceil($page/$page_scale); //현재 페이지 블록 위치계산			   										 
-	
-?>    		
-<div class="row">   
-	<div class="col-sm-9">   
-	<div class="d-flex justify-content-end align-items-center mt-2 mb-2">   	 	
-     &nbsp;&nbsp;&nbsp; ▷ <?= $total_row ?>  &nbsp;&nbsp;&nbsp;	 
-	<input type="text" name="search" id="search"  class="form-control me-1" style="width:180px;"  value="<?=$search?>" onkeydown="JavaScript:SearchEnter();" autocomplete="off" placeholder="검색어"> 	   
-	<button type="button" id="searchBtn" class="btn btn-dark btn-sm ms-1 me-1">  <i class="bi bi-search"></i> 검색  </button>	
-	<button type="button" id="writeBtn" class="btn btn-dark btn-sm  ms-1 me-1"> <i class="bi bi-pencil-square"></i> 신청 </button> 
-	<button  type="button" id="massBtn" class="btn btn-sm btn-primary"> <i class="bi bi-cloud-arrow-up"></i> 대량등록</button>	
-	</div>
-	</div>
-	<div class="col-sm-3">   
-	<div class="d-flex justify-content-end align-items-center mt-2 mb-2">   	
-		<?php if($level < 4) { ?>
-			<button type="button" class="btn btn-dark  btn-sm ms-3 me-1" onclick="popupCenter('batchDB.php','연차현황',1400,950);"> <i class="bi bi-grid-3x3"></i> 연차 현황 </button>    &nbsp;
-		<?php } ?>	
-	</div>
-	</div>
-</div>
-   	
-	<div class="d-flex justify-content-center" >  
-      <table class="table table-bordered table-hover">        
-	      <thead class="table-primary" >
-		     <tr>
-				<th class="text-center">번호</th>
-				<th class="text-center">접수일</th>
-				<th class="text-center">시작일</th>
-				<th class="text-center">종료일</th>
-				<th class="text-center">구분</th>
-				<th class="text-center">사용일수</th>
-				<th class="text-center">성명</th>
-				<th class="text-center">사유</th>
-				<th class="text-center">결재상태</th>
-			</tr>
-		 </thead>
-	 <tbody>
-	 <?php
-		  if ($page<=1)  
-			$start_num=$total_row;    // 페이지당 표시되는 첫번째 글순번
-		     else 
-		      	$start_num=$total_row-($page-1) * $scale;
-	    
-	       while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-	           include "rowDBask.php";    
-			   
-			   switch($status) {
-				   
-				   case 'send':
-				      $statusstr = '결재상신';
-					  break;
-				   case 'ing':
-				      $statusstr = '결재중';
-					  break;
-				   case 'end':
-				      $statusstr = '결재완료';
-					  break;
-				   default:
-					  $statusstr = '';
-					  break;
-			   }
-			   
-				?>
-			<tr onclick="view('<?=$num?>');">        
-				<td class="text-center"><?=$start_num?></td>
-				<td class="text-center"><?= substr($registdate, 0, 10) ?></td>
-				<td class="text-center"><?=$al_askdatefrom?></td>
-				<td class="text-center"><?=$al_askdateto?></td>                        
-				<td class="text-center"><?=$al_item?></td>                        
-				<td class="text-center"><?=$al_usedday?></td>                        
-				<td class="text-center"><?=$author?></td>                        
-				<td class="text-center"><?=$al_content?></td>                        
-				<td class="text-center"><?=$statusstr?></td>                        
-			</tr>	
-			    
-				
-			<?php
-			$start_num--;  
-			 } 
-  } catch (PDOException $Exception) {
-  print "오류: ".$Exception->getMessage();
-  }  
-   // 페이지 구분 블럭의 첫 페이지 수 계산 ($start_page)
-      $start_page = ($current_page - 1) * $page_scale + 1;
-   // 페이지 구분 블럭의 마지막 페이지 수 계산 ($end_page)
-      $end_page = $start_page + $page_scale - 1;  
- ?>
-       </tbody>
-      </table>
-	  </div>
-	<div class="d-flex justify-content-center mt-5 mb-5" >  	   
-   <div class="input-group p-1 mb-2 mt-2 justify-content-center">	  
-	
- <?php
-    	
-      if($page!=1 && $page>$page_scale)
-      {
-        $prev_page = $page - $page_scale;    
-        // 이전 페이지값은 해당 페이지 수에서 리스트에 표시될 페이지수 만큼 감소
-        if($prev_page <= 0) 
-            $prev_page = 1;  // 만약 감소한 값이 0보다 작거나 같으면 1로 고정
-        print "<a href=index.php?page=$prev_page&mode=search&search=$search>◀ </a>";
-      }
-    for($i=$start_page; $i<=$end_page && $i<= $total_page; $i++) 
-      {        // [1][2][3] 페이지 번호 목록 출력
-        if($page==$i) // 현재 위치한 페이지는 링크 출력을 하지 않도록 설정.
-           print "<font color=red><b>[$i]</b></font>"; 
-        else 
-           print "<a href=index.php?page=$i&mode=search&search=$search>[$i]</a>";
-  }
-      if($page<$total_page)
-      {
-        $next_page = $page + $page_scale;
-        if($next_page > $total_page) 
-            $next_page = $total_page;
-        // netx_page 값이 전체 페이지수 보다 크면 맨 뒤 페이지로 이동시킴
-        print "<a href=index.php?page=$next_page&mode=search&search=$search> ▶</a><p>";
-      }
- ?>			
-        </div>		     
+                        try {
+                            $allstmh = $pdo->query($sqlcon);
+                            $temp2 = $allstmh->rowCount();
+                            $stmh = $pdo->query($sql);
+                            $temp1 = $stmh->rowCount();
 
- </div>   
- </div>   
- </div>   
- </div>   
- </div>   
- </div>   
-</form>
+                            $total_row = $temp2;
+
+                            $total_page = ceil($total_row / $scale);
+                            $current_page = ceil($page / $page_scale);
+                        ?>
+
+                            <div class="row">
+                                <div class="col-sm-9">
+                                    <div class="d-flex justify-content-end align-items-center mt-2 mb-2">
+                                        &nbsp;&nbsp;&nbsp; ▷ <?= $total_row ?>  &nbsp;&nbsp;&nbsp;
+                                        <input type="text" name="search" id="search" class="form-control me-1" style="width:180px;" value="<?= $search ?>" onkeydown="JavaScript:SearchEnter();" autocomplete="off" placeholder="검색어">
+                                        <button type="button" id="searchBtn" class="btn btn-dark btn-sm ms-1 me-1">  <i class="bi bi-search"></i> 검색  </button>
+                                        <button type="button" id="writeBtn" class="btn btn-dark btn-sm ms-1 me-1"> <i class="bi bi-pencil-square"></i> 신청 </button>
+                                        <button type="button" id="massBtn" class="btn btn-sm btn-primary"> <i class="bi bi-cloud-arrow-up"></i> 대량등록</button>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="d-flex justify-content-end align-items-center mt-2 mb-2">
+                                        <?php if ($level < 4) { ?>
+                                            <button type="button" class="btn btn-dark btn-sm ms-3 me-1" onclick="popupCenter('batchDB.php','연차현황',1400,950);"> <i class="bi bi-grid-3x3"></i> 연차 현황 </button> &nbsp;
+                                        <?php } ?>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-center">
+                                <table class="table table-bordered table-hover">
+                                    <thead class="table-primary">
+                                        <tr>
+                                            <th class="text-center">번호</th>
+                                            <th class="text-center">접수일</th>
+                                            <th class="text-center">시작일</th>
+                                            <th class="text-center">종료일</th>
+                                            <th class="text-center">구분</th>
+                                            <th class="text-center">사용일수</th>
+                                            <th class="text-center">성명</th>
+                                            <th class="text-center">사유</th>
+                                            <th class="text-center">결재상태</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php
+                                        if ($page <= 1)
+                                            $start_num = $total_row;
+                                        else
+                                            $start_num = $total_row - ($page - 1) * $scale;
+
+                                        while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+                                            include "rowDBask.php";
+
+                                            switch ($status) {
+                                                case 'send':
+                                                    $statusstr = '결재상신';
+                                                    break;
+                                                case 'ing':
+                                                    $statusstr = '결재중';
+                                                    break;
+                                                case 'end':
+                                                    $statusstr = '결재완료';
+                                                    break;
+                                                default:
+                                                    $statusstr = '';
+                                                    break;
+                                            }
+                                        ?>
+                                            <tr onclick="view('<?= $num ?>');">
+                                                <td class="text-center"><?= $start_num ?></td>
+                                                <td class="text-center"><?= substr($registdate, 0, 10) ?></td>
+                                                <td class="text-center"><?= $al_askdatefrom ?></td>
+                                                <td class="text-center"><?= $al_askdateto ?></td>
+                                                <td class="text-center"><?= $al_item ?></td>
+                                                <td class="text-center"><?= $al_usedday ?></td>
+                                                <td class="text-center"><?= $author ?></td>
+                                                <td class="text-center"><?= $al_content ?></td>
+                                                <td class="text-center"><?= $statusstr ?></td>
+                                            </tr>
+
+                                        <?php
+                                            $start_num--;
+                                        }
+                                    } catch (PDOException $ex) {
+                                        error_log("eworks 연차 페이징 조회 오류: " . $ex->getMessage());
+                                    }
+
+                                    // 페이지 구분 블럭의 첫 페이지 수 계산 ($start_page)
+                                    $start_page = ($current_page - 1) * $page_scale + 1;
+                                    // 페이지 구분 블럭의 마지막 페이지 수 계산 ($end_page)
+                                    $end_page = $start_page + $page_scale - 1;
+                                        ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="d-flex justify-content-center mt-5 mb-5">
+                                <div class="input-group p-1 mb-2 mt-2 justify-content-center">
+                                    <?php
+                                    if ($page != 1 && $page > $page_scale) {
+                                        $prev_page = $page - $page_scale;
+                                        if ($prev_page <= 0)
+                                            $prev_page = 1;
+                                        print "<a href=index.php?page=$prev_page&mode=search&search=$search>◀ </a>";
+                                    }
+                                    for ($i = $start_page; $i <= $end_page && $i <= $total_page; $i++) {
+                                        if ($page == $i)
+                                            print "<font color=red><b>[$i]</b></font>";
+                                        else
+                                            print "<a href=index.php?page=$i&mode=search&search=$search>[$i]</a>";
+                                    }
+                                    if ($page < $total_page) {
+                                        $next_page = $page + $page_scale;
+                                        if ($next_page > $total_page)
+                                            $next_page = $total_page;
+                                        print "<a href=index.php?page=$next_page&mode=search&search=$search> ▶</a><p>";
+                                    }
+                                    ?>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+                </div>
+    </form>
 </body>
-</html>  
+
+
+</html>
 
 <script>
-
-function view(num){
-	// 결재상황을 표로 정리해서 보여준다.
-	// 개선된 화면 구성 작성
-	popupCenter('write_form_ask.php?num=' + num + '&viewoption=1', '데이터등록', 500, 800);
-}
-
-$(document).ready(function(){	
-
-	$("#closeModalBtn").click(function(){ 
-		$('#myModal').modal('hide');
-	});
-
-	$("#writeBtn").click(function(){ 
-		popupCenter('write_form_ask.php', '등록/수정/삭제', 420, 720);	  
-	});
-	$("#massBtn").click(function(){ 
-		popupCenter('write_form_mass.php', '대량등록', 420, 820);	  
-	});
-
-	$("#searchBtn").click(function(){  document.getElementById('board_form').submit();   });		
-
-});
-
-function SearchEnter(){
-    if(event.keyCode == 13){
-		document.getElementById('board_form').submit(); 
+    function view(num) {
+        popupCenter('write_form_ask.php?num=' + num + '&viewoption=1', '데이터등록', 500, 800);
     }
-}
 
-$(document).ready(function () {
-    $('#yearSelect').change(function () {
-        const selectedYear = $(this).val();
-        $.ajax({
-            url: 'update_annual_leave.php', // 데이터 업데이트를 처리할 PHP 파일
-            method: 'POST',
-            data: { year: selectedYear, user_name: "<?=$user_name?>" },
-            dataType: 'json',
-            success: function (response) {
-                if (response.success) {
-                    $('#totalDays').text(response.total);
-                    $('#usedDays').text(response.usedDays);
-                    $('#remainingDays').text(response.remainingDays);
-                } else {
-                    alert('데이터를 업데이트하는 동안 오류가 발생했습니다.');
-                }
-            },
-            error: function(jqxhr, status, error) {
-                console.log(jqxhr, status, error);				
-                alert('서버 요청 중 오류가 발생했습니다.');
-            }
+    $(document).ready(function() {
+        $("#closeModalBtn").click(function() {
+            $('#myModal').modal('hide');
+        });
+
+        $("#writeBtn").click(function() {
+            popupCenter('write_form_ask.php', '등록/수정/삭제', 420, 720);
+        });
+
+        $("#massBtn").click(function() {
+            popupCenter('write_form_mass.php', '대량등록', 420, 820);
+        });
+
+        $("#searchBtn").click(function() {
+            document.getElementById('board_form').submit();
         });
     });
-	
-    // 페이지 로드 시 자동 트리거
-    $('#yearSelect').trigger('change');	
-});
 
+    function SearchEnter() {
+        if (event.keyCode == 13) {
+            document.getElementById('board_form').submit();
+        }
+    }
 
+    $(document).ready(function() {
+        $('#yearSelect').change(function() {
+            var selectedYear = $(this).val();
+            $.ajax({
+                url: 'update_annual_leave.php',
+                method: 'POST',
+                data: {
+                    year: selectedYear,
+                    user_name: "<?= $user_name ?>"
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        $('#totalDays').text(response.total);
+                        $('#usedDays').text(response.usedDays);
+                        $('#remainingDays').text(response.remainingDays);
+                    } else {
+                        alert('데이터를 업데이트하는 동안 오류가 발생했습니다.');
+                    }
+                },
+                error: function(jqxhr, status, error) {
+                    console.log(jqxhr, status, error);
+                    alert('서버 요청 중 오류가 발생했습니다.');
+                }
+            });
+        });
 
+        $('#yearSelect').trigger('change');
+    });
 
-$(document).ready(function(){    
-   // 방문기록 남김
-   var title = '<?php echo $title_message; ?>';
-   // title = '품질방침/품질목표';
-   // title = '절곡 ' + title ;
-   saveMenuLog(title);
-});	
-
-
+    $(document).ready(function() {
+        var title = '<?php echo $title_message; ?>';
+        saveMenuLog(title);
+    });
 </script>
+

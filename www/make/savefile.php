@@ -1,70 +1,111 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session.php'));  
+<?php
+/**
+ * 발주서 파일 저장 및 출력
+ * 로컬 및 서버 환경 모두 지원
+ */
 
+// 공통 함수 및 세션 로드
+require_once __DIR__ . '/../common/functions.php';
+require_once(includePath('session.php'));
+
+// 권한 체크
 if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
     sleep(1);
-    header("Location:" . $WebSite . "login/login_form.php"); 
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'];
+    $WebSite = "{$protocol}://{$host}/";
+    header("Location:" . $WebSite . "login/login_form.php");
     exit;
 }
 
-include getDocumentRoot() . '/load_header.php';
+// 변수 초기화
+$num = $_REQUEST["num"] ?? '';
+$orderdate = '';
+$indate = '';
+$company = '';
+$text = '';
+$arr = array();
+$recnum = 0;
+$sanitized = '';
 
- $num=$_REQUEST["num"] ?? '';
+// 데이터베이스 연결 및 조회
+require_once("../lib/mydb.php");
+$pdo = db_connect();
 
- require_once("../lib/mydb.php");
- $pdo = db_connect(); 
- try{
-     $sql = "select * from mirae8440.make where num=?";
-     $stmh = $pdo->prepare($sql);  
-     $stmh->bindValue(1, $num, PDO::PARAM_STR);      
-     $stmh->execute();            
-      
-     $row = $stmh->fetch(PDO::FETCH_ASSOC);
-			  $num=$row["num"];
-			  $orderdate=$row["orderdate"];
-			  $indate=$row["indate"];
-			  $company=$row["company"];
-			  $text=$row["text"];  
-	
-  } catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
-  }
-
-
-if($orderdate!="") {
-    $week = array("(일)" , "(월)"  , "(화)" , "(수)" , "(목)" , "(금)" ,"(토)") ;
-    $orderdate = $orderdate . $week[ date('w',  strtotime($orderdate)  ) ] ;
+try {
+    $sql = "SELECT * FROM mirae8440.make WHERE num = ?";
+    $stmh = $pdo->prepare($sql);
+    $stmh->bindValue(1, $num, PDO::PARAM_STR);
+    $stmh->execute();
+    
+    $row = $stmh->fetch(PDO::FETCH_ASSOC);
+    
+    if ($row) {
+        $num = $row["num"] ?? '';
+        $orderdate = $row["orderdate"] ?? '';
+        $indate = $row["indate"] ?? '';
+        $company = $row["company"] ?? '';
+        $text = $row["text"] ?? '';
+    }
+    
+} catch (PDOException $ex) {
+    error_log("발주서 조회 오류 (num: {$num}): " . $ex->getMessage());
+    die("오류: 발주서를 불러오는 중 문제가 발생했습니다.");
 }
 
- $arr = explode("|", $text);  
- 
-$original = $arr[0];
+// 날짜에 요일 추가
+if (!empty($orderdate)) {
+    $week = array("(일)", "(월)", "(화)", "(수)", "(목)", "(금)", "(토)");
+    $orderdate = $orderdate . $week[date('w', strtotime($orderdate))];
+}
+
+// 텍스트 데이터 파싱
+$arr = explode("|", $text);
+
+// 파일명 생성을 위한 원본 데이터
+$original = isset($arr[0]) ? $arr[0] : '';
 
 // 파일 이름에 부적합한 문자 제거
 $sanitized = preg_replace('/[\/\\\:\*\?\"\<\>\|\#\,]/', '', $original);
 
- $totalrecnum=count($arr);
- for($i=0;$i<$totalrecnum;$i++)
- {
-	 $tmp = explode(",", $arr[$i]);  
-	if($tmp[3]=='')
-	{
-		  $recnum=$i;
-		  break;
-	}	
- } 
- 
-$tmp = explode(",", $arr[0]);  
-include getDocumentRoot() . '/load_header.php';  
+// 레코드 수 계산
+$totalrecnum = count($arr);
+$recnum = 0;
+
+for ($i = 0; $i < $totalrecnum; $i++) {
+    $tmp = explode(",", $arr[$i]);
+    if (empty($tmp[3])) {
+        $recnum = $i;
+        break;
+    }
+}
+
+// 레코드가 없을 경우 전체 개수 사용
+if ($recnum == 0) {
+    $recnum = $totalrecnum;
+}
+
+// HTML 헤더 로드
+include getDocumentRoot() . '/load_header.php';
 ?>
 
-<link rel="stylesheet" type="text/css" href="../css/common.css?v=<?php echo time(); ?>">
-<link rel="stylesheet" type="text/css" media="print" href="../css/print2.css?v=<?php echo time(); ?>">
-<link rel="stylesheet" type="text/css" href="../css/makeprint.css?v=<?php echo time(); ?>">
+<link rel="stylesheet" type="text/css" href="../css/common.css?v=<?=time()?>">
+<link rel="stylesheet" type="text/css" media="print" href="../css/print2.css?v=<?=time()?>">
+<link rel="stylesheet" type="text/css" href="../css/makeprint.css?v=<?=time()?>">
 <title>발주서 출력</title>
+
+<style>
+#specail {
+    font-size: 25px;
+    margin-left: 200px;
+    margin-top: 110px;
+    margin-bottom: 155px;
+}
+</style>
 </head>
 
-<script> 
+<script>
+'use strict'; 
 function partShot() {
     // 모든 이미지가 로드될 때까지 기다린 후 스크린샷 실행
     waitForImages().then(function() {
@@ -189,139 +230,132 @@ function cleardiv() {
 	 $('#outlineprint').empty();
 }
 
+// 데이터 로드 함수
 function load_data() {
- var recnum='<?php echo $recnum; ?>' ;	
- var text='<?php echo $text; ?>' ;	
- arr=text.split('|');
-for(i=0;i<recnum;i++) {
-	tmp=arr[i].split(',');
-	
-	$('#col1').text(tmp[0]);
-	$('#col2').text(tmp[1]);
-	$('#col3').text(tmp[2]);
-	$('#col4').text(tmp[3]);
-	$('#col5').text(tmp[4]);
-	$('#col6').text(tmp[5]);
-	$('#col7').text(tmp[6]);
-	}
+    var recnum = <?php echo json_encode((int)$recnum); ?>;
+    var text = <?php echo json_encode($text); ?>;
+    var arr = text.split('|');
+    
+    for (var i = 0; i < recnum; i++) {
+        var tmp = arr[i].split(',');
+        
+        if (typeof $ !== 'undefined') {
+            $('#col1').text(tmp[0] || '');
+            $('#col2').text(tmp[1] || '');
+            $('#col3').text(tmp[2] || '');
+            $('#col4').text(tmp[3] || '');
+            $('#col5').text(tmp[4] || '');
+            $('#col6').text(tmp[5] || '');
+            $('#col7').text(tmp[6] || '');
+        }
+    }
 }
-
-</script>	
- <style>  
-  #specail{	  
-	  font-size:25px;
-	  margin-left:200px;
-	  margin-top:110px;
-	  margin-bottom:155px;
-  }
-  </style>
+</script>
 
 <body>
 
-<div id="print">  
-<div id="outlineprint">  
-    <div class="img">      
-	<div class="clear"> </div>
-
-       <div id="row1">   <?=$company?> </div>
-
-        <div id="row2"> 발주일: <?=$orderdate?>  </div>  <!-- end of row2-->
-	<div class="clear"> </div>	
-	
-	<?php if($company=='진성케미칼')
-	{
-		echo '<div id="specail" > 경기도 김포시 양촌읍 삼도공단로 66-1(가동) <br> 노하늘과장 010-3167-1154 </div>';
-	}
-	else
-	{
-		echo '<div id="specail" > &nbsp; <br> &nbsp; </div>';
-	}			
-	?>
-	
-	<div class="clear"> </div>	
+<div id="print">
+    <div id="outlineprint">
+        <div class="img">
+            <div class="clear"></div>
+            
+            <div id="row1"><?=htmlspecialchars($company, ENT_QUOTES, 'UTF-8')?></div>
+            
+            <div id="row2">발주일: <?=htmlspecialchars($orderdate, ENT_QUOTES, 'UTF-8')?></div>
+            <div class="clear"></div>
+            
+            <?php if ($company == '진성케미칼'): ?>
+                <div id="specail">
+                    경기도 김포시 양촌읍 삼도공단로 66-1(가동)<br>
+                    노하늘과장 010-3167-1154
+                </div>
+            <?php else: ?>
+                <div id="specail">&nbsp;<br>&nbsp;</div>
+            <?php endif; ?>
+            
+            <div class="clear"></div>	
 		
-	<?php
-	// 색상 빈도 계산을 위한 배열
-	$colorFrequency = [];
+            <?php
+            // 색상 빈도 계산을 위한 배열
+            $colorFrequency = [];
+            
+            // 배열을 스캔하여 각 색상의 빈도 계산
+            for ($i = 0; $i < $recnum; $i++) {
+                $tmp = explode(",", $arr[$i]);
+                $color = isset($tmp[6]) ? $tmp[6] : '';
+                
+                if (isset($colorFrequency[$color])) {
+                    $colorFrequency[$color]++;
+                } else {
+                    $colorFrequency[$color] = 1;
+                }
+            }
+            
+            // 가장 빈도가 높은 색상 찾기
+            $maxColor = '';
+            if (!empty($colorFrequency)) {
+                $maxColor = array_keys($colorFrequency, max($colorFrequency))[0];
+            }
+            
+            // 데이터 출력
+            for ($i = 0; $i < $recnum; $i++) {
+                $tmp = explode(",", $arr[$i]);
+                
+                echo "<div id='col1'>" . htmlspecialchars($tmp[0] ?? '', ENT_QUOTES, 'UTF-8') . "</div>";
+                echo "<div id='col2'>" . htmlspecialchars($tmp[1] ?? '', ENT_QUOTES, 'UTF-8') . "</div>";
+                echo "<div id='col3'>" . htmlspecialchars($tmp[2] ?? '', ENT_QUOTES, 'UTF-8') . "</div>";
+                echo "<div id='col4'>" . htmlspecialchars($tmp[3] ?? '', ENT_QUOTES, 'UTF-8') . "</div>";
+                echo "<div id='col5'>" . htmlspecialchars($tmp[4] ?? '', ENT_QUOTES, 'UTF-8') . "</div>";
+                
+                // 색상 값을 읽어들여 가장 많은 색상이 아닌 경우 강조 표시
+                $color = isset($tmp[6]) ? $tmp[6] : '';
+                if ($color != $maxColor && !empty($color)) {
+                    echo "<div id='col6'><span class='text-primary'>(" . htmlspecialchars($color, ENT_QUOTES, 'UTF-8') . ")</span></div>";
+                } else {
+                    echo "<div id='col6'>" . htmlspecialchars($color, ENT_QUOTES, 'UTF-8') . "</div>";
+                }
+                
+                echo "<div class='clear'></div>";
+            }
+            ?>
+            
+        </div> <!-- end of img -->
+        <div class="clear"></div>
+        
+        <div id="containers">
+            <div id="display_result">
+                <div class="clear"></div>
+            </div> <!-- end of display_result -->
+        </div> <!-- end of containers -->
+        
+    </div> <!-- end of outlineprint -->
+</div> <!-- end of print -->
 
-	// 배열을 스캔하여 각 색상의 빈도 계산
-	for ($i = 0; $i < $recnum; $i++) {
-		$tmp = explode(",", $arr[$i]);
-
-		$color = $tmp[6];
-		// var_dump($color);
-		
-		if (isset($colorFrequency[$color])) {
-			$colorFrequency[$color]++;
-		} else {
-			$colorFrequency[$color] = 1;
-		}
-	}
-
-	// 가장 빈도가 높은 색상 찾기
-	$maxColor = array_keys($colorFrequency, max($colorFrequency))[0];
-	
-		// var_dump($maxColor);
-
-	for ($i = 0; $i < $recnum; $i++) {
-		$tmp = explode(",", $arr[$i]);
-		print "<div id='col1'> " . $tmp[0] . "</div>";
-		print "<div id='col2'> " . $tmp[1] . "</div>";
-		print "<div id='col3'> " . $tmp[2] . "</div>";
-		print "<div id='col4'> " . $tmp[3] . "</div>";
-		print "<div id='col5'> " . $tmp[4] . "</div>";
-
-		// 색상 값을 읽어들여 가장 많은 색상이 아닌 경우 부트스트랩 배지로 출력
-		$color = $tmp[6];
-		if ($color != $maxColor) {
-			print "<div id='col6'><span class='text-primary'>(" . $color . ")</span></div>";
-		} else {
-			print "<div id='col6'>" . $color . "</div>";
-		}
-
-		print "<div class='clear'></div>";
-	}
-	?>
-
-	</div>  <!-- end of row2 -->
-		<div class="clear"> </div> 
-
-
-<div id="containers" >	
-	<div id="display_result" >	
-
-       <div class="clear"> </div>
-	
- 	
-		   
-         </div>   <!-- end of display_result -->
-	   </div> <!-- end of containers -->  
-
- </div>    <!-- end of outline --> 
-</div>    <!-- end of print --> 
-	<?php 
-	   print "<script> 
-	   // 페이지가 완전히 로드된 후 스크린샷 실행
-	   if (document.readyState === 'complete') {
-	       partShot();
-	   } else {
-	       window.addEventListener('load', function() {
-	           partShot();
-	       });
-	   }
-	   </script>"; 
-	  
-	?>
-		<canvas id="canvas" width="1300" height="1840"style="border:1px solid #d3d3d3; display:none;"></canvas>	
-</body>
 <script>
-$(document).ready(function () {
-	showMsgModal(10) ; // 다운로드 후 ctrl+j 안내함
-	setTimeout(function() {
-		hideMsgModal();
-	}, 2000);
+// 페이지가 완전히 로드된 후 스크린샷 실행
+if (document.readyState === 'complete') {
+    partShot();
+} else {
+    window.addEventListener('load', function() {
+        partShot();
+    });
+}
+</script>
+
+<canvas id="canvas" width="1300" height="1840" style="border:1px solid #d3d3d3; display:none;"></canvas>
+
+<script>
+$(document).ready(function() {
+    if (typeof showMsgModal === 'function') {
+        showMsgModal(10); // 다운로드 후 ctrl+j 안내
+        setTimeout(function() {
+            if (typeof hideMsgModal === 'function') {
+                hideMsgModal();
+            }
+        }, 2000);
+    }
 });
+</script>
 
-</script>	
-
+</body>
 </html>

@@ -1,27 +1,32 @@
 <?php
-$num=$row["num"];
-$txt1=$row["txt1"];
-$txt2=$row["txt2"];
-$txt3=$row["txt3"];
-$txt4=$row["txt4"];
-$txt5=$row["txt5"];
-$txt6=$row["txt6"];
-$txt7=$row["txt7"];
-$txt8=$row["txt8"];
-$txt9=$row["txt9"];
-$txt10=$row["txt10"];
-$txt11=$row["txt11"];
-$txt12=$row["txt12"];
-$txt13=$row["txt13"];
-$txt14=$row["txt14"];
-$txt15=$row["txt15"];
-$txt16=$row["txt16"];
-$txt17=$row["txt17"];
-$txt18=$row["txt18"];
-$txt19=$row["txt19"];
-$txt20=$row["txt20"];
-$txt21=$row["txt21"];
-$txt22=$row["txt22"];
-$txt23=$row["txt23"];
+/**
+ * 협력업체 평가표 - DB 행 데이터 추출
+ * 로컬 및 서버 환경 모두 지원
+ */
 
+// DB 행 데이터 초기화 (?? '' 형태)
+$num = $row["num"] ?? '';
+$txt1 = $row["txt1"] ?? '';
+$txt2 = $row["txt2"] ?? '';
+$txt3 = $row["txt3"] ?? '';
+$txt4 = $row["txt4"] ?? '';
+$txt5 = $row["txt5"] ?? '';
+$txt6 = $row["txt6"] ?? '';
+$txt7 = $row["txt7"] ?? '';
+$txt8 = $row["txt8"] ?? '';
+$txt9 = $row["txt9"] ?? '';
+$txt10 = $row["txt10"] ?? '';
+$txt11 = $row["txt11"] ?? '';
+$txt12 = $row["txt12"] ?? '';
+$txt13 = $row["txt13"] ?? '';
+$txt14 = $row["txt14"] ?? '';
+$txt15 = $row["txt15"] ?? '';
+$txt16 = $row["txt16"] ?? '';
+$txt17 = $row["txt17"] ?? '';
+$txt18 = $row["txt18"] ?? '';
+$txt19 = $row["txt19"] ?? '';
+$txt20 = $row["txt20"] ?? '';
+$txt21 = $row["txt21"] ?? '';
+$txt22 = $row["txt22"] ?? '';
+$txt23 = $row["txt23"] ?? '';
 ?>
