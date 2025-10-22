@@ -1,33 +1,54 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session_header.php')); 
+<?php
+/**
+ * RnDfund 삭제 처리
+ * 로컬 및 서버 환경 모두 지원
+ */
 
-header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문 받는측에서 필요한 정보임 ajax로 보내는 쪽에서 type : json       
+require_once __DIR__ . '/../bootstrap.php';
+// JSON 응답 헤더 설정
+header("Content-Type: application/json; charset=utf-8");
 
-$num=$_REQUEST["num"];   
-if(isset($_REQUEST["tablename"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $tablename=$_REQUEST["tablename"];
+// 세션 변수 초기화
+$DB = $_SESSION['DB'] ?? 'mirae8440';
+
+// 요청 변수 초기화
+$num = $_REQUEST["num"] ?? '';
+$tablename = $_REQUEST["tablename"] ?? '';
+
+// 필수 변수 검증
+if (empty($num) || empty($tablename)) {
+    echo json_encode(array(
+        "success" => false,
+        "message" => "필수 파라미터가 누락되었습니다."
+    ), JSON_UNESCAPED_UNICODE);
+    exit;
+}   
    
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();   
-   
-   try{
-     $pdo->beginTransaction();
-     $sql = "delete from  ".$DB."." . $tablename . "  where num = ?";  
-     $stmh = $pdo->prepare($sql);
-     $stmh->bindValue(1,$num,PDO::PARAM_STR);      
-     $stmh->execute();   
-     $pdo->commit();
-                         
-     } catch (Exception $ex) {
-        $pdo->rollBack();
-        print "오류: ".$Exception->getMessage();
-   }
+try {
+    $pdo->beginTransaction();
+    $sql = "delete from " . $DB . "." . $tablename . " where num = ?";
+    $stmh = $pdo->prepare($sql);
+    $stmh->bindValue(1, $num, PDO::PARAM_INT);
+    $stmh->execute();
+    $pdo->commit();
+} catch (PDOException $Exception) {
+    $pdo->rollBack();
+    error_log("삭제 오류: " . $Exception->getMessage());
 
-//각각의 정보를 하나의 배열 변수에 넣어준다.
+    echo json_encode(array(
+        "success" => false,
+        "message" => "삭제 중 오류가 발생했습니다.",
+        "error" => $Exception->getMessage()
+    ), JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+// 성공 응답
 $data = array(
-		"num" =>  $num
+    'success' => true,
+    'num' => $num,
+    'message' => '성공적으로 삭제되었습니다.'
 );
 
-//json 출력
-echo(json_encode($data, JSON_UNESCAPED_UNICODE));     
+echo json_encode($data, JSON_UNESCAPED_UNICODE);     
 ?>

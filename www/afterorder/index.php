@@ -1,16 +1,19 @@
 <?php
-require_once __DIR__ . '/../common/functions.php';
-include getDocumentRoot() . "/session.php";
+/**
+ * 식사 주문 관리 페이지
+ * 로컬 및 서버 환경 모두 지원
+ */
+
+require_once __DIR__ . '/../bootstrap.php';
 
 // 세션 변수 초기화
 $user_name = $_SESSION["name"] ?? '';
-$WebSite = $_SESSION["WebSite"] ?? '';
-$chkMobile = $_SESSION["chkMobile"] ?? false;
+$chkMobile = $chkMobile ?? false;
 
 // 권한 체크
 if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
     sleep(1);
-    header("Location:" . $WebSite . "login/login_form.php");
+    header("Location:" . getBaseUrl() . "/login/login_form.php");
     exit;
 }
 ?>
@@ -35,9 +38,7 @@ if ($user_name == '소현철' || $user_name == '김보곤' || $user_name == '최
     $admin = 1;
 }
 
-// DB 연결
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();
+// $pdo는 bootstrap.php에서 이미 초기화됨
 
 // 배열로 기본정보 불러옴
 include "load_DB.php";
@@ -263,8 +264,8 @@ try {
                                 echo '<tr class="text-center">';
                                 if ($i === 0) {
                                     echo '<td class="text-primary">인원 합계</td>';
-                                    echo '<td></td>';
-                                    echo '<td></td>';
+                                    echo '<td class="text-primary fw-bold">' . $view_sum_after . '</td>';
+                                    echo '<td class="text-primary fw-bold">' . $view_sum_evening . '</td>';
                                 } else if ($i === 1) {
                                     echo '<td></td>';
                                     echo '<td></td>';
@@ -337,6 +338,7 @@ try {
                 $page_scale = 15;   // 한 페이지당 표시될 페이지 수
                 $first_num = ($page - 1) * $scale;  // 리스트에 표시되는 게시글의 첫 순번
 
+                // SQL 쿼리 생성
                 if ($mode == "search" || $mode == "") {
                     if ($search == "") {
                         $sql = "select * from mirae8440.afterorder order by askdatefrom desc, name asc limit $first_num, $scale";
@@ -349,24 +351,33 @@ try {
                     }
                 }
 
+                // 데이터 조회
+                $dataList = [];
+                $total_row = 0;
+                
                 try {
-                    $stmh = $pdo->query($sql);
-                    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-                        include "rowDBask.php";
-                    }
-                } catch (PDOException $ex) {
-                    error_log("afterorder 조회 오류: " . $ex->getMessage());
-                }
-
-                try {
+                    // 전체 행 수 조회
                     $allstmh = $pdo->query($sqlcon);
-                    $temp2 = $allstmh->rowCount();
+                    $total_row = $allstmh->rowCount();
+                    
+                    // 페이지별 데이터 조회
                     $stmh = $pdo->query($sql);
-                    $temp1 = $stmh->rowCount();
-
-                    $total_row = $temp2;
+                    
+                    // 데이터를 배열로 미리 가져오기
+                    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+                        $dataList[] = $row;
+                    }
+                    
                     $total_page = ceil($total_row / $scale);
                     $current_page = ceil($page / $page_scale);
+                    
+                } catch (PDOException $ex) {
+                    error_log("afterorder 조회 오류: " . $ex->getMessage());
+                    $dataList = [];
+                    $total_row = 0;
+                    $total_page = 1;
+                    $current_page = 1;
+                }
                     ?>
 
                     ▷ <?= $total_row ?> &nbsp;&nbsp;&nbsp;
@@ -390,35 +401,44 @@ try {
                     </thead>
                     <tbody>
                         <?php
-                        if ($page <= 1) {
-                            $start_num = $total_row;
+                        if (!empty($dataList)) {
+                            if ($page <= 1) {
+                                $start_num = $total_row;
+                            } else {
+                                $start_num = $total_row - ($page - 1) * $scale;
+                            }
+
+                            foreach ($dataList as $row) {
+                                // 변수 추출
+                                $num = $row['num'] ?? '';
+                                $name = $row['name'] ?? '';
+                                $askdatefrom = $row['askdatefrom'] ?? '';
+                                $content = $row['content'] ?? '';
+                                $item = $row['item'] ?? '';
+                                $memo = $row['memo'] ?? '';
+                                $state = $row['state'] ?? '';
+                                ?>
+                                <tr onclick="popupCenter('write_form_ask.php?num=<?=$num?>', '식사주문', 420, 550);return false;" style="cursor: pointer;">
+                                    <td class="text-center"><?=$start_num?></td>
+                                    <td class="text-center"><?=iconv_substr($askdatefrom, 5, 5, "utf-8")?></td>
+                                    <td class="text-center"><?=$content?></td>
+                                    <td class="text-center"><?=$item?></td>
+                                    <td class="text-center"><?=$memo?></td>
+                                    <td class="text-center <?= $state == '요청' ? 'text-primary' : '' ?>"><?= $state ?></td>
+                                </tr>
+                                <?php
+                                $start_num--;
+                            }
                         } else {
-                            $start_num = $total_row - ($page - 1) * $scale;
+                            // 데이터가 없는 경우
+                            echo '<tr><td colspan="6" class="text-center">조회된 데이터가 없습니다.</td></tr>';
                         }
 
-                        while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-                            include "rowDBask.php";
-                            ?>
-                            <tr onclick="popupCenter('write_form_ask.php?num=<?=$num?>', '식사주문', 420, 550);return false;">
-                                <td class="text-center"><?=$start_num?></td>
-                                <td class="text-center"><?=iconv_substr($askdatefrom, 5, 5, "utf-8")?></td>
-                                <td class="text-center"><?=$content?></td>
-                                <td class="text-center"><?=$item?></td>
-                                <td class="text-center"><?=$memo?></td>
-                                <td class="text-center <?= $state == '요청' ? 'text-primary' : '' ?>"><?= $state ?></td>
-                            </tr>
-                            <?php
-                            $start_num--;
-                        }
-                    } catch (PDOException $ex) {
-                        error_log("afterorder 조회 오류: " . $ex->getMessage());
-                    }
-
-                    // 페이지 구분 블럭의 첫 페이지 수 계산
-                    $start_page = ($current_page - 1) * $page_scale + 1;
-                    // 페이지 구분 블럭의 마지막 페이지 수 계산
-                    $end_page = $start_page + $page_scale - 1;
-                    ?>
+                        // 페이지 구분 블럭의 첫 페이지 수 계산
+                        $start_page = ($current_page - 1) * $page_scale + 1;
+                        // 페이지 구분 블럭의 마지막 페이지 수 계산
+                        $end_page = $start_page + $page_scale - 1;
+                        ?>
                     </tbody>
                 </table>
             </div>
@@ -463,9 +483,9 @@ try {
 <script>
 $(document).ready(function() {
     // 합계치가 나오면 첫번째줄의 요소를 바꿔준다
-    var view_sum_after = '<?php echo $view_sum_after; ?>';
-    var view_sum_evening = '<?php echo $view_sum_evening; ?>';
-    var exceptNum = '<?php echo $exceptNum; ?>';
+    var view_sum_after = <?php echo json_encode($view_sum_after, JSON_UNESCAPED_UNICODE); ?>;
+    var view_sum_evening = <?php echo json_encode($view_sum_evening, JSON_UNESCAPED_UNICODE); ?>;
+    var exceptNum = <?php echo json_encode($exceptNum ?? 0, JSON_UNESCAPED_UNICODE); ?>;
 
     var totalNum;
 

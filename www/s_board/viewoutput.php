@@ -1,64 +1,75 @@
 <?php
-require_once __DIR__ . '/../common/functions.php';
+/**
+ * s_board 출력 페이지
+ * 로컬 및 서버 환경 모두 지원
+ */
+
+require_once __DIR__ . '/../bootstrap.php';
+
+// 세션 변수 초기화
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+$level = $_SESSION["level"] ?? 999;
+$user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["userid"] ?? '';
+
+// 요청 변수 초기화
+$menu = $_REQUEST["menu"] ?? '';
+$num = $_REQUEST["num"] ?? '';
+$tablename = $_REQUEST["tablename"] ?? 's_board';
+
+// 변수 초기화
+$item_num = '';
+$item_id = '';
+$item_name = '';
+$item_nick = '';
+$item_subject = '';
+$content = '';
+$item_date = '';
+$item_hit = 0;
+$is_html = '';
+$division = '';
+$searchtext = '';
+
+// 첫 화면 표시 문구
+$title_message = '(주) 미래기업 안전보건';
+
 ?>
-  <?php
-if(!isset($_SESSION))      
-		session_start(); 
-if(isset($_SESSION["DB"]))
-		$DB = $_SESSION["DB"] ;	
- $level= $_SESSION["level"];
- $user_name= $_SESSION["name"];
- $user_id= $_SESSION["userid"];	
 
- // 첫 화면 표시 문구
- $title_message = '(주) 미래기업 안전보건 ';
-$menu=$_REQUEST["menu"];
+<?php include getDocumentRoot() . '/load_header.php' ?>
 
-?>
+<title> <?=$title_message?> </title>
 
- 
- <?php include getDocumentRoot() . '/load_header.php' ?>
-
- <title> <?=$title_message?> </title> 
- 
 </head>
- 
- 
- <body>  
- 
- 
- <?php
-  
- $num=$_REQUEST["num"]; 
- $tablename='s_board';  
-  
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();  
- 
- try{
-     $sql = "select * from mirae8440." . $tablename . " where num=?";
-     $stmh = $pdo->prepare($sql);  
-     $stmh->bindValue(1, $num, PDO::PARAM_STR);      
-     $stmh->execute();            
-      
+
+<body>
+
+<?php
+
+try {
+    $sql = "select * from " . $DB . "." . $tablename . " where num = ?";
+    $stmh = $pdo->prepare($sql);
+    $stmh->bindValue(1, $num, PDO::PARAM_INT);
+    $stmh->execute();
+    
     $row = $stmh->fetch(PDO::FETCH_ASSOC);
-     $item_num     = $row["num"];
-     $item_id      = $row["id"];
-     $item_name    = $row["name"];
-     $item_nick    = $row["nick"];   
-     $item_subject = str_replace(" ", "&nbsp;", $row["subject"]);
-     $content = $row["content"];
-     $item_date    = $row["regist_day"];
-     $item_date    = substr($item_date, 0, 10);   
-     $item_hit     = $row["hit"];     
-     $is_html      = $row["is_html"];
-     $division      = $row["division"];
-     $searchtext      = $row["searchtext"];	 
-	 
-	 
-     }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
-     }	 
+    
+    if ($row) {
+        $item_num = $row["num"] ?? '';
+        $item_id = $row["id"] ?? '';
+        $item_name = $row["name"] ?? '';
+        $item_nick = $row["nick"] ?? '';
+        $item_subject = str_replace(" ", "&nbsp;", $row["subject"] ?? '');
+        $content = $row["content"] ?? '';
+        $item_date = $row["regist_day"] ?? '';
+        $item_date = substr($item_date, 0, 10);
+        $item_hit = $row["hit"] ?? 0;
+        $is_html = $row["is_html"] ?? '';
+        $division = $row["division"] ?? '';
+        $searchtext = $row["searchtext"] ?? '';
+    }
+} catch (PDOException $Exception) {
+    error_log("게시글 조회 오류: " . $Exception->getMessage());
+}	 
       
 // 초기 프로그램은 $num사용 이후 $id로 수정중임  
 $id=$num;   

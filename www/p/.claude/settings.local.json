@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Read(//c/project/mirae8440/www/lib/**)",
-      "Read(//c/project/mirae8440/www/**)"
+      "Read(//c/project/mirae8440/www/**)",
+      "Bash(find:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

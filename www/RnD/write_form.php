@@ -1,53 +1,74 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
-$title_message = '연구소';   
+<?php
+/**
+ * RnD 연구개발 작성/수정 폼 페이지
+ * 로컬 및 서버 환경 모두 지원
+ */
+
+require_once __DIR__ . '/../bootstrap.php';
+require_once includePath('load_GoogleDrive.php'); // 세션 등 여러가지 포함됨 파일 포함
+
+$title_message = '연구소';
+
 ?>
-<?php include getDocumentRoot() . '/load_header.php' ?>   
-<title>  <?=$title_message?>  </title> 
+<?php include includePath('load_header.php') ?>
+<title>  <?=$title_message?>  </title>
 
-    <style>
-        .table-hover tbody tr:hover {
-            cursor: pointer;
-        }
-    </style> 
- 
- </head> 
- 
- <body>   
-  <? require_once(includePath('common/modal.php')); ?>     
+<style>
+    .table-hover tbody tr:hover {
+        cursor: pointer;
+    }
+</style>
 
-<?php  
+</head>
 
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(1);
-         header("Location:".$_SESSION["WebSite"]."login/login_form.php"); 
-         exit;
-   }  
-isset($_REQUEST["id"])  ? $id=$_REQUEST["id"] :   $id=''; 
-isset($_REQUEST["fileorimage"])  ? $fileorimage=$_REQUEST["fileorimage"] :   $fileorimage=''; // file or image
-isset($_REQUEST["item"])  ? $item=$_REQUEST["item"] :   $item=''; 
-isset($_REQUEST["upfilename"])  ? $upfilename=$_REQUEST["upfilename"] :   $upfilename=''; 
-isset($_REQUEST["tablename"])  ? $tablename=$_REQUEST["tablename"] :  $tablename=''; 
-isset($_REQUEST["savetitle"])  ? $savetitle=$_REQUEST["savetitle"] :  $savetitle='';   // log기록 저장 타이틀
+<body>
+<?php require_once(includePath('common/modal.php')); ?>
 
-    
-  if(isset($_REQUEST["mode"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $mode=$_REQUEST["mode"];
-  else
-   $mode="";
-  
-  if(isset($_REQUEST["num"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $num=$_REQUEST["num"];
-  else
-   $num="";
-          
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();	
+<?php
+
+// 권한 체크
+if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+    /*   alert("관리자 승인이 필요합니다."); */
+    sleep(1);
+    header("Location:" . getBaseUrl() . "/login/login_form.php");
+    exit;
+}
+
+// 요청 변수 초기화
+$id = $_REQUEST["id"] ?? '';
+$fileorimage = $_REQUEST["fileorimage"] ?? ''; // file or image
+$item = $_REQUEST["item"] ?? '';
+$upfilename = $_REQUEST["upfilename"] ?? '';
+$tablename = $_REQUEST["tablename"] ?? '';
+$savetitle = $_REQUEST["savetitle"] ?? '';   // log기록 저장 타이틀
+$mode = $_REQUEST["mode"] ?? '';  //수정 버튼을 클릭해서 호출했는지 체크
+$num = $_REQUEST["num"] ?? '';  //수정 버튼을 클릭해서 호출했는지 체크
+$timekey = '';
+$searchtext = '';
+$page = $_REQUEST["page"] ?? '';
+$search = $_REQUEST["search"] ?? '';
+$Bigsearch = $_REQUEST["Bigsearch"] ?? '';
+$find = $_REQUEST["find"] ?? '';
+$year = $_REQUEST["year"] ?? '';
+$process = $_REQUEST["process"] ?? '';
+$asprocess = $_REQUEST["asprocess"] ?? '';
+$fromdate = $_REQUEST["fromdate"] ?? '';
+$todate = $_REQUEST["todate"] ?? '';
+$separate_date = $_REQUEST["separate_date"] ?? '';
+$DB = $_SESSION['DB'] ?? 'mirae8440';
+
+// 폼 필드 초기화
+$item_subject = '';
+$is_html = '';
+$content = '';
+$qnacheck = '';
+
+// 데이터베이스 연결
+$pdo = db_connect();
 
   if ($mode=="modify"){
     try{
-      $sql = "select * from mirae8440." . $tablename . " where num = ? ";
+      $sql = "select * from {$DB}." . $tablename . " where num = ? ";
       $stmh = $pdo->prepare($sql); 
 
     $stmh->bindValue(1,$num,PDO::PARAM_STR); 
@@ -67,9 +88,9 @@ $pdo = db_connect();
      }
   }
 
-// 초기 프로그램은 $num사용 이후 $id로 수정중임  
-$id=$num;    
-require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
+// 초기 프로그램은 $num사용 이후 $id로 수정중임
+$id=$num;
+require_once includePath('load_GoogleDriveSecond.php'); // attached, image에 대한 정보 불러오기  
 ?>
  
 <form  id="board_form" name="board_form" method="post" enctype="multipart/form-data"> 

@@ -1,46 +1,31 @@
-<?php\nrequire_once __DIR__ . '/../../common/functions.php';
-require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
-header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문 받는측에서 필요한 정보임 ajax로 보내는 쪽에서 type : json
-   
-// 임시저장된 첨부파일을 확정하기 위해 검사하기  
-isset($_REQUEST["timekey"])  ? $timekey=$_REQUEST["timekey"] :  $timekey='';   // 신규데이터에 생성할때 임시저장키  
+<?php
+/**
+ * SIF 평가 데이터 삽입/수정 처리
+ * 로컬 및 서버 환경 모두 지원
+ */
 
- if(isset($_REQUEST["mode"]))  //modify_form에서 호출할 경우
-    $mode=$_REQUEST["mode"];
- else 
-    $mode="";
- 
- if(isset($_REQUEST["num"]))
-    $num=$_REQUEST["num"];
- else 
-    $num="";
+require_once __DIR__ . '/../../bootstrap.php';
 
- if(isset($_REQUEST["tablename"]))
-    $tablename=$_REQUEST["tablename"];
- else 
-    $tablename="";
-       
- if(isset($_REQUEST["is_html"]))  //checkbox는 체크해야 변수명 전달됨.
-    $is_html=$_REQUEST["is_html"];
-  else
-    $is_html="";  
+header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문
 
- if(isset($_REQUEST["noticecheck"])) 
-    $noticecheck=$_REQUEST["noticecheck"];
-  else
-    $noticecheck="";
-   
-  $subject=$_REQUEST["subject"];
-  $content=$_REQUEST["content"];
-   
-        
-require_once(includePath('lib/mydb.php'));
-  $pdo = db_connect();
+// 요청 변수 초기화
+$timekey = $_REQUEST["timekey"] ?? '';   // 신규데이터에 생성할때 임시저장키
+$mode = $_REQUEST["mode"] ?? '';  //modify_form에서 호출할 경우
+$num = $_REQUEST["num"] ?? '';
+$tablename = $_REQUEST["tablename"] ?? '';
+$is_html = $_REQUEST["is_html"] ?? '';  //checkbox는 체크해야 변수명 전달됨.
+$noticecheck = $_REQUEST["noticecheck"] ?? '';
+$subject = $_REQUEST["subject"] ?? '';
+$content = $_REQUEST["content"] ?? '';
+$DB = $_SESSION['DB'] ?? 'mirae8440';
+
+// 데이터베이스 연결
+$pdo = db_connect();
     
  if ($mode=="modify"){
       
      try{
-        $sql = "select * from mirae8440." . $tablename . " where num=?";  // get target record
+        $sql = "select * from {$DB}." . $tablename . " where num=?";  // get target record
         $stmh = $pdo->prepare($sql); 
         $stmh->bindValue(1,$num,PDO::PARAM_STR); 
         $stmh->execute(); 
@@ -52,7 +37,7 @@ require_once(includePath('lib/mydb.php'));
               
      try{
         $pdo->beginTransaction();   
-        $sql = "update mirae8440." . $tablename . " set subject=?, content=?, is_html=? where num=?";
+        $sql = "update {$DB}." . $tablename . " set subject=?, content=?, is_html=? where num=?";
         $stmh = $pdo->prepare($sql); 
         $stmh->bindValue(1, $subject, PDO::PARAM_STR);  
         $stmh->bindValue(2, $content, PDO::PARAM_STR);  
@@ -71,7 +56,7 @@ require_once(includePath('lib/mydb.php'));
        }
    try{
      $pdo->beginTransaction();
-     $sql = "insert into mirae8440." . $tablename . " (id, name, nick, subject, content, regist_day, hit, is_html) ";     
+     $sql = "insert into {$DB}." . $tablename . " (id, name, nick, subject, content, regist_day, hit, is_html) ";     
      $sql .= "values(?, ?, ?, ?, ?, now(), 0, ?)";
      $stmh = $pdo->prepare($sql); 
      $stmh->bindValue(1, $_SESSION["userid"], PDO::PARAM_STR);  
@@ -94,7 +79,7 @@ if ($mode=="modify"){
 else
 {
 // 신규데이터인경우 num을 추출한 후 view로 보여주기
- $sql="select * from mirae8440." . $tablename . " order by num asc"; 					
+ $sql="select * from {$DB}." . $tablename . " order by num asc"; 					
 
   try{  
    $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh

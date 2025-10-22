@@ -1,16 +1,22 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-include getDocumentRoot() . '/session.php';   
+<?php
+require_once __DIR__ . '/../bootstrap.php';
 
- if(!isset($_SESSION["level"]) || $level>=5) {
-		 sleep(1);
-         header ("Location:" . $WebSite . "login/logout.php");
-         exit;
-   }   
-	
-$titlemsg	= '원자재(철판) 발주';	
+// 세션 변수 초기화
+$level = $_SESSION["level"] ?? 999;
+$user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["userid"] ?? '';
+
+// 권한 체크
+if (!isset($_SESSION["level"]) || $level >= 5) {
+    sleep(1);
+    header("Location:" . getBaseUrl() . "/login/logout.php");
+    exit;
+}
+
+$titlemsg = '원자재(철판) 발주';
 ?>
-  
-<?php include getDocumentRoot() . '/load_header.php' ; ?>
+
+<?php include getDocumentRoot() . '/load_header.php'; ?>
 
 <title> <?=$titlemsg?> </title>
 
@@ -42,47 +48,33 @@ $pdo = db_connect();
  // 납품업체 숫자 넘겨줌 
  
 include '_request.php';
-  
-$callback=$_REQUEST["callback"];  // 출고현황에서 체크번호
-  
-  if(isset($_REQUEST["mode"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $mode=$_REQUEST["mode"];
-  else
-   $mode="";
 
-  if(isset($_REQUEST["which"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $which=$_REQUEST["which"];
-  else
-   $which="2";
-  
-  if(isset($_REQUEST["num"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $num=$_REQUEST["num"];
-  else
-   $num="";
+// 요청 변수 초기화
+$callback = $_REQUEST["callback"] ?? '';  // 출고현황에서 체크번호
+$mode = $_REQUEST["mode"] ?? '';  // 수정/복사/신규 모드
+$which = $_REQUEST["which"] ?? '2';  // 진행상태 (기본값: 발주보냄)
+$num = $_REQUEST["num"] ?? '';  // 글 번호
+$find = $_REQUEST["find"] ?? '';  // 검색어
+$search_opt = $_REQUEST["search_opt"] ?? '1';  // 검색 옵션 (1: 쟘, 2: 천장)
 
- // 기간을 정하는 구간
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];	
+// 기간 설정
+$fromdate = $_REQUEST["fromdate"] ?? '';
+$todate = $_REQUEST["todate"] ?? '';
 
-if(isset($_REQUEST["find"]))   //목록표에 제목,이름 등 나오는 부분
- $find=$_REQUEST["find"]; 
-
-if($fromdate=="")
-{
-	$fromdate=substr(date("Y-m-d",time()),0,4) ;
-	$fromdate=$fromdate . "-01-01";
+// 시작일이 비어있으면 올해 1월 1일로 설정
+if ($fromdate == '') {
+    $fromdate = substr(date("Y-m-d", time()), 0, 4) . "-01-01";
 }
-if($todate=="")
-{
-	$todate=substr(date("Y-m-d",time()),0,4) . "-12-31" ;
-	$Transtodate=strtotime($todate.'+1 days');
-	$Transtodate=date("Y-m-d",$Transtodate);
+
+// 종료일 설정
+if ($todate == '') {
+    $todate = substr(date("Y-m-d", time()), 0, 4) . "-12-31";
+    $Transtodate = strtotime($todate . '+1 days');
+    $Transtodate = date("Y-m-d", $Transtodate);
+} else {
+    $Transtodate = strtotime($todate);
+    $Transtodate = date("Y-m-d", $Transtodate);
 }
-    else
-	{
-	$Transtodate=strtotime($todate);
-	$Transtodate=date("Y-m-d",$Transtodate);
-	}
 		   
 $sql="select * from mirae8440.steelsource order by sortorder asc, item asc, spec asc"; 	// 정렬순서 정함.				
 
@@ -114,14 +106,17 @@ $company_arr = array();
 $sum_title = array_unique($sum_title);  // 고유번호이름만 살리기
 sort($sum_title);  // 고유번호이름만 살리기
 
+// $sum 배열을 $sum_title 크기만큼 0으로 초기화
+$sum = array_fill(0, count($sum_title), 0);
+
 $steelsource_item = array_values(array_filter($steelsource_item, 'strlen'));
 $steelsource_item = array_values(array_unique($steelsource_item));
 sort($steelsource_item);
 $sumcount = count($steelsource_item);
 
- // 전체합계(입고/출고)를 산출하는 부분 
+ // 전체합계(입고/출고)를 산출하는 부분
 $sql="select * from mirae8440.steel order by outdate";
- 
+
 $tmpsum = 0; 
 
  try{  
@@ -218,21 +213,22 @@ sort($spec_arr);  // 오름차순으로 배열 정렬
      }
   }
     
-  if ($mode!="modify"){    // 수정모드가 아닐때 신규 자료일때는 변수 초기화 한다.          
+  if ($mode!="modify"){    // 수정모드가 아닐때 신규 자료일때는 변수 초기화 한다.
 	$outdate=date("Y-m-d");
 	$requestdate=null;
 	$indate=null;
-	$outworkplace=$row["outworkplace"];
+	$outworkplace=$row["outworkplace"] ?? '';
 
-	$model=null;			  
-	$steel_item=null;			  
+	$model=null;
+	$steel_item=null;
 	$spec=null;
-	$steelnum=null;			  
+	$steelnum=null;
 	$company="";
 	$supplier="";
 	$request_comment=null;
 	$inventory=null;
-	$which="1";	 			   // 요청 		  
+	$stock=0;  // 재고량 초기화
+	$which="1";	 			   // 요청
   } 
   
   if ($mode=="copy"){
@@ -364,7 +360,7 @@ sort($spec_arr);  // 오름차순으로 배열 정렬
           </td>
           <td>
 				<?php	 		  
-			 $aryreg=array();
+			 $aryreg = array("", "", "");  // 모든 인덱스를 빈 문자열로 초기화
 			 if($which=='') $which='2';
 			 switch ($which) {
 				case   "1"             : $aryreg[0] = "checked" ; break;
@@ -426,6 +422,7 @@ sort($spec_arr);  // 오름차순으로 배열 정렬
 				
 				<?php
 						// 검색 선택 쟘 or 천장
+				$aryitem = array("", "");  // 모든 인덱스를 빈 문자열로 초기화
 				if($search_opt=='') $search_opt='1';
 					 switch ($search_opt) {
 						case   "1"             : $aryitem[0] = "checked" ; break;

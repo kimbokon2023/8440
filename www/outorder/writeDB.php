@@ -4,16 +4,21 @@
  * 로컬 및 서버 환경 모두 지원
  */
 
-session_start();
+require_once __DIR__ . '/../bootstrap.php';
 header("Content-Type: application/json");
 
 // 요청 변수 초기화 (?? '' 형태)
 $num = $_REQUEST["num"] ?? '';
 $confirm = $_REQUEST["strtmp"] ?? date("Y-m-d");
-  
- 
-require_once "../lib/mydb.php";
- $pdo = db_connect(); 
+
+// $pdo는 bootstrap.php에서 이미 초기화됨
+if (!isset($pdo) || !$pdo) {
+    echo json_encode([
+        'success' => false,
+        'error' => 'Database connection failed'
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+} 
  
  try{
      $sql = "select * from mirae8440.outorder where num=?";

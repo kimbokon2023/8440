@@ -8,25 +8,30 @@ function removeCommas($value) {
     return str_replace(',', '', $value);
 }
 
-$tmp = array();	
-$tmp['PO'] = removeCommas($_REQUEST["PO"]);
-$tmp['CR'] = removeCommas($_REQUEST["CR"]);
-$tmp['EGI'] = removeCommas($_REQUEST["EGI"]);
-$tmp['HL201'] = removeCommas($_REQUEST["HL201"]);
-$tmp['MR201'] = removeCommas($_REQUEST["MR201"]);
-$tmp['HL304'] = removeCommas($_REQUEST["HL304"]);
-$tmp['MR304'] = removeCommas($_REQUEST["MR304"]);
-$tmp['etcsteel'] = removeCommas($_REQUEST["etcsteel"]);
-$tmp['I3HL304'] = removeCommas($_REQUEST["I3HL304"]);
-$tmp['I3MR304'] = removeCommas($_REQUEST["I3MR304"]);
-$tmp['VB304'] = removeCommas($_REQUEST["VB304"]);
-$tmp['BEAD304'] = removeCommas($_REQUEST["BEAD304"]);
+// Initialize request variables with null safety
+$tmp = array();
+$tmp['PO'] = removeCommas($_REQUEST["PO"] ?? '');
+$tmp['CR'] = removeCommas($_REQUEST["CR"] ?? '');
+$tmp['EGI'] = removeCommas($_REQUEST["EGI"] ?? '');
+$tmp['HL201'] = removeCommas($_REQUEST["HL201"] ?? '');
+$tmp['MR201'] = removeCommas($_REQUEST["MR201"] ?? '');
+$tmp['HL304'] = removeCommas($_REQUEST["HL304"] ?? '');
+$tmp['MR304'] = removeCommas($_REQUEST["MR304"] ?? '');
+$tmp['etcsteel'] = removeCommas($_REQUEST["etcsteel"] ?? '');
+$tmp['I3HL304'] = removeCommas($_REQUEST["I3HL304"] ?? '');
+$tmp['I3MR304'] = removeCommas($_REQUEST["I3MR304"] ?? '');
+$tmp['VB304'] = removeCommas($_REQUEST["VB304"] ?? '');
+$tmp['BEAD304'] = removeCommas($_REQUEST["BEAD304"] ?? '');
 
 $obj = (object) $tmp;
 
-print $SelectWork . "<br>";
-print_r($tmp);
-print_r($obj);
+// Initialize $SelectWork with null safety
+$SelectWork = $_REQUEST["SelectWork"] ?? '';
+
+// Debug output (optional)
+// print $SelectWork . "<br>";
+// print_r($tmp);
+// print_r($obj);
 
 write_ini_file($obj, 'settings.ini', false); 
 

@@ -3,9 +3,9 @@
   require_once("../lib/mydb.php");
   $pdo = db_connect();	
    
- // 기간을 정하는 구간
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];	 
+// 기간을 정하는 구간
+$fromdate = $_REQUEST["fromdate"] ?? null;
+$todate = $_REQUEST["todate"] ?? null;	 
 
 if($fromdate=="")
 {

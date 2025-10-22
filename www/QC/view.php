@@ -1,5 +1,6 @@
 <?php
-session_start(); 
+require_once __DIR__ . '/../bootstrap.php';
+
 $user_name= $_SESSION["name"];
 $user_id= $_SESSION["userid"];
 	
@@ -374,18 +375,28 @@ if ($index !== false) {
 ?>
 
 
-<form  id="board_form" name="board_form" method="post"  > 	
+<form  id="board_form" name="board_form" method="post"  >
 
-<input type="hidden" name="check1" id="check1" value="<?=$check1?>" > 
-<input type="hidden" name="check2" id="check2" value="<?=$check2?>" > 
-<input type="hidden" name="check3" id="check3" value="<?=$check3?>" > 
-<input type="hidden" name="check4" id="check4" value="<?=$check4?>" > 
-<input type="hidden" name="check5" id="check5" value="<?=$check5?>" > 
-<input type="hidden" name="check6" id="check6" value="<?=$check6?>" > 
-<input type="hidden" name="check7" id="check7" value="<?=$check7?>" > 
-<input type="hidden" name="check8" id="check8" value="<?=$check8?>" > 
-<input type="hidden" name="check9" id="check9" value="<?=$check9?>" > 
-<input type="hidden" name="check10" id="check10" value="<?=$check10?>" > 
+<input type="hidden" name="check1" id="check1" value="<?=$check1?>" >
+<input type="hidden" name="check2" id="check2" value="<?=$check2?>" >
+<input type="hidden" name="check3" id="check3" value="<?=$check3?>" >
+<input type="hidden" name="check4" id="check4" value="<?=$check4?>" >
+<input type="hidden" name="check5" id="check5" value="<?=$check5?>" >
+<input type="hidden" name="check6" id="check6" value="<?=$check6?>" >
+<input type="hidden" name="check7" id="check7" value="<?=$check7?>" >
+<input type="hidden" name="check8" id="check8" value="<?=$check8?>" >
+<input type="hidden" name="check9" id="check9" value="<?=$check9?>" >
+<input type="hidden" name="check10" id="check10" value="<?=$check10?>" >
+
+<!-- proDB.php 전송용 hidden fields -->
+<input type="hidden" id="table" name="table" >
+<input type="hidden" id="command" name="command" >
+<input type="hidden" id="field" name="field" >
+<input type="hidden" id="strtmp" name="strtmp" >
+<input type="hidden" id="recnum" name="recnum" >
+<input type="hidden" id="datanum" name="datanum" >
+<input type="hidden" id="fieldarr" name="fieldarr[]" >
+<input type="hidden" id="arr" name="arr[]" > 
 	
 <?php if($chkMobile) { ?>	
 <div class="container-fluid mt-2 mb-2"  >
@@ -404,7 +415,7 @@ if ($index !== false) {
 					  <button type="button" id="closeBtn" class="btn btn-dark btn-sm"> <ion-icon name="close-outline"> </ion-icon> 창닫기 </button>
 						<?php 
 							if($user_name=='김보곤' || $user_name=='이경묵')
-								print '<button type="button" id="passBtn" class="btn btn-primary btn-sm"  >  <ion-icon name="color-wand-outline"></ion-icon> pass </button>';
+								print '<button type="button" id="passBtn" class="btn btn-primary btn-sm"><i class="bi bi-check-lg"></i> pass </button>';
 						?>						 								
 				</div>			
 				</div>    
@@ -424,26 +435,36 @@ if ($index !== false) {
 					<span style="color: #a8729a;">점검</span>!</h3>
 				  </div>
 				  <!-- 대분류 시작 -->	
-				 <?
-					for ($i=0;$i<count($question);$i++)
-					{
-						$checktmp = 'check' . (string)($i+1) ;
+				 <?php
+					// 질문 배열이 비어있거나 없는 경우 경고 표시
+					if (empty($question)) {
+						echo '<div class="alert alert-warning m-3">이 장비/점검주기 조합에 대한 점검 항목이 정의되지 않았습니다.</div>';
+					} else {
+						// 질문 배열을 순회 (배열에 실제로 있는 항목만)
+						for ($i = 0; $i < count($question); $i++) {
+							if (!isset($question[$i])) continue;
+							
+							$questionText = $question[$i];
+							$checktmp = 'check' . ($i + 1);
+							$checkValue = isset($$checktmp) ? $$checktmp : null;
 				   ?>				
 				  <div class="card-body p-4">
 					<div class="d-flex justify-content-between align-items-center mb-4">
 					  <p class="lead fw-normal mb-0" style="color: #a8729a;"> 
-					 <?=$question[$i]?>
-					&nbsp;&nbsp;&nbsp;&nbsp; 	<span id="ckname<?=$i+1?>" style="color:gray;">
-					<? if($$checktmp !=null)
-						print $$checktmp . ", (점검자) " . $writer ;
-					  else  { ?>
+					 <?php echo htmlspecialchars($questionText); ?>
+					&nbsp;&nbsp;&nbsp;&nbsp; 	<span id="ckname<?php echo $i+1; ?>" style="color:gray;">
+					<?php if($checkValue != null) {
+						echo htmlspecialchars($checkValue) . ", (점검자) " . htmlspecialchars($writer);
+					} else { ?>
 					  </span>
-							<button type="button" id="ckbtn<?=$i+1?>" class="btn btn-secondary btn-sm check-btn"  onclick="checklist('<?=$num?>','<?=$i+1?>');"> 점검완료 </button>
-					  <? } ?>
+							<button type="button" id="ckbtn<?php echo $i+1; ?>" class="btn btn-secondary btn-sm check-btn"  onclick="checklist('<?php echo htmlspecialchars($num); ?>','<?php echo $i+1; ?>');"> 점검완료 </button>
+					  <?php } ?>
 					  </p>              
 					</div>
 					</div>
-					<? } ?>
+					<?php 
+						}
+					} ?>
 					
 				  <!-- 대분류 끝 -->	
 					
@@ -451,26 +472,29 @@ if ($index !== false) {
 					 // 절곡기인 경우는 이미지를 출력해주는 부분을 추가한다.
 					 if($item=='bending01' )
 					 {
-						 print '<div class="d-flex justify-content-between align-items-center mb-4">';
-						  print "<img style='width:25%;height:auto' src='http://8440.co.kr/img/bending/a105.jpg'>";
-						  print "<img style='width:25%;height:auto' src='http://8440.co.kr/img/bending/a101_84.jpg'>";
-						  print "<img style='width:25%;height:auto' src='http://8440.co.kr/img/bending/a101_78.jpg'>";
-						  print '</div>';
-						 print '<div class="d-flex justify-content-between align-items-center mb-4">';				  
-						  print "<img style='width:25%;height:auto' src='http://8440.co.kr/img/bending/a103.jpg'>";
-						  print "<img style='width:25%;height:auto' src='http://8440.co.kr/img/bending/a115.jpg'>";
-						  print "<img style='width:25%;height:auto' src='http://8440.co.kr/img/bending/d605_80.jpg'>";
+						 // 서버/로컬 모두에서 이미지 경로 자동 분기						 
+							// 로컬 개발/운영 서버 구분용
+							if (isset($_SERVER['HTTP_HOST']) && ($_SERVER['HTTP_HOST'] === 'localhost' || $_SERVER['HTTP_HOST'] === '127.0.0.1')) {
+								$img_base = '/img/bending/';
+							} else {
+								$img_base = 'http://8440.co.kr/img/bending/';
+							}
+
+							$img_rows = [
+								['a105.jpg', 'a101_84.jpg', 'a101_78.jpg'],
+								['a103.jpg', 'a115.jpg', 'd605_80.jpg'],
+								['d605_86.jpg', 'd612.jpg', 'd602.jpg'],
+								['d603.jpg']
+							];
+
+					foreach ($img_rows as $row) {
+						print '<div class="d-flex justify-content-between align-items-center mb-4">';
+						foreach ($row as $img) {
+							printf("<img style='width:25%%;height:auto' src='%s%s'>", $img_base, $img);
+						}
 						print '</div>';
-						 print '<div class="d-flex justify-content-between align-items-center mb-4">';				  
-						  print "<img style='width:25%;height:auto' src='http://8440.co.kr/img/bending/d605_86.jpg'>";
-						  print "<img style='width:25%;height:auto' src='http://8440.co.kr/img/bending/d612.jpg'>";
-						  print "<img style='width:25%;height:auto' src='http://8440.co.kr/img/bending/d602.jpg'>";
-						print '</div>';
-						 print '<div class="d-flex justify-content-between align-items-center mb-4">';				  
-						  print "<img style='width:25%;height:auto' src='http://8440.co.kr/img/bending/d603.jpg'>";
-						print '</div>';
-						 
-					 }
+					}
+				 }
 
 				   ?>				
 						  
@@ -506,12 +530,10 @@ if ($index !== false) {
       </div>
     </div>
   </div>		 
-  </div>		 
-  </div>		 
+  </div>
+  </div>
 </form>
-	<!-- ajax 전송으로 DB 수정 -->
-	<? include "../formload.php"; ?>	
-	
+
 	<div id=dummy > </div>
 		
 		
@@ -539,43 +561,7 @@ $(document).ready(function(){
 		
 // 일시로 만든 함수 각 장비의 체크리스트 자료 db 생성을 위해서		
 	$("#doBtn").click(function(){ 
-	//  $("#dummy").load("../dumproDB.php");
-		
-	// console.log(getDayOfWeek('2022-03-26'));
-	// const startDate = '2022-03-26';
-	// const lastDate = '2022-10-31';
-	// var datestr = getDatesStartToLast(startDate, lastDate);
-	// // console.log(datestr);
-    // for(i=0;i<datestr.length;i++)
-	// {
-		// if(getDayOfWeek(datestr[i])=='금')
-		 // {
-        // // DB 추가	
-		       // $("#table").val('mymclist');
-		       // //$("#command").val('update');
-		        // $("#command").val('insert');
-		       // // $("#command").val('delete');  // insert, delete, update
-		       // $("#field").val('checkdate');
-		       // $("#strtmp").val(datestr[i]);
-		       // // $("#recnum").val(num);
-		       // // $("#arr").val('free');
-		   
-				   // // data저장을 위한 ajax처리구문
-					// $.ajax({
-						// url: "../proDB.php",
-						// type: "post",		
-						// data: $("#Form1").serialize(),
-						// dataType:"json",
-						// success : function( data ){
-							// console.log( data);
-						// },
-						// error : function( jqxhr , status , error ){
-							// console.log( jqxhr , status , error );
-						// } 			      		
-					   // });	
-		     	// }  // end of if			   
-			// } // end of for
-			
+	//  $("#dummy").load("../dumproDB.php");	
 			
 			
 		});		
@@ -591,82 +577,82 @@ $(window).bind("beforeunload", function (e){	opener.location.reload();  });
 
 // 점검후 특이사항 기록하기
 function write_memo(num)
-{ 
-        
-        // DB 수정 		
+{
+
+        // DB 수정
 		       $("#table").val('mymclist');
 		       $("#command").val('update');
 		       // $("#command").val('insert');
 		       // $("#command").val('delete');  // insert, delete, update
-		       $("#field").val('trouble');			   
+		       $("#field").val('trouble');
 		       $("#strtmp").val($("#trouble").val());
 		       $("#recnum").val(num);
 		       // $("#arr").val('free');
-		   
+
 		   // data저장을 위한 ajax처리구문
 			$.ajax({
 				url: "../proDB.php",
-				type: "post",		
-				data: $("#Form1").serialize(),
+				type: "post",
+				data: $("#board_form").serialize(),
 				dataType:"json",
 				success : function( data ){
 					console.log( data);
 				},
 				error : function( jqxhr , status , error ){
 					console.log( jqxhr , status , error );
-				} 			      		
-			   });		
+				}
+			   });
 
-		  $('#myModal').modal('show'); 			   
+		  $('#myModal').modal('show');
 }
 
 
 function checklist(num, whichone)
- { 
+ {
          var writer = '<?php echo $writer; ?>' ;
          var writer2 = '<?php echo $writer2;?>';
          var user_name = '<?php echo $user_name; ?>';
-         var question = '<?php echo $questionNum; ?>';  
-		
+         var question = '<?php echo $questionNum; ?>';
+
 		console.log(writer);
-		console.log(user_name); 
+		console.log(user_name);
 		console.log(question);
-		
+
   if(writer == user_name ||  writer2 == user_name || user_name==='김보곤' || user_name==='이경묵' ) // 로그인 이름과 같을때는 기록한다.
 	{
-			// DB 수정 		
+			// DB 수정
 			   $("#table").val('mymclist');
 			   $("#command").val('update');
 			   // $("#command").val('insert');
 			   // $("#command").val('delete');  // insert, delete, update
-			   $("#field").val('check'+ whichone);			   
+			   $("#field").val('check'+ whichone);
 			   $("#strtmp").val(getToday());
 			   $("#recnum").val(num);
 			   $("#arr").val('free');
-			   
+
 			   // check값 form의 변수에 넣어주기
-			   $('#check'+ whichone).val(getToday());			   
-			   
+			   $('#check'+ whichone).val(getToday());
+
 			   // data저장을 위한 ajax처리구문
 				$.ajax({
 					url: "../proDB.php",
-					type: "post",		
-					data: $("#Form1").serialize(),
+					type: "post",
+					data: $("#board_form").serialize(),
 					dataType:"json",
 					success : function( data ){
 						console.log( data);
 					},
 					error : function( jqxhr , status , error ){
 						console.log( jqxhr , status , error );
-					} 			      		
+					}
 				   });		
 				   
-	// 각 주간점검/1개월 점검등 문항을 전부 check했을 경우 완료 done 처리하기			   
+	// 각 주간점검/1개월 점검등 문항을 전부 check했을 경우 완료 done 처리하기
 	// 조건 문항수에 맞는 check가 되었는지 확인한다
 	// 10개 문항을 기준으로 검색해서 처리한다.
 	   var sum = 0;
 	   for (i=1; i<=10 ; i++ )
-	   { 
+	   {
 		  if($('#check'+ i).val() != '' )
 				sum += 1;
 	   }
@@ -679,24 +665,24 @@ function checklist(num, whichone)
 			   $("#command").val('update');
 			   // $("#command").val('insert');
 			   // $("#command").val('delete');  // insert, delete, update
-			   $("#field").val('done');			   
+			   $("#field").val('done');
 			   $("#strtmp").val('1');
 			   $("#recnum").val(num);
 			   $("#arr").val('free');
-					   
+
 			   // data저장을 위한 ajax처리구문
 				$.ajax({
 					url: "../proDB.php",
-					type: "post",		
-					data: $("#Form1").serialize(),
+					type: "post",
+					data: $("#board_form").serialize(),
 					dataType:"json",
 					success : function( data ){
 						console.log( data);
 					},
 					error : function( jqxhr , status , error ){
 						console.log( jqxhr , status , error );
-					} 			      		
-				   });		   
+					}
+				   });
 		  }
 			   
 				   // 화면 변경하기 

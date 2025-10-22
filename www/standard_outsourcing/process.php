@@ -1,113 +1,132 @@
 <?php
+require_once __DIR__ . '/../bootstrap.php';
 
-// php warning 안나오게 하는 방법
-ini_set('display_errors', 'Off');
+/**
+ * 사급업체 데이터 처리
+ * 
+ * 업체 데이터 삽입/수정/삭제 처리
+ */
 
-// DB이름 설정
-$DB = "mirae8440.steelcompany";
+// JSON 응답 헤더 설정
+header("Content-Type: application/json; charset=utf-8");
 
-isset($_REQUEST["num"])  ? $num=$_REQUEST["num"] :   $num=''; 
-isset($_REQUEST["SelectWork"])  ? $SelectWork = $_REQUEST["SelectWork"] :   $SelectWork=""; 
-isset($_REQUEST["company"])  ? $company = $_REQUEST["company"] :   $company=""; 
+// 세션 변수 초기화
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+$user_name = $_SESSION["name"] ?? '';
 
-if((int)$num == 0)
-	$SelectWork="insert"; 
+// 테이블명
+$tablename = "steelcompany";
 
-// var_dump($order_prod_des);
-              
-require_once("../lib/mydb.php");
-$pdo = db_connect();	
+// 요청 변수 초기화
+$num = $_REQUEST["num"] ?? '';
+$SelectWork = $_REQUEST["SelectWork"] ?? '';
+$company = $_REQUEST["company"] ?? '';
+
+// num이 0이면 insert로 처리
+if ((int)$num == 0) {
+    $SelectWork = "insert";
+}
 
 include "_request.php";
 
-if($SelectWork=="update")  {			
-
-// var_dump($order_prod_cd);
-
-	   try{
-		 $pdo->beginTransaction();
-									// where 구문이 있음 주의 update에 해당함.
-		 $sql = "update " . $DB . " set  company = ?  ";
-		 $sql .= " where num=? LIMIT 1 ";                               // 마지막 where num=? LIMIT 1
-			 
-			$stmh = $pdo->prepare($sql); 
-
-			$stmh->bindValue(1 ,$company         , PDO::PARAM_STR);
-			$stmh->bindValue(2,$num 		     , PDO::PARAM_STR);		 
-			 
-			$stmh->execute();
-			$pdo->commit(); 
-			 } catch (PDOException $Exception) {
-				  $pdo->rollBack();
-			   print "오류: ".$Exception->getMessage();
-			 }   	 
-			 
-	  
-		
-}   // end of $SelectWork if-statement
-	
-
-			
-if( $SelectWork=="insert")  {	 // 선택에 따라 index로 또는 list로 분기한다. $num이 Null일때	
-			
-	// 데이터 신규 등록하는 구간		
-	
-	   try{
-		$pdo->beginTransaction();
-		 
-		$sql = "insert into " . $DB . " ( company) "; 		
-		$sql .= " values(? ) ";		
-		 
- 		$stmh = $pdo->prepare($sql); 
-
-		$stmh->bindValue(1 ,$company           , PDO::PARAM_STR);	
-		
-			
-		    $stmh->execute();
-			 $pdo->commit(); 
-			 } catch (PDOException $Exception) {
-				  $pdo->rollBack();
-			   print "오류: ".$Exception->getMessage();
-			 }   	 
-			 
-// parentKey 추출
-
-        $sql = "select * from  " . $DB . "  order by num desc";
-		 try{  
-			  $stmh = $pdo->query($sql);      // 검색조건에 맞는글 stmh
-			  $temp = $stmh->rowCount();
-			  $row = $stmh->fetch(PDO::FETCH_ASSOC);
-			  $num=$row["num"];
-			  
-			 } catch (PDOException $Exception) {
-					  print "오류: ".$Exception->getMessage();
-					  }			  			 					  
-	  // print "마지막 parentKey = " . $num;
-
-// echo $num;		  
-
-  
-}   // end of $SelectWork if-statement 
-
-
-if($SelectWork=="delete")  {   // data 삭제시 
-   
-  
-   try{									// esmaindb의 자료를 삭제한다.
-     $pdo->beginTransaction();
-     $sql = "delete from  " . $DB . "  where num = ?";  
-     $stmh = $pdo->prepare($sql);
-     $stmh->bindValue(1,$num,PDO::PARAM_STR);      
-     $stmh->execute();  
-
-     $pdo->commit();
-	 
-     } catch (Exception $ex) {
+// 수정 모드
+if ($SelectWork == "update") {
+    try {
+        $pdo->beginTransaction();
+        $sql = "update " . $DB . "." . $tablename . " set company = ? where num = ? LIMIT 1";
+        
+        $stmh = $pdo->prepare($sql);
+        $stmh->bindValue(1, $company, PDO::PARAM_STR);
+        $stmh->bindValue(2, $num, PDO::PARAM_INT);
+        
+        $stmh->execute();
+        $pdo->commit();
+    } catch (PDOException $Exception) {
         $pdo->rollBack();
-        print "오류: ".$Exception->getMessage();
-   }
-
+        error_log("데이터 수정 오류: " . $Exception->getMessage());
+        echo json_encode(array(
+            "success" => false,
+            "message" => "데이터 수정 중 오류가 발생했습니다.",
+            "error" => $Exception->getMessage()
+        ), JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 }
 
-?>
 
+// 신규 작성 모드
+if ($SelectWork == "insert") {
+    // 데이터 신규 등록하는 구간
+    try {
+        $pdo->beginTransaction();
+        
+        $sql = "insert into " . $DB . "." . $tablename . " (company) values(?)";
+        
+        $stmh = $pdo->prepare($sql);
+        $stmh->bindValue(1, $company, PDO::PARAM_STR);
+        
+        $stmh->execute();
+        $pdo->commit();
+    } catch (PDOException $Exception) {
+        $pdo->rollBack();
+        error_log("데이터 삽입 오류: " . $Exception->getMessage());
+        echo json_encode(array(
+            "success" => false,
+            "message" => "데이터 삽입 중 오류가 발생했습니다.",
+            "error" => $Exception->getMessage()
+        ), JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    
+    // 새로 삽입된 레코드의 num 추출
+    try {
+        $sql = "select * from " . $DB . "." . $tablename . " order by num desc limit 1";
+        $stmh = $pdo->prepare($sql);
+        $stmh->execute();
+        $row = $stmh->fetch(PDO::FETCH_ASSOC);
+        if ($row) {
+            $num = $row["num"];
+        }
+    } catch (PDOException $Exception) {
+        error_log("num 추출 오류: " . $Exception->getMessage());
+        echo json_encode(array(
+            "success" => false,
+            "message" => "데이터 번호 추출 중 오류가 발생했습니다.",
+            "error" => $Exception->getMessage()
+        ), JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+}
+
+// 삭제 모드
+if ($SelectWork == "delete") {
+    try {
+        $pdo->beginTransaction();
+        $sql = "delete from " . $DB . "." . $tablename . " where num = ?";
+        $stmh = $pdo->prepare($sql);
+        $stmh->bindValue(1, $num, PDO::PARAM_INT);
+        $stmh->execute();
+        $pdo->commit();
+    } catch (Exception $ex) {
+        $pdo->rollBack();
+        error_log("데이터 삭제 오류: " . $ex->getMessage());
+        echo json_encode(array(
+            "success" => false,
+            "message" => "데이터 삭제 중 오류가 발생했습니다.",
+            "error" => $ex->getMessage()
+        ), JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+}
+
+// 성공 응답
+$data = array(
+    "success" => true,
+    "num" => $num,
+    "message" => $SelectWork == "update" ? "데이터가 성공적으로 수정되었습니다." : 
+                ($SelectWork == "delete" ? "데이터가 성공적으로 삭제되었습니다." : "데이터가 성공적으로 추가되었습니다.")
+);
+
+// JSON 출력
+echo json_encode($data, JSON_UNESCAPED_UNICODE);
+?>

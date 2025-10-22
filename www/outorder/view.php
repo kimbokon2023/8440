@@ -1,13 +1,12 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php
+require_once __DIR__ . '/../bootstrap.php';
 require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
 
 if(!isset($_SESSION["level"]) || $_SESSION["level"]>8) {
 		 sleep(1);
-	          header("Location:" . $WebSite . "login/login_form.php"); 
+	          header("Location:" . getBaseUrl() . "/login/login_form.php");
          exit;
-   }  
-   
-include getDocumentRoot() . "/common.php";
+   }
  
     // 첫 화면 표시 문구
  $title_message = '외주발주 수주내역'; 
@@ -43,6 +42,7 @@ $num = $_REQUEST["num"] ?? '';
 $search = $_REQUEST["search"] ?? '';
 $find = $_REQUEST["find"] ?? '';
 $tablename = $_REQUEST["tablename"] ?? 'outorder';
+$menu = $_REQUEST["menu"] ?? '';
 
 require_once includePath('lib/mydb.php');
 $pdo = db_connect();	
@@ -64,8 +64,8 @@ $pdo = db_connect();
 	$testday=trans_date($testday);
 	$lc_draw=trans_date($lc_draw);
 	$lclaser_date=trans_date($lclaser_date);
-	$lclbending_date=trans_date($lclbending_date);
-	$lclwelding_date=trans_date($lclwelding_date);
+	$lcbending_date=trans_date($lcbending_date);
+	$lcwelding_date=trans_date($lcwelding_date);
 	$lcpainting_date=trans_date($lcpainting_date);
 	$lcassembly_date=trans_date($lcassembly_date);
 	$main_draw=trans_date($main_draw);			
@@ -98,9 +98,9 @@ $pdo = db_connect();
      }
 	 
 
-// 초기 프로그램은 $num사용 이후 $id로 수정중임  
-$id=$num;  
-$author_id = $item_id  ;
+// 초기 프로그램은 $num사용 이후 $id로 수정중임
+$id=$num;
+$author_id = $num;
   
 require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
 ?> 
@@ -134,18 +134,18 @@ require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, ima
 	<div class="d-flex justify-content-center mt-3 mb-1"> 		
 	   <h4>  <?=$title_message?>  </h4>
 	</div>		
-  	<div class="d-flex justify-content-start mt-2 mb-2 ">	
-		<button class="btn btn-dark btn-sm me-1" id="closeBtn" > <ion-icon name="close-outline"></ion-icon> 창닫기 </button>
-		<a href="write_form.php?mode=modify&num=<?=$num?>&page=<?=$page?>&search=<?=$search?>&find=<?=$find?>&process=<?=$process?>&yearcheckbox=<?=$yearcheckbox?>&year=<?=$year?>&check=<?=$check?>&output_check=<?=$output_check?>&team_check=<?=$team_check?>&plan_output_check=<?=$plan_output_check?>&page=<?=$page?>&cursort=<?=$cursort?>&sortof=<?=$sortof?>&stable=1&check_draw=<?=$check_draw?>">
-		<button type="button" class="btn btn-dark btn-sm me-1" ><ion-icon name="color-wand-outline"></ion-icon> 수정</button> 						
-		</a>
-		<? if($user_name !== '덴크리' && $user_name !== '서한컴퍼니' && $user_name !== '다온텍' )  { ?>				
+  	<div class="d-flex justify-content-start mt-2 mb-2 ">
+		<button class="btn btn-dark btn-sm me-1" id="closeBtn" > <ion-icon name="close-outline"></ion-icon> 창닫기 </button>		
+		<a href="write_form.php?mode=modify&num=<?=$num?>">
+		<button type="button" class="btn btn-dark btn-sm me-1" ><i class="bi bi-pencil-fill"></i> 수정</button>
+		</a>		
+		<?php if($user_name !== '덴크리' && $user_name !== '서한컴퍼니' && $user_name !== '다온텍' )  { ?>				
 		<button type="button" class="btn btn-dark btn-sm me-1" onclick="window.location.href='write_form.php';"> <ion-icon name="pencil-outline"></ion-icon> 신규 </button>
 		
 		<button type="button" class="btn btn-primary btn-sm me-1" onclick="window.location.href='copy_data.php?mode=copy&num=<?=$num?>'"> <ion-icon name="copy-outline"></ion-icon> 데이터 복사 </button> 						
 		<button id="changeBtn" type="button" class="btn btn-danger btn-sm me-1" > <ion-icon name="transgender-outline"></ion-icon> 발주서변경 전달 </button> 								
 		<button type="button" class="btn btn-danger btn-sm me-1" id="delBtn" > <ion-icon name="trash-outline"></ion-icon>  삭제 </button> 
-		<? } ?>		 
+		<?php } ?>		 
 		 <button type="button" class="btn btn-success btn-sm me-1" onclick="popupCenter('transform.php?num=<?=$num?>',' 발주서 인쇄', 1200,800 );"> <ion-icon name="print-outline"></ion-icon> 발주서 </button> 		 		 
 			<?php if( $level <=5 )
 				   print  '<button id=confirmBtn type="button" class="btn btn-warning btn-sm me-1" disabled > <ion-icon name="checkmark-done-outline"></ion-icon> (업체용) 발주서변경 확인완료 </button> '; 		   

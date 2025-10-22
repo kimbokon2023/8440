@@ -632,39 +632,39 @@ input{
 				<td>12인승 이하</td>
 				<td>
 				   <div class="d-flex justify-content-center">
-						<span class="w-75 text-end"><?= number_format($readIni['lc_unit_12']) ?></span>
+						<span class="w-75 text-end"><?= number_format((float)str_replace(',', '', $readIni['lc_unit_12'] ?? 0)) ?></span>
 					</div>
 				</td>
 				<td>
-				   <div class="d-flex justify-content-center">			
-						<span class="w-75 text-end"><?= number_format($readIni['bon_unit_12']) ?></span>
-					</div>            
+				   <div class="d-flex justify-content-center">
+						<span class="w-75 text-end"><?= number_format((float)str_replace(',', '', $readIni['bon_unit_12'] ?? 0)) ?></span>
+					</div>
 				</td>
 			</tr>
 			<tr>
 				<td>13인승 이상 17인승 이하</td>
 				<td>
-				   <div class="d-flex justify-content-center">			
-						<span class="w-75 text-end"><?= number_format($readIni['lc_unit_13to17']) ?></span>
-					</div>				
+				   <div class="d-flex justify-content-center">
+						<span class="w-75 text-end"><?= number_format((float)str_replace(',', '', $readIni['lc_unit_13to17'] ?? 0)) ?></span>
+					</div>
 				</td>
 				<td>
-				   <div class="d-flex justify-content-center">			
-						<span class="w-75 text-end"><?= number_format($readIni['bon_unit_13to17']) ?></span>
-					</div>				
+				   <div class="d-flex justify-content-center">
+						<span class="w-75 text-end"><?= number_format((float)str_replace(',', '', $readIni['bon_unit_13to17'] ?? 0)) ?></span>
+					</div>
 				</td>
 			</tr>
 			<tr>
 				<td>18인승 이상</td>
 				<td>
-				   <div class="d-flex justify-content-center">			
-						<span class="w-75 text-end"><?= number_format($readIni['lc_unit_18']) ?></span>
-					</div>				
+				   <div class="d-flex justify-content-center">
+						<span class="w-75 text-end"><?= number_format((float)str_replace(',', '', $readIni['lc_unit_18'] ?? 0)) ?></span>
+					</div>
 				</td>
 				<td>
-				   <div class="d-flex justify-content-center">			
-						<span class="w-75 text-end"><?= number_format($readIni['bon_unit_18']) ?></span>
-					</div>				
+				   <div class="d-flex justify-content-center">
+						<span class="w-75 text-end"><?= number_format((float)str_replace(',', '', $readIni['bon_unit_18'] ?? 0)) ?></span>
+					</div>
 				</td>
 			</tr>
 		</tbody>

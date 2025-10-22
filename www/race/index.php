@@ -1,15 +1,5 @@
 <?php
-require_once __DIR__ . '/../common/functions.php';
-?>
- <?php
- session_start(); 
- 
-  if(!isset($_SESSION["level"]) || $_SESSION["level"]>8) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(1);
-         header("Location:" . $_SERVER["DOCUMENT_ROOT"] . "/login/login_form.php"); 
-         exit;
-   } 
+require_once __DIR__ . '/../bootstrap.php';
  
 include getDocumentRoot() . '/load_header.php' ;
  

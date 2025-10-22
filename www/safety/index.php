@@ -1,14 +1,27 @@
 <?php
-require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
- 
- if(!isset($_SESSION["level"]) || $level>8) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(2);
-	          header("Location:https://8440.co.kr/login/login_form.php"); 
-         exit;
-   }
-   
-ini_set('display_errors','1');  // 화면에 warning 없애기	
+/**
+ * 위험성평가 메인 페이지
+ * 로컬 및 서버 환경 모두 지원
+ */
+
+require_once __DIR__ . '/../bootstrap.php';
+
+// 세션 변수 초기화
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+$level = $_SESSION["level"] ?? '';
+$user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["userid"] ?? '';
+$WebSite = $_SESSION["WebSite"] ?? '';
+
+// 권한 체크
+if (!isset($_SESSION["level"]) || $level > 8) {
+    /*   alert("관리자 승인이 필요합니다."); */
+    sleep(2);
+    header("Location:" . getBaseUrl() . "/login/login_form.php");
+    exit;
+}
+
+ini_set('display_errors', '1');  // 에러 표시 활성화 (개발용)
 
 $today = date("Y-m-d");
 
@@ -21,7 +34,7 @@ $today = date("Y-m-d");
 <meta property="og:description" content="정확한 업무처리를 위한 필수사이트!">
 <meta property="og:image" content="https://8440.co.kr/img/miraethumbnail.jpg"> 
 
- <?php include getDocumentRoot() . '/load_header.php' ?>
+<?php include includePath('load_header.php') ?>
 
 <title> 미래기업 안전보건 </title>  
 
@@ -30,7 +43,7 @@ $today = date("Y-m-d");
 <body>
 
   
-<? include getDocumentRoot() . '/myheader.php'; ?>   
+<?php include includePath('myheader.php'); ?>   
     
 <div class="container mb-3"  >
 	<div class="card">

@@ -1,4 +1,5 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php
+require_once __DIR__ . '/../common/functions.php';
 require_once(includePath('session.php'));  
 
  if(!isset($_SESSION["level"]) || $level>=5) {
@@ -198,24 +199,24 @@ $sumcount = count($steelsource_item);
 						</table>
 					</div>			  
 				  
-				  <?  } 
-						 else
-						 {
+				  <?php  } 
+					 else
+					 {
 				   ?>
-							<div class="container mb-2">
-						<table class="table table-bordered">
-							<thead>
-								<tr>
-									<th colspan="<?php echo count($approvals); ?>" class="text-center fs-5">결재 진행 전</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>								
-								</tr>
-							</tbody>
-						</table>
-					</div>	
-			  <?  }   ?>
+						<div class="container mb-2">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th colspan="<?php echo count($approvals); ?>" class="text-center fs-5">결재 진행 전</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>								
+							</tr>
+						</tbody>
+					</table>
+				</div>	
+		  <?php  }   ?>
 				
 				
 		 </div> 			
@@ -229,15 +230,15 @@ $sumcount = count($steelsource_item);
 						<button type="button"   class="btn btn-dark btn-sm" onclick="location.href='write_form.php?mode=modify&num=<?=$num?>'" > <i class="bi bi-pencil-square"></i>  수정 </button> &nbsp;
 						<button type="button"   class="btn btn-danger btn-sm" onclick="javascript:del('delete.php?num=<?=$num?>&page=<?=$page?>')" > <i class="bi bi-trash"></i>  삭제 </button>	 &nbsp;
 						<button type="button"   class="btn btn-dark btn-sm" onclick="location.href='write_form.php'" > <i class="bi bi-pencil"></i>  신규 </button>		&nbsp;										
-						<button type="button"   class="btn btn-primary btn-sm" onclick="location.href='write_form.php?mode=copy&num=<?=$num?>'" > <i class="bi bi-copy"></i> 복사 </button>	&nbsp;
-						
-						<? 	 if($inventory!=='이관')  { ?>
-						 <button type="button"   id="inputdoneAndMove"  class="btn btn-success btn-sm"> <i class="bi bi-kanban"></i> 당일입고 & 원자재등록 </button>	&nbsp;
-						<? } ?>			 
-						<? 	 if($which=='3')  { ?>
-							<button type="button"  id="inputSheetBtn"  class="btn btn-dark btn-sm"> <i class="bi bi-chat-square-dots-fill"></i> 수입 검사서  </button>  &nbsp; 
-							<button type="button"  id="PrintinspectionBtn"  class="btn btn-dark btn-sm"> <i class="bi bi-chat-square-dots-fill"></i> 자체 검사서 </button>
-								<? } ?>
+					<button type="button"   class="btn btn-primary btn-sm" onclick="location.href='write_form.php?mode=copy&num=<?=$num?>'" > <i class="bi bi-copy"></i> 복사 </button>	&nbsp;
+					
+					<?php if($inventory!=='이관')  { ?>
+					 <button type="button"   id="inputdoneAndMove"  class="btn btn-success btn-sm"> <i class="bi bi-kanban"></i> 당일입고 & 원자재등록 </button>	&nbsp;
+					<?php } ?>			 
+					<?php if($which=='3')  { ?>
+						<button type="button"  id="inputSheetBtn"  class="btn btn-dark btn-sm"> <i class="bi bi-chat-square-dots-fill"></i> 수입 검사서  </button>  &nbsp; 
+						<button type="button"  id="PrintinspectionBtn"  class="btn btn-dark btn-sm"> <i class="bi bi-chat-square-dots-fill"></i> 자체 검사서 </button>
+							<?php } ?>
 				 </div> 			
 			 </div> 			
 	   <div class="col-sm-3">	
@@ -264,19 +265,31 @@ $sumcount = count($steelsource_item);
             <label>진행상태</label>
           </td>
           <td>
-				<?php	 		  
-			 $aryreg=array();
-			 if($which=='') $which='2';
-			 switch ($which) {
-				case   "1"             : $aryreg[0] = "checked" ; break;
-				case   "2"             :$aryreg[1] =  "checked" ; break;
-				case   "3"             :$aryreg[2] =  "checked" ; break;
-				default: break;
-			}		 
-		   ?>		  			  
-				   <span class="text-primary">  요청  </span> &nbsp;      <input  type="radio" <?=$aryreg[0]?> name=which value="1"> &nbsp;&nbsp;
-					&nbsp;   <span class="text-danger">  발주보냄  </span> &nbsp;            <input  type="radio" <?=$aryreg[1]?>  name=which value="2">   &nbsp;&nbsp; 
-					&nbsp;  <span class="text-dark">  입고완료  </span> &nbsp;           <input  type="radio" <?=$aryreg[2]?>  name=which value="3">   &nbsp;&nbsp;			
+			<?php
+		 // 진행상태 라디오 버튼 초기화
+		 $aryreg = array('', '', '');  // 인덱스 0, 1, 2 초기화
+		 if($which == '') $which = '2';
+		 
+		 switch ($which) {
+			case "1":
+				$aryreg[0] = "checked";
+				break;
+			case "2":
+				$aryreg[1] = "checked";
+				break;
+			case "3":
+				$aryreg[2] = "checked";
+				break;
+			default:
+				break;
+		}
+	   ?>
+			   <span class="text-primary">요청</span> &nbsp;
+			   <input type="radio" <?= $aryreg[0] ?> name="which" value="1"> &nbsp;&nbsp;
+			   &nbsp; <span class="text-danger">발주보냄</span> &nbsp;
+			   <input type="radio" <?= $aryreg[1] ?> name="which" value="2"> &nbsp;&nbsp;
+			   &nbsp; <span class="text-dark">입고완료</span> &nbsp;
+			   <input type="radio" <?= $aryreg[2] ?> name="which" value="3"> &nbsp;&nbsp;
           </td>
         </tr>
         <tr>

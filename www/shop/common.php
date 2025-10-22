@@ -1,5 +1,6 @@
 <?php
-$catagory_arr=array();
+// Category configuration for shop items
+$catagory_arr = array();
 array_push($catagory_arr, "부엉이");
 array_push($catagory_arr, "비둘기십자가");
 array_push($catagory_arr, "달마");
@@ -14,5 +15,4 @@ array_push($catagory_arr, "오페라하우스");
 array_push($catagory_arr, "축구인");
 
 $catagory_count = count($catagory_arr);
-
 ?>

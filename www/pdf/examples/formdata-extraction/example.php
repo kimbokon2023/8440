@@ -1,22 +1,21 @@
 <?php
-	include ( '../../PdfToText.phpclass' ) ;
+	include('../../PdfToText.phpclass');
 
-	if  ( php_sapi_name ( )  !=  'cli' )
-		echo ( "<pre>" ) ;
+	function output($message) {
+		if (php_sapi_name() == 'cli') {
+			echo($message);
+		} else {
+			echo(nl2br($message));
+		}
+	}
 
+	$file = 'sample';
+	$pdf = new PdfToText("$file.pdf");
 
-	echo "Form data extraction using an XML definition file (sample.pdf) :\n" ;
-	$pdf	=  new PdfToText ( 'sample.pdf' ) ;
+	output("Original file contents :\n");
+	output(file_get_contents("$file.txt"));
+	output("-----------------------------------------------------------\n");
 
-	if  ( $pdf -> HasFormData ( ) )
-		var_dump ( $pdf -> GetFormData ( 'sample.xml' ) ) ;
-
-	echo "\n" ;
-
-	echo "Form data extraction WITHOUT using an XML definition file :\n" ;
-	$pdf	=  new PdfToText ( 'sample.pdf' ) ;
-
-	if  ( $pdf -> HasFormData ( ) )
-		var_dump ( $pdf -> GetFormData ( ) ) ;
-
-	$w9  = $pdf -> GetFormData ( ) ;
+	output("Extracted file contents :\n");
+	output(isset($pdf->Text) ? $pdf->Text : '');
+?>

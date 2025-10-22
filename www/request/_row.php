@@ -34,6 +34,7 @@ $al_content = $row["al_content"];
 $status = $row["status"];
 $e_confirm = $row["e_confirm"];
 $e_confirm_id = $row["e_confirm_id"];
+$stock = $row["stock"] ?? 0;  // 재고량
 
 
 ?>

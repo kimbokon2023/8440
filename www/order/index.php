@@ -4,8 +4,7 @@
  * 로컬 및 서버 환경 모두 지원
  */
 
-require_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session.php'));
+require_once __DIR__ . '/../bootstrap.php';
 
 // 세션 변수 초기화 (?? '' 형태)
 $level = $_SESSION["level"] ?? 999;
@@ -25,9 +24,6 @@ if (!isset($_SESSION["level"]) || $level > 5) {
     header("Location: {$base_url}/login/logout.php");
     exit;
 }
-
-include getDocumentRoot() . "/common.php";
-require_once(includePath('lib/mydb.php'));
 
 // 첫 화면 표시 문구
 $title_message = '구매발주서 관리';

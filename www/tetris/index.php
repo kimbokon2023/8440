@@ -1,168 +1,148 @@
- <!-- Work List -->
+<!-- 미래기업 테트리스 게임 -->
 <?php
- session_start();
- $user_name= $_SESSION["name"];
- $level= $_SESSION["level"];
- if(!isset($_SESSION["level"])) {
-		 sleep(2);
-         header ("Location:http://8440.co.kr/login/logout.php");
-         exit;
-   }
-   
-header ("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // Date in the past
-header ("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
-header ("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1
-header ("Pragma: no-cache"); // HTTP/1.0
-header ("Expires: 0"); // rfc2616 - Section 14.21   
+require_once __DIR__ . '/../bootstrap.php';
 
-//header("Refresh:0");  // reload refresh   
-	  
- if(isset($_REQUEST["new"]))
-       $new=$_REQUEST["new"];
-   else
-       $new="";   
-	  
- ?>
+// 세션 변수 초기화
+$user_name = $_SESSION["name"] ?? '';
+$level = $_SESSION["level"] ?? 999;
+$DB = $_SESSION["DB"] ?? 'mirae8440';
 
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>미래기업 추억의 테트리스</title>
-<script src="//cdn.jsdelivr.net/npm/alertifyjs@1.12.0/build/alertify.min.js"></script>
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.12.0/build/css/alertify.min.css"/> 
+// 권한 체크
+if (!isset($_SESSION["level"])) {
+    sleep(2);
+    header("Location:" . getBaseUrl() . "/login/logout.php");
+    exit;
+}
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<!-- CSS only -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" >
-<script src="../js/common.js"></script>  
-<link rel="stylesheet" href="css/style.css">
-	
+// 캐시 방지 헤더
+header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // Date in the past
+header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+header("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1
+header("Pragma: no-cache"); // HTTP/1.0
+header("Expires: 0"); // rfc2616 - Section 14.21
+
+include getDocumentRoot() . '/load_header.php';
+
+// 요청 변수 초기화
+$new = $_REQUEST["new"] ?? '';
+?>
+    <title>미래기업 추억의 테트리스</title>    
+    
+    <!-- Common JS & CSS -->
+    <script src="../js/common.js"></script>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+<?php include getDocumentRoot() . '/myheader.php' ?>
+<input id="score" name="score" type="hidden">
+<input id="restartVal" name="restartVal" type="hidden">
+<input id="user_name" name="user_name" type="hidden" value="<?= htmlspecialchars($user_name, ENT_QUOTES, 'UTF-8') ?>">
 
- <input id=score name=score type=hidden >
- <input id=restartVal name=restartVal type=hidden >
- <input id=user_name name=user_name type=hidden value="<?=$user_name?>">
- 
-<!--
-                <div class="input-group p-3 mb-0">	                                    
-                     <span class="input-group-text align-items-center" style="width:450px;">											
-							랭킹 기록 (일시정지 ESC키)							
-							</span>							
-                          <H4> <span style="color:blue;">   &nbsp; &nbsp; &nbsp;  미래기업 테트리스 최강자(숨은 고수를 찾아라!) </span> </h4>
-						</div>						 -->		
-				
-  <div class=total>
-	<div class="total leftsection" >  				
-	    <div class="input-group p-0 mb-2">	 
-			 <span class="input-group-text align-items-center" style="width:50px;" >순위</span>
-			 <span class="input-group-text align-items-center" style="width:100px;" >성명</span>
-			 <span class="input-group-text align-items-center" style="width:100px;" >점수</span>
-			 <span class="input-group-text align-items-center" style="width:200px;" >기록일시</span>
-			 <span class="input-group-text align-items-center" style="width:250px;" >랭킹 기록 (일시정지 ESC키)	</span>
-	</div>	
-		
- <?php
- 
-require_once("../lib/mydb.php");
-$pdo = db_connect();	
-
-$sql="select * from mirae8440.tetris order by score desc";
-$start_num =1;
-   try{  
-	  $stmh = $pdo->query($sql);         // 검색 조건에 맞는 쿼리 전체 개수
-      $temp=$stmh->rowCount();    
- 	  
-	  while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {	
-	  if($start_num<=30) {	  
-		  $num=$row["num"];
-		  $rec_date=$row["rec_date"];
-		  $name=$row["name"];
-		  $score=$row["score"];
-	  
-?>	  
-	 	    <div class="input-group p-0 mb-0">	 
-			 <span class="input-group-text align-items-center" style="width:50px;" ><?=$start_num?> </span>
-			 <span class="input-group-text align-items-center" style="width:100px;" ><?=$name?></span>
-			 <span class="input-group-text align-items-center" style="width:100px;" ><?=$score?></span>
-			 <span class="input-group-text align-items-center" style="width:200px;" ><?=$rec_date?></span>
-	          </div>	 	  
-<?php	  
-					}
-	     	  $start_num++;
-	 } 
-  } catch (PDOException $Exception) {
-     print "오류: ".$Exception->getMessage();
-  } 
-?> 
-   	
-	</div>
-    <div class="total wrapper">
-        <div class="game-text">		
-		
-					<?	
-					
-			echo '			    <div class="input-group p-0 mb-2">	 
-			 <span class="input-group-text align-items-center" style="width:50px;" >순위</span>
-			 <span class="input-group-text align-items-center" style="width:100px;" >성명</span>
-			 <span class="input-group-text align-items-center" style="width:100px;" >점수</span>
-			 <span class="input-group-text align-items-center" style="width:200px;" >기록일시</span>
-					</div>	';
-					
-				require_once("../lib/mydb.php");
-				$pdo = db_connect();	
-				$sql="select * from mirae8440.tetris order by score desc";
-				$start_num =1;
-				   try{  
-					  $stmh = $pdo->query($sql);         // 검색 조건에 맞는 쿼리 전체 개수
-					  $temp=$stmh->rowCount();    
-					  
-					  while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {			   
-					  if($start_num<=10) {
-						  $num=$row["num"];
-						  $rec_date=$row["rec_date"];
-						  $name=$row["name"];
-						  $score=$row["score"];	  
-		  
-						  print		'<div class="input-group p-0 mb-0">	 <span class="input-group-text align-items-center" style="width:50px;" > ' . $start_num ;
-						  print      '</span> <span class="input-group-text align-items-center" style="width:100px;" >' . $name ;
-						  print	     '</span> <span class="input-group-text align-items-center" style="width:100px;" >' . $score ;
-						  print   '</span> <span class="input-group-text align-items-center" style="width:200px;" >' . $rec_date ;
-						  print    '</span> </div>	'; 	  
-					          }
-							  $start_num++;
-					 } 
-				  } catch (PDOException $Exception) {
-					 print "오류: ".$Exception->getMessage();
-				  } 
-				?> 	
-		
-            <span> 게임종료 </span>
-            <button id=reStartBtn >다시시작</button>
-
+<div class="total">
+    <!-- 왼쪽 랭킹 섹션 -->
+    <div class="total leftsection">
+        <div class="input-group p-0 mb-2">
+            <span class="input-group-text align-items-center" style="width:50px;">순위</span>
+            <span class="input-group-text align-items-center" style="width:100px;">성명</span>
+            <span class="input-group-text align-items-center" style="width:100px;">점수</span>
+            <span class="input-group-text align-items-center" style="width:200px;">기록일시</span>
+            <span class="input-group-text align-items-center" style="width:250px;">랭킹 기록 (일시정지 ESC키)</span>
         </div>
+
+<?php
+// 랭킹 TOP 30 조회
+$sql = "select * from " . $DB . ".tetris order by score desc";
+$start_num = 1;
+
+try {
+    $stmh = $pdo->query($sql);
+    $temp = $stmh->rowCount();
+
+    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+        if ($start_num <= 30) {
+            $num = $row["num"] ?? '';
+            $rec_date = $row["rec_date"] ?? '';
+            $name = $row["name"] ?? '';
+            $score = $row["score"] ?? 0;
+?>
+        <div class="input-group p-0 mb-0">
+            <span class="input-group-text align-items-center" style="width:50px;"><?= $start_num ?></span>
+            <span class="input-group-text align-items-center" style="width:100px;"><?= htmlspecialchars($name, ENT_QUOTES, 'UTF-8') ?></span>
+            <span class="input-group-text align-items-center" style="width:100px;"><?= $score ?></span>
+            <span class="input-group-text align-items-center" style="width:200px;"><?= $rec_date ?></span>
+        </div>
+<?php
+        }
+        $start_num++;
+    }
+} catch (PDOException $Exception) {
+    print "오류: " . $Exception->getMessage();
+}
+?>
+    </div>
+    <!-- 게임 화면 섹션 -->
+    <div class="total wrapper">
+        <div class="game-text">
+            <div class="input-group p-0 mb-2">
+                <span class="input-group-text align-items-center" style="width:50px;">순위</span>
+                <span class="input-group-text align-items-center" style="width:100px;">성명</span>
+                <span class="input-group-text align-items-center" style="width:100px;">점수</span>
+                <span class="input-group-text align-items-center" style="width:200px;">기록일시</span>
+            </div>
+
+<?php
+// 게임 화면 랭킹 TOP 10 조회
+$sql2 = "select * from " . $DB . ".tetris order by score desc";
+$start_num2 = 1;
+
+try {
+    $stmh2 = $pdo->query($sql2);
+    $temp2 = $stmh2->rowCount();
+
+    while ($row2 = $stmh2->fetch(PDO::FETCH_ASSOC)) {
+        if ($start_num2 <= 10) {
+            $num2 = $row2["num"] ?? '';
+            $rec_date2 = $row2["rec_date"] ?? '';
+            $name2 = $row2["name"] ?? '';
+            $score2 = $row2["score"] ?? 0;
+?>
+            <div class="input-group p-0 mb-0">
+                <span class="input-group-text align-items-center" style="width:50px;"><?= $start_num2 ?></span>
+                <span class="input-group-text align-items-center" style="width:100px;"><?= htmlspecialchars($name2, ENT_QUOTES, 'UTF-8') ?></span>
+                <span class="input-group-text align-items-center" style="width:100px;"><?= $score2 ?></span>
+                <span class="input-group-text align-items-center" style="width:200px;"><?= $rec_date2 ?></span>
+            </div>
+<?php
+        }
+        $start_num2++;
+    }
+} catch (PDOException $Exception) {
+    print "오류: " . $Exception->getMessage();
+}
+?>
+
+            <span>게임종료</span>
+            <button id="reStartBtn">다시시작</button>
+        </div>
+        
         <div class="score">0</div>
         <div class="playground">
             <ul></ul>
         </div>
-    </div>    
-   </div>
-<div id="vacancy" style="display:none;" > 	</div>    	
-    
-<script src="js/tetris.js" type="module"> </script>   
+    </div>
+</div>
+
+<div id="vacancy" style="display:none;"></div>    	
+
+<script src="js/tetris.js" type="module"></script>
 
 <script>
-$(document).ready(function(){	
-					 $("#reStartBtn").click(function(){   
-							$("#restartVal").val('1'); 						 
-					 });	
+$(document).ready(function() {
+    $("#reStartBtn").click(function() {
+        $("#restartVal").val('1');
+    });
 });
 </script>
-
 
 </body>
 </html>

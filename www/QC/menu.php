@@ -1,10 +1,20 @@
 <?php require_once __DIR__ . '/../bootstrap.php';
-require_once(includePath('session.php'));
 
-$mcno=$_REQUEST["mcname"];
+// 세션 변수 초기화
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+$level = $_SESSION["level"] ?? 0;
+$user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["userid"] ?? '';
+$WebSite = $_SESSION["WebSite"] ?? '';
+
+// 요청 파라미터 초기화
+$mcno = $_REQUEST["mcname"] ?? '';
  
   // 첫 화면 표시 문구
- $title_message = '미래기업 고객만족 품질경영';        
+ $title_message = '미래기업 고객만족 품질경영';
+ 
+ // 베이스 URL 설정 (로컬/서버 환경 자동 감지)
+ $base_url = getBaseUrl();
  ?>
    
 <?php include includePath('load_header.php') ?>
@@ -33,7 +43,7 @@ require_once(includePath('lib/mydb.php'));
 $pdo = db_connect(); 
 
 // 배열로 장비점검리스트 불러옴
-include includePath("load_DB.php");
+include includePath("QC/load_DB.php");
 
 // // 배열로 미점검 장비점검리스트 불러옴
 // include "load_nocheck.php";
@@ -44,7 +54,7 @@ include includePath("load_DB.php");
 	<div class="card mt-2 mb-2">  
 	<div class="card-body">   
  <div class="d-flex mt-3 mb-1 justify-content-center">  			
-				<img src="../img/qc-bg.jpg" style="width:100%;" >
+				<img src="<?= $base_url ?>/img/qc-bg.jpg" style="width:100%;" alt="QC Background">
  </div>
 	<h5 class="fw-bolder mb-4"> 점검 장비 </h5>
 	<div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
@@ -73,26 +83,39 @@ $qrcode_arr=array();
    $rowNum = $stmh->rowCount();  
 
    while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {	
-	  $num=$row["num"];
-	  $mcno =$row["mcno"];
-	  $mcname =$row["mcname"];
-	  $mcspec =$row["mcspec"];
-	  $mcmaker =$row["mcmaker"];
-	  $mcmain =$row["mcmain"];
-	  $mcsub =$row["mcsub"];
-	  $qrcode =$row["qrcode"];
+	  $num = $row["num"] ?? '';
+	  $mcno = $row["mcno"] ?? '';
+	  $mcname = $row["mcname"] ?? '';
+	  $mcspec = $row["mcspec"] ?? '';
+	  $mcmaker = $row["mcmaker"] ?? '';
+	  $mcmain = $row["mcmain"] ?? '';
+	  $mcsub = $row["mcsub"] ?? '';
+	  $qrcode = $row["qrcode"] ?? '';
 		
-	  $num_arr[$counter] = $row["num"];
-	  $mcno_arr[$counter] = $row["mcno"];
-	  $mcname_arr[$counter] = $row["mcname"];
-	  $mcspec_arr[$counter] = $row["mcspec"];
-	  $mcmaker_arr[$counter] = $row["mcmaker"];
-	  $mcmain_arr[$counter] = $row["mcmain"];
-	  $mcsub_arr[$counter] = $row["mcsub"];
+	  $num_arr[$counter] = $row["num"] ?? '';
+	  $mcno_arr[$counter] = $row["mcno"] ?? '';
+	  $mcname_arr[$counter] = $row["mcname"] ?? '';
+	  $mcspec_arr[$counter] = $row["mcspec"] ?? '';
+	  $mcmaker_arr[$counter] = $row["mcmaker"] ?? '';
+	  $mcmain_arr[$counter] = $row["mcmain"] ?? '';
+	  $mcsub_arr[$counter] = $row["mcsub"] ?? '';
 	  $qrcode_tmp = $row["qrcode"] ?? '';
-	  $qrcode = $qrcode_tmp;
-	  $qrcode_arr[$counter] = $qrcode_tmp;
-	  // print $qrcode_tmp;
+	  
+	  // QR 코드 경로를 환경에 맞게 동적 생성
+	  if (!empty($qrcode_tmp)) {
+	      // 이미 전체 URL인 경우 그대로 사용
+	      if (strpos($qrcode_tmp, 'http://') === 0 || strpos($qrcode_tmp, 'https://') === 0) {
+	          $qrcode = $qrcode_tmp;
+	      } else {
+	          // 상대 경로인 경우 base URL 추가
+	          $qrcode = $base_url . (strpos($qrcode_tmp, '/') === 0 ? $qrcode_tmp : '/' . $qrcode_tmp);
+	      }
+	  } else {
+	      $qrcode = '';
+	  }
+	  
+	  $qrcode_arr[$counter] = $qrcode;
+	  // print $qrcode;
    
       $counter++;	
 	 		
@@ -116,7 +139,11 @@ $qrcode_arr=array();
 				</div>
 				<div class="text-center ">                                    
 				   <span class="fw-bolder">
-				   <img src=<?=$qrcode?> style="width:100%;height:100%;" >
+				   <?php if (!empty($qrcode)): ?>
+				       <img src="<?= htmlspecialchars($qrcode) ?>" style="width:100%;height:100%;" alt="QR Code" onerror="this.style.display='none'">
+				   <?php else: ?>
+				       <div class="text-muted" style="padding: 20px;">QR 코드 없음</div>
+				   <?php endif; ?>
 				   </span>
 				</div>
 			</div>
@@ -135,10 +162,10 @@ $qrcode_arr=array();
 </div>
 	
 <!-- ajax 전송으로 DB 수정 -->
-<? include "../formload.php"; ?>	
+<?php include includePath('formload.php'); ?>	
 	
 <!-- Footer-->
-<? include "../shop/footer.php" ?>  					
+<?php include includePath('shop/footer.php'); ?>  					
 
 <script>
 function choiceMC(num, mcmain, mcsub, mcno) {
@@ -161,7 +188,7 @@ function choiceMC(num, mcmain, mcsub, mcno) {
     // 동작 환경에 따라 base URL 결정
     var baseUrl;
     if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-        baseUrl = 'http://localhost:8000/qc/laser.php';
+        baseUrl = 'http://8440.local/qc/laser.php';
     } else {
         baseUrl = 'https://8440.co.kr/qc/laser.php';
     }

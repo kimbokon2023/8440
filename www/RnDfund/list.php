@@ -1,5 +1,11 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session_header.php')); 
+<?php
+/**
+ * RnDfund 목록 페이지
+ * 로컬 및 서버 환경 모두 지원
+ */
+
+require_once __DIR__ . '/../bootstrap.php';
+require_once includePath('load_GoogleDrive.php'); 
 
 if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
 	sleep(1);
@@ -7,7 +13,7 @@ if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
 	exit;
 }   
 
-include getDocumentRoot() . '/load_header.php';
+include includePath('load_header.php');
   
 // 첫 화면 표시 문구
 $title_message = '연구전담부서 운영비';  
@@ -21,10 +27,8 @@ $tablename ='RnDfund';
 <?php require_once(includePath('myheader.php')); ?>   
 
  <?php
-if(isset($_REQUEST["search"]))   //목록표에 제목,이름 등 나오는 부분
- $search=$_REQUEST["search"];
-if(isset($_REQUEST["separate_date"]))   //출고일 접수일
- $separate_date=$_REQUEST["separate_date"];	 
+$search = $_REQUEST["search"] ?? '';   //목록표에 제목,이름 등 나오는 부분
+$separate_date = $_REQUEST["separate_date"] ?? '';   //출고일 접수일	 
  
 if(isset($_REQUEST["list"]))   //목록표에 제목,이름 등 나오는 부분
  $list=$_REQUEST["list"];
@@ -40,13 +44,13 @@ $pdo = db_connect();
   else 
      $mode="";     
  
- $cursort=$_REQUEST["cursort"];    // 현재 정렬모드 지정
- 
+ $cursort = $_REQUEST["cursort"] ?? '';    // 현재 정렬모드 지정
+
   if($separate_date=="") $separate_date="1";
- 
+
  // 기간을 정하는 구간
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];	 
+$fromdate = $_REQUEST["fromdate"] ?? '';
+$todate = $_REQUEST["todate"] ?? '';	 
 
 if($fromdate=="")
 {
@@ -137,8 +141,7 @@ $nowday=date("Y-m-d");   // 현재일자 변수지정
       $total_row=$stmh->rowCount();
 
 
-		if($regist_state==null)
-			 $regist_state="1";
+		$regist_state = $regist_state ?? "1";
 		 
 			  $date_font="black";  // 현재일자 Red 색상으로 표기
 			  if($nowday==$proDate) {
@@ -174,7 +177,7 @@ $nowday=date("Y-m-d");   // 현재일자 변수지정
     <div class="d-flex mb-1 mt-1 justify-content-center align-items-center">  			
 		▷ <?= $total_row ?> &nbsp;&nbsp;
 		<!-- 기간설정 칸 -->
-		 <?php include getDocumentRoot() . '/setdate.php' ?>		
+		 <?php include includePath('setdate.php') ?>		
 		<?php
 		   if(isset($_SESSION["userid"]) &&  ( $user_name==='소현철' ||  $user_name==='소민지' ||  $user_name==='김보곤')   )
 		   {
@@ -262,7 +265,7 @@ $nowday=date("Y-m-d");   // 현재일자 변수지정
 	</form>	 
 	
 <div class="container-fluid">
-	<? require_once(includePath('footer_sub.php')); ?>
+	<?php require_once(includePath('footer_sub.php')); ?>
 </div>
 	 
 <script> 

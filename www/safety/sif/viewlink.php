@@ -1,27 +1,36 @@
- <?php
-  
- $num=$_REQUEST["num"];
- $page=$_REQUEST["page"];   //페이지번호
- require_once("../lib/mydb.php");
- $pdo = db_connect();
+<?php
+/**
+ * 링크를 통한 QNA 데이터 상세보기
+ * 로컬 및 서버 환경 모두 지원
+ */
+
+require_once __DIR__ . '/../../bootstrap.php';
+
+// 요청 변수 초기화
+$num = $_REQUEST["num"] ?? '';
+$page = $_REQUEST["page"] ?? '';   //페이지번호
+$DB = $_SESSION['DB'] ?? 'mirae8440';
+
+// 데이터베이스 연결
+$pdo = db_connect();
  
  try{
-     $sql = "select * from mirae8440.qna where num=?";
+     $sql = "select * from {$DB}.qna where num=?";
      $stmh = $pdo->prepare($sql);  
      $stmh->bindValue(1, $num, PDO::PARAM_STR);      
      $stmh->execute();            
       
     $row = $stmh->fetch(PDO::FETCH_ASSOC);
-     $item_num     = $row["num"];
-     $item_id      = $row["id"];
-     $item_name    = $row["name"];
-     $item_nick    = $row["nick"];   
-     $item_subject = str_replace(" ", "&nbsp;", $row["subject"]);
-     $item_content = $row["content"];
-     $item_date    = $row["regist_day"];
-     $item_date    = substr($item_date, 0, 10);   
-     $item_hit     = $row["hit"];     
-     $is_html      = $row["is_html"];
+     $item_num     = $row["num"] ?? '';
+     $item_id      = $row["id"] ?? '';
+     $item_name    = $row["name"] ?? '';
+     $item_nick    = $row["nick"] ?? '';
+     $item_subject = str_replace(" ", "&nbsp;", $row["subject"] ?? '');
+     $item_content = $row["content"] ?? '';
+     $item_date    = $row["regist_day"] ?? '';
+     $item_date    = substr($item_date, 0, 10);
+     $item_hit     = $row["hit"] ?? 0;
+     $is_html      = $row["is_html"] ?? '';
       
      if ($is_html!="y"){
 	$item_content = str_replace(" ", "&nbsp;", $item_content);
@@ -36,13 +45,10 @@
   
 
 
-// 초기 프로그램은 $num사용 이후 $id로 수정중임  
-$id=$num;  
-
+// 초기 프로그램은 $num사용 이후 $id로 수정중임
+$id = $num;
 
 // 첨부 파일에 대한 읽어오는 부분
- require_once("../lib/mydb.php");
- $pdo = db_connect();
  
 // 첨부파일 있는 것 불러오기 
 $savefilename_arr=array(); 
@@ -50,7 +56,7 @@ $realname_arr=array();
 $tablename='qna';
 $item = 'attached';
 
-$sql=" select * from mirae8440.fileuploads where tablename ='$tablename' and item ='$item' and parentid ='$id' ";	
+$sql = "select * from {$DB}.fileuploads where tablename = ? and item = ? and parentid = ?";	
 
  try{  
    $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh   
@@ -68,7 +74,7 @@ $saveimagename_arr=array();
 $tablename='qna';
 $item = 'image';
 
-$sql=" select * from mirae8440.fileuploads where tablename ='$tablename' and item ='$item' and parentid ='$id' ";	
+$sql = "select * from {$DB}.fileuploads where tablename = ? and item = ? and parentid = ?";	
 
  try{  
    $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh   
@@ -136,15 +142,15 @@ a { text-decoration:none;
 
 
   <!-- 전달함수 설정 input hidden -->
-	<input type="hidden" id="id" name="id" value="<?=$id?>" >			  								
-	<input type="hidden" id="parentid" name="parentid" value="<?=$parentid?>" >			  								
-	<input type="hidden" id="fileorimage" name="fileorimage" value="<?=$fileorimage?>" >			  								
-	<input type="hidden" id="item" name="item" value="<?=$item?>" >			  								
-	<input type="hidden" id="upfilename" name="upfilename" value="<?=$upfilename?>" >			  								
-	<input type="hidden" id="tablename" name="tablename" value="<?=$tablename?>" >			  								
-	<input type="hidden" id="savetitle" name="savetitle" value="<?=$savetitle?>" >			  								
-	<input type="hidden" id="pInput" name="pInput" value="<?=$pInput?>" >			  								
-	<input type="hidden" id="mode" name="mode" value="<?=$mode?>" >	
+	<input type="hidden" id="id" name="id" value="<?=$id?>" >
+	<input type="hidden" id="parentid" name="parentid" value="<?=$parentid ?? ''?>" >
+	<input type="hidden" id="fileorimage" name="fileorimage" value="<?=$fileorimage ?? ''?>" >
+	<input type="hidden" id="item" name="item" value="<?=$item?>" >
+	<input type="hidden" id="upfilename" name="upfilename" value="<?=$upfilename ?? ''?>" >
+	<input type="hidden" id="tablename" name="tablename" value="<?=$tablename?>" >
+	<input type="hidden" id="savetitle" name="savetitle" value="<?=$savetitle ?? ''?>" >
+	<input type="hidden" id="pInput" name="pInput" value="<?=$pInput ?? ''?>" >
+	<input type="hidden" id="mode" name="mode" value="<?=$mode ?? ''?>" >	
 
 
 <div class="container">  

@@ -1,15 +1,20 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-if(!isset($_SESSION))      
-	session_start(); 
-if(isset($_SESSION["DB"]))
-	$DB = $_SESSION["DB"] ;	
- $level= $_SESSION["level"];
- $user_name= $_SESSION["name"];
- $user_id= $_SESSION["userid"];	
+<?php
+require_once __DIR__ . '/../common/functions.php';
+if (!isset($_SESSION)) {
+    session_start();
+}
 
-header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문        
-$num=$_REQUEST["num"]; 
-$tablename=$_REQUEST["tablename"];    
+// Initialize session variables with null safety
+$DB = $_SESSION["DB"] ?? '';
+$level = $_SESSION["level"] ?? null;
+$user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["userid"] ?? '';
+
+header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문
+
+// Initialize request variables with null safety
+$num = $_REQUEST["num"] ?? '';
+$tablename = $_REQUEST["tablename"] ?? '';    
 require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();    
     

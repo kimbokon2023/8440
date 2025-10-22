@@ -1,14 +1,20 @@
 <?php
- session_start();
+session_start();
 
- $level= $_SESSION["level"];
- $user_name= $_SESSION["name"];
- if(!isset($_SESSION["level"]) || $level>5) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(2);
-	          header("Location:http://8440.co.kr/login/login_form.php"); 
-         exit;
-   }
+// Environment detection for URL
+$is_local = (isset($_SERVER['HTTP_HOST']) && (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false));
+$base_url = $is_local ? 'http://localhost' : 'http://8440.co.kr';
+
+// Initialize session variables with null safety
+$level = $_SESSION["level"] ?? null;
+$user_name = $_SESSION["name"] ?? '';
+
+if (!isset($_SESSION["level"]) || $level > 5) {
+    /*   alert("관리자 승인이 필요합니다."); */
+    sleep(2);
+    header("Location: {$base_url}/login/login_form.php");
+    exit;
+}
  
  // ctrl shift R 키를 누르지 않고 cache를 새로고침하는 구문....
 header("Expires: Tue, 01 Jan 2000 00:00:00 GMT");
@@ -72,8 +78,8 @@ try{
      $mode="";     
  
  // 기간을 정하는 구간
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];	 
+$fromdate = $_REQUEST["fromdate"] ?? '';	 
+$todate = $_REQUEST["todate"] ?? '';	 
 
 if($fromdate=="")
 {
@@ -427,7 +433,7 @@ if($todate=="")
 						  </li>	                
                 <!-- /.d-flex -->
 				
-<?
+<?php
 				
 $sql="select * from mirae8440.shop where delvalue!=1 order by num desc" ; 					
 $sqlcon = "select * from mirae8440.shop where delvalue!=1 order by num desc" ;   // 전체 레코드수를 파악하기 위함.					

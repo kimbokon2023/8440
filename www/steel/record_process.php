@@ -1,10 +1,11 @@
 <?php\nrequire_once __DIR__ . '/../common/functions.php';
 require_once(includePath('session.php'));  
 
-$tablename = isset($_REQUEST['tablename']) ? $_REQUEST['tablename'] : '';  
-$mode = isset($_REQUEST['mode']) ? $_REQUEST['mode'] : '';  
-$num = isset($_REQUEST['num']) ? $_REQUEST['num'] : ''; // update_log 추가
-$update_log = isset($_REQUEST['update_log']) ? $_REQUEST['update_log'] : ''; // update_log 추가
+// Initialize request variables with null safety
+$tablename = $_REQUEST['tablename'] ?? '';
+$mode = $_REQUEST['mode'] ?? '';
+$num = $_REQUEST['num'] ?? ''; // update_log 추가
+$update_log = $_REQUEST['update_log'] ?? ''; // update_log 추가
 
 header("Content-Type: application/json");  
 

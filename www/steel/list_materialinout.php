@@ -1,13 +1,20 @@
 <?php
- session_start();
+// Environment detection
+$isLocal = strpos($_SERVER['HTTP_HOST'], 'localhost') !== false ||
+           strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false ||
+           strpos($_SERVER['HTTP_HOST'], '::1') !== false;
+$baseUrl = $isLocal ? 'http://localhost' : 'http://8440.co.kr';
 
- $level= $_SESSION["level"];
- if(!isset($_SESSION["level"]) || $level>5) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(2);
-	          header("Location:http://8440.co.kr/login/login_form.php"); 
-         exit;
-   }
+session_start();
+
+// Initialize session variables with null safety
+$level = $_SESSION["level"] ?? null;
+if(!isset($_SESSION["level"]) || $level > 5) {
+    /*   alert("관리자 승인이 필요합니다."); */
+    sleep(2);
+    header("Location:" . $baseUrl . "/login/login_form.php");
+    exit;
+}
    
 ini_set('display_errors','1');
   
@@ -19,35 +26,23 @@ $titlemessage = '원자재 기간별 수불보고서';
 <title>  <?=$titlemessage?> </title> 
  </head>
 <?php
-if(isset($_REQUEST["search"]))   //목록표에 제목,이름 등 나오는 부분
-	 $search=$_REQUEST["search"];
-if(isset($_REQUEST["separate_date"]))   //출고일 접수일
-	 $separate_date=$_REQUEST["separate_date"];	 
-if(isset($_REQUEST["display_sel"]))   //목록표에 제목,이름 등 나오는 부분
-	 $display_sel=$_REQUEST["display_sel"];	 
-	 else
-		$display_sel='doughnut';	 
-	
-   if(isset($_REQUEST["list"]))   //목록표에 제목,이름 등 나오는 부분
-	 $list=$_REQUEST["list"];
-    else
-		  $list=0;
-   if(isset($_REQUEST["find"]))   //목록표에 제목,이름 등 나오는 부분
-	 $find=$_REQUEST["find"];	  
+// Initialize request variables with null safety
+$search = $_REQUEST["search"] ?? null;
+$separate_date = $_REQUEST["separate_date"] ?? null;
+$display_sel = $_REQUEST["display_sel"] ?? 'doughnut';
+$list = $_REQUEST["list"] ?? 0;
+$find = $_REQUEST["find"] ?? null;	  
   require_once("../lib/mydb.php");
   $pdo = db_connect();	  
 
-  if(isset($_REQUEST["mode"]))
-     $mode=$_REQUEST["mode"];
-  else 
-     $mode="";     
+$mode = $_REQUEST["mode"] ?? "";     
    
   if($separate_date=="") $separate_date="2";
  
- // 기간을 정하는 구간
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];	 
-$start=$_REQUEST["start"];	   // 처음실행할때 당월 데이터를 출력하기 위함.
+// 기간을 정하는 구간
+$fromdate = $_REQUEST["fromdate"] ?? null;
+$todate = $_REQUEST["todate"] ?? null;
+$start = $_REQUEST["start"] ?? null;	   // 처음실행할때 당월 데이터를 출력하기 위함.
 if($start=='start')  
 	{
 			$year=substr(date("Y-m-d",time()),0,4) ;

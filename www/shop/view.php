@@ -1,53 +1,32 @@
- <?php
-  session_start(); 
-  
- $level= $_SESSION["level"];
- if(!isset($_SESSION["level"]) || $level>=5) {
-         echo "<script> alert('관리자 승인이 필요합니다.') </script>";
-		 sleep(2);
-         header ("Location:http://8440.co.kr/login/logout.php");
-         exit;
-   }   
-  
-$callback=$_REQUEST["callback"];  // 출고현황에서 체크번호
-  
-  if(isset($_REQUEST["mode"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $mode=$_REQUEST["mode"];
-  else
-   $mode="";
+<?php
+session_start();
 
-  if(isset($_REQUEST["which"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $which=$_REQUEST["which"];
-  else
-   $which="2";
+// Environment detection for URL
+$is_local = (isset($_SERVER['HTTP_HOST']) && (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false));
+$base_url = $is_local ? 'http://localhost' : 'http://8440.co.kr';
+
+// Initialize variables with null safety
+$level = $_SESSION["level"] ?? null;
+
+if (!isset($_SESSION["level"]) || $level >= 5) {
+    echo "<script> alert('관리자 승인이 필요합니다.') </script>";
+    sleep(2);
+    header("Location: {$base_url}/login/logout.php");
+    exit;
+}   
   
-  if(isset($_REQUEST["num"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $num=$_REQUEST["num"];
-  else
-   $num="";
+// Request variables with null safety
+$callback = $_REQUEST["callback"] ?? '';  // 출고현황에서 체크번호
+$mode = $_REQUEST["mode"] ?? '';  // 수정 버튼을 클릭해서 호출했는지 체크
+$which = $_REQUEST["which"] ?? '2';
+$num = $_REQUEST["num"] ?? '';
+$page = $_REQUEST["page"] ?? 1;   
 
-   if(isset($_REQUEST["page"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $page=$_REQUEST["page"];
-  else
-   $page=1;   
-
-  if(isset($_REQUEST["search"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $search=$_REQUEST["search"];
-  else
-   $search="";
-  
-  if(isset($_REQUEST["find"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $find=$_REQUEST["find"];
-  else
-   $find="";
-
-  if(isset($_REQUEST["process"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $process=$_REQUEST["process"];
-  else
-   $process="전체";
-
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];
+$search = $_REQUEST["search"] ?? '';  // 수정 버튼을 클릭해서 호출했는지 체크
+$find = $_REQUEST["find"] ?? '';
+$process = $_REQUEST["process"] ?? '전체';
+$fromdate = $_REQUEST["fromdate"] ?? '';
+$todate = $_REQUEST["todate"] ?? '';
 
   require_once("../lib/mydb.php");
   $pdo = db_connect();
@@ -106,7 +85,7 @@ $todate=$_REQUEST["todate"];
    <body>
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>    
-    <script src="http://8440.co.kr/common.js"></script>
+    <script src="<?= $base_url ?>/common.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>	
    
    <div id="wrap">
@@ -120,12 +99,12 @@ $todate=$_REQUEST["todate"];
   <?php
 	}
   ?>	   
-   <div id="header">
-   <?php include "../lib/top_login2.php"; ?>
+   <!-- <div id="header">
+   <?php // include "../lib/top_login2.php"; ?>
    </div>  
    <div id="menu">
-   <?php include "../lib/top_menu2.php"; ?>
-    </div>  
+   <?php // include "../lib/top_menu2.php"; ?>
+    </div> -->
     <div id="content">
 	
 			      
@@ -308,7 +287,7 @@ function displayPicture() {        // 첨부파일 형식으로 사진 불러오
 
 function displayPictureLoad() {    // 이미 있는 파일 불러오기
 	$('#displayPicture').show();
-	var picNum = "<? echo $picNum; ?>"; 					
+	var picNum = "<?php echo $picNum; ?>"; 					
 	var picData = <?php echo json_encode($picData);?> ;	
     for(i=0;i<picNum;i++) {
        $("#displayPicture").append("<img id=pic" + i + " src ='img/" + picData[i] + "'> " );			

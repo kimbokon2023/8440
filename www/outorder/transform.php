@@ -1,680 +1,534 @@
 <?php
-    if(!isset($_SESSION)) 
-    { 
-        session_start(); 
-		$user_name =$_SESSION["name"];				
-    } 
-?>
+require_once __DIR__ . '/../bootstrap.php';
 
-<?php
-
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>8) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(1);
-         header("Location:http://8440.co.kr/login/logout.php"); 
-         exit;
-   }   
-
-//header("Refresh:0");  // reload refresh   
- ?>
-
-
-<meta charset="utf-8">
- <?php
-
-  function trans_date($tdate) {
-		      if($tdate!="0000-00-00" and $tdate!="1900-01-01" and $tdate!="")  $tdate = date("Y-m-d", strtotime( $tdate) );
-					else $tdate="";							
-				return $tdate;	
+if(!isset($_SESSION["level"]) || $_SESSION["level"]>8) {
+    sleep(1);
+    header("Location:" . getBaseUrl() . "/login/login_form.php");
+    exit;
 }
-  
-  
-  if(isset($_REQUEST["mode"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $mode=$_REQUEST["mode"];
-  else
-   $mode="";
-  
-  if(isset($_REQUEST["num"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $num=$_REQUEST["num"];
-  else
-   $num="";
 
-   if(isset($_REQUEST["page"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $page=$_REQUEST["page"];
-  else
-   $page=1;   
+// 요청 변수 초기화
+$mode = $_REQUEST["mode"] ?? '';
+$num = $_REQUEST["num"] ?? '';
+$page = $_REQUEST["page"] ?? 1;
+$search = $_REQUEST["search"] ?? '';
+$find = $_REQUEST["find"] ?? '';
+$process = $_REQUEST["process"] ?? '전체';
 
-  if(isset($_REQUEST["search"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $search=$_REQUEST["search"];
-  else
-   $search="";
-  
-  if(isset($_REQUEST["find"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $find=$_REQUEST["find"];
-  else
-   $find="";
-  if(isset($_REQUEST["process"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $process=$_REQUEST["process"];
-  else
-   $process="전체";
+if(isset($_REQUEST["check"]))
+    $check=$_REQUEST["check"];
+elseif(isset($_POST["check"]))
+    $check=$_POST["check"];
+else
+    $check='0';
 
- if(isset($_REQUEST["check"])) 
-	 $check=$_REQUEST["check"]; // 미출고 리스트 request 사용 페이지 이동버튼 누를시`
-   else
-     $check=$_POST["check"]; // 미출고 리스트 POST사용 
- 
- if(isset($_REQUEST["output_check"])) 
-	 $output_check=$_REQUEST["output_check"]; // 미출고 리스트 request 사용 페이지 이동버튼 누를시`
-   else
-	if(isset($_POST["output_check"]))   
-         $output_check=$_POST["output_check"]; // 미출고 리스트 POST사용  
-	 else
-		 $output_check='0';
-	 
- if(isset($_REQUEST["team_check"])) 
-	 $team_check=$_REQUEST["team_check"]; // 시공팀미지정
-   else
-	if(isset($_POST["team_check"]))   
-         $team_check=$_POST["team_check"]; // 시공팀미지정
-	 else
-		 $team_check='0';	
-	 
-   if(isset($_REQUEST["plan_output_check"])) 
-	 $plan_output_check=$_REQUEST["plan_output_check"]; // 출고예정`
-   else
-	if(isset($_POST["plan_output_check"]))   
-         $plan_output_check=$_POST["plan_output_check"]; // 출고예정  
-	 else
-		 $plan_output_check='0';
+$output_check = $_REQUEST["output_check"] ?? $_POST["output_check"] ?? '0';
+$team_check = $_REQUEST["team_check"] ?? $_POST["team_check"] ?? '0';
+$plan_output_check = $_REQUEST["plan_output_check"] ?? $_POST["plan_output_check"] ?? '0';
+$yearcheckbox = $_REQUEST["yearcheckbox"] ?? '0';
+$year = $_REQUEST["year"] ?? date('Y');
+$cursort = $_REQUEST["cursort"] ?? $_POST["cursort"] ?? '0';
+$sortof = $_REQUEST["sortof"] ?? $_POST["sortof"] ?? '0';
+$stable = $_REQUEST["stable"] ?? $_POST["stable"] ?? '0';
 
- $yearcheckbox=$_REQUEST["yearcheckbox"];   // 년도 체크박스
- $year=$_REQUEST["year"];   // 년도 체크박스
- 
-  if(isset($_REQUEST["page"])) // $_REQUEST["page"]값이 없을 때에는 1로 지정 
- {
-    $page=$_REQUEST["page"];  // 페이지 번호
- }
-  else
-  {
-    $page=1;	 
-  }
-	 
-if(isset($_REQUEST["cursort"])) 
-	 $cursort=$_REQUEST["cursort"]; // 미실측리스트
-   else
-	if(isset($_POST["cursort"]))   
-         $cursort=$_POST["cursort"]; // 미실측리스트
-	 else
-		 $cursort='0';		  
-
-
-if(isset($_REQUEST["sortof"])) 
-	 $sortof=$_REQUEST["sortof"]; // 미실측리스트
-   else
-	if(isset($_POST["sortof"]))   
-         $sortof=$_POST["sortof"]; // 미실측리스트
-	 else
-		 $sortof='0';		 
-	 
- if(isset($_REQUEST["stable"])) 
-	 $stable=$_REQUEST["stable"]; // 미실측리스트
-   else
-	if(isset($_POST["stable"]))   
-         $stable=$_POST["stable"]; // 미실측리스트
-	 else
-		 $stable='0';	
- 
 $outputdate = date("Y-m-d", time());
-
 if($outputdate!="") {
-    $week = array("(일)" , "(월)"  , "(화)" , "(수)" , "(목)" , "(금)" ,"(토)") ;
-    $outputdate = $outputdate . $week[ date('w',  strtotime($outputdate)  ) ] ;
-} 
- 
-      
-  require_once("../lib/mydb.php");
-  $pdo = db_connect();
+    $week = array("(일)", "(월)", "(화)", "(수)", "(목)", "(금)", "(토)");
+    $outputdate = $outputdate . $week[date('w', strtotime($outputdate))];
+}
 
-  try{
-      $sql = "select * from mirae8440.outorder where num = ? ";
-      $stmh = $pdo->prepare($sql); 
+try{
+    $sql = "select * from mirae8440.outorder where num = ? ";
+    $stmh = $pdo->prepare($sql);
+    $stmh->bindValue(1,$num,PDO::PARAM_STR);
+    $stmh->execute();
+    $count = $stmh->rowCount();
 
-    $stmh->bindValue(1,$num,PDO::PARAM_STR); 
-      $stmh->execute();
-      $count = $stmh->rowCount();              
-    if($count<1){  
-      print "검색결과가 없습니다.<br>";
-     }else{
-      $row = $stmh->fetch(PDO::FETCH_ASSOC);
+    if($count<1){
+        print "검색결과가 없습니다.<br>";
+    }else{
+        $row = $stmh->fetch(PDO::FETCH_ASSOC);
+    }
 
-	 }
+    // 기본 정보
+    $num=$row["num"];
+    $checkstep=$row["checkstep"];
+    $workplacename=$row["workplacename"];
+    $address=$row["address"];
+    $worker=$row["worker"];
+    $secondord=$row["secondord"];
+    $firstord=$row["firstord"];
+    $startday=$row["startday"];
+    $chargedman=$row["chargedman"];
+    $chargedmantel=$row["chargedmantel"];
+    $memo=$row["memo"];
+    $submemo=$row["submemo"];
+    $deadline=$row["deadline"];
+    $delivery=$row["delivery"];
+    $delipay=$row["delipay"];
+    $delitext = $delivery . ' ' . $delipay;
 
-	$num=$row["num"];
+    // 타입 및 수량
+    $type1=$row["type1"];
+    $inseung1=$row["inseung1"];
+    $car_inside1=$row["car_inside1"];
+    $su=(int)$row["su"];
+    $lc_su=(int)$row["lc_su"];
+    $etc_su=(int)$row["etc_su"];
+    $air_su=(int)$row["air_su"];
 
-	$checkstep=$row["checkstep"];
-	$workplacename=$row["workplacename"];
-	$address=$row["address"];
-	$worker=$row["worker"];
-	$secondord=$row["secondord"];
-	$firstord=$row["firstord"];
-	$startday=$row["startday"];
-	$chargedman=$row["chargedman"];
-	$chargedmantel=$row["chargedmantel"];			  
-	$memo=$row["memo"];			  
-	$submemo=$row["submemo"];			  
-	$deadline=$row["deadline"];			  
-	$delivery=$row["delivery"];			  
-	$delipay=$row["delipay"];			  
+    // 아이템 정보
+    for($i=0; $i<10; $i++) {
+        $items = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth'];
+        $itemName = $items[$i];
+        ${$itemName.'_item1'} = $row["{$itemName}_item1"];
+        ${$itemName.'_item2'} = $row["{$itemName}_item2"];
+        ${$itemName.'_item3'} = $row["{$itemName}_item3"];
+        ${$itemName.'_item4'} = $row["{$itemName}_item4"];
+    }
 
-	$delitext = $delivery . ' ' . $delipay;			  
+    // 타입 2-10
+    for($i=2; $i<=10; $i++) {
+        ${'type'.$i} = $row["type$i"];
+        ${'inseung'.$i} = $row["inseung$i"];
+        ${'car_inside'.$i} = $row["car_inside$i"];
+        ${'comment'.$i} = $row["comment$i"];
+    }
+    $comment1 = $row["comment1"];
 
-	$type1=$row["type1"];			  
-	$inseung1=$row["inseung1"];			  
-	$car_inside1=$row["car_inside1"];				  
-	$su=(int)$row["su"];			  
-	$lc_su=(int)$row["lc_su"];			  
-	$etc_su=(int)$row["etc_su"];			  
-	$air_su=(int)$row["air_su"];		
+    // 날짜 변수들을 $row에서 추출
+    $workday = $row["workday"] ?? '';
+    $demand = $row["demand"] ?? '';
+    $orderday = $row["orderday"] ?? '';
+    $testday = $row["testday"] ?? '';
+    $lc_draw = $row["lc_draw"] ?? '';
+    $lclaser_date = $row["lclaser_date"] ?? '';
+    $lcbending_date = $row["lcbending_date"] ?? '';
+    $lcwelding_date = $row["lcwelding_date"] ?? '';
+    $lcpainting_date = $row["lcpainting_date"] ?? '';
+    $lcassembly_date = $row["lcassembly_date"] ?? '';
+    $main_draw = $row["main_draw"] ?? '';
+    $eunsung_make_date = $row["eunsung_make_date"] ?? '';
+    $eunsung_laser_date = $row["eunsung_laser_date"] ?? '';
+    $mainbending_date = $row["mainbending_date"] ?? '';
+    $mainwelding_date = $row["mainwelding_date"] ?? '';
+    $mainpainting_date = $row["mainpainting_date"] ?? '';
+    $mainassembly_date = $row["mainassembly_date"] ?? '';
+    $order_date1 = $row["order_date1"] ?? '';
+    $order_date2 = $row["order_date2"] ?? '';
+    $order_date3 = $row["order_date3"] ?? '';
+    $order_date4 = $row["order_date4"] ?? '';
+    $order_input_date1 = $row["order_input_date1"] ?? '';
+    $order_input_date2 = $row["order_input_date2"] ?? '';
+    $order_input_date3 = $row["order_input_date3"] ?? '';
+    $order_input_date4 = $row["order_input_date4"] ?? '';
 
-	$first_item1=$row["first_item1"];
-	$first_item2=$row["first_item2"];
-	$first_item3=$row["first_item3"];
-	$first_item4=$row["first_item4"];
-	$second_item1=$row["second_item1"];
-	$second_item2=$row["second_item2"];
-	$second_item3=$row["second_item3"];
-	$second_item4=$row["second_item4"];  			 
+    // 날짜 변환
+    $workday=trans_date($workday);
+    $startday=trans_date($startday);
+    $demand=trans_date($demand);
+    $orderday=trans_date($orderday);
+    $deadline=trans_date($deadline);
+    $testday=trans_date($testday);
+    $lc_draw=trans_date($lc_draw);
+    $lclaser_date=trans_date($lclaser_date);
+    $lcbending_date=trans_date($lcbending_date);
+    $lcwelding_date=trans_date($lcwelding_date);
+    $lcpainting_date=trans_date($lcpainting_date);
+    $lcassembly_date=trans_date($lcassembly_date);
+    $main_draw=trans_date($main_draw);
+    $eunsung_make_date=trans_date($eunsung_make_date);
+    $eunsung_laser_date=trans_date($eunsung_laser_date);
+    $mainbending_date=trans_date($mainbending_date);
+    $mainwelding_date=trans_date($mainwelding_date);
+    $mainpainting_date=trans_date($mainpainting_date);
+    $mainassembly_date=trans_date($mainassembly_date);
+    $order_date1=trans_date($order_date1);
+    $order_date2=trans_date($order_date2);
+    $order_date3=trans_date($order_date3);
+    $order_date4=trans_date($order_date4);
+    $order_input_date1=trans_date($order_input_date1);
+    $order_input_date2=trans_date($order_input_date2);
+    $order_input_date3=trans_date($order_input_date3);
+    $order_input_date4=trans_date($order_input_date4);
 
-	$third_item1=$row["third_item1"];	
-	$third_item2=$row["third_item2"];	
-	$third_item3=$row["third_item3"];	
-	$third_item4=$row["third_item4"];	
+    // 시공자 전화번호
+    $workertel = '';
+    switch ($worker) {
+        case "김운호": $workertel = "010-9322-7626"; break;
+        case "김상훈": $workertel = "010-6622-2200"; break;
+        case "이만희": $workertel = "010-6866-5030"; break;
+        case "유영": $workertel = "010-5838-5948"; break;
+        case "추영덕": $workertel = "010-6325-4280"; break;
+        case "김지암": $workertel = "010-3235-5850"; break;
+        case "손상민": $workertel = "010-4052-8930"; break;
+        case "지영복": $workertel = "010-6338-9718"; break;
+        case "김한준": $workertel = "010-4445-7515"; break;
+        case "민경채": $workertel = "010-2078-7238"; break;
+        case "이용휘": $workertel = "010-9453-8612"; break;
+        case "박경호": $workertel = "010-3405-6669"; break;
+        case "조형영": $workertel = "010-2419-2574"; break;
+        case "김진섭": $workertel = "010-6524-3325"; break;
+        case "최양원": $workertel = "010-5426-3475"; break;
+    }
 
-	$fourth_item1=$row["fourth_item1"];	
-	$fourth_item2=$row["fourth_item2"];	
-	$fourth_item3=$row["fourth_item3"];	
-	$fourth_item4=$row["fourth_item4"];			  
+    // 배열 준비
+    $text=array();
+    $item=array();
+    $spec=array();
+    $carsize=array();
+    $item_memo=array();
+    $textnum=array();
+    $textset=array();
 
-	$fifth_item1=$row["fifth_item1"];	
-	$fifth_item2=$row["fifth_item2"];	
-	$fifth_item3=$row["fifth_item3"];	
-	$fifth_item4=$row["fifth_item4"];	
+    if($firstord=='덴크리')
+        $firstord='덴크리무에이링';
 
-	$sixth_item1=$row["sixth_item1"];	
-	$sixth_item2=$row["sixth_item2"];	
-	$sixth_item3=$row["sixth_item3"];	
-	$sixth_item4=$row["sixth_item4"];			  
+    // 배열 채우기
+    for($i=0; $i<10; $i++) {
+        $text[$i] = ${'type'.($i+1)};
+        $carsize[$i] = ${'car_inside'.($i+1)};
+        $item_memo[$i] = ${'comment'.($i+1)};
 
-	$seventh_item1=$row["seventh_item1"];	
-	$seventh_item2=$row["seventh_item2"];	
-	$seventh_item3=$row["seventh_item3"];	
-	$seventh_item4=$row["seventh_item4"];	
+        $items = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth'];
+        $item[$i] = ${$items[$i].'_item1'};
+        $spec[$i] = ${$items[$i].'_item2'};
+        $textnum[$i] = ${$items[$i].'_item3'};
+        $textset[$i] = ${$items[$i].'_item4'};
+    }
 
-	$eighth_item1=$row["eighth_item1"];	
-	$eighth_item2=$row["eighth_item2"];	
-	$eighth_item3=$row["eighth_item3"];	
-	$eighth_item4=$row["eighth_item4"];			  
-
-	$ninth_item1=$row["ninth_item1"];	
-	$ninth_item2=$row["ninth_item2"];	
-	$ninth_item3=$row["ninth_item3"];	
-	$ninth_item4=$row["ninth_item4"];	
-
-	$tenth_item1=$row["tenth_item1"];	
-	$tenth_item2=$row["tenth_item2"];	
-	$tenth_item3=$row["tenth_item3"];	
-	$tenth_item4=$row["tenth_item4"];		
-
-	$type2=$row["type2"];
-	$type3=$row["type3"];
-	$type4=$row["type4"];
-	$type5=$row["type5"];
-	$type6=$row["type6"];
-	$type7=$row["type7"];
-	$type8=$row["type8"];
-	$type9=$row["type9"];
-	$type10=$row["type10"];			  
-	$inseung2=$row["inseung2"];
-	$inseung3=$row["inseung3"];
-	$inseung4=$row["inseung4"];
-	$inseung5=$row["inseung5"];
-	$inseung6=$row["inseung6"];
-	$inseung7=$row["inseung7"];
-	$inseung8=$row["inseung8"];
-	$inseung9=$row["inseung9"];
-	$inseung10=$row["inseung10"];
-	$car_inside2=$row["car_inside2"];
-	$car_inside3=$row["car_inside3"];
-	$car_inside4=$row["car_inside4"];
-	$car_inside5=$row["car_inside5"];
-	$car_inside6=$row["car_inside6"];
-	$car_inside7=$row["car_inside7"];
-	$car_inside8=$row["car_inside8"];
-	$car_inside9=$row["car_inside9"];
-	$car_inside10=$row["car_inside10"];  	
-	$comment1=$row["comment1"];
-	$comment2=$row["comment2"];
-	$comment3=$row["comment3"];
-	$comment4=$row["comment4"];
-	$comment5=$row["comment5"];
-	$comment6=$row["comment6"];
-	$comment7=$row["comment7"];
-	$comment8=$row["comment8"];
-	$comment9=$row["comment9"];
-	$comment10=$row["comment10"]; 			
-
-	$workday=trans_date($workday);
-	$startday=trans_date($startday);
-	$demand=trans_date($demand);
-	$orderday=trans_date($orderday);
-	$deadline=trans_date($deadline);
-	$testday=trans_date($testday);
-	$lc_draw=trans_date($lc_draw);
-	$lclaser_date=trans_date($lclaser_date);
-	$lclbending_date=trans_date($lclbending_date);
-	$lclwelding_date=trans_date($lclwelding_date);
-	$lcpainting_date=trans_date($lcpainting_date);
-	$lcassembly_date=trans_date($lcassembly_date);
-	$main_draw=trans_date($main_draw);			
-	$eunsung_make_date=trans_date($eunsung_make_date);			
-	$eunsung_laser_date=trans_date($eunsung_laser_date);			
-	$mainbending_date=trans_date($mainbending_date);			
-	$mainwelding_date=trans_date($mainwelding_date);			
-	$mainpainting_date=trans_date($mainpainting_date);			
-	$mainassembly_date=trans_date($mainassembly_date);										
-
-	$order_date1=trans_date($order_date1);					   
-	$order_date2=trans_date($order_date2);					   
-	$order_date3=trans_date($order_date3);					   
-	$order_date4=trans_date($order_date4);					   
-	$order_input_date1=trans_date($order_input_date1);					   
-	$order_input_date2=trans_date($order_input_date2);					   
-	$order_input_date3=trans_date($order_input_date3);					   
-	$order_input_date4=trans_date($order_input_date4);		
-		  		      						
-	     switch ($worker) {
-			case   "김운호"      : $workertel =  "010-9322-7626" ; break;
-			case   "김상훈"      : $workertel =  "010-6622-2200" ; break;
-			case   "이만희"      : $workertel =  "010-6866-5030" ; break;
-			case   "유영"        : $workertel =  "010-5838-5948" ; break;
-			case   "추영덕"      : $workertel =  "010-6325-4280" ; break;
-			case   "김지암"      : $workertel =  "010-3235-5850" ; break;
-			case   "손상민"      : $workertel =  "010-4052-8930" ; break;
-			case   "지영복"      : $workertel =  "010-6338-9718" ; break;
-			case   "김한준"      : $workertel =  "010-4445-7515" ; break;
-			case   "민경채"      : $workertel =  "010-2078-7238" ; break;
-			case   "이용휘"      : $workertel =  "010-9453-8612" ; break;
-			case   "박경호"      : $workertel =  "010-3405-6669" ; break;
-			case   "조형영"      : $workertel =  "010-2419-2574" ; break;
-			case   "김진섭"     : $workertel =  "010-6524-3325" ; break;
-			case   "최양원"     : $workertel =  "010-5426-3475" ; break;
-			default: break;
-		}	
-		
-	$text=array();			
-	$item=array();			
-	$spec=array();			
-	$carsize=array();			
-	$item_memo=array();			
-	$textnum=array();	
-	$textset=array();		
-	
-    $j=0;
-	
-	if($firstord=='덴크리')
-	    $firstord='덴크리무에이링';
-
-	$text[0] =$type1;
-	$text[1] =$type2;
-	$text[2] =$type3;
-	$text[3] =$type4;
-	$text[4] =$type5;
-	$text[5] =$type6;
-	$text[6] =$type7;
-	$text[7] =$type8;
-	$text[8] =$type9;
-	$text[9] =$type10;
-	$item[0] =$first_item1;
-	$spec[0] =$first_item2;
-	$textnum[0]=$first_item3;
-	$textset[0]=$first_item4;		
-	$item[1] =$second_item1;
-	$spec[1] =$second_item2;
-	$textnum[1]=$second_item3;
-	$textset[1]=$second_item4;				
-
-	$item[2] =$third_item1;
-	$spec[2] =$third_item2;
-	$textnum[2]=$third_item3;
-	$textset[2]=$third_item4;		
-
-	$item[3] =$fourth_item1;
-	$spec[3] =$fourth_item2;
-	$textnum[3]=$fourth_item3;
-	$textset[3]=$fourth_item4;		
-
-	$item[4] =$fifth_item1;
-	$spec[4] =$fifth_item2;
-	$textnum[4]=$fifth_item3;
-	$textset[4]=$fifth_item4;		
-
-	$item[5] =$sixth_item1;
-	$spec[5] =$sixth_item2;
-	$textnum[5]=$sixth_item3;
-	$textset[5]=$sixth_item4;		
-
-	$item[6] =$seventh_item1;
-	$spec[6] =$seventh_item2;
-	$textnum[6]=$seventh_item3;
-	$textset[6]=$seventh_item4;		
-
-	$item[7] =$eighth_item1;
-	$spec[7] =$eighth_item2;
-	$textnum[7]=$eighth_item3;
-	$textset[7]=$eighth_item4;		
-
-	$item[8] =$ninth_item1;
-	$spec[8] =$ninth_item2;
-	$textnum[8]=$ninth_item3;
-	$textset[8]=$ninth_item4;		
-
-	$item[9] =$tenth_item1;
-	$spec[9] =$tenth_item2;
-	$textnum[9]=$tenth_item3;
-	$textset[9]=$tenth_item4;				
-
-	$carsize[0] = $car_inside1;
-	$carsize[1] = $car_inside2;
-	$carsize[2] = $car_inside3;
-	$carsize[3] = $car_inside4;
-	$carsize[4] = $car_inside5;
-	$carsize[5] = $car_inside6;
-	$carsize[6] = $car_inside7;
-	$carsize[7] = $car_inside8;
-	$carsize[8] = $car_inside9;
-	$carsize[9] = $car_inside10;
-	$item_memo[0] =  $comment1;	                  		  
-	$item_memo[1] =  $comment2;	                  		  
-	$item_memo[2] =  $comment3;	                  		  
-	$item_memo[3] =  $comment4;	                  		  
-	$item_memo[4] =  $comment5;	                  		  
-	$item_memo[5] =  $comment6;	                  		  
-	$item_memo[6] =  $comment7;	                  		  
-	$item_memo[7] =  $comment8;	                  		  
-	$item_memo[8] =  $comment9;	                  		  
-	$item_memo[9] =  $comment10;	                  		  
-					  		
-		// echo $i."출력 <br />";
-
-     }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
-     }
-	 
+} catch (PDOException $Exception) {
+    print "오류: ".$Exception->getMessage();
+}
 ?>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>외주발주 출고증 정보 입력</title>
 
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css">
 
-   <!DOCTYPE HTML>
-   <html>
-   <head> 
-   <title> 출고증 자료 입력화면 </title>
-   <meta charset="utf-8">
-   <link  rel="stylesheet" type="text/css" href="../css/common.css">
-   <link  rel="stylesheet" type="text/css" href="../css/work.css">
-  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">   <!--날짜 선택 창 UI 필요 -->   
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>    
-   </head>
- 
-   <body>
-   <div id="wrap">
-	<form  name="board_form" onkeydown="return captureReturnKey(event)" method="post" action="invoice.php?num=<?=$num?>"enctype="multipart/form-data"> 
- 
-  <div id="content">
- 	   
-<div id="work_col2"> 
+    <!-- jQuery & jQuery UI -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
-<div id="estimate_text2" style="width:1000px;"> 
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
-       <input type="hidden" id="memo" name="memo" value="<?=$memo?>"  >
-       <input type="hidden" id="delitext" name="delitext" value="<?=$delitext?>"  >
-       <input type="hidden" id="deadline" name="deadline" value="<?=$deadline?>"  >       
-       <input type="hidden" id="startday" name="startday" value="<?=$startday?>"  >       
-         
-		<div class="sero1" style="width:500px;"> <H1> 외주발주 출고증 정보 입력 </div>
+    <style>
+        body {
+            background: transparent !important;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 20px;
+        }
 
-       <div id="write_button_renew"><input type="image" src="../img/print.png">&nbsp;&nbsp;&nbsp;&nbsp;
-	   <button  onclick="window.close();" value="창 닫기" > 창 닫기 </button>
-				</div> <br>		
-		
-		<br>
-		<br>
-		<br>
-      <div class="sero1" style="color:blue;"> (귀중) : </div> 
-         <div class="sero2"><input type="text" name="firstord" value="<?=$firstord?>" size="30" placeholder="(귀중)" >	</div>	  	
-     <div class="clear"> </div> 				
-      <div class="sero1" style="color:red;"> 하차일시 : </div> 
-         <div class="sero2"><input type="text" name="outputdate" value="<?=$outputdate?>" size="30" placeholder="하차일시" required>	</div>	  	
-     <div class="clear"> </div> 		
-      <div class="sero1"> 발주(업체) : </div> 
-         <div class="sero2"><input type="text" name="secondord" value="<?=$secondord?>" size="50" placeholder="발주처(업체명)" required>	</div>	  			 
-     <div class="clear"> </div> 		
-      <div class="sero1"> 현장명 : </div> 
-         <div class="sero2"><input type="text" name="workplacename" value="<?=$workplacename?>" size="50" placeholder="현장명" required>	</div>	  	
-     <div class="clear"> </div> 
-         <div class="sero1"> 현장주소 : </div> 
-         <div class="sero2"><input type="text" name="address" value="<?=$address?>" size="50" placeholder="현장주소" ></div>
-		 <div class="clear"> </div> 
-		
-        <div class="sero1">  받으실분 : </div>   
-	    <div class="sero2"> <input type="text" name="chargedman" value="<?=$chargedman?>" size="10" placeholder="담당자" > </div>
-		<div class="sero1" style="width:130px;" >  받으실분 연락처 : </div> 
-	    <div class="sero2"> <input type="text" name="chargedmantel"  id="chargedmantel"  value="<?=$chargedmantel?>" size="10"  placeholder="담당자 연락처"></div> 
-     
-        <div class="clear"> </div> 	
-        <div class="space"> </div> 	
-        <div class="clear"> </div> 	
-    <?php		
-    print  '   <div class="sero2" style="width:370px;color:red;"> (자동계산 확인) </div>';
-    print  '   <div class="clear"> </div>';
+        .container-fluid {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
 
-	for($i=0; $i<=9; $i=$i+1)
-	{
-	 	
-     
-     print	'	<div class="sero1"> ' . ($i+1) . '번째줄 : </div> ';
-     print  '   <div class="sero2" style="width:100px;"> <input type="text" name="text[]" value="' . $text[$i] . '" size="10" >  </div>';
-     print  '   <div class="sero2" style="width:100px;margin-left:10px"> <input type="text" name="item[]" value="' . $item[$i] . '" size="12" >  </div>';
-     print  '   <div class="sero2" style="width:200px;margin-left:25px"> <input type="text" name="spec[]" value="' . $spec[$i] . '" size="25">  </div>';
-     print  '   <div class="sero2" style="margin-left:30px;width:20px;"><input type="text" name="textnum[]" value="' . $textnum[$i]  . '" size="1" >  </div>';
-     print  '   <div class="sero2" style="margin-left:30px;width:20px;"><input type="text" name="textset[]" value="' . $textset[$i]  . '" size="1"  >  </div>';
-     print  '   <div class="sero2" style="margin-left:40px;width:100px;"><input type="text" name="carsize[]" value="' . $carsize[$i]  . '" size="10" >  </div>';
-     print  '   <div class="sero2" style="margin-left:10px;width:150px;"><input type="text" name="item_memo[]" value="' . $item_memo[$i]  . '" size="20" >  </div>';
-     print  '   <div class="clear"> </div> 	';
-	}
-?>		
-		
-        <div class="clear"> </div> 	
-         <br>
-		<div class="sero1" style="width:130px; color:red;font-size:20px;" > 특이사항 메모 </div> 
-	    <div class="sero2"> <input type="text" name="submemo"  id="submemo"  value="<?=$submemo?>" size="51" style="font-size:30px;color:red;"  placeholder="특이사항"></div> 
-     
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            background: rgba(255, 255, 255, 0.98);
+            margin-bottom: 20px;
+        }
 
-		
-	   </div>	    		   
-	   </div> 		
-	</form>
- </div>
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border: none;
+            border-radius: 15px 15px 0 0 !important;
+        }
 
-<script>
-  $(function() {
-     $( "#id_of_the_component" ).datepicker({ dateFormat: 'yy-mm-dd'}); 
-});
-$(function () {
-	/*            
-            $("#demand").datepicker({ dateFormat: 'yy-mm-dd'});
-			*/
-			
-});
+        .card-header h4 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-    function inputNumberFormat(obj) { 
-    obj.value = comma(uncomma(obj.value)); 
-} 
-function comma(str) { 
-    str = String(str); 
-    return str.replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,'); 
-} 
-function uncomma(str) { 
-    str = String(str); 
-    return str.replace(/[^\d]+/g, ''); 
-}
+        .card-body {
+            padding: 30px;
+        }
 
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
 
-function date_mask(formd, textid) {
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            padding: 10px 15px;
+            transition: all 0.3s ease;
+        }
 
-/*
-input onkeyup에서
-formd == this.form.name
-textid == this.name
-*/
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
 
-var form = eval("document."+formd);
-var text = eval("form."+textid);
+        .required-field {
+            color: #dc3545;
+            margin-left: 3px;
+        }
 
-var textlength = text.value.length;
+        .btn {
+            border-radius: 8px;
+            padding: 10px 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
 
-if (textlength == 4) {
-text.value = text.value + "-";
-} else if (textlength == 7) {
-text.value = text.value + "-";
-} else if (textlength > 9) {
-//  날짜 수동 입력 Validation 체크
-var chk_date = checkdate(text);
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
 
-if (chk_date == false) {
-return;
-}
-}
-}
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5568d3 0%, #654a8e 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
 
-function checkdate(input) {
-   var validformat = /^\d{4}\-\d{2}\-\d{2}$/; //Basic check for format validity 
-   var returnval = false;
+        .btn-secondary {
+            background: #6c757d;
+            border: none;
+        }
 
-   if (!validformat.test(input.value)) {
-    alert("날짜 형식이 올바르지 않습니다. YYYY-MM-DD");
-   } else { //Detailed check for valid date ranges 
-    var yearfield = input.value.split("-")[0];
-    var monthfield = input.value.split("-")[1];
-    var dayfield = input.value.split("-")[2];
-    var dayobj = new Date(yearfield, monthfield - 1, dayfield);
-   }
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.4);
+        }
 
-   if ((dayobj.getMonth() + 1 != monthfield)
-     || (dayobj.getDate() != dayfield)
-     || (dayobj.getFullYear() != yearfield)) {
-    alert("날짜 형식이 올바르지 않습니다. YYYY-MM-DD");
-   } else {
-    //alert ('Correct date'); 
-    returnval = true;
-   }
-   if (returnval == false) {
-    input.select();
-   }
-   return returnval;
-  }
-  
-function input_Text(){
-    document.getElementById("test").value = comma(Math.floor(uncomma(document.getElementById("test").value)*1.1));   // 콤마를 계산해 주고 다시 붙여주고
-  var copyText = document.getElementById("test");   // 클립보드 복사 
-  copyText.select();
-  document.execCommand("Copy");
-}  
+        .info-box {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-left: 4px solid #667eea;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
 
-function copy_below(){	
+        .info-box strong {
+            color: #667eea;
+        }
 
-var park = document.getElementsByName("asfee");
+        .item-row {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
 
-document.getElementById("ashistory").value  = document.getElementById("ashistory").value + document.getElementById("asday").value + " " + document.getElementById("aswriter").value+ " " + document.getElementById("asorderman").value + " ";
-document.getElementById("ashistory").value  = document.getElementById("ashistory").value  + document.getElementById("asordermantel").value + " " ;
-     if(park[1].checked) {
-        document.getElementById("ashistory").value  = document.getElementById("ashistory").value +" 유상 " + document.getElementById("asfee").value + " ";		
-	 }		 
-	   else
-	   {
-	    document.getElementById("ashistory").value  = document.getElementById("ashistory").value +" 무상 "+ document.getElementById("asfee").value + " ";				   
-	   }
-	   
-document.getElementById("ashistory").value  += document.getElementById("asfee_estimate").value + " " + document.getElementById("aslist").value+ " " + document.getElementById("as_refer").value + " ";	
-document.getElementById("ashistory").value  += document.getElementById("asproday").value + " " + document.getElementById("setdate").value+ " " + document.getElementById("asman").value + " ";	
-document.getElementById("ashistory").value  += document.getElementById("asendday").value + " " + document.getElementById("asresult").value+ "        ";
-   
-}  
+        .item-row:hover {
+            border-color: #667eea;
+            background: #fff;
+        }
 
-function del_below()
-     {
-     if(confirm("초기화한 자료는 복구할 방법이 없습니다.\n\n정말 초기화 하시겠습니까?")) {
-		document.getElementById("asday").value = "" ;
-		document.getElementById("aswriter").value = "" ;
-	
+        .item-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-right: 15px;
+        }
+
+        .special-notice {
+            background: linear-gradient(135deg, rgba(220, 53, 69, 0.1) 0%, rgba(255, 193, 7, 0.1) 100%);
+            border-left: 4px solid #dc3545;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .special-notice .form-control {
+            font-size: 1.2rem;
+            color: #dc3545;
+            font-weight: 600;
+            border: 2px solid #dc3545;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+
+        @media print {
+            .action-buttons, .card-header {
+                display: none;
+            }
+            .card {
+                box-shadow: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .card-body {
+                padding: 15px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <form name="board_form" id="board_form" method="post" action="invoice.php?num=<?=$num?>" enctype="multipart/form-data" onkeydown="return captureReturnKey(event)">
+
+            <input type="hidden" name="memo" value="<?=$memo?>">
+            <input type="hidden" name="delitext" value="<?=$delitext?>">
+            <input type="hidden" name="deadline" value="<?=$deadline?>">
+            <input type="hidden" name="startday" value="<?=$startday?>">
+
+            <div class="action-buttons">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-printer"></i> 인쇄하기
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="window.close();">
+                    <i class="bi bi-x-circle"></i> 창 닫기
+                </button>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h4>
+                        <i class="bi bi-truck"></i>
+                        외주발주 출고증 정보 입력
+                    </h4>
+                </div>
+
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">(귀중)<span class="required-field">*</span></label>
+                            <input type="text" name="firstord" value="<?=$firstord?>" class="form-control" placeholder="회사명을 입력하세요" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">하차일시<span class="required-field">*</span></label>
+                            <input type="text" name="outputdate" value="<?=$outputdate?>" class="form-control text-danger fw-bold" placeholder="하차일시" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">발주(업체)<span class="required-field">*</span></label>
+                            <input type="text" name="secondord" value="<?=$secondord?>" class="form-control" placeholder="발주처(업체명)" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">현장명<span class="required-field">*</span></label>
+                            <input type="text" name="workplacename" value="<?=$workplacename?>" class="form-control" placeholder="현장명" required>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">현장주소</label>
+                            <input type="text" name="address" value="<?=$address?>" class="form-control" placeholder="현장주소">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">받으실 분</label>
+                            <input type="text" name="chargedman" value="<?=$chargedman?>" class="form-control" placeholder="담당자명">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">받으실 분 연락처</label>
+                            <input type="text" name="chargedmantel" id="chargedmantel" value="<?=$chargedmantel?>" class="form-control" placeholder="연락처">
+                        </div>
+                    </div>
+
+                    <div class="info-box mt-4">
+                        <strong><i class="bi bi-info-circle"></i> 자동 계산 확인</strong> - 아래 항목들이 자동으로 계산됩니다.
+                    </div>
+
+                    <?php for($i=0; $i<10; $i++): ?>
+                    <div class="item-row">
+                        <div class="d-flex align-items-start">
+                            <div class="item-number"><?= $i+1 ?></div>
+                            <div class="row g-2 flex-fill">
+                                <div class="col-md-2">
+                                    <label class="form-label small">타입</label>
+                                    <input type="text" name="text[]" value="<?= $text[$i] ?>" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label small">품목</label>
+                                    <input type="text" name="item[]" value="<?= $item[$i] ?>" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small">규격</label>
+                                    <input type="text" name="spec[]" value="<?= $spec[$i] ?>" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-1">
+                                    <label class="form-label small">수량</label>
+                                    <input type="text" name="textnum[]" value="<?= $textnum[$i] ?>" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-1">
+                                    <label class="form-label small">단위</label>
+                                    <input type="text" name="textset[]" value="<?= $textset[$i] ?>" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label small">차량크기</label>
+                                    <input type="text" name="carsize[]" value="<?= $carsize[$i] ?>" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small">비고</label>
+                                    <input type="text" name="item_memo[]" value="<?= $item_memo[$i] ?>" class="form-control form-control-sm">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endfor; ?>
+
+                    <div class="special-notice">
+                        <label class="form-label text-danger">
+                            <i class="bi bi-exclamation-triangle-fill"></i> 특이사항 메모
+                        </label>
+                        <input type="text" name="submemo" id="submemo" value="<?=$submemo?>" class="form-control" placeholder="특이사항을 입력하세요">
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+    $(function() {
+        $("#id_of_the_component").datepicker({ dateFormat: 'yy-mm-dd' });
+    });
+
+    function captureReturnKey(e) {
+        if(e.keyCode==13 && e.srcElement.type != 'textarea')
+            return false;
     }
-}
-
-function Enter_Check(){
-        // 엔터키의 코드는 13입니다.
-    if(event.keyCode == 13){
-      exe_search();  // 실행할 이벤트 담당자 연락처 찾기
-    }
-}
-function Enter_firstCheck(){
-    if(event.keyCode == 13){
-      exe_firstordman();  // 원청 담당자 전번 가져오기
-    }
-}
-
-function Enter_chargedman_Check(){
-    if(event.keyCode == 13){
-      exe_chargedman();  // 현장소장 전번 가져오기
-    }
-}
-
-function exe_search()
-{
-
-     var tmp=$('#secondordman').val();
-	 switch (tmp) {
-		 case '김관' :
-         $("#secondordmantel").val("010-2648-0225");		 
-         $("#secondordman").val("김관부장");		 
-         $("#secondord").val("한산");		 
-		 break;		
-	 }
-}
-function exe_firstordman()
-{
-     var tmp=$('#firstordman').val();
-	 switch (tmp) {
-		 case '고범섭' :
-         $("#firstordman").val("고범섭소장");		 		 
-         $("#firstordmantel").val("010-6774-6211");		 
-         $("#firstord").val("오티스");			 		 		 
-         $("#secondord").val("우성");			 
-		 break;		 
-	 }
-}
-
-function exe_chargedman()
-{
-}
-
-function captureReturnKey(e) {
-    if(e.keyCode==13 && e.srcElement.type != 'textarea')
-    return false;
-}
-
-function recaptureReturnKey(e) {
-    if (e.keyCode==13)
-        exe_search();
-}
-</script>
-	</body>
- </html>
+    </script>
+</body>
+</html>

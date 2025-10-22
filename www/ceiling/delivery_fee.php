@@ -1,29 +1,28 @@
 <?php
-if(!isset($_SESSION))      
-		session_start(); 
-if(isset($_SESSION["DB"]))
-		$DB = $_SESSION["DB"] ;	
- $level= $_SESSION["level"];
- $user_name= $_SESSION["name"];
- $user_id= $_SESSION["userid"];	
+require_once __DIR__ . '/../bootstrap.php';
+
+// 세션 변수 초기화
+$DB = isset($_SESSION["DB"]) ? $_SESSION["DB"] : "";
+$level = isset($_SESSION["level"]) ? $_SESSION["level"] : 10;
+$user_name = isset($_SESSION["name"]) ? $_SESSION["name"] : "";
+$user_id = isset($_SESSION["userid"]) ? $_SESSION["userid"] : "";
+
+// 권한 체크
+if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+    sleep(1);
+    header("Location:" . $_SESSION["WebSite"] . "login/login_form.php");
+    exit;
+}
 
 ?>
+
+<?php include getDocumentRoot() . '/load_header.php'; ?>
  
-<?php include getDocumentRoot() . '/load_header.php';
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(1);
-         header("Location:".$_SESSION["WebSite"]."login/login_form.php"); 
-         exit;
-   } 
+<title> 배송비 정산 </title>
 
- ?>
- 
-<title> 배송비 정산 </title>  
+<?php
 
-<?php 
-
-$check = $_REQUEST["check"] ?? $_POST["check"];
+$check = $_REQUEST["check"] ?? $_POST["check"] ?? '';
 $plan_output_check = $_REQUEST["plan_output_check"] ?? $_POST["plan_output_check"] ?? '0';
 $output_check = $_REQUEST["output_check"] ?? $_POST["output_check"] ?? '0';
 $team_check = $_REQUEST["team_check"] ?? $_POST["team_check"] ?? '0';
@@ -42,8 +41,8 @@ if ($sortof != 0 && $stable == 0) {
     $cursort = (($sortof - 1) * 2) + $increment;
 }
 
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];	 
+$fromdate = $_REQUEST["fromdate"] ?? '';
+$todate = $_REQUEST["todate"] ?? '';	 
 
 // 현재 날짜
 $currentDate = date("Y-m-d");
@@ -86,6 +85,10 @@ $pdo = db_connect();
    $sum_arr=array();
    $delicompany_arr=array();
    $delipay_arr=array();
+   $delivery_arr=array();
+
+   // sum 배열 초기화
+   $sum = array(0, 0, 0, 0, 0, 0);
    $sum1=0;
    $sum2=0;
    $sum3=0;

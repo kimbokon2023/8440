@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../bootstrap.php';
 
 // 변수 초기화
 $fileName = getDocumentRoot() . "/ceiling/gridData.json";

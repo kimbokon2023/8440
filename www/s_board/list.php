@@ -1,65 +1,63 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
-   
-   // 첫 화면 표시 문구
+<?php
+/**
+ * s_board 목록 페이지
+ * 로컬 및 서버 환경 모두 지원
+ */
+
+require_once __DIR__ . '/../bootstrap.php';
+
+// 세션 변수 초기화
+$DB = $_SESSION['DB'] ?? 'mirae8440';
+$level = $_SESSION["level"] ?? 999;
+
+// 첫 화면 표시 문구
 $title_message = '안전보건';
-   
 
- ?>
-  <?php include getDocumentRoot() . '/load_header.php' ?> 
-  
-<title>  <?=$title_message?>  </title> 
+?>
+<?php include getDocumentRoot() . '/load_header.php' ?>
 
-    <style>
-        .table-hover tbody tr:hover {
-            cursor: pointer;
-        }
-    </style> 
- 
- </head> 
- 
+<title>  <?=$title_message?>  </title>
+
+<style>
+    .table-hover tbody tr:hover {
+        cursor: pointer;
+    }
+</style>
+
+</head>
+
 <body>
 
-<?php require_once(includePath('myheader.php')); ?>   
+<?php require_once(includePath('myheader.php')); ?>
 
 <?php
 
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(1);
-         header("Location:".$_SESSION["WebSite"]."login/login_form.php"); 
-         exit;
-   }  
+// 권한 체크
+if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+    /*   alert("관리자 승인이 필요합니다."); */
+    sleep(1);
+    header("Location:" . getBaseUrl() . "/login/login_form.php");
+    exit;
+}
 
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();	  
-
-$tablename = "s_board";  
+// 요청 변수 초기화
+$tablename = "s_board";
+$mode = $_REQUEST["mode"] ?? '';
+$search = $_REQUEST["search"] ?? '';
+$page = $_REQUEST["page"] ?? 1;  
  
-  if(isset($_REQUEST["mode"]))
-     $mode=$_REQUEST["mode"];
-  else 
-     $mode="";
-
-       if(isset($_REQUEST["search"]))   // search 쿼리스트링 값 할당 체크
-         $search=$_REQUEST["search"];
-       else 
-         $search="";      
-      
-   if($mode=="search"){
-         if(!$search) {
-				$sql ="select * from mirae8440." . $tablename . " order  by num desc   "; 				
-             }
-              $sql="select * from mirae8440." . $tablename . " where name like '%$search%' or subject like '%$search%'  or nick like '%$search%'  or regist_day like '%$search%'  order by num desc   ";              
-       } else {
-              $sql="select * from mirae8440." . $tablename . " order  by num desc  ";
-       }
+// 검색 모드 처리
+if ($mode == "search" && !empty($search)) {
+    $sql = "select * from " . $DB . "." . $tablename . " where name like '%" . $search . "%' or subject like '%" . $search . "%' or nick like '%" . $search . "%' or regist_day like '%" . $search . "%' order by num desc";
+} else {
+    $sql = "select * from " . $DB . "." . $tablename . " order by num desc";
+}
 
 
 // 전체 레코드수를 파악한다.
-try{  
-	$stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-	$total_row=$stmh->rowCount();    		
+try {
+    $stmh = $pdo->query($sql);
+    $total_row = $stmh->rowCount();    		
 			 
  ?>
  
@@ -104,14 +102,14 @@ $start_num=$total_row;
 			 
  while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
   $item_num=$row["num"];
-  $item_id=$row["id"];
-  $item_name=$row["name"];
-  $item_nick=$row["nick"];
-  $item_hit=$row["hit"];
-  $item_date=$row["regist_day"];
-  $item_date=substr($item_date, 0, 10);
-  $item_subject=str_replace(" ", "&nbsp;", $row["subject"]);  
-  $division=$row["division"];    
+  $item_id = $row["id"] ?? '';
+  $item_name = $row["name"] ?? '';
+  $item_nick = $row["nick"] ?? '';
+  $item_hit = $row["hit"] ?? 0;
+  $item_date = $row["regist_day"] ?? '';
+  $item_date = substr($item_date, 0, 10);
+  $item_subject = str_replace(" ", "&nbsp;", $row["subject"] ?? '');
+  $division = $row["division"] ?? '';    
  ?>
  
 	<tr onclick="redirectToView('<?=$item_num?>', '<?=$tablename?>')">  
@@ -123,11 +121,12 @@ $start_num=$total_row;
 	</tr>     
 	
  <?php
-	$start_num--;
+    $start_num--;
     }
-  } catch (PDOException $Exception) {
-  print "오류: ".$Exception->getMessage();
-  }  
+} catch (PDOException $Exception) {
+    error_log("데이터 조회 오류: " . $Exception->getMessage());
+    $total_row = 0;
+}  
   
  ?>
   	  </tbody>

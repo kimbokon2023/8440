@@ -1,10 +1,10 @@
 <?php
-require_once getDocumentRoot() . '/load_GoogleDrive.php';
+require_once __DIR__ . '/../bootstrap.php';
+require_once includePath('load_GoogleDrive.php');
 $title_message = '연구개발보고서';
 ?>
 
-<?php include getDocumentRoot() . '/common.php' ?>
-<?php include getDocumentRoot() . '/load_header.php'; ?>
+<?php include includePath('load_header.php'); ?>
 
 <title> <?=$titlemsg?> </title>
 </head>
@@ -35,7 +35,7 @@ $title_message = '연구개발보고서';
 
 <body>
 
-    <?php include getDocumentRoot() . "/common/modal.php"; ?>
+    <?php include includePath("common/modal.php"); ?>
 
     <?php
     // 세션 변수 초기화
@@ -44,7 +44,11 @@ $title_message = '연구개발보고서';
     $DB = $_SESSION["DB"] ?? '';
     $admin = $_SESSION["admin"] ?? '';
     $chkMobile = $_SESSION["chkMobile"] ?? false;
-    $pdo = $_SESSION["pdo"] ?? null;
+
+    // PDO는 bootstrap.php에서 이미 초기화됨
+    if (!isset($pdo) || !$pdo) {
+        $pdo = db_connect();
+    }
 
     // 기본 변수 초기화
     $tablename = 'eworks';
@@ -98,7 +102,7 @@ $title_message = '연구개발보고서';
                 error_log("연구개발보고서 조회 결과 없음: num=" . $num);
                 echo "결과가 없습니다.<br>";
             } else {
-                include getDocumentRoot() . '/eworks/_row.php';
+                include includePath('eworks/_row.php');
                 // 전자결재의 정보를 다시 변환해 준다.
                 $mytitle = $outworkplace ?? '';
                 $content = $al_content ?? '';
@@ -133,7 +137,7 @@ $title_message = '연구개발보고서';
                 error_log("연구개발보고서 복사 원본 조회 결과 없음: num=" . $num);
                 echo "결과가 없습니다.<br>";
             } else {
-                include getDocumentRoot() . '/eworks/_row.php';
+                include includePath('eworks/_row.php');
                 // 전자결재의 정보를 다시 변환해 준다.
                 $mytitle = $outworkplace ?? '';
                 $content = $al_content ?? '';
@@ -155,7 +159,7 @@ $title_message = '연구개발보고서';
 
     // 초기 프로그램은 $num사용 이후 $id로 수정중임
     $id = $num;
-    require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기
+    require_once includePath('load_GoogleDriveSecond.php'); // attached, image에 대한 정보 불러오기
     ?>
 
     <form id="board_form" name="board_form" method="post" onkeydown="return captureReturnKey(event)">
@@ -187,7 +191,7 @@ $title_message = '연구개발보고서';
                             <?php
                             // 결재라인 관련 변수 초기화
                             $approvals = array();
-                            $exam = array();
+                            $exam = array('name' => '', 'date' => '');
                             $formattedDate = '';
 
                             if ($al_part == '지원파트') {
@@ -265,7 +269,7 @@ $title_message = '연구개발보고서';
                             }
 
                             // 검토자 결재정보 생성
-                            $store = $exam["name"] . ' ' . $exam['date'];
+                            $store = ($exam["name"] ?? '') . ' ' . ($exam['date'] ?? '');
 
                             if ($status === 'end' and ($e_confirm !== '' && $e_confirm !== null)) {
                                 ?>

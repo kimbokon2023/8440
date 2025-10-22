@@ -1,12 +1,19 @@
-<?php\nrequire_once __DIR__ . '/../../common/functions.php';
+<?php
+/**
+ * SIF 평가 작성/수정 폼 페이지
+ * 로컬 및 서버 환경 모두 지원
+ */
+
+require_once __DIR__ . '/../../bootstrap.php';
 require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
 
 // 첫 화면 표시 문구
-$title_message = '안전보건';	
+$title_message = '안전보건';
+
 ?>
 
-<?php include getDocumentRoot() . '/load_header.php' ?> 
-<title> <?=$title_message?> </title>  
+<?php include getDocumentRoot() . '/load_header.php' ?>
+<title> <?=$title_message?> </title>
 </head>
 <body>
 
@@ -14,37 +21,31 @@ $title_message = '안전보건';
 
 <?php
 
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(1);
-         header("Location:".$_SESSION["WebSite"]."login/login_form.php"); 
-         exit;
-   }    
+// 권한 체크
+if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+    /*   alert("관리자 승인이 필요합니다."); */
+    sleep(1);
+    header("Location:" . getBaseUrl() . "/login/login_form.php");
+    exit;
+}
 
+// 요청 변수 초기화
+$id = $_REQUEST["id"] ?? '';
+$fileorimage = $_REQUEST["fileorimage"] ?? ''; // file or image
+$item = $_REQUEST["item"] ?? '';
+$upfilename = $_REQUEST["upfilename"] ?? '';
+$tablename = $_REQUEST["tablename"] ?? 's_sif';
+$savetitle = $_REQUEST["savetitle"] ?? '';   // log기록 저장 타이틀
+$mode = $_REQUEST["mode"] ?? '';  //수정 버튼을 클릭해서 호출했는지 체크
+$num = $_REQUEST["num"] ?? '';  //수정 버튼을 클릭해서 호출했는지 체크
+$DB = $_SESSION['DB'] ?? 'mirae8440';
 
-isset($_REQUEST["id"])  ? $id=$_REQUEST["id"] :   $id=''; 
-isset($_REQUEST["fileorimage"])  ? $fileorimage=$_REQUEST["fileorimage"] :   $fileorimage=''; // file or image
-isset($_REQUEST["item"])  ? $item=$_REQUEST["item"] :   $item=''; 
-isset($_REQUEST["upfilename"])  ? $upfilename=$_REQUEST["upfilename"] :   $upfilename=''; 
-isset($_REQUEST["tablename"])  ? $tablename=$_REQUEST["tablename"] :  $tablename='s_sif'; 
-isset($_REQUEST["savetitle"])  ? $savetitle=$_REQUEST["savetitle"] :  $savetitle='';   // log기록 저장 타이틀
-    
-  if(isset($_REQUEST["mode"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $mode=$_REQUEST["mode"];
-  else
-   $mode="";
-  
-  if(isset($_REQUEST["num"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $num=$_REQUEST["num"];
-  else
-   $num="";
-          
-require_once(includePath('lib/mydb.php'));
-  $pdo = db_connect();
+// 데이터베이스 연결
+$pdo = db_connect();
 
   if ($mode=="modify"){
     try{
-      $sql = "select * from mirae8440." . $tablename . " where num = ? ";
+      $sql = "select * from {$DB}." . $tablename . " where num = ? ";
       $stmh = $pdo->prepare($sql); 
 
     $stmh->bindValue(1,$num,PDO::PARAM_STR); 

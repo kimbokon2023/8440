@@ -22,8 +22,15 @@
 <!-- JavaScript Bundle with Popper -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<script src="http://8440.co.kr/order/order.js"></script>
-<script src="http://8440.co.kr/common.js"></script>	
+<?php
+// Environment detection for dynamic URL generation
+$isLocal = strpos($_SERVER['HTTP_HOST'], 'localhost') !== false ||
+           strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false ||
+           strpos($_SERVER['HTTP_HOST'], '::1') !== false;
+$baseUrl = $isLocal ? 'http://localhost' : 'http://8440.co.kr';
+?>
+<script src="<?= $baseUrl ?>/order/order.js"></script>
+<script src="<?= $baseUrl ?>/common.js"></script>	
 
 </head>
 
@@ -36,10 +43,8 @@ $readIni = parse_ini_file("./settings.ini",false);
 $init_read = array();   // 환경파일 불러오기
 $init_read = parse_ini_file("./settings.ini",false);	
 
-if(isset($_REQUEST["SelectWork"]))  // 어떤 작업을 지시했는지 파악해서 돌려줌.
-	$SelectWork=$_REQUEST["SelectWork"];
-		else 
-			$SelectWork="";   // 초기화		
+// Initialize request variables with null safety
+$SelectWork = $_REQUEST["SelectWork"] ?? "";   // 초기화		
 
  if(file_exists('uploadfilearr.txt'))
     $myfiles = file("uploadfilearr.txt");

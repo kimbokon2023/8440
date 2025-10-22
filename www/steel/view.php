@@ -1,14 +1,22 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php
+require_once __DIR__ . '/../common/functions.php';
 require_once(includePath('session.php'));
 
-$WebSite = "https://8440.co.kr/";	
+// Environment detection for URL
+$is_local = (isset($_SERVER['HTTP_HOST']) && (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false));
+$base_url = $is_local ? 'http://localhost' : 'https://8440.co.kr';
+$WebSite = $base_url . '/';
 
- if(!isset($_SESSION["level"]) || $level>5) {	     
-		 sleep(1);
-         header ("Location:" . $WebSite . "login/logout.php");         
-         exit;
-  }
-   
+// Initialize session variables with null safety
+$level = $_SESSION["level"] ?? null;
+$user_name = $_SESSION["name"] ?? '';
+
+if (!isset($_SESSION["level"]) || $level > 5) {
+    sleep(1);
+    header("Location:" . $WebSite . "login/logout.php");
+    exit;
+}
+
 $title_message = '원자재 입출고';      
 
 ?> 
@@ -28,15 +36,10 @@ th, td {
  <body>
   
   <?php
-  if(isset($_REQUEST["mode"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $mode=$_REQUEST["mode"];
-  else
-   $mode="";
-  
-  if(isset($_REQUEST["num"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $num=$_REQUEST["num"];
-  else
-   $num="";
+// Initialize request variables with null safety
+$mode = $_REQUEST["mode"] ?? '';
+$num = $_REQUEST["num"] ?? '';
+$page = $_REQUEST["page"] ?? '';
    
 
  // 철판종류에 대한 추출부분
@@ -145,8 +148,8 @@ input {
           </td>
           <td>
 			<?php	 		  
-			 $aryreg=array();
-			 $aryitem=array();
+			 $aryreg = array('', '');  // 모든 인덱스를 빈 문자열로 초기화
+			 $aryitem = array('', '');  // 모든 인덱스를 빈 문자열로 초기화
 			 if($which=='') $which='2';
 			 switch ($which) {
 				case   "1"             : $aryreg[0] = "checked" ; break;

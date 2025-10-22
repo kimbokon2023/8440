@@ -1,16 +1,11 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php
+require_once __DIR__ . '/../bootstrap.php';
 require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
 	
 header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문  
 
 require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();	
-
- function trans_date($tdate) {
-		      if($tdate!="0000-00-00" and $tdate!="1900-01-01" and $tdate!="")  $tdate = date("Y-m-d", strtotime( $tdate) );
-					else $tdate="";							
-				return $tdate;	
-}
+$pdo = db_connect();
 
  if(isset($_REQUEST["mode"]))  //modify_form에서 호출할 경우
     $mode=$_REQUEST["mode"];
@@ -32,10 +27,12 @@ $pdo = db_connect();
  else 
     $timekey="";
 	
- if(isset($_REQUEST["check_draw"])) 
+ if(isset($_REQUEST["check_draw"]))
 	 $check_draw=$_REQUEST["check_draw"];   // 도면 미설계List
+	   elseif(isset($_POST["check_draw"]))
+		 $check_draw=$_POST["check_draw"];
 	   else
-		 $check_draw=$_POST["check_draw"];    	
+		 $check_draw='';    	
 
 
   if(isset($_REQUEST["search"]))  //수정 버튼을 클릭해서 호출했는지 체크
@@ -51,10 +48,12 @@ $pdo = db_connect();
   else
    $process="전체";       
 
- if(isset($_REQUEST["check"])) 
+ if(isset($_REQUEST["check"]))
 	 $check=$_REQUEST["check"]; // 미출고 리스트 request 사용 페이지 이동버튼 누를시`
+   elseif(isset($_POST["check"]))
+     $check=$_POST["check"]; // 미출고 리스트 POST사용
    else
-     $check=$_POST["check"]; // 미출고 리스트 POST사용 
+     $check=''; 
  
  if(isset($_REQUEST["output_check"])) 
 	 $output_check=$_REQUEST["output_check"]; // 미출고 리스트 request 사용 페이지 이동버튼 누를시`
@@ -121,8 +120,8 @@ $deadline=trans_date($deadline);
 $testday=trans_date($testday);
 $lc_draw=trans_date($lc_draw);
 $lclaser_date=trans_date($lclaser_date);
-$lclbending_date=trans_date($lclbending_date);
-$lclwelding_date=trans_date($lclwelding_date);
+$lcbending_date=trans_date($lcbending_date);
+$lcwelding_date=trans_date($lcwelding_date);
 $lcpainting_date=trans_date($lcpainting_date);
 $lcassembly_date=trans_date($lcassembly_date);
 $main_draw=trans_date($main_draw);			
@@ -648,10 +647,8 @@ if($copied_file=='' && $pdffile_name!='' )
 		$stmh->bindValue(157, $pdffile_name, PDO::PARAM_STR);	
 		$stmh->bindValue(158, $copied_file, PDO::PARAM_STR);	
 		$stmh->bindValue(159, $confirm, PDO::PARAM_STR);	
-		$stmh->bindValue(160, $submemo, PDO::PARAM_STR);	
-		$stmh->bindValue(161, $deliverynum, PDO::PARAM_STR);	
-		
-		$sql .=" , , ,  "; 
+		$stmh->bindValue(160, $submemo, PDO::PARAM_STR);
+		$stmh->bindValue(161, $deliverynum, PDO::PARAM_STR);
 
 		$stmh->execute();
 		$pdo->commit(); 

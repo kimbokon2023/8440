@@ -1,19 +1,22 @@
 <meta charset="utf-8">
- 
- <?php
- session_start(); 
-  
- $num=$_REQUEST["num"];
- $search=$_REQUEST["search"];  //검색어
- $find=$_REQUEST["find"];      // 검색항목
- $page=$_REQUEST["page"];   //페이지번호
- $process=$_REQUEST["process"];   // 진행현황
- // 기간을 정하는 구간
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];
-$separate_date=$_REQUEST["separate_date"];	 
 
- $year=$_REQUEST["year"];   // 년도 체크박스
+<?php
+session_start();
+
+// Environment detection for URL
+$is_local = (isset($_SERVER['HTTP_HOST']) && (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false));
+$base_url = $is_local ? 'http://localhost' : 'http://8440.co.kr';
+
+// Initialize request variables with null safety
+$num = $_REQUEST["num"] ?? '';
+$search = $_REQUEST["search"] ?? '';
+$find = $_REQUEST["find"] ?? '';
+$page = $_REQUEST["page"] ?? '';
+$process = $_REQUEST["process"] ?? '';
+$fromdate = $_REQUEST["fromdate"] ?? '';
+$todate = $_REQUEST["todate"] ?? '';
+$separate_date = $_REQUEST["separate_date"] ?? '';
+$year = $_REQUEST["year"] ?? '';
 
  require_once("../lib/mydb.php");
  $pdo = db_connect();
@@ -31,6 +34,6 @@ $separate_date=$_REQUEST["separate_date"];
    catch (PDOException $Exception) {
        print "오류: ".$Exception->getMessage();
   }
-  header("Location:http://8440.co.kr/steel/view.php?num=$num&page=$page&search=$search&find=$find&process=$process&yearcheckbox=$yearcheckbox&year=$year&fromdate=$fromdate&todate=$todate&separate_date=$separate_date");  
+  header("Location:" . $base_url . "/steel/view.php?num=$num&page=$page&search=$search&find=$find&process=$process&yearcheckbox=$yearcheckbox&year=$year&fromdate=$fromdate&todate=$todate&separate_date=$separate_date");  
  ?>  
 	

@@ -1,14 +1,15 @@
 <?php
-require_once getDocumentRoot() . '/load_GoogleDrive.php';
+require_once __DIR__ . '/../bootstrap.php';
+require_once includePath('load_GoogleDrive.php');
 
 // 첫 화면 표시 문구
 $title_message = '핫 유튜브 정보 분석';
 ?>
-<?php include getDocumentRoot() . '/load_header.php' ?>
+<?php include includePath('load_header.php') ?>
 <title><?=$title_message?></title>
 </head>
 <body>
-<?php include getDocumentRoot() . '/common/modal.php'; ?>
+<?php include includePath('common/modal.php'); ?>
 
 <?php
 // 권한 체크
@@ -53,11 +54,11 @@ if ($mode == "modify") {
             echo "검색결과가 없습니다.<br>";
         } else {
             $row = $stmh->fetch(PDO::FETCH_ASSOC);
-            $item_subject = $row["subject"];
-            $is_html = $row["is_html"];
-            $content = $row["content"];
-            $qnacheck = $row["qnacheck"];
-            $division = $row["division"];
+            $item_subject = $row["subject"] ?? '';
+            $is_html = $row["is_html"] ?? '';
+            $content = $row["content"] ?? '';
+            $qnacheck = $row["qnacheck"] ?? '';
+            $division = $row["division"] ?? '';
         }
     } catch (PDOException $ex) {
         error_log("데이터 조회 오류: " . $ex->getMessage());
@@ -71,7 +72,7 @@ $id = $num;
 $savefilename_arr = array();
 $saveimagename_arr = array();
 
-require_once getDocumentRoot() . '/load_GoogleDriveSecond.php';
+require_once includePath('load_GoogleDriveSecond.php');
 ?>
 
 <form id="board_form" name="board_form" method="post" enctype="multipart/form-data">

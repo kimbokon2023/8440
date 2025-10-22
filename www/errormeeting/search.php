@@ -69,7 +69,7 @@ $serverfilename = $_REQUEST["serverfilename"] ?? '';
             <div class="card align-middle" style="width:38rem; border-radius:20px;">
                 <div class="card" style="padding:6px;margin:7px;">
                     <h5 class="card-title text-center" style="color:#113366;">
-                        검색선택 : &nbsp; 창호(jamb)
+                        검색선택 : &nbsp; 잠(jamb)
                         <input type="radio" checked name="search_opt" value="1">
                         &nbsp; 천장
                         <input type="radio" name="search_opt" value="2">

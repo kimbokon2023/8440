@@ -4,13 +4,20 @@ require_once __DIR__ . '/../common/functions.php';
  <?php
 session_start(); 
   
- $level= $_SESSION["level"];
- if(!isset($_SESSION["level"]) || $level>=5) {
-         echo "<script> alert('관리자 승인이 필요합니다.') </script>";
-		 sleep(2);
-         header ("Location:http://8440.co.kr/login/logout.php");
-         exit;
-   }   
+// Environment detection
+$isLocal = strpos($_SERVER['HTTP_HOST'], 'localhost') !== false ||
+           strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false ||
+           strpos($_SERVER['HTTP_HOST'], '::1') !== false;
+$baseUrl = $isLocal ? 'http://localhost' : 'http://8440.co.kr';
+
+// Initialize session variables with null safety
+$level = $_SESSION["level"] ?? null;
+if(!isset($_SESSION["level"]) || $level >= 5) {
+    echo "<script> alert('관리자 승인이 필요합니다.') </script>";
+    sleep(2);
+    header("Location:" . $baseUrl . "/login/logout.php");
+    exit;
+}   
    
    ?>
    
@@ -34,63 +41,23 @@ session_start();
  
  
   
-$callback=$_REQUEST["callback"];  // 출고현황에서 체크번호
-  
-  if(isset($_REQUEST["mode"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $mode=$_REQUEST["mode"];
-  else
-   $mode="";
-
-  if(isset($_REQUEST["which"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $which=$_REQUEST["which"];
-  else
-   $which="2";
-  
-  if(isset($_REQUEST["num"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $num=$_REQUEST["num"];
-  else
-   $num="";
-
-   if(isset($_REQUEST["page"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $page=$_REQUEST["page"];
-  else
-   $page=1;   
+// Initialize request variables with null safety
+$callback = $_REQUEST["callback"] ?? null;
+$mode = $_REQUEST["mode"] ?? "";
+$which = $_REQUEST["which"] ?? "2";
+$num = $_REQUEST["num"] ?? "";
+$page = $_REQUEST["page"] ?? 1;   
 
   
-if(isset($_REQUEST["scale"])) 
- {
-    $scale=$_REQUEST["scale"];  
- }
-  else
-  {
-    $scale=10;	 
-  }
-
-  if(isset($_REQUEST["search"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $search=$_REQUEST["search"];
-  else
-   $search="";
-  
-  if(isset($_REQUEST["find"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $find=$_REQUEST["find"];
-  else
-   $find="";
-
-  if(isset($_REQUEST["process"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $process=$_REQUEST["process"];
-  else
-   $process="전체";
-
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];
-
-
-  if(isset($_REQUEST["regist_state"]))  // 등록하면 1로 설정 접수상태
-   $regist_state=$_REQUEST["regist_state"];
-  else
-   $regist_state="1";
-
- $year=$_REQUEST["year"];   // 년도 체크박스
+// Continue initializing request variables
+$scale = $_REQUEST["scale"] ?? 10;
+$search = $_REQUEST["search"] ?? "";
+$find = $_REQUEST["find"] ?? "";
+$process = $_REQUEST["process"] ?? "전체";
+$fromdate = $_REQUEST["fromdate"] ?? null;
+$todate = $_REQUEST["todate"] ?? null;
+$regist_state = $_REQUEST["regist_state"] ?? "1";
+$year = $_REQUEST["year"] ?? null;
   
 //  철판리스트 뽑기 
    
@@ -149,9 +116,8 @@ sort($steelsource_item_yes);
 
 $sumcount = count($steelsource_item_yes);
 	
- // 기간을 정하는 구간
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];	 
+ // 기간을 정하는 구간 (already initialized above)
+// $fromdate and $todate are already initialized with null safety 
 
 if($fromdate=="")
 {
@@ -170,8 +136,7 @@ if($todate=="")
 	$Transtodate=date("Y-m-d",$Transtodate);
 	}
 		  
-   if(isset($_REQUEST["find"]))   //목록표에 제목,이름 등 나오는 부분
-	 $find=$_REQUEST["find"];
+// find is already initialized above with null safety
  
 $process="전체";  // 기본 전체로 정한다.   
 

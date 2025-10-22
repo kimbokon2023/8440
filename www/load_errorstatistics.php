@@ -38,7 +38,8 @@ $price_per_kg = [
     'I3MR304' => $I3MR304
 ];
 
-$exclude_bad_choice = isset($exclude_bad_choice) ? $exclude_bad_choice : 'false';
+// 소장/기타/소재/업체 체크 제외인 경우 (기본값)
+$exclude_bad_choice = isset($exclude_bad_choice) ? $exclude_bad_choice : 'true';
 
 // 소장/기타/소재/업체 체크 제외인 경우
 if ($exclude_bad_choice !== 'false') {

@@ -1,6 +1,6 @@
  <!DOCTYPE HTML> 
  <meta charset="UTF-8">
-<?	
+<?php
 function write_ini_file($assoc_arr, $path, $has_sections=FALSE) {
 		$content = "";
 		if ($has_sections) {
@@ -61,10 +61,11 @@ function write_ini_file($assoc_arr, $path, $has_sections=FALSE) {
 	}	
 
 	
-$tmp = array();	
-$tmp['yesterdaytotal'] = $_REQUEST["yesterdaytotal"];
-$tmp['yesterdayused'] = $_REQUEST["yesterdayused"];
-$tmp['yesterdaysaved'] = $_REQUEST["yesterdaysaved"];
+// Initialize request variables with null safety
+$tmp = array();
+$tmp['yesterdaytotal'] = $_REQUEST["yesterdaytotal"] ?? '';
+$tmp['yesterdayused'] = $_REQUEST["yesterdayused"] ?? '';
+$tmp['yesterdaysaved'] = $_REQUEST["yesterdaysaved"] ?? '';
 
 $obj = (object) $tmp;
 

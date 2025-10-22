@@ -1,23 +1,37 @@
 <?php
-require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
+require_once __DIR__ . '/../bootstrap.php';
+require_once getDocumentRoot() . '/load_GoogleDrive.php';
 
-if(!isset($_SESSION["level"]) || $level>8) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 $_SESSION["url"]='https://8440.co.kr/sillcover/write_form.php' ; 		  		 
-		 sleep(1);
-	          header("Location:" . $WebSite . "login/login_form.php"); 
-         exit;
-   }	 
-	
-$titlemsg	= '재료분리대 출고사진';	
- 
+/**
+ * 문지방덮개 (재료분리대) 작성/수정 폼
+ * 
+ * 출고/입고 데이터 작성 및 수정, 파일 첨부 기능 제공
+ */
+
+// 세션 변수 초기화
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+$level = $_SESSION["level"] ?? 999;
+$user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["userid"] ?? '';
+$admin = $_SESSION["level"] === 1 ? '1' : '0';
+$WebSite = $_SESSION["WebSite"] ?? getBaseUrl() . '/';
+$chkMobile = $_SESSION["chkMobile"] ?? false;
+
+// 권한 체크
+if ($level > 8) {
+    $_SESSION["url"] = getBaseUrl() . '/sillcover/write_form.php';
+    sleep(1);
+    header("Location:" . $WebSite . "login/login_form.php");
+    exit;
+}
+
+// 첫 화면 표시 문구
+$titlemsg = '재료분리대 출고사진';
+
+include getDocumentRoot() . '/load_header.php';
 ?>
 
-<?php include getDocumentRoot() . '/common.php' ?>
-<?php include getDocumentRoot() . '/load_header.php'; ?>
-  
-<title> <?=$titlemsg?> </title>
-
+<title><?= htmlspecialchars($titlemsg, ENT_QUOTES, 'UTF-8') ?></title>
 </head>
 
 <style>
@@ -45,285 +59,303 @@ $titlemsg	= '재료분리대 출고사진';
 
 </style>	
  
+
 <body>
 
 <?php include getDocumentRoot() . "/common/modal.php"; ?>
-   
+
 <?php
-   
- // 모바일이면 특정 CSS 적용
+// 모바일이면 특정 CSS 적용
 if ($chkMobile) {
     echo '<style>
         body, table th, table td, h4, .form-control {
             font-size: 30px;
         }
-         h4 {
-            font-size: 40px; 
+        h4 {
+            font-size: 40px;
         }
-		.btn-sm {
-        font-size: 30px;
-		}
-		
+        .btn-sm {
+            font-size: 30px;
+        }
     </style>';
 }
 
-isset($_REQUEST["id"])  ? $id=$_REQUEST["id"] :   $id=''; 
-isset($_REQUEST["mode"])  ? $mode=$_REQUEST["mode"] :   $mode=''; 
-isset($_REQUEST["num"])  ? $num=$_REQUEST["num"] :   $num=''; 
-isset($_REQUEST["tablename"]) ? $tablename=$_REQUEST["tablename"] :  $tablename='sillcover'; 
+// 요청 변수 초기화
+$id = $_REQUEST["id"] ?? '';
+$mode = $_REQUEST["mode"] ?? '';
+$num = $_REQUEST["num"] ?? '';
+$tablename = $_REQUEST["tablename"] ?? 'sillcover';
+$item = $_REQUEST["item"] ?? '';
+$timekey = $_REQUEST["timekey"] ?? '';
+$searchtext = $_REQUEST["searchtext"] ?? '';
 
+// 데이터 변수 초기화
+$outdate = '';
+$indate = '';
+$workplace = '';
+$comment = '';
+$first_writer = '';
+$update_log = '';
+$is_deleted = '';
+$request_comment = ''; 
+
+// 수정 모드 또는 보기 모드
 if ($mode == "modify" || $mode == "view") {
     try {
-        $sql = "select * from {$DB}.{$tablename} where num = ? ";
-        $stmh = $pdo->prepare($sql); 
-        $stmh->bindValue(1, $num, PDO::PARAM_STR); 
+        $sql = "select * from " . $DB . "." . $tablename . " where num = ?";
+        $stmh = $pdo->prepare($sql);
+        $stmh->bindValue(1, $num, PDO::PARAM_INT);
         $stmh->execute();
-        $count = $stmh->rowCount();            
+        $count = $stmh->rowCount();
         $row = $stmh->fetch(PDO::FETCH_ASSOC);  // $row 배열로 DB 정보를 불러온다.
-
-        if ($count < 1) {  
-            print "결과가 없습니다.<br>";
+        
+        if ($count < 1) {
+            echo "<script>alert('결과가 없습니다.'); window.close();</script>";
+            exit;
         } else {
-            include '_row.php';		  
-            if ($indate != "0000-00-00") 
+            include '_row.php';
+            
+            // 날짜 포맷팅
+            if ($indate != "0000-00-00" && !empty($indate)) {
                 $indate = date("Y-m-d", strtotime($indate));
-            else 
+            } else {
                 $indate = "";
-
-            if ($outdate != "0000-00-00") 
+            }
+            
+            if ($outdate != "0000-00-00" && !empty($outdate)) {
                 $outdate = date("Y-m-d", strtotime($outdate));
-            else 
+            } else {
                 $outdate = "";
+            }
         }
     } catch (PDOException $Exception) {
-        print "오류: " . $Exception->getMessage();
-    } 
+        error_log("데이터 조회 오류: " . $Exception->getMessage());
+        echo "<script>alert('데이터 조회 중 오류가 발생했습니다.'); window.close();</script>";
+        exit;
+    }
 }
 
-if (empty($mode)) {  // 수정모드가 아닐 때, 신규 자료일 때는 변수 초기화 한다.
+// 신규 작성 모드
+if (empty($mode)) {
     $outdate = date("Y-m-d");
     $indate = date("Y-m-d");
-    $workplace = $row["workplace"];			  
+    $workplace = '';
+    $comment = '';
     $request_comment = null;
-    $titlemsg = '재료분리대 출고사진';	
-} 
+    $titlemsg = '재료분리대 출고사진';
+}
 
+// 복사 모드
 if ($mode == "copy") {
     try {
-        $sql = "select * from {$DB}.{$tablename} where num = ? ";
-        $stmh = $pdo->prepare($sql); 
-        $stmh->bindValue(1, $num, PDO::PARAM_STR); 
+        $sql = "select * from " . $DB . "." . $tablename . " where num = ?";
+        $stmh = $pdo->prepare($sql);
+        $stmh->bindValue(1, $num, PDO::PARAM_INT);
         $stmh->execute();
-        $count = $stmh->rowCount();            
+        $count = $stmh->rowCount();
         $row = $stmh->fetch(PDO::FETCH_ASSOC);  // $row 배열로 DB 정보를 불러온다.
-
-        if ($count < 1) {  
-            print "결과가 없습니다.<br>";
+        
+        if ($count < 1) {
+            echo "<script>alert('결과가 없습니다.'); window.close();</script>";
+            exit;
         } else {
-            include '_row.php';			
+            include '_row.php';
             $outdate = date("Y-m-d");
-            $indate = date("Y-m-d");			  
+            $indate = date("Y-m-d");
         }
     } catch (PDOException $Exception) {
-        print "오류: " . $Exception->getMessage();
+        error_log("데이터 조회 오류: " . $Exception->getMessage());
+        echo "<script>alert('데이터 조회 중 오류가 발생했습니다.'); window.close();</script>";
+        exit;
     }
     $titlemsg = '재표분리대(복사) 출고사진';
-    $num = '';	 
+    $num = '';
 }
 
-// 초기 프로그램은 $num사용 이후 $id로 수정중임  
-$id=$num;    
-require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
+// 초기 프로그램은 $num 사용 이후 $id로 수정중임
+$id = $num;
+require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기
 ?>
- 
-<form  id="board_form" name="board_form" method="post" enctype="multipart/form-data"> 
-  <!-- 전달함수 설정 input hidden -->
-	<input type="hidden" id="tablename" name="tablename" value="<?=$tablename?>" >			  								
-	<input type="hidden" id="id" name="id" value="<?=$id?>" >			  								
-	<input type="hidden" id="num" name="num" value="<?=$num?>" >			  									
-	<input type="hidden" id="item" name="item" value="<?=$item?>" >			  										
-	<input type="hidden" id="mode" name="mode" value="<?=$mode?>" >		
-	<input type="hidden" id="timekey" name="timekey" value="<?=$timekey?>" >  <!-- 신규데이터 작성시 parentid key값으로 사용 -->				
-	<input type="hidden" id="searchtext" name="searchtext" value="<?=$searchtext?>" >  <!-- summernote text저장 -->		
 
-<?php if($chkMobile) { ?>	
-<div class="container-fluid" >
-<?php } if(!$chkMobile) { ?>	
-<div class="container" >
-<?php  } ?>	
-	<div class="card">
-	<div class="card-body">			   
-	
-	<div class="d-flex mb-5 mt-5 justify-content-center align-items-center"> 	
-		<h4> <?=$titlemsg?> </h4> 
-	</div>	
-	
-	<div class="row">
-		<div class="col-sm-9">		   
-			<div class="d-flex  mb-1 justify-content-start  align-items-center"> 		   
-				<button id="saveBtn" type="button" class="btn btn-dark  btn-sm me-2"  > <i class="bi bi-floppy"></i> 저장  </button> 
-					<?php if(($user_id === $first_writer || $admin ) and $mode =='view' ) { ?>
-							<button type="button" class="btn btn-dark btn-sm me-2" onclick="location.href='write_form.php?mode=modify&num=<?=$num?>';">  <i class="bi bi-pencil-square"></i>  수정 </button>
-							<button type="button" class="btn btn-danger btn-sm me-2 deleteBtn" >  <i class='bi bi-trash'></i>  삭제  </button>
-					<?php } ?>																	
-			</div> 						
-		</div> 			
-		<div class="col-sm-3">	
-			<div class="d-flex  mb-1 justify-content-end"> 	
-			   <button class="btn btn-secondary btn-sm" onclick="self.close();"  > <i class="bi bi-x-lg"></i> 닫기 </button>&nbsp;					
-			</div> 			
-		</div> 			
-	</div> 
-	
-  <div class="row mt-2">
-	<div class="col-sm-12" >	  
-      <table class="table table-bordered">
-	   <tbody>        
-			<tr>          
-				<td class="text-center w-25" > 출고일 </td>
-					<td class="text-center" > 
-						<input type="date" id="outdate" name="outdate" class="form-control w-25" autocomplete="off" value="<?= isset($outdate) ? $outdate : '' ?>">					
-				</td>     
-			</tr>
-			<tr>					
-				<td class="text-center"   style="width:10%;">  현장명 </td>
-				<td > 
-					<input type="text" id="workplace" name="workplace" class="form-control"  autocomplete="off"  value="<?= isset($workplace) ? $workplace : '' ?>">
-				</td>     
-			</tr>
-			<tr>
-				<td class="text-center"   style="width:10%;">  메모 </td>
-				<td colspan="3"> 
-					<textarea id="comment" name="comment" class="form-control" rows="2"><?=$comment?></textarea>
-				</td>          			
-			</tr>
-		</tbody>
-      </table>
+
+<form id="board_form" name="board_form" method="post" enctype="multipart/form-data">
+    <!-- 전달함수 설정 input hidden -->
+    <input type="hidden" id="tablename" name="tablename" value="<?= htmlspecialchars($tablename, ENT_QUOTES, 'UTF-8') ?>">
+    <input type="hidden" id="id" name="id" value="<?= htmlspecialchars($id, ENT_QUOTES, 'UTF-8') ?>">
+    <input type="hidden" id="num" name="num" value="<?= htmlspecialchars($num, ENT_QUOTES, 'UTF-8') ?>">
+    <input type="hidden" id="item" name="item" value="<?= htmlspecialchars($item, ENT_QUOTES, 'UTF-8') ?>">
+    <input type="hidden" id="mode" name="mode" value="<?= htmlspecialchars($mode, ENT_QUOTES, 'UTF-8') ?>">
+    <input type="hidden" id="timekey" name="timekey" value="<?= htmlspecialchars($timekey ?? '', ENT_QUOTES, 'UTF-8') ?>">
+    <input type="hidden" id="searchtext" name="searchtext" value="<?= htmlspecialchars($searchtext, ENT_QUOTES, 'UTF-8') ?>">
+
+<?php if ($chkMobile) { ?>
+<div class="container-fluid">
+<?php } else { ?>
+<div class="container">
+<?php } ?>
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex mb-5 mt-5 justify-content-center align-items-center">
+                <h4><?= htmlspecialchars($titlemsg, ENT_QUOTES, 'UTF-8') ?></h4>
+            </div>	
+
+            
+            <div class="row">
+                <div class="col-sm-9">
+                    <div class="d-flex mb-1 justify-content-start align-items-center">
+                        <button id="saveBtn" type="button" class="btn btn-dark btn-sm me-2"><i class="bi bi-floppy"></i> 저장</button>
+                        <?php if (($user_id === $first_writer || $admin == '1') && $mode == 'view') { ?>
+                            <button type="button" class="btn btn-dark btn-sm me-2" onclick="location.href='write_form.php?mode=modify&num=<?= htmlspecialchars($num, ENT_QUOTES, 'UTF-8') ?>';"><i class="bi bi-pencil-square"></i> 수정</button>
+                            <button type="button" class="btn btn-danger btn-sm me-2 deleteBtn"><i class='bi bi-trash'></i> 삭제</button>
+                        <?php } ?>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="d-flex mb-1 justify-content-end">
+                        <button class="btn btn-secondary btn-sm" onclick="self.close();"><i class="bi bi-x-lg"></i> 닫기</button>&nbsp;
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-2">
+                <div class="col-sm-12">
+                    <table class="table table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="text-center w-25">출고일</td>
+                                <td class="text-center">
+                                    <input type="date" id="outdate" name="outdate" class="form-control w-25" autocomplete="off" value="<?= htmlspecialchars($outdate, ENT_QUOTES, 'UTF-8') ?>">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width:10%;">현장명</td>
+                                <td>
+                                    <input type="text" id="workplace" name="workplace" class="form-control" autocomplete="off" value="<?= htmlspecialchars($workplace, ENT_QUOTES, 'UTF-8') ?>">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width:10%;">메모</td>
+                                <td colspan="3">
+                                    <textarea id="comment" name="comment" class="form-control" rows="2"><?= htmlspecialchars($comment, ENT_QUOTES, 'UTF-8') ?></textarea>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="d-flex mt-3 mb-1 justify-content-center">
+            <label for="upfileimage" class="btn btn-outline-dark btn-sm">사진 첨부</label>
+            <input id="upfileimage" name="upfileimage[]" type="file" onchange="this.value" multiple accept="image/*" capture="camera" style="display:none">
+        </div>
+        <div class="d-flex mb-1 justify-content-center">
+            <div class="card justify-content-center">
+                <div class="card-body justify-content-center">
+                    <div class="d-flex mb-1 justify-content-center fs-3">
+                        <div id="displayImage" class="row d-flex mt-3 mb-1 justify-content-center" style="display:none;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  
 </div>
-</div>
-     
-	  <div class="d-flex mt-3 mb-1 justify-content-center">  	 			
-			  <label  for="upfileimage" class="btn btn-outline-dark btn-sm ">  사진 첨부 </label>	
-				 <input id="upfileimage" name="upfileimage[]" type="file" onchange="this.value" multiple accept="image/*" capture="camera" style="display:none">
-       </div>
-		<div class="d-flex  mb-1 justify-content-center"> 
-		   <div class="card justify-content-center ">	
-				   <div class="card-body justify-content-center ">	
-					   <div class="d-flex  mb-1 justify-content-center fs-3"> 
-							<div id ="displayImage" class="row d-flex mt-3 mb-1 justify-content-center" style="display:none;">  	 		 					 
-							</div>		
-						  </div>		
-					</div>   
-			</div>   
-		</div>   
-	
-	 </div>	  
-		</div>	  
-		</div>	  
-		</div>	  
- </div>	  
-		
 </form>
-		
+
+
 <script>
-$(document).ready(function(){		
-	 $("#saveBtn").click(function(){ 
-		
-		// 조건 확인
-		if($("#workplace").val() === '' ) {
-			showWarningModal();
-		} else {
-		   showMsgModal(2); // 파일저장중
-			Toastify({
-				text: "변경사항 저장중...",
-				duration: 2000,
-				close:true,
-				gravity:"top",
-				position: "center",
-				style: {
-					background: "linear-gradient(to right, #00b09b, #96c93d)"
-				},
-			}).showToast();	
-			setTimeout(function(){
-					 saveData();
-			}, 1000);
-		  
-		}
-	});
+var ajaxRequest = null;
+var ajaxRequest_write = null;
 
-	function showWarningModal() {
-		Swal.fire({                                    
-			title: '등록 오류 알림',
-			text: '현장명은 필수입력 요소입니다.',
-			icon: 'warning',
-			// ... 기타 설정 ...
-		}).then(result => {
-			if (result.isConfirmed) { 
-				return; // 사용자가 확인 버튼을 누르면 아무것도 하지 않고 종료
-			}         
-		});
-	}
-
-	function saveData() {
-		
-		var num = $("#num").val();  
-		
-		// 결재상신이 아닌경우 수정안됨     
-		if(Number(num) < 1) 				
-				$("#mode").val('insert');     			  			
-			
-		//  console.log($("#mode").val());    
-		// 폼데이터 전송시 사용함 Get form         
-		var form = $('#board_form')[0];  	    	
-		var datasource = new FormData(form); 
-
-		// console.log(data);
-		if (ajaxRequest !== null) {
-			ajaxRequest.abort();
-		}		 
-		
-        showMsgModal(2); // 파일저장중   		
-		ajaxRequest = $.ajax({
-			enctype: 'multipart/form-data',    // file을 서버에 전송하려면 이렇게 해야 함 주의
-			processData: false,    
-			contentType: false,      
-			cache: false,           
-			timeout: 600000, 			
-			url: "insert.php",
-			type: "post",		
-			data: datasource,			
-			dataType: "json", 
-			success : function(data){
-				  // console.log('data :' , data);
-
-				setTimeout(function(){									
-							if (window.opener && !window.opener.closed) {
-								// 부모 창에 restorePageNumber 함수가 있는지 확인
-								if (typeof window.opener.restorePageNumber === 'function') {
-									window.opener.restorePageNumber(); // 함수가 있으면 실행
-								}								
-							}	
-				}, 1000);		
-				setTimeout(function(){	
-						hideMsgModal();					
-						location.href = "write_form.php?mode=view&num=" + data["num"];
-				}, 1000);					
-			},
-			error : function( jqxhr , status , error ){
-				console.log( jqxhr , status , error );
-						} 			      		
-		   });		
-			
-	}	
+$(document).ready(function() {
+    $("#saveBtn").click(function() {
+        // 조건 확인
+        if ($("#workplace").val() === '') {
+            showWarningModal();
+        } else {
+            showMsgModal(2); // 파일저장중
+            Toastify({
+                text: "변경사항 저장중...",
+                duration: 2000,
+                close: true,
+                gravity: "top",
+                position: "center",
+                style: {
+                    background: "linear-gradient(to right, #00b09b, #96c93d)"
+                }
+            }).showToast();
+            setTimeout(function() {
+                saveData();
+            }, 1000);
+        }
+    });
+    
+    function showWarningModal() {
+        Swal.fire({
+            title: '등록 오류 알림',
+            text: '현장명은 필수입력 요소입니다.',
+            icon: 'warning',
+            confirmButtonText: '확인'
+        }).then(result => {
+            if (result.isConfirmed) {
+                return; // 사용자가 확인 버튼을 누르면 아무것도 하지 않고 종료
+            }
+        });
+    }
+    
+    function saveData() {
+        var num = $("#num").val();
+        
+        // 결재상신이 아닌경우 수정안됨
+        if (Number(num) < 1) {
+            $("#mode").val('insert');
+        }
+        
+        // 폼데이터 전송시 사용함 Get form
+        var form = $('#board_form')[0];
+        var datasource = new FormData(form);
+        
+        if (ajaxRequest !== null) {
+            ajaxRequest.abort();
+        }
+        
+        showMsgModal(2); // 파일저장중
+        ajaxRequest = $.ajax({
+            enctype: 'multipart/form-data',
+            processData: false,
+            contentType: false,
+            cache: false,
+            timeout: 600000,
+            url: "insert.php",
+            type: "post",
+            data: datasource,
+            dataType: "json",
+            success: function(data) {
+                setTimeout(function() {
+                    if (window.opener && !window.opener.closed) {
+                        // 부모 창에 restorePageNumber 함수가 있는지 확인
+                        if (typeof window.opener.restorePageNumber === 'function') {
+                            window.opener.restorePageNumber(); // 함수가 있으면 실행
+                        }
+                    }
+                }, 1000);
+                setTimeout(function() {
+                    hideMsgModal();
+                    location.href = "write_form.php?mode=view&num=" + data["num"];
+                }, 1000);
+            },
+            error: function(jqxhr, status, error) {
+                console.log(jqxhr, status, error);
+            }
+        });
+    }
 });
 
-function captureReturnKey(e) {
-    if(e.keyCode==13 && e.srcElement.type != 'textarea')
-    return false;
-}
 
+function captureReturnKey(e) {
+    if (e.keyCode == 13 && e.srcElement.type != 'textarea')
+        return false;
+}
 
 function deleteData() {
     Swal.fire({
@@ -339,74 +371,67 @@ function deleteData() {
         if (result.isConfirmed) {
             $("#mode").val('delete');
             const inputs = document.querySelectorAll('input[required]');
-
-				const formData = new FormData(document.getElementById('board_form'));				
-
-				if (ajaxRequest_write !== null) {
-					ajaxRequest_write.abort();
-				}
-
-				ajaxRequest_write = $.ajax({
-					enctype: 'multipart/form-data',
-					processData: false,
-					contentType: false,
-					cache: false,
-					timeout: 600000,
-					url: "insert.php",
-					type: "post",
-					data: formData,
-					dataType: "json",
-					success: function(data) {
-						Toastify({
-							text: "저장 완료",
-							duration: 2000,
-							close: true,
-							gravity: "top",
-							position: "center",
-							style: {
-								background: "linear-gradient(to right, #00b09b, #96c93d)"
-							},
-						}).showToast();
-						setTimeout(function(){									
-									if (window.opener && !window.opener.closed) {
-										// 부모 창에 restorePageNumber 함수가 있는지 확인
-										if (typeof window.opener.restorePageNumber === 'function') {
-											window.opener.restorePageNumber(); // 함수가 있으면 실행
-										}								
-									}	
-								setTimeout(function(){															
-								         self.close();
-								}, 1000);	
-						}, 1000);	
-					},
-					error: function(jqxhr, status, error) {
-						console.log(jqxhr, status, error);
-					}
-				});
-			
-			
-			
+            
+            const formData = new FormData(document.getElementById('board_form'));
+            
+            if (ajaxRequest_write !== null) {
+                ajaxRequest_write.abort();
+            }
+            
+            ajaxRequest_write = $.ajax({
+                enctype: 'multipart/form-data',
+                processData: false,
+                contentType: false,
+                cache: false,
+                timeout: 600000,
+                url: "insert.php",
+                type: "post",
+                data: formData,
+                dataType: "json",
+                success: function(data) {
+                    Toastify({
+                        text: "저장 완료",
+                        duration: 2000,
+                        close: true,
+                        gravity: "top",
+                        position: "center",
+                        style: {
+                            background: "linear-gradient(to right, #00b09b, #96c93d)"
+                        }
+                    }).showToast();
+                    setTimeout(function() {
+                        if (window.opener && !window.opener.closed) {
+                            // 부모 창에 restorePageNumber 함수가 있는지 확인
+                            if (typeof window.opener.restorePageNumber === 'function') {
+                                window.opener.restorePageNumber(); // 함수가 있으면 실행
+                            }
+                        }
+                        setTimeout(function() {
+                            self.close();
+                        }, 1000);
+                    }, 1000);
+                },
+                error: function(jqxhr, status, error) {
+                    console.log(jqxhr, status, error);
+                }
+            });
         }
     });
 }
 
-
-$(document).ready(function(){
+$(document).ready(function() {
     $(".deleteBtn").click(function() {
         deleteData();
     });
-	
-    if ( $("#mode").val() === 'view') {
+    
+    if ($("#mode").val() === 'view') {
         disableInputsForViewMode();
-    }	
-
+    }
 });
 
-
 function disableInputsForViewMode() {
-    $('input, textarea').prop('readonly', true);    
+    $('input, textarea').prop('readonly', true);
 }
-
 </script> 
 
 <script>
@@ -653,34 +678,33 @@ function displayFile() {
 // 기존 파일 불러오기 (Google Drive에서 가져오기)
 function displayFileLoad() {
     $('#displayFile').show();
-    var data = <?php echo json_encode($savefilename_arr); ?>;
-
+    var data = <?php echo json_encode($savefilename_arr ?? []); ?>;
+    
     $("#displayFile").html(''); // 기존 내용 초기화
-
+    
     if (Array.isArray(data) && data.length > 0) {
-        data.forEach(function (fileData, i) {
+        data.forEach(function(fileData, i) {
             const realName = fileData.realname || '다운로드 파일';
             const link = fileData.link || '#';
             const fileId = fileData.fileId || null;
-
+            
             if (!fileId) {
                 console.error("fileId가 누락되었습니다. index: " + i, fileData);
                 return;
             }
-
-			$("#displayFile").append(
-				"<div class='row mb-3'>" +
-					"<div class='d-flex mb-3 align-items-center justify-content-center'>" +
-						"<span id='file" + i + "'>" +
-							"<a href='#' onclick=\"popupCenter('" + link + "', 'filePopup', 800, 600); return false;\">" + realName + "</a>" +
-						"</span> &nbsp;&nbsp;" +
-						"<button type='button' class='btn btn-danger btn-sm' id='delFile" + i + "' onclick=\"delFileFn('" + i + "', '" + fileId + "')\">" +
-							"<i class='bi bi-trash'></i>" +
-						"</button>" +
-					"</div>" +
-				"</div>"
-			);
-
+            
+            $("#displayFile").append(
+                "<div class='row mb-3'>" +
+                    "<div class='d-flex mb-3 align-items-center justify-content-center'>" +
+                        "<span id='file" + i + "'>" +
+                            "<a href='#' onclick=\"popupCenter('" + link + "', 'filePopup', 800, 600); return false;\">" + realName + "</a>" +
+                        "</span> &nbsp;&nbsp;" +
+                        "<button type='button' class='btn btn-danger btn-sm' id='delFile" + i + "' onclick=\"delFileFn('" + i + "', '" + fileId + "')\">" +
+                            "<i class='bi bi-trash'></i>" +
+                        "</button>" +
+                    "</div>" +
+                "</div>"
+            );
         });
     } else {
         $("#displayFile").append(
@@ -817,35 +841,34 @@ function displayImage() {
 // 기존 이미지 불러오기 (Google Drive에서 가져오기)
 function displayImageLoad() {
     $('#displayImage').show();
-    var data = <?php echo json_encode($saveimagename_arr); ?>;
-
+    var data = <?php echo json_encode($saveimagename_arr ?? []); ?>;
+    
     $("#displayImage").html(''); // 기존 내용 초기화
-
+    
     if (Array.isArray(data) && data.length > 0) {
-        data.forEach(function (fileData, i) {
+        data.forEach(function(fileData, i) {
             const realName = fileData.realname || '다운로드 파일';
             const thumbnail = fileData.thumbnail || '/assets/default-thumbnail.png';
             const link = fileData.link || '#';
             const fileId = fileData.fileId || null;
-
+            
             if (!fileId) {
                 console.error("fileId가 누락되었습니다. index: " + i, fileData);
                 return;
             }
-
-			$("#displayImage").append(
-				"<div class='row mb-3'>" +
-					"<div class='col d-flex align-items-center justify-content-center'>" +
-						"<a href='#' onclick=\"popupCenter('" + link + "', 'imagePopup', 800, 600); return false;\">" +
-							"<img id='image" + i + "' src='" + thumbnail + "' style='width:150px; height:auto;'>" +
-						"</a> &nbsp;&nbsp;" +
-						"<button type='button' class='btn btn-danger btn-sm' id='delImage" + i + "' onclick=\"delImageFn('" + i + "', '" + fileId + "')\">" +
-							"<i class='bi bi-trash'></i>" +
-						"</button>" +
-					"</div>" +
-				"</div>"
-			);
-
+            
+            $("#displayImage").append(
+                "<div class='row mb-3'>" +
+                    "<div class='col d-flex align-items-center justify-content-center'>" +
+                        "<a href='#' onclick=\"popupCenter('" + link + "', 'imagePopup', 800, 600); return false;\">" +
+                            "<img id='image" + i + "' src='" + thumbnail + "' style='width:150px; height:auto;'>" +
+                        "</a> &nbsp;&nbsp;" +
+                        "<button type='button' class='btn btn-danger btn-sm' id='delImage" + i + "' onclick=\"delImageFn('" + i + "', '" + fileId + "')\">" +
+                            "<i class='bi bi-trash'></i>" +
+                        "</button>" +
+                    "</div>" +
+                "</div>"
+            );
         });
     } else {
         $("#displayImage").append(

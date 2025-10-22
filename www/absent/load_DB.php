@@ -23,9 +23,10 @@ $sql = "select * from mirae8440.member where part='제조파트' and eworks_leve
 try {
     $stmh = $pdo->query($sql);
     while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-        array_push($basic_num_arr, $row["num"]);
-        array_push($basic_name_arr, $row["name"]);
-        array_push($basic_part_arr, $row["part"]);
+        array_push($basic_num_arr, $row["num"] ?? '');
+        array_push($basic_name_arr, $row["name"] ?? '');
+        array_push($basic_part_arr, $row["part"] ?? '');
+        array_push($referencedate_arr, $row["referencedate"] ?? date("Y"));
         array_push($availableday_arr, "");
     }
 } catch (PDOException $ex) {
@@ -66,16 +67,17 @@ try {
     $stmh = $pdo->query($sql);
 
     while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-        array_push($num_arr, $row["num"]);
-        array_push($id_arr, $row["id"]);
-        array_push($name_arr, $row["name"]);
-        array_push($part_arr, $row["part"]);
-        array_push($registdate_arr, $row["registdate"]);
-        array_push($item_arr, $row["item"]);
-        array_push($askdatefrom_arr, $row["askdatefrom"]);
-        array_push($askdateto_arr, $row["askdateto"]);
-        array_push($content_arr, $row["content"]);
-        array_push($state_arr, $row["state"]);
+        array_push($num_arr, $row["num"] ?? '');
+        array_push($id_arr, $row["id"] ?? '');
+        array_push($name_arr, $row["name"] ?? '');
+        array_push($part_arr, $row["part"] ?? '');
+        array_push($registdate_arr, $row["registdate"] ?? '');
+        array_push($item_arr, $row["item"] ?? '');
+        array_push($askdatefrom_arr, $row["askdatefrom"] ?? '');
+        array_push($askdateto_arr, $row["askdateto"] ?? '');
+        array_push($usedday_arr, $row["usedday"] ?? 0);
+        array_push($content_arr, $row["content"] ?? '');
+        array_push($state_arr, $row["state"] ?? '');
     }
 } catch (PDOException $ex) {
     error_log("absent 조회 오류: " . $ex->getMessage());
@@ -93,8 +95,10 @@ for ($j = 0; $j < count($basic_name_arr); $j++) {
 
     // 사용일 계산 처리완료일때 가산됨
     $totalused_arr[$j] = 0;
+    $totalusedYear_arr[$j] = $referencedate_arr[$j] ?? ''; // 기본값으로 referencedate 설정
+
     for ($i = 0; $i < count($num_arr); $i++) {
-        if (trim($basic_name_arr[$j]) == trim($name_arr[$i]) && (substr(trim($askdatefrom_arr[$i]), 0, 4) == trim($referencedate_arr[$j])) && trim($state_arr[$i]) == '처리완료') {
+        if (isset($referencedate_arr[$j]) && trim($basic_name_arr[$j]) == trim($name_arr[$i]) && (substr(trim($askdatefrom_arr[$i]), 0, 4) == trim($referencedate_arr[$j])) && trim($state_arr[$i]) == '처리완료') {
             $totalused_arr[$j] += (float)$usedday_arr[$i];
             $totalusedYear_arr[$j] = $referencedate_arr[$j];
         }
@@ -139,10 +143,10 @@ try {
     $stmh = $pdo->query($sql);
 
     while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-        array_push($al_name_arr, $row["author"]);
-        array_push($al_askdatefrom_arr, $row["al_askdatefrom"]);
-        array_push($al_askdateto_arr, $row["al_askdateto"]);
-        array_push($al_usedday_arr, $row["al_usedday"]);
+        array_push($al_name_arr, $row["author"] ?? '');
+        array_push($al_askdatefrom_arr, $row["al_askdatefrom"] ?? '');
+        array_push($al_askdateto_arr, $row["al_askdateto"] ?? '');
+        array_push($al_usedday_arr, $row["al_usedday"] ?? 0);
         $usedAL[] = 0.0;
         $remainedAL[] = 0.0;
     }

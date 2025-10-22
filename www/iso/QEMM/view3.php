@@ -1,33 +1,51 @@
 ﻿<?php
-if(!isset($_SESSION))      
-		session_start(); 
-if(isset($_SESSION["DB"]))
-		$DB = $_SESSION["DB"] ;	
- $level= $_SESSION["level"];
- $user_name= $_SESSION["name"];
- $user_id= $_SESSION["userid"];	
- 
-include  getDocumentRoot() . '/load_header.php'; 
-include  getDocumentRoot() . '/myheader.php'; 
-$tablename=$_REQUEST["tablename"];   //table 이름
-?>   
-<title>  환경절차서 제,개정 이력  </title>
+/**
+ * ISO 환경절차서 제,개정 이력 보기
+ * 로컬 및 서버 환경 모두 지원
+ */
+
+require_once __DIR__ . '/../../bootstrap.php';
+
+// 세션 변수 초기화
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+$level = $_SESSION["level"] ?? 999;
+$user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["userid"] ?? '';
+
+// 권한 체크
+if (!isset($_SESSION["level"])) {
+    sleep(1);
+    header("Location: " . getBaseUrl() . "/login/login_form.php");
+    exit;
+}
+
+// 요청 변수 초기화
+$tablename = $_REQUEST["tablename"] ?? 'iso';
+
+include getDocumentRoot() . '/load_header.php';
+?>
+
+<title>환경절차서 제,개정 이력</title>
+</head>
+
+<body>
+
+<?php include getDocumentRoot() . '/myheader.php'; ?>
 
 <div class="container">
-<div class="row d-flex justify-content-center  p-3">
- <div class="d-flex mt-3 mb-1 justify-content-center">   		
-    <button type="button" class="btn btn-secondary btn-sm" onclick="location.href='../list.php'" > 목록(List) </button>	&nbsp;
-	<button type="button" class="btn btn-primary btn-sm" onclick="location.href='./view1.php?tablename=<?=$tablename?>'" > 품질/환경경영매뉴얼 </button>		&nbsp;
-    <button type="button" class="btn btn-success btn-sm" onclick="location.href='./view2.php?tablename=<?=$tablename?>'" > 품질/환경 절차서 </button>		&nbsp;    
+<div class="row d-flex justify-content-center p-3">
+ <div class="d-flex mt-3 mb-1 justify-content-center">
+    <button type="button" class="btn btn-secondary btn-sm" onclick="location.href='../list.php'">목록(List)</button>&nbsp;
+    <button type="button" class="btn btn-primary btn-sm" onclick="location.href='./view1.php?tablename=<?= htmlspecialchars($tablename, ENT_QUOTES, 'UTF-8') ?>'">품질/환경경영매뉴얼</button>&nbsp;
+    <button type="button" class="btn btn-success btn-sm" onclick="location.href='./view2.php?tablename=<?= htmlspecialchars($tablename, ENT_QUOTES, 'UTF-8') ?>'">품질/환경 절차서</button>&nbsp;
 </div>
 </div>
 </div>
 
 <div class="container">
-	<div class="row d-flex justify-content-center p-3">
-		<span type="button"   class="btn btn-secondary fs-4"  > 환경절차서 제,개정 이력 </span>		&nbsp;&nbsp;
-	</div>
-<BODY>
+    <div class="row d-flex justify-content-center p-3">
+        <span type="button" class="btn btn-secondary fs-4">환경절차서 제,개정 이력</span>&nbsp;&nbsp;
+    </div>
 
 <P CLASS=HStyle0 STYLE='text-align:left;line-height:125%;'><SPAN STYLE='font-size:12.0pt;font-family:"굴림체";line-height:125%;'><BR></SPAN></P>
 

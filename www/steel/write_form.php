@@ -1,11 +1,21 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php
+require_once __DIR__ . '/../common/functions.php';
 require_once(includePath('session.php'));
 
- if(!isset($_SESSION["level"]) || $level>5) {	     
-		 sleep(1);
-         header ("Location:" . $WebSite . "login/logout.php");         
-         exit;
-   }       
+// Environment detection for URL
+$is_local = (isset($_SERVER['HTTP_HOST']) && (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false));
+$base_url = $is_local ? 'http://localhost' : 'https://8440.co.kr';
+$WebSite = $base_url . '/';
+
+// Initialize session variables with null safety
+$level = $_SESSION["level"] ?? null;
+$user_name = $_SESSION["name"] ?? '';
+
+if (!isset($_SESSION["level"]) || $level > 5) {
+    sleep(1);
+    header("Location:" . $WebSite . "login/logout.php");
+    exit;
+}
 $title_message = '원자재 입출고';      
 ?>  
 <?php include getDocumentRoot() . '/load_header.php'; ?> 
@@ -23,11 +33,11 @@ $title_message = '원자재 입출고';
 <?php	      
 include "../load_company.php"; // 사급업체, 공급업체 코드 불러오기  $suply_company_arr, $supplier_arr 
 	  
-$mode = isset($_REQUEST["mode"]) ? $_REQUEST["mode"] : "";
-$num = isset($_REQUEST["num"]) ? $_REQUEST["num"] : "";
-   
-$fromdate=$_REQUEST["fromdate"] ?? '';	 
-$todate=$_REQUEST["todate"] ?? '';
+// Initialize request variables with null safety
+$mode = $_REQUEST["mode"] ?? '';
+$num = $_REQUEST["num"] ?? '';
+$fromdate = $_REQUEST["fromdate"] ?? '';
+$todate = $_REQUEST["todate"] ?? '';
   
  // 철판종류에 대한 추출부분
 require_once(includePath('lib/mydb.php'));
@@ -226,8 +236,8 @@ $spec_counter = count($spec_arr);
           </td>
           <td>
 			 <?php	 		  
-					 $aryreg=array();
-					 $aryitem=array();
+					 $aryreg = array('', '');  // 모든 인덱스를 빈 문자열로 초기화
+					 $aryitem = array('', '');  // 모든 인덱스를 빈 문자열로 초기화
 					 if($which=='') $which='2';
 					 switch ($which) {
 						case   "1"             : $aryreg[0] = "checked" ; break;

@@ -79,9 +79,9 @@ a {
   if($separate_date=="") $separate_date="2";
  
  // 기간을 정하는 구간
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];	 
-$start=$_REQUEST["start"];	   // 처음실행할때 당월 데이터를 출력하기 위함.
+$fromdate = $_REQUEST["fromdate"] ?? '';	 
+$todate = $_REQUEST["todate"] ?? '';	 
+$start = $_REQUEST["start"] ?? '';	   // 처음실행할때 당월 데이터를 출력하기 위함.
 if($start=='start')  
 	{
 			$year=substr(date("Y-m-d",time()),0,4) ;

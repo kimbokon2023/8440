@@ -1,5 +1,5 @@
-<?php\nrequire_once __DIR__ . '/common/functions.php';
-require_once(includePath('session.php'));
+<?php
+require_once __DIR__ . '/bootstrap.php';
 
  if(!isset($_SESSION["level"]) || $level>7) {	     
 		 sleep(1);
@@ -14,13 +14,9 @@ $APIKEY = "2ddb841648d38606331320046099cf67";
 
  ?>
  
-<?php include getDocumentRoot() . '/load_header.php' ?>
+<?php include __DIR__ . '/load_header.php' ?>
 
-<!-- 카카오맵에 필요한 3가지 API -->
-<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<?=$APIKEY?>&libraries=LIBRARY"></script>
-<!-- services 라이브러리 불러오기 -->
-<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<?=$APIKEY?>&libraries=services"></script>
-<!-- services와 clusterer, drawing 라이브러리 불러오기 -->
+<!-- 카카오맵 API - services, clusterer, drawing 라이브러리 포함 -->
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<?=$APIKEY?>&libraries=services,clusterer,drawing"></script>
 
 
@@ -42,7 +38,7 @@ $APIKEY = "2ddb841648d38606331320046099cf67";
 
 
 
-<? include './myheader.php'; ?>   
+<?php include './myheader.php'; ?>   
 
 
     <div class="container mt-4 mb-1">
@@ -149,7 +145,7 @@ $APIKEY = "2ddb841648d38606331320046099cf67";
 </div>
 </div>
 
-<? include 'footer.php'; ?>
+<?php include 'footer.php'; ?>
 
 </div>
 

@@ -1,20 +1,31 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session.php'));  
+<?php
+require_once __DIR__ . '/../bootstrap.php';
 
- if(!isset($_SESSION["level"]) || $level>5) {
-	     $_SESSION["url"]='https://8440.co.kr/request/list.php' ; 		   
-		 sleep(1);
-         header ("Location:" . $WebSite . "login/logout.php");         
-         exit;
-   }   
+/**
+ * 원자재 구매 & 입출고 목록
+ * 
+ * 원자재 구매 요청 및 입출고 현황을 관리하는 메인 페이지
+ */
 
-include getDocumentRoot() . "/common.php";
- 
+// 세션 변수 초기화
+$level = $_SESSION["level"] ?? 999;
+$user_name = $_SESSION["name"] ?? '';
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+
+// 권한 체크
+if (!isset($_SESSION["level"]) || $level > 5) {
+    $_SESSION["url"] = getBaseUrl() . '/request/list.php';
+    sleep(1);
+    header("Location:" . getBaseUrl() . "/login/logout.php");
+    exit;
+}
+
+// 페이지네이션 변수 초기화
 $page = $_REQUEST["page"] ?? '';
 $scale = $_REQUEST["scale"] ?? '';
-?> 
- 
-<?php include getDocumentRoot() . '/load_header.php' ; ?>  
+?>
+
+<?php include getDocumentRoot() . '/load_header.php'; ?>  
 
 <title> 원자재 구매&입출고 </title> 
 
@@ -61,163 +72,175 @@ th {
 </head>
 <body>		 
 <?php include getDocumentRoot() . '/myheader.php'; ?>    
-<?php 
-include "_request.php"; 	  
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();	
+<?php
+include "_request.php";
 
-$Bigsearch = isset($_REQUEST["Bigsearch"]) ? $_REQUEST["Bigsearch"] : '';
-$mode = isset($_REQUEST["mode"]) ? $_REQUEST["mode"] : '';
+// 추가 요청 변수 초기화
+$Bigsearch = $_REQUEST["Bigsearch"] ?? '';
+$mode = $_REQUEST["mode"] ?? '';
 
-// 철판종류에 대한 추출부분
-$sql="select * from ".$DB.".steelsource order by sortorder asc, item desc ";
+// 철판종류 데이터 추출
+$sql = "select * from " . $DB . ".steelsource order by sortorder asc, item desc";
 
- try{  
-   $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-   $rowNum = $stmh->rowCount();  
-   $counter=0;
-   $item_counter=0;
-   $steelsource_num=array();
-   $steelsource_item=array();
-   $steelsource_spec=array();
-   $steelsource_take=array();
-   $steelsource_item_yes=array();
-   $steelsource_spec_yes=array();
-   $spec_arr=array();
-   $last_item="";
-   $last_spec="";
-   $pass='0';
-   
-   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-	   
- 			  $steelsource_num[$counter]=$row["num"];			  
- 			  $steelsource_item[$counter]=trim($row["item"]);
- 			  $steelsource_spec[$counter]=trim($row["spec"]);
-			  $company=trim($row["take"]);			    
-			  
-			  if($row["take"]=='미래기업') $company='';	// 일반매입처리
-			  if($row["take"]=='윤스틸') $company='';		// 일반매입처리	  
-			  if($row["take"]=='현진스텐') $company='';		// 일반매입처리	  
-		      $steelsource_take[$counter]= $company ;  
-			  
-		    if($steelsource_item[$counter]!=$last_item)
-			{
-				$last_item= $steelsource_item[$counter];
-				$steelsource_item_yes[$item_counter]=$last_item;
-				$item_counter++;
-			}			 
-	    $counter++;
-	 } 	 
-   } catch (PDOException $Exception) {
-    print "오류: ".$Exception->getMessage();
-}    
+try {
+    $stmh = $pdo->query($sql);
+    $rowNum = $stmh->rowCount();
+    $counter = 0;
+    $item_counter = 0;
+    
+    // 배열 초기화
+    $steelsource_num = array();
+    $steelsource_item = array();
+    $steelsource_spec = array();
+    $steelsource_take = array();
+    $steelsource_item_yes = array();
+    $steelsource_spec_yes = array();
+    $spec_arr = array();
+    $last_item = "";
+    $last_spec = "";
+    $pass = '0';
 
-array_push($steelsource_item_yes," ");
+    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+        $steelsource_num[$counter] = $row["num"] ?? '';
+        $steelsource_item[$counter] = trim($row["item"] ?? '');
+        $steelsource_spec[$counter] = trim($row["spec"] ?? '');
+        $company = trim($row["take"] ?? '');
+
+        // 일반매입 처리
+        if ($row["take"] == '미래기업') $company = '';
+        if ($row["take"] == '윤스틸') $company = '';
+        if ($row["take"] == '현진스텐') $company = '';
+        
+        $steelsource_take[$counter] = $company;
+
+        // 고유한 아이템 추출
+        if ($steelsource_item[$counter] != $last_item) {
+            $last_item = $steelsource_item[$counter];
+            $steelsource_item_yes[$item_counter] = $last_item;
+            $item_counter++;
+        }
+        
+        $counter++;
+    }
+} catch (PDOException $Exception) {
+    error_log("철판종류 조회 오류: " . $Exception->getMessage());
+    echo "<p>데이터를 불러오는 중 오류가 발생했습니다.</p>";
+}
+
+// 고유한 아이템 정리
+array_push($steelsource_item_yes, " ");
 $steelsource_item_yes = array_unique($steelsource_item_yes);
 sort($steelsource_item_yes);
-
-// var_dump("fromdate " . $fromdate);
-// var_dump($Transtodate);   
 
 // 현재 날짜
 $currentDate = date("Y-m-d");
 
 // fromdate 또는 todate가 빈 문자열이거나 null인 경우
 if ($fromdate === "" || $fromdate === null || $todate === "" || $todate === null) {
-    $fromdate = date("Y-m-d", strtotime("-3 months", strtotime($currentDate))); // 6개월 이전 날짜
+    $fromdate = date("Y-m-d", strtotime("-3 months", strtotime($currentDate))); // 3개월 이전 날짜
     $todate = $currentDate; // 현재 날짜
-	$Transtodate = $todate;
+    $Transtodate = $todate;
 } else {
     // fromdate와 todate가 모두 설정된 경우 (기존 로직 유지)
     $Transtodate = $todate;
 }
-		  
-$find=$_REQUEST["find"] ?? ''; 
-// var_dump($Transtodate);
-$sql="select * from ".$DB.".steelsource"; 					
- try{  
-   $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-   $rowNum = $stmh->rowCount();  
-   $counter=0;
-   $steelsource_num=array();
-   $steelsource_item=array();
-   $steelsource_spec=array();
-   $steelsource_take=array();   
-   
-  while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-	$counter++;	   
-		$steelsource_num[$counter]=$row["num"];			  
-		$steelsource_item[$counter]=$row["item"];
-		$steelsource_spec[$counter]=$row["spec"];
-		$steelsource_take[$counter]=$row["take"];   
-	 } 	 
-   } catch (PDOException $Exception) {
-    print "오류: ".$Exception->getMessage();
+
+$find = $_REQUEST["find"] ?? ''; 
+// 철판 데이터 재조회 (인덱스 카운터 포함)
+$sql = "select * from " . $DB . ".steelsource";
+
+try {
+    $stmh = $pdo->query($sql);
+    $rowNum = $stmh->rowCount();
+    $counter = 0;
+    
+    $steelsource_num = array();
+    $steelsource_item = array();
+    $steelsource_spec = array();
+    $steelsource_take = array();
+
+    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+        $counter++;
+        $steelsource_num[$counter] = $row["num"] ?? '';
+        $steelsource_item[$counter] = $row["item"] ?? '';
+        $steelsource_spec[$counter] = $row["spec"] ?? '';
+        $steelsource_take[$counter] = $row["take"] ?? '';
+    }
+} catch (PDOException $Exception) {
+    error_log("철판 데이터 조회 오류: " . $Exception->getMessage());
 }  
 
-if($separate_date=="1") $SettingDate="registdate ";
-    else
-  	   $SettingDate="indate ";
-
-// print $SettingDate;	 
-// 완료일 기준
-$SettingDate="outdate ";
-
-$Andmywrite  = "";
-
-if($mywrite ==='1')
-{	
-	$Andmywrite  = " And first_writer like '%$user_name%' ";	
+// 날짜 기준 설정
+if ($separate_date == "1") {
+    $SettingDate = "registdate ";
+} else {
+    $SettingDate = "indate ";
 }
 
-$Andis_deleted =  " AND is_deleted IS NULL AND eworks_item='원자재구매' " . $Andmywrite;
-$Whereis_deleted =  " Where is_deleted IS NULL AND eworks_item='원자재구매' " . $Andmywrite;	 
-	 
-if($done_check_val==='1')	 
-	$common="   where " . $SettingDate . " between date('$fromdate') and date('$Transtodate') and (which = '1' or which = '2') " . $Andis_deleted  . " order by " ;
-  else
-	$common="   where " . $SettingDate . " between date('$fromdate') and date('$Transtodate') " . $Andis_deleted  . "  order by " ;
+// 완료일 기준으로 강제 설정
+$SettingDate = "outdate ";
 
-$a= $common . " num desc ";    //내림차순
-  
- // 전체합계(입고부분)를 산출하는 부분 
-$sum_title=array(); 
-$sum=array();
+// 내 글만 보기 조건
+$Andmywrite = "";
+if ($mywrite === '1') {
+    $Andmywrite = " And first_writer like '%" . $user_name . "%' ";
+}
+
+// 삭제되지 않은 데이터 조건
+$Andis_deleted = " AND is_deleted IS NULL AND eworks_item='원자재구매' " . $Andmywrite;
+$Whereis_deleted = " Where is_deleted IS NULL AND eworks_item='원자재구매' " . $Andmywrite;	 
+
+// SQL 조건 생성
+if ($done_check_val === '1') {
+    $common = " where " . $SettingDate . " between date('$fromdate') and date('$Transtodate') and (which = '1' or which = '2') " . $Andis_deleted . " order by ";
+} else {
+    $common = " where " . $SettingDate . " between date('$fromdate') and date('$Transtodate') " . $Andis_deleted . " order by ";
+}
+
+$a = $common . " num desc ";  // 내림차순
+
+// 전체합계(입고부분)를 산출하는 부분
+$sum_title = array();
+$sum = array();
 $num_arr = array();
 $item_arr = array();
 $supplier_arr = array();
 $company_arr = array();
 
-$sql="select * from ".$DB.".eworks " . $a; 	
- 
-$recount = 0 ;
+$sql = "select * from " . $DB . ".eworks " . $a;
+$recount = 0;
 
- try{  
-// 레코드 전체 sql 설정
-   $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+try {
+    // 레코드 전체 sql 설정
+    $stmh = $pdo->query($sql);
+    
+    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+        include '_row.php';
 
-		include '_row.php';
+        $tmp = $steel_item . $spec;
 
-		$tmp=$item . $spec;
+        $num_arr[$recount] = $num;
+        $item_arr[$recount] = $steel_item;
+        $supplier_arr[$recount] = $supplier;
+        $company_arr[$recount] = $company;
 
-		$num_arr[$recount] = $num;
-		$item_arr[$recount] = $item;
-		$supplier_arr[$recount] = $supplier;
-		$company_arr[$recount] = $company;
+        $recount++;
 
-		$recount++;
-	
-        for($i=1;$i<=$rowNum;$i++) {
-	          $sum_title[$i]=$steelsource_item[$i] . $steelsource_spec[$i];
-			  if($which=='1' and $tmp==$sum_title[$i])
-				    $sum[$i]=$sum[$i] + (int)$steelnum;		// 입고숫자 더해주기 합계표	
-			// $sum[$i]=(float)-1;				
-		    }
-       }		 
-   } catch (PDOException $Exception) {
-    print "오류: ".$Exception->getMessage();
-}  
+        // 합계 계산
+        for ($i = 1; $i <= $rowNum; $i++) {
+            if (!isset($sum_title[$i])) $sum_title[$i] = '';
+            if (!isset($sum[$i])) $sum[$i] = 0;
+            
+            $sum_title[$i] = $steelsource_item[$i] . $steelsource_spec[$i];
+            
+            if ($which == '1' && $tmp == $sum_title[$i]) {
+                $sum[$i] = $sum[$i] + (int)$steelnum;  // 입고숫자 더해주기 합계표
+            }
+        }
+    }
+} catch (PDOException $Exception) {
+    error_log("데이터 조회 오류: " . $Exception->getMessage());
+}
 
 
  // 전체합계(출고부분)를 처리하는 부분 
@@ -297,76 +320,90 @@ if($mode==="search" && $search!=="" && $find!=="전체") { // 각 필드별로 �
 		}
                
 
-$nowday=date("Y-m-d");   // 현재일자 변수지정   
+// 현재일자
+$nowday = date("Y-m-d");
+$dateCon = " AND between date('$fromdate') and date('$Transtodate') ";
 
-$dateCon =" AND between date('$fromdate') and date('$Transtodate') " ;
+// 데이터 조회
+try {
+    // 레코드 전체 sql 설정
+    $stmh = $pdo->query($sql);
+    
+    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+        include '_row.php';
+    }
+} catch (PDOException $Exception) {
+    error_log("데이터 조회 오류: " . $Exception->getMessage());
+}
 
-// var_dump($done_check_val);
-// print $fromdate;
-// print $todate;
-// print $sortof;		
-// print $cursort;		
+// 전체 행 개수 조회
+try {
+    $stmh = $pdo->query($sql);
+    $total_row = $stmh->rowCount();
+} catch (PDOException $Exception) {
+    error_log("전체 행 개수 조회 오류: " . $Exception->getMessage());
+    $total_row = 0;
+}
 
-// print $sql;		
+// 등록 상태 초기화
+$regist_state = $regist_state ?? "1";
 
- try{  
-// 레코드 전체 sql 설정
-   $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-		include '_row.php';  
-	  }		 
-   } catch (PDOException $Exception) {
-    print "오류: ".$Exception->getMessage();
-}  
-   
-	 try{  
-	  $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-      $total_row=$stmh->rowCount();
-	      		
-		if($regist_state==null)
-			 $regist_state="1";
-		 
-			  $date_font="text-dark";  // 현재일자 Red 색상으로 표기
-			  if($nowday==$outdate) {
-                            $date_font="text-success";
-						}
-						
-				$font="text-gray";
-			
-			switch ($regist_state) {
-				case   "1"     :  $regist_word="등록"; break;
-				case   "2"     :  $regist_word="접수"; break;	
-				case   "3"     :  $regist_word="완료"; break;	
-				default:  $regist_word="등록"; break;
-			}								
-							  
- if($outdate!="") {
-    $week = array("(일)" , "(월)"  , "(화)" , "(수)" , "(목)" , "(금)" ,"(토)") ;
-    $outdate = $outdate . $week[ date('w',  strtotime($outdate)  ) ] ;
-}	
-			
+// 등록 상태 문자열
+switch ($regist_state) {
+    case "1":
+        $regist_word = "등록";
+        break;
+    case "2":
+        $regist_word = "접수";
+        break;
+    case "3":
+        $regist_word = "완료";
+        break;
+    default:
+        $regist_word = "등록";
+        break;
+}
 ?>
 
-<form name="board_form" id="board_form"  method="post" action="list.php?mode=search">  
 
-	<input type="hidden" id="done_check_val" name="done_check_val" value="<?=$done_check_val?>" >
-	<input type="hidden" id="voc_alert" name="voc_alert" value="<?=$voc_alert?>"  > 	
-	<input type="hidden" id="ma_alert" name="ma_alert" value="<?=$ma_alert?>"  > 	
-	<input type="hidden" id="order_alert" name="order_alert" value="<?=$order_alert?>"  > 		
-	<input type="hidden" id="scale" name="scale" value="<?=$scale?>"  > 	
-	<input type="hidden" id="yearcheckbox" name="yearcheckbox" value="<?=$yearcheckbox?>"  > 	
-	<input type="hidden" id="year" name="year" value="<?=$year?>"  > 	
-	<input type="hidden" id="check" name="check" value="<?=$check?>"  > 	
-	<input type="hidden" id="output_check" name="output_check" value="<?=$output_check?>"  > 	
-	<input type="hidden" id="plan_output_check" name="plan_output_check" value="<?=$plan_output_check?>"  > 	
-	<input type="hidden" id="team_check" name="team_check" value="<?=$team_check?>"  > 	
-	<input type="hidden" id="measure_check" name="measure_check" value="<?=$measure_check?>"  > 	
-	<input type="hidden" id="cursort" name="cursort" value="<?=$cursort?>"  > 	
-	<input type="hidden" id="sortof" name="sortof" value="<?=$sortof?>"  > 	
-	<input type="hidden" id="stable" name="stable" value="<?=$stable?>"  > 	
-	<input type="hidden" id="sqltext" name="sqltext" value="<?=$sqltext?>" > 			
-	<input type="hidden" id="mywrite" name="mywrite" value="<?=$mywrite?>" > 
-	<input type="hidden" id="BigsearchTag" name="BigsearchTag" value="<?=$BigsearchTag?>"  > 				
+<form name="board_form" id="board_form" method="post" action="list.php?mode=search">
+
+<?php
+// Hidden 필드용 변수 초기화 (_request.php에 없는 변수들)
+$voc_alert = $_REQUEST["voc_alert"] ?? '';
+$ma_alert = $_REQUEST["ma_alert"] ?? '';
+$order_alert = $_REQUEST["order_alert"] ?? '';
+$yearcheckbox = $_REQUEST["yearcheckbox"] ?? '';
+$year = $_REQUEST["year"] ?? '';
+$check = $_REQUEST["check"] ?? '';
+$output_check = $_REQUEST["output_check"] ?? '';
+$plan_output_check = $_REQUEST["plan_output_check"] ?? '';
+$team_check = $_REQUEST["team_check"] ?? '';
+$measure_check = $_REQUEST["measure_check"] ?? '';
+$sortof = $_REQUEST["sortof"] ?? '';
+$stable = $_REQUEST["stable"] ?? '';
+$sqltext = $_REQUEST["sqltext"] ?? '';
+$BigsearchTag = $_REQUEST["BigsearchTag"] ?? '';
+?>
+
+    <input type="hidden" id="done_check_val" name="done_check_val" value="<?= $done_check_val ?>">
+    <input type="hidden" id="voc_alert" name="voc_alert" value="<?= $voc_alert ?>">
+    <input type="hidden" id="ma_alert" name="ma_alert" value="<?= $ma_alert ?>">
+    <input type="hidden" id="order_alert" name="order_alert" value="<?= $order_alert ?>">
+    <input type="hidden" id="scale" name="scale" value="<?= $scale ?>">
+    <input type="hidden" id="yearcheckbox" name="yearcheckbox" value="<?= $yearcheckbox ?>">
+    <input type="hidden" id="year" name="year" value="<?= $year ?>">
+    <input type="hidden" id="check" name="check" value="<?= $check ?>">
+    <input type="hidden" id="output_check" name="output_check" value="<?= $output_check ?>">
+    <input type="hidden" id="plan_output_check" name="plan_output_check" value="<?= $plan_output_check ?>">
+    <input type="hidden" id="team_check" name="team_check" value="<?= $team_check ?>">
+    <input type="hidden" id="measure_check" name="measure_check" value="<?= $measure_check ?>">
+    <input type="hidden" id="cursort" name="cursort" value="<?= $cursort ?>">
+    <input type="hidden" id="sortof" name="sortof" value="<?= $sortof ?>">
+    <input type="hidden" id="stable" name="stable" value="<?= $stable ?>">
+    <input type="hidden" id="sqltext" name="sqltext" value="<?= $sqltext ?>">
+    <input type="hidden" id="mywrite" name="mywrite" value="<?= $mywrite ?>">
+    <input type="hidden" id="BigsearchTag" name="BigsearchTag" value="<?= $BigsearchTag ?>"> 				
 
 <div class="container-fluid justify-content-center align-items-center">
 <div class="card mt-2 "> 
@@ -557,105 +594,118 @@ $dateCon =" AND between date('$fromdate') and date('$Transtodate') " ;
 		</thead>
 	  <tbody>    
 
- <?php	 
-	  if ($page<=1)  
-			$start_num=$total_row;    // 페이지당 표시되는 첫번째 글순번
-		     else 
-		      	$start_num=$total_row-($page-1) * $scale;
-	    
-	       while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-			   
-                 include '_row.php' ;
+<?php
+try {
+    // 시작 번호 계산
+    if ($page <= 1) {
+        $start_num = $total_row;
+    } else {
+        $start_num = $total_row - ($page - 1) * $scale;
+    }
 
-			 $requestdate = NullCheckDate($requestdate);
-			 $indate = NullCheckDate($indate);
-			 $outdate = NullCheckDate($outdate);		
-	 if($outdate!="") {
-		$week = array("(일)" , "(월)"  , "(화)" , "(수)" , "(목)" , "(금)" ,"(토)") ;
-		$outdate = $outdate . $week[ date('w',  strtotime($outdate)  ) ] ;
-	}
+    // 데이터 출력
+    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+        include '_row.php';
 
-?>		  
-	  
- <tr  onclick="redirectToView('<?=$num?>', '<?=$find?>', '<?=$search?>', '<?=$Bigsearch?>', '<?=$yearcheckbox?>', '<?=$year?>', '<?=$fromdate?>', '<?=$todate?>', '<?=$separate_date?>', '<?=$scale?>','<?=$mywrite?>')">
-            <td class="   text-center">   <?=$start_num?>				</td>
-            <td class="  <?=$date_font?>  text-center"  data-order="<?= $outdate ?>">	  <?=iconv_substr($outdate,0,15, "utf-8")?> 	</td>
-            <td class="  <?=$date_font?>  text-center"  data-order="<?= $requestdate ?>"> <?=iconv_substr($requestdate,5,9, "utf-8")?> 	</td>
-		
-            <td class="  text-center" data-order="<?= $indate ?>"> 	   <?=iconv_substr($indate,5,9, "utf-8")?>  	</td>
-			   <?php
-							
-					 if($which=='') $which='1';
-					 switch ($which) {
-						case   "1"             :      
-								$tmp_word="요청";
-								$font_state="text-primary"; break;			      
-						case   "2"             :
-							   $tmp_word="발주보냄";
-							   $font_state="text-danger";	 break;
-						case   "3"             :
-							   $tmp_word="입고완료";
-							   $font_state="text-secondary";	 break;			
-						default: break;
-					}							
-				?>
-          <td class="text-center">
-		   <?php
-				$pattern = "/^[가-힣]+/";
-				
-				preg_match($pattern, $first_writer, $matches);
-				$tmpStr = $matches[0]; // '이미래' 출력
-		    ?>			
-          <?= $tmpStr ?> </td>			
-			
-				
-            <td class="  <?=$font_state?> text-center ">	 <?=$tmp_word?> 			</td>					
-			<td class=" text-center">	 <?=$inventory?> &nbsp;			</td>
-				<?php
-				   switch($status) {
-					   
-					   case 'send':
-						  $statusstr = '상신';
-						  break;
-					   case 'ing':
-						  $statusstr = '진행';
-						  break;
-					   case 'end':
-						  $statusstr = '완료';
-						  break;
-					   default:
-						  $statusstr = '';
-						  break;
-				   }	
-				?>				
-			
-			<td class=" text-center">	 <?=$statusstr?> &nbsp;			</td>
-            <td class="" >	 <?=$outworkplace?> </td>            
-            <td class="  text-center">	 <?=iconv_substr($model,0,8,"utf-8")?> 			</td>
-            <td class="  color-blue text-center">	<?=$steel_item?>			</td>
-            <td class="  color-brown text-center">	 <?=$spec?>			</td>
-            <td class="  color-red text-center">	<?=$steelnum?>		</td>
-            <td class="  color-green text-center">	<?=$company?> 		</td>						            
-            <td class="  text-center">	 <?=$supplier?>		</td>						
-            <td class="  text-center">	
-			<?php 
-			$number = (int)str_replace(',', '', $suppliercost);  // Convert the string to an integer after removing commas
-             
-			if($number>0)
-				 print '<span class="badge bg-success" >' . $suppliercost . ' </span>';
-               else
-				   print $suppliercost ;
-				?>
-			 </td>						
-            <td class="">	<?=$request_comment?>			</td>            
-          </tr>			
-	<?php
-			$start_num--;  
-			 } 
-  } catch (PDOException $Exception) {
-  print "오류: ".$Exception->getMessage();
-  }   
- ?>
+        // 날짜 포맷 변환
+        $requestdate = NullCheckDate($requestdate);
+        $indate = NullCheckDate($indate);
+        $outdate = NullCheckDate($outdate);
+
+        // 날짜 폰트 색상 설정
+        $date_font = "text-dark";
+        if ($nowday == $outdate) {
+            $date_font = "text-success";
+        }
+
+        // 출고일에 요일 추가
+        if ($outdate != "") {
+            $week = array("(일)", "(월)", "(화)", "(수)", "(목)", "(금)", "(토)");
+            $outdate = $outdate . $week[date('w', strtotime($outdate))];
+        }
+
+        // 진행상태 설정
+        if ($which == '') $which = '1';
+        
+        switch ($which) {
+            case "1":
+                $tmp_word = "요청";
+                $font_state = "text-primary";
+                break;
+            case "2":
+                $tmp_word = "발주보냄";
+                $font_state = "text-danger";
+                break;
+            case "3":
+                $tmp_word = "입고완료";
+                $font_state = "text-secondary";
+                break;
+            default:
+                $tmp_word = "";
+                $font_state = "";
+                break;
+        }
+
+        // 요청인 이름 추출 (한글만)
+        $pattern = "/^[가-힣]+/";
+        preg_match($pattern, $first_writer, $matches);
+        $tmpStr = $matches[0] ?? '';
+
+        // 결재 상태 설정
+        switch ($status) {
+            case 'send':
+                $statusstr = '상신';
+                break;
+            case 'ing':
+                $statusstr = '진행';
+                break;
+            case 'end':
+                $statusstr = '완료';
+                break;
+            default:
+                $statusstr = '';
+                break;
+        }
+?>
+
+<tr onclick="redirectToView('<?= $num ?>', '<?= $find ?>', '<?= $search ?>', '<?= $Bigsearch ?>', '<?= $yearcheckbox ?>', '<?= $year ?>', '<?= $fromdate ?>', '<?= $todate ?>', '<?= $separate_date ?>', '<?= $scale ?>','<?= $mywrite ?>')">
+    <td class="text-center"><?= $start_num ?></td>
+    <td class="<?= $date_font ?> text-center" data-order="<?= $outdate ?>"><?= iconv_substr($outdate, 0, 15, "utf-8") ?></td>
+    <td class="<?= $date_font ?> text-center" data-order="<?= $requestdate ?>"><?= iconv_substr($requestdate, 5, 9, "utf-8") ?></td>
+    <td class="text-center" data-order="<?= $indate ?>"><?= iconv_substr($indate, 5, 9, "utf-8") ?></td>
+    <td class="text-center"><?= $tmpStr ?></td>
+    <td class="<?= $font_state ?> text-center"><?= $tmp_word ?></td>
+    <td class="text-center"><?= $inventory ?> &nbsp;</td>
+    <td class="text-center"><?= $statusstr ?> &nbsp;</td>
+    <td class=""><?= $outworkplace ?></td>
+    <td class="text-center"><?= iconv_substr($model, 0, 8, "utf-8") ?></td>
+    <td class="color-blue text-center"><?= $steel_item ?></td>
+    <td class="color-brown text-center"><?= $spec ?></td>
+    <td class="color-red text-center"><?= $steelnum ?></td>
+    <td class="color-green text-center"><?= $company ?></td>
+    <td class="text-center"><?= $supplier ?></td>
+    <td class="text-center">
+        <?php
+        $suppliercost = $suppliercost ?? '';
+        $number = (int)str_replace(',', '', $suppliercost);
+        
+        if ($number > 0) {
+            echo '<span class="badge bg-success">' . htmlspecialchars($suppliercost, ENT_QUOTES, 'UTF-8') . '</span>';
+        } else {
+            echo htmlspecialchars($suppliercost, ENT_QUOTES, 'UTF-8');
+        }
+        ?>
+    </td>
+    <td class=""><?= htmlspecialchars($request_comment, ENT_QUOTES, 'UTF-8') ?></td>
+</tr>
+
+<?php
+        $start_num--;
+    }
+} catch (PDOException $Exception) {
+    error_log("데이터 출력 오류: " . $Exception->getMessage());
+}
+?>
        </tbody>
 	   </table>	   
    </div> 
@@ -666,7 +716,7 @@ $dateCon =" AND between date('$fromdate') and date('$Transtodate') " ;
 </form>	
 
 <div class="container-fluid">
-<? include '../footer_sub.php'; ?>
+<?php include '../footer_sub.php'; ?>
 </div>
   
      </body>

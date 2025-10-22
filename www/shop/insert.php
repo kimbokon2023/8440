@@ -1,49 +1,33 @@
- <?php   
-  session_start();    
-  
-  print $_FILES['mainBefore']['name'];
+<?php
+session_start();
+
+// Environment detection for URL
+$is_local = (isset($_SERVER['HTTP_HOST']) && (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false));
+$base_url = $is_local ? 'http://localhost' : 'http://8440.co.kr';
+
+print $_FILES['mainBefore']['name'] ?? '';
    
-  if(isset($_REQUEST["page"]))
-    $page=$_REQUEST["page"];
-  else 
-    $page=1;   // 1로 설정해야 함
- if(isset($_REQUEST["mode"]))  //modify_form에서 호출할 경우
-    $mode=$_REQUEST["mode"];
- else 
-    $mode="";
- 
- if(isset($_REQUEST["num"]))
-    $num=$_REQUEST["num"];
- else 
-    $num="";
+// Request variables with null safety
+$page = $_REQUEST["page"] ?? 1;  // 1로 설정해야 함
+$mode = $_REQUEST["mode"] ?? '';  // modify_form에서 호출할 경우
+$num = $_REQUEST["num"] ?? '';
+$search = $_REQUEST["search"] ?? '';  // 수정 버튼을 클릭해서 호출했는지 체크
+$find = $_REQUEST["find"] ?? '';
 
-  if(isset($_REQUEST["search"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $search=$_REQUEST["search"];
-  else
-   $search="";
-
-  if(isset($_REQUEST["find"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $find=$_REQUEST["find"];
-  else
-   $find="";
-
-  $num=$_REQUEST["num"];
-  $catagory=$_REQUEST["catagory"];			  
-  $dporder=$_REQUEST["dporder"];			  
-		  
-  $item=$_REQUEST["item"];			  
-  $itemdes=$_REQUEST["itemdes"];
-  $sale=$_REQUEST["sale"];			  
-  $price=$_REQUEST["price"];
-  $saleprice=$_REQUEST["saleprice"];
-  $filename1=$_REQUEST["filename1"];	
-  $youtube1=$_REQUEST["youtube1"];	
-  $youtube2=$_REQUEST["youtube2"];	
+// Product data with null safety
+$catagory = $_REQUEST["catagory"] ?? '';
+$dporder = $_REQUEST["dporder"] ?? '';
+$item = $_REQUEST["item"] ?? '';
+$itemdes = $_REQUEST["itemdes"] ?? '';
+$sale = $_REQUEST["sale"] ?? '';
+$price = $_REQUEST["price"] ?? '';
+$saleprice = $_REQUEST["saleprice"] ?? '';
+$filename1 = $_REQUEST["filename1"] ?? '';
+$youtube1 = $_REQUEST["youtube1"] ?? '';
+$youtube2 = $_REQUEST["youtube2"] ?? '';	
   		
- if(isset($_REQUEST["filedelete"]))
-    $filedelete=$_REQUEST["filedelete"];
-		 else 
-			$filedelete="";		
+// File delete parameter
+$filedelete = $_REQUEST["filedelete"] ?? '';		
 		
 // 파일 삭제에 대한 처부부분
 
@@ -74,12 +58,11 @@ if($filedelete=='before')
 				   print "오류: ".$Exception->getMessage();
 			 }  
 
-header("Location:http://8440.co.kr/shop/view.php?num=$num&check=$check");			 
+header("Location: {$base_url}/shop/view.php?num=$num&check=$check");			 
 }
 					
 
-class Image {
-    
+class Image {    
     var $file;
     var $image_width;
     var $image_height;
@@ -197,12 +180,9 @@ class Image {
         if($this->type=='gif') imagegif($new_image, $name);
  
         imagedestroy($image); 
-        imagedestroy($new_image);
-        
-    }
-    
+        imagedestroy($new_image);        
+    }    
 }			
-			
 			
 if($_FILES['mainBefore']['name']!='' && $filename1=='') {   			
 	//Auth key
@@ -253,8 +233,9 @@ if($width > 700){
 }else{
  $switch_s=100;
 }
-    $buffer = file_get_contents($url1);
-  
+
+$buffer = file_get_contents($url1);
+
 $re_image = new Image($filename1);
 $rate=$width/$height;
 if($width>$height) {
@@ -270,7 +251,6 @@ if($width>$height) {
                      
 			   
  }
-
 
 // 파일 압축 메소드 
     function compress_image($source, $destination, $quality) { 
@@ -305,7 +285,6 @@ if($width>$height) {
         $pdo->rollBack();
         print "오류: ".$Exception->getMessage();
      } 
-      
 
      try{
         $pdo->beginTransaction();   
@@ -337,12 +316,10 @@ if($width>$height) {
 	 
 	 // 데이터 신규 등록하는 구간
 		 
-   try{
-     $pdo->beginTransaction();
-  	 
+ try{    
+     $pdo->beginTransaction();  	 
      $sql = "insert into mirae8440.shopitem(catagory, dporder, item, itemdes, sale, price, saleprice, filename1, youtube1, youtube2) ";
-     $sql .= " values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ";
-	   
+     $sql .= " values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ";	   
      $stmh = $pdo->prepare($sql); 
      $stmh->bindValue(1, $catagory, PDO::PARAM_STR);  
      $stmh->bindValue(2, $dporder, PDO::PARAM_STR);  
@@ -363,12 +340,35 @@ if($width>$height) {
      }   
    }
 
-if($mode=="not")
-   header("Location:http://8440.co.kr/shop/read_DB.php?num=$num&outputnum=$outputnum&page=$page&search=$search&Bigsearch=$Bigsearch&find=$find&process=$process&yearcheckbox=$yearcheckbox&year=$year&fromdate=$fromdate&todate=$todate&separate_date=$separate_date");    // 신규가입일때는 리스트로 이동
-	 else		 
-     header("Location:http://8440.co.kr/shop/view.php?num=$num&outputnum=$outputnum&page=$page&search=$search&Bigsearch=$Bigsearch&find=$find&process=$process&yearcheckbox=$yearcheckbox&year=$year&fromdate=$fromdate&todate=$todate&separate_date=$separate_date");  
- ?>
- 
+// 저장 후 처리
+echo '<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>저장 완료</title>
+</head>
+<body>
+<script>
+// iframe에서 실행 중인지 확인
+if(window.self !== window.top) {
+    // iframe에서 실행 중이면 부모 창에 메시지 전송
+    alert("저장되었습니다.");
+    window.parent.postMessage("reloadPage", "*");
+} else {
+    // 일반 페이지면 리다이렉트';
 
- 
-
+if($mode=="not") {
+    echo '
+    alert("저장되었습니다.");
+    location.href = "' . $base_url . '/shop/list.php?page=' . $page . '";';
+} else {
+    echo '
+    alert("수정되었습니다.");
+    location.href = "' . $base_url . '/shop/view.php?num=' . $num . '&page=' . $page . '";';
+}
+echo '
+}
+</script>
+</body>
+</html>';
+?>

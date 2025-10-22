@@ -1,14 +1,30 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php
+// 브라우저 캐시 완전 비활성화
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
+
+require_once __DIR__ . '/../common/functions.php';
 require_once(includePath('session.php'));
 
- if(!isset($_SESSION["level"]) || $level>8) {
-	     $_SESSION["url"]='https://8440.co.kr/steel/list.php' ; 		   
-		 sleep(1);
-         header ("Location:" . $WebSite . "login/logout.php");         
-         exit;
-}  
-$title_message = '원자재 입출고';      
- ?>  
+// Environment detection for URL
+$is_local = (isset($_SERVER['HTTP_HOST']) && (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false));
+$base_url = $is_local ? 'http://localhost' : 'https://8440.co.kr';
+$WebSite = $base_url . '/';
+
+// Initialize session variables with null safety
+$level = $_SESSION["level"] ?? null;
+$user_name = $_SESSION["name"] ?? '';
+
+if (!isset($_SESSION["level"]) || $level > 8) {
+    $_SESSION["url"] = $base_url . '/steel/list.php';
+    sleep(1);
+    header("Location:" . $WebSite . "login/logout.php");
+    exit;
+}
+$title_message = '원자재 입출고';
+?>  
  <?php include getDocumentRoot() . '/load_header.php';
  ?>  
 <title> <?=$title_message?>  </title>  					                	 
@@ -47,12 +63,39 @@ function check_in_range($start_date, $end_date, $user_date)
 
 // include "../subload_notice.php";  //공지사항 불러오기
 include "_request.php";
- 
-if(isset($_REQUEST["find"]))   //목록표에 제목,이름 등 나오는 부분
-	$find=$_REQUEST["find"]; 
- 
-if($find=='')
-	$find = "전체";
+
+// Initialize request variables with null safety
+$mode = $_REQUEST["mode"] ?? '';
+$search = $_REQUEST["search"] ?? '';
+$Bigsearch = $_REQUEST["Bigsearch"] ?? '';
+$BigsearchTag = $_REQUEST["BigsearchTag"] ?? '';
+$bad_choice = $_REQUEST["bad_choice"] ?? '';
+$bad_choice_hidden = $_REQUEST["bad_choice_hidden"] ?? '';
+$year = $_REQUEST["year"] ?? '';
+$yearcheckbox = $_REQUEST["yearcheckbox"] ?? '';
+$page = $_REQUEST["page"] ?? '';
+$scale = $_REQUEST["scale"] ?? '';
+$check = $_REQUEST["check"] ?? '';
+$output_check = $_REQUEST["output_check"] ?? '';
+$plan_output_check = $_REQUEST["plan_output_check"] ?? '';
+$team_check = $_REQUEST["team_check"] ?? '';
+$measure_check = $_REQUEST["measure_check"] ?? '';
+$cursort = $_REQUEST["cursort"] ?? '';
+$sortof = $_REQUEST["sortof"] ?? '';
+$stable = $_REQUEST["stable"] ?? '';
+$sqltext = $_REQUEST["sqltext"] ?? '';
+$list = $_REQUEST["list"] ?? '';
+$voc_alert = $_REQUEST["voc_alert"] ?? '';
+$ma_alert = $_REQUEST["ma_alert"] ?? '';
+$order_alert = $_REQUEST["order_alert"] ?? '';
+$up_fromdate = $_REQUEST["up_fromdate"] ?? '';
+$up_todate = $_REQUEST["up_todate"] ?? '';
+$separate_date = $_REQUEST["separate_date"] ?? '';
+
+$find = $_REQUEST["find"] ?? '';
+if ($find == '') {
+    $find = "전체";
+}
  
  // 철판종류에 대한 추출부분
 require_once(includePath('lib/mydb.php'));
@@ -291,22 +334,6 @@ try{
 	  $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
       $total_row=$stmh->rowCount();
 	  
-		if($regist_state==null)
-			$regist_state="1";					
-		
-			$font="black";
-
-			switch ($regist_state) {
-				case   "1"     :  $font_state="black"; $regist_word="등록"; break;
-				case   "2"     :  $font_state="red"  ; $regist_word="접수"; break;	
-				case   "3"     :  $font_state="blue"  ; $regist_word="완료"; break;	
-				default:  $regist_word="등록"; break;
-			}								
-					  
- if($outdate!="") {
-    $week = array("(일)" , "(월)"  , "(화)" , "(수)" , "(목)" , "(금)" ,"(토)") ;
-    $outdate = $outdate . $week[ date('w',  strtotime($outdate)  ) ] ;
-}	
 
 $findarr=array('전체','입고','출고');
 
@@ -314,140 +341,139 @@ $findarr=array('전체','입고','출고');
  
 ?>   
    
-<form name="board_form" id="board_form"  method="post" action="list.php?mode=search&search=<?=$search?>&find=<?=$find?>&year=<?=$year?>&search=<?=$search?>&fromdate=<?=$fromdate?>&todate=<?=$todate?>&up_fromdate=<?=$up_fromdate?>&up_todate=<?=$up_todate?>&separate_date=<?=$separate_date?>&scale=<?=$scale?>">  
-  
- <div class="container-fluid" >  
-		<input type="hidden" id="username" name="username" value="<?=$user_name?>" size="5" > 					
-		<input type="hidden" id="BigsearchTag" name="BigsearchTag" value="<?=$BigsearchTag?>" size="5" > 
-		<input type="hidden" id="voc_alert" name="voc_alert" value="<?=$voc_alert?>" size="5" > 	
-		<input type="hidden" id="ma_alert" name="ma_alert" value="<?=$ma_alert?>" size="5" > 	
-		<input type="hidden" id="order_alert" name="order_alert" value="<?=$order_alert?>" size="5" > 	
-		<input type="hidden" id="page" name="page" value="<?=$page?>" size="5" > 	
-		<input type="hidden" id="scale" name="scale" value="<?=$scale?>" size="5" > 	
-		<input type="hidden" id="yearcheckbox" name="yearcheckbox" value="<?=$yearcheckbox?>" size="5" > 	
-		<input type="hidden" id="year" name="year" value="<?=$year?>" size="5" > 	
-		<input type="hidden" id="check" name="check" value="<?=$check?>" size="5" > 	
-		<input type="hidden" id="output_check" name="output_check" value="<?=$output_check?>" size="5" > 	
-		<input type="hidden" id="plan_output_check" name="plan_output_check" value="<?=$plan_output_check?>" size="5" > 	
-		<input type="hidden" id="team_check" name="team_check" value="<?=$team_check?>" size="5" > 	
-		<input type="hidden" id="measure_check" name="measure_check" value="<?=$measure_check?>" size="5" > 	
-		<input type="hidden" id="cursort" name="cursort" value="<?=$cursort?>" size="5" > 	
-		<input type="hidden" id="sortof" name="sortof" value="<?=$sortof?>" size="5" > 	
-		<input type="hidden" id="stable" name="stable" value="<?=$stable?>" size="5" > 	
-		<input type="hidden" id="sqltext" name="sqltext" value="<?=$sqltext?>" > 				
-		<input type="hidden" id="list" name="list" value="<?=$list?>" > 				
-		<input type="hidden" id="stable" name="stable" value="<?=$stable?>" > 	
-		<input type="hidden" id="bad_choice_hidden" name="bad_choice_hidden" value="<?=$bad_choice_hidden?>" > 	
-		
-	<div class="d-flex mb-3 mt-2 justify-content-center align-items-center"> 
-		<div id="display_board" class="text-primary fs-3 text-center" style="display:none"> 
-		</div>     
-	</div>	
-	<div class="d-flex mb-3 mt-4 justify-content-center align-items-center"> 		 
-		<H5>
-			 <?=$title_message?> 
-			 <button type="button" class="btn btn-dark btn-sm mx-3"  onclick='location.reload();' title="새로고침"> <i class="bi bi-arrow-clockwise"></i> </button>  
-		</H5>		 
-	</div>	
-	
-		<!-- <button type="button" class="btn btn-secondary  btn-sm "  onclick="LoadBadDb();"> DB  </button>&nbsp; -->		
-		
-	 <div class="row d-flex justify-content-center  align-items-center mb-2" >  	
-		<div  class="col-sm-6" >
-			<div id="display_list"  class="card justify-content-center align-items-center " >							
-					<div  class="card-body" >
-						<table  class="table table-hover">
-							<tbody>
-								<tr>
-									<td class="col">				 
-										<div class="d-flex  justify-content-center align-items-center mb-3">	
-											<span class="badge bg-primary fs-6"> 본천장/조명천장 (설계미완료 제외) 출하일기준 6일전 laser 미가공 현장 (샤집 천장 작업해요)</span>                                                          
-										</div>			 
-										<div class="d-flex  justify-content-center align-items-center">	
-											<span id="todolist" class="form-control"> 천장 Todo List </span>                                                          
-										</div>
-									</td>	
-								</tr>
-							</tbody>
-						</table>
-					</div>
-			 </div>
-		 </div>		
-	 </div>		
+<form name="board_form" id="board_form" method="post" action="list.php">
 
-	<div class="d-flex mb-2 justify-content-center align-items-center"> 			
-	
-		▷ <?= $total_row ?>  &nbsp; &nbsp; 
-						<!-- 기간부터 검색까지 연결 묶음 start -->	
-			<div id="showframe" class="card">
-				<div class="card-header " style="padding:2px;">
-					<div class="d-flex justify-content-center align-items-center">  
-						기간 설정
-					</div>
-				</div>
-				<div class="card-body">
-					<div class="d-flex justify-content-center align-items-center">  	
-						<button type="button" class="btn btn-outline-success btn-sm me-1 change_dateRange"   onclick='alldatesearch()' > 전체 </button>  
-						<button type="button" id="preyear" class="btn btn-outline-primary btn-sm me-1 change_dateRange"   onclick='pre_year()' > 전년도 </button>  
-						<button type="button" id="three_month" class="btn btn-dark btn-sm me-1 change_dateRange "  onclick='three_month_ago()' > M-3월 </button>
-						<button type="button" id="prepremonth" class="btn btn-dark btn-sm me-1 change_dateRange "  onclick='prepre_month()' > 전전월 </button>	
-						<button type="button" id="premonth" class="btn btn-dark btn-sm me-1 change_dateRange "  onclick='pre_month()' > 전월 </button> 						
-						<button type="button" class="btn btn-outline-danger btn-sm me-1 change_dateRange "  onclick='this_today()' > 오늘 </button>
-						<button type="button" id="thismonth" class="btn btn-dark btn-sm me-1 change_dateRange "  onclick='this_month()' > 당월 </button>
-						<button type="button" id="thisyear" class="btn btn-dark btn-sm me-1 change_dateRange "  onclick='this_year()' > 당해년도 </button> 
-					</div>
-				</div>
-			</div>		
-			   <input type="date" id="fromdate" name="fromdate" size="12"  class="form-control"   style="width:100px;" value="<?=$fromdate?>" placeholder="기간 시작일">  &nbsp;   ~ &nbsp;  
-			   <input type="date" id="todate" name="todate" size="12"   class="form-control"   style="width:100px;" value="<?=$todate?>" placeholder="기간 끝">  &nbsp;     </span> 
-			   &nbsp;&nbsp;
-		</div>
-	<div class="d-flex justify-content-center align-items-center" > 	 	 
-	  &nbsp;  <span class="text-danger"> 불량유형 </span> &nbsp; 
-		<?php
-			$options = ["전체", "설계", "레이져", "V컷", "절곡", "운반중", "소장", "업체", "기타", "개발품", "소재"];
-			
-			if ($bad_choice == "") {
-				$bad_choice = "해당없음";
-			}
-		?>
-		<select name="bad_choice" id="bad_choice" onchange="changeType(this)" class="form-select w-auto mx-1" style="font-size: 0.8rem; height: 32px;">
-			<?php foreach ($options as $key => $value): ?>
-				<option <?= $bad_choice == $value ? "selected" : "" ?> value="<?= $value ?>"><?= $value ?></option>
-			<?php endforeach; ?>
-		</select>  		
- 	    <select name="find" id="find"  class="form-select w-auto mx-1" style="font-size: 0.8rem; height: 32px;">
-           <?php			   
-		   for($i=0;$i<count($findarr);$i++) {
-			     if($find==$findarr[$i]) 
-							print "<option selected value='" . $findarr[$i] . "'> " . $findarr[$i] .   "</option>";
-					 else   
-			   print "<option value='" . $findarr[$i] . "'> " . $findarr[$i] .   "</option>";
-		   } 		   
-		      	?>	  
-	    </select>
-<style>
-    #Bigsearch {
-        width: 220px; /* 원하는 크기로 조정하세요 */
-    }
-</style>
+    <div class="container-fluid">
+        <input type="hidden" id="mode" name="mode" value="<?=$mode?>">
+        <input type="hidden" id="username" name="username" value="<?=$user_name?>">
+        <input type="hidden" id="BigsearchTag" name="BigsearchTag" value="<?=$BigsearchTag?>">
+        <input type="hidden" id="voc_alert" name="voc_alert" value="<?=$voc_alert?>">
+        <input type="hidden" id="ma_alert" name="ma_alert" value="<?=$ma_alert?>">
+        <input type="hidden" id="order_alert" name="order_alert" value="<?=$order_alert?>">
+        <input type="hidden" id="page" name="page" value="<?=$page?>">
+        <input type="hidden" id="scale" name="scale" value="<?=$scale?>">
+        <input type="hidden" id="yearcheckbox" name="yearcheckbox" value="<?=$yearcheckbox?>">
+        <input type="hidden" id="year" name="year" value="<?=$year?>">
+        <input type="hidden" id="check" name="check" value="<?=$check?>">
+        <input type="hidden" id="output_check" name="output_check" value="<?=$output_check?>">
+        <input type="hidden" id="plan_output_check" name="plan_output_check" value="<?=$plan_output_check?>">
+        <input type="hidden" id="team_check" name="team_check" value="<?=$team_check?>">
+        <input type="hidden" id="measure_check" name="measure_check" value="<?=$measure_check?>">
+        <input type="hidden" id="cursort" name="cursort" value="<?=$cursort?>">
+        <input type="hidden" id="sortof" name="sortof" value="<?=$sortof?>">
+        <input type="hidden" id="stable" name="stable" value="<?=$stable?>">
+        <input type="hidden" id="sqltext" name="sqltext" value="<?=$sqltext?>">
+        <input type="hidden" id="list" name="list" value="<?=$list?>">
+        <input type="hidden" id="bad_choice_hidden" name="bad_choice_hidden" value="<?=$bad_choice_hidden?>">
+        <input type="hidden" id="up_fromdate" name="up_fromdate" value="<?=$up_fromdate?>">
+        <input type="hidden" id="up_todate" name="up_todate" value="<?=$up_todate?>">
+        <input type="hidden" id="separate_date" name="separate_date" value="<?=$separate_date?>"> 	
+		
+        <div class="d-flex mb-3 mt-2 justify-content-center align-items-center">
+            <div id="display_board" class="text-primary fs-3 text-center" style="display:none">
+            </div>
+        </div>
+        <div class="d-flex mb-3 mt-4 justify-content-center align-items-center">
+            <H5>
+                <?=$title_message?>
+                <button type="button" class="btn btn-dark btn-sm mx-3" onclick='location.reload();' title="새로고침">
+                    <i class="bi bi-arrow-clockwise"></i>
+                </button>
+            </H5>
+        </div>	
 
-<select name="Bigsearch" id="Bigsearch" class="form-select w-auto mx-1" style="font-size: 0.8rem; height: 32px;">
-    <?php
-    for($i=0;$i<count($steelsource_item);$i++) {
-        if($Bigsearch==$steelsource_item[$i])
-            print "<option selected value='" . $steelsource_item[$i] . "'> " . $steelsource_item[$i] .   "</option>";
-        else
-            print "<option value='" . $steelsource_item[$i] . "'> " . $steelsource_item[$i] .   "</option>";
-    }
-    ?>
-</select>		   				   
-	   &nbsp;
-	   	   
-<input type="text" id="search" name="search" class="form-control" style="width:150px; height:32px;"  value="<?=$search?>" autocomplete="off" onkeydown="JavaScript:SearchEnter();" placeholder="일반 검색시" >
-  &nbsp;
-			<button type="button" id="searchBtn" class="btn btn-dark btn-sm ms-1 me-3"  > <i class="bi bi-search"></i> 검색 </button>			
-				<span id="showextract" class="btn btn-primary btn-sm me-4 " > <i class="bi bi-tools"></i>  </span>	&nbsp; 
+        <!-- <button type="button" class="btn btn-secondary btn-sm" onclick="LoadBadDb();"> DB </button>&nbsp; -->
+
+        <div class="row d-flex justify-content-center align-items-center mb-2">
+            <div class="col-sm-6">
+                <div id="display_list" class="card justify-content-center align-items-center">
+                    <div class="card-body">
+                        <table class="table table-hover">
+                            <tbody>
+                                <tr>
+                                    <td class="col">
+                                        <div class="d-flex justify-content-center align-items-center mb-3">
+                                            <span class="badge bg-primary fs-6">본천장/조명천장 (설계미완료 제외) 출하일기준 6일전 laser 미가공 현장 (샤집 천장 작업해요)</span>
+                                        </div>
+                                        <div class="d-flex justify-content-center align-items-center">
+                                            <span id="todolist" class="form-control"> 천장 Todo List </span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>		
+
+        <div class="d-flex mb-2 justify-content-center align-items-center">
+
+            ▷ <?= $total_row ?> &nbsp; &nbsp;
+            <!-- 기간부터 검색까지 연결 묶음 start -->
+            <div id="showframe" class="card">
+                <div class="card-header" style="padding:2px;">
+                    <div class="d-flex justify-content-center align-items-center">
+                        기간 설정
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-center align-items-center">
+                        <button type="button" class="btn btn-outline-success btn-sm me-1 change_dateRange" onclick='alldatesearch()'>전체</button>
+                        <button type="button" id="preyear" class="btn btn-outline-primary btn-sm me-1 change_dateRange" onclick='pre_year()'>전년도</button>
+                        <button type="button" id="three_month" class="btn btn-dark btn-sm me-1 change_dateRange" onclick='three_month_ago()'>M-3월</button>
+                        <button type="button" id="prepremonth" class="btn btn-dark btn-sm me-1 change_dateRange" onclick='prepre_month()'>전전월</button>
+                        <button type="button" id="premonth" class="btn btn-dark btn-sm me-1 change_dateRange" onclick='pre_month()'>전월</button>
+                        <button type="button" class="btn btn-outline-danger btn-sm me-1 change_dateRange" onclick='this_today()'>오늘</button>
+                        <button type="button" id="thismonth" class="btn btn-dark btn-sm me-1 change_dateRange" onclick='this_month()'>당월</button>
+                        <button type="button" id="thisyear" class="btn btn-dark btn-sm me-1 change_dateRange" onclick='this_year()'>당해년도</button>
+                    </div>
+                </div>
+            </div>
+            <input type="date" id="fromdate" name="fromdate" size="12" class="form-control" style="width:100px;" value="<?=$fromdate?>" placeholder="기간 시작일"> &nbsp; ~ &nbsp;
+            <input type="date" id="todate" name="todate" size="12" class="form-control" style="width:100px;" value="<?=$todate?>" placeholder="기간 끝"> &nbsp;
+            &nbsp;&nbsp;
+        </div>
+        <div class="d-flex justify-content-center align-items-center">
+            &nbsp; <span class="text-danger">불량유형</span> &nbsp;
+            <?php
+                $options = ["전체", "설계", "레이져", "V컷", "절곡", "운반중", "소장", "업체", "기타", "개발품", "소재"];
+
+                if ($bad_choice == "") {
+                    $bad_choice = "해당없음";
+                }
+            ?>
+            <select name="bad_choice" id="bad_choice" onchange="changeType(this)" class="form-select w-auto mx-1" style="font-size: 0.8rem; height: 32px;">
+                <?php foreach ($options as $key => $value): ?>
+                    <option <?= $bad_choice == $value ? "selected" : "" ?> value="<?= $value ?>"><?= $value ?></option>
+                <?php endforeach; ?>
+            </select>
+            <select name="find" id="find" class="form-select w-auto mx-1" style="font-size: 0.8rem; height: 32px;">
+                <?php
+                for($i=0;$i<count($findarr);$i++) {
+                    if($find==$findarr[$i])
+                        print "<option selected value='" . $findarr[$i] . "'> " . $findarr[$i] . "</option>";
+                    else
+                        print "<option value='" . $findarr[$i] . "'> " . $findarr[$i] . "</option>";
+                }
+                ?>
+            </select>
+            <select name="Bigsearch" id="Bigsearch" class="form-select w-auto mx-1" style="font-size: 0.8rem; height: 32px; width: 220px;">
+                <?php
+                for($i=0;$i<count($steelsource_item);$i++) {
+                    if($Bigsearch==$steelsource_item[$i])
+                        print "<option selected value='" . $steelsource_item[$i] . "'> " . $steelsource_item[$i] . "</option>";
+                    else
+                        print "<option value='" . $steelsource_item[$i] . "'> " . $steelsource_item[$i] . "</option>";
+                }
+                ?>
+            </select>
+            &nbsp;
+
+            <input type="text" id="search" name="search" class="form-control" style="width:150px; height:32px;" value="<?=$search?>" autocomplete="off" onkeydown="JavaScript:SearchEnter();" placeholder="일반 검색시">
+            &nbsp;
+            <button type="button" id="searchBtn" class="btn btn-dark btn-sm ms-1 me-3"><i class="bi bi-search"></i> 검색</button>
+            <span id="showextract" class="btn btn-primary btn-sm me-4"><i class="bi bi-tools"></i></span> &nbsp;
 				<div id="showextractframe" class="card">
 					<div class="card-header text-center " style="padding:2px;">
 						사이즈 검색
@@ -505,80 +531,83 @@ $findarr=array('전체','입고','출고');
 							   <button type="button" class="btn btn-outline-secondary btn-sm"  onclick="size23_4_8_list_click();"> 4'x8'  </button> &nbsp;					  
 							   천장 3.2T(PO)  &nbsp; 	  
 							   <button type="button" class="btn btn-outline-secondary btn-sm" onclick="size32_4_1680_list_click();"> 4'x1680 </button> &nbsp;									   
-						  </div>						   
-					</div>
-				</div>			   	     
-     	 <button type="button" class="btn btn-dark  btn-sm me-1" id="writeBtn"> <i class="bi bi-pencil-fill"></i> 신규  </button> 	     
-		 <button  type="button" id="rawmaterialBtn"  class="btn btn-dark btn-sm" > <i class="bi bi-list"></i> 재고 </button> &nbsp;		  			
-       </div>		       	
-  <div class="row mt-3 mb-1 p-1 m-1" >
-     <table class="table table-hover " id="myTable">
-	   <thead class="table-primary">
-		  <tr>
-            <th class="text-center" style="width:60px;" >번호</th>
-            <th class="text-center" style="width:100px;" >일자</th>
-            <th class="text-center" style="width:100px;" >입출고</th>
-            <th class="text-center" style="width:250px;" >현장명</th>
-            <th class="text-center" style="width:100px;" >모델</th>
-            <!-- <th class="text-center" style="width:100px;" >본가공/<br>LC가공</th> -->
-            <th class="text-center" style="width:100px;" >철판종류</th>
-            <th class="text-center" style="width:100px;" >규격</th>
-            <th class="text-center" style="width:50px;" >수량</th>
-            <th class="text-center text-success" style="width:80px;" >잔재(Kg)</th>
-            <th class="text-center text-danger" style="width:80px;"  > 절감(원)</th>
-            <th class="text-center" style="width:100px;" >사급사 </th>
-            <th class="text-center" style="width:100px;" >공급사 </th>
-            <th class="text-center" style="width:80px;" >샤링여부</th>
-            <th class="text-center" style="width:100px;" >불량유형</th>
-            <th class="text-center" style="width:150px;" >비고</th>
-		  </tr>
-		</thead>
-	  <tbody>
-	 <?php		  
-		$start_num=$total_row;    // 페이지당 표시되는 첫번째 글순번
-		  
-	       while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-dark btn-sm me-1" id="writeBtn"><i class="bi bi-pencil-fill"></i> 신규</button>
+                <button type="button" id="rawmaterialBtn" class="btn btn-dark btn-sm"><i class="bi bi-list"></i> 재고</button> &nbsp;
+            </div>
+        </div>
 
-             include '_row.php';
-			  	
-		    	$temp_arr = explode("*", $spec);
-			
-                $saved_weight = 0.0;					
-				$saved_weight += ($temp_arr[0] * $used_width_1 * $used_length_1 * 7.93 * (int)$used_num_1)/1000000 ;
-				$saved_weight += ($temp_arr[0] * $used_width_2 * $used_length_2 * 7.93 * (int)$used_num_2)/1000000 ;
-				$saved_weight += ($temp_arr[0] * $used_width_3 * $used_length_3 * 7.93 * (int)$used_num_3)/1000000 ;
-				$saved_weight += ($temp_arr[0] * $used_width_4 * $used_length_4 * 7.93 * (int)$used_num_4)/1000000 ;
-				$saved_weight += ($temp_arr[0] * $used_width_5 * $used_length_5 * 7.93 * (int)$used_num_5)/1000000 ;
-	
-			    $saved_weight = sprintf('%0.1f', $saved_weight);  // 소수점 한자리 표현
-				
-				switch ($item) {
-					case 'CR' :
-				          $saved_fee = (float)$saved_weight * conv_num($readIni['CR']);   
-						  break;
-					case 'PO' :
-				          $saved_fee = $saved_weight * conv_num($readIni['PO']);   					
-						  break;
-					case 'EGI' :
-				          $saved_fee = $saved_weight * conv_num($readIni['EGI']);   					
-						  break;
-					case '201 HL' :
-				          $saved_fee = $saved_weight * conv_num($readIni['HL201']) ;   									
-						  break;
-					case '201 MR' :
-					case '201 2B MR' :
-				          $saved_fee = $saved_weight * conv_num($readIni['MR201']);   					
-						  break;
-					case '304 HL' :
-				          $saved_fee = $saved_weight * conv_num($readIni['HL304']) ;   									
-						  break;
-					case '304 MR' :
-				          $saved_fee = $saved_weight * conv_num($readIni['MR304']);   					
-						  break;
-					default:
-					      $saved_fee = $saved_weight * conv_num($readIni['etcsteel']);   					
-					      break;					
-				}
+        <div class="row mt-3 mb-1 p-1 m-1">
+            <table class="table table-hover" id="myTable">
+                <thead class="table-primary">
+                    <tr>
+                        <th class="text-center" style="width:60px;">번호</th>
+                        <th class="text-center" style="width:100px;">일자</th>
+                        <th class="text-center" style="width:100px;">입출고</th>
+                        <th class="text-center" style="width:250px;">현장명</th>
+                        <th class="text-center" style="width:100px;">모델</th>
+                        <!-- <th class="text-center" style="width:100px;">본가공/<br>LC가공</th> -->
+                        <th class="text-center" style="width:100px;">철판종류</th>
+                        <th class="text-center" style="width:100px;">규격</th>
+                        <th class="text-center" style="width:50px;">수량</th>
+                        <th class="text-center text-success" style="width:80px;">잔재(Kg)</th>
+                        <th class="text-center text-danger" style="width:80px;">절감(원)</th>
+                        <th class="text-center" style="width:100px;">사급사</th>
+                        <th class="text-center" style="width:100px;">공급사</th>
+                        <th class="text-center" style="width:80px;">샤링여부</th>
+                        <th class="text-center" style="width:100px;">불량유형</th>
+                        <th class="text-center" style="width:150px;">비고</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    $start_num = $total_row;    // 페이지당 표시되는 첫번째 글순번
+
+                    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+
+                        include '_row.php';
+
+                        $temp_arr = explode("*", $spec ?? '');
+                        $thickness = floatval($temp_arr[0] ?? 0);
+
+                        $saved_weight = 0.0;
+                        $saved_weight += ($thickness * floatval($used_width_1 ?? 0) * floatval($used_length_1 ?? 0) * 7.93 * (int)($used_num_1 ?? 0)) / 1000000;
+                        $saved_weight += ($thickness * floatval($used_width_2 ?? 0) * floatval($used_length_2 ?? 0) * 7.93 * (int)($used_num_2 ?? 0)) / 1000000;
+                        $saved_weight += ($thickness * floatval($used_width_3 ?? 0) * floatval($used_length_3 ?? 0) * 7.93 * (int)($used_num_3 ?? 0)) / 1000000;
+                        $saved_weight += ($thickness * floatval($used_width_4 ?? 0) * floatval($used_length_4 ?? 0) * 7.93 * (int)($used_num_4 ?? 0)) / 1000000;
+                        $saved_weight += ($thickness * floatval($used_width_5 ?? 0) * floatval($used_length_5 ?? 0) * 7.93 * (int)($used_num_5 ?? 0)) / 1000000;
+
+                        $saved_weight = sprintf('%0.1f', $saved_weight);  // 소수점 한자리 표현
+
+                        switch ($item) {
+                            case 'CR':
+                                $saved_fee = (float)$saved_weight * conv_num($readIni['CR']);
+                                break;
+                            case 'PO':
+                                $saved_fee = $saved_weight * conv_num($readIni['PO']);
+                                break;
+                            case 'EGI':
+                                $saved_fee = $saved_weight * conv_num($readIni['EGI']);
+                                break;
+                            case '201 HL':
+                                $saved_fee = $saved_weight * conv_num($readIni['HL201']);
+                                break;
+                            case '201 MR':
+                            case '201 2B MR':
+                                $saved_fee = $saved_weight * conv_num($readIni['MR201']);
+                                break;
+                            case '304 HL':
+                                $saved_fee = $saved_weight * conv_num($readIni['HL304']);
+                                break;
+                            case '304 MR':
+                                $saved_fee = $saved_weight * conv_num($readIni['MR304']);
+                                break;
+                            default:
+                                $saved_fee = $saved_weight * conv_num($readIni['etcsteel']);
+                                break;
+                        }
 
 
 				 if($outdate!="") {
@@ -607,7 +636,7 @@ $findarr=array('전체','입고','출고');
 
             <td class="text-center" > <?=$start_num?>				</td>
             <td class="text-center" >	 <?=$outdate?>		</td>			
-			   <?
+			   <?php
 			      if($tmp_word=='입고') 
                         print '<td class="text-center text-primary" >' .  $tmp_word . '	</td>';
 					else
@@ -659,7 +688,7 @@ $findarr=array('전체','입고','출고');
 
 </form>
 <div class="container-fluid">
-	<? include '../footer_sub.php'; ?>
+	<?php include '../footer_sub.php'; ?>
 </div>
  
 <script>
@@ -689,17 +718,19 @@ $(document).ready(function(){
 
 	$("#searchBtn").click(function(){ 
 		
-		  // $BigsearchTag  설정
-		  var str = '<?php echo $BigsearchTag; ?>' ;
-		  
-		 $("#BigsearchTag").val(str.replace(' ','|'));		 
-		 
-	  // 페이지 번호를 1로 설정
+		// mode를 'search'로 설정
+		$("#mode").val('search');
+		
+		// $BigsearchTag 설정
+		var str = $("#Bigsearch").val();
+		$("#BigsearchTag").val(str.replace(' ','|'));
+		
+		// 페이지 번호를 1로 설정
 		steelpageNumber = 1;
 		setCookie('steelpageNumber', steelpageNumber, 10); // 쿠키에 페이지 번호 저장
 
 		// Set dateRange to '전체' and trigger the change event
-		$('#dateRange').val('전체').change();	 	 
+		// $('#dateRange').val('전체').change();	 	 
 		$("#board_form").submit();   
 	 });		
 		
@@ -713,7 +744,9 @@ function LoadBadDb() {
 }
 
 function changeType(obj) {
-    var tmpType = $(obj).val();    
+    var tmpType = $(obj).val();
+    // mode를 'search'로 설정
+    $("#mode").val('search');
     document.getElementById('board_form').submit();  // form의 검색버튼 누른 효과
 }
 
@@ -730,13 +763,16 @@ function SearchEnter(){
 	
     if(event.keyCode == 13){
 		
-	  // $BigsearchTag  설정
-	  var str = $("#Bigsearch").val();
-	  
-     $("#BigsearchTag").val(str.replace(' ','|'));
+		// mode를 'search'로 설정
+		$("#mode").val('search');
+		
+		// $BigsearchTag 설정
+		var str = $("#Bigsearch").val();
+		$("#BigsearchTag").val(str.replace(' ','|'));
+		
 		var steelpageNumber = 1;
 		setCookie('steelpageNumber', steelpageNumber, 10); // 쿠키에 페이지 번호 저장
-	 $("#board_form").submit();  
+		$("#board_form").submit();  
     }
 }
 
@@ -876,6 +912,8 @@ $(document).ready(function() {
        // 쿠키에 저장된 값과 현재 선택된 값이 다른 경우에만 페이지 새로고침
         if (savedDateRange !== selectedDateRange) {
             setCookie('dateRange', selectedDateRange, 30); // 쿠키에 dateRange 저장
+            // mode를 'search'로 설정
+            $("#mode").val('search');
 			document.getElementById('board_form').submit();      
         }				
     });

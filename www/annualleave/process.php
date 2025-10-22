@@ -216,10 +216,10 @@ $today = date("Y-m-d");
 						<input type="text"   id="statusstr" name="statusstr"  class="form-control text-center" readonly value="<?=$statusstr?>" >											
 									<br> 	  
 				<button id="saveBtn" class="btn btn-lg btn-secondary btn-block" type="button">
-				<? if((int)$num>0) print '승인';  else print '결재상신(등록)'; ?></button>
-				<? if((int)$num>0) {  ?>				
+				<?php if((int)$num>0) print '승인';  else print '결재상신(등록)'; ?></button>
+				<?php if((int)$num>0) {  ?>
 				<button id="delBtn" class="btn btn-lg btn-danger btn-block" type="button">삭제</button>
-				<? } ?>
+				<?php } ?>
 			  </form>			  
 				</div>
        	   	</div>

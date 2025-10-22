@@ -42,10 +42,12 @@ $counter=1;
 
  <?php 
 
- if(isset($_REQUEST["check"])) 
+ if(isset($_REQUEST["check"]))
 	 $check=$_REQUEST["check"]; // 미출고 리스트 request 사용 페이지 이동버튼 누를시`
+   elseif(isset($_POST["check"]))
+     $check=$_POST["check"]; // 미출고 리스트 POST사용
    else
-     $check=$_POST["check"]; // 미출고 리스트 POST사용 
+     $check=''; 
  
   if(isset($_REQUEST["plan_output_check"])) 
 	 $plan_output_check=$_REQUEST["plan_output_check"]; // 미출고 리스트 request 사용 페이지 이동버튼 누를시`
@@ -90,9 +92,9 @@ $counter=1;
   
 // print $output_check;
   
- $cursort=$_REQUEST["cursort"];    // 현재 정렬모드 지정
- $sortof=$_REQUEST["sortof"];  // 클릭해서 넘겨준 값
- $stable=$_REQUEST["stable"];    // 정렬모드 변경할지 안할지 결정
+ $cursort=$_REQUEST["cursort"] ?? '';    // 현재 정렬모드 지정
+ $sortof=$_REQUEST["sortof"] ?? '';  // 클릭해서 넘겨준 값
+ $stable=$_REQUEST["stable"] ?? '';    // 정렬모드 변경할지 안할지 결정
    
   $sum=array(); 
 	 
@@ -106,8 +108,8 @@ $counter=1;
  
   
  // 기간을 정하는 구간
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];	 
+$fromdate=$_REQUEST["fromdate"] ?? '';
+$todate=$_REQUEST["todate"] ?? '';	 
 
 if($fromdate=="")
 {
@@ -132,7 +134,7 @@ if($todate=="")
    $testday_arr=array();
    $workplacename_arr=array();
    $worker_arr=array();
-   $$secondord_arr=array();
+   $secondord_arr=array();
    $material_arr=array();
    $sum_arr=array();
    $main_draw_arr=array();
@@ -140,12 +142,12 @@ if($todate=="")
    $type_arr=array();
    $car_inside_arr=array();
    $detail_arr=array();
-   $sum1=array();
-   $sum2=array();
-   $sum3=array();
-   $sum4=array();
-   $sum5=array();
-   
+   $sum1=array_fill(0, 1000, 0);
+   $sum2=array_fill(0, 1000, 0);
+   $sum3=array_fill(0, 1000, 0);
+   $sum4=array_fill(0, 1000, 0);
+   $sum5=array_fill(0, 1000, 0);
+
    $sum=array();
    
  try{   
@@ -181,9 +183,9 @@ if($todate=="")
 			  $material4=$row["material4"];
 			  $material5=$row["material5"];
 			  $material6=$row["material6"];
-			  $widehap=$row["widehap"];
-			  $normalhap=$row["normalhap"];
-			  $smallhap=$row["smallhap"];
+			  $widehap=$row["widehap"] ?? '';
+			  $normalhap=$row["normalhap"] ?? '';
+			  $smallhap=$row["smallhap"] ?? '';
 			  $memo=$row["memo"];
 			  $regist_day=$row["regist_day"];
 			  $update_day=$row["update_day"];
@@ -195,7 +197,7 @@ if($todate=="")
 			  $delipay=$row["delipay"];	   
 				  
 			  $type1=$row["type1"];			  
-			  $inseung=$row["inseung"];			  
+			  $inseung=$row["inseung"] ?? '';			  
 			  $su=$row["su"];			  
 			  $bon_su=$row["bon_su"];			  
 			  $lc_su=$row["lc_su"];			  
@@ -268,8 +270,8 @@ if($todate=="")
 		      $testday=trans_date($testday);
 		      $lc_draw=trans_date($lc_draw);
 		      $lclaser_date=trans_date($lclaser_date);
-		      $lclbending_date=trans_date($lclbending_date);
-		      $lclwelding_date=trans_date($lclwelding_date);
+		      $lcbending_date=trans_date($lcbending_date);
+		      $lcwelding_date=trans_date($lcwelding_date);
 		      $lcpainting_date=trans_date($lcpainting_date);
 		      $lcassembly_date=trans_date($lcassembly_date);
 		      $main_draw=trans_date($main_draw);			

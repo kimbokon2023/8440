@@ -1,5 +1,6 @@
 <?php
-require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨
+require_once __DIR__ . '/../bootstrap.php';
+require_once includePath('load_GoogleDrive.php'); // 세션 등 여러가지 포함됨
 
 // 세션 변수 초기화
 $user_name = $_SESSION["user_name"] ?? '';
@@ -11,8 +12,7 @@ $pdo = db_connect();
 
 $title_message = '개발프로젝트 연구노트';
 ?>
-<?php include getDocumentRoot() . '/common.php' ?>
-<?php include getDocumentRoot() . '/load_header.php'; ?>
+<?php include includePath('load_header.php'); ?>
 
 <title> <?=$titlemsg ?? '개발프로젝트 연구노트'?> </title>
 </head>
@@ -40,7 +40,7 @@ $title_message = '개발프로젝트 연구노트';
 
 <body>
 
-    <?php include getDocumentRoot() . "/common/modal.php"; ?>
+    <?php include includePath("common/modal.php"); ?>
 
     <?php
     $tablename = 'eworks';
@@ -91,7 +91,7 @@ $title_message = '개발프로젝트 연구노트';
             if ($count < 1) {
                 error_log("개발프로젝트 연구노트: 결과가 없습니다. num={$num}");
             } else {
-                include getDocumentRoot() . '/eworks/_row.php';
+                include includePath('eworks/_row.php');
 
                 // 전자결재의 정보를 다시 변환해 준다.
                 $mytitle = $outworkplace ?? '';
@@ -126,7 +126,7 @@ $title_message = '개발프로젝트 연구노트';
             if ($count < 1) {
                 error_log("개발프로젝트 연구노트 복사: 결과가 없습니다. num={$num}");
             } else {
-                include getDocumentRoot() . '/eworks/_row.php';
+                include includePath('eworks/_row.php');
 
                 // 전자결재의 정보를 다시 변환해 준다.
                 $mytitle = $outworkplace ?? '';
@@ -153,7 +153,7 @@ $title_message = '개발프로젝트 연구노트';
     $savefilename_arr = array();
     $saveimagename_arr = array();
 
-    require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기
+    require_once includePath('load_GoogleDriveSecond.php'); // attached, image에 대한 정보 불러오기
     ?>
 
     <form id="board_form" name="board_form" method="post" onkeydown="return captureReturnKey(event)">
@@ -316,7 +316,7 @@ $title_message = '개발프로젝트 연구노트';
 				</table>
 			</div>			  
 		  
-		  <?  } 
+		  <?php }
 		 else 
 			 {
 		   ?>
@@ -332,8 +332,8 @@ $title_message = '개발프로젝트 연구노트';
 				</tr>
 			</tbody>
 		</table>
-	</div>	
-  <?  }   ?>
+	</div>
+  <?php }   ?>
 	  
  </div> 			
 </div> 

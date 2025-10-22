@@ -1,5 +1,6 @@
 <?php
-require_once getDocumentRoot() . '/load_GoogleDrive.php';
+require_once __DIR__ . '/../bootstrap.php';
+require_once includePath('load_GoogleDrive.php');
 
 // 세션 변수 초기화
 $WebSite = $_SESSION["WebSite"] ?? '';
@@ -8,12 +9,12 @@ $nick = $_SESSION["nick"] ?? '';
 // 첫 화면 표시 문구
 $title_message = 'AI prompt';
 ?>
-<?php include getDocumentRoot() . '/load_header.php' ?>
+<?php include includePath('load_header.php') ?>
 <title> <?= $title_message ?> </title>
 </head>
 
 <body>
-    <?php include getDocumentRoot() . '/common/modal.php'; ?>
+    <?php include includePath('common/modal.php'); ?>
 
     <?php
     if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
@@ -54,11 +55,11 @@ $title_message = 'AI prompt';
                 error_log("검색결과가 없습니다.");
             } else {
                 $row = $stmh->fetch(PDO::FETCH_ASSOC);
-                $item_subject = $row["subject"];
-                $is_html = $row["is_html"];
-                $content = $row["content"];
-                $qnacheck = $row["qnacheck"];
-                $division = $row["division"];
+                $item_subject = $row["subject"] ?? '';
+                $is_html = $row["is_html"] ?? '';
+                $content = $row["content"] ?? '';
+                $qnacheck = $row["qnacheck"] ?? '';
+                $division = $row["division"] ?? '';
             }
         } catch (PDOException $ex) {
             error_log($tablename . " 조회 오류: " . $ex->getMessage());
@@ -67,7 +68,7 @@ $title_message = 'AI prompt';
 
     // 초기 프로그램은 $num사용 이후 $id로 수정중임
     $id = $num;
-    require_once getDocumentRoot() . '/load_GoogleDriveSecond.php';
+    require_once includePath('load_GoogleDriveSecond.php');
 
     // load_GoogleDriveSecond.php에서 정의될 변수들 초기화 (정의되지 않은 경우 대비)
     $savefilename_arr = $savefilename_arr ?? array();

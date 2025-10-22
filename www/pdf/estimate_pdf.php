@@ -1,6 +1,6 @@
 <?php
 // 로컬/서버 환경 설정
-$is_local = $_SERVER['HTTP_HOST'] === 'localhost' || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false;
+$is_local = (isset($_SERVER['HTTP_HOST']) && (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false));
 $base_url = $is_local ? 'http://localhost/mirae8440/www' : 'http://8440.co.kr';
 
 // 메모리 & 타임아웃 (최상단)
@@ -23,9 +23,12 @@ use Dompdf\Dompdf;
 use Dompdf\Options;
 
 // ------------------------- 입력값 -------------------------
-$num      = isset($_GET['num']) ? (int)$_GET['num'] : 0;
-$download = isset($_GET['download']) ? (int)$_GET['download'] : 1; // 1=다운, 0=미리보기
-$debug    = isset($_GET['debug']) ? (int)$_GET['debug'] : 0;
+$num = $_GET['num'] ?? 0;
+$num = (int)$num;
+$download = $_GET['download'] ?? 1; // 1=다운, 0=미리보기
+$download = (int)$download;
+$debug = $_GET['debug'] ?? 0;
+$debug = (int)$debug;
 
 if ($num <= 0) {
     http_response_code(400);
@@ -34,6 +37,7 @@ if ($num <= 0) {
 
 // ------------------------- 데이터 조회 -------------------------
 $pdo = db_connect();
+$DB = $_SESSION['DB'] ?? '';
 $table = isset($DB) && $DB ? "{$DB}.phomi_estimate" : "phomi_estimate";
 
 $sql = "SELECT * FROM {$table} WHERE num = :num AND (is_deleted IS NULL OR is_deleted = 'N')";
@@ -48,23 +52,23 @@ if (!$estimate) {
 }
 
 // JSON 파싱
-$items                = !empty($estimate['items']) ? json_decode($estimate['items'], true) : [];
-$other_costs          = !empty($estimate['other_costs']) ? json_decode($estimate['other_costs'], true) : [];
+$items = !empty($estimate['items']) ? json_decode($estimate['items'], true) : [];
+$other_costs = !empty($estimate['other_costs']) ? json_decode($estimate['other_costs'], true) : [];
 
 // 기본 정보
-$recipient       = isset($estimate['recipient']) ? $estimate['recipient'] : '';
-$division        = isset($estimate['division']) ? $estimate['division'] : '';
-$site_name       = isset($estimate['site_name']) ? $estimate['site_name'] : '';
-$quote_date   = isset($estimate['quote_date']) ? $estimate['quote_date'] : '';
-$signed_by       = isset($estimate['signed_by']) ? $estimate['signed_by'] : '소현철';
-$payment_account = isset($estimate['payment_account']) ? $estimate['payment_account'] : '중소기업은행 339-084210-01-012 ㈜ 미래기업';
-$estimate_num    = isset($estimate['estimate_num']) ? $estimate['estimate_num'] : '';
-$note            = isset($estimate['note']) ? $estimate['note'] : '';
-$valid_until     = isset($estimate['valid_until']) ? $estimate['valid_until'] : '';
+$recipient = $estimate['recipient'] ?? '';
+$division = $estimate['division'] ?? '';
+$site_name = $estimate['site_name'] ?? '';
+$quote_date = $estimate['quote_date'] ?? '';
+$signed_by = $estimate['signed_by'] ?? '소현철';
+$payment_account = $estimate['payment_account'] ?? '중소기업은행 339-084210-01-012 ㈜ 미래기업';
+$estimate_num = $estimate['estimate_num'] ?? '';
+$note = $estimate['note'] ?? '';
+$valid_until = $estimate['valid_until'] ?? '';
 
 // 헬퍼 (PHP 7.3)
 $esc = function ($s) { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); };
-$nf  = function ($v, $dec = 0) {
+$nf = function ($v, $dec = 0) {
     $n = (float)str_replace(',', '', (string)$v);
     return number_format($n, $dec);
 };
@@ -75,15 +79,19 @@ $safeDate = function ($ymd) {
 };
 
 // ------------------------- 합계 계산 -------------------------
-$total_supply = 0; $total_tax = 0;
-$other_supply = 0; $other_tax = 0;
-$discount_supply = 0; $discount_tax = 0;
-$discount_other_supply = 0; $discount_other_tax = 0;
+$total_supply = 0;
+$total_tax = 0;
+$other_supply = 0;
+$other_tax = 0;
+$discount_supply = 0;
+$discount_tax = 0;
+$discount_other_supply = 0;
+$discount_other_tax = 0;
 
 // 상품 합계
 foreach ($items as $it) {
-    $area = isset($it['area']) ? (float)str_replace(',', '', $it['area']) : 0;
-    $unit_price = isset($it['unit_price']) ? (float)str_replace(',', '', $it['unit_price']) : 0;
+    $area = (float)str_replace(',', '', $it['area'] ?? 0);
+    $unit_price = (float)str_replace(',', '', $it['unit_price'] ?? 0);
     $supply = $area * $unit_price;
     $tax = $supply * 0.1;
     $total_supply += $supply;
@@ -92,9 +100,9 @@ foreach ($items as $it) {
 
 // 기타비용 합계
 foreach ($other_costs as $c) {
-    $qty   = isset($c['quantity']) ? (float)str_replace(',', '', $c['quantity']) : 0;
-    $price = isset($c['unit_price']) ? (float)str_replace(',', '', $c['unit_price']) : 0;
-    $unit  = isset($c['unit']) ? $c['unit'] : '';
+    $qty = (float)str_replace(',', '', $c['quantity'] ?? 0);
+    $price = (float)str_replace(',', '', $c['unit_price'] ?? 0);
+    $unit = $c['unit'] ?? '';
     if (($unit === '㎡' || $unit === 'm²') && $qty > 0) {
         $supply = ($qty > 28) ? ($qty * $price) : $price;
     } else {
@@ -107,34 +115,34 @@ foreach ($other_costs as $c) {
 
 // 할인(상품)
 foreach ($discount_items as $it) {
-    $supply = isset($it['supply_amount']) ? (float)str_replace(',', '', $it['supply_amount']) : 0;
-    $tax    = isset($it['tax_amount'])    ? (float)str_replace(',', '', $it['tax_amount'])    : 0;
+    $supply = (float)str_replace(',', '', $it['supply_amount'] ?? 0);
+    $tax = (float)str_replace(',', '', $it['tax_amount'] ?? 0);
     $discount_supply -= $supply;
-    $discount_tax    -= $tax;
+    $discount_tax -= $tax;
 }
 // 할인(기타비용)
 foreach ($discount_other_costs as $c) {
-    $supply = isset($c['supply_amount']) ? (float)str_replace(',', '', $c['supply_amount']) : 0;
-    $tax    = isset($c['tax_amount'])    ? (float)str_replace(',', '', $c['tax_amount'])    : 0;
+    $supply = (float)str_replace(',', '', $c['supply_amount'] ?? 0);
+    $tax = (float)str_replace(',', '', $c['tax_amount'] ?? 0);
     $discount_other_supply -= $supply;
-    $discount_other_tax    -= $tax;
+    $discount_other_tax -= $tax;
 }
 
 $grand_supply = $total_supply + $other_supply + $discount_supply + $discount_other_supply;
-$grand_tax    = $total_tax + $other_tax + $discount_tax + $discount_other_tax;
-$grand_total  = $grand_supply + $grand_tax;
+$grand_tax = $total_tax + $other_tax + $discount_tax + $discount_other_tax;
+$grand_total = $grand_supply + $grand_tax;
 
 // ------------------------- Dompdf 옵션 & 폰트 -------------------------
-$BASE_DIR   = __DIR__;                 // /pdf
-$FONT_DIR   = $BASE_DIR . '/asset/fonts';
-$TMP_DIR    = $BASE_DIR . '/tmp';
+$BASE_DIR = __DIR__;                 // /pdf
+$FONT_DIR = $BASE_DIR . '/asset/fonts';
+$TMP_DIR = $BASE_DIR . '/tmp';
 $FONT_CACHE = $TMP_DIR . '/font_cache';
 
-@is_dir($TMP_DIR)    || @mkdir($TMP_DIR,    0777, true);
+@is_dir($TMP_DIR) || @mkdir($TMP_DIR, 0777, true);
 @is_dir($FONT_CACHE) || @mkdir($FONT_CACHE, 0777, true);
 
 $FONT_REG_PATH = realpath($FONT_DIR . '/NotoSansKR-Regular.ttf');
-$FONT_REG_URL  = $FONT_REG_PATH ? 'file://' . $FONT_REG_PATH : '';
+$FONT_REG_URL = $FONT_REG_PATH ? 'file://' . $FONT_REG_PATH : '';
 
 if (!$FONT_REG_PATH || !is_readable($FONT_REG_PATH)) {
     error_log("[Dompdf] Font file missing/unreadable: " . ($FONT_REG_PATH ?: 'not found'));
@@ -155,7 +163,7 @@ $options->set('logOutputFile', $BASE_DIR . '/dompdf.log');
 $dompdf = new Dompdf($options);
 
 // ------------------------- HTML (룩앤필: 천안캠퍼스쇼룸 스타일) -------------------------
-$today    = date('y.m.d');
+$today = date('y.m.d');
 // 파일명에 사용할 수 없는 특수문자만 제거 (윈도우 기준: \ / : * ? " < > |)
 function sanitize_filename($str) {
     return preg_replace('/[\\\\\/:\*\?"<>\|]/u', '', $str);
@@ -216,16 +224,16 @@ ob_start();
   .hr    { height:1px; background:#000; border:0; }
 
   /* 페이지 카운터 초기화 및 설정 */
-  body { 
-    counter-reset: page 0; 
-    counter-reset: pages 1; 
+  body {
+    counter-reset: page 0;
+    counter-reset: pages 1;
   }
-  
-  @page { 
-    counter-increment: page; 
-    counter-increment: pages; 
+
+  @page {
+    counter-increment: page;
+    counter-increment: pages;
   }
-  
+
   .page-number:after { content: counter(page) " / " counter(pages); }
 
   /* 제목: 큰 고정폭 느낌(글자간 살짝 띄움) */
@@ -253,7 +261,7 @@ ob_start();
     display: inline-block;
     vertical-align: middle;
     margin-left: 10px;
-    margin-right: 350px; 
+    margin-right: 350px;
     border-bottom: 1px solid #222;
     padding-bottom: 2px; /* 밑줄과 글자 사이 간격 */
 }
@@ -348,7 +356,7 @@ ob_start();
 </style>
 <table class="mb8" style="border:none; table-layout:fixed; width:100%;">
   <tr>
-    <td class="grid-cell-half" style="border:none; padding-right:10px;">     
+    <td class="grid-cell-half" style="border:none; padding-right:10px;">
       <span class="fw-700"> 현장명 :  <?= $esc($site_name) ?: '-' ?> </span>
       <br>
       <br>
@@ -358,18 +366,18 @@ ob_start();
     <td class="grid-cell-half" style="border:none; ">
       <table style="border:none; font-size:9pt; ">
         <tbody>
-        <tr>       
+        <tr>
         <td>
           <div style="position: relative; display: inline-block;">
-              <?php 
+              <?php
                 // 포미스톤 미래기업 이미지 200x55 크기
                 $stamp_paths = [
                     dirname(__FILE__) . '/../img/phomimirae1.jpg'
                 ];
-                
+
                 $stamp_found = false;
                 $stamp_html = '';
-                
+
                 foreach ($stamp_paths as $path) {
                     if (file_exists($path)) {
                         $stamp_found = true;
@@ -383,23 +391,23 @@ ob_start();
                         break;
                     }
                 }
-                
+
                 if ($stamp_found && $stamp_html) {
                     echo '<!-- 이미지 파일을 찾았습니다: ' . basename($path) . ' -->';
                     echo $stamp_html;
-                } 
-              ?>              
-          </div> 
-        </td>                    
+                }
+              ?>
+          </div>
+        </td>
         </tr>
-        <tr>                  
+        <tr>
           <td colspan="4" style="font-size:8pt;">
-           <br>  
-             본사: 경기도 김포시 양촌읍 흥신로 220-27 
+           <br>
+             본사: 경기도 김포시 양촌읍 흥신로 220-27
             <br>
              전시장: 인천 서구 중봉대로 393번길 16 홈씨씨 2층 포미스톤
             <br>
-                T E L : 031 ) 983 - 8440 &nbsp;&nbsp;|&nbsp;&nbsp;    
+                T E L : 031 ) 983 - 8440 &nbsp;&nbsp;|&nbsp;&nbsp;
                 F A X : 031 ) 982 - 8449
             <br>
             <?php
@@ -407,10 +415,10 @@ ob_start();
                 $stamp_paths = [
                     dirname(__FILE__) . '/../img/miraestamp.png'
                 ];
-                
+
                 $stamp_found = false;
                 $stamp_html = '';
-                
+
                 foreach ($stamp_paths as $path) {
                     if (file_exists($path)) {
                         $stamp_found = true;
@@ -424,7 +432,7 @@ ob_start();
                         break;
                     }
                 }
-                
+
                 if ($stamp_found && $stamp_html) {
                     echo '<!-- 이미지 파일을 찾았습니다: ' . basename($path) . ' -->';
                     echo $stamp_html;
@@ -433,7 +441,7 @@ ob_start();
                     // 기본 SVG 도장 생성
                     echo '<svg width="50" height="50" viewBox="0 0 50 50" style="position: absolute; top: -5px; left: 50%; transform: translateX(-50%); z-index: 10;"><circle cx="25" cy="25" r="23" fill="#D32F2F" stroke="#8B0000" stroke-width="2"/><text x="25" y="30" font-family="serif" font-size="10" fill="#8B0000" text-anchor="middle" font-weight="bold">도장</text></svg>';
                 }
-              ?>            
+              ?>
             <div style="width:95%; margin-left:5px; letter-spacing:0.6em; text-align:left; display:block;">
                 <b>(주) 미래기업</b> 대표 <?= $esc($signed_by) ?> (인)
             </div>
@@ -474,16 +482,17 @@ ob_start();
   </thead>
   <tbody>
     <?php $i=1; foreach ($items as $it):
-        $prodcode = isset($it['product_code']) ? $it['product_code'] : '';
-        $spec      = isset($it['specification']) ? $it['specification'] : '';
-        $size      = isset($it['size']) ? $it['size'] : '';
-        $qty       = (float)(isset($it['quantity']) ? $it['quantity'] : 0);
-        $remarks      = isset($it['remarks']) ? $it['remarks'] : '';
-        $area      = (float)str_replace(',', '', isset($it['area']) ? $it['area'] : 0);
-        $up        = (float)str_replace(',', '', isset($it['unit_price']) ? $it['unit_price'] : 0);
-        $supply    = $area * $up; $tax = $supply * 0.1;
+        $prodcode = $it['product_code'] ?? '';
+        $spec = $it['specification'] ?? '';
+        $size = $it['size'] ?? '';
+        $qty = (float)($it['quantity'] ?? 0);
+        $remarks = $it['remarks'] ?? '';
+        $area = (float)str_replace(',', '', $it['area'] ?? 0);
+        $up = (float)str_replace(',', '', $it['unit_price'] ?? 0);
+        $supply = $area * $up;
+        $tax = $supply * 0.1;
 
-        $display = isset($it['product_name']) ? $it['product_name'] : '';
+        $display = $it['product_name'] ?? '';
         if (!$display && $prodcode) {
             try {
                 $upTable = (isset($DB) && $DB) ? "{$DB}.phomi_unitprice" : "phomi_unitprice";
@@ -540,23 +549,25 @@ ob_start();
     </tr>
   </thead>
   <tbody>
-    <?php 
-    $os=0;$ot=0; 
+    <?php
+    $os=0; $ot=0;
     foreach ($other_costs as $c):
-        $cat   = isset($c['category']) ? $c['category'] : '';
+        $cat = $c['category'] ?? '';
         // $cat이 공백이면 행을 출력하지 않음
         if (trim($cat) === '') continue;
-        $item  = isset($c['item']) ? $c['item'] : '';
-        $unit  = isset($c['unit']) ? $c['unit'] : '';
-        $remarks    = isset($c['remarks']) ? $c['remarks'] : '';
-        $qty   = (float)str_replace(',', '', isset($c['quantity']) ? $c['quantity'] : 0);
-        $up    = (float)str_replace(',', '', isset($c['unit_price']) ? $c['unit_price'] : 0);
+        $item = $c['item'] ?? '';
+        $unit = $c['unit'] ?? '';
+        $remarks = $c['remarks'] ?? '';
+        $qty = (float)str_replace(',', '', $c['quantity'] ?? 0);
+        $up = (float)str_replace(',', '', $c['unit_price'] ?? 0);
         if (($unit === '㎡' || $unit === 'm²') && $qty > 0) {
             $supply = ($qty > 28) ? ($qty * $up) : $up;
         } else {
             $supply = $qty * $up;
         }
-        $tax = $supply * 0.1; $os += $supply; $ot += $tax;
+        $tax = $supply * 0.1;
+        $os += $supply;
+        $ot += $tax;
     ?>
     <tr>
       <td class="text-center"><?= $esc($cat) ?></td>

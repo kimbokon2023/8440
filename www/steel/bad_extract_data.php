@@ -1,13 +1,20 @@
 <?php
- session_start();
+// Environment detection
+$isLocal = strpos($_SERVER['HTTP_HOST'], 'localhost') !== false ||
+           strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false ||
+           strpos($_SERVER['HTTP_HOST'], '::1') !== false;
+$baseUrl = $isLocal ? 'http://localhost' : 'http://8440.co.kr';
 
- $level= $_SESSION["level"];
- if(!isset($_SESSION["level"]) || $level>5) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(2);
-	          header("Location:http://8440.co.kr/login/login_form.php"); 
-         exit;
-   } 
+session_start();
+
+// Initialize session variables with null safety
+$level = $_SESSION["level"] ?? null;
+if(!isset($_SESSION["level"]) || $level > 5) {
+    /*   alert("관리자 승인이 필요합니다."); */
+    sleep(2);
+    header("Location:" . $baseUrl . "/login/login_form.php");
+    exit;
+} 
 
 
  ?>
@@ -32,25 +39,11 @@
  <?php
  
 
-  if(isset($_REQUEST["search"]))   //목록표에 제목,이름 등 나오는 부분
-	   $search=$_REQUEST["search"];
-	 else 
-		 $search="";
-	 
-   if(isset($_REQUEST["list"]))   //목록표에 제목,이름 등 나오는 부분
-	 $list=$_REQUEST["list"];
-    else
-		  $list=0;
-	  
- if(isset($_REQUEST["bad_choice"])) // $_REQUEST["bad_choice"]값이 없을 때에는 1로 지정 
- {
-    $bad_choice=$_REQUEST["bad_choice"];  // 페이지 번호
- }
-  else
-  {
-    $bad_choice='없음';	 
-  }	 	  
-$read_bad_choice=$bad_choice;	  
+// Initialize request variables with null safety
+$search = $_REQUEST["search"] ?? "";
+$list = $_REQUEST["list"] ?? 0;
+$bad_choice = $_REQUEST["bad_choice"] ?? '없음';
+$read_bad_choice = $bad_choice;	  
 require_once("../lib/mydb.php");
 $pdo = db_connect();	
   

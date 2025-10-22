@@ -55,6 +55,7 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 }
 
 // 최종 결과를 포맷팅하여 출력
+$totalRevenue = $totalRevenue / 1000;
 $formatted_total_revenue = number_format($totalRevenue, 0, '.', ',');
 $jsonChartData = json_encode($chartData);
 

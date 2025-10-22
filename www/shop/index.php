@@ -1,19 +1,26 @@
 <?php
-if(!isset($_SESSION))      
-        session_start(); 
-	$user_name= $_SESSION["name"];
-	$user_id= $_SESSION["userid"];
+if (!isset($_SESSION)) {
+    session_start();
+}
+
+// Initialize session variables with null safety
+$user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["userid"] ?? '';
 	
 
-  require_once("../lib/mydb.php");
-  $pdo = db_connect();
-  
-  $ip_address = $_SERVER["REMOTE_ADDR"];
+// Environment detection for URL
+$is_local = (isset($_SERVER['HTTP_HOST']) && (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false));
+$base_url = $is_local ? 'http://localhost' : 'http://8440.co.kr';
+
+require_once("../lib/mydb.php");
+$pdo = db_connect();
+
+$ip_address = $_SERVER["REMOTE_ADDR"] ?? '';
 
   $ip_address = 'ip_address : '.$ip_address;  
   
 // 접속 ip 기록
- $data=date("Y-m-d H:i:s") . " - " . $_SESSION["userid"] . " - " . $_SESSION["name"] . '  ' . $ip_address ;	 
+$data = date("Y-m-d H:i:s") . " - " . ($user_id ?? '') . " - " . ($user_name ?? '') . '  ' . $ip_address;	 
  $pdo->beginTransaction();
  $sql = "insert into mirae8440.logdata(data) values(?) " ;
  $stmh = $pdo->prepare($sql); 
@@ -90,7 +97,7 @@ $rndyoutube2 = $youtubearr2[$rnd];
 <meta property="og:title" content="이제 멋진 금속액자형 작품과 만나보세요">
 <meta property="og:url" content="8440.co.kr/shop">
 <meta property="og:description" content="멋진 금속 제작품을 선물해 보세요!">
-<meta property="og:image" content="http://8440.co.kr/img/thumbnail.jpg"> 
+<meta property="og:image" content="<?= $base_url ?>/img/thumbnail.jpg"> 
 
 		
         <title> Steel Art Mall</title> <div id=cookiedisplay> </div>
@@ -211,7 +218,7 @@ $rndyoutube2 = $youtubearr2[$rnd];
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container px-4 px-lg-5">
 			  <div class="d-flex justify-content-left"> 
-			  <? if(isset($_SESSION["name"])) print '<a class="navbar-brand" href="../index.php"> Metal Art</a>';
+			  <?php if(isset($_SESSION["name"])) print '<a class="navbar-brand" href="../index.php"> Metal Art</a>';
 			      else  print '<a class="navbar-brand" href="#!"> Steel Art</a>';  ?>				  
                   </div>
 			</div>
@@ -229,7 +236,7 @@ $rndyoutube2 = $youtubearr2[$rnd];
                             <i class="bi bi-credit-card-fill"></i>
                             주문&배송정보                            
                         </button>
-						<? 
+						<?php 
 						  if($user_name=='김보곤')
 						  {
 						    print '&nbsp;&nbsp;   <button class="btn btn-outline-dark" type="button" onclick="javascript:movetolist();">
@@ -241,7 +248,7 @@ $rndyoutube2 = $youtubearr2[$rnd];
                             <i class="bi-tool-fill me-1"></i>
                             대쉬
                         </button> 
-						<?
+						<?php
 							}						
 						?>
 
@@ -327,7 +334,7 @@ $rndyoutube2 = $youtubearr2[$rnd];
                 <h2 class="fw-bolder mb-4"> 관련 상품 </h2>
                 <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
 				
-<?
+<?php
 
 $num_arr = array();
 $catagory_arr = array();
@@ -391,7 +398,7 @@ $price3 =  '￦' . number_format($saleprice) ;
                                     <!-- Product name-->
                                     <h4 class="fw-bolder"> <?=$item?> </h4>
                                     <!-- Product reviews--> 
-                                 <?   
+                                 <?php   
 									if($sale='적용') 
 										?>
 									    <div class="d-flex justify-content-center small text-warning mb-2"> 
@@ -416,7 +423,7 @@ $price3 =  '￦' . number_format($saleprice) ;
                         </div>
 					
                     </div> 
-<?
+<?php
       }
      }catch (PDOException $Exception) {
        print "오류: ".$Exception->getMessage();
@@ -442,7 +449,7 @@ $price3 =  '￦' . number_format($saleprice) ;
         </section>
 		
 <!-- Footer-->
-<? include "footer.php" ?>  		
+<?php include "footer.php" ?>  		
         <!-- Core theme JS-->
         <script src="js/scripts.js"></script>
     </body>
@@ -466,13 +473,7 @@ function OrderDialog(num){
      $(".modal-body #test").val( num );
 	 
 	 $("#imgID").attr("src", filename_arr[num]);	
-	 console.log(youtube1_arr[num]);
-	 // 초기화
-	 <!-- $(".workdone").text("");		  -->
-	 <!-- $(".lasercut").text("");			  -->
-	 <!-- $("#youtubeID").attr("src", '');	 -->
-		<!-- $("#youtubeIDsecond").attr("src", '');	 -->
-	 
+
 	 if(!isEmpty(youtube1_arr[num]))
 	   {         	   
 		 $(".lasercut").text("Laser Cut");			 

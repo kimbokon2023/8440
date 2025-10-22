@@ -1,143 +1,164 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
+<?php
+require_once __DIR__ . '/../bootstrap.php';
 
-header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문 받는측에서 필요한 정보임 ajax로 보내는 쪽에서 type : json
-   
-// 임시저장된 첨부파일을 확정하기 위해 검사하기  
-isset($_REQUEST["timekey"])  ? $timekey=$_REQUEST["timekey"] :  $timekey='';   // 신규데이터에 생성할때 임시저장키  
-  
- if(isset($_REQUEST["mode"]))  //modify_form에서 호출할 경우
-    $mode=$_REQUEST["mode"];
- else 
-    $mode="";
- 
- if(isset($_REQUEST["num"]))
-    $num=$_REQUEST["num"];
- else 
-    $num="";
+/**
+ * 위험성평가 게시글 작성/수정
+ * 
+ * 게시글 신규 작성 및 수정, 첨부파일 처리
+ */
 
- if(isset($_REQUEST["tablename"]))
-     $tablename=$_REQUEST["tablename"];
- else 
-     $tablename="";
-       
- if(isset($_REQUEST["is_html"]))  //checkbox는 체크해야 변수명 전달됨.
-    $is_html=$_REQUEST["is_html"];
-  else
-    $is_html="";  
+// JSON 응답 헤더 설정
+header("Content-Type: application/json; charset=utf-8");
 
- if(isset($_REQUEST["noticecheck"])) 
-    $noticecheck=$_REQUEST["noticecheck"];
-  else
-    $noticecheck="";
-   
-  $subject=$_REQUEST["subject"];
-  $content=$_REQUEST["content"];
-  $division=$_REQUEST["division"];
-  $searchtext=$_REQUEST["searchtext"];
-   
-        
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();	
-    
- if ($mode=="modify"){     
- 
-      try{
-        $sql = "select * from ".$DB."." . $tablename . " where num=?";  // get target record
-        $stmh = $pdo->prepare($sql); 
-        $stmh->bindValue(1,$num,PDO::PARAM_STR); 
-        $stmh->execute(); 
+// 세션 변수 초기화
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+$user_id = $_SESSION["userid"] ?? '';
+$user_name = $_SESSION["name"] ?? '';
+$user_nick = $_SESSION["nick"] ?? '';
+
+// 요청 변수 초기화
+$timekey = $_REQUEST["timekey"] ?? '';  // 신규데이터 생성 시 임시저장 키
+$mode = $_REQUEST["mode"] ?? '';  // modify 또는 insert
+$num = $_REQUEST["num"] ?? '';
+$tablename = $_REQUEST["tablename"] ?? '';
+$is_html = $_REQUEST["is_html"] ?? '';  // checkbox는 체크해야 변수명 전달됨
+$noticecheck = $_REQUEST["noticecheck"] ?? '';
+$subject = $_REQUEST["subject"] ?? '';
+$content = $_REQUEST["content"] ?? '';
+$division = $_REQUEST["division"] ?? '';
+$searchtext = $_REQUEST["searchtext"] ?? '';	
+
+
+// 수정 모드
+if ($mode == "modify") {
+    try {
+        $sql = "select * from " . $DB . "." . $tablename . " where num = ?";
+        $stmh = $pdo->prepare($sql);
+        $stmh->bindValue(1, $num, PDO::PARAM_INT);
+        $stmh->execute();
         $row = $stmh->fetch(PDO::FETCH_ASSOC);
-     } catch (PDOException $Exception) {
+        
+        if (!$row) {
+            echo json_encode(array(
+                "success" => false,
+                "message" => "수정할 게시글을 찾을 수 없습니다."
+            ), JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+    } catch (PDOException $Exception) {
+        error_log("게시글 조회 오류: " . $Exception->getMessage());
+        echo json_encode(array(
+            "success" => false,
+            "message" => "게시글 조회 중 오류가 발생했습니다.",
+            "error" => $Exception->getMessage()
+        ), JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    
+    try {
+        $pdo->beginTransaction();
+        $sql = "update " . $DB . "." . $tablename . " set subject = ?, content = ?, is_html = ?, division = ?, searchtext = ? where num = ?";
+        $stmh = $pdo->prepare($sql);
+        $stmh->bindValue(1, $subject, PDO::PARAM_STR);
+        $stmh->bindValue(2, $content, PDO::PARAM_STR);
+        $stmh->bindValue(3, $is_html, PDO::PARAM_STR);
+        $stmh->bindValue(4, $division, PDO::PARAM_STR);
+        $stmh->bindValue(5, $searchtext, PDO::PARAM_STR);
+        $stmh->bindValue(6, $num, PDO::PARAM_INT);
+        $stmh->execute();
+        $pdo->commit();
+    } catch (PDOException $Exception) {
         $pdo->rollBack();
-        print "오류: ".$Exception->getMessage();
-     } 
-              
-     try{
-        $pdo->beginTransaction();   
-        $sql = "update ".$DB."." . $tablename . " set subject=?, content=?, is_html=?, division=?, searchtext=? where num=?  ";
-        $stmh = $pdo->prepare($sql); 
-        $stmh->bindValue(1, $subject, PDO::PARAM_STR);  
-        $stmh->bindValue(2, $content, PDO::PARAM_STR);  
-        $stmh->bindValue(3, $is_html, PDO::PARAM_STR);             
-        $stmh->bindValue(4, $division, PDO::PARAM_STR);             
-        $stmh->bindValue(5, $searchtext, PDO::PARAM_STR);             
-        $stmh->bindValue(6, $num, PDO::PARAM_STR);   
-        $stmh->execute();
-        $pdo->commit(); 
-        } catch (PDOException $Exception) {
-           $pdo->rollBack();
-           print "오류: ".$Exception->getMessage();
-       }                         
-       
- } else	{
-    if ($is_html =="y"){
-	         $content = htmlspecialchars($content);
-       }
-   try{
-     $pdo->beginTransaction();
-     $sql = "insert into ".$DB."." . $tablename . " (id, name, nick, subject, content, regist_day, hit, is_html, division, searchtext) ";     
-     $sql .= "values(?, ?, ?, ?, ?, now(), 0, ?, ?, ?)";
-     $stmh = $pdo->prepare($sql); 
-     $stmh->bindValue(1, $_SESSION["userid"], PDO::PARAM_STR);  
-     $stmh->bindValue(2, $_SESSION["name"], PDO::PARAM_STR);  
-     $stmh->bindValue(3, $_SESSION["nick"], PDO::PARAM_STR);   
-     $stmh->bindValue(4, $subject, PDO::PARAM_STR);  
-     $stmh->bindValue(5, $content, PDO::PARAM_STR);  
-     $stmh->bindValue(6, $is_html, PDO::PARAM_STR);   
-     $stmh->bindValue(7, $division, PDO::PARAM_STR);   
-     $stmh->bindValue(8, $searchtext, PDO::PARAM_STR);   
-     
-     $stmh->execute();
-     $pdo->commit(); 
-     } catch (PDOException $Exception) {
-          $pdo->rollBack();
-       print "오류: ".$Exception->getMessage();
-     }   
-}   
- 
-  
-if ($mode!=="modify"){
-	
-// 신규데이터인경우 num을 추출한 후 view로 보여주기
- $sql="select * from ".$DB."." . $tablename . " order by num asc"; 					
+        error_log("게시글 수정 오류: " . $Exception->getMessage());
+        echo json_encode(array(
+            "success" => false,
+            "message" => "게시글 수정 중 오류가 발생했습니다.",
+            "error" => $Exception->getMessage()
+        ), JSON_UNESCAPED_UNICODE);
+        exit;
+    }                         
 
-  try{  
-   $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-   $rowNum = $stmh->rowCount();  
-   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {	   
- 			  $num=$row["num"];			   			 
-	 } 	 
-   } catch (PDOException $Exception) {
-    print "오류: ".$Exception->getMessage();
-}    
-       
-
-// 신규데이터인 경우 첨부파일/첨부이미지 추가한 것이 있으면 parentid 변경해줌
-// 신규데이터인경우 num을 추출한 후 view로 보여주기
- 
- $id = $num;
- 
-  try{
-        $pdo->beginTransaction();   
-        $sql = "update ".$DB.".picuploads set parentnum=? where parentnum=?";
-        $stmh = $pdo->prepare($sql); 
-        $stmh->bindValue(1, $id, PDO::PARAM_STR);  
-        $stmh->bindValue(2, $timekey, PDO::PARAM_STR);   
+} else {
+    // 신규 작성 모드
+    // HTML 컨텐츠 처리
+    if ($is_html == "y") {
+        $content = htmlspecialchars($content);
+    }
+    
+    try {
+        $pdo->beginTransaction();
+        $sql = "insert into " . $DB . "." . $tablename . " (id, name, nick, subject, content, regist_day, hit, is_html, division, searchtext) ";
+        $sql .= "values(?, ?, ?, ?, ?, now(), 0, ?, ?, ?)";
+        $stmh = $pdo->prepare($sql);
+        $stmh->bindValue(1, $user_id, PDO::PARAM_STR);
+        $stmh->bindValue(2, $user_name, PDO::PARAM_STR);
+        $stmh->bindValue(3, $user_nick, PDO::PARAM_STR);
+        $stmh->bindValue(4, $subject, PDO::PARAM_STR);
+        $stmh->bindValue(5, $content, PDO::PARAM_STR);
+        $stmh->bindValue(6, $is_html, PDO::PARAM_STR);
+        $stmh->bindValue(7, $division, PDO::PARAM_STR);
+        $stmh->bindValue(8, $searchtext, PDO::PARAM_STR);
+        
         $stmh->execute();
-        $pdo->commit(); 
-        } catch (PDOException $Exception) {
-           $pdo->rollBack();
-           print "오류: ".$Exception->getMessage();
-       }                         
+        $pdo->commit();
+    } catch (PDOException $Exception) {
+        $pdo->rollBack();
+        error_log("게시글 작성 오류: " . $Exception->getMessage());
+        echo json_encode(array(
+            "success" => false,
+            "message" => "게시글 작성 중 오류가 발생했습니다.",
+            "error" => $Exception->getMessage()
+        ), JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 }
 
- $data = [   
- 'num' => $num, 
- 'tablename' => $tablename
- ]; 
- 
- echo json_encode($data, JSON_UNESCAPED_UNICODE);
+// 신규 작성인 경우 num 추출
+if ($mode !== "modify") {
+    // 마지막 삽입된 레코드의 num을 추출
+    $sql = "select * from " . $DB . "." . $tablename . " order by num desc limit 1";
+    
+    try {
+        $stmh = $pdo->query($sql);
+        $row = $stmh->fetch(PDO::FETCH_ASSOC);
+        if ($row) {
+            $num = $row["num"];
+        }
+    } catch (PDOException $Exception) {
+        error_log("num 추출 오류: " . $Exception->getMessage());
+        echo json_encode(array(
+            "success" => false,
+            "message" => "게시글 번호 추출 중 오류가 발생했습니다.",
+            "error" => $Exception->getMessage()
+        ), JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    
+    // 신규 데이터인 경우 첨부파일/이미지의 parentnum 업데이트
+    $id = $num;
+    
+    try {
+        $pdo->beginTransaction();
+        $sql = "update " . $DB . ".picuploads set parentnum = ? where parentnum = ?";
+        $stmh = $pdo->prepare($sql);
+        $stmh->bindValue(1, $id, PDO::PARAM_INT);
+        $stmh->bindValue(2, $timekey, PDO::PARAM_STR);
+        $stmh->execute();
+        $pdo->commit();
+    } catch (PDOException $Exception) {
+        $pdo->rollBack();
+        error_log("첨부파일 parentnum 업데이트 오류: " . $Exception->getMessage());
+        // 첨부파일 업데이트 실패는 치명적이지 않으므로 계속 진행
+    }
+}
 
- ?>
+// 성공 응답
+$data = array(
+    "success" => true,
+    "num" => $num,
+    "tablename" => $tablename,
+    "message" => $mode == "modify" ? "게시글이 성공적으로 수정되었습니다." : "게시글이 성공적으로 작성되었습니다."
+);
 
+echo json_encode($data, JSON_UNESCAPED_UNICODE);
+?>

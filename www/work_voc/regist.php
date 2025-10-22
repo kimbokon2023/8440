@@ -1,42 +1,51 @@
- <?php session_start(); ?>
- <meta charset="utf-8">
- <?php
-  if(!isset($_SESSION["userid"])) {
- ?>
-  <script>
-        alert('로그인 후 이용해 주세요.');
+<?php
+/**
+ * work_voc 모듈 - 접수중 상태 변경 처리
+ * 로컬 및 서버 환경 모두 지원
+ */
+
+require_once __DIR__ . '/../bootstrap.php';
+
+// 세션 확인
+session_start();
+
+// 요청 변수 초기화
+$num = $_REQUEST["num"] ?? '';
+$page = $_REQUEST["page"] ?? '';
+$option = $_REQUEST["option"] ?? '';
+
+// 권한 체크
+if (!isset($_SESSION["userid"])) {
+    echo '<script>
+        alert("로그인 후 이용해 주세요.");
         history.back();
-  </script>
- <?php
-  }
-  if(isset($_REQUEST["num"]))
-    $num=$_REQUEST["num"];
-  if(isset($_REQUEST["page"]))
-    $page=$_REQUEST["page"];
+    </script>';
+    exit;
+}
 
-if(isset($_REQUEST["option"]))
-    $option=$_REQUEST["option"];
-     
-require_once("../lib/mydb.php");
+// 데이터베이스 연결
 $pdo = db_connect();
-   
- 	$is_html = "1";          
-       
-     try{
-        $pdo->beginTransaction();   
-        $sql = "update mirae8440.voc set is_html=? where num=?";
-        $stmh = $pdo->prepare($sql); 
-        $stmh->bindValue(1, $is_html, PDO::PARAM_STR);     
-        $stmh->bindValue(2, $num, PDO::PARAM_STR);   
-        $stmh->execute();
-        $pdo->commit(); 
-        } catch (PDOException $Exception) {
-           $pdo->rollBack();
-           print "오류: ".$Exception->getMessage();
-       }                         
- if($option==1)
-     header("Location:http://8440.co.kr/work_voc/view_temp.php?num=$num&page=$page");
-    else
-		header("Location:http://8440.co.kr/work_voc/view.php?num=$num&page=$page");	
- ?>
 
+$is_html = "1"; // 접수중 상태
+
+try {
+    $pdo->beginTransaction();
+    $sql = "UPDATE mirae8440.voc SET is_html = ? WHERE num = ?";
+    $stmh = $pdo->prepare($sql);
+    $stmh->bindValue(1, $is_html, PDO::PARAM_STR);
+    $stmh->bindValue(2, $num, PDO::PARAM_STR);
+    $stmh->execute();
+    $pdo->commit();
+} catch (PDOException $Exception) {
+    $pdo->rollBack();
+    error_log("regist error: " . $Exception->getMessage());
+    echo "오류: " . $Exception->getMessage();
+    exit;
+}
+
+if ($option == 1) {
+    header("Location:" . getBaseUrl() . "/work_voc/view_temp.php?num=$num&page=$page");
+} else {
+    header("Location:" . getBaseUrl() . "/work_voc/view.php?num=$num&page=$page");
+}
+?>

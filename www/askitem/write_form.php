@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../bootstrap.php';
 require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
 
 // 세션 변수 초기화
@@ -50,7 +51,6 @@ $mytitle = '';
 $content = '';
 $content_reason = '';
 ?>
-<?php include getDocumentRoot() . '/common.php' ?>
 <?php include getDocumentRoot() . '/load_header.php'; ?>
 <title> <?=$titlemsg?> </title>
 </head>
@@ -277,7 +277,7 @@ $content_reason = '';
 				</table>
 			</div>			  
 		  
-		  <?  } 
+		  <?php  } 
 				 else
 				 {
 		   ?>
@@ -294,7 +294,7 @@ $content_reason = '';
 					</tbody>
 				</table>
 			</div>	
-	  <?  }   ?>
+	  <?php  }   ?>
 		
 				
  </div> 			

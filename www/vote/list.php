@@ -1,21 +1,29 @@
 <?php
 require_once __DIR__ . '/../common/functions.php';
 ?>
-﻿<?php 
+<?php 
 require_once(includePath('session.php'));
    // 첫 화면 표시 문구
  $title_message = '투표'; 
  ?>
  
 <?php 
-include getDocumentRoot() . '/load_header.php';
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-		 $_SESSION["url"]='https://8440.co.kr/vote/list.php'; 	 
-		 sleep(1);
-	          header("Location:" . $WebSite . "login/login_form.php"); 
-         exit;
-   }    
- ?>
+include includePath('load_header.php');
+
+// 세션 변수 초기화
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+$level = $_SESSION["level"] ?? 999;
+$user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["userid"] ?? '';
+$WebSite = $_SESSION["WebSite"] ?? getBaseUrl() . '/';
+
+if($level > 5) {
+	$_SESSION["url"] = getBaseUrl() . '/vote/list.php'; 	 
+	sleep(1);
+	header("Location:" . $WebSite . "login/login_form.php"); 
+	exit;
+}    
+?>
  
 <title>  <?=$title_message?>  </title> 
 
@@ -39,46 +47,60 @@ $tablename = "vote";
   
 require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
-	 
-  if(isset($_REQUEST["mode"]))
-     $mode=$_REQUEST["mode"];
-  else 
-     $mode="";
 
-       if(isset($_REQUEST["search"]))   // search 쿼리스트링 값 할당 체크
-         $search=$_REQUEST["search"];
-       else 
-         $search="";
+// 요청 변수 초기화
+$mode = $_REQUEST["mode"] ?? '';
+$search = $_REQUEST["search"] ?? '';
+$page = $_REQUEST["page"] ?? 1;
+$scale = $_REQUEST["scale"] ?? 50;
 
-     
-   if($mode=="search"){
-         if(!$search) {
-				$sql ="select * from mirae8440." . $tablename . " order  by num desc   "; 				
-             }
-              $sql="select * from mirae8440." . $tablename . " where name like '%$search%' or subject like '%$search%'  or nick like '%$search%'  or regist_day like '%$search%'   or searchtext like '%$search%'  order by num desc   ";             
-       } else {
-              $sql="select * from mirae8440." . $tablename . " order  by num desc  ";
-       }
+// SQL 쿼리 준비 (Prepared Statement 사용)
+if($mode == "search" && !empty($search)) {
+	$searchParam = '%' . $search . '%';
+	$sql = "SELECT * FROM " . $DB . "." . $tablename . " 
+			WHERE name LIKE ? 
+			   OR subject LIKE ? 
+			   OR nick LIKE ? 
+			   OR regist_day LIKE ? 
+			   OR searchtext LIKE ? 
+			ORDER BY num DESC";
+	$params = array($searchParam, $searchParam, $searchParam, $searchParam, $searchParam);
+} else {
+	$sql = "SELECT * FROM " . $DB . "." . $tablename . " ORDER BY num DESC";
+	$params = array();
+}
 
-  // 전체 레코드수를 파악한다.
-	 try{  
-	  $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-      $total_row=$stmh->rowCount();
-	      
-   } catch (PDOException $Exception) {
-    print "오류: ".$Exception->getMessage();
-}  
-	 	 
-	 try{  
-	  $stmh = $pdo->query($sql); 	 
+// 전체 레코드수를 파악한다.
+$total_row = 0;
+try {
+	if(!empty($params)) {
+		$stmh = $pdo->prepare($sql);
+		$stmh->execute($params);
+	} else {
+		$stmh = $pdo->query($sql);
+	}
+	$total_row = $stmh->rowCount();
+} catch (PDOException $Exception) {
+	error_log("데이터 조회 오류: " . $Exception->getMessage());
+}
+
+// 데이터 조회
+try {
+	if(!empty($params)) {
+		$stmh = $pdo->prepare($sql);
+		$stmh->execute($params);
+	} else {
+		$stmh = $pdo->query($sql);
+	} 	 
 			 
  ?>		 
 
 
-<form name="board_form" id="board_form"  method="post" action="list.php?mode=search&search=<?=$search?>">
+<form name="board_form" id="board_form"  method="post" action="list.php">
 
-  <input type="hidden" id="page" name="page" value="<?=$page?>"  > 
-  <input type="hidden" id="scale" name="scale" value="<?=$scale?>"  >   
+  <input type="hidden" id="mode" name="mode" value="search"> 
+  <input type="hidden" id="page" name="page" value="<?= htmlspecialchars($page, ENT_QUOTES, 'UTF-8') ?>"  > 
+  <input type="hidden" id="scale" name="scale" value="<?= htmlspecialchars($scale, ENT_QUOTES, 'UTF-8') ?>"  >   
 
 
 <?php if ($chkMobile): ?>
@@ -98,8 +120,8 @@ $pdo = db_connect();
  <div class="d-flex mt-3 mb-1 justify-content-center">  
  
     <div class="input-group p-2 mb-2 justify-content-center">	  
-		<button type="button" class="btn btn-dark btn-sm me-1" onclick="popupCenter('write_form.php?tablename=<?=$tablename?>', '투표', 1300, 900);return false;" > <i class="bi bi-pencil"></i>  신규 </button>
-	<input type="text" name="search" id="search" value="<?=$search?>" size="30" onkeydown="JavaScript:SearchEnter();" placeholder="검색어 입력"> 
+		<button type="button" class="btn btn-dark btn-sm me-1" onclick="popupCenter('write_form.php?tablename=<?= htmlspecialchars($tablename, ENT_QUOTES, 'UTF-8') ?>', '투표', 1300, 900);return false;" > <i class="bi bi-pencil"></i>  신규 </button>
+	<input type="text" name="search" id="search" value="<?= htmlspecialchars($search, ENT_QUOTES, 'UTF-8') ?>" size="30" onkeydown="JavaScript:SearchEnter();" placeholder="검색어 입력"> 
 		<button type="button" id="searchBtn" class="btn btn-dark"  > <i class="bi bi-search"></i> 검색 </button>			
 	</div>
 </div>	   
@@ -121,44 +143,48 @@ $pdo = db_connect();
 <?php  
 $start_num=$total_row;    // 페이지당 표시되는 첫번째 글순번
  while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-  $item_num=$row["num"];
-  $item_id=$row["id"];
-  $item_name=$row["name"];
-  $item_nick=$row["nick"];
-  $item_hit=$row["hit"];
-  $item_date=$row["regist_day"];
-  $deadline=$row["deadline"];
-  $item_date=substr($item_date, 0, 10);
-  $item_subject=str_replace(" ", "&nbsp;", $row["subject"]);
-  $status=$row["status"];
+  $item_num = $row["num"] ?? '';
+  $item_id = $row["id"] ?? '';
+  $item_name = $row["name"] ?? '';
+  $item_nick = $row["nick"] ?? '';
+  $item_hit = $row["hit"] ?? '';
+  $item_date = $row["regist_day"] ?? '';
+  $deadline = $row["deadline"] ?? '';
+  $item_date = substr($item_date, 0, 10);
+  $item_subject = $row["subject"] ?? '';
+  $status = $row["status"] ?? '';
    
-  $sql="select * from mirae8440.vote_ripple where parent=$item_num";
-  $stmh1 = $pdo->query($sql); 
-  $num_ripple=$stmh1->rowCount(); 
+  // 댓글 수 조회 (Prepared Statement 사용)
+  $sql_ripple = "SELECT * FROM " . $DB . ".vote_ripple WHERE parent = ?";
+  $stmh1 = $pdo->prepare($sql_ripple);
+  $stmh1->bindValue(1, $item_num, PDO::PARAM_INT);
+  $stmh1->execute();
+  $num_ripple = $stmh1->rowCount(); 
  ?>
  
-   <tr onclick="redirectToView('<?=$item_num?>', '<?=$page?>', '<?=$tablename?>')">
+   <tr class="vote-row" data-num="<?= htmlspecialchars($item_num, ENT_QUOTES, 'UTF-8') ?>" data-page="<?= htmlspecialchars($page, ENT_QUOTES, 'UTF-8') ?>" data-tablename="<?= htmlspecialchars($tablename, ENT_QUOTES, 'UTF-8') ?>">
 
 	<td class="text-center" style="width:6%;" >  <?= $start_num ?>      </td>
-	<td class="text-center" style="width:10%;" >  <?= $item_date ?>      </td>     
-	<td class="text-center" style="width:10%;" >  <?= $deadline ?>      </td>     
-	<td class="text-center"  style="width:10%;">  <?= $status ?>      </td>
-	<td>  <?= $item_subject ?> 
+	<td class="text-center" style="width:10%;" >  <?= htmlspecialchars($item_date, ENT_QUOTES, 'UTF-8') ?>      </td>     
+	<td class="text-center" style="width:10%;" >  <?= htmlspecialchars($deadline, ENT_QUOTES, 'UTF-8') ?>      </td>     
+	<td class="text-center"  style="width:10%;">  <?= htmlspecialchars($status, ENT_QUOTES, 'UTF-8') ?>      </td>
+	<td>  <?= htmlspecialchars($item_subject, ENT_QUOTES, 'UTF-8') ?> 
 
 	<?php
-	if($num_ripple>0)
-		echo '<span class="badge bg-primary "> '.$num_ripple.' </span> ';
+	if($num_ripple > 0)
+		echo '<span class="badge bg-primary"> ' . $num_ripple . ' </span> ';
 	?>
 	
 	</td>
-		<td class="text-center" >  <?= $item_nick ?>      </td>				  
+		<td class="text-center" >  <?= htmlspecialchars($item_nick, ENT_QUOTES, 'UTF-8') ?>      </td>				  
 	</tr>
  
  <?php
 	$start_num--;
     }
   } catch (PDOException $Exception) {
-  print "오류: ".$Exception->getMessage();
+  error_log("데이터 출력 오류: " . $Exception->getMessage());
+  echo "<tr><td colspan='6' class='text-center text-danger'>데이터를 불러오는 중 오류가 발생했습니다.</td></tr>";
   }  
   
  ?>
@@ -172,14 +198,9 @@ $start_num=$total_row;    // 페이지당 표시되는 첫번째 글순번
    </div> <!--container-->   
    </div> <!--container-->   
    
-	</form>   
-
-</body> 
-</html>
-   
+</form>
 
 <script>
-
 var dataTable; // DataTables 인스턴스 전역 변수
 var votepageNumber; // 현재 페이지 번호 저장을 위한 전역 변수
 
@@ -221,6 +242,19 @@ $(document).ready(function() {
             dataTable.page(parseInt(savedPageNumber) - 1).draw(false);
         }
     });
+    
+    // 검색 버튼 클릭
+    $("#searchBtn").click(function() {
+        document.getElementById('board_form').submit();
+    });
+    
+    // 테이블 행 클릭 이벤트
+    $(document).on('click', '.vote-row', function() {
+        var num = $(this).data('num');
+        var page = $(this).data('page');
+        var tablename = $(this).data('tablename');
+        redirectToView(num, page, tablename);
+    });
 });
 
 function restorePageNumber() {
@@ -230,20 +264,18 @@ function restorePageNumber() {
     }
 }
 
-$(document).ready(function(){	
-	$("#writeBtn").click(function(){ 
-		var page = votepageNumber; // 현재 페이지 번호 (+1을 해서 1부터 시작하도록 조정)	
-		var tablename = '<?php echo $tablename; ?>';		
-		var url = "write_form.php?tablename=" + tablename; 				
-		customPopup(url, '인사교육총무', 1300, 850); 	
-	 });			 
-		
-});	
-	
-	
 function redirectToView(num, page, tablename) {	
-	var url = "view.php?num=" + num + "&page=" + page + "&tablename=" + tablename;	
-	popupCenter(url , '투표', 1250, 900);	
+    var url = "view.php?num=" + encodeURIComponent(num) + "&page=" + encodeURIComponent(page) + "&tablename=" + encodeURIComponent(tablename);	
+    popupCenter(url, '투표', 1250, 900);	
 }
-   
+
+function SearchEnter() {
+    if (event.keyCode == 13) {
+        event.preventDefault();
+        document.getElementById('searchBtn').click();
+    }
+}
 </script>
+
+</body> 
+</html>

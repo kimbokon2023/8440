@@ -139,7 +139,8 @@ $title_message = '품의서';
 
     // fromdate 또는 todate가 빈 문자열이거나 null인 경우
     if ($fromdate === "" || $fromdate === null || $todate === "" || $todate === null) {
-        $fromdate = date("Y-m-d", strtotime("-3 months", strtotime($currentDate))); // 3개월 이전 날짜
+        // 오늘 날짜 기준 1년 전부터 오늘까지
+        $fromdate = date("Y-m-d", strtotime("-1 year", strtotime($currentDate)));
         $todate = $currentDate;
         $Transtodate = $todate;
     } else {

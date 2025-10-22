@@ -1,19 +1,28 @@
 <?php
-require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
-	
-if(!isset($_SESSION["level"]) || $level>8) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 $_SESSION["url"]='https://8440.co.kr/request_etc/write_form.php' ; 		  		 
-		 sleep(1);
-	          header("Location:" . $WebSite . "login/login_form.php"); 
-         exit;
-   }	 
-	
-$titlemsg	= '부자재 구매';	
- 
+/**
+ * request_etc 작성폼 페이지
+ * 로컬 및 서버 환경 모두 지원
+ */
+
+require_once __DIR__ . '/../bootstrap.php';
+require_once getDocumentRoot() . '/load_GoogleDrive.php';
+
+// 세션 변수 초기화
+$level = $_SESSION["level"] ?? 999;
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+
+// 권한 체크
+if ($level > 8) {
+    $_SESSION["url"] = getBaseUrl() . '/request_etc/write_form.php';
+    sleep(1);
+    header("Location:" . getBaseUrl() . "/login/login_form.php");
+    exit;
+}
+
+$titlemsg = '부자재 구매';
+
 ?>
 
-<?php include getDocumentRoot() . '/common.php' ?>
 <?php include getDocumentRoot() . '/load_header.php'; ?>
   
 <title> <?=$titlemsg?> </title>
@@ -56,9 +65,9 @@ if ($chkMobile) {
     </style>';
 }
 
-$tablename = 'request_etc';  
-  
-$callback=$_REQUEST["callback"];  // 출고현황에서 체크번호
+$tablename = 'request_etc';
+
+$callback = $_REQUEST["callback"] ?? '';  // 출고현황에서 체크번호
   
   if(isset($_REQUEST["mode"]))  //수정 버튼을 클릭해서 호출했는지 체크
    $mode=$_REQUEST["mode"];
@@ -208,10 +217,10 @@ require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, ima
 		</div> 			
 	</div> 
 		  
-	<?php	 		  
-	 	 $aryreg=array();
+	<?php
+	 	 $aryreg = array('', '', '');
 		 if($which=='') $which='2';
-		 
+
 	     switch ($which) {
 			case   "1"             : $aryreg[0] = "checked" ; break;
 			case   "2"             :$aryreg[1] =  "checked" ; break;
@@ -253,15 +262,15 @@ require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, ima
             <label>구매방식</label>
           </td>
           <td>
-		  	<?php	 		  
-	 	 $aryreg=array();
-		 if($payment=='') $which='법인카드';
+		  	<?php
+	 	 $aryreg = array('', '');
+		 if($payment=='') $payment='법인카드';
 	     switch ($payment) {
 			case   "법인카드"             : $aryreg[0] = "checked" ; break;
-			case   "세금계산서"             :$aryreg[1] =  "checked" ; break;			
+			case   "세금계산서"             :$aryreg[1] =  "checked" ; break;
 			default: break;
-		}		 		
- 
+		}
+
 	   ?>			  
 		  
 		<span class="text-primary">법인카드</span> &nbsp;

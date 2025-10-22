@@ -1,5 +1,10 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session_header.php')); 
+<?php
+/**
+ * RnDfund 상세보기 페이지
+ * 로컬 및 서버 환경 모두 지원
+ */
+
+require_once __DIR__ . '/../bootstrap.php'; 
 
 if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
 	sleep(1);
@@ -7,17 +12,34 @@ if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
 	exit;
 }   
 
-include getDocumentRoot() . '/load_header.php'; 
+include includePath('load_header.php'); 
 // 첫 화면 표시 문구
 $title_message = '연구전담부서 운영비';   
  
-if(isset($_REQUEST["num"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $num=$_REQUEST["num"];
-else
-   $num="";
+$num = $_REQUEST["num"] ?? '';
+$tablename = $_REQUEST["tablename"] ?? '';
+$page = $_REQUEST["page"] ?? '';
+$search = $_REQUEST["search"] ?? '';
+$Bigsearch = $_REQUEST["Bigsearch"] ?? '';
+$find = $_REQUEST["find"] ?? '';
+$year = $_REQUEST["year"] ?? '';
+$process = $_REQUEST["process"] ?? '';
+$asprocess = $_REQUEST["asprocess"] ?? '';
+$fromdate = $_REQUEST["fromdate"] ?? '';
+$todate = $_REQUEST["todate"] ?? '';
+$separate_date = $_REQUEST["separate_date"] ?? '';
 
-if(isset($_REQUEST["tablename"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $tablename=$_REQUEST["tablename"];
+// 기타 변수 초기화
+$first_writer = '';
+$update_log = '';
+$which = '';
+$proDate = '';
+$writer = '';
+$item = '';
+$memo = '';
+$amount = '';
+$comment = '';
+$admin = $_SESSION["admin"] ?? '';
       
 require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
@@ -85,15 +107,15 @@ $pdo = db_connect();
 <tbody>
   <tr>
   
- <?php	 		  
-	 	 $aryreg=array();
-	 	 $aryitem=array();
+ <?php
+	 	 $aryreg = array('', '');  // 배열 초기화
+	 	 $aryitem = array();
 		 if($which=='') $which='2';
 	     switch ($which) {
 					case   "1"             : $aryreg[0] = "checked" ; break;
-					case   "2"             :$aryreg[1] =  "checked" ; break;
+					case   "2"             : $aryreg[1] = "checked" ; break;
 					default: break;
-				}		
+				}
 	   ?>
 	<td colspan="4" class="text-center mt-3">	
     <h6>	

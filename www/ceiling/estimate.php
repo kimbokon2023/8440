@@ -1,6 +1,5 @@
 <?php
-require_once __DIR__ . '/../common/functions.php';
-session_start();
+require_once __DIR__ . '/../bootstrap.php';
 
 // 기본 설정
 $root_dir = getDocumentRoot();

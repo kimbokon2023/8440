@@ -31,7 +31,7 @@ $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : '
 $host = $_SERVER['HTTP_HOST'];
 $base_url = "{$protocol}://{$host}";
 
-include getDocumentRoot() . '/load_header.php';
+include includePath('load_header.php');
 ?>
 
 <title><?= htmlspecialchars($title_message, ENT_QUOTES, 'UTF-8') ?></title>
@@ -141,7 +141,7 @@ try {
                                 $item_hit = $row["hit"];
                                 $item_date = $row["regist_day"];
                                 $item_date = substr($item_date, 0, 10);
-                                $item_subject = str_replace(" ", "&nbsp;", $row["subject"]);
+                                $item_subject = $row["subject"];
                                 
                                 // 댓글 수 조회 (Prepared Statement 사용)
                                 $sql_ripple = "SELECT COUNT(*) as count FROM {$DB}.notice_ripple WHERE parent = ?";

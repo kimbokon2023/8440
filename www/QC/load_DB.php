@@ -93,9 +93,12 @@ $questionstep_arr=array();
 
 
 // mcmain mcsub 찾아 정하기
+// $mcno가 정의되지 않았거나 $item이 정의된 경우 $item을 사용
+$search_code = $mcno ?? $item ?? '';
+
 for($i=0;$i<count($mcmain_arr);$i++)
 {
-	if($mcno_arr[$i] == $mcno ?? '')
+	if($mcno_arr[$i] == $search_code)
 	{
 		$mcmain= $mcmain_arr[$i];
 		$mcsub= $mcsub_arr[$i];

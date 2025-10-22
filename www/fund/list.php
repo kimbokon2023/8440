@@ -66,10 +66,10 @@ if (empty($fromdate)) {
 
 if (empty($todate)) {
     $todate = substr(date("Y-m-d", time()), 0, 4) . "-12-31";
-    $Transtodate = date("Y-m-d", strtotime($todate . '+1 days'));
-} else {
-    $Transtodate = date("Y-m-d", strtotime($todate));
 }
+
+// Transtodate는 항상 todate + 1일로 설정
+$Transtodate = date("Y-m-d", strtotime($todate . '+1 days'));
 
 // 데이터베이스 연결
 require_once(includePath('lib/mydb.php'));
@@ -77,17 +77,14 @@ $pdo = db_connect();
 
 // 수입/지출 합계 계산
 try {
-    $sql = "SELECT * FROM {$DB}.fund WHERE proDate BETWEEN DATE('2010-01-01') AND DATE(?) ORDER BY proDate";
-    $stmh = $pdo->prepare($sql);
-    $stmh->bindValue(1, $todate, PDO::PARAM_STR);
-    $stmh->execute();
+    $sql_sum = "SELECT * FROM {$DB}.fund WHERE proDate BETWEEN DATE('2010-01-01') AND DATE(?) ORDER BY proDate";
+    $stmh_sum = $pdo->prepare($sql_sum);
+    $stmh_sum->bindValue(1, $todate, PDO::PARAM_STR);
+    $stmh_sum->execute();
+    $sum_data = $stmh_sum->fetchAll(PDO::FETCH_ASSOC);
     
-    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-        $num = $row["num"];
-        $proDate = $row["proDate"];
-        $writer = $row["writer"];
+    foreach ($sum_data as $row) {
         $amount = $row["amount"];
-        $memo = $row["memo"];
         $which = $row["which"];
         
         if ($which == '1') {
@@ -96,49 +93,30 @@ try {
             $output_sum += (int)conv_num($amount);
         }
     }
-    
 } catch (PDOException $ex) {
-    error_log("Sum calculation error in fund/list.php: " . $ex->getMessage());
+    error_log("Sum calculation error: " . $ex->getMessage());
 }
 
 $remain_sum = $input_sum - $output_sum;
 $resultText = "총수입(" . number_format($input_sum) . "원) - 총지출(" . number_format($output_sum) . "원) = 보유 잔액(" . number_format($remain_sum) . "원)";
 
 // SQL 쿼리 생성
-$common = " WHERE {$SettingDate} BETWEEN DATE(?) AND DATE(?) ORDER BY {$SettingDate}";
-
 if ($mode == "search" && !empty($search)) {
-    // 검색 모드
-    $search_safe = str_replace("'", "''", $search);
-    $sql = "SELECT * FROM {$DB}.fund WHERE ({$SettingDate} BETWEEN DATE(?) AND DATE(?)) AND (memo LIKE ? OR writer LIKE ?) ORDER BY {$SettingDate} DESC, num DESC LIMIT ?, ?";
-    $sqlcon = "SELECT * FROM {$DB}.fund WHERE ({$SettingDate} BETWEEN DATE(?) AND DATE(?)) AND (memo LIKE ? OR writer LIKE ?) ORDER BY {$SettingDate} DESC, num DESC";
+    $sql = "SELECT * FROM {$DB}.fund WHERE ({$SettingDate} BETWEEN ? AND ?) AND (memo LIKE ? OR writer LIKE ?) ORDER BY {$SettingDate} DESC, num DESC LIMIT ?, ?";
 } else {
-    // 일반 모드
-    $sql = "SELECT * FROM {$DB}.fund WHERE {$SettingDate} BETWEEN DATE(?) AND DATE(?) ORDER BY {$SettingDate} DESC, num DESC LIMIT ?, ?";
-    $sqlcon = "SELECT * FROM {$DB}.fund WHERE {$SettingDate} BETWEEN DATE(?) AND DATE(?) ORDER BY {$SettingDate} DESC, num DESC";
+    $sql = "SELECT * FROM {$DB}.fund WHERE {$SettingDate} BETWEEN '{$fromdate}' AND '{$Transtodate}' ORDER BY {$SettingDate} DESC, num DESC LIMIT {$first_num}, {$scale}";
 }
 
 // 전체 레코드 수 조회
 try {
-    if ($mode == "search" && !empty($search)) {
-        $stmh_count = $pdo->prepare($sqlcon);
-        $stmh_count->bindValue(1, $fromdate, PDO::PARAM_STR);
-        $stmh_count->bindValue(2, $Transtodate, PDO::PARAM_STR);
-        $stmh_count->bindValue(3, '%' . $search . '%', PDO::PARAM_STR);
-        $stmh_count->bindValue(4, '%' . $search . '%', PDO::PARAM_STR);
-        $stmh_count->execute();
-    } else {
-        $stmh_count = $pdo->prepare($sqlcon);
-        $stmh_count->bindValue(1, $fromdate, PDO::PARAM_STR);
-        $stmh_count->bindValue(2, $Transtodate, PDO::PARAM_STR);
-        $stmh_count->execute();
+    $count_sql = "SELECT COUNT(*) as cnt FROM {$DB}.fund WHERE proDate BETWEEN '{$fromdate}' AND '{$Transtodate}'";
+    $count_result = $pdo->query($count_sql);
+    if ($count_result) {
+        $count_row = $count_result->fetch(PDO::FETCH_ASSOC);
+        $total_row = (int)($count_row['cnt'] ?? 0);
     }
-    
-    $total_row = $stmh_count->rowCount();
-    
-} catch (PDOException $ex) {
-    error_log("Count query error in fund/list.php: " . $ex->getMessage());
-    $total_row = 0;
+} catch (Exception $e) {
+    error_log("Count error: " . $e->getMessage());
 }
 
 $total_page = ceil($total_row / $scale);
@@ -156,16 +134,10 @@ try {
         $stmh->bindValue(6, $scale, PDO::PARAM_INT);
         $stmh->execute();
     } else {
-        $stmh = $pdo->prepare($sql);
-        $stmh->bindValue(1, $fromdate, PDO::PARAM_STR);
-        $stmh->bindValue(2, $Transtodate, PDO::PARAM_STR);
-        $stmh->bindValue(3, $first_num, PDO::PARAM_INT);
-        $stmh->bindValue(4, $scale, PDO::PARAM_INT);
-        $stmh->execute();
+        $stmh = $pdo->query($sql);
     }
-    
 } catch (PDOException $ex) {
-    error_log("List query error in fund/list.php: " . $ex->getMessage());
+    error_log("List query error: " . $ex->getMessage());
 }
 
 include getDocumentRoot() . '/load_header.php';
@@ -202,21 +174,17 @@ include getDocumentRoot() . '/load_header.php';
                 </div>
                 
                 <div class="d-flex mb-1 mt-1 justify-content-center align-items-center">
-                    ▷ <?php echo htmlspecialchars($total_row, ENT_QUOTES, 'UTF-8'); ?> &nbsp;&nbsp;
+                    ▷ 총 <?php echo htmlspecialchars(count($sum_data), ENT_QUOTES, 'UTF-8'); ?>건 &nbsp;&nbsp;
                     
                     <!-- 기간설정 -->
                     <?php include getDocumentRoot() . '/setdate.php'; ?>
                     
-                    <?php
-                    if (isset($_SESSION["userid"]) && in_array($user_name, array('조경임', '김보곤', '소민지'))) {
-                    ?>
+                    <?php if (isset($_SESSION["userid"]) && in_array($user_name, array('조경임', '김보곤', '소민지'))) { ?>
                     &nbsp;&nbsp;
                     <button type="button" id="writeBtn" class="btn btn-dark btn-sm">
                         <i class="bi bi-pencil"></i> 신규
                     </button>
-                    <?php
-                    }
-                    ?>
+                    <?php } ?>
                 </div>
             </div>
         </div>
@@ -247,13 +215,18 @@ include getDocumentRoot() . '/load_header.php';
                                 }
                                 
                                 try {
-                                    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-                                        $num = $row["num"];
-                                        $proDate = $row["proDate"];
-                                        $writer = $row["writer"];
-                                        $amount = $row["amount"];
-                                        $memo = $row["memo"];
-                                        $which = $row["which"];
+                                    if (!isset($sum_data)) {
+                                        echo '<tr><td colspan="7" class="text-center text-danger">데이터베이스 쿼리 오류가 발생했습니다.</td></tr>';
+                                    } else {
+                                        $row_count = 0;
+                                        foreach ($sum_data as $row) {
+                                            $row_count++;
+                                            $num = $row["num"] ?? '';
+                                            $proDate = $row["proDate"] ?? '';
+                                            $writer = $row["writer"] ?? '';
+                                            $amount = $row["amount"] ?? '';
+                                            $memo = $row["memo"] ?? '';
+                                            $which = $row["which"] ?? '';
                                         
                                         // 요일 추가
                                         if (!empty($proDate)) {
@@ -264,31 +237,25 @@ include getDocumentRoot() . '/load_header.php';
                                         // 수입/지출 구분
                                         if ($which == '1') {
                                             $tmp_word = "수입";
-                                            $font_state = "black";
                                         } else {
                                             $tmp_word = "지출";
-                                            $font_state = "red";
                                         }
                                 ?>
                                 <tr onclick="redirectToView('<?php echo htmlspecialchars($num, ENT_QUOTES, 'UTF-8'); ?>')" style="cursor: pointer;">
                                     <td class="text-center"><?php echo htmlspecialchars($start_num, ENT_QUOTES, 'UTF-8'); ?></td>
                                     <td class="text-center"><?php echo htmlspecialchars($proDate, ENT_QUOTES, 'UTF-8'); ?></td>
                                     
-                                    <?php
-                                    if ($tmp_word == '수입') {
-                                        echo '<td class="text-primary text-center">' . htmlspecialchars($tmp_word, ENT_QUOTES, 'UTF-8') . '</td>';
-                                    } else {
-                                        echo '<td class="text-danger text-center"></td>';
-                                    }
-                                    ?>
+                                    <?php if ($tmp_word == '수입') { ?>
+                                        <td class="text-primary text-center"><?php echo htmlspecialchars($tmp_word, ENT_QUOTES, 'UTF-8'); ?></td>
+                                    <?php } else { ?>
+                                        <td class="text-danger text-center"></td>
+                                    <?php } ?>
                                     
-                                    <?php
-                                    if ($tmp_word !== '수입') {
-                                        echo '<td class="text-danger text-center">' . htmlspecialchars($tmp_word, ENT_QUOTES, 'UTF-8') . '</td>';
-                                    } else {
-                                        echo '<td class="text-primary text-center"></td>';
-                                    }
-                                    ?>
+                                    <?php if ($tmp_word !== '수입') { ?>
+                                        <td class="text-danger text-center"><?php echo htmlspecialchars($tmp_word, ENT_QUOTES, 'UTF-8'); ?></td>
+                                    <?php } else { ?>
+                                        <td class="text-primary text-center"></td>
+                                    <?php } ?>
                                     
                                     <td class="text-end"><?php echo htmlspecialchars($amount, ENT_QUOTES, 'UTF-8'); ?></td>
                                     <td class="text-start"><?php echo htmlspecialchars($memo, ENT_QUOTES, 'UTF-8'); ?></td>
@@ -297,9 +264,14 @@ include getDocumentRoot() . '/load_header.php';
                                 <?php
                                         $start_num--;
                                     }
-                                    
+
+                                    if ($row_count == 0) {
+                                        echo '<tr><td colspan="7" class="text-center">조회된 데이터가 없습니다.</td></tr>';
+                                    }
+                                }
                                 } catch (PDOException $ex) {
-                                    error_log("List fetch error in fund/list.php: " . $ex->getMessage());
+                                    error_log("List fetch error: " . $ex->getMessage());
+                                    echo '<tr><td colspan="7" class="text-center text-danger">데이터 조회 중 오류가 발생했습니다.</td></tr>';
                                 }
                                 ?>
                             </tbody>
@@ -311,9 +283,7 @@ include getDocumentRoot() . '/load_header.php';
                 <!-- 페이징 -->
                 <div class="row row-cols-auto mt-3 mb-5 justify-content-center align-items-center">
                     <?php
-                    // 페이지 구분 블럭의 첫 페이지 수 계산
                     $start_page = ($current_page - 1) * $page_scale + 1;
-                    // 페이지 구분 블럭의 마지막 페이지 수 계산
                     $end_page = $start_page + $page_scale - 1;
                     
                     if ($page != 1 && $page > $page_scale) {
@@ -351,83 +321,71 @@ include getDocumentRoot() . '/load_header.php';
 </div>
 
 <script>
-var dataTable; // DataTables 인스턴스 전역 변수
-var fundpageNumber; // 현재 페이지 번호 저장을 위한 전역 변수
+var dataTable;
+var fundpageNumber;
 
 $(document).ready(function() {
     'use strict';
     
-    // DataTables 초기 설정
-    dataTable = $('#myTable').DataTable({
-        "paging": true,
-        "ordering": true,
-        "searching": true,
-        "pageLength": 50,
-        "lengthMenu": [25, 50, 100, 200, 500, 1000],
-        "language": {
-            "lengthMenu": "Show _MENU_ entries",
-            "search": "Live Search:"
-        },
-        "order": [[0, 'desc']]
-    });
+    var hasData = $('#myTable tbody tr').length > 0 && !$('#myTable tbody tr td[colspan]').length;
     
-    // 페이지 번호 복원 (초기 로드 시)
-    var savedPageNumber = getCookie('fundpageNumber');
-    if (savedPageNumber) {
-        dataTable.page(parseInt(savedPageNumber) - 1).draw(false);
-    }
-    
-    // 페이지 변경 이벤트 리스너
-    dataTable.on('page.dt', function() {
-        fundpageNumber = dataTable.page.info().page + 1;
-        setCookie('fundpageNumber', fundpageNumber, 10);
-    });
-    
-    // 페이지 길이 셀렉트 박스 변경 이벤트 처리
-    $('#myTable_length select').on('change', function() {
-        var selectedValue = $(this).val();
-        dataTable.page.len(selectedValue).draw();
+    if (hasData) {
+        dataTable = $('#myTable').DataTable({
+            "paging": true,
+            "ordering": true,
+            "searching": true,
+            "pageLength": 50,
+            "lengthMenu": [25, 50, 100, 200, 500, 1000],
+            "language": {
+                "lengthMenu": "Show _MENU_ entries",
+                "search": "Live Search:"
+            },
+            "order": [[0, 'desc']]
+        });
         
-        // 변경 후 현재 페이지 번호 복원
-        savedPageNumber = getCookie('fundpageNumber');
+        var savedPageNumber = getCookie('fundpageNumber');
         if (savedPageNumber) {
             dataTable.page(parseInt(savedPageNumber) - 1).draw(false);
         }
-    });
+        
+        dataTable.on('page.dt', function() {
+            fundpageNumber = dataTable.page.info().page + 1;
+            setCookie('fundpageNumber', fundpageNumber, 10);
+        });
+        
+        $('#myTable_length select').on('change', function() {
+            var selectedValue = $(this).val();
+            dataTable.page.len(selectedValue).draw();
+            
+            savedPageNumber = getCookie('fundpageNumber');
+            if (savedPageNumber) {
+                dataTable.page(parseInt(savedPageNumber) - 1).draw(false);
+            }
+        });
+    }
     
-    // 신규 버튼 클릭
     $("#writeBtn").click(function() {
         var url = "write_form.php";
         popupCenter(url, '공동자금', 600, 500);
     });
     
-    // 서버에 작업 기록
     saveLogData('공동자금 조회');
 });
 
-/**
- * 페이지 번호 복원 함수
- */
 function restorePageNumber() {
-    var savedPageNumber = getCookie('fundpageNumber');
-    if (savedPageNumber) {
-        dataTable.page(parseInt(savedPageNumber) - 1).draw('page');
+    if (dataTable) {
+        var savedPageNumber = getCookie('fundpageNumber');
+        if (savedPageNumber) {
+            dataTable.page(parseInt(savedPageNumber) - 1).draw('page');
+        }
     }
 }
 
-/**
- * 상세보기로 이동
- * @param {string} num - 레코드 번호
- */
 function redirectToView(num) {
     var url = "view.php?num=" + num;
     customPopup(url, '공동자금', 600, 500);
 }
 
-/**
- * 페이지 이동 함수
- * @param {number} page - 페이지 번호
- */
 function movetoPage(page) {
     $("#page").val(page);
     $("#board_form").submit();

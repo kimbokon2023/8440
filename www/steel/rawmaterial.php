@@ -1,5 +1,5 @@
-<?php 
-include getDocumentRoot() . '/session.php';
+<?php
+require_once __DIR__ . '/../bootstrap.php';
 
  if(!isset($_SESSION["level"]) || $level>=5) {
 		 sleep(1);
@@ -8,9 +8,10 @@ include getDocumentRoot() . '/session.php';
    }  
 							                	
 $readIni = array();   // 환경파일 불러오기
-$readIni = parse_ini_file("./settings.ini",false);	
+$readIni = parse_ini_file("./settings.ini",false);
 
-$menu=$_REQUEST["menu"]; 
+$menu = $_REQUEST["menu"] ?? '';
+$navibar = $_REQUEST["navibar"] ?? '0';
 //  print_r ($menu);  
 
  ?>
@@ -26,7 +27,9 @@ $menu=$_REQUEST["menu"];
 <?php include "../common/modal.php"; ?>
 
  
-<?  if($navibar!='1' && $menu !== "no") include getDocumentRoot() . '/myheader.php'; ?>       
+<?php
+
+if($navibar!='1' && $menu !== "no") include getDocumentRoot() . '/myheader.php'; ?>       
    
 <style>
     	
@@ -55,7 +58,12 @@ function calculate_saved_weight($row, $thickness)
     $saved_weight = 0.0;
 
     for ($i = 1; $i <= 5; $i++) {
-        $saved_weight += ($thickness * $row["used_width_$i"] * $row["used_length_$i"] * 7.93 * (int)$row["used_num_$i"]) / 1000000;
+        $thickness_val = floatval($thickness ?? 0);
+        $width_val = floatval($row["used_width_$i"] ?? 0);
+        $length_val = floatval($row["used_length_$i"] ?? 0);
+        $num_val = intval($row["used_num_$i"] ?? 0);
+
+        $saved_weight += ($thickness_val * $width_val * $length_val * 7.93 * $num_val) / 1000000;
     }
 
     return sprintf('%0.1f', $saved_weight);
@@ -103,13 +111,13 @@ function calculate_saved_fee($item, $saved_weight, $readIni)
 		case 'Bead Ecolor Brown':
 		case 'Bead NSP':
 		case 'STS 304 HL HTM':
-            $saved_fee = $saved_weight * conv_num($readIni['VB304']);
+            $saved_fee = $saved_weight * conv_num($readIni['VB304'] ?? 0);
             break;
         case 'i3 304 HL':
-            $saved_fee = $saved_weight * conv_num($readIni['I3HL304']);
+            $saved_fee = $saved_weight * conv_num($readIni['I3HL304'] ?? 0);
             break;
         case 'i3 304 MR':
-            $saved_fee = $saved_weight * conv_num($readIni['I3MR304']);
+            $saved_fee = $saved_weight * conv_num($readIni['I3MR304'] ?? 0);
             break;
         default:
             $saved_fee = $saved_weight * conv_num($readIni['etcsteel']);
@@ -424,7 +432,7 @@ $spec_counter = count($spec_arr);
 									<div class="card border-0 bg-light h-100">
 										<div class="card-body text-center p-2">
 											<div class="fw-bold text-primary small"><?= $material ?></div>
-											<div class="text-success fw-bold"><?= number_format((float)$readIni[$labels[$material]]) ?>원</div>
+											<div class="text-success fw-bold"><?= number_format((float)($readIni[$labels[$material]] ?? 0)) ?>원</div>
 										</div>
 									</div>
 								</div>
@@ -445,7 +453,7 @@ $spec_counter = count($spec_arr);
 									<div class="card border-0 bg-light h-100">
 										<div class="card-body text-center p-2">
 											<div class="fw-bold text-primary small"><?= $material ?></div>
-											<div class="text-success fw-bold"><?= number_format((float)$readIni[$labels[$material]]) ?>원</div>
+											<div class="text-success fw-bold"><?= number_format((float)($readIni[$labels[$material]] ?? 0)) ?>원</div>
 										</div>
 									</div>
 								</div>
@@ -466,7 +474,7 @@ $spec_counter = count($spec_arr);
 									<div class="card border-0 bg-light h-100">
 										<div class="card-body text-center p-2">
 											<div class="fw-bold text-primary small"><?= $material ?></div>
-											<div class="text-success fw-bold"><?= number_format((float)$readIni[$labels[$material]]) ?>원</div>
+											<div class="text-success fw-bold"><?= number_format((float)($readIni[$labels[$material]] ?? 0)) ?>원</div>
 										</div>
 									</div>
 								</div>
@@ -487,7 +495,7 @@ $spec_counter = count($spec_arr);
 									<div class="card border-0 bg-light h-100">
 										<div class="card-body text-center p-2">
 											<div class="fw-bold text-primary small"><?= $material ?></div>
-											<div class="text-success fw-bold"><?= number_format((float)$readIni[$labels[$material]]) ?>원</div>
+											<div class="text-success fw-bold"><?= number_format((float)($readIni[$labels[$material]] ?? 0)) ?>원</div>
 										</div>
 									</div>
 								</div>
@@ -508,7 +516,7 @@ $spec_counter = count($spec_arr);
 									<div class="card border-0 bg-light h-100">
 										<div class="card-body text-center p-2">
 											<div class="fw-bold text-primary small"><?= $material ?></div>
-											<div class="text-success fw-bold"><?= number_format((float)$readIni[$labels[$material]]) ?>원</div>
+											<div class="text-success fw-bold"><?= number_format((float)($readIni[$labels[$material]] ?? 0)) ?>원</div>
 										</div>
 									</div>
 								</div>

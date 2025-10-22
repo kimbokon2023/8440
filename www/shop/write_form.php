@@ -1,27 +1,26 @@
- <?php
-  session_start(); 
-  
- $level= $_SESSION["level"];
- if(!isset($_SESSION["level"]) || $level>=5) {
-         echo "<script> alert('관리자 승인이 필요합니다.') </script>";
-		 sleep(2);
-         header ("Location:http://8440.co.kr/login/logout.php");
-         exit;
-   }   
+<?php
+session_start();
+
+// Environment detection for URL
+$is_local = (isset($_SERVER['HTTP_HOST']) && (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false));
+$base_url = $is_local ? 'http://localhost' : 'http://8440.co.kr';
+
+// Initialize variables with null safety
+$level = $_SESSION["level"] ?? null;
+
+if (!isset($_SESSION["level"]) || $level >= 5) {
+    echo "<script> alert('관리자 승인이 필요합니다.') </script>";
+    sleep(2);
+    header("Location: {$base_url}/login/logout.php");
+    exit;
+}   
    
 include "common.php";  // 카타고리를 가져와서 배열넣는 공통 php    
   
-$callback=$_REQUEST["callback"];  // 출고현황에서 체크번호
-  
-  if(isset($_REQUEST["mode"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $mode=$_REQUEST["mode"];
-  else
-   $mode="";
-
-  if(isset($_REQUEST["which"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $which=$_REQUEST["which"];
-  else
-   $which="2";
+// Request variables with null safety
+$callback = $_REQUEST["callback"] ?? '';  // 출고현황에서 체크번호
+$mode = $_REQUEST["mode"] ?? '';  // 수정 버튼을 클릭해서 호출했는지 체크
+$which = $_REQUEST["which"] ?? '2';
   
   if(isset($_REQUEST["num"]))  //수정 버튼을 클릭해서 호출했는지 체크
    $num=$_REQUEST["num"];
@@ -48,8 +47,8 @@ $callback=$_REQUEST["callback"];  // 출고현황에서 체크번호
   else
    $process="전체";
 
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];
+$fromdate = $_REQUEST["fromdate"] ?? '';	 
+$todate = $_REQUEST["todate"] ?? '';
 
   require_once("../lib/mydb.php");
   $pdo = db_connect();
@@ -90,17 +89,19 @@ $todate=$_REQUEST["todate"];
   }
   
   
-  if ($mode!="modify"){    // 수정모드가 아닐때 신규 자료일때는 변수 초기화 한다.          
-              
+  if ($mode!="modify"){    // 수정모드가 아닐때 신규 자료일때는 변수 초기화 한다.
+
  			  $catagory=null;
  			  $dporder=null;
-			  		  
+
 			  $item=null;
 			  $itemdes=null;
 			  $sale=null;
 			  $price=null;
 			  $saleprice=null;
 			  $filename1=null;
+			  $youtube1=null;
+			  $youtube2=null;
   } 
 
 ?>
@@ -137,12 +138,12 @@ $todate=$_REQUEST["todate"];
   <?php
 	}
   ?>	   
-   <div id="header">
-   <?php include "../lib/top_login2.php"; ?>
+   <!-- <div id="header">
+   <?php // include "../lib/top_login2.php"; ?>
    </div>  
    <div id="menu">
-   <?php include "../lib/top_menu2.php"; ?>
-    </div>  
+   <?php // include "../lib/top_menu2.php"; ?>
+    </div> -->
     <div id="content">
 	
 			      
@@ -155,8 +156,7 @@ $todate=$_REQUEST["todate"];
     <div id="work_col4"> 
 	  <div id=top_title style="width:1000px; height:30px;"> <h4> &nbsp; &nbsp; 금속작품 등록/수정 화면 	&nbsp;	&nbsp;	&nbsp;
      	  &nbsp;
-	  <button type="button" id="saveBtn"  class="btn btn-primary"> DATA 저장 </button>	&nbsp;       
-	  <button type="button" id="gotoList"  class="btn btn-secondary" onclick="location.href='list.php?mode=search&search=<?=$search?>&Bigsearch=<?=$Bigsearch?>&find=<?=$find?>&page=<?=$page?>&year=<?=$year?>&search=<?=$search?>&Bigsearch=<?=$Bigsearch?>&process=<?=$process?>&asprocess=<?=$asprocess?>&fromdate=<?=$fromdate?>&todate=<?=$todate?>&separate_date=<?=$separate_date?>'" > 목록(List) </button>	&nbsp;       	   						
+	  <button type="button" id="saveBtn"  class="btn btn-primary"> <i class="bi bi-save"></i> DATA 저장 </button>	&nbsp;       	  
 	</h4> 
 	</div>
   	
@@ -283,7 +283,30 @@ $todate=$_REQUEST["todate"];
 
 <script>
 
+// iframe에서 작동 중인지 확인
+function isInIframe() {
+    return window.self !== window.top;
+}
+
+// 모달 닫기 함수
+function closeModal() {
+    if(isInIframe()) {
+        // iframe에서 실행 중이면 부모 창의 모달을 닫음
+        window.parent.postMessage('closeModal', '*');
+    } else {
+        // 일반 페이지면 목록으로 이동
+        location.href='list.php';
+    }
+}
+
 $(document).ready(function(){
+
+// 저장 버튼 클릭
+$("#saveBtn").click(function(){
+    if(confirm('저장하시겠습니까?')) {
+        $("#board_form").submit();
+    }
+});
 
 $("#regpicBtn").click(function(){    // 사진등록
   const num = $("#num").val();
@@ -349,7 +372,7 @@ function displayPicture() {        // 첨부파일 형식으로 사진 불러오
 
 function displayPictureLoad() {    // 이미 있는 파일 불러오기
 	$('#displayPicture').show();
-	var picNum = "<? echo $picNum; ?>"; 					
+	var picNum = "<?php echo $picNum; ?>"; 					
 	var picData = <?php echo json_encode($picData);?> ;	
     for(i=0;i<picNum;i++) {
        $("#displayPicture").append("<img id=pic" + i + " src ='img/" + picData[i] + "'> " );			

@@ -1,10 +1,16 @@
 {
   "permissions": {
     "allow": [
-      "Bash(for file in ET_delete.php get_estimate_list.php get_products.php get_product_options.php intro_code.php intro_goods.php convert_estimate_to_outorder.php list_deposit.php process_deposit.php temp.php unit_price.php unit_price_form.php unit_price_process.php write_form_deposit.php)",
-      "Bash(do echo \"=== $file ===\")",
-      "Bash(head:*)",
-      "Bash(done)"
+      "Bash(for f in chart_page.php copy_data.php estimate.php front_log.php inspection.php invoice.php millsheet.php month_schedule.php output_statis.php part_write_form.php plan_cutandbending.php plan_making.php split_data.php transform.php transform_group.php transform_sheet.php updateday.php updateorder.php)",
+      "Bash(do head -5 \"$f\")",
+      "Bash(echo \"---$f---\")",
+      "Bash(php -l:*)",
+      "Read(//c/panel_ilhae/**)",
+      "Bash(php:*)",
+      "Bash(test:*)",
+      "Bash(cat:*)",
+      "Bash(curl:*)",
+      "Read(//c/**)"
     ],
     "deny": [],
     "ask": []

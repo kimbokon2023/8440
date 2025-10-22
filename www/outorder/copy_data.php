@@ -4,12 +4,7 @@
  * 로컬 및 서버 환경 모두 지원
  */
 
-require_once __DIR__ . '/../common/functions.php';
-
-// 세션 시작
-if (!isset($_SESSION)) {
-    session_start();
-}
+require_once __DIR__ . '/../bootstrap.php';
 
 // 세션 변수 초기화 (?? '' 형태)
 $DB = $_SESSION["DB"] ?? 'mirae8440';
@@ -217,24 +212,6 @@ $realname_arr = array();
 $tablename = 'outorder';
 $item = 'attached';
 
-$sql = "SELECT * FROM {$DB}.fileuploads WHERE tablename = ? AND item = ? AND parentid = ?";
-
-try {
-    $stmh = $pdo->prepare($sql);
-    $stmh->bindValue(1, $tablename, PDO::PARAM_STR);
-    $stmh->bindValue(2, $item, PDO::PARAM_STR);
-    $stmh->bindValue(3, $id, PDO::PARAM_STR);
-    $stmh->execute();
-    
-    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-        array_push($realname_arr, $row["realname"] ?? '');
-        array_push($savefilename_arr, $row["savename"] ?? '');
-    }
-} catch (PDOException $ex) {
-    error_log("첨부파일 조회 오류: " . $ex->getMessage());
-    print "오류: " . htmlspecialchars($ex->getMessage());
-}
-
 // 신규데이터 작성시 키값지정 parentid값이 없으면 데이터 저장안됨
 $timekey = date("Y_m_d_H_i_s");
 
@@ -298,7 +275,7 @@ $pInput = $_REQUEST["pInput"] ?? '0';
         </div>
 					   
         <div class="d-flex justify-content-start mt-2 mb-2">
-            <button class="btn btn-dark btn-sm" id="closeBtn"><ion-icon name="close-outline"></ion-icon> 창닫기</button>&nbsp;
+            <button class="btn btn-dark btn-sm" id="closeBtn"><i class="bi bi-x-lg"></i> 창닫기</button>&nbsp;
             <button type="button" id="saveBtn" class="btn btn-dark btn-sm"><ion-icon name="save-outline"></ion-icon> 저장</button>
         </div>
 
@@ -645,12 +622,8 @@ $pInput = $_REQUEST["pInput"] ?? '0';
 
     $(document).ready(function() {
 
-        $('#closeBtn').click(function() {
-            // if (window.opener && !window.opener.closed) {
-            //     window.opener.restorePageNumber(); // 부모 창에서 페이지 번호 복원
-            //     window.opener.location.reload(); // 부모 창 새로고침
-            // }
-            window.close(); // 현재 창 닫기
+        $('#closeBtn').off('click').on('click', function() {            
+            self.close(); // 현재 창 닫기
         });
 
         // 덴크리, 서한컴퍼니 사용자 권한 제한을 위한 명령어
@@ -670,9 +643,7 @@ $pInput = $_REQUEST["pInput"] ?? '0';
             }
         }, 2000);	
 	
-
-
-        $("#saveBtn").click(function() {
+        $("#saveBtn").off('click').on('click', function() {
             // 조건 확인
             if ($("#workplacename").val() === '' || $("#su").val() === '') {
                 showWarningModal();

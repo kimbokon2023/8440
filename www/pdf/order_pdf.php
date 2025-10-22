@@ -8,7 +8,7 @@
 // =========================================
 
 // 로컬/서버 환경 설정
-$is_local = $_SERVER['HTTP_HOST'] === 'localhost' || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false;
+$is_local = (isset($_SERVER['HTTP_HOST']) && (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false));
 $base_url = $is_local ? 'http://localhost/mirae8440/www' : 'http://8440.co.kr';
 
 // 메모리/타임아웃
@@ -33,9 +33,12 @@ use Dompdf\Options;
 // -------------------------
 // 입력값
 // -------------------------
-$num      = isset($_GET['num']) ? (int)$_GET['num'] : 0;
-$download = isset($_GET['download']) ? (int)$_GET['download'] : 1; // 1=다운로드, 0=브라우저
-$debug    = isset($_GET['debug']) ? (int)$_GET['debug'] : 0;
+$num = $_GET['num'] ?? 0;
+$num = (int)$num;
+$download = $_GET['download'] ?? 1; // 1=다운로드, 0=브라우저
+$download = (int)$download;
+$debug = $_GET['debug'] ?? 0;
+$debug = (int)$debug;
 
 if ($num <= 0) {
     http_response_code(400);
@@ -45,7 +48,8 @@ if ($num <= 0) {
 // -------------------------
 // 데이터 조회
 // -------------------------
-$pdo   = db_connect();
+$pdo = db_connect();
+$DB = $_SESSION['DB'] ?? '';
 $table = isset($DB) && $DB ? "{$DB}.phomi_order" : "phomi_order";
 
 $sql = "SELECT * FROM {$table} WHERE num = :num AND (is_deleted IS NULL OR is_deleted = 'N')";
@@ -60,24 +64,24 @@ if (!$order) {
 }
 
 // JSON 필드 파싱
-$items                = !empty($order['items']) ? json_decode($order['items'], true) : [];
-$other_costs          = !empty($order['other_costs']) ? json_decode($order['other_costs'], true) : [];
-$discount_items       = !empty($order['discount_items']) ? json_decode($order['discount_items'], true) : [];
+$items = !empty($order['items']) ? json_decode($order['items'], true) : [];
+$other_costs = !empty($order['other_costs']) ? json_decode($order['other_costs'], true) : [];
+$discount_items = !empty($order['discount_items']) ? json_decode($order['discount_items'], true) : [];
 $discount_other_costs = !empty($order['discount_other_costs']) ? json_decode($order['discount_other_costs'], true) : [];
 
 // 기본 정보
-$recipient       = isset($order['recipient']) ? $order['recipient'] : '';
-$division        = isset($order['division']) ? $order['division'] : '';
-$site_name       = isset($order['site_name']) ? $order['site_name'] : '';
-$order_date      = isset($order['order_date']) ? $order['order_date'] : '';
-$signed_by       = isset($order['signed_by']) ? $order['signed_by'] : '소현철';
-$payment_account = isset($order['payment_account']) ? $order['payment_account'] : '중소기업은행 339-084210-01-012 ㈜ 미래기업';
-$estimate_num    = isset($order['estimate_num']) ? $order['estimate_num'] : '';
-$note            = isset($order['note']) ? $order['note'] : '';
+$recipient = $order['recipient'] ?? '';
+$division = $order['division'] ?? '';
+$site_name = $order['site_name'] ?? '';
+$order_date = $order['order_date'] ?? '';
+$signed_by = $order['signed_by'] ?? '소현철';
+$payment_account = $order['payment_account'] ?? '중소기업은행 339-084210-01-012 ㈜ 미래기업';
+$estimate_num = $order['estimate_num'] ?? '';
+$note = $order['note'] ?? '';
 
 // helpers (PHP 7.3 OK)
 $esc = function ($s) { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); };
-$nf  = function ($v, $dec = 0) {
+$nf = function ($v, $dec = 0) {
     $n = (float)str_replace(',', '', (string)$v);
     return number_format($n, $dec);
 };
@@ -95,64 +99,72 @@ $ymdDot = function ($ymd) {
 // -------------------------
 // 합계 계산(시스템 로직 준수)
 // -------------------------
-$total_supply = 0; $total_tax = 0;
-$other_supply = 0; $other_tax = 0;
-$discount_supply = 0; $discount_tax = 0;
-$discount_other_supply = 0; $discount_other_tax = 0;
+$total_supply = 0;
+$total_tax = 0;
+$other_supply = 0;
+$other_tax = 0;
+$discount_supply = 0;
+$discount_tax = 0;
+$discount_other_supply = 0;
+$discount_other_tax = 0;
 
 // 상품 합계: 금액 = (area * unit_price), 세액 10%
 foreach ($items as $it) {
-    $area = isset($it['area']) ? (float)str_replace(',', '', $it['area']) : 0;
-    $unit_price = isset($it['unit_price']) ? (float)str_replace(',', '', $it['unit_price']) : 0;
+    $area = (float)str_replace(',', '', $it['area'] ?? 0);
+    $unit_price = (float)str_replace(',', '', $it['unit_price'] ?? 0);
     $s = $area * $unit_price;
     $t = $s * 0.1;
-    $total_supply += $s; $total_tax += $t;
+    $total_supply += $s;
+    $total_tax += $t;
 }
 
 // 기타비용 합계: ㎡ 단위 특례 반영
 foreach ($other_costs as $c) {
-    $qty   = isset($c['quantity']) ? (float)str_replace(',', '', $c['quantity']) : 0;
-    $price = isset($c['unit_price']) ? (float)str_replace(',', '', $c['unit_price']) : 0;
-    $unit  = isset($c['unit']) ? $c['unit'] : '';
+    $qty = (float)str_replace(',', '', $c['quantity'] ?? 0);
+    $price = (float)str_replace(',', '', $c['unit_price'] ?? 0);
+    $unit = $c['unit'] ?? '';
     if (($unit === '㎡' || $unit === 'm²') && $qty > 0) {
         $s = ($qty > 28) ? ($qty * $price) : $price;
     } else {
         $s = $qty * $price;
     }
     $t = $s * 0.1;
-    $other_supply += $s; $other_tax += $t;
+    $other_supply += $s;
+    $other_tax += $t;
 }
 
 // 할인 차감(상품)
 foreach ($discount_items as $it) {
-    $s = isset($it['supply_amount']) ? (float)str_replace(',', '', $it['supply_amount']) : 0;
-    $t = isset($it['tax_amount'])    ? (float)str_replace(',', '', $it['tax_amount'])    : 0;
-    $discount_supply -= $s; $discount_tax -= $t;
+    $s = (float)str_replace(',', '', $it['supply_amount'] ?? 0);
+    $t = (float)str_replace(',', '', $it['tax_amount'] ?? 0);
+    $discount_supply -= $s;
+    $discount_tax -= $t;
 }
 // 할인 차감(기타)
 foreach ($discount_other_costs as $c) {
-    $s = isset($c['supply_amount']) ? (float)str_replace(',', '', $c['supply_amount']) : 0;
-    $t = isset($c['tax_amount'])    ? (float)str_replace(',', '', $c['tax_amount'])    : 0;
-    $discount_other_supply -= $s; $discount_other_tax -= $t;
+    $s = (float)str_replace(',', '', $c['supply_amount'] ?? 0);
+    $t = (float)str_replace(',', '', $c['tax_amount'] ?? 0);
+    $discount_other_supply -= $s;
+    $discount_other_tax -= $t;
 }
 
 $grand_supply = $total_supply + $other_supply + $discount_supply + $discount_other_supply;
-$grand_tax    = $total_tax + $other_tax + $discount_tax + $discount_other_tax;
-$grand_total  = $grand_supply + $grand_tax;
+$grand_tax = $total_tax + $other_tax + $discount_tax + $discount_other_tax;
+$grand_total = $grand_supply + $grand_tax;
 
 // -------------------------
 // Dompdf 옵션 + 폰트 경로(절대경로: asset/fonts)
 // -------------------------
-$BASE_DIR   = __DIR__;                 // /pdf
-$FONT_DIR   = $BASE_DIR . '/asset/fonts';
-$TMP_DIR    = $BASE_DIR . '/tmp';
+$BASE_DIR = __DIR__;                 // /pdf
+$FONT_DIR = $BASE_DIR . '/asset/fonts';
+$TMP_DIR = $BASE_DIR . '/tmp';
 $FONT_CACHE = $TMP_DIR . '/font_cache';
 
-@is_dir($TMP_DIR)    || @mkdir($TMP_DIR, 0777, true);
+@is_dir($TMP_DIR) || @mkdir($TMP_DIR, 0777, true);
 @is_dir($FONT_CACHE) || @mkdir($FONT_CACHE, 0777, true);
 
 $FONT_REG_PATH = realpath($FONT_DIR . '/NotoSansKR-Regular.ttf');
-$FONT_REG_URL  = $FONT_REG_PATH ? 'file://' . $FONT_REG_PATH : '';
+$FONT_REG_URL = $FONT_REG_PATH ? 'file://' . $FONT_REG_PATH : '';
 
 if (!$FONT_REG_PATH || !is_readable($FONT_REG_PATH)) {
     error_log('[Dompdf] Missing font: '.$FONT_DIR.'/NotoSansKR-Regular.ttf');
@@ -317,25 +329,25 @@ ob_start();
 
       // 상품 rows
       foreach ($items as $it) {
-        $prodcode = isset($it['product_code']) ? $it['product_code'] : '';
-        $spec      = isset($it['specification']) ? $it['specification'] : '';
-        $size      = isset($it['size']) ? $it['size'] : '';
-        $qty_raw   = isset($it['area']) ? $it['area'] : (isset($it['quantity']) ? $it['quantity'] : 0); // 표시용 수량 = area 우선
-        $qty       = (float)str_replace(',', '', $qty_raw);
-        $unit      = 'm²';
-        $unit_price= (float)str_replace(',', '', isset($it['unit_price']) ? $it['unit_price'] : 0);
-        $amount    = $qty * $unit_price;
-        $remarks   = isset($it['remarks']) ? $it['remarks'] : '';
+        $prodcode = $it['product_code'] ?? '';
+        $spec = $it['specification'] ?? '';
+        $size = $it['size'] ?? '';
+        $qty_raw = $it['area'] ?? $it['quantity'] ?? 0; // 표시용 수량 = area 우선
+        $qty = (float)str_replace(',', '', $qty_raw);
+        $unit = 'm²';
+        $unit_price = (float)str_replace(',', '', $it['unit_price'] ?? 0);
+        $amount = $qty * $unit_price;
+        $remarks = $it['remarks'] ?? '';
 
         // 보기용 품명 (DB 조회 보조)
-        $display = isset($it['product_name']) ? $it['product_name'] : '';
+        $display = $it['product_name'] ?? '';
         if (!$display && $prodcode) {
             try {
                 $upTable = (isset($DB) && $DB) ? "{$DB}.phomi_unitprice" : "phomi_unitprice";
                 $ps = $pdo->prepare("SELECT texture_kor, design_kor FROM {$upTable} WHERE prodcode = :p");
-                $ps->execute(array(':p'=>$prodcode));
+                $ps->execute(array(':p' => $prodcode));
                 $pinfo = $ps->fetch(PDO::FETCH_ASSOC);
-                $display = $pinfo ? ($pinfo['texture_kor'].' '.$pinfo['design_kor']) : $prodcode;
+                $display = $pinfo ? ($pinfo['texture_kor'] . ' ' . $pinfo['design_kor']) : $prodcode;
             } catch (Exception $e) {
                 $display = $prodcode;
             }
@@ -363,17 +375,17 @@ ob_start();
     <!-- 기타비용 rows -->
     <?php
       foreach ($other_costs as $c) {
-        $cat   = isset($c['category']) ? $c['category'] : '';
-        $item  = isset($c['item']) ? $c['item'] : '';
-        $unit  = isset($c['unit']) ? $c['unit'] : '';
-        $qty   = (float)str_replace(',', '', isset($c['quantity']) ? $c['quantity'] : 0);
-        $up    = (float)str_replace(',', '', isset($c['unit_price']) ? $c['unit_price'] : 0);
+        $cat = $c['category'] ?? '';
+        $item = $c['item'] ?? '';
+        $unit = $c['unit'] ?? '';
+        $qty = (float)str_replace(',', '', $c['quantity'] ?? 0);
+        $up = (float)str_replace(',', '', $c['unit_price'] ?? 0);
         if (($unit === '㎡' || $unit === 'm²') && $qty > 0) {
             $amount = ($qty > 28) ? ($qty * $up) : $up;
         } else {
             $amount = $qty * $up;
         }
-        $remarks = isset($c['remarks']) ? $c['remarks'] : '';
+        $remarks = $c['remarks'] ?? '';
     ?>
     <tr>
       <td class="text-center"><?= $rowno++ ?></td>
@@ -395,13 +407,13 @@ ob_start();
     <?php } ?>
 
     <?php foreach ($discount_items as $it) {
-        $name   = isset($it['code_string']) ? $it['code_string'] : (isset($it['product_name']) ? $it['product_name'] : '');
-        $spec   = isset($it['specification']) ? $it['specification'] : '';
-        $size   = isset($it['size']) ? $it['size'] : '';
-        $qty    = (float)(isset($it['quantity']) ? $it['quantity'] : 0);
-        $unit   = $size ? $size : '';
-        $supply = (float)str_replace(',', '', isset($it['supply_amount']) ? $it['supply_amount'] : 0);
-        $remarks= isset($it['remarks']) ? $it['remarks'] : '';
+        $name = $it['code_string'] ?? $it['product_name'] ?? '';
+        $spec = $it['specification'] ?? '';
+        $size = $it['size'] ?? '';
+        $qty = (float)($it['quantity'] ?? 0);
+        $unit = $size ? $size : '';
+        $supply = (float)str_replace(',', '', $it['supply_amount'] ?? 0);
+        $remarks = $it['remarks'] ?? '';
     ?>
     <tr>
       <td class="text-center"><?= $rowno++ ?></td>
@@ -416,12 +428,12 @@ ob_start();
     <?php } ?>
 
     <?php foreach ($discount_other_costs as $c) {
-        $cat    = isset($c['category']) ? $c['category'] : '';
-        $item   = isset($c['item']) ? $c['item'] : '';
-        $unit   = isset($c['unit']) ? $c['unit'] : '';
-        $qty    = (float)str_replace(',', '', isset($c['quantity']) ? $c['quantity'] : 0);
-        $supply = (float)str_replace(',', '', isset($c['supply_amount']) ? $c['supply_amount'] : 0);
-        $remarks= isset($c['remarks']) ? $c['remarks'] : '';
+        $cat = $c['category'] ?? '';
+        $item = $c['item'] ?? '';
+        $unit = $c['unit'] ?? '';
+        $qty = (float)str_replace(',', '', $c['quantity'] ?? 0);
+        $supply = (float)str_replace(',', '', $c['supply_amount'] ?? 0);
+        $remarks = $c['remarks'] ?? '';
     ?>
     <tr>
       <td class="text-center"><?= $rowno++ ?></td>

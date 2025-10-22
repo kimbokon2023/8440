@@ -1,36 +1,45 @@
-<meta charset="utf-8">
- 
- <?php
- session_start(); 
-  
- $num=$_REQUEST["num"];
- $search=$_REQUEST["search"];  //검색어
- $find=$_REQUEST["find"];      // 검색항목
- $page=$_REQUEST["page"];   //페이지번호
- $process=$_REQUEST["process"];   // 진행현황
- // 기간을 정하는 구간
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];
-$separate_date=$_REQUEST["separate_date"];	 
+<?php
+/**
+ * RnDfund 마지막 레코드 조회 및 리다이렉트
+ * 로컬 및 서버 환경 모두 지원
+ */
 
- $year=$_REQUEST["year"];   // 년도 체크박스
+require_once __DIR__ . '/../bootstrap.php';
 
- require_once("../lib/mydb.php");
- $pdo = db_connect();
- 
- try{
-     $sql = "select * from mirae8440.fund order by num desc limit 1";
-     $stmh = $pdo->prepare($sql);  
-     $stmh->execute();                  
-     $row = $stmh->fetch(PDO::FETCH_ASSOC);	 
-     $num=$row["num"];
-	 
-	print "마지막 레코드 번호 : " . $num;		 
+// 세션 변수 초기화
+$DB = $_SESSION['DB'] ?? 'mirae8440';
 
-	}
-   catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
-  }
-  header("Location:http://8440.co.kr/fund/view.php?num=$num&page=$page&search=$search&find=$find&process=$process&yearcheckbox=$yearcheckbox&year=$year&fromdate=$fromdate&todate=$todate&separate_date=$separate_date");  
- ?>  
+// 요청 변수 초기화
+$num = $_REQUEST["num"] ?? '';
+$search = $_REQUEST["search"] ?? '';
+$find = $_REQUEST["find"] ?? '';
+$page = $_REQUEST["page"] ?? '';
+$process = $_REQUEST["process"] ?? '';
+$fromdate = $_REQUEST["fromdate"] ?? '';
+$todate = $_REQUEST["todate"] ?? '';
+$separate_date = $_REQUEST["separate_date"] ?? '';
+$year = $_REQUEST["year"] ?? '';
+$yearcheckbox = $_REQUEST["yearcheckbox"] ?? '';
+
+try {
+    $sql = "select * from " . $DB . ".RnDfund order by num desc limit 1";
+    $stmh = $pdo->prepare($sql);
+    $stmh->execute();
+    $row = $stmh->fetch(PDO::FETCH_ASSOC);
+    $num = $row["num"] ?? '';
+
+    if ($num) {
+        echo "마지막 레코드 번호: " . $num;
+    }
+} catch (PDOException $Exception) {
+    error_log("마지막 레코드 조회 오류: " . $Exception->getMessage());
+    echo "오류: " . $Exception->getMessage();
+}
+
+// 환경에 따른 리다이렉트 URL 설정
+$redirectUrl = getBaseUrl() . "/RnDfund/view.php?num=" . $num . "&page=" . $page . "&search=" . $search . "&find=" . $find . "&process=" . $process . "&yearcheckbox=" . $yearcheckbox . "&year=" . $year . "&fromdate=" . $fromdate . "&todate=" . $todate . "&separate_date=" . $separate_date;
+
+header("Location: " . $redirectUrl);
+exit;
+?>  
 	

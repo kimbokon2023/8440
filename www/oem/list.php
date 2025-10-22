@@ -4,11 +4,7 @@
  * 로컬 및 서버 환경 모두 지원
  */
 
-require_once __DIR__ . '/../common/functions.php';
-
-if (!isset($_SESSION)) {
-    session_start();
-}
+require_once __DIR__ . '/../bootstrap.php';
 
 // 세션 변수 초기화
 $DB = $_SESSION["DB"] ?? 'mirae8440';
@@ -26,16 +22,6 @@ if (!isset($_SESSION["level"])) {
     sleep(1);
     header("Location: {$base_url}/login/logout.php");
     exit;
-}
-
-// 날짜 변환 함수
-function trans_date($tdate) {
-    if ($tdate != "0000-00-00" && $tdate != "1900-01-01" && $tdate != "") {
-        $tdate = date("Y-m-d", strtotime($tdate));
-    } else {
-        $tdate = "";
-    }
-    return $tdate;
 }
 
 // 요청 변수 초기화 (?? '' 형태)
@@ -201,9 +187,6 @@ if ($output_check == '1') {
 $a = " " . $orderby . " LIMIT ?, ?";
 $b = " " . $orderby;
 
-require_once("../lib/mydb.php");
-$pdo = db_connect();
-
 // SQL 쿼리 생성 (Prepared Statement 사용)
 $sql = '';
 $sqlcon = '';
@@ -260,6 +243,10 @@ if (empty($sql)) {
 }
 
 $sum = [0, 0, 0, 0, 0, 0];
+$dataList = [];
+$total_row = 0;
+$total_page = 1;
+$current_page = 1;
 
 try {
     // 전체 레코드 수 조회
@@ -268,7 +255,7 @@ try {
         $allstmh->bindValue($index + 1, $param, PDO::PARAM_STR);
     }
     $allstmh->execute();
-    $temp2 = $allstmh->rowCount();
+    $total_row = $allstmh->rowCount();
     
     // 페이지별 데이터 조회
     $stmh = $pdo->prepare($sql);
@@ -280,13 +267,24 @@ try {
         }
     }
     $stmh->execute();
-    $temp1 = $stmh->rowCount();
     
-    $total_row = $temp2;
+    // 데이터를 배열에 저장
+    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+        $dataList[] = $row;
+    }
+    
     $total_page = ceil($total_row / $scale);
     $current_page = ceil($page / $page_scale);
     
-    include getDocumentRoot() . '/load_header.php';
+} catch (PDOException $ex) {
+    error_log("외주 목록 조회 오류: " . $ex->getMessage());
+    $dataList = [];
+    $total_row = 0;
+    $total_page = 1;
+    $current_page = 1;
+}
+
+include getDocumentRoot() . '/load_header.php';
 ?>
 
 <link rel="stylesheet" type="text/css" href="../css/oem.css">
@@ -428,116 +426,116 @@ try {
                         $start_num = $total_row - ($page - 1) * $scale;
                     }
                     
-                    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-                        $num = $row["num"];
-                        $checkstep = $row["checkstep"];
-                        $workplacename = $row["workplacename"];
-                        $address = $row["address"];
-                        $firstord = $row["firstord"];
-                        $firstordman = $row["firstordman"];
-                        $firstordmantel = $row["firstordmantel"];
-                        $secondord = $row["secondord"];
-                        $secondordman = $row["secondordman"];
-                        $secondordmantel = $row["secondordmantel"];
-                        $chargedman = $row["chargedman"];
-                        $orderday = $row["orderday"];
-                        $measureday = $row["measureday"];
-                        $drawday = $row["drawday"];
-                        $deadline = $row["deadline"];
-                        $delicompany = $row["delicompany"];
-                        $delivery = $row["delivery"];
-                        $delipay = $row["delipay"];
-                        $workday = $row["workday"];
-                        $startday = $row["startday"];
-                        $testday = $row["testday"];
-                        $worker = $row["worker"];
-                        $endworkday = $row["endworkday"];
-                        $material1 = $row["material1"];
-                        $material2 = $row["material2"];
-                        $material3 = $row["material3"];
-                        $material4 = $row["material4"];
-                        $material5 = $row["material5"];
-                        $material6 = $row["material6"];
-                        $memo = $row["memo"];
-                        $regist_day = $row["regist_day"];
-                        $update_day = $row["update_day"];
-                        $demand = $row["demand"];
-                        $type1 = $row["type1"];
-                        $inseung1 = $row["inseung1"];
-                        $car_insize1 = $row["car_insize1"];
-                        $su = $row["su"];
-                        $bon_su = $row["bon_su"];
-                        $lc_su = $row["lc_su"];
-                        $etc_su = $row["etc_su"];
-                        $air_su = $row["air_su"];
-                        $order_com1 = $row["order_com1"];
-                        $order_text1 = $row["order_text1"];
-                        $order_com2 = $row["order_com2"];
-                        $order_text2 = $row["order_text2"];
-                        $order_com3 = $row["order_com3"];
-                        $order_text3 = $row["order_text3"];
-                        $order_com4 = $row["order_com4"];
-                        $order_text4 = $row["order_text4"];
-                        $lc_draw = $row["lc_draw"];
-                        $lclaser_com = $row["lclaser_com"];
-                        $lclaser_date = $row["lclaser_date"];
-                        $lcbending_date = $row["lcbending_date"];
-                        $lcwelding_date = $row["lcwelding_date"];
-                        $lcpainting_date = $row["lcpainting_date"];
-                        $lcassembly_date = $row["lcassembly_date"];
-                        $main_draw = $row["main_draw"];
-                        $eunsung_make_date = $row["eunsung_make_date"];
-                        $eunsung_laser_date = $row["eunsung_laser_date"];
-                        $mainbending_date = $row["mainbending_date"];
-                        $mainwelding_date = $row["mainwelding_date"];
-                        $mainpainting_date = $row["mainpainting_date"];
-                        $mainassembly_date = $row["mainassembly_date"];
-                        $memo2 = $row["memo2"];
-                        $type2 = $row["type2"];
-                        $type3 = $row["type3"];
-                        $type4 = $row["type4"];
-                        $type5 = $row["type5"];
-                        $type6 = $row["type6"];
-                        $type7 = $row["type7"];
-                        $type8 = $row["type8"];
-                        $type9 = $row["type9"];
-                        $type10 = $row["type10"];
-                        $inseung2 = $row["inseung2"];
-                        $inseung3 = $row["inseung3"];
-                        $inseung4 = $row["inseung4"];
-                        $inseung5 = $row["inseung5"];
-                        $inseung6 = $row["inseung6"];
-                        $inseung7 = $row["inseung7"];
-                        $inseung8 = $row["inseung8"];
-                        $inseung9 = $row["inseung9"];
-                        $inseung10 = $row["inseung10"];
-                        $car_insize2 = $row["car_insize2"];
-                        $car_insize3 = $row["car_insize3"];
-                        $car_insize4 = $row["car_insize4"];
-                        $car_insize5 = $row["car_insize5"];
-                        $car_insize6 = $row["car_insize6"];
-                        $car_insize7 = $row["car_insize7"];
-                        $car_insize8 = $row["car_insize8"];
-                        $car_insize9 = $row["car_insize9"];
-                        $car_insize10 = $row["car_insize10"];
-                        $comment1 = $row["comment1"];
-                        $comment2 = $row["comment2"];
-                        $comment3 = $row["comment3"];
-                        $comment4 = $row["comment4"];
-                        $comment5 = $row["comment5"];
-                        $comment6 = $row["comment6"];
-                        $comment7 = $row["comment7"];
-                        $comment8 = $row["comment8"];
-                        $comment9 = $row["comment9"];
-                        $comment10 = $row["comment10"];
-                        $order_date1 = $row["order_date1"];
-                        $order_date2 = $row["order_date2"];
-                        $order_date3 = $row["order_date3"];
-                        $order_date4 = $row["order_date4"];
-                        $order_input_date1 = $row["order_input_date1"];
-                        $order_input_date2 = $row["order_input_date2"];
-                        $order_input_date3 = $row["order_input_date3"];
-                        $order_input_date4 = $row["order_input_date4"];
+                    foreach ($dataList as $row) {
+                        $num = $row["num"] ?? '';
+                        $checkstep = $row["checkstep"] ?? '';
+                        $workplacename = $row["workplacename"] ?? '';
+                        $address = $row["address"] ?? '';
+                        $firstord = $row["firstord"] ?? '';
+                        $firstordman = $row["firstordman"] ?? '';
+                        $firstordmantel = $row["firstordmantel"] ?? '';
+                        $secondord = $row["secondord"] ?? '';
+                        $secondordman = $row["secondordman"] ?? '';
+                        $secondordmantel = $row["secondordmantel"] ?? '';
+                        $chargedman = $row["chargedman"] ?? '';
+                        $orderday = $row["orderday"] ?? '';
+                        $measureday = $row["measureday"] ?? '';
+                        $drawday = $row["drawday"] ?? '';
+                        $deadline = $row["deadline"] ?? '';
+                        $delicompany = $row["delicompany"] ?? '';
+                        $delivery = $row["delivery"] ?? '';
+                        $delipay = $row["delipay"] ?? '';
+                        $workday = $row["workday"] ?? '';
+                        $startday = $row["startday"] ?? '';
+                        $testday = $row["testday"] ?? '';
+                        $worker = $row["worker"] ?? '';
+                        $endworkday = $row["endworkday"] ?? '';
+                        $material1 = $row["material1"] ?? '';
+                        $material2 = $row["material2"] ?? '';
+                        $material3 = $row["material3"] ?? '';
+                        $material4 = $row["material4"] ?? '';
+                        $material5 = $row["material5"] ?? '';
+                        $material6 = $row["material6"] ?? '';
+                        $memo = $row["memo"] ?? '';
+                        $regist_day = $row["regist_day"] ?? '';
+                        $update_day = $row["update_day"] ?? '';
+                        $demand = $row["demand"] ?? '';
+                        $type1 = $row["type1"] ?? '';
+                        $inseung1 = $row["inseung1"] ?? '';
+                        $car_insize1 = $row["car_insize1"] ?? '';
+                        $su = $row["su"] ?? '';
+                        $bon_su = $row["bon_su"] ?? '';
+                        $lc_su = $row["lc_su"] ?? '';
+                        $etc_su = $row["etc_su"] ?? '';
+                        $air_su = $row["air_su"] ?? '';
+                        $order_com1 = $row["order_com1"] ?? '';
+                        $order_text1 = $row["order_text1"] ?? '';
+                        $order_com2 = $row["order_com2"] ?? '';
+                        $order_text2 = $row["order_text2"] ?? '';
+                        $order_com3 = $row["order_com3"] ?? '';
+                        $order_text3 = $row["order_text3"] ?? '';
+                        $order_com4 = $row["order_com4"] ?? '';
+                        $order_text4 = $row["order_text4"] ?? '';
+                        $lc_draw = $row["lc_draw"] ?? '';
+                        $lclaser_com = $row["lclaser_com"] ?? '';
+                        $lclaser_date = $row["lclaser_date"] ?? '';
+                        $lcbending_date = $row["lcbending_date"] ?? '';
+                        $lcwelding_date = $row["lcwelding_date"] ?? '';
+                        $lcpainting_date = $row["lcpainting_date"] ?? '';
+                        $lcassembly_date = $row["lcassembly_date"] ?? '';
+                        $main_draw = $row["main_draw"] ?? '';
+                        $eunsung_make_date = $row["eunsung_make_date"] ?? '';
+                        $eunsung_laser_date = $row["eunsung_laser_date"] ?? '';
+                        $mainbending_date = $row["mainbending_date"] ?? '';
+                        $mainwelding_date = $row["mainwelding_date"] ?? '';
+                        $mainpainting_date = $row["mainpainting_date"] ?? '';
+                        $mainassembly_date = $row["mainassembly_date"] ?? '';
+                        $memo2 = $row["memo2"] ?? '';
+                        $type2 = $row["type2"] ?? '';
+                        $type3 = $row["type3"] ?? '';
+                        $type4 = $row["type4"] ?? '';
+                        $type5 = $row["type5"] ?? '';
+                        $type6 = $row["type6"] ?? '';
+                        $type7 = $row["type7"] ?? '';
+                        $type8 = $row["type8"] ?? '';
+                        $type9 = $row["type9"] ?? '';
+                        $type10 = $row["type10"] ?? '';
+                        $inseung2 = $row["inseung2"] ?? '';
+                        $inseung3 = $row["inseung3"] ?? '';
+                        $inseung4 = $row["inseung4"] ?? '';
+                        $inseung5 = $row["inseung5"] ?? '';
+                        $inseung6 = $row["inseung6"] ?? '';
+                        $inseung7 = $row["inseung7"] ?? '';
+                        $inseung8 = $row["inseung8"] ?? '';
+                        $inseung9 = $row["inseung9"] ?? '';
+                        $inseung10 = $row["inseung10"] ?? '';
+                        $car_insize2 = $row["car_insize2"] ?? '';
+                        $car_insize3 = $row["car_insize3"] ?? '';
+                        $car_insize4 = $row["car_insize4"] ?? '';
+                        $car_insize5 = $row["car_insize5"] ?? '';
+                        $car_insize6 = $row["car_insize6"] ?? '';
+                        $car_insize7 = $row["car_insize7"] ?? '';
+                        $car_insize8 = $row["car_insize8"] ?? '';
+                        $car_insize9 = $row["car_insize9"] ?? '';
+                        $car_insize10 = $row["car_insize10"] ?? '';
+                        $comment1 = $row["comment1"] ?? '';
+                        $comment2 = $row["comment2"] ?? '';
+                        $comment3 = $row["comment3"] ?? '';
+                        $comment4 = $row["comment4"] ?? '';
+                        $comment5 = $row["comment5"] ?? '';
+                        $comment6 = $row["comment6"] ?? '';
+                        $comment7 = $row["comment7"] ?? '';
+                        $comment8 = $row["comment8"] ?? '';
+                        $comment9 = $row["comment9"] ?? '';
+                        $comment10 = $row["comment10"] ?? '';
+                        $order_date1 = $row["order_date1"] ?? '';
+                        $order_date2 = $row["order_date2"] ?? '';
+                        $order_date3 = $row["order_date3"] ?? '';
+                        $order_date4 = $row["order_date4"] ?? '';
+                        $order_input_date1 = $row["order_input_date1"] ?? '';
+                        $order_input_date2 = $row["order_input_date2"] ?? '';
+                        $order_input_date3 = $row["order_input_date3"] ?? '';
+                        $order_input_date4 = $row["order_input_date4"] ?? '';
                         
                         $sum[0] = $sum[0] + (int)$su;
                         $sum[1] += (int)$bon_su;
@@ -576,10 +574,12 @@ try {
                         $order_input_date3 = trans_date($order_input_date3);
                         $order_input_date4 = trans_date($order_input_date4);
                         
+                        $checkbox = $row["checkbox"] ?? 0;
+                        
                         $state_work = 0;
-                        if ($row["checkbox"] == 0) $state_work = 1;
-                        if (substr($row["workday"], 0, 2) == "20") $state_work = 2;
-                        if (substr($row["endworkday"], 0, 2) == "20") $state_work = 3;
+                        if ($checkbox == 0) $state_work = 1;
+                        if (substr($workday, 0, 2) == "20") $state_work = 2;
+                        if (substr($endworkday, 0, 2) == "20") $state_work = 3;
                         
                         $typeAll = "";
                         for ($i = 1; $i <= 10; $i++) {
@@ -661,17 +661,17 @@ try {
                         $start_num--;
                     }
                     
-} catch (PDOException $ex) {
-    error_log("외주 목록 조회 오류: " . $ex->getMessage());
-    echo "<div class='alert alert-danger'>오류: 데이터를 불러오는 중 문제가 발생했습니다.</div>";
-}
-
-// 페이지네이션 계산
-$start_page = ($current_page - 1) * $page_scale + 1;
-$end_page = $start_page + $page_scale - 1;
-?>
-
+                    if (empty($dataList)) {
+                        echo '<div class="alert alert-info text-center">조회된 데이터가 없습니다.</div>';
+                    }
+                    ?>
                 </div>
+                
+                <?php
+                // 페이지네이션 계산
+                $start_page = ($current_page - 1) * $page_scale + 1;
+                $end_page = $start_page + $page_scale - 1;
+                ?>
                 
                 <div id="page_button">
                     <div id="page_num">

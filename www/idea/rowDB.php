@@ -1,4 +1,4 @@
-<?
+<?php
 $num=$row["num"] ?? '' ;			  
 $place=$row["place"]?? '' ;			  
 $occur=$row["occur"]?? '' ;			  

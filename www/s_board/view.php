@@ -1,76 +1,106 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php
+/**
+ * s_board 상세보기 페이지
+ * 로컬 및 서버 환경 모두 지원
+ */
+
+require_once __DIR__ . '/../bootstrap.php';
 require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
-    // 첫 화면 표시 문구
- $title_message = '안전보건';
-   
- ?>
- 
-<?php include getDocumentRoot() . '/load_header.php';
-	 if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-			 sleep(1);
-			 header("Location:" . $WebSite . "login/login_form.php"); 
-			 exit;
-	   } 
- ?>
-<title> <?=$title_message?> </title>   
-</head> 
+
+// 첫 화면 표시 문구
+$title_message = '안전보건';
+
+?>
+
+<?php
+include getDocumentRoot() . '/load_header.php';
+
+// 권한 체크
+if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+    sleep(1);
+    header("Location:" . getBaseUrl() . "/login/login_form.php");
+    exit;
+}
+?>
+<title> <?=$title_message?> </title>
+</head>
 
 <body>
 
 <?php include getDocumentRoot() . "/common/modal.php"; ?>
-    
+
 <?php
+
+// 세션 변수 초기화
+$DB = $_SESSION['DB'] ?? 'mirae8440';
+
+// 요청 변수 초기화
+$num = $_REQUEST["num"] ?? '';
+$page = $_REQUEST["page"] ?? '';
+$tablename = $_REQUEST["tablename"] ?? '';
+
+// 변수 초기화
+$item_num = '';
+$item_id = '';
+$item_name = '';
+$item_nick = '';
+$item_subject = '';
+$content = '';
+$item_date = '';
+$item_hit = 0;
+$is_html = '';
+$division = '';
+$searchtext = '';
+$noticecheck_memo = '';
  
- $num=$_REQUEST["num"];
- $page=$_REQUEST["page"];   //페이지번호
- $tablename=$_REQUEST["tablename"];  
- 
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();
- 
- try{
-     $sql = "select * from mirae8440." . $tablename . " where num=?";
-     $stmh = $pdo->prepare($sql);  
-     $stmh->bindValue(1, $num, PDO::PARAM_STR);      
-     $stmh->execute();            
-      
+try {
+    $sql = "select * from " . $DB . "." . $tablename . " where num = ?";
+    $stmh = $pdo->prepare($sql);
+    $stmh->bindValue(1, $num, PDO::PARAM_INT);
+    $stmh->execute();
+    
     $row = $stmh->fetch(PDO::FETCH_ASSOC);
-     $item_num     = $row["num"];
-     $item_id      = $row["id"];
-     $item_name    = $row["name"];
-     $item_nick    = $row["nick"];   
-     $item_subject = str_replace(" ", "&nbsp;", $row["subject"]);
-     $content = $row["content"];
-     $item_date    = $row["regist_day"];
-     $item_date    = substr($item_date, 0, 10);   
-     $item_hit     = $row["hit"];     
-     $is_html      = $row["is_html"];
-     $division      = $row["division"];
-     $searchtext      = $row["searchtext"];	 
-      
-     if ($is_html!="y"){
-	$item_content = str_replace(" ", "&nbsp;", $item_content);
-	$item_content = str_replace("\n", "<br>", $item_content);
-     }	
-       } catch (PDOException $Exception) {
-         $pdo->rollBack();
-       print "오류: ".$Exception->getMessage();
-  }
-	  
-     $new_hit = $item_hit + 1;
-	 
-     try{
-       $pdo->beginTransaction(); 
-       $sql = "update mirae8440." . $tablename . " set hit=? where num=?";   // 글 조회수 증가
-       $stmh = $pdo->prepare($sql);  
-       $stmh->bindValue(1, $new_hit, PDO::PARAM_STR);      
-       $stmh->bindValue(2, $num, PDO::PARAM_STR);           
-       $stmh->execute();
-       $pdo->commit(); 
-       } catch (PDOException $Exception) {
-         $pdo->rollBack();
-       print "오류: ".$Exception->getMessage();
-  }
+    
+    if ($row) {
+        $item_num = $row["num"] ?? '';
+        $item_id = $row["id"] ?? '';
+        $item_name = $row["name"] ?? '';
+        $item_nick = $row["nick"] ?? '';
+        $item_subject = str_replace(" ", "&nbsp;", $row["subject"] ?? '');
+        $content = $row["content"] ?? '';
+        $item_date = $row["regist_day"] ?? '';
+        $item_date = substr($item_date, 0, 10);
+        $item_hit = $row["hit"] ?? 0;
+        $is_html = $row["is_html"] ?? '';
+        $division = $row["division"] ?? '';
+        $searchtext = $row["searchtext"] ?? '';
+        
+        if ($is_html != "y") {
+            $item_content = str_replace(" ", "&nbsp;", $content);
+            $item_content = str_replace("\n", "<br>", $content);
+        } else {
+            $item_content = $content;
+        }
+    }
+} catch (PDOException $Exception) {
+    error_log("게시글 조회 오류: " . $Exception->getMessage());
+}
+
+// 조회수 증가
+$new_hit = $item_hit + 1;
+
+try {
+    $pdo->beginTransaction();
+    $sql = "update " . $DB . "." . $tablename . " set hit = ? where num = ?";
+    $stmh = $pdo->prepare($sql);
+    $stmh->bindValue(1, $new_hit, PDO::PARAM_INT);
+    $stmh->bindValue(2, $num, PDO::PARAM_INT);
+    $stmh->execute();
+    $pdo->commit();
+} catch (PDOException $Exception) {
+    $pdo->rollBack();
+    error_log("조회수 증가 오류: " . $Exception->getMessage());
+}
 // 초기 프로그램은 $num사용 이후 $id로 수정중임  
 $id=$num;  
 $author_id = $item_id  ;

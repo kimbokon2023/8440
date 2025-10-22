@@ -1,9 +1,10 @@
 <?php
+require_once __DIR__ . '/../bootstrap.php';
 require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
 
 if (!isset($_SESSION["level"]) || $_SESSION["level"] > 8) {
     sleep(1);
-    header("Location: {$WebSite}login/login_form.php"); 
+    header("Location:" . getBaseUrl() . "/login/login_form.php");
     exit;
 }
 
@@ -47,7 +48,7 @@ if ($mode == "modify") {
 
         include '_row.php';
 
-        $dates = ['workday', 'demand', 'orderday', 'deadline', 'testday', 'lc_draw', 'lclaser_date', 'lclbending_date', 'lclwelding_date', 'lcpainting_date', 'lcassembly_date', 'main_draw', 'eunsung_make_date', 'eunsung_laser_date', 'mainbending_date', 'mainwelding_date', 'mainpainting_date', 'mainassembly_date', 'order_date1', 'order_date2', 'order_date3', 'order_date4', 'order_input_date1', 'order_input_date2', 'order_input_date3', 'order_input_date4'];
+        $dates = ['workday', 'demand', 'orderday', 'deadline', 'testday', 'lc_draw', 'lclaser_date', 'lcbending_date', 'lcwelding_date', 'lcpainting_date', 'lcassembly_date', 'main_draw', 'eunsung_make_date', 'eunsung_laser_date', 'mainbending_date', 'mainwelding_date', 'mainpainting_date', 'mainassembly_date', 'order_date1', 'order_date2', 'order_date3', 'order_date4', 'order_input_date1', 'order_input_date2', 'order_input_date3', 'order_input_date4'];
         
         foreach ($dates as $date) {
             $$date = trans_date($$date);
@@ -63,8 +64,23 @@ if ($mode == "modify") {
     }
 } else {
     $orderday = $startday = date("Y-m-d");
-    $fields = ['checkstep', 'workplacename', 'address', 'firstord', 'firstordman', 'firstordmantel', 'secondord', 'secondordman', 'secondordmantel', 'chargedman', 'measureday', 'drawday', 'deadline', 'testday', 'hpi', 'workday', 'worker', 'endworkday', 'material1', 'material2', 'material3', 'material4', 'material5', 'material6', 'widejamb', 'normaljamb', 'smalljamb', 'memo', 'update_day', 'regist_day', 'delivery', 'delicar', 'delicompany', 'delipay', 'delimethod', 'demand', 'update_log', 'type', 'inseung', 'su', 'bon_su', 'lc_su', 'etc_su', 'air_su', 'car_inside', 'order_com1', 'order_text1', 'order_com2', 'order_text2', 'order_com3', 'order_text3', 'order_com4', 'order_text4', 'lc_draw', 'lclaser_com', 'lclaser_date', 'lcbending_date', 'lcwelding_date', 'lcpainting_date', 'lcassembly_date', 'main_draw', 'eunsung_make_date', 'eunsung_laser_date', 'mainbending_date', 'mainwelding_date', 'mainpainting_date', 'mainassembly_date', 'memo2', 'order_date1', 'order_date2', 'order_date3', 'order_date4', 'order_input_date1', 'order_input_date2', 'order_input_date3', 'order_input_date4', 'first_item1', 'first_item2', 'first_item3', 'first_item4', 'second_item1', 'second_item2', 'second_item3', 'second_item4', 'deliverynum', 'confirm', 'submemo', 'pdffile_name', 'copied_file'];
-    
+    $fields = ['checkstep', 'workplacename', 'address', 'firstord', 'firstordman', 'firstordmantel', 'secondord', 'secondordman', 'secondordmantel', 'chargedman', 'chargedmantel', 'measureday', 'drawday', 'deadline', 'testday', 'hpi', 'workday', 'worker', 'endworkday', 'material1', 'material2', 'material3', 'material4', 'material5', 'material6', 'widejamb', 'normaljamb', 'smalljamb', 'memo', 'update_day', 'regist_day', 'delivery', 'delicar', 'delicompany', 'delipay', 'delimethod', 'demand', 'update_log', 'first_writer', 'su', 'bon_su', 'lc_su', 'etc_su', 'air_su', 'order_com1', 'order_text1', 'order_com2', 'order_text2', 'order_com3', 'order_text3', 'order_com4', 'order_text4', 'lc_draw', 'lclaser_com', 'lclaser_date', 'lcbending_date', 'lcwelding_date', 'lcpainting_date', 'lcassembly_date', 'main_draw', 'eunsung_make_date', 'eunsung_laser_date', 'mainbending_date', 'mainwelding_date', 'mainpainting_date', 'mainassembly_date', 'memo2', 'order_date1', 'order_date2', 'order_date3', 'order_date4', 'order_input_date1', 'order_input_date2', 'order_input_date3', 'order_input_date4', 'deliverynum', 'confirm', 'submemo', 'pdffile_name', 'copied_file'];
+
+    // 항목 정보 초기화 (first ~ tenth, 1~4)
+    for ($i = 1; $i <= 10; $i++) {
+        ${"type$i"} = "";
+        ${"inseung$i"} = "";
+        ${"car_inside$i"} = "";
+        ${"comment$i"} = "";
+    }
+
+    $itemNames = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth'];
+    foreach ($itemNames as $itemName) {
+        for ($j = 1; $j <= 4; $j++) {
+            ${$itemName . "_item$j"} = "";
+        }
+    }
+
     foreach ($fields as $field) {
         $$field = "";
     }

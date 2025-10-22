@@ -97,11 +97,9 @@ $totalsaleprice = 0;
 	preg_match('/saleprice(.*?) /',$value, $match);  // 결과물 match에 저장됨
 	$salepricearr[$count] = $match[1];	
 	
-    $orderliststr .= '작품번호 : ' . $idarr[$count] .'작품명 : ' . $workarr[intval($idarr[$count])] . ', 수량 : ' . $quantityarr[$count] . ', 금액 : ' . number_format(intval($quantityarr[$count]) * intval($salepricearr[$count])) . ' <br><br> '; 		 		
+    $orderliststr .= '작품번호 : ' . $idarr[$count] .'작품명 : ' . $workarr[intval($idarr[$count])] . ', 수량 : ' . $quantityarr[$count] . ', 금액 : ' . number_format(intval($quantityarr[$count]) * intval($salepricearr[$count])) . ' <br><br> ';
 	$totalsaleprice += intval($quantityarr[$count]) * intval($salepricearr[$count]);
 	$count++;
-			 
-			$start_num--;  
 			 } 
 	   }
   } catch (PDOException $Exception) {
@@ -165,7 +163,7 @@ $totalsaleprice = 0;
                             장바구니
                             <span id="cartnum" class="badge bg-dark text-white ms-1 rounded-pill"><?=$cartnum?> </span>
                         </button> 						
-						<? 
+						<?php 
 						  if($user_name=='김보곤')
 						  {
 						    print '&nbsp;  <button class="btn btn-outline-dark" type="button" onclick="javascript:movetolist();">
@@ -177,7 +175,7 @@ $totalsaleprice = 0;
                             <i class="bi-tool-fill me-1"></i>
                             대쉬보드
                         </button> 
-						<?
+						<?php
 							}						
 						?>
 
@@ -317,7 +315,7 @@ $totalsaleprice = 0;
    
 		
 <!-- Footer-->
-<? include "footer.php" ?>   
+<?php include "footer.php" ?>   
   
 </section>
 

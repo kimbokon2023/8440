@@ -99,10 +99,10 @@
 				   <b> <a class="text-primary" href="../iso/list.php">품질ISO,EQ</a> </b>				   
 				   <a class="dropdown-item " href="../QC/goal.php">품질방침/품질목표</a>
 				   <a class="dropdown-item " href="../iso/list.php">ISO 9001/14001</a>
-				   <a class="dropdown-item " href="../error/qc_method.php">품질불량 관리기법/교육 </a>
+				   <a class="dropdown-item " href="../errors/qc_method.php">품질불량 관리기법/교육 </a>
 				   <a class="dropdown-item " href="../idea/index.php">직원 제안제도 운영</a>
-				   <a class="dropdown-item " href="../error/index.php">부적합 보고</a>
-				   <a class="dropdown-item " href="../error/statistics.php">부적합(품질)통계</a>
+				   <a class="dropdown-item " href="../errors/index.php">부적합 보고</a>
+				   <a class="dropdown-item " href="../errors/statistics.php">부적합(품질)통계</a>
 				   <a class="dropdown-item " href="../errormeeting/index.php">부적합개선(분임조)</a>
 				   <a class="dropdown-item " href="../p_workstandard/list.php">작업표준서</a>
 				   <a class="dropdown-item " href="../p_qccontrol/list.php">QC 공정표</a>
@@ -305,16 +305,16 @@
 					<a class="dropdown-item" href="<?=$root_dir?>/iso/list.php">
 						<i class="bi bi-globe2"></i> ISO 9001/14001 인증
 					</a>		
-					<a class="dropdown-item" href="<?=$root_dir?>/error/qc_method.php">
+					<a class="dropdown-item" href="<?=$root_dir?>/errors/qc_method.php">
 						<i class="bi bi-sliders2-vertical"></i> 품질불량 관리기법/교육
 					</a>					
 					<a class="dropdown-item" href="<?=$root_dir?>/idea/index.php">
 						<i class="bi bi-person-plus-fill"></i> 직원 제안제도 운영
 					</a>					
-					<a class="dropdown-item" href="<?=$root_dir?>/error/index.php">
+					<a class="dropdown-item" href="<?=$root_dir?>/errors/index.php">
 						<i class="bi bi-file-earmark-text-fill"></i> 부적합 보고
 					</a>					
-					<a class="dropdown-item" href="<?=$root_dir?>/error/statistics.php">
+					<a class="dropdown-item" href="<?=$root_dir?>/errors/statistics.php">
 						<i class="bi bi-bar-chart-line-fill"></i> 부적합(품질)통계
 					</a>					
 					<a class="dropdown-item" href="<?=$root_dir?>/errormeeting/index.php">
@@ -570,13 +570,13 @@
 						<?php } ?>     
 						<?php
 						if ($_SESSION["name"] == '김보곤') {
-							echo '<a class="dropdown-item" href="' . $WebSite . 'logdata_menu.php">
+							echo '<a class="dropdown-item" href="' . getBaseUrl() . '/logdata_menu.php">
 									<i class="bi bi-menu-button-wide-fill"></i> 메뉴접속기록
 								  </a>';
 						}
 						if ($_SESSION["name"] == '김보곤' || $_SESSION["name"] == '소현철') {
 							?>
-							<a class="dropdown-item" href="<?=$WebSite?>/automan/list.php">
+							<a class="dropdown-item" href="<?=getBaseUrl()?>/automan/list.php">
 								<i class="bi bi-calculator-fill"></i> 전산실장 정산
 							</a> 
 						<?php } ?>                    
@@ -615,7 +615,7 @@
 					<a class="dropdown-item" href="<?=$root_dir?>/idea/index.php">
 						<i class="bi bi-person-plus-fill"></i> 직원 제안제도 운영
 					</a>		
-					<a class="dropdown-item" href="<?=$root_dir?>/error/index.php">
+					<a class="dropdown-item" href="<?=$root_dir?>/errors/index.php">
 						<i class="bi bi-file-earmark-text-fill"></i> 부적합 보고
 					</a>								
 
@@ -647,7 +647,7 @@
 	<div class="d-flex" >
 		<div class="sideEworksBanner" style="display:none;">
 			<span class="text-center text-dark">
-				<img src="<?=$WebSite?>img/eworks_reach.png" > 
+				<img src="<?=getBaseUrl()?>/img/eworks_reach.png" > 
 			</span>     
 		</div>	  
 	</div>

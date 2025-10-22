@@ -49,8 +49,8 @@ $callback=$_REQUEST["callback"];  // 출고현황에서 체크번호
   else
    $process="전체";
 
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];
+$fromdate = $_REQUEST["fromdate"] ?? '';	 
+$todate = $_REQUEST["todate"] ?? '';
 
   require_once("../lib/mydb.php");
   $pdo = db_connect();
@@ -124,12 +124,12 @@ $todate=$_REQUEST["todate"];
   <?php
 	}
   ?>	   
-   <div id="header">
-   <?php include "../lib/top_login2.php"; ?>
+   <!-- <div id="header">
+   <?php // include "../lib/top_login2.php"; ?>
    </div>  
    <div id="menu">
-   <?php include "../lib/top_menu2.php"; ?>
-    </div>  
+   <?php // include "../lib/top_menu2.php"; ?>
+    </div> -->
     <div id="content">
 	
 			      

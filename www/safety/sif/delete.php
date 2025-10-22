@@ -1,10 +1,19 @@
-<?php\nrequire_once __DIR__ . '/../../common/functions.php';
-require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
+<?php
+/**
+ * SIF 평가 데이터 삭제 처리
+ * 로컬 및 서버 환경 모두 지원
+ */
 
-header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문        
-$num=$_REQUEST["num"]; 
-$tablename=$_REQUEST["tablename"];    
-require_once(includePath('lib/mydb.php'));
+require_once __DIR__ . '/../../bootstrap.php';
+
+header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문
+
+// 요청 변수 초기화
+$num = $_REQUEST["num"] ?? '';
+$tablename = $_REQUEST["tablename"] ?? '';
+$DB = $_SESSION['DB'] ?? 'mirae8440';
+
+// 데이터베이스 연결
 $pdo = db_connect();   
    
    // 첨부파일 삭제
@@ -20,7 +29,7 @@ $pdo = db_connect();
 		 
 		 } catch (Exception $ex) {
 			$pdo->rollBack();
-			print "오류: ".$Exception->getMessage();
+			print "오류: ".$ex->getMessage();
 	   } 
       
    try{
@@ -33,15 +42,15 @@ $pdo = db_connect();
                           
      } catch (Exception $ex) {
         $pdo->rollBack();
-        print "오류: ".$Exception->getMessage();
+        print "오류: ".$ex->getMessage();
    }
    
-//각각의 정보를 하나의 배열 변수에 넣어준다.
+// 각각의 정보를 하나의 배열 변수에 넣어준다.
 $data = array(
-		"num" =>  $num
+    "num" => $num
 );
 
-//json 출력
+// json 출력
 echo(json_encode($data, JSON_UNESCAPED_UNICODE));     
    
 ?>

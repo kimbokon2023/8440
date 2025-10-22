@@ -217,5 +217,5 @@ if(restartVal == '1')
             $("#vacancy").load(txt);	
 $("#restartVal").val('0'); 				  		
 gameText.style.display = "flex";
-location.replace('http://8440.co.kr/tetris/index.php');
+location.replace('/tetris/index.php');
 }

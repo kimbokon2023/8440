@@ -50,22 +50,26 @@ for ($dt = clone $startDate; $dt <= $endDate; $dt->modify('+1 month')) {
 
 // 매출 계산 함수: {bon_su, lc_su, inseung} → 원 단위 수주금액
 function calc_rev(array $row, array $units): int {
-    $i = intval($row['inseung']);
+    $i = intval($row['inseung'] ?? 0);
+
+    // 단가 값도 안전하게 숫자로 변환
     if ($i <= 12) {
-        $bonU = $units['bon_unit_12'];
-        $lcU = $units['lc_unit_12'];
+        $bonU = floatval($units['bon_unit_12'] ?? 0);
+        $lcU = floatval($units['lc_unit_12'] ?? 0);
     } elseif ($i <= 17) {
-        $bonU = $units['bon_unit_13to17'];
-        $lcU = $units['lc_unit_13to17'];
+        $bonU = floatval($units['bon_unit_13to17'] ?? 0);
+        $lcU = floatval($units['lc_unit_13to17'] ?? 0);
     } else {
-        $bonU = $units['bon_unit_18'];
-        $lcU = $units['lc_unit_18'];
+        $bonU = floatval($units['bon_unit_18'] ?? 0);
+        $lcU = floatval($units['lc_unit_18'] ?? 0);
     }
+
+    // 안전하게 숫자로 변환 (빈 문자열, null, 쉼표 포함 문자열 등을 처리)
+    $bonSu = isset($row['bon_su']) && $row['bon_su'] !== '' ? (float)preg_replace('/[^0-9.-]/', '', $row['bon_su']) : 0;
+    $lcSu = isset($row['lc_su']) && $row['lc_su'] !== '' ? (float)preg_replace('/[^0-9.-]/', '', $row['lc_su']) : 0;
+
     // ★ 여기에 ×1000 추가: ini 파일에 기록된 단가는 '천원' 단위이므로 원 단위로 환산합니다.
-    return (
-        intval($row['bon_su']) * $bonU
-        + intval($row['lc_su']) * $lcU
-    ) * 1000;
+    return (int)(($bonSu * $bonU + $lcSu * $lcU) * 1000);
 }
 
 // PDO 연결

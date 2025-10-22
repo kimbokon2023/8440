@@ -1,13 +1,11 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session.php'));
+<?php
+require_once __DIR__ . '/../bootstrap.php';
 
 if(!isset($_SESSION["level"]) || $_SESSION["level"]>8) {
 		 sleep(1);
-		 header("Location:https://8440.co.kr/login/login_form.php"); 
+		 header("Location:" . getBaseUrl() . "/login/login_form.php");
          exit;
-   }  
-   
-include getDocumentRoot() . "/common.php";
+   }
  
     // 첫 화면 표시 문구
  $title_message = '외주발주 관리'; 
@@ -33,12 +31,15 @@ if($user_name !== '덴크리' && $user_name !== '서한컴퍼니' && $user_name 
  <?php
  
 include '_request.php';
-    
-  $sum=array();
+
+  $sum = array_fill(0, 6, 0);
 	 
 // 요청 변수 초기화 (?? '' 형태)
 $mode = $_REQUEST["mode"] ?? '';
 $find = $_REQUEST["find"] ?? '';
+$search = $_REQUEST["search"] ?? '';
+$check = $_REQUEST["check"] ?? '';
+
   	
 $now = date("Y-m-d");	 // 현재 날짜와 크거나 같으면 출고예정으로 구분
 
@@ -111,8 +112,8 @@ $sql = 'select * from mirae8440.outorder ' . $orderby ;
 $stmh = $pdo->query($sql); 
 try{
 	  while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-			$confirm=$row["confirm"];	
-			$firstord=$row["firstord"];	
+			$confirm=$row["confirm"] ?? '';	
+			$firstord=$row["firstord"] ?? '';	
 			
 			if ($confirm=='발주서변경' && $firstord==$user_name)
 	               $change_order++;
@@ -130,7 +131,7 @@ $search = str_replace(' ', '', $search);
 		  if($search==""){
 					 $sql="select * from mirae8440.outorder " . $whereattached . $a; 						                 
 			       }
-			 elseif($search!=""&&$find!="all")
+			 elseif($search!="" && $find!="all")
 			    {
          			$sql="select * from mirae8440.outorder where ($find like '%$search%') " . $attached . $a;         			
                  }     				 
@@ -171,11 +172,9 @@ $search = str_replace(' ', '', $search);
 // search 모드가 아닐때는 100개로 데이터 제한
 if($mode!=='search')  
 	$sql .= ' limit 0, 50';
-   
+ 
 
-   // print 'search : ' . $search . '<br>' ;   
-   // print '$check' . $check. '<br>' ;   
-   // print $sql; 	   
+// print $sql;
    
  try{  
 
@@ -188,8 +187,7 @@ if($mode!=='search')
 ?>
  
 
-<form id="board_form" name="board_form" method="post" action="list.php?mode=search&search=<?=$search?>&find=<?=$find?>&process=<?=$process?>&yearcheckbox=<?=$yearcheckbox?>&year=<?=$year?>&check=<?=$check?>&output_check=<?=$output_check?>&plan_output_check=<?=$plan_output_check?>&team_check=<?=$team_check?>&measure_check=<?=$measure_check?>&page=<?=$page?>&cursort=<?=$cursort?>&sortof=<?=$sortof?>&stable=<?=$stable?>">  
-
+<form id="board_form" name="board_form" method="post" action="list.php">  
 	<input type="hidden" id="voc_alert" name="voc_alert" value="<?=$voc_alert?>" size="5" > 	
 	<input type="hidden" id="ma_alert" name="ma_alert" value="<?=$ma_alert?>" size="5" > 	
 	<input type="hidden" id="order_alert" name="order_alert" value="<?=$order_alert?>" size="5" > 	
@@ -323,10 +321,9 @@ if($mode!=='search')
 		  
 		<? if($user_name !== '덴크리' && $user_name !== '서한컴퍼니' && $user_name !== '다온텍' ) { ?>
 		   <button type="button" class="btn btn-dark  btn-sm me-2" id="writeBtn"> <i class="bi bi-pencil"></i>  신규  </button> 			     
-           <button type="button" class="btn btn-dark  btn-sm" onclick="window.open('batchDB.php','청구일/출고일 일괄처리','left=10,top=50, scrollbars=yes, toolbars=no,width=1800,height=850');"> 청구일/출고일 일괄처리 </button>    &nbsp;
-           <button  type="button" class="btn btn-dark  btn-sm" id="downloadcsvBtn" onclick="window.open('call_csv.php?mode=search&search=<?=$search?>&find=<?=$find?>&year=<?=$year?>&search=<?=$search?>&process=<?=$process?>&asprocess=<?=$asprocess?>&fromdate=<?=$fromdate?>&todate=<?=$todate?>&list=1&sortof=6&cursort=<?=$cursort?>&process=<?=$process?>&year=<?=$year?>&stable=0&output_check=<?=$output_check?>&team_check=<?=$team_check?>&measure_check=<?=$measure_check?>$plan_output_check=<?=$plan_output_check?>&check=<?=$check?>','CSV 파일추출','left=100,top=100, scrollbars=yes, toolbars=no,width=1600,height=500');">  CSV 엑셀 다운로드 </button>           &nbsp;
+           <button type="button" class="btn btn-dark  btn-sm" onclick="window.open('batchDB.php','청구일/출고일 일괄처리','left=10,top=50, scrollbars=yes, toolbars=no,width=1800,height=850');"> 청구일/출고일 일괄처리 </button>    &nbsp;           
 		<?  } ?>      		   
-           <button type="button" class="btn btn-dark  btn-sm" onclick="window.open('plan_making.php?mode=search&search=<?=$search?>&find=<?=$find?>&year=<?=$year?>&search=<?=$search?>&process=<?=$process?>&asprocess=<?=$asprocess?>&fromdate=<?=$fromdate?>&todate=<?=$todate?>&check=<?=$check?>','납품일정 List DB','left=10,top=10, scrollbars=yes, toolbars=no,width=1800,height=800');" border="0">납품예정 </button>    &nbsp;
+           <button type="button" class="btn btn-dark  btn-sm" onclick="window.open('plan_making.php','납품일정 List DB','left=10,top=10, scrollbars=yes, toolbars=no,width=1800,height=800');" >납품예정 </button>    &nbsp;
                       
 		</div> 
 	</div>	 
@@ -392,8 +389,8 @@ th {
 		$testday=trans_date($testday);
 		$lc_draw=trans_date($lc_draw);
 		$lclaser_date=trans_date($lclaser_date);
-		$lclbending_date=trans_date($lclbending_date);
-		$lclwelding_date=trans_date($lclwelding_date);
+		$lcbending_date=trans_date($lcbending_date);
+		$lcwelding_date=trans_date($lcwelding_date);
 		$lcpainting_date=trans_date($lcpainting_date);
 		$lcassembly_date=trans_date($lcassembly_date);
 		$main_draw=trans_date($main_draw);			
@@ -413,18 +410,12 @@ th {
 		$order_input_date3=trans_date($order_input_date3);					   
 		$order_input_date4=trans_date($order_input_date4);		
 
-	  // 덴크리 직접작업을 위한 설계내용 5개 항목추가
-	  
-	  $deliverynum=$row["deliverynum"];  
-	  $confirm=$row["confirm"];
-	  $submemo=$row["submemo"];
-	  $pdffile_name = $row["pdffile_name"];
-	  $copied_file = $row["copied_file"];			
-			  	  				  
+	  // 덴크리 직접작업을 위한 설계내용 - _row.php에서 이미 정의됨
+
 	  $state_work=0;
-	  if($row["checkbox"]==0) $state_work=1;
-	  if(substr($row["workday"],0,2)=="20") $state_work=2;
-	  if(substr($row["endworkday"],0,2)=="20") $state_work=3;	
+	  if($checkbox==0) $state_work=1;
+	  if(substr($workday,0,2)=="20") $state_work=2;
+	  if(substr($endworkday,0,2)=="20") $state_work=3;	
 	  
        $typeAll="";
 	   $tmp="";
@@ -741,7 +732,7 @@ $("#searchBtn").click(function(){
 
 function dis_text()
 {  
-		var dis_text = '<?php echo $dis_text; ?>';
+		var dis_text = <?php echo json_encode($dis_text ?? '', JSON_UNESCAPED_UNICODE); ?>;
 		$("#dis_text").val(dis_text);
 }	
 
@@ -759,9 +750,9 @@ function search_condition(con) {
 
  
 function check_msg() {   // 덴크리 발주서변경건수 신규등록현장수 보여주는 화면 구성
-	var user_name = '<?php echo $user_name; ?>';
-	var change_order = '<?php echo $change_order; ?>';
-	var new_order = '<?php echo $new_order; ?>';
+	var user_name = <?php echo json_encode($user_name ?? '', JSON_UNESCAPED_UNICODE); ?>;
+	var change_order = <?php echo json_encode($change_order ?? 0, JSON_UNESCAPED_UNICODE); ?>;
+	var new_order = <?php echo json_encode($new_order ?? 0, JSON_UNESCAPED_UNICODE); ?>;
     var cookieCheck = getCookie("popupYN");	
 	
 	if(( Number(change_order)>0 || Number(new_order)>0 ) && (user_name=='덴크리' || user_name=='서한컴퍼니'   || user_name=='다온텍'   ))

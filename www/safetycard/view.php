@@ -1,72 +1,113 @@
 <?php
-session_start(); 
-	$user_name= $_SESSION["name"];
-	$user_id= $_SESSION["userid"];		
-	
-isset($_REQUEST["num"])  ? $num=$_REQUEST["num"] :   $num=''; 
+require_once __DIR__ . '/../bootstrap.php';
 
+/**
+ * 안전보건 체크리스트 상세보기
+ * 
+ * 사무실 청소 및 안전 점검 체크리스트
+ */
 
-require_once("../lib/mydb.php");
-$pdo = db_connect();
+// 세션 변수 초기화
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+$level = $_SESSION["level"] ?? 999;
+$user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["userid"] ?? '';
+
+// 요청 변수 초기화
+$num = $_REQUEST["num"] ?? '';
+
+// 데이터 검증
+if (empty($num)) {
+    echo "<script>alert('번호가 없습니다.'); window.close();</script>";
+    exit;
+}
 
 // 배열로 장비점검리스트 불러옴
 include "load_DB.php";
 
+// 현재일자 변수지정
+$nowday = date("Y-m-d");
 
-$nowday=date("Y-m-d");   // 현재일자 변수지정   
-try{  
-	 $sql="select * from mirae8440.myarealist  where num=? ";
-     $stmh = $pdo->prepare($sql);  
-     $stmh->bindValue(1, $num, PDO::PARAM_STR);      
-     $stmh->execute();            
-      
-     $row = $stmh->fetch(PDO::FETCH_ASSOC); 
-			 $checkdate = $row["checkdate"];		
-			 $item = $row["item"];		
-			 $term = $row["term"];		
-			 $check1 = $row["check1"];		
-			 $check2 = $row["check2"];		
-			 $check3 = $row["check3"];		
-			 $check4 = $row["check4"];		
-			 $check5 = $row["check5"];		
-			 $check6 = $row["check6"];		
-			 $check7 = $row["check7"];		
-			 $check8 = $row["check8"];		
-			 $check9 = $row["check9"];		
-			 $check10 = $row["check10"];		
-			 $trouble = $row["trouble"];		
-			 $fixdata = $row["fixdata"];	
-			 $writer = $row["writer"];	
-			 $writer2 = $row["writer2"];	
+// 데이터베이스 변수 초기화
+$checkdate = '';
+$item = '';
+$term = '';
+$check1 = '';
+$check2 = '';
+$check3 = '';
+$check4 = '';
+$check5 = '';
+$check6 = '';
+$check7 = '';
+$check8 = '';
+$check9 = '';
+$check10 = '';
+$trouble = '';
+$fixdata = '';
+$writer = '';
+$writer2 = '';
+
+// 데이터 조회
+try {
+    $sql = "select * from " . $DB . ".myarealist where num = ?";
+    $stmh = $pdo->prepare($sql);
+    $stmh->bindValue(1, $num, PDO::PARAM_INT);
+    $stmh->execute();
+    
+    $row = $stmh->fetch(PDO::FETCH_ASSOC);
 			 
-  } catch (PDOException $Exception) {
-  print "오류: ".$Exception->getMessage();
-  }  
-  
-// 작성자가 없을때는 작성자 생성  
-if($writer==null)       
-    $writer=$user_name;	
-// print $writer;
-// print $writer2;
-// print $user_name;
-  
-$question = array();  
-  
-if(($item=='section1' || $item=='section2' ||  $item=='section3' ||  $item=='section4' ||  $item=='section5' ||  $item=='section6' ||  $item=='section7' )  && $term=='주간')
-{	
-// 체크리스트 배열저장
-array_push($question, "책상 위에 있는 먼지나 쓰레기를 청소했나요?");
-array_push($question, "책상 서랍이나 선반에 있는 쓰레기를 비웠나요?");
-array_push($question, "필요 없는 문구류나 소품들은 제거했나요?");
+    if ($row) {
+        $checkdate = $row["checkdate"] ?? '';
+        $item = $row["item"] ?? '';
+        $term = $row["term"] ?? '';
+        $check1 = $row["check1"] ?? '';
+        $check2 = $row["check2"] ?? '';
+        $check3 = $row["check3"] ?? '';
+        $check4 = $row["check4"] ?? '';
+        $check5 = $row["check5"] ?? '';
+        $check6 = $row["check6"] ?? '';
+        $check7 = $row["check7"] ?? '';
+        $check8 = $row["check8"] ?? '';
+        $check9 = $row["check9"] ?? '';
+        $check10 = $row["check10"] ?? '';
+        $trouble = $row["trouble"] ?? '';
+        $fixdata = $row["fixdata"] ?? '';
+        $writer = $row["writer"] ?? '';
+        $writer2 = $row["writer2"] ?? '';
+    } else {
+        echo "<script>alert('데이터를 찾을 수 없습니다.'); window.close();</script>";
+        exit;
+    }
+} catch (PDOException $Exception) {
+    error_log("데이터 조회 오류: " . $Exception->getMessage());
+    echo "<script>alert('데이터 조회 중 오류가 발생했습니다.'); window.close();</script>";
+    exit;
+}
 
-}  
+// 작성자가 없을때는 작성자 생성
+if (empty($writer)) {
+    $writer = $user_name;
+}
 
-if(($item=='section1' || $item=='section2' ||  $item=='section3' ||  $item=='section4' ||  $item=='section5' ||  $item=='section6' ||  $item=='section7' ) && $term=='1개월')
-{	
-// 체크리스트 배열저장
-array_push($question, "책상 위에 있는 먼지나 쓰레기를 청소했나요?");
-array_push($question, "책상 서랍이나 선반에 있는 쓰레기를 비웠나요?");
-array_push($question, "필요 없는 문구류나 소품들은 제거했나요?");
+// 체크리스트 질문 배열 초기화
+$question = array();
+
+// 개인 책상 - 주간
+if (($item == 'section1' || $item == 'section2' || $item == 'section3' || 
+     $item == 'section4' || $item == 'section5' || $item == 'section6' || 
+     $item == 'section7') && $term == '주간') {
+    array_push($question, "책상 위에 있는 먼지나 쓰레기를 청소했나요?");
+    array_push($question, "책상 서랍이나 선반에 있는 쓰레기를 비웠나요?");
+    array_push($question, "필요 없는 문구류나 소품들은 제거했나요?");
+}
+
+// 개인 책상 - 1개월
+if (($item == 'section1' || $item == 'section2' || $item == 'section3' || 
+     $item == 'section4' || $item == 'section5' || $item == 'section6' || 
+     $item == 'section7') && $term == '1개월') {
+    array_push($question, "책상 위에 있는 먼지나 쓰레기를 청소했나요?");
+    array_push($question, "책상 서랍이나 선반에 있는 쓰레기를 비웠나요?");
+    array_push($question, "필요 없는 문구류나 소품들은 제거했나요?");
 }
       	
 if(($item=='section1' || $item=='section2' ||  $item=='section3' ||  $item=='section4' ||  $item=='section5' ||  $item=='section6' ||  $item=='section7' ) && $term=='2개월')
@@ -191,52 +232,56 @@ array_push($question, "책장 정리: 필요한 문서와 문구류를 정리하
       	
 		
 
+// 질문 개수 계산
 $questionNum = count($question);
 
-switch ($item){
-  case 'section1' :   
-  case 'section2' :   
-  case 'section3' :   
-  case 'section4' :   
-  case 'section5' :   
-  case 'section6' :   
-  case 'section7' :   
-	$itemstr = '내책상';
-	break;
-  case 'comsection1' :   
-	$itemstr = '사무실공용통로';
-	break;
-  case 'comsection2' :   
-	$itemstr = '사무실 가구 및 집기류';
-	break;
-  case 'comsection3' :   
-	$itemstr = '사장실내부';
-	break;
+// 아이템 이름 설정
+$itemstr = '';
+switch ($item) {
+    case 'section1':
+    case 'section2':
+    case 'section3':
+    case 'section4':
+    case 'section5':
+    case 'section6':
+    case 'section7':
+        $itemstr = '내책상';
+        break;
+    case 'comsection1':
+        $itemstr = '사무실공용통로';
+        break;
+    case 'comsection2':
+        $itemstr = '사무실 가구 및 집기류';
+        break;
+    case 'comsection3':
+        $itemstr = '사장실내부';
+        break;
+    default:
+        $itemstr = '체크리스트';
+        break;
 }
-					
-      	
 ?>
 
 <!DOCTYPE html>
-    <head>        
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="description" content="" />
-        <meta name="author" content="" />
-        <title>장비 점검 리스트 </title>         
-        <!-- Bootstrap icons-->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />        
-		
-		<!-- Core theme CSS (includes Bootstrap)-->			
-        <link href="../shop/css/styles.css" rel="stylesheet" />		
-
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-  <link href="../shop/css/bootstrapmodal.css" rel="stylesheet" />					  
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>  
-  <script src="http://8440.co.kr/js/date.js"></script>  <!-- 기간을 설정하는 관련 js 포함 -->  
-  <script src="http://8440.co.kr/common.js"></script>  <!-- 공통 js 포함 -->  
-  
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>장비 점검 리스트</title>
+    <!-- Bootstrap icons-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
+    
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="../shop/css/styles.css" rel="stylesheet" />
+    
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link href="../shop/css/bootstrapmodal.css" rel="stylesheet" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="<?= getBaseUrl() ?>/js/date.js"></script>
+    <script src="<?= getBaseUrl() ?>/common.js"></script>
 </head>		
 	
 
@@ -297,129 +342,125 @@ switch ($item){
   
 </div>
 
-<form  id="board_form" name="board_form" method="post"  > 	
+<form id="board_form" name="board_form" method="post">
+    <input type="hidden" name="check1" id="check1" value="<?= htmlspecialchars($check1, ENT_QUOTES, 'UTF-8') ?>">
+    <input type="hidden" name="check2" id="check2" value="<?= htmlspecialchars($check2, ENT_QUOTES, 'UTF-8') ?>">
+    <input type="hidden" name="check3" id="check3" value="<?= htmlspecialchars($check3, ENT_QUOTES, 'UTF-8') ?>">
+    <input type="hidden" name="check4" id="check4" value="<?= htmlspecialchars($check4, ENT_QUOTES, 'UTF-8') ?>">
+    <input type="hidden" name="check5" id="check5" value="<?= htmlspecialchars($check5, ENT_QUOTES, 'UTF-8') ?>">
+    <input type="hidden" name="check6" id="check6" value="<?= htmlspecialchars($check6, ENT_QUOTES, 'UTF-8') ?>">
+    <input type="hidden" name="check7" id="check7" value="<?= htmlspecialchars($check7, ENT_QUOTES, 'UTF-8') ?>">
+    <input type="hidden" name="check8" id="check8" value="<?= htmlspecialchars($check8, ENT_QUOTES, 'UTF-8') ?>">
+    <input type="hidden" name="check9" id="check9" value="<?= htmlspecialchars($check9, ENT_QUOTES, 'UTF-8') ?>">
+    <input type="hidden" name="check10" id="check10" value="<?= htmlspecialchars($check10, ENT_QUOTES, 'UTF-8') ?>"> 
 
-<input type="hidden" name="check1" id="check1" value="<?=$check1?>" > 
-<input type="hidden" name="check2" id="check2" value="<?=$check2?>" > 
-<input type="hidden" name="check3" id="check3" value="<?=$check3?>" > 
-<input type="hidden" name="check4" id="check4" value="<?=$check4?>" > 
-<input type="hidden" name="check5" id="check5" value="<?=$check5?>" > 
-<input type="hidden" name="check6" id="check6" value="<?=$check6?>" > 
-<input type="hidden" name="check7" id="check7" value="<?=$check7?>" > 
-<input type="hidden" name="check8" id="check8" value="<?=$check8?>" > 
-<input type="hidden" name="check9" id="check9" value="<?=$check9?>" > 
-<input type="hidden" name="check10" id="check10" value="<?=$check10?>" > 
-		
+
 <!-- 주문/결재 section-->
-<section class="py-0">   
-         <div class="container px-0 px-lg-1 mt-3">    		
-                <div class="row gx-1 gx-lg-1 align-items-center">                      
-                        <div class="fs-1 mb-1 border border-light" id=leftchar>
-							  <label class="form-check-label" for="leftchar">
-									&nbsp;&nbsp; ' <?=$itemstr?> '&nbsp; 체크리스트
-							  </label>		&nbsp;&nbsp; 	<br> &nbsp;&nbsp; &nbsp;&nbsp; 
-							 	사무실 청소담당 (정) <?=$writer?> ,(부) <?=$writer2?> &nbsp;&nbsp; 	&nbsp;&nbsp; 	
-<button type="button" id="closeBtn" class="btn btn-outline-dark"  >    창닫기 </button>			  
-						</div>						                 
-                      					
-						</div>    
-                    </div>   
-</div>						
+<section class="py-0">
+    <div class="container px-0 px-lg-1 mt-3">
+        <div class="row gx-1 gx-lg-1 align-items-center">
+            <div class="fs-1 mb-1 border border-light" id="leftchar">
+                <label class="form-check-label" for="leftchar">
+                    &nbsp;&nbsp; '<?= htmlspecialchars($itemstr, ENT_QUOTES, 'UTF-8') ?>'&nbsp; 체크리스트
+                </label>&nbsp;&nbsp;<br> &nbsp;&nbsp; &nbsp;&nbsp;
+                사무실 청소담당 (정) <?= htmlspecialchars($writer, ENT_QUOTES, 'UTF-8') ?> ,(부) <?= htmlspecialchars($writer2, ENT_QUOTES, 'UTF-8') ?> &nbsp;&nbsp; &nbsp;&nbsp;
+                <button type="button" id="closeBtn" class="btn btn-outline-dark">창닫기</button>
+            </div>
+        </div>
+    </div>
 </section>
-		
-	
-	
+
+
 <!-- 체크리스트 구현 section-->
 <section class="h-100 gradient-custom">
-  <div class="container py-5 h-100">
-    <div class="row d-flex justify-content-center align-items-center h-100">
-      <div class="col-lg-12 col-xl-8">
-        <div class="card" style="border-radius: 10px;">		  
-          <div class="card-header px-0 py-0 text-center">
-            <h2 class="text-muted mb-3"> <?=$term?> &nbsp;  
-			<span style="color: #a8729a;">점검</span>!</h2>
-          </div>
-		  <!-- 대분류 시작 -->	
-         <?
-            for ($i=0;$i<count($question);$i++)
-			{
-				$checktmp = 'check' . (string)($i+1) ;
-           ?>				
-          <div class="card-body p-4">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-              <p class="lead fw-normal mb-0" style="color: #a8729a;"> 
-			 <?=$question[$i]?>
-			&nbsp;&nbsp;&nbsp;&nbsp; 	<span id="ckname<?=$i+1?>" style="color:gray;">
-			<? if($$checktmp !=null)
-				print $$checktmp . ", (점검자) " . $writer ;
-			  else  { ?>
-			  </span>
-			<button type="button" id="ckbtn<?=$i+1?>" class="btn btn-secondary btn-sm"  onclick="checklist('<?=$num?>','<?=$i+1?>');"> 점검완료 </button>				  
-			  <? } ?>
-			  </p>              
-            </div>
-			</div>
-			<? } ?>
-			
-		  <!-- 대분류 끝 -->		  
-		  
-		  <!-- 대분류 시작 -->
-		  <div class="card-header px-0 py-0 text-center">
-            <h2 class="text-muted mb-3"> '점검 후 특이사항' 기록</h2>
-          </div>
-          <div class="card-body p-4">		   
-            <div class="d-flex align-items-center mb-4">
-              <p class="lead fw-normal mb-0" style="color: #a8729a;"> 
-			
-			   <textarea class="card-body" rows="3" id="trouble" name="trouble" placeholder="특이사항 있을시 기록" ><?=$trouble?></textarea>
-			   </p> &nbsp;&nbsp;&nbsp; 
-			   <p class="fw-normal mb-0" style="color: #a8729a;"> 
-               <button type="button" class="btn btn-secondary "  onclick="write_memo('<?=$num?>');"> 기록 저장 </button>				     		   			   
-			  </p> 
-           </div>			  
+    <div class="container py-5 h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-lg-12 col-xl-8">
+                <div class="card" style="border-radius: 10px;">
+                    <div class="card-header px-0 py-0 text-center">
+                        <h2 class="text-muted mb-3"><?= htmlspecialchars($term, ENT_QUOTES, 'UTF-8') ?> &nbsp;
+                            <span style="color: #a8729a;">점검</span>!
+                        </h2>
+                    </div>
+                    <!-- 대분류 시작 -->
+                    <?php
+                    for ($i = 0; $i < count($question); $i++) {
+                        $checktmp = 'check' . (string)($i + 1);
+                    ?>
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <p class="lead fw-normal mb-0" style="color: #a8729a;">
+                                <?= htmlspecialchars($question[$i], ENT_QUOTES, 'UTF-8') ?>
+                                &nbsp;&nbsp;&nbsp;&nbsp;
+                                <span id="ckname<?= $i + 1 ?>" style="color:gray;">
+                                <?php if (!empty($$checktmp)) {
+                                    echo htmlspecialchars($$checktmp, ENT_QUOTES, 'UTF-8') . ", (점검자) " . htmlspecialchars($writer, ENT_QUOTES, 'UTF-8');
+                                } else { ?>
+                                </span>
+                                <button type="button" id="ckbtn<?= $i + 1 ?>" class="btn btn-secondary btn-sm" onclick="checklist('<?= htmlspecialchars($num, ENT_QUOTES, 'UTF-8') ?>','<?= $i + 1 ?>');">점검완료</button>
+                                <?php } ?>
+                            </p>
+                        </div>
+                    </div>
+                    <?php } ?>
 
-		  <!-- 대분류 끝 -->
-		  
-		  <!-- footer -->
-          <div class="card-footer border-0 px-5 py-4"
-            style="background-color: #a8729a; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;">
-            <h2 class="d-flex align-items-center justify-content-center text-white mb-0"> 
-			안전을 최우선으로 생각하는 미래기업
-			</h2>
-			  <h3 class="d-flex align-items-center justify-content-center text-center text-white mb-0"> 			
-			  고객만족 품질경영</h3>			  
-				</div>
+                    
+                    <!-- 대분류 끝 -->
+                    
+                    <!-- 대분류 시작 -->
+                    <div class="card-header px-0 py-0 text-center">
+                        <h2 class="text-muted mb-3">'점검 후 특이사항' 기록</h2>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-4">
+                            <p class="lead fw-normal mb-0" style="color: #a8729a;">
+                                <textarea class="card-body" rows="3" id="trouble" name="trouble" placeholder="특이사항 있을시 기록"><?= htmlspecialchars($trouble, ENT_QUOTES, 'UTF-8') ?></textarea>
+                            </p> &nbsp;&nbsp;&nbsp;
+                            <p class="fw-normal mb-0" style="color: #a8729a;">
+                                <button type="button" class="btn btn-secondary" onclick="write_memo('<?= htmlspecialchars($num, ENT_QUOTES, 'UTF-8') ?>');">기록 저장</button>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- 대분류 끝 -->
+                    
+                    <!-- footer -->
+                    <div class="card-footer border-0 px-5 py-4" style="background-color: #a8729a; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;">
+                        <h2 class="d-flex align-items-center justify-content-center text-white mb-0">
+                            안전을 최우선으로 생각하는 미래기업
+                        </h2>
+                        <h3 class="d-flex align-items-center justify-content-center text-center text-white mb-0">
+                            고객만족 품질경영
+                        </h3>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </section>
-		 
+
 </form>
-	<!-- ajax 전송으로 DB 수정 -->
-	<? include "../formload.php"; ?>	
-	
-	<div id=dummy > </div>
-		
-		
+<!-- ajax 전송으로 DB 수정 -->
+<?php include "../formload.php"; ?>
+
+<div id="dummy"></div>
+
 </body>
-	
 </html>
 
 <script>
-
-$(document).ready(function(){
-	$("#closeModalBtn").click(function(){ 
-		$('#myModal').modal('hide');
-	});		
-	
-	$("#closeBtn").click(function(){ 
-	   opener.location.reload();
-	   window.close();		
-	});		
-		
-// 일시로 만든 함수 각 장비의 체크리스트 자료 db 생성을 위해서		
-	$("#doBtn").click(function(){ 
+$(document).ready(function() {
+    $("#closeModalBtn").click(function() {
+        $('#myModal').modal('hide');
+    });
+    
+    $("#closeBtn").click(function() {
+        opener.location.reload();
+        window.close();
+    });
+    
+    // 일시로 만든 함수 각 장비의 체크리스트 자료 db 생성을 위해서
+    $("#doBtn").click(function() { 
 	//  $("#dummy").load("../dumproDB.php");
 		
 	// console.log(getDayOfWeek('2022-03-26'));
@@ -462,140 +503,118 @@ $(document).ready(function(){
 		});		
 
 	
-// 브라우저 강제로 닫을때 이벤트
-$(window).bind("beforeunload", function (e){	opener.location.reload();  });
-	
-	// // order 버튼 클릭시
-// $("#orderBtn").click(function(){  
-
+    // 브라우저 강제로 닫을때 이벤트
+    $(window).bind("beforeunload", function(e) {
+        opener.location.reload();
+    });
 });
 
 // 점검후 특이사항 기록하기
-function write_memo(num)
-{ 
+function write_memo(num) {
+    // DB 수정
+    $("#table").val('myarealist');
+    $("#command").val('update');
+    $("#field").val('trouble');
+    $("#strtmp").val($("#trouble").val());
+    $("#recnum").val(num);
+    
+    // data저장을 위한 ajax처리구문
+    $.ajax({
+        url: "../proDB.php",
+        type: "post",
+        data: $("#Form1").serialize(),
+        dataType: "json",
+        success: function(data) {
+            console.log(data);
+        },
+        error: function(jqxhr, status, error) {
+            console.log(jqxhr, status, error);
+        }
+    });
+    
+    $('#myModal').modal('show');
+}
+
+
+function checklist(num, whichone) {
+    var writer = '<?php echo htmlspecialchars($writer, ENT_QUOTES, 'UTF-8'); ?>';
+    var writer2 = '<?php echo htmlspecialchars($writer2, ENT_QUOTES, 'UTF-8'); ?>';
+    var user_name = '<?php echo htmlspecialchars($user_name, ENT_QUOTES, 'UTF-8'); ?>';
+    var question = '<?php echo $questionNum; ?>';
+    
+    console.log(writer);
+    console.log(user_name);
+    console.log(question);
+    
+    if (writer == user_name || writer2 == user_name) { // 로그인 이름과 같을때는 기록한다.
+        // DB 수정
+        $("#table").val('myarealist');
+        $("#command").val('update');
+        $("#field").val('check' + whichone);
+        $("#strtmp").val(getToday());
+        $("#recnum").val(num);
+        $("#arr").val('free');
         
-        // DB 수정 		
-		       $("#table").val('myarealist');
-		       $("#command").val('update');
-		       // $("#command").val('insert');
-		       // $("#command").val('delete');  // insert, delete, update
-		       $("#field").val('trouble');			   
-		       $("#strtmp").val($("#trouble").val());
-		       $("#recnum").val(num);
-		       // $("#arr").val('free');
-		   
-		   // data저장을 위한 ajax처리구문
-			$.ajax({
-				url: "../proDB.php",
-				type: "post",		
-				data: $("#Form1").serialize(),
-				dataType:"json",
-				success : function( data ){
-					console.log( data);
-				},
-				error : function( jqxhr , status , error ){
-					console.log( jqxhr , status , error );
-				} 			      		
-			   });		
-
-		  $('#myModal').modal('show'); 			   
+        // check값 form의 변수에 넣어주기
+        $('#check' + whichone).val(getToday());
+        
+        // data저장을 위한 ajax처리구문
+        $.ajax({
+            url: "../proDB.php",
+            type: "post",
+            data: $("#Form1").serialize(),
+            dataType: "json",
+            success: function(data) {
+                console.log(data);
+            },
+            error: function(jqxhr, status, error) {
+                console.log(jqxhr, status, error);
+            }
+        });
+        
+        // 각 주간점검/1개월 점검등 문항을 전부 check했을 경우 완료 done 처리하기
+        // 조건 문항수에 맞는 check가 되었는지 확인한다
+        // 10개 문항을 기준으로 검색해서 처리한다.
+        var sum = 0;
+        for (i = 1; i <= 10; i++) {
+            if ($('#check' + i).val() != '') {
+                sum += 1;
+            }
+        }
+        console.log('질문수 ' + question);
+        console.log('답변수 ' + sum);
+        if (question == sum) {
+            // 체크문항과 같으면 DB 완료로 수정하기
+            $("#table").val('myarealist');
+            $("#command").val('update');
+            $("#field").val('done');
+            $("#strtmp").val('1');
+            $("#recnum").val(num);
+            $("#arr").val('free');
+            
+            // data저장을 위한 ajax처리구문
+            $.ajax({
+                url: "../proDB.php",
+                type: "post",
+                data: $("#Form1").serialize(),
+                dataType: "json",
+                success: function(data) {
+                    console.log(data);
+                },
+                error: function(jqxhr, status, error) {
+                    console.log(jqxhr, status, error);
+                }
+            });
+        }
+        
+        // 화면 변경하기
+        $("#ckname" + whichone).html(getToday() + ' ' + '(작성자) ' + user_name);
+        // 버튼삭제
+        $("#ckbtn" + whichone).remove();
+    } else {
+        tmp = '점검자와 이름이 다릅니다. 확인바랍니다.';
+        $('#alertmsg').html(tmp);
+        $('#myModal').modal('show');
+    }
 }
-
-
-function checklist(num, whichone)
- { 
-         var writer = '<?php echo $writer; ?>' ;
-         var writer2 = '<?php echo $writer2;?>';
-         var user_name = '<?php echo $user_name; ?>';
-         var question = '<?php echo $questionNum; ?>';  
-		
-		console.log(writer);
-		console.log(user_name); 
-		console.log(question);
-		
-  if(writer == user_name ||  writer2 == user_name ) // 로그인 이름과 같을때는 기록한다.
-	{
-        // DB 수정 		
-		   $("#table").val('myarealist');
-		   $("#command").val('update');
-		   // $("#command").val('insert');
-		   // $("#command").val('delete');  // insert, delete, update
-		   $("#field").val('check'+ whichone);			   
-		   $("#strtmp").val(getToday());
-		   $("#recnum").val(num);
-		   $("#arr").val('free');
-		   
-		   // check값 form의 변수에 넣어주기
-		   $('#check'+ whichone).val(getToday());			   
-		   
-		   // data저장을 위한 ajax처리구문
-			$.ajax({
-				url: "../proDB.php",
-				type: "post",		
-				data: $("#Form1").serialize(),
-				dataType:"json",
-				success : function( data ){
-					console.log( data);
-				},
-				error : function( jqxhr , status , error ){
-					console.log( jqxhr , status , error );
-				} 			      		
-			   });		
-			   
-// 각 주간점검/1개월 점검등 문항을 전부 check했을 경우 완료 done 처리하기			   
-// 조건 문항수에 맞는 check가 되었는지 확인한다
-// 10개 문항을 기준으로 검색해서 처리한다.
-   var sum = 0;
-   for (i=1; i<=10 ; i++ )
-   { 
-      if($('#check'+ i).val() != '' )
-	        sum += 1;
-   }
-   console.log('질문수 '  + question);
-   console.log('답변수 '  + sum);
-   if(question == sum)
-   {
-	    // 체크문항과 같으면 DB 완료로 수정하기
-		   $("#table").val('myarealist');
-		   $("#command").val('update');
-		   // $("#command").val('insert');
-		   // $("#command").val('delete');  // insert, delete, update
-		   $("#field").val('done');			   
-		   $("#strtmp").val('1');
-		   $("#recnum").val(num);
-		   $("#arr").val('free');
-		   		   
-		   // data저장을 위한 ajax처리구문
-			$.ajax({
-				url: "../proDB.php",
-				type: "post",		
-				data: $("#Form1").serialize(),
-				dataType:"json",
-				success : function( data ){
-					console.log( data);
-				},
-				error : function( jqxhr , status , error ){
-					console.log( jqxhr , status , error );
-				} 			      		
-			   });		   
-      }
-	   	   
-			   // 화면 변경하기 
-			  $("#ckname" + whichone).html(getToday() + ' ' + '(작성자) '+ user_name); 
-			  // 버튼삭제
-			  $("#ckbtn" + whichone).remove();			  
-	}
-	
-  else
-  {
-	      tmp='점검자와 이름이 다릅니다. 확인바랍니다.';
-		
-		  $('#alertmsg').html(tmp); 
-		  
-		  $('#myModal').modal('show');  
-  }
-
-				
-}
-
 </script>

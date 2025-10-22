@@ -1,7 +1,7 @@
 /* @end */
 .img{
      position: absolute;
-    background-image: url(http://8440.co.kr/img/order_sheet1.jpg);
+    /* background-image는 invoice.php에서 환경별로 동적 설정됨 */
     width: 1300px;
     height: 1840px;
     /* background-size: cover; */

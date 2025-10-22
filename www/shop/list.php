@@ -1,14 +1,20 @@
 <?php
- session_start();
+session_start();
 
- $level= $_SESSION["level"];
- $user_name= $_SESSION["name"];
- if(!isset($_SESSION["level"]) || $level>5) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(2);
-	          header("Location:http://8440.co.kr/login/login_form.php"); 
-         exit;
-   }
+// Environment detection for URL
+$is_local = (isset($_SERVER['HTTP_HOST']) && (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false));
+$base_url = $is_local ? 'http://localhost' : 'http://8440.co.kr';
+
+// Initialize session variables with null safety
+$level = $_SESSION["level"] ?? null;
+$user_name = $_SESSION["name"] ?? '';
+
+if (!isset($_SESSION["level"]) || $level > 5) {
+    /*   alert("관리자 승인이 필요합니다."); */
+    sleep(2);
+    header("Location: {$base_url}/login/login_form.php");
+    exit;
+}
   
 // ctrl shift R 키를 누르지 않고 cache를 새로고침하는 구문....
 header("Expires: Tue, 01 Jan 2000 00:00:00 GMT");
@@ -47,6 +53,9 @@ return $number;
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css">
 <script src="//cdn.jsdelivr.net/npm/alertifyjs@1.12.0/build/alertify.min.js"></script>
 <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.12.0/build/css/alertify.min.css"/>
+<!-- Tabulator CSS & JS -->
+<link href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator.min.css" rel="stylesheet">
+<script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.5.0/dist/js/tabulator.min.js"></script>
  <link rel="stylesheet" type="text/css" href="../css/common.css">
  <link rel="stylesheet" type="text/css" href="../css/steel.css"> 
 
@@ -56,106 +65,81 @@ return $number;
  
  <?php
 
-  if(isset($_REQUEST["search"]))   //목록표에 제목,이름 등 나오는 부분
-	 $search=$_REQUEST["search"];
+// Request variables with null safety
+$search = $_REQUEST["search"] ?? '';  // 목록표에 제목,이름 등 나오는 부분
 
   require_once("../lib/mydb.php");
   $pdo = db_connect();	
   
   
- // $find="firstord";	    //검색할때 고정시킬 부분 저장 ex) 전체/공사담당/건설사 등
- if(isset($_REQUEST["page"])) // $_REQUEST["page"]값이 없을 때에는 1로 지정 
- {
-    $page=$_REQUEST["page"];  // 페이지 번호
- }
-  else
-  {
-    $page=1;	 
-  }
+// Page number with default value
+$page = $_REQUEST["page"] ?? 1;  // 페이지 번호, 기본값 1
  
   $scale = 50;       // 한 페이지에 보여질 게시글 수
   $page_scale = 10;   // 한 페이지당 표시될 페이지 수  10페이지
   $first_num = ($page-1) * $scale;  // 리스트에 표시되는 게시글의 첫 순번.
 	 
-  if(isset($_REQUEST["mode"]))
-     $mode=$_REQUEST["mode"];
-  else 
-     $mode="";     
+// Mode parameter
+$mode = $_REQUEST["mode"] ?? '';     
  
- // 기간을 정하는 구간
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];	 
+// 기간을 정하는 구간
+$fromdate = $_REQUEST["fromdate"] ?? '';
+$todate = $_REQUEST["todate"] ?? '';
 
-if($fromdate=="")
-{
-	$fromdate=substr(date("Y-m-d",time()),0,4) ;
-	$fromdate=$fromdate . "-01-01";
+if ($fromdate == '') {
+    $fromdate = substr(date("Y-m-d", time()), 0, 4);
+    $fromdate = $fromdate . "-01-01";
 }
-if($todate=="")
-{
-	$todate=substr(date("Y-m-d",time()),0,4) . "-12-31" ;
-	$Transtodate=strtotime($todate.'+1 days');
-	$Transtodate=date("Y-m-d",$Transtodate);
+
+if ($todate == '') {
+    $todate = substr(date("Y-m-d", time()), 0, 4) . "-12-31";
+    $Transtodate = strtotime($todate . '+1 days');
+    $Transtodate = date("Y-m-d", $Transtodate);
+} else {
+    $Transtodate = strtotime($todate);
+    $Transtodate = date("Y-m-d", $Transtodate);
 }
-    else
-	{
-	$Transtodate=strtotime($todate);
-	$Transtodate=date("Y-m-d",$Transtodate);
-	}
 
  				
 $sql="select * from mirae8440.shopitem order by num desc" ; 					
 $sqlcon = "select * from mirae8440.shopitem order by num desc" ;   // 전체 레코드수를 파악하기 위함.					
 					
+$tableData = array(); // Tabulator용 데이터 배열
+
 try{  
 // 레코드 전체 sql 설정
-
+   $allstmh = $pdo->query($sqlcon);         // 검색 조건에 맞는 쿼리 전체 개수
+   $temp2=$allstmh->rowCount();  
    $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-
-              $num=$row["num"];
- 			  $catagory=$row["catagory"];			  
-			  		  
-			  $item=$row["item"];			  
-			  $itemdes=$row["itemdes"];
-			  $sale=$row["sale"];			  
-			  $price=$row["price"];
-			  $saleprice=$row["saleprice"];
-			  $filename1=$row["filename1"];	 	
-			  $youtube1=$row["youtube1"];	 	
-			  $youtube2=$row["youtube2"];	 	
-			  
-			}		 
-   } catch (PDOException $Exception) {
-    print "오류: ".$Exception->getMessage();
-}  
-
-
-   
-	 try{  
-	  $allstmh = $pdo->query($sqlcon);         // 검색 조건에 맞는 쿼리 전체 개수
-      $temp2=$allstmh->rowCount();  
-	  $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
-      $temp1=$stmh->rowCount();
-	      
-	  $total_row = $temp2;     // 전체 글수	  		
+   $temp1=$stmh->rowCount();
+      
+   $total_row = $temp2;     // 전체 글수	  		
          					 
-     $total_page = ceil($total_row / $scale); // 검색 전체 페이지 블록 수
-	 $current_page = ceil($page/$page_scale); //현재 페이지 블록 위치계산			 
+   $total_page = ceil($total_row / $scale); // 검색 전체 페이지 블록 수
+   $current_page = ceil($page/$page_scale); //현재 페이지 블록 위치계산
 
-			 
-			?>
-		 
-<body >
+   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+      $tableData[] = array(
+         'num' => $row["num"],
+         'catagory' => $row["catagory"],
+         'dporder' => $row["dporder"],
+         'item' => $row["item"],
+         'itemdes' => $row["itemdes"],
+         'sale' => $row["sale"],
+         'price' => $row["price"],
+         'saleprice' => $row["saleprice"],
+         'filename1' => $row["filename1"],
+         'youtube1' => $row["youtube1"],
+         'youtube2' => $row["youtube2"]
+      );
+   }		 
+} catch (PDOException $Exception) {
+   print "오류: ".$Exception->getMessage();
+}			 
+?>		 
 
- <div id="wrap">
-   <div id="header">
-	 <?php include "../lib/top_login2.php"; ?>
-   </div>
-   <div id="menu">
-	 <?php include "../lib/top_menu2.php"; ?>
-   </div>
-   
+<body>
+ <div id="wrap">   
    <div id="content">			 
   <form name="board_form" id="board_form"  method="post" action="list.php?mode=search&search=<?=$search?>&Bigsearch=<?=$Bigsearch?>&find=<?=$find?>&year=<?=$year?>&search=<?=$search?>&process=<?=$process?>&asprocess=<?=$asprocess?>&fromdate=<?=$fromdate?>&todate=<?=$todate?>&up_fromdate=<?=$up_fromdate?>&up_todate=<?=$up_todate?>&separate_date=<?=$separate_date?>&view_table=<?=$view_table?>">  
    <div id="col2">   
@@ -165,23 +149,9 @@ try{
 					<input type="hidden" id="ma_alert" name="ma_alert" value="<?=$ma_alert?>" size="5" > 
 				    <input type="hidden" id="order_alert" name="order_alert" value="<?=$order_alert?>" size="5" > 					
 					
-	                <div id="vacancy" style="display:none">  </div>
-   <div id="display_board" style="margin-top:20px; height:60px;font-size:20px;color:blue; display:none"> 
-
-
-</div>
-	
-     <div class="clear"></div> 	
-	 
-  <div class="clear"></div>	
-  
-	 <div id="grid" class="board" style="display:none"  >
-
-  <ul class="list">
-
-  </ul>
-  
-  </div>
+            <div id="vacancy" style="display:none">  </div>
+        <div id="display_board" style="margin-top:20px; height:60px;font-size:20px;color:blue; display:none"> 
+      </div>	
 
 			 
    <div class="clear"></div>	
@@ -203,129 +173,16 @@ try{
 	  </div>  -->
 
         <div id="list_search">
-        <div id="list_search1" style="font-size:12px;"> <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  ▷ 총 <?= $total_row ?> 
+        <div id="list_search1" style="font-size:12px;"> <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  ▷ 총 <?= $total_row ?> 건
 		&nbsp;&nbsp;&nbsp;		
-		<button type="button" class="btn btn-dark " onclick="location.href='./write_form.php';" > 글쓰기  </button> &nbsp;&nbsp;&nbsp;
+		<button type="button" class="btn btn-dark" onclick="openWriteModal()"> <i class="bi bi-pencil-square"></i> 글쓰기  </button> &nbsp;&nbsp;&nbsp;
 		
 		</div>
-		
-		<?php
-   if(isset($_SESSION["userid"]))
-   {
-  ?>
-        
-  <?php
-   }
-  ?> 
-		
-       
-		</div> <!-- end of list_search3 -->
-
-        
-
-  
-      </div> <!-- end of list_search -->
+		</div> <!-- end of list_search -->
       <div class="clear"></div>
 	  
-      <div class="limit">
-        <ul class="list-group">
-          <li class="list-row list-row--header">
-            <div class="list-cell list-cell--50">번호</div>
-            <div class="list-cell list-cell--100">Catagory</div>
-            <div class="list-cell list-cell--100">DP순서</div>
-            <div class="list-cell list-cell--150">아이템</div>
-            <div class="list-cell list-cell--100">사진</div>
-            <div class="list-cell list-cell--80">유튜브1</div>
-            <div class="list-cell list-cell--80">유튜브2</div>
-            <div class="list-cell list-cell--300">상세설명</div>
-            <div class="list-cell list-cell--50">Sale</div>
-            <div class="list-cell list-cell--100">최초가격</div>
-            <div class="list-cell list-cell--100">결정가격</div>
-          </li>	       
-	 <?php
-		  if ($page<=1)  
-			$start_num=$total_row;    // 페이지당 표시되는 첫번째 글순번
-		     else 
-		      	$start_num=$total_row-($page-1) * $scale;
-	    
-	       while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-
-              $num=$row["num"];
- 			  $catagory=$row["catagory"];			  
- 			  $dporder=$row["dporder"];			  
-			  		  
-			  $item=$row["item"];			  
-			  $itemdes=$row["itemdes"];
-			  $sale=$row["sale"];			  
-			  $price=$row["price"];
-			  $saleprice=$row["saleprice"];
-			  $filename1=$row["filename1"];		
-			  $youtube1=$row["youtube1"];	 	
-			  $youtube2=$row["youtube2"];				  
-                						  
-
-				?>
-		    <li class="list-row">
-		     <a class="list-link" style="text-decoration:none;" href="view.php?num=<?=$num?>&page=<?=$page?>&find=<?=$find?>&search=<?=$search?>&Bigsearch=<?=$Bigsearch?>&process=<?=$process?>&asprocess=<?=$asprocess?>&yearcheckbox=<?=$yearcheckbox?>&year=<?=$year?>&fromdate=<?=$fromdate?>&todate=<?=$todate?>&separate_date=<?=$separate_date?>">
-             <div class="list-cell list-cell--50"><?=$start_num?>				</div>
-            <div class="list-cell list-cell--100">	 <?=$catagory?>		</div>				
-            <div class="list-cell list-cell--100">	 <?=$dporder?>		</div>				
-            <div class="list-cell list-cell--150">	 <?=$item?> 			</div>
-            <div class="list-cell list-cell--100">	
-             <?
-			    if($filename1!='')
-					print '<img src="' . $filename1 . '" style="width:100px; height:100px;">';
-				?>   
-			</div>
-            <div class="list-cell list-cell--80">   <?=$youtube1?>				</div>
-            <div class="list-cell list-cell--80">   <?=$youtube2?>				</div>
-            <div class="list-cell list-cell--300">   <?=$itemdes?>				</div>
-            <div class="list-cell list-cell--50 color-red">	  <?=$sale?>		</div>
-            <div class="list-cell list-cell--100 color-blue">	 <?=$price ==0 ? '' : number_format($price)	?>	</div>            
-            <div class="list-cell list-cell--100 color-brown text-right">	<?=$saleprice ==0 ? '' : number_format($saleprice)  ?>			</div>						
-            
-			</a>
-          </li>			
-			    
-				
-			<?php
-			$start_num--;  
-			 } 
-  } catch (PDOException $Exception) {
-  print "오류: ".$Exception->getMessage();
-  }  
-   // 페이지 구분 블럭의 첫 페이지 수 계산 ($start_page)
-      $start_page = ($current_page - 1) * $page_scale + 1;
-   // 페이지 구분 블럭의 마지막 페이지 수 계산 ($end_page)
-      $end_page = $start_page + $page_scale - 1;  
- ?>
-       </ul>
-	   </div>
- 	<div style="float:left; width:100%;text-align : center; font-size:25px;"> 	 
-         <?php
-            if($page!=1 && $page>$page_scale){
-              $prev_page = $page - $page_scale;    
-              // 이전 페이지값은 해당 페이지 수에서 리스트에 표시될 페이지수 만큼 감소
-              if($prev_page <= 0) 
-              $prev_page = 1;  // 만약 감소한 값이 0보다 작거나 같으면 1로 고정
-		      print '<button class="btn btn-secondary" type="button" id=previousListBtn  onclick="movetoPage(' . $prev_page . ')"> ◀ </button> &nbsp;' ;              
-            }
-            for($i=$start_page; $i<=$end_page && $i<= $total_page; $i++) {        // [1][2][3] 페이지 번호 목록 출력
-              if($page==$i) // 현재 위치한 페이지는 링크 출력을 하지 않도록 설정.
-                print '<span class="text-secondary" >  [' . $i . ']  </span>'; 
-              else 
-                   print '<button class="btn btn-secondary" type="button" id=moveListBtn onclick="movetoPage(' . $i . ')"> [' . $i . ']</button> &nbsp;' ;     			
-            }
-
-            if($page<$total_page){
-              $next_page = $page + $page_scale;
-              if($next_page > $total_page) 
-                     $next_page = $total_page;
-                // netx_page 값이 전체 페이지수 보다 크면 맨 뒤 페이지로 이동시킴
-				  print '<button class="btn btn-secondary" type="button" id=nextListBtn onclick="movetoPage(' . $next_page . ')"> ▶ </button> &nbsp;' ; 
-            }
-            ?>              
-    </div>	
+      <!-- Tabulator 테이블 -->
+      <div id="shop-table" style="margin: 20px 0;"></div>	
 		<br><br><br><br><br>
      </div>
 
@@ -344,13 +201,256 @@ try{
    </div> <!-- end of content -->
    </div> 	   
   </div> <!-- end of wrap -->
-<script>
-$(document).ready(function(){
 
+<!-- 상세보기 모달 -->
+<div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="detailModalLabel">작품 상세정보</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="modalContent">
+        <div class="text-center">
+          <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+        <button type="button" class="btn btn-primary" id="editBtn"><i class="bi bi-pencil"></i> 수정</button>
+        <button type="button" class="btn btn-danger" id="deleteBtn"><i class="bi bi-trash"></i> 삭제</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 글쓰기/수정 모달 -->
+<div class="modal fade" id="writeModal" tabindex="-1" aria-labelledby="writeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-fullscreen">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="writeModalLabel">작품 등록/수정</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-0">
+        <iframe id="writeFrame" src="" style="width:100%; height:100%; border:none;"></iframe>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// PHP에서 전달된 데이터
+var tableData = <?php echo json_encode($tableData); ?>;
+
+console.log("=== Tabulator Initialization ===");
+console.log("Table data count:", tableData.length);
+console.log("First row sample:", tableData[0]);
+
+// Tabulator 초기화
+var table = new Tabulator("#shop-table", {
+    data: tableData,
+    layout: "fitColumns",
+    pagination: "local",
+    paginationSize: 50,
+    paginationSizeSelector: [10, 25, 50, 100],
+    movableColumns: true,
+    resizableRows: false,
+    initialSort: [
+        {column: "num", dir: "desc"}
+    ],
+    columns: [
+        {title: "번호", field: "num", width: 80, sorter: "number", headerFilter: "input"},
+        {title: "카테고리", field: "catagory", width: 120, headerFilter: "input"},
+        {title: "DP순서", field: "dporder", width: 100, sorter: "number"},
+        {title: "아이템", field: "item", width: 200, headerFilter: "input"},
+        {
+            title: "사진", 
+            field: "filename1", 
+            width: 120,
+            formatter: function(cell, formatterParams) {
+                var value = cell.getValue();
+                if(value && value !== '') {
+                    return '<img src="' + value + '" style="width:80px; height:80px; object-fit:cover;">';
+                }
+                return '';
+            }
+        },
+        {title: "유튜브1", field: "youtube1", width: 100, visible: false},
+        {title: "유튜브2", field: "youtube2", width: 100, visible: false},
+        {title: "상세설명", field: "itemdes", width: 650, formatter: "textarea"},
+        {
+            title: "Sale", 
+            field: "sale", 
+            width: 80,
+            formatter: function(cell) {
+                return '<span style="color:red;">' + cell.getValue() + '</span>';
+            }
+        },
+        {
+            title: "최초가격", 
+            field: "price", 
+            width: 120,
+            sorter: "number",
+            formatter: function(cell) {
+                var value = cell.getValue();
+                if(value && value != 0) {
+                    return '<span style="color:blue;">' + Number(value).toLocaleString() + '원</span>';
+                }
+                return '';
+            }
+        },
+        {
+            title: "판매가격", 
+            field: "saleprice", 
+            width: 120,
+            sorter: "number",
+            formatter: function(cell) {
+                var value = cell.getValue();
+                if(value && value != 0) {
+                    return '<span style="color:brown; font-weight:bold;">' + Number(value).toLocaleString() + '원</span>';
+                }
+                return '';
+            }
+        }
+    ],
+    rowClick: function(e, row) {
+        console.log("=== Row Click Event Triggered ===");
+        var data = row.getData();
+        var num = data.num;
+        console.log("Row Data:", data);
+        console.log("Item Num:", num);
+
+        if(num) {
+            alert("행 클릭됨! 번호: " + num);
+            showDetailModal(num);
+        }
+    }
+});
+
+console.log("=== Tabulator Instance Created ===");
+console.log("Table object:", table);
+
+// Tabulator가 완전히 렌더링된 후
+table.on("tableBuilt", function(){
+    console.log("=== Table Built Successfully ===");
+    console.log("Row count:", table.getDataCount());
+});
+
+table.on("dataLoaded", function(data){
+    console.log("=== Data Loaded ===");
+    console.log("Loaded rows:", data.length);
+});
+
+// 상세보기 모달 표시
+function showDetailModal(num) {
+    console.log("=== showDetailModal Function Called ===");
+    console.log("Received num:", num);
+
+    var myModal = new bootstrap.Modal(document.getElementById('detailModal'));
+    console.log("Modal instance created:", myModal);
+
+    $('#modalContent').html('<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+
+    myModal.show();
+    console.log("Modal show() called");
+
+    // AJAX로 상세 정보 로드
+    $.ajax({
+        url: 'read_DB.php',
+        type: 'GET',
+        data: { num: num },
+        beforeSend: function() {
+            console.log("AJAX request started for num:", num);
+        },
+        success: function(response) {
+            console.log("AJAX success. Response length:", response.length);
+            console.log("Response preview:", response.substring(0, 200));
+            $('#modalContent').html(response);
+
+            // 수정/삭제 버튼에 num 저장
+            $('#editBtn').data('num', num);
+            $('#deleteBtn').data('num', num);
+        },
+        error: function(xhr, status, error) {
+            console.error("AJAX error:", status, error);
+            console.error("XHR:", xhr);
+            $('#modalContent').html('<div class="alert alert-danger">데이터를 불러오는데 실패했습니다.</div>');
+        }
+    });
+}
+
+// 글쓰기 모달 열기
+function openWriteModal(num) {
+    var writeModal = new bootstrap.Modal(document.getElementById('writeModal'));
+    var url = 'write_form.php?';
+    
+    if(num) {
+        url += 'mode=modify&num=' + num + '&page=<?=$page?>';
+        $('#writeModalLabel').text('작품 수정');
+    } else {
+        url += 'mode=new&page=<?=$page?>';
+        $('#writeModalLabel').text('작품 등록');
+    }
+    
+    $('#writeFrame').attr('src', url);
+    writeModal.show();
+    
+    // 상세보기 모달이 열려있으면 닫기
+    var detailModal = bootstrap.Modal.getInstance(document.getElementById('detailModal'));
+    if(detailModal) {
+        detailModal.hide();
+    }
+}
+
+// 모달에서 저장 완료 후 페이지 리로드를 위한 메시지 리스너
+window.addEventListener('message', function(event) {
+    if(event.data === 'reloadPage') {
+        location.reload();
+    } else if(event.data === 'closeModal') {
+        // 글쓰기 모달 닫기
+        var writeModal = bootstrap.Modal.getInstance(document.getElementById('writeModal'));
+        if(writeModal) {
+            writeModal.hide();
+        }
+    }
+});
+
+// 수정 버튼 클릭
+$('#editBtn').click(function() {
+    var num = $(this).data('num');
+    if(num) {
+        openWriteModal(num);
+    }
+});
+
+// 삭제 버튼 클릭
+$('#deleteBtn').click(function() {
+    var num = $(this).data('num');
+    if(num && confirm('한번 삭제한 자료는 복구할 방법이 없습니다.\n\n정말 삭제하시겠습니까?')) {
+        $.ajax({
+            url: 'delete.php',
+            type: 'POST',
+            data: { num: num, page: <?=$page?> },
+            success: function(response) {
+                alert('삭제되었습니다.');
+                location.reload();
+            },
+            error: function() {
+                alert('삭제 중 오류가 발생했습니다.');
+            }
+        });
+    }
+});
+
+$(document).ready(function(){
 	movetoPage = function(page){ 	  
 	  $("#page").val(page); 
-      var echo="<?php echo $partOpt; ?>"; 
-      var searchOpt="<?php echo $searchOpt; ?>"; 
+      var echo="<?php echo $partOpt ?? ''; ?>"; 
+      var searchOpt="<?php echo $searchOpt ?? ''; ?>"; 
       var search="<?php echo $search; ?>"; 
 
      $("#partOpt").val(partOpt);
@@ -373,8 +473,6 @@ function SearchEnter(){
 		document.getElementById('board_form').submit(); 
     }
 }
-
-
 </script>
   </body>
   </html>

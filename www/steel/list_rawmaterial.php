@@ -1,16 +1,21 @@
 <?php
 session_start();
 
-$root_dir = getDocumentRoot() ;
+// Environment detection for URL
+$is_local = (isset($_SERVER['HTTP_HOST']) && (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false));
+$base_url = $is_local ? 'http://localhost' : 'http://8440.co.kr';
 
-$level= $_SESSION["level"];
-$user_name= $_SESSION["name"];
+$root_dir = getDocumentRoot();
 
-  if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {          		 
-		 sleep(1);
-		  header("Location:http://8440.co.kr/login/login_form.php"); 
-         exit;
-   }  
+// Initialize session variables with null safety
+$level = $_SESSION["level"] ?? null;
+$user_name = $_SESSION["name"] ?? '';
+
+if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+    sleep(1);
+    header("Location:" . $base_url . "/login/login_form.php");
+    exit;
+}  
   
 // ctrl shift R 키를 누르지 않고 cache를 새로고침하는 구문....
 header("Expires: Tue, 01 Jan 2000 00:00:00 GMT");
@@ -47,8 +52,8 @@ $readIni = parse_ini_file("./settings.ini",false);
 
 <link rel="stylesheet" type="text/css" href="../css/steel.css?v=1"> 
 
-<script src="http://8440.co.kr/js/date.js"></script>  <!-- 기간을 설정하는 관련 js 포함 -->
-<script src="http://8440.co.kr/common.js"></script>  <!-- 기간을 설정하는 관련 js 포함 -->
+<script src="<?= $base_url ?>/js/date.js"></script>  <!-- 기간을 설정하는 관련 js 포함 -->
+<script src="<?= $base_url ?>/common.js"></script>  <!-- 기간을 설정하는 관련 js 포함 -->
 
 <!-- 최초화면에서 보여주는 상단메뉴 -->
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -788,7 +793,7 @@ $("#closeModalBtn").click(function(){
 			    const sendvar = grid.getValue(e.rowKey,'col1') + "|" + grid.getValue(e.rowKey,'col2') + "|" + grid.getValue(e.rowKey,'col3')  ;				
 				// const sendvar = inputString.replace("&", "@");
 				
-				var link = 'http://8440.co.kr/steel/part_view.php?arr=' + encodeURIComponent(sendvar) ; 	   
+				var link = '<?= $base_url ?>/steel/part_view.php?arr=' + encodeURIComponent(sendvar) ;
 			   popupCenter(link, '원자재 입출고 상세내역' ,1000,900);	
 			   
 			});		

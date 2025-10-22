@@ -209,7 +209,7 @@ $title_message = '연구노트';
                                 <strong> 1. 주요 연구개발 내용</strong>, <strong> 2. 주요 이슈 및 해결</strong>, <strong> 3. 차주 계획</strong>을 내용으로 기록합니다.
                             </div>
                         </div>
-
+                        <div class="d-flex mb-3 mt-2 justify-content-center align-items-center">
                             <!-- 기간부터 검색까지 연결 묶음 start -->
                             <span id="showdate" class="btn btn-dark btn-sm mx-2"> 기간 </span>
                             <div id="showframe" class="card">
@@ -252,7 +252,8 @@ $title_message = '연구노트';
                             <button type="button" class="btn btn-dark btn-sm me-1" id="writeBtn"> <i class="bi bi-pencil-fill"></i> 신규 </button>
                         </div>
                     </div>
-                </div>
+                    </div>
+                    </div>
 
                 <div class="card mb-2">
                     <div class="card-body">

@@ -1,7 +1,11 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
+<?php
+/**
+ * request_etc 목록 페이지
+ * 로컬 및 서버 환경 모두 지원
+ */
+
+require_once __DIR__ . '/../bootstrap.php';
 require_once getDocumentRoot() . '/vendor/autoload.php';
-require_once(includePath('lib/mydb.php'));
 
 // 서비스 계정 JSON 파일 경로
 $serviceAccountKeyFile = getDocumentRoot() . '/tokens/mytoken.json';	
@@ -41,12 +45,18 @@ function getThumbnail($fileId, $service) {
     }
 }
 
- if(!isset($_SESSION["level"]) || $level>8) {
-	     $_SESSION["url"]='https://8440.co.kr/request_etc/list.php' ; 		   
-		 sleep(1);
-         header ("Location:" . $WebSite . "login/logout.php");         
-         exit;
-   }       
+// 세션 변수 초기화
+$level = $_SESSION["level"] ?? 999;
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+
+// 권한 체크
+if ($level > 8) {
+    $_SESSION["url"] = getBaseUrl() . '/request_etc/list.php';
+    sleep(1);
+    header("Location:" . getBaseUrl() . "/login/logout.php");
+    exit;
+}
+
 $title_message = '부자재 구매';     
 ?> 
 <?php include getDocumentRoot() . '/load_header.php'; ?> 
@@ -112,6 +122,7 @@ if ($chkMobile) {
 }
  
 include "_request.php"; 
+$find = $_REQUEST["find"] ?? '';  // 목록표에 제목,이름 등 나오는 부분
 	  
 $pdo = db_connect();
 
@@ -129,11 +140,8 @@ if ($fromdate === "" || $fromdate === null || $todate === "" || $todate === null
     $Transtodate = $todate;
 }
 			  
-   if(isset($_REQUEST["find"]))   //목록표에 제목,이름 등 나오는 부분
-	 $find=$_REQUEST["find"];
  
-
-$SettingDate="registdate ";
+$SettingDate="registdate";
 
 $Andis_deleted =  " AND (is_deleted IS NULL or is_deleted='0')  AND eworks_item='부자재구매' ";
 $Whereis_deleted =  " Where  (is_deleted IS NULL or is_deleted='0')  AND eworks_item='부자재구매' ";	
@@ -149,7 +157,7 @@ $item_arr = array();
 $supplier_arr = array();
 $company_arr = array();
 
-$sql="select * from ".$DB.".eworks " . $a; 	
+$sql = "select * from {$DB}.eworks " . $a; 	
  
  $recount = 0 ;
  try{  
@@ -273,31 +281,12 @@ $dateCon =" AND between date('$fromdate') and date('$Transtodate') " ;
     print "오류: ".$Exception->getMessage();
 }  
    
-	 try{  
+	 try{
 	  $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh
       $total_row=$stmh->rowCount();
-		
-		if($regist_state==null)
-			 $regist_state="1";
-		 
-			  $date_font="black";  // 현재일자 Red 색상으로 표기
-			  if($nowday==$outdate) {
-                            $date_font="color-green";
-						}
-						
-								$font="color-black";
-							
-							switch ($regist_state) {
-								case   "1"     :  $font_state="black"; $regist_word="등록"; break;
-								case   "2"     :  $font_state="red"  ; $regist_word="접수"; break;	
-								case   "3"     :  $font_state="blue"  ; $regist_word="완료"; break;	
-								default:  $regist_word="등록"; break;
-							}								
-							
-	 if($outdate!="") {
-		$week = array("(일)" , "(월)"  , "(화)" , "(수)" , "(목)" , "(금)" ,"(토)") ;
-		$outdate = $outdate . $week[ date('w',  strtotime($outdate)  ) ] ;
-	}	
+   } catch (PDOException $Exception) {
+    print "오류: ".$Exception->getMessage();
+}
 
 ?>
 
@@ -433,8 +422,9 @@ $dateCon =" AND between date('$fromdate') and date('$Transtodate') " ;
       if ($page <= 1)
         $start_num = $total_row; // 페이지당 표시되는 첫번째 글순번
       else
-        $start_num = $total_row - ($page - 1) * $scale;	
+        $start_num = $total_row - ($page - 1) * $scale;
 	//  print $sql;
+      try {
       while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
         $num = $row["num"];
         include '_row.php';

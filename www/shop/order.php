@@ -1,15 +1,22 @@
 <?php
-if(!isset($_SESSION))      
-        session_start(); 
-	$user_name= $_SESSION["name"];
-	$user_id= $_SESSION["userid"];
+if (!isset($_SESSION)) {
+    session_start();
+}
+
+// Environment detection for URL
+$is_local = (isset($_SERVER['HTTP_HOST']) && (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false));
+$base_url = $is_local ? 'http://localhost' : 'http://8440.co.kr';
+
+// Initialize session variables with null safety
+$user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["userid"] ?? '';
 	
 
   require_once("../lib/mydb.php");
   $pdo = db_connect();
   
-  // php에서 자바스크립에서 저장한 JSON방식의 쿠키를 가져와서 사용할려면 아래와 같이 json_decode해야 한다. var_dump로 배열내용 확인가능 
-  $cookie =  json_decode($_COOKIE["ordercart"]); 
+// php에서 자바스크립에서 저장한 JSON방식의 쿠키를 가져와서 사용할려면 아래와 같이 json_decode해야 한다. var_dump로 배열내용 확인가능
+$cookie = isset($_COOKIE["ordercart"]) ? json_decode($_COOKIE["ordercart"]) : null; 
     	
 ?>
 
@@ -114,7 +121,7 @@ if(!isset($_SESSION))
                             작품쇼핑몰 
                             
                         </button>
-						<? 
+						<?php 
 						  if($user_name=='김보곤')
 						  {
 						    print '&nbsp;&nbsp;   <button class="btn btn-outline-dark" type="button" onclick="javascript:movetolist();">
@@ -126,7 +133,7 @@ if(!isset($_SESSION))
                             <i class="bi-tool-fill me-1"></i>
                             대쉬보드
                         </button> 
-						<?
+						<?php
 							}						
 						?>
 
@@ -153,7 +160,7 @@ if(!isset($_SESSION))
 <!-- shopcart items section-->
 <section class="py-1 bg-light">
 <div class="container px-1 px-lg-1 mt-2">     
-<?
+<?php
 
 //var_dump($cookie);
 // 자료수 구하기
@@ -234,7 +241,7 @@ $amount = '상품금액 : ￦ ' . number_format($amountnum)  ;
 					
 	</div>
 					
-<?
+<?php
 	    } // end of if statement `작품번호 같은가? 
       }
      }catch (PDOException $Exception) {
@@ -492,7 +499,7 @@ $amount = '상품금액 : ￦ ' . number_format($amountnum)  ;
 </form>
 		
 <!-- Footer-->
-<? include "footer.php" ?>
+<?php include "footer.php" ?>
         <!-- Core theme JS-->
         <script src="js/scripts.js"></script>
 		

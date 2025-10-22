@@ -22,9 +22,20 @@ header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
  
 require_once("../lib/mydb.php");
-$pdo = db_connect();     
+$pdo = db_connect();
 
 // 작품명 배열에 넣기
+$sql_items = "select * from mirae8440.shopitem order by num desc";
+$workarr = array();
+
+try {
+    $stmh_items = $pdo->query($sql_items);
+    while ($row_item = $stmh_items->fetch(PDO::FETCH_ASSOC)) {
+        $workarr[$row_item["num"]] = $row_item["item"];
+    }
+} catch (PDOException $Exception) {
+    print "오류: " . $Exception->getMessage();
+}
 
 print 'No : ' . $num;
  	 

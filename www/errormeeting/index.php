@@ -1,13 +1,12 @@
 <?php
-require_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session.php'));
+require_once __DIR__ . '/../bootstrap.php';
 
 // 세션 변수 초기화
-$level = $_SESSION["level"] ?? 5;
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+$level = $_SESSION["level"] ?? '';
 $user_name = $_SESSION["name"] ?? '';
 $user_id = $_SESSION["userid"] ?? '';
 $WebSite = $_SESSION["WebSite"] ?? '';
-$DB = $_SESSION["DB"] ?? 'mirae8440';
 
 // 요청 파라미터 초기화
 $menu = $_REQUEST["menu"] ?? '';
@@ -80,7 +79,6 @@ if ($admin == 1) {
         $stmh = $pdo->query($sql);
         
         while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-            include "rowDB.php";
             $approvalwait += 1;
         }
     } catch (PDOException $ex) {
@@ -88,19 +86,8 @@ if ($admin == 1) {
     }
 }
 
-// 서버의 정보를 읽어와 메인화면 꾸미기
-$sql = "SELECT * FROM {$DB}.emeeting ORDER BY num DESC";
-$numarr = array();
-
-try {
-    $stmh = $pdo->query($sql);
-    
-    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-        include "rowDB.php";
-    }
-} catch (PDOException $ex) {
-    error_log("품질분임조 리스트 조회 오류: " . $ex->getMessage());
-}
+// 서버의 정보를 읽어와 메인화면 꾸미기 (초기 변수 설정용)
+// (실제 데이터는 아래 검색 로직에서 처리됨)
 
 ?>
 
@@ -220,11 +207,11 @@ try {
                     $Transtodate = date("Y-m-d", $Transtodate);
                 }
                 
-                // SQL 쿼리 생성
-                if ($mode == "search" || $mode == "") {
-                    if ($search == "") {
-                        $sql = "SELECT * FROM {$DB}.emeeting ORDER BY num DESC";
-                    } elseif ($search == "결재상신 1차결재") {
+                // SQL 쿼리 생성 (기본 쿼리 초기화)
+                $sql = "SELECT * FROM {$DB}.emeeting ORDER BY num DESC";
+                
+                if ($mode == "search" && $search != "") {
+                    if ($search == "결재상신 1차결재") {
                         $sql = "SELECT * FROM {$DB}.emeeting WHERE approve = '결재상신' OR approve = '1차결재' ORDER BY num DESC";
                         $search = null;
                     } else {
@@ -240,27 +227,48 @@ try {
                     }
                 }
                 
-                // 레코드 조회
+                // 레코드 조회 및 배열에 저장
+                $rows = array();
+                $total_row = 0;
+                $error_message = '';
+                
                 try {
                     $stmh = $pdo->query($sql);
                     
                     while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-                        include "rowDB.php";
+                        $rows[] = $row;
                     }
+                    
+                    $total_row = count($rows);
                 } catch (PDOException $ex) {
-                    error_log("품질분임조 검색 오류: " . $ex->getMessage());
+                    $error_message = "품질분임조 검색 오류: " . $ex->getMessage();
+                    error_log($error_message);
                 }
                 
-                // 전체 레코드 수 파악
-                $total_row = 0;
-                
-                try {
-                    $stmh = $pdo->query($sql);
-                    $total_row = $stmh->rowCount();
-                } catch (PDOException $ex) {
-                    error_log("레코드 수 조회 오류: " . $ex->getMessage());
+                // 디버깅: 데이터 확인
+                if ($total_row == 0 && $error_message == '') {
+                    error_log("품질분임조: 조회된 데이터가 없습니다. SQL: " . $sql);
                 }
                 ?>
+                
+                <?php if ($error_message): ?>
+                    <div class="alert alert-danger mx-3" role="alert">
+                        <?= htmlspecialchars($error_message) ?>
+                    </div>
+                <?php endif; ?>
+                
+                <!-- 임시 디버깅 정보 (문제 해결 후 삭제) -->
+                <?php if (isset($_GET['debug'])): ?>
+                    <div class="alert alert-info mx-3" role="alert">
+                        <strong>디버깅 정보:</strong><br>
+                        - DB: <?= htmlspecialchars($DB) ?><br>
+                        - SQL: <?= htmlspecialchars($sql) ?><br>
+                        - 조회 건수: <?= $total_row ?><br>
+                        - Mode: <?= htmlspecialchars($mode) ?><br>
+                        - Search: <?= htmlspecialchars($search) ?><br>
+                        - Rows count: <?= count($rows) ?>
+                    </div>
+                <?php endif; ?>
                 
                 <div class="d-flex mb-2 px-5 px-lg-2 mt-2 justify-content-center align-items-center">
                     ▷ <?= $total_row ?> 건 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -291,13 +299,21 @@ try {
                         </thead>
                         <tbody>
                             <?php
-                            $start_num = $total_row;
-                            
-                            try {
-                                $stmh = $pdo->query($sql);
+                            if (count($rows) > 0) {
+                                $start_num = $total_row;
                                 
-                                while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-                                    include "rowDB.php";
+                                foreach ($rows as $row) {
+                                    // rowDB.php 내용을 직접 여기에 포함
+                                    $num = $row["num"] ?? '';
+                                    $place = $row["place"] ?? '';
+                                    $occur = $row["occur"] ?? '';
+                                    $errortype = $row["errortype"] ?? '';
+                                    $emember = $row["emember"] ?? '';
+                                    $content = $row["content"] ?? '';
+                                    $method = $row["method"] ?? '';
+                                    $filename = $row["filename"] ?? '';
+                                    $serverfilename = $row["serverfilename"] ?? '';
+                                    $approve = $row["approve"] ?? '';
                             ?>
                                     <tr onclick="redirectToView('<?= $num ?>', '<?= $tablename ?>')">
                                         <td class="text-center"><?= $start_num ?></td>
@@ -311,8 +327,15 @@ try {
                             <?php
                                     $start_num--;
                                 }
-                            } catch (PDOException $ex) {
-                                error_log("테이블 출력 오류: " . $ex->getMessage());
+                            } else {
+                            ?>
+                                <tr>
+                                    <td colspan="7" class="text-center py-5">
+                                        <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+                                        <p class="mt-3 text-muted">조회된 데이터가 없습니다.</p>
+                                    </td>
+                                </tr>
+                            <?php
                             }
                             ?>
                         </tbody>
@@ -386,7 +409,22 @@ function redirectToView(num, tablename) {
     customPopup(url, '품질분임조', 1100, 900);
 }
 
+// 엔터 키로 검색
+function SearchEnter() {
+    if (event.keyCode == 13) {
+        event.preventDefault();
+        document.getElementById('board_form').action = './index.php?mode=search';
+        document.getElementById('board_form').submit();
+    }
+}
+
 $(document).ready(function() {
+    // 검색 버튼 클릭
+    $("#searchBtn").click(function() {
+        document.getElementById('board_form').action = './index.php?mode=search';
+        document.getElementById('board_form').submit();
+    });
+    
     $("#writeBtn").click(function() {
         var page = emeetingpageNumber;
         var tablename = '<?php echo htmlspecialchars($tablename); ?>';
@@ -400,11 +438,13 @@ $(document).ready(function() {
     
     $("#adminprocess").click(function() {
         $('#search').val('결재상신 1차결재');
+        document.getElementById('board_form').action = './index.php?mode=search';
         document.getElementById('board_form').submit();
     });
     
     $("#searchNoinputBtn").click(function() {
         $('#search').val('');
+        document.getElementById('board_form').action = './index.php';
         document.getElementById('board_form').submit();
     });
     

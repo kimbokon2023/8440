@@ -1,21 +1,26 @@
-<?php session_start(); 
+<?php
+session_start();
+
+// Load common functions
+require_once __DIR__ . '/../common/functions.php';
 
 header ("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // Date in the past
 header ("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
 header ("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1
 header ("Pragma: no-cache"); // HTTP/1.0
-header("Expires: 0"); // rfc2616 - Section 14.21   
-//header("Refresh:0");  // reload refresh  
+header("Expires: 0"); // rfc2616 - Section 14.21
+//header("Refresh:0");  // reload refresh
 
-$Employee = 17; // 직원수 
+$Employee = 17; // 직원수
 
 ?>
-  
+
  <?php include getDocumentRoot() . '/load_header.php' ?>
  
 <link rel="stylesheet" href="./css/style.css">
 
 <body>
+<?php include getDocumentRoot() . '/myheader.php' ?>
 <title> 다트 순서 추첨 </title>
 
 <div class="container-fluid">  

@@ -1,28 +1,23 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php
+require_once __DIR__ . '/../common/functions.php';
 require_once(includePath('session.php'));
 
-$WebSite = "http://8440.co.kr/";
+// Environment detection for URL
+$is_local = (isset($_SERVER['HTTP_HOST']) && (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false));
+$base_url = $is_local ? 'http://localhost' : 'http://8440.co.kr';
+$WebSite = $base_url . '/';
 
-header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문  
+header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문
 
-isset($_REQUEST["which"])  ? $which = $_REQUEST["which"] : $which=""; 
-isset($_REQUEST["search_opt"])  ? $search_opt = $_REQUEST["search_opt"] : $search_opt=""; 
-isset($_REQUEST["ceilingcode"])  ? $ceilingcode = $_REQUEST["ceilingcode"] : $ceilingcode=""; 
+// Initialize request variables with null safety
+$which = $_REQUEST["which"] ?? '';
+$search_opt = $_REQUEST["search_opt"] ?? '';
+$ceilingcode = $_REQUEST["ceilingcode"] ?? ''; 
    
- if(isset($_REQUEST["mode"]))  //modify_form에서 호출할 경우
-    $mode=$_REQUEST["mode"];
- else 
-    $mode="";
- 
- if(isset($_REQUEST["num"]))
-    $num=$_REQUEST["num"];
- else 
-    $num="";
-
-  if(isset($_REQUEST["Bigsearch"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $Bigsearch=$_REQUEST["Bigsearch"];
-  else
-   $Bigsearch="";
+// Initialize more request variables with null safety
+$mode = $_REQUEST["mode"] ?? '';
+$num = $_REQUEST["num"] ?? '';
+$Bigsearch = $_REQUEST["Bigsearch"] ?? '';
 
 include '__request.php';	// __ 언더바 두개임 주의
 			  

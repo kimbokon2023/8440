@@ -1,6 +1,9 @@
 <?php
 // Global bootstrap for local/server unified behavior
 
+// Composer autoload for vendor packages
+require_once __DIR__ . '/vendor/autoload.php';
+
 require_once __DIR__ . '/common/functions.php';
 
 // Session and globals

@@ -1,4 +1,4 @@
-<?
+<?php
 $num=$row["num"] ?? '';
 $name=$row["name"] ?? '';
 $part=$row["part"] ?? '';

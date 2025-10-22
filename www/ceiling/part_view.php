@@ -1,10 +1,5 @@
 <?php
-require_once __DIR__ . '/../common/functions.php';
-
-// 세션 시작
-if (!isset($_SESSION)) {
-    session_start();
-}
+require_once __DIR__ . '/../bootstrap.php';
 
 // 세션 변수 초기화
 $DB = isset($_SESSION["DB"]) ? $_SESSION["DB"] : "";
@@ -24,7 +19,6 @@ ini_set('display_errors', '1');
 
 ?>
 
-<?php include getDocumentRoot() . '/common.php' ?>
 <?php include getDocumentRoot() . '/load_header.php' ?>
 
 <title> 주요부품 입출고 이력 </title>

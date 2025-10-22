@@ -8,6 +8,8 @@
 // 기본 정보
 $num = $row["num"] ?? '';
 $checkstep = $row["checkstep"] ?? '';
+$checkbox = $row["checkbox"] ?? 0;
+$whichcompany = $row["whichcompany"] ?? '';
 $workplacename = $row["workplacename"] ?? '';
 $address = $row["address"] ?? '';
 
@@ -57,6 +59,10 @@ $submemo = $row["submemo"] ?? '';
 $hpi = $row["hpi"] ?? '';
 $first_writer = $row["first_writer"] ?? '';
 $update_log = $row["update_log"] ?? '';
+$deliverynum = $row["deliverynum"] ?? '';
+$confirm = $row["confirm"] ?? '';
+$pdffile_name = $row["pdffile_name"] ?? '';
+$copied_file = $row["copied_file"] ?? '';
 
 // 배송 정보
 $delivery = $row["delivery"] ?? '';

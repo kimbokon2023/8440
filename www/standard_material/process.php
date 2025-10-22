@@ -6,9 +6,10 @@ ini_set('display_errors', 'Off');
 // DB이름 설정
 $DB = "mirae8440.steelitem";
 
-isset($_REQUEST["num"])  ? $num=$_REQUEST["num"] :   $num=''; 
-isset($_REQUEST["SelectWork"])  ? $SelectWork = $_REQUEST["SelectWork"] :   $SelectWork=""; 
-isset($_REQUEST["item"])  ? $item = $_REQUEST["item"] :   $item=""; 
+// Initialize request variables with null coalescing operator
+$num = $_REQUEST["num"] ?? '';
+$SelectWork = $_REQUEST["SelectWork"] ?? '';
+$item = $_REQUEST["item"] ?? ''; 
 
 if((int)$num == 0)
 	$SelectWork="insert"; 

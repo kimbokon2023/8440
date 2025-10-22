@@ -1,11 +1,19 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php
+/**
+ * s_board 작성/수정 폼 페이지
+ * 로컬 및 서버 환경 모두 지원
+ */
+
+require_once __DIR__ . '/../bootstrap.php';
 require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
+
 $title_message = '안전보건';
+
 ?>
 
 <?php include getDocumentRoot() . '/load_header.php' ?>
- 
-<title> <?=$title_message?> </title>  
+
+<title> <?=$title_message?> </title>
 </head>
 <body>
 
@@ -13,58 +21,63 @@ $title_message = '안전보건';
 
 <?php
 
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(1);
-         header("Location:".$_SESSION["WebSite"]."login/login_form.php"); 
-         exit;
-   }    
-   
-isset($_REQUEST["id"])  ? $id=$_REQUEST["id"] :   $id=''; 
-isset($_REQUEST["fileorimage"])  ? $fileorimage=$_REQUEST["fileorimage"] :   $fileorimage=''; // file or image
-isset($_REQUEST["item"])  ? $item=$_REQUEST["item"] :   $item=''; 
-isset($_REQUEST["upfilename"])  ? $upfilename=$_REQUEST["upfilename"] :   $upfilename=''; 
-isset($_REQUEST["tablename"])  ? $tablename=$_REQUEST["tablename"] :  $tablename=''; 
-isset($_REQUEST["savetitle"])  ? $savetitle=$_REQUEST["savetitle"] :  $savetitle='';   // log기록 저장 타이틀
+// 권한 체크
+if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+    /*   alert("관리자 승인이 필요합니다."); */
+    sleep(1);
+    header("Location:" . getBaseUrl() . "/login/login_form.php");
+    exit;
+}
 
-    
-  if(isset($_REQUEST["mode"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $mode=$_REQUEST["mode"];
-  else
-   $mode="";
-  
-  if(isset($_REQUEST["num"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $num=$_REQUEST["num"];
-  else
-   $num="";
-          
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();
+// 세션 변수 초기화
+$DB = $_SESSION['DB'] ?? 'mirae8440';
 
-  if ($mode=="modify"){
-    try{
-      $sql = "select * from mirae8440." . $tablename . " where num = ? ";
-      $stmh = $pdo->prepare($sql); 
+// 요청 변수 초기화
+$id = $_REQUEST["id"] ?? '';
+$fileorimage = $_REQUEST["fileorimage"] ?? '';
+$item = $_REQUEST["item"] ?? '';
+$upfilename = $_REQUEST["upfilename"] ?? '';
+$tablename = $_REQUEST["tablename"] ?? '';
+$savetitle = $_REQUEST["savetitle"] ?? '';
+$mode = $_REQUEST["mode"] ?? '';
+$num = $_REQUEST["num"] ?? '';
+$timekey = date("YmdHis");  // 신규 작성 시 임시 키
 
-    $stmh->bindValue(1,$num,PDO::PARAM_STR); 
-      $stmh->execute();
-      $count = $stmh->rowCount();              
-    if($count<1){  
-      print "검색결과가 없습니다.<br>";
-     }else{
-      $row = $stmh->fetch(PDO::FETCH_ASSOC);
-      $item_subject = $row["subject"];
-      $is_html = $row["is_html"];
-      $content = $row["content"];
-      $item_id = $row["id"];
-      $qnacheck = $row["qnacheck"];
-      $division = $row["division"];
-      $searchtext = $row["searchtext"];
-      }
-     }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
-     }
-  }
+// 변수 초기화
+$item_subject = '';
+$is_html = '';
+$content = '';
+$item_id = '';
+$qnacheck = '';
+$division = '';
+$searchtext = '';
+
+// 수정 모드인 경우 기존 데이터 조회
+if ($mode == "modify") {
+    try {
+        $sql = "select * from " . $DB . "." . $tablename . " where num = ?";
+        $stmh = $pdo->prepare($sql);
+        $stmh->bindValue(1, $num, PDO::PARAM_INT);
+        $stmh->execute();
+        $count = $stmh->rowCount();
+        
+        if ($count < 1) {
+            echo "검색 결과가 없습니다.<br>";
+        } else {
+            $row = $stmh->fetch(PDO::FETCH_ASSOC);
+            $item_subject = $row["subject"] ?? '';
+            $is_html = $row["is_html"] ?? '';
+            $content = $row["content"] ?? '';
+            $item_id = $row["id"] ?? '';
+            $qnacheck = $row["qnacheck"] ?? '';
+            $division = $row["division"] ?? '';
+            $searchtext = $row["searchtext"] ?? '';
+        }
+    } catch (PDOException $Exception) {
+        error_log("게시글 조회 오류: " . $Exception->getMessage());
+        echo "데이터 조회 중 오류가 발생했습니다.";
+    }
+}
 
 // 초기 프로그램은 $num사용 이후 $id로 수정중임  
 $id=$num;  

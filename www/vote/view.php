@@ -1,20 +1,25 @@
 <?php
 require_once __DIR__ . '/../bootstrap.php';
-?>
-<?php require_once(includePath('session.php')); 
+
+// 세션 변수 초기화
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+$level = $_SESSION["level"] ?? 999;
+$user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["userid"] ?? '';
+$admin = $_SESSION["level"] === 1 ? '1' : '0';
+$WebSite = $_SESSION["WebSite"] ?? getBaseUrl() . '/';
+
+// 권한 체크
+if($level > 8) {          
+	sleep(1);
+	header("Location:" . $WebSite . "login/login_form.php"); 
+	exit;
+}
 
 // 첫 화면 표시 문구
 $title_message = '우리의 당당한 투표!'; 
-?>
-  
-<?php include includePath('load_header.php');
 
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>8) {          
-		 sleep(1);
-         header("Location:".$_SESSION["WebSite"]."login/login_form.php"); 
-         exit;
-   }  
-   
+include includePath('load_header.php');
 ?> 
   
 <title> <?=$title_message?> </title> 
@@ -28,75 +33,100 @@ $title_message = '우리의 당당한 투표!';
  </head> 
  
 <body>
-<?php include includePath('modal.php'); ?>
+<?php include includePath('common/modal.php'); ?>
 	 
  <?php
  
- $file_dir = includePath('uploads/'); 
+$file_dir = includePath('uploads/'); 
   
- $num=$_REQUEST["num"];
- $page=$_REQUEST["page"];   //페이지번호
- $tablename=$_REQUEST["tablename"];   
-   
+// 요청 변수 초기화
+$num = $_REQUEST["num"] ?? '';
+$page = $_REQUEST["page"] ?? 1;
+$tablename = $_REQUEST["tablename"] ?? 'vote';
+$search = $_REQUEST["search"] ?? '';
+$Bigsearch = $_REQUEST["Bigsearch"] ?? '';
+$find = $_REQUEST["find"] ?? '';
+$year = $_REQUEST["year"] ?? '';
+$process = $_REQUEST["process"] ?? '';
+$asprocess = $_REQUEST["asprocess"] ?? '';
+$fromdate = $_REQUEST["fromdate"] ?? '';
+$todate = $_REQUEST["todate"] ?? '';
+$separate_date = $_REQUEST["separate_date"] ?? '';
+
+// 데이터 검증
+if(empty($num)) {
+    echo "<script>alert('게시글 번호가 없습니다.'); window.close();</script>";
+    exit;
+}
+
 require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
  
- try{
-     $sql = "select * from mirae8440." . $tablename . " where num=?";
-     $stmh = $pdo->prepare($sql);  
-     $stmh->bindValue(1, $num, PDO::PARAM_STR);      
-     $stmh->execute();            
+try {
+    $sql = "SELECT * FROM " . $DB . "." . $tablename . " WHERE num = ?";
+    $stmh = $pdo->prepare($sql);  
+    $stmh->bindValue(1, $num, PDO::PARAM_INT);      
+    $stmh->execute();            
       
-     $row = $stmh->fetch(PDO::FETCH_ASSOC);
- 	
-     $item_num     = $row["num"];
-     $item_id      = $row["id"];
-     $item_name    = $row["name"];
-     $item_nick    = $row["nick"];
-     $item_hit     = $row["hit"];
- 
+    $row = $stmh->fetch(PDO::FETCH_ASSOC);
+    
+    if($row) {
+        $item_num = $row["num"] ?? '';
+        $item_id = $row["id"] ?? '';
+        $item_name = $row["name"] ?? '';
+        $item_nick = $row["nick"] ?? '';
+        $item_hit = $row["hit"] ?? 0;
+        $item_date = $row["regist_day"] ?? '';
+        $item_date = substr($item_date, 0, 10);
+        $item_subject = $row["subject"] ?? '';
+        $item_content = $row["content"] ?? '';
+        $is_html = $row["is_html"] ?? '';
+        $noticecheck = $row["noticecheck"] ?? '';
+        $status = $row["status"] ?? '';
+        $deadline = $row["deadline"] ?? '';
+        $votelist = $row["votelist"] ?? '{}'; // votelist 값이 없을 경우의 기본값	 
+	 
+        
+        if($noticecheck == 'y') {
+            $noticecheck_memo = '(전체공지)';
+        } else {
+            $noticecheck_memo = '';
+        }
+        
+        if($is_html == 'y') {
+            $item_content = htmlspecialchars_decode($item_content);     	
+        }	
+        
+        $item_content = str_replace("\r", "<br>", $item_content);
 
-     $item_date    = $row["regist_day"];
-     $item_date    = substr($item_date,0,10);
-     $item_subject = str_replace(" ", "&nbsp;", $row["subject"]);
-     $item_content = $row["content"];
-     $is_html      = $row["is_html"];
-     $noticecheck      = $row["noticecheck"];
-     $status      = $row["status"];
-     $deadline    = $row["deadline"];
-	 
-     $votelist = $row["votelist"] ?? '{}'; // votelist 값이 없을 경우의 기본값	 
-	 
-	 if($noticecheck=='y')
-		 $noticecheck_memo='(전체공지)';
-	    else
-			$noticecheck_memo='';
-      
-     if ($is_html=='y'){
-		// $item_content = str_replace(" ", "&nbsp;", $item_content);
-     	// $item_content = str_replace("\n", "<br>", $item_content);
-		$item_content =  htmlspecialchars_decode($item_content);     	
-     }	
-	 
-	 // $item_content = str_replace("\n", "<br>", $item_content);
-	 $item_content = str_replace("\r", "<br>", $item_content);
- 
-     $new_hit = $item_hit + 1;
-     try{
-       $pdo->beginTransaction(); 
-       $sql = "update mirae8440." . $tablename . " set hit=? where num=?";   // 글 조회수 증가
-       $stmh = $pdo->prepare($sql);  
-       $stmh->bindValue(1, $new_hit, PDO::PARAM_STR);      
-       $stmh->bindValue(2, $num, PDO::PARAM_STR);           
-       $stmh->execute();
-       $pdo->commit(); 
-       } catch (PDOException $Exception) {
-         $pdo->rollBack();
-       print "오류: ".$Exception->getMessage();
-  }	  
-  
-	// 초기 프로그램은 $num사용 이후 $id로 수정중임  
-	$id=$num;    
+        // 조회수 증가
+        $new_hit = $item_hit + 1;
+        try {
+            $pdo->beginTransaction(); 
+            $sql = "UPDATE " . $DB . "." . $tablename . " SET hit = ? WHERE num = ?";
+            $stmh = $pdo->prepare($sql);  
+            $stmh->bindValue(1, $new_hit, PDO::PARAM_INT);      
+            $stmh->bindValue(2, $num, PDO::PARAM_INT);           
+            $stmh->execute();
+            $pdo->commit(); 
+        } catch (PDOException $Exception) {
+            $pdo->rollBack();
+            error_log("조회수 증가 오류: " . $Exception->getMessage());
+        }	  
+    } else {
+        echo "<script>alert('게시글을 찾을 수 없습니다.'); window.close();</script>";
+        exit;
+    }
+    
+    // 초기 프로그램은 $num사용 이후 $id로 수정중임  
+    $id = $num;
+    $author_id = $item_id;
+    
+} catch (PDOException $Exception) {
+    error_log("데이터 조회 오류: " . $Exception->getMessage());
+    echo "<script>alert('데이터 조회 중 오류가 발생했습니다.'); window.close();</script>";
+    exit;
+}
 ?>
 
   
@@ -118,19 +148,30 @@ $pdo = db_connect();
  
 </head>
 
+<?php
+// Hidden input 변수 초기화
+$parentid = $_REQUEST["parentid"] ?? '';
+$fileorimage = $_REQUEST["fileorimage"] ?? '';
+$item = $_REQUEST["item"] ?? '';
+$upfilename = $_REQUEST["upfilename"] ?? '';
+$savetitle = $_REQUEST["savetitle"] ?? '';
+$pInput = $_REQUEST["pInput"] ?? '';
+$mode = $_REQUEST["mode"] ?? '';
+?>
+
 <form  id="board_form" name="board_form" method="post" enctype="multipart/form-data"> 
   <!-- 전달함수 설정 input hidden -->
-	<input type="hidden" id="id" name="id" value="<?=$id?>" >			  								
-	<input type="hidden" id="num" name="num" value="<?=$num?>" >			  								
-	<input type="hidden" id="parentid" name="parentid" value="<?=$parentid?>" >			  								
-	<input type="hidden" id="fileorimage" name="fileorimage" value="<?=$fileorimage?>" >			  								
-	<input type="hidden" id="item" name="item" value="<?=$item?>" >			  								
-	<input type="hidden" id="upfilename" name="upfilename" value="<?=$upfilename?>" >			  								
-	<input type="hidden" id="tablename" name="tablename" value="<?=$tablename?>" >			  								
-	<input type="hidden" id="savetitle" name="savetitle" value="<?=$savetitle?>" >			  								
-	<input type="hidden" id="pInput" name="pInput" value="<?=$pInput?>" >			  								
-	<input type="hidden" id="mode" name="mode" value="<?=$mode?>" >				
-	<input type="hidden" id="status" name="status" value="<?=$status?>" >				
+	<input type="hidden" id="id" name="id" value="<?= htmlspecialchars($id, ENT_QUOTES, 'UTF-8') ?>" >			  								
+	<input type="hidden" id="num" name="num" value="<?= htmlspecialchars($num, ENT_QUOTES, 'UTF-8') ?>" >			  								
+	<input type="hidden" id="parentid" name="parentid" value="<?= htmlspecialchars($parentid, ENT_QUOTES, 'UTF-8') ?>" >			  								
+	<input type="hidden" id="fileorimage" name="fileorimage" value="<?= htmlspecialchars($fileorimage, ENT_QUOTES, 'UTF-8') ?>" >			  								
+	<input type="hidden" id="item" name="item" value="<?= htmlspecialchars($item, ENT_QUOTES, 'UTF-8') ?>" >			  								
+	<input type="hidden" id="upfilename" name="upfilename" value="<?= htmlspecialchars($upfilename, ENT_QUOTES, 'UTF-8') ?>" >			  								
+	<input type="hidden" id="tablename" name="tablename" value="<?= htmlspecialchars($tablename, ENT_QUOTES, 'UTF-8') ?>" >			  								
+	<input type="hidden" id="savetitle" name="savetitle" value="<?= htmlspecialchars($savetitle, ENT_QUOTES, 'UTF-8') ?>" >			  								
+	<input type="hidden" id="pInput" name="pInput" value="<?= htmlspecialchars($pInput, ENT_QUOTES, 'UTF-8') ?>" >			  								
+	<input type="hidden" id="mode" name="mode" value="<?= htmlspecialchars($mode, ENT_QUOTES, 'UTF-8') ?>" >				
+	<input type="hidden" id="status" name="status" value="<?= htmlspecialchars($status, ENT_QUOTES, 'UTF-8') ?>" >				
  
 <?php if ($chkMobile): ?>
     <!-- 모바일 환경일 때 보이는 버튼 -->	  
@@ -152,14 +193,30 @@ $pdo = db_connect();
 	<?php
 	// 삭제 수정은 관리자와 글쓴이만 가능토록 함
 	if(isset($_SESSION["userid"])) {
-	if($_SESSION["userid"]==$item_id || $_SESSION["userid"]=="admin" || 
-		  intval($_SESSION["level"]) === 1 )
-		{
+		if($_SESSION["userid"]==$item_id || $_SESSION["userid"]=="admin" || intval($_SESSION["level"]) === 1) {
+			$modifyParams = http_build_query(array(
+				'tablename' => $tablename,
+				'mode' => 'modify',
+				'num' => $num,
+				'page' => $page,
+				'search' => $search,
+				'Bigsearch' => $Bigsearch,
+				'find' => $find,
+				'year' => $year,
+				'process' => $process,
+				'asprocess' => $asprocess,
+				'fromdate' => $fromdate,
+				'todate' => $todate,
+				'separate_date' => $separate_date
+			));
+	?>
+			<button type="button" class="btn btn-dark btn-sm me-1" onclick="location.href='write_form.php?<?= htmlspecialchars($modifyParams, ENT_QUOTES, 'UTF-8') ?>'" >  <i class="bi bi-pencil-square"></i>  수정  </button>			
+			<button type="button" class="btn btn-dark btn-sm me-1" onclick="location.href='write_form.php?tablename=<?= htmlspecialchars($tablename, ENT_QUOTES, 'UTF-8') ?>'" >  <i class="bi bi-pencil"></i>  신규 </button>			
+			<button type="button" class="btn btn-danger btn-sm me-1" onclick="javascript:del('delete.php')" > <i class="bi bi-trash"></i>  삭제   </button>
+	<?php
+		}
+	}
 	?>				
-				<button type="button"   class="btn btn-dark btn-sm me-1" onclick="location.href='write_form.php?tablename=<?=$tablename?>&mode=modify&num=<?=$num?>&page=<?=$page?>&search=<?=$search?>&Bigsearch=<?=$Bigsearch?>&find=<?=$find?>&year=<?=$year?>&search=<?=$search?>&process=<?=$process?>&asprocess=<?=$asprocess?>&fromdate=<?=$fromdate?>&todate=<?=$todate?>&separate_date=<?=$separate_date?>'" >  <i class="bi bi-pencil-square"></i>  수정  </button>			
-				<button type="button"   class="btn btn-dark btn-sm me-1" onclick="location.href='write_form.php?tablename=<?=$tablename?>'" >  <i class="bi bi-pencil"></i>  신규 </button>			
-				<button type="button"   class="btn btn-danger btn-sm me-1" onclick="javascript:del('delete.php?tablename=<?=$tablename?>&num=<?=$num?>&page=<?=$page?>')" > <i class="bi bi-trash"></i>  삭제   </button>								
-	<?php  	}    ?>				
 	</div>  
 	</div>  
 	 
@@ -171,15 +228,15 @@ $pdo = db_connect();
 		     <td class="text-center bg-secondary text-white">
 			   진행상태 
 			</td>
-			<td class="text-center">	<?= $status ?>  </td>
+			<td class="text-center">	<?= htmlspecialchars($status, ENT_QUOTES, 'UTF-8') ?>  </td>
 			<td class="text-center bg-secondary text-white">	작성일 </td>
-			<td class="text-center">	<?= $item_date ?>   </td>			   
+			<td class="text-center">	<?= htmlspecialchars($item_date, ENT_QUOTES, 'UTF-8') ?>   </td>			   
 			<td class="text-center bg-secondary text-white">	마감일 </td>
-			<td class="text-center">	<?= $deadline ?>   </td>			   
+			<td class="text-center">	<?= htmlspecialchars($deadline, ENT_QUOTES, 'UTF-8') ?>   </td>			   
 			<td class="text-center bg-secondary text-white">  글제목  </td>
-			<td class="text-center">  <?= $item_subject ?> </td>			  
+			<td class="text-center">  <?= htmlspecialchars($item_subject, ENT_QUOTES, 'UTF-8') ?> </td>			  
 			<td class="text-center bg-secondary text-white">작성자 </td>
-			<td class="text-center"> <?= $item_nick ?> </td>
+			<td class="text-center"> <?= htmlspecialchars($item_nick, ENT_QUOTES, 'UTF-8') ?> </td>
 			</tr>
 			</tbody>
 		</table>
@@ -225,27 +282,18 @@ $pdo = db_connect();
 			</div>
 		 </div>
 		 
-		 <?php
-			}
-		  } catch (PDOException $Exception) {
-			   print "오류: ".$Exception->getMessage();
-		  }
-		 ?>  
 			</div>
 		</div>
 	</div> 
 </form>
 
   <form id="Form1" name="Form1">
-    <input type="hidden" id="num" name="num" value="<?=$num?>" >
+    <input type="hidden" id="num" name="num" value="<?= htmlspecialchars($num, ENT_QUOTES, 'UTF-8') ?>" >
   </form>  
 
-</body>
-</html>     
- 
 <script> 
 $(document).on('click', '.vote-button', function() {
-    var user_name = '<?php echo $user_name; ?>';
+    var user_name = <?php echo json_encode($user_name, JSON_UNESCAPED_UNICODE); ?>;
     var itemIndex = $(this).data('item-index');
 
     updateVote(user_name, itemIndex);
@@ -264,9 +312,9 @@ function updateTotalVoters() {
 
 function updateVote(user_name, itemIndex) {
 	
-	var status = '<?php echo $status; ?>';
+	var status = <?php echo json_encode($status, JSON_UNESCAPED_UNICODE); ?>;
 	
-	if(status==='진행중')
+	if(status === '진행중')
 	{	
 	
     var alreadyVotedIndex = -1;
@@ -317,7 +365,7 @@ function updateVote(user_name, itemIndex) {
 	});
 
     const dataToSend = {
-        num: '<?php echo $num; ?>',
+        num: <?php echo json_encode($num, JSON_UNESCAPED_UNICODE); ?>,
         data: columns
     };
 
@@ -383,7 +431,7 @@ $(document).ready(function() {
 
     var piclistObj = {};
     try {
-        piclistObj = JSON.parse('<?php echo addslashes($votelist); ?>');
+        piclistObj = <?php echo $votelist; ?>;
     } catch (e) {
         console.error("JSON 파싱 오류: ", e);
     }
@@ -467,24 +515,26 @@ $(document).ready(function() {
                 ],
                 borderWidth: 1
             }]
-        },        
-        plugins: {
-            datalabels: {
-                color: '#000000', // 라벨 색상
-                formatter: function(value, context) {
-                    return context.chart.data.labels[context.dataIndex] + ': ' + value;
+        },
+        options: {        
+            plugins: {
+                datalabels: {
+                    color: '#000000', // 라벨 색상
+                    formatter: function(value, context) {
+                        return context.chart.data.labels[context.dataIndex] + ': ' + value;
+                    }
                 }
             }
         }    
-});  // end of chart function
+    });  // end of chart function
 	
 
 });
 
 function del(href) {    
-    var user_id  = '<?php echo  $user_id ; ?>' ;
-    var item_id  = '<?php echo  $item_id ; ?>' ;
-    var admin  = '<?php echo  $admin ; ?>' ;
+    var user_id = <?php echo json_encode($user_id, JSON_UNESCAPED_UNICODE); ?>;
+    var item_id = <?php echo json_encode($item_id, JSON_UNESCAPED_UNICODE); ?>;
+    var admin = <?php echo json_encode($admin, JSON_UNESCAPED_UNICODE); ?>;
 	if( user_id !== item_id && admin !== '1' )
 	{
         Swal.fire({
@@ -546,3 +596,5 @@ $(document).ready(function(){
    
 </script>
 
+</body>
+</html>

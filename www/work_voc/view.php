@@ -1,17 +1,26 @@
 <?php
-require_once __DIR__ . '/../common/functions.php';
-?>
-﻿<?php include getDocumentRoot() . '/session.php';   
+/**
+ * work_voc 모듈 - VOC 상세보기
+ * 로컬 및 서버 환경 모두 지원
+ */
 
-// 첫 화면 표시 문구
-$title_message = 'JAMB 수주'; 
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-		 sleep(1);
-		  header("Location:" . $WebSite . "login/login_form.php"); 
-         exit;
-}   
-include getDocumentRoot() . '/load_header.php';   
- ?>
+require_once __DIR__ . '/../bootstrap.php';
+
+// 세션 변수 초기화
+$level = $_SESSION["level"] ?? 0;
+$user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["userid"] ?? '';
+$DB = $_SESSION["DB"] ?? '';
+
+// 권한 체크
+if ($level > 5) {
+    sleep(1);
+    header("Location:" . getBaseUrl() . "/login/login_form.php");
+    exit;
+}
+
+include includePath('load_header.php');
+?>
   
 <title> 현장소장 Voc </title> 
  
@@ -24,12 +33,12 @@ include getDocumentRoot() . '/load_header.php';
   
  <?php
    
- $file_dir = '../uploads/'; 
-  
- $num=$_REQUEST["num"];
- $page=$_REQUEST["page"];   //페이지번호
-   
-require_once(includePath('lib/mydb.php'));
+// 요청 변수 초기화
+$file_dir = '../uploads/';
+$num = $_REQUEST["num"] ?? '';
+$page = $_REQUEST["page"] ?? '';
+
+// 데이터베이스 연결
 $pdo = db_connect();
  
  try{

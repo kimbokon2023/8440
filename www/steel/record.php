@@ -2,8 +2,14 @@
 require_once(includePath('session.php'));
 require_once(includePath('lib/mydb.php'));
 
-$WebSite = "http://8440.co.kr/";
-$num = isset($_REQUEST["num"]) ? $_REQUEST["num"] : "";
+// Environment detection
+$isLocal = strpos($_SERVER['HTTP_HOST'], 'localhost') !== false ||
+           strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false ||
+           strpos($_SERVER['HTTP_HOST'], '::1') !== false;
+$WebSite = $isLocal ? 'http://localhost/' : 'http://8440.co.kr/';
+
+// Initialize request variables with null safety
+$num = $_REQUEST["num"] ?? "";
 
 // 데이터베이스 연결 및 기존 완료일 데이터 가져오기
 $pdo = db_connect();

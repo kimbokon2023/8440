@@ -1,49 +1,38 @@
- <?php   
-  session_start();   
- $level= $_SESSION["level"];
- if(!isset($_SESSION["level"]) || $level>=8) {
-         echo "<script> alert('관리자 승인이 필요합니다.') </script>";
-		 sleep(2);
-         header ("Location:http://5130.co.kr/login/logout.php");
-         exit;
-   }
-   
-  if(isset($_REQUEST["page"]))
-    $page=$_REQUEST["page"];
-  else 
-    $page=1;   // 1로 설정해야 함
- if(isset($_REQUEST["mode"]))  //modify_form에서 호출할 경우
-    $mode=$_REQUEST["mode"];
- else 
-    $mode="";
- 
- if(isset($_REQUEST["num"]))
-    $num=$_REQUEST["num"];
- else 
-    $num="";
+<?php
+session_start();
 
-  if(isset($_REQUEST["search"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $search=$_REQUEST["search"];
-  else
-   $search="";
-  if(isset($_REQUEST["find"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $find=$_REQUEST["find"];
-  else
-   $find="";
-  if(isset($_REQUEST["process"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $process=$_REQUEST["process"];
-  else
-   $process="전체";
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];
+// Environment detection for URL
+$is_local = (isset($_SERVER['HTTP_HOST']) && (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false));
+$base_url = $is_local ? 'http://localhost' : 'http://5130.co.kr';
+
+// Initialize session variables with null safety
+$level = $_SESSION["level"] ?? null;
+
+if (!isset($_SESSION["level"]) || $level >= 8) {
+    echo "<script> alert('관리자 승인이 필요합니다.') </script>";
+    sleep(2);
+    header("Location:" . $base_url . "/login/logout.php");
+    exit;
+}
+
+// Initialize request variables with null safety
+$page = $_REQUEST["page"] ?? 1;
+$mode = $_REQUEST["mode"] ?? '';
+$num = $_REQUEST["num"] ?? '';
+$search = $_REQUEST["search"] ?? '';
+$find = $_REQUEST["find"] ?? '';
+$process = $_REQUEST["process"] ?? '전체';
+$fromdate = $_REQUEST["fromdate"] ?? '';
+$todate = $_REQUEST["todate"] ?? '';
 
 // code는 접수완료, 처리완료를 표시해 준다.
-$code=$_REQUEST["code"];
+$code = $_REQUEST["code"] ?? '';
 
-if($code=="1")	
-   $regist_state="2";
-   else
-     $regist_state="3";  
+if ($code == "1") {
+    $regist_state = "2";
+} else {
+    $regist_state = "3";
+}  
  		
  require_once("../lib/mydb.php");
  $pdo = db_connect();
@@ -74,5 +63,5 @@ if($code=="1")
            print "오류: ".$Exception->getMessage();
        }                         
        
-    header("Location:http://5130.co.kr/output/view.php?num=$num&page=$page&search=$search&find=$find&process=$process&yearcheckbox=$yearcheckbox&year=$year&fromdate=$fromdate&todate=$todate&separate_date=$separate_date");  
+    header("Location:" . $base_url . "/output/view.php?num=$num&page=$page&search=$search&find=$find&process=$process&yearcheckbox=$yearcheckbox&year=$year&fromdate=$fromdate&todate=$todate&separate_date=$separate_date");  
  ?>

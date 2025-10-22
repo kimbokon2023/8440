@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../common/functions.php';
-require_once getDocumentRoot() . '/load_GoogleDrive.php';
+require_once __DIR__ . '/../bootstrap.php';
+require_once includePath('load_GoogleDrive.php');
 
 // 세션 변수 초기화
 $DB = $_SESSION["DB"] ?? '';
@@ -11,8 +11,7 @@ $chkMobile = $_SESSION["chkMobile"] ?? false;
 
 $title_message = '연구노트';
 ?>
-<?php include getDocumentRoot() . '/common.php' ?>
-<?php include getDocumentRoot() . '/load_header.php'; ?>
+<?php include includePath('load_header.php'); ?>
 
 <?php
 // 요청 파라미터 초기화
@@ -72,7 +71,7 @@ $exam = array();
 
 <body>
 
-    <?php include getDocumentRoot() . "/common/modal.php"; ?>
+    <?php include includePath("common/modal.php"); ?>
 
     <?php
     // 수정 또는 조회 모드
@@ -88,7 +87,7 @@ $exam = array();
             if ($count < 1) {
                 error_log("연구노트 조회 결과 없음: num=" . $num);
             } else {
-                include getDocumentRoot() . '/eworks/_row.php';
+                include includePath('eworks/_row.php');
                 
                 // 전자결재의 정보를 다시 변환해 준다.
                 $mytitle = $outworkplace ?? '';
@@ -122,7 +121,7 @@ $exam = array();
             if ($count < 1) {
                 error_log("연구노트 복사 조회 결과 없음: num=" . $num);
             } else {
-                include getDocumentRoot() . '/eworks/_row.php';
+                include includePath('eworks/_row.php');
                 
                 // 전자결재의 정보를 다시 변환해 준다.
                 $mytitle = $outworkplace ?? '';
@@ -149,7 +148,7 @@ $exam = array();
     $savefilename_arr = array();
     $saveimagename_arr = array();
     
-    require_once getDocumentRoot() . '/load_GoogleDriveSecond.php';
+    require_once includePath('load_GoogleDriveSecond.php');
     
     // hidden input에서 사용될 변수 초기화
     $item = '';
@@ -301,7 +300,7 @@ $exam = array();
 				</table>
 			</div>			  
 		  
-		  <?  } 
+		  <?php }
 		 else 
 			 {
 		   ?>
@@ -317,8 +316,8 @@ $exam = array();
 				</tr>
 			</tbody>
 		</table>
-	</div>	
-  <?  }   ?>
+	</div>
+  <?php }   ?>
 	  
  </div> 			
 </div> 

@@ -1230,7 +1230,7 @@ $tablename = 'popupwindow';
 			</div>
 
 		<!-- 당해년도 품질불량  -->	
-		<div class="card justify-content-center" style="cursor:pointer;" onclick="location.href='./error/statistics.php';">		
+		<div class="card justify-content-center" style="cursor:pointer;" onclick="location.href='./errors/statistics.php';">		
 			<div class="card-body my-card-padding">	
 				<?php include "./load_errorstatistics.php"; ?>		
 			</div>   
@@ -1238,7 +1238,7 @@ $tablename = 'popupwindow';
 		<!--  품질불량 세부내역(전체불량) -->
 		<div class="modern-management-card" id="nonConformanceCost">
 			<div class="modern-dashboard-header">
-				<a href="./error/statistics.php" style="color: white; text-decoration: none;">
+				<a href="./errors/statistics.php" style="color: white; text-decoration: none;">
 					📊 전체불량율/세부내역 <span style="font-size: 0.7rem; opacity: 0.9;">(품질 분석)</span>
 				</a>
 			</div>
@@ -1983,7 +1983,7 @@ $tablename = 'popupwindow';
 		</div>   
 	</div> 		        
 	<!-- 당해년도 품질불량  -->	
-	<div class="card justify-content-center" style="cursor:pointer;" onclick="location.href='./error/statistics.php';">		
+	<div class="card justify-content-center" style="cursor:pointer;" onclick="location.href='./errors/statistics.php';">		
 		<div class="card-body my-card-padding">	
 			<?php include "./load_errorstatistics.php"; ?>		
 		</div>   
@@ -2249,7 +2249,7 @@ include "./load_month_schedule.php";
             </button>
           </div>
           <div class="col-sm-9 text-center">
-             <a class="btn btn-outline-dark mt-auto" href="./error/list.php?search=Y&state=처리전&item=all"> 부적합 내역 확인하러 가기 </a>
+             <a class="btn btn-outline-dark mt-auto" href="./errors/list.php?search=Y&state=처리전&item=all"> 부적합 내역 확인하러 가기 </a>
           </div>
          </div>
          <div class="row">

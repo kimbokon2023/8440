@@ -1,18 +1,11 @@
 <?php
-require_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session.php'));
+require_once __DIR__ . '/../bootstrap.php';
 
 // 세션 변수 초기화
 $level = isset($_SESSION["level"]) ? $_SESSION["level"] : 10;
 
 // REQUEST/POST 변수 초기화
-if (isset($_REQUEST["check"])) {
-    $check = $_REQUEST["check"];
-} else if (isset($_POST["check"])) {
-    $check = $_POST["check"];
-} else {
-    $check = '1';
-}
+$check = $_REQUEST["check"] ?? $_POST["check"] ?? '1';
 
 // 오늘 날짜 (YYYY-MM-DD 형식)
 $today = date("Y-m-d");
@@ -30,7 +23,7 @@ echo "<script>var today = '$today';</script>";
 
 </head>
 <body>
-<? include '../myheader.php'; ?>   
+<?php include includePath('myheader.php'); ?>   
 <style>
 .red-day {
     color: red !important;

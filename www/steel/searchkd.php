@@ -1,13 +1,20 @@
 <?php
- session_start();
+// Environment detection
+$isLocal = strpos($_SERVER['HTTP_HOST'], 'localhost') !== false ||
+           strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false ||
+           strpos($_SERVER['HTTP_HOST'], '::1') !== false;
+$baseUrl = $isLocal ? 'http://localhost:5130' : 'http://5130.co.kr';
 
- $level= $_SESSION["level"];
- if(!isset($_SESSION["level"]) || $level>8) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(2);
-         header ("Location:http://5130.co.kr/login/logout.php");
-         exit;
-   }
+session_start();
+
+// Initialize session variables with null safety
+$level = $_SESSION["level"] ?? null;
+if(!isset($_SESSION["level"]) || $level > 8) {
+    /*   alert("관리자 승인이 필요합니다."); */
+    sleep(2);
+    header("Location:" . $baseUrl . "/login/logout.php");
+    exit;
+}
    
 header ("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // Date in the past
 header ("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
@@ -34,38 +41,24 @@ header("Expires: 0"); // rfc2616 - Section 14.21
 		}
 		</script>
  <?php
-  if(isset($_REQUEST["search"]))   //목록표에 제목,이름 등 나오는 부분
-	 $search=$_REQUEST["search"];
-   if(isset($_REQUEST["list"]))   //목록표에 제목,이름 등 나오는 부분
-	 $list=$_REQUEST["list"];
-    else
-		  $list=0;
+// Initialize request variables with null safety
+$search = $_REQUEST["search"] ?? null;
+$list = $_REQUEST["list"] ?? 0;
 	  
   require_once("../lib/mydb.php");
   $pdo = db_connect();	
  // $find="firstord";	    //검색할때 고정시킬 부분 저장 ex) 전체/공사담당/건설사 등
- if(isset($_REQUEST["page"])) // $_REQUEST["page"]값이 없을 때에는 1로 지정 
- {
-    $page=$_REQUEST["page"];  // 페이지 번호
- }
-  else
-  {
-    $page=1;	 
-  }
+$page = $_REQUEST["page"] ?? 1; // 페이지 번호
  
   $scale = 23;       // 한 페이지에 보여질 게시글 수
   $page_scale = 10;   // 한 페이지당 표시될 페이지 수  10페이지
   $first_num = ($page-1) * $scale;  // 리스트에 표시되는 게시글의 첫 순번.
 	 
-  if(isset($_REQUEST["mode"]))
-     $mode=$_REQUEST["mode"];
-  else 
-     $mode="";     
+$mode = $_REQUEST["mode"] ?? "";     
  
- $cursort=$_REQUEST["cursort"];    // 현재 정렬모드 지정
- if(isset($_REQUEST["sortof"]))
-    {
-     $sortof=$_REQUEST["sortof"];  // 클릭해서 넘겨준 값
+$cursort = $_REQUEST["cursort"] ?? null; // 현재 정렬모드 지정
+$sortof = $_REQUEST["sortof"] ?? null; // 클릭해서 넘겨준 값
+if(isset($_REQUEST["sortof"])) {
 	if($sortof==1) {
 		
 	 if($cursort!=1)
@@ -108,9 +101,9 @@ header("Expires: 0"); // rfc2616 - Section 14.21
 	 $cursort=0;
   }
  
- // 기간을 정하는 구간
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];	 
+// 기간을 정하는 구간
+$fromdate = $_REQUEST["fromdate"] ?? null;
+$todate = $_REQUEST["todate"] ?? null;	 
 
 if($fromdate=="")
 {
@@ -129,8 +122,7 @@ if($todate=="")
 	$Transtodate=date("Y-m-d",$Transtodate);
 	}
 		  
-   if(isset($_REQUEST["find"]))   //목록표에 제목,이름 등 나오는 부분
-	 $find=$_REQUEST["find"];
+$find = $_REQUEST["find"] ?? null; // 목록표에 제목,이름 등 나오는 부분
  
 $process="전체";  // 기본 전체로 정한다.
 /*  

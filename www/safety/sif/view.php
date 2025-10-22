@@ -1,50 +1,64 @@
 <?php
+/**
+ * SIF 평가 상세보기 페이지
+ * 로컬 및 서버 환경 모두 지원
+ */
+
+require_once __DIR__ . '/../../bootstrap.php';
 require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
+
 // 첫 화면 표시 문구
 $title_message = '안전보건';
-	
-?>
-   
-<?php include getDocumentRoot() . '/load_header.php';
-	 if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-			 sleep(1);
-			 header("Location:" . $WebSite . "login/login_form.php"); 
-			 exit;
-	   } 
- ?>
 
-<title> <?=$title_message?> </title>  
- 
-</head> 
+?>
+
+<?php
+include getDocumentRoot() . '/load_header.php';
+
+// 권한 체크
+if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+    sleep(1);
+    header("Location:" . getBaseUrl() . "/login/login_form.php");
+    exit;
+}
+?>
+
+<title> <?=$title_message?> </title>
+
+</head>
 
 <body>
 
 <?php include getDocumentRoot() . "/common/modal.php"; ?>
-    
+
 <?php
-    
- $num=$_REQUEST["num"];
- $page=$_REQUEST["page"];   //페이지번호
- $tablename=$_REQUEST["tablename"];   //페이지번호 
- $pdo = db_connect();
+
+// 요청 변수 초기화
+$num = $_REQUEST["num"] ?? '';
+$page = $_REQUEST["page"] ?? '';   //페이지번호
+$tablename = $_REQUEST["tablename"] ?? '';   //테이블명
+$DB = $_SESSION['DB'] ?? 'mirae8440';
+
+// 데이터베이스 연결
+$pdo = db_connect();
  
  try{
-     $sql = "select * from mirae8440." . $tablename . " where num=?";
+     $sql = "select * from {$DB}." . $tablename . " where num=?";
      $stmh = $pdo->prepare($sql);  
      $stmh->bindValue(1, $num, PDO::PARAM_STR);      
      $stmh->execute();            
       
     $row = $stmh->fetch(PDO::FETCH_ASSOC);
-     $item_num     = $row["num"];
-     $item_id      = $row["id"];
-     $item_name    = $row["name"];
-     $item_nick    = $row["nick"];   
-     $item_subject = str_replace(" ", "&nbsp;", $row["subject"]);
-     $content = $row["content"];
-     $item_date    = $row["regist_day"];
-     $item_date    = substr($item_date, 0, 10);   
-     $item_hit     = $row["hit"];     
-     $is_html      = $row["is_html"];
+     $item_num     = $row["num"] ?? '';
+     $item_id      = $row["id"] ?? '';
+     $item_name    = $row["name"] ?? '';
+     $item_nick    = $row["nick"] ?? '';
+     $item_subject = str_replace(" ", "&nbsp;", $row["subject"] ?? '');
+     $content = $row["content"] ?? '';
+     $item_date    = $row["regist_day"] ?? '';
+     $item_date    = substr($item_date, 0, 10);
+     $item_hit     = $row["hit"] ?? 0;
+     $is_html      = $row["is_html"] ?? '';
   } catch (PDOException $Exception) {
 		$pdo->rollBack();
        print "오류: ".$Exception->getMessage();

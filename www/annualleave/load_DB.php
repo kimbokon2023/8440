@@ -22,16 +22,18 @@ $sql = "select * from " . $DB . ".almember";
 try {
     $stmh = $pdo->query($sql);
     while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-        array_push($basic_num_arr, $row["num"]);
-        array_push($basic_id_arr, $row["id"]);
-        array_push($basic_name_arr, $row["name"]);
-        array_push($basic_part_arr, $row["part"]);
-        array_push($referencedate_arr, $row["referencedate"]);
-        array_push($availableday_arr, intval($row["availableday"]));
-        array_push($comment_arr, $row["comment"]);
+        array_push($basic_num_arr, $row["num"] ?? '');
+        array_push($basic_id_arr, $row["id"] ?? '');
+        array_push($basic_name_arr, $row["name"] ?? '');
+        array_push($basic_part_arr, $row["part"] ?? '');
+        array_push($referencedate_arr, $row["referencedate"] ?? '');
+        array_push($availableday_arr, intval($row["availableday"] ?? 0));
+        array_push($comment_arr, $row["comment"] ?? '');
 
         // $dateofentry_arr를 연관 배열로 설정
-        $dateofentry_arr[$row["name"]] = $row["dateofentry"];
+        if (isset($row["name"])) {
+            $dateofentry_arr[$row["name"]] = $row["dateofentry"] ?? '';
+        }
     }
 } catch (PDOException $ex) {
     error_log("almember 조회 오류: " . $ex->getMessage());
@@ -67,29 +69,29 @@ $al_content_arr = array();
 try {
     $stmh = $pdo->query($sql);
     while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-        array_push($num_arr, $row["num"]);
-        array_push($e_viewexcept_id_arr, $row["e_viewexcept_id"]);
-        array_push($eworks_item_arr, $row["eworks_item"]);
-        array_push($e_title_arr, $row["e_title"]);
-        array_push($contents_arr, $row["contents"]);
-        array_push($registdate_arr, $row["registdate"]);
-        array_push($status_arr, $row["status"]);
-        array_push($e_line_arr, $row["e_line"]);
-        array_push($e_line_id_arr, $row["e_line_id"]);
-        array_push($e_confirm_arr, $row["e_confirm"]);
-        array_push($e_confirm_id_arr, $row["e_confirm_id"]);
-        array_push($r_line_arr, $row["r_line"]);
-        array_push($r_line_id_arr, $row["r_line_id"]);
-        array_push($recordtime_arr, $row["recordtime"]);
-        array_push($author_arr, $row["author"]);
-        array_push($author_id_arr, $row["author_id"]);
-        array_push($done_arr, $row["done"]);
-        array_push($al_askdatefrom_arr, $row["al_askdatefrom"]);
-        array_push($al_askdateto_arr, $row["al_askdateto"]);
-        array_push($al_item_arr, $row["al_item"]);
-        array_push($al_part_arr, $row["al_part"]);
-        array_push($al_usedday_arr, $row["al_usedday"]);
-        array_push($al_content_arr, $row["al_content"]);
+        array_push($num_arr, $row["num"] ?? '');
+        array_push($e_viewexcept_id_arr, $row["e_viewexcept_id"] ?? '');
+        array_push($eworks_item_arr, $row["eworks_item"] ?? '');
+        array_push($e_title_arr, $row["e_title"] ?? '');
+        array_push($contents_arr, $row["contents"] ?? '');
+        array_push($registdate_arr, $row["registdate"] ?? '');
+        array_push($status_arr, $row["status"] ?? '');
+        array_push($e_line_arr, $row["e_line"] ?? '');
+        array_push($e_line_id_arr, $row["e_line_id"] ?? '');
+        array_push($e_confirm_arr, $row["e_confirm"] ?? '');
+        array_push($e_confirm_id_arr, $row["e_confirm_id"] ?? '');
+        array_push($r_line_arr, $row["r_line"] ?? '');
+        array_push($r_line_id_arr, $row["r_line_id"] ?? '');
+        array_push($recordtime_arr, $row["recordtime"] ?? '');
+        array_push($author_arr, $row["author"] ?? '');
+        array_push($author_id_arr, $row["author_id"] ?? '');
+        array_push($done_arr, $row["done"] ?? '');
+        array_push($al_askdatefrom_arr, $row["al_askdatefrom"] ?? '');
+        array_push($al_askdateto_arr, $row["al_askdateto"] ?? '');
+        array_push($al_item_arr, $row["al_item"] ?? '');
+        array_push($al_part_arr, $row["al_part"] ?? '');
+        array_push($al_usedday_arr, $row["al_usedday"] ?? 0);
+        array_push($al_content_arr, $row["al_content"] ?? '');
     }
 } catch (PDOException $ex) {
     error_log("eworks 연차 조회 오류: " . $ex->getMessage());
@@ -106,6 +108,8 @@ for ($j = 0; $j < count($basic_name_arr); $j++) {
 
     // 사용일 계산 - 처리완료일때 가산됨
     $totalused_arr[$j] = 0;
+    $totalusedYear_arr[$j] = $referencedate_arr[$j] ?? ''; // 기본값으로 referencedate 설정
+
     for ($i = 0; $i < count($num_arr); $i++) {
         if (trim($basic_name_arr[$j]) == trim($author_arr[$i]) && (substr(trim($al_askdatefrom_arr[$i]), 0, 4) == trim($referencedate_arr[$j])) && trim($status_arr[$i]) == 'end') {
             $totalused_arr[$j] += (float)$al_usedday_arr[$i];
@@ -147,10 +151,13 @@ $sql = "SELECT * FROM mirae8440.member where position!='퇴사'";
 try {
     $stmh = $pdo->query($sql);
     while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-        if ((int)$row["eworks_level"] > 0 && $row["name"] != '소현철') {
-            array_push($employee_name_arr, $row["name"]);
-            array_push($employee_id_arr, $row["id"]);
-            array_push($employee_part_arr, $row["part"]);
+        $eworks_level = (int)($row["eworks_level"] ?? 0);
+        $name = $row["name"] ?? '';
+
+        if ($eworks_level > 0 && $name != '소현철') {
+            array_push($employee_name_arr, $name);
+            array_push($employee_id_arr, $row["id"] ?? '');
+            array_push($employee_part_arr, $row["part"] ?? '');
         }
     }
 } catch (PDOException $ex) {

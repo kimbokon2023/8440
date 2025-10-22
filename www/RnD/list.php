@@ -1,53 +1,54 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session_header.php')); 
-   
-   // 첫 화면 표시 문구
+<?php
+/**
+ * RnD 연구개발 목록 페이지
+ * 로컬 및 서버 환경 모두 지원
+ */
+
+require_once __DIR__ . '/../bootstrap.php';
+
+// 첫 화면 표시 문구
 $title_message = '연구소';
 
- ?>
-  <?php include getDocumentRoot() . '/load_header.php' ?> 
-  
-<title>  <?=$title_message?>  </title> 
+?>
+<?php include includePath('load_header.php') ?>
 
-    <style>
-        .table-hover tbody tr:hover {
-            cursor: pointer;
-        }
-    </style> 
- 
- </head> 
- 
+<title>  <?=$title_message?>  </title>
+
+<style>
+    .table-hover tbody tr:hover {
+        cursor: pointer;
+    }
+</style>
+
+</head>
+
 <body>
 
-<?php require_once(includePath('myheader.php')); ?>   
+<?php require_once(includePath('myheader.php')); ?>
 
 <?php
 
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(1);
-         header("Location:".$_SESSION["WebSite"]."login/login_form.php"); 
-         exit;
-   }  
+// 권한 체크
+if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+    /*   alert("관리자 승인이 필요합니다."); */
+    sleep(1);
+    header("Location:" . getBaseUrl() . "/login/login_form.php");
+    exit;
+}
 
+// 요청 변수 초기화
 $tablename = "RnD";
-  
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();	 
- 
-if(isset($_REQUEST["mode"]))
- $mode=$_REQUEST["mode"];
-else 
- $mode="";
+$mode = $_REQUEST["mode"] ?? '';
+$search = $_REQUEST["search"] ?? '';   // search 쿼리스트링 값 할당 체크
+$DB = $_SESSION['DB'] ?? 'mirae8440';
 
-       if(isset($_REQUEST["search"]))   // search 쿼리스트링 값 할당 체크
-         $search=$_REQUEST["search"];
-       else 
-         $search="";
+// 데이터베이스 연결
+$pdo = db_connect(); 
 
-   if($mode=="search"){
-         if(!$search) {
-				$sql ="select * from mirae8440." . $tablename . " order  by num desc  "; 				
+// 검색 모드 처리
+if ($mode == "search") {
+    if (!$search) {
+        $sql = "select * from {$DB}." . $tablename . " order by num desc"; 				
              }
               $sql="select * from mirae8440." . $tablename . " where name like '%$search%' or subject like '%$search%'  or nick like '%$search%'  or regist_day like '%$search%'   or searchtext like '%$search%'  order by num desc  ";              
        } else {
@@ -68,8 +69,8 @@ try{
 <div class="card mt-2">
 <div class="card-body">
 
-  <input type="hidden" id="page" name="page" value="<?=$page?>"  > 
-  <input type="hidden" id="scale" name="scale" value="<?=$scale?>"  > 
+  <input type="hidden" id="page" name="page" value="<?=$_REQUEST['page'] ?? ''?>"  >
+  <input type="hidden" id="scale" name="scale" value="<?=$_REQUEST['scale'] ?? ''?>"  > 
   
   
  <div class="d-flex mt-3 mb-1 justify-content-center">  

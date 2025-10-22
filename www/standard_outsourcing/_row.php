@@ -1,5 +1,5 @@
-<?
-$num= $row['num'];
-$company =$row["company"];	
+<?php
+$num= $row['num'] ?? '';
+$company =$row["company"] ?? '';
 
 ?>

@@ -5,7 +5,7 @@
  */
 
 require_once __DIR__ . '/../common/functions.php';
-require_once getDocumentRoot() . '/load_GoogleDrive.php';
+require_once includePath('load_GoogleDrive.php');
 
 // 세션 변수 초기화
 $DB = $_SESSION["DB"] ?? 'mirae8440';
@@ -49,14 +49,14 @@ $item = '';
 $mode = '';
 $timekey = time();
 
-include getDocumentRoot() . '/load_header.php';
+include includePath('load_header.php');
 ?>
 
 <title><?= htmlspecialchars($title_message, ENT_QUOTES, 'UTF-8') ?></title>
 </head>
 <body>
 
-<?php include getDocumentRoot() . "/common/modal.php"; ?>
+<?php include includePath('common/modal.php'); ?>
 
 <?php
 require_once(includePath('lib/mydb.php'));
@@ -91,7 +91,7 @@ try {
         $item_hit = $row["hit"];
         $item_date = $row["regist_day"];
         $item_date = substr($item_date, 0, 10);
-        $item_subject = str_replace(" ", "&nbsp;", $row["subject"]);
+        $item_subject = $row["subject"];
         $item_content = $row["content"];
         $is_html = $row["is_html"];
         $noticecheck = $row["noticecheck"];
@@ -126,11 +126,11 @@ try {
         error_log("게시글을 찾을 수 없음 (num: {$num})");
         die("오류: 게시글을 찾을 수 없습니다.");
     }
-    
-    $author_id = $item_id;
-    
-    // Google Drive 파일 정보 불러오기
-    require_once getDocumentRoot() . '/load_GoogleDriveSecond.php';
+        
+        $author_id = $item_id;
+        
+        // Google Drive 파일 정보 불러오기
+        require_once includePath('load_GoogleDriveSecond.php');
     
 } catch (PDOException $ex) {
     error_log("게시글 조회 오류 (num: {$num}): " . $ex->getMessage());
@@ -212,7 +212,6 @@ try {
                     $ripple_id = $row_ripple["id"];
                     $ripple_nick = $row_ripple["nick"];
                     $ripple_content = str_replace("\n", "", $row_ripple["content"]);
-                    $ripple_content = str_replace(" ", "&nbsp;", $ripple_content);
                     $ripple_date = $row_ripple["regist_day"];
             ?>
             <div class="card" style="width:80%">

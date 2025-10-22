@@ -1,84 +1,113 @@
- <?php
-  
- $num=$_REQUEST["num"];
- $page=$_REQUEST["page"];   //페이지번호
- require_once("../lib/mydb.php");
- $pdo = db_connect();
+<?php
+/**
+ * s_board 링크를 통한 QNA 데이터 상세보기
+ * 로컬 및 서버 환경 모두 지원
+ */
+
+require_once __DIR__ . '/../bootstrap.php';
+
+// 세션 변수 초기화
+$DB = $_SESSION['DB'] ?? 'mirae8440';
+
+// 요청 변수 초기화
+$num = $_REQUEST["num"] ?? '';
+$page = $_REQUEST["page"] ?? '';
+
+// 변수 초기화
+$item_num = '';
+$item_id = '';
+$item_name = '';
+$item_nick = '';
+$item_subject = '';
+$item_content = '';
+$item_date = '';
+$item_hit = 0;
+$is_html = '';
+$new_hit = 0;
  
- try{
-     $sql = "select * from mirae8440.qna where num=?";
-     $stmh = $pdo->prepare($sql);  
-     $stmh->bindValue(1, $num, PDO::PARAM_STR);      
-     $stmh->execute();            
-      
-    $row = $stmh->fetch(PDO::FETCH_ASSOC);
-     $item_num     = $row["num"];
-     $item_id      = $row["id"];
-     $item_name    = $row["name"];
-     $item_nick    = $row["nick"];   
-     $item_subject = str_replace(" ", "&nbsp;", $row["subject"]);
-     $item_content = $row["content"];
-     $item_date    = $row["regist_day"];
-     $item_date    = substr($item_date, 0, 10);   
-     $item_hit     = $row["hit"];     
-     $is_html      = $row["is_html"];
-      
-     if ($is_html!="y"){
-	$item_content = str_replace(" ", "&nbsp;", $item_content);
-	$item_content = str_replace("\n", "<br>", $item_content);
-     }	
-     $new_hit = $item_hit + 1;
+try {
+    $sql = "select * from " . $DB . ".qna where num = ?";
+    $stmh = $pdo->prepare($sql);
+    $stmh->bindValue(1, $num, PDO::PARAM_INT);
+    $stmh->execute();
     
-       } catch (PDOException $Exception) {
-         $pdo->rollBack();
-       print "오류: ".$Exception->getMessage();
-  }
+    $row = $stmh->fetch(PDO::FETCH_ASSOC);
+    
+    if ($row) {
+        $item_num = $row["num"] ?? '';
+        $item_id = $row["id"] ?? '';
+        $item_name = $row["name"] ?? '';
+        $item_nick = $row["nick"] ?? '';
+        $item_subject = str_replace(" ", "&nbsp;", $row["subject"] ?? '');
+        $item_content = $row["content"] ?? '';
+        $item_date = $row["regist_day"] ?? '';
+        $item_date = substr($item_date, 0, 10);
+        $item_hit = $row["hit"] ?? 0;
+        $is_html = $row["is_html"] ?? '';
+        
+        if ($is_html != "y") {
+            $item_content = str_replace(" ", "&nbsp;", $item_content);
+            $item_content = str_replace("\n", "<br>", $item_content);
+        }
+        
+        $new_hit = $item_hit + 1;
+    }
+} catch (PDOException $Exception) {
+    error_log("QNA 데이터 조회 오류: " . $Exception->getMessage());
+}
   
 
 
-// 초기 프로그램은 $num사용 이후 $id로 수정중임  
-$id=$num;  
-
+// 초기 프로그램은 $num사용 이후 $id로 수정중임
+$id = $num;
 
 // 첨부 파일에 대한 읽어오는 부분
- require_once("../lib/mydb.php");
- $pdo = db_connect();
  
-// 첨부파일 있는 것 불러오기 
-$savefilename_arr=array(); 
-$realname_arr=array(); 
-$tablename='qna';
+// 첨부파일 있는 것 불러오기
+$savefilename_arr = array();
+$realname_arr = array();
+$tablename = 'qna';
 $item = 'attached';
 
-$sql=" select * from mirae8440.fileuploads where tablename ='$tablename' and item ='$item' and parentid ='$id' ";	
+$sql = "select * from " . $DB . ".fileuploads where tablename = ? and item = ? and parentid = ?";
 
- try{  
-   $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh   
-   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-			array_push($realname_arr, $row["realname"]);			
-			array_push($savefilename_arr, $row["savename"]);			
-        }		 
-   } catch (PDOException $Exception) {
-    print "오류: ".$Exception->getMessage();
-  }   
+try {
+    $stmh = $pdo->prepare($sql);
+    $stmh->bindValue(1, $tablename, PDO::PARAM_STR);
+    $stmh->bindValue(2, $item, PDO::PARAM_STR);
+    $stmh->bindValue(3, $id, PDO::PARAM_STR);
+    $stmh->execute();
+    
+    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+        array_push($realname_arr, $row["realname"] ?? '');
+        array_push($savefilename_arr, $row["savename"] ?? '');
+    }
+} catch (PDOException $Exception) {
+    error_log("첨부파일 조회 오류: " . $Exception->getMessage());
+}
 
-// 첨부 이미지 있는 것 불러오기 
-$realimagename_arr=array(); 
-$saveimagename_arr=array(); 
-$tablename='qna';
+// 첨부 이미지 있는 것 불러오기
+$realimagename_arr = array();
+$saveimagename_arr = array();
+$tablename = 'qna';
 $item = 'image';
 
-$sql=" select * from mirae8440.fileuploads where tablename ='$tablename' and item ='$item' and parentid ='$id' ";	
+$sql = "select * from " . $DB . ".fileuploads where tablename = ? and item = ? and parentid = ?";
 
- try{  
-   $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh   
-   while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-			array_push($realimagename_arr, $row["realname"]);							   
-			array_push($saveimagename_arr, $row["savename"]);		
-        }		 
-   } catch (PDOException $Exception) {
-    print "오류: ".$Exception->getMessage();
-  }   
+try {
+    $stmh = $pdo->prepare($sql);
+    $stmh->bindValue(1, $tablename, PDO::PARAM_STR);
+    $stmh->bindValue(2, $item, PDO::PARAM_STR);
+    $stmh->bindValue(3, $id, PDO::PARAM_STR);
+    $stmh->execute();
+    
+    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+        array_push($realimagename_arr, $row["realname"] ?? '');
+        array_push($saveimagename_arr, $row["savename"] ?? '');
+    }
+} catch (PDOException $Exception) {
+    error_log("첨부이미지 조회 오류: " . $Exception->getMessage());
+}
 
 	    
   

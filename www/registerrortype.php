@@ -1,5 +1,11 @@
-<?php session_start();
- ?>
+<?php
+session_start();
+
+// 요청 파라미터 초기화
+$num = $_REQUEST["num"] ?? '';
+$page = $_REQUEST["page"] ?? '';
+$calculate = $_REQUEST["calculate"] ?? '';
+?>
 
 <!DOCTYPE html>
 <meta charset="UTF-8">
@@ -29,9 +35,9 @@
 		 <form id="mainFrm" method="post" enctype="multipart/form-data" >		
             <input type="hidden" id="SelectWork" name="SelectWork" > 
             <input type="hidden" id="vacancy" name="vacancy" > 
-            <input type="hidden" id="num" name="num" value=<?=$num?> > 
-            <input type="hidden" id="page" name="page" value=<?=$page?> > 
-            <input type="hidden" id="calculate" name="calculate" value=<?=$calculate?> > 
+            <input type="hidden" id="num" name="num" value="<?= htmlspecialchars($num) ?>" > 
+            <input type="hidden" id="page" name="page" value="<?= htmlspecialchars($page) ?>" > 
+            <input type="hidden" id="calculate" name="calculate" value="<?= htmlspecialchars($calculate) ?>" > 
 		    <div class="card-header"> 			                        	                         
 						 <div class="input-group p-2 mb-1">							 
 						<button  type="button" id="prependBtn"  class="btn btn-secondary" >DATA 추가</button> &nbsp;

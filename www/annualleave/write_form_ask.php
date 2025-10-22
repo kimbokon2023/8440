@@ -8,7 +8,7 @@ $user_id = $_SESSION["userid"] ?? '';
 $DB = $_SESSION["DB"] ?? '';
 $admin = 0;
 ?>
-<?php include getDocumentRoot() . '/load_header.php' ?>
+<?php include getDocumentRoot() . '/load_header.php'; ?>
 <style>
     .table-bordered,
     .table-bordered td,
@@ -229,8 +229,9 @@ $admin = 0;
 								</tr>
 							</tbody>
 						</table>
-					</div>			  				  
-			  <? } ?>
+					</div>
+			  <?php } // end if($status === 'end')
+			  ?>
 				<div id="savetext">
 				<div class="d-flex justify-content-center align-items-center">
 					성명		
@@ -326,10 +327,10 @@ $admin = 0;
 					<br> 	  
 									
 				<button id="saveBtn" class="btn btn-sm btn-dark me-1 " type="button">
-				<? if((int)$num>0) print '결재상신(수정)';  else print '결재상신(등록)'; ?></button>
-				<? if((int)$num>0) {  ?>				
+				<?php if((int)$num>0) print '결재상신(수정)';  else print '결재상신(등록)'; ?></button>
+				<?php if((int)$num>0) {  ?>				
 					<button id="delBtn" class="btn btn-sm btn-danger ms-1 me-4" type="button">삭제</button>
-				<? } ?>						  
+				<?php } ?>						  
 				<button class="btn btn-dark btn-sm me-1" id="closeBtn" > &times; 닫기 </button>
 				</div>
        	   	</div>
@@ -460,19 +461,19 @@ $("#closeModalBtn").click(function(){
    }
 });	
 
-$("#closeBtn").click(function(){    // 저장하고 창닫기	
-				window.close(); // 현재 창 닫기
+$("#closeBtn").off('click').on('click', function(){    // 저장하고 창닫기	
+	window.close(); // 현재 창 닫기
 	setTimeout(function(){									
 				if (window.opener && !window.opener.closed) {					
 					window.opener.location.reload(); // 부모 창 새로고침
 				}					
 
-				
+	return false;
 	}, 1000);
  });	 
 
 // 휴가 등 대량으로 데이터를 생성할때 활용하는 루틴
-$("#massBtn").click(function(){   
+$("#massBtn").off('click').on('click', function(){   
 
   $("#mode").val('insert');     
 	  
@@ -492,7 +493,7 @@ $("#massBtn").click(function(){
 	   });				
  }); 				
 					
-$("#saveBtn").click(function(){      // DATA 저장버튼 누름
+$("#saveBtn").off('click').on('click', function(){      // DATA 저장버튼 누름
 	var num = $("#num").val();  
 	var part = $("#part").val();  
     var status = $("#status").val();  
@@ -542,7 +543,7 @@ if(status=='send' || admin === '1') {
 		
  }); 
 		 
-$("#delBtn").click(function(){      // del
+$("#delBtn").off('click').on('click', function(){      // del
 var num = $("#num").val();    
 var status = $("#status").val();  
 var user_name = $("#user_name").val();  
@@ -599,13 +600,13 @@ if(status=='send' || user_name=='김보곤') {
 								$('#myModal').modal('show');  								
 						} 			      		
 					   });												
-			} 	})
+			} }) // end of then
 
-		}
-   });	
- 
+		} // end of ajax
+   }); // end of ajax
 
-}); // end of ready document
+	return false;
+}); // end of delBtn
 
 // 두날짜 사이 일자 구하기
 function getDateDiff(d1, d2) {

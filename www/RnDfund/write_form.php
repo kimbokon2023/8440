@@ -1,72 +1,71 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session_header.php')); 
+<?php
+/**
+ * RnDfund 글쓰기/수정 폼 페이지
+ * 로컬 및 서버 환경 모두 지원
+ */
 
-if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-	sleep(1);
-	header("Location:" . $WebSite . "login/login_form.php"); 
-	exit;
-}   
+require_once __DIR__ . '/../bootstrap.php';
+// 첫 화면 표시 문구
+$title_message = '연구전담부서 운영비';
 
-include getDocumentRoot() . '/load_header.php';   
+?>
+
+<?php
+include getDocumentRoot() . '/load_header.php';
+
+// 권한 체크
+if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+    sleep(1);
+    header("Location:" . getBaseUrl() . "/login/login_form.php");
+    exit;
+}
+
+// 세션 변수 초기화
+$DB = $_SESSION['DB'] ?? 'mirae8440';
+
+// 요청 변수 초기화
+$callback = $_REQUEST["callback"] ?? '';
+$which = $_REQUEST["which"] ?? '2';
+$num = $_REQUEST["num"] ?? '';
+$mode = $_REQUEST["mode"] ?? '';
+$tablename = $_REQUEST["tablename"] ?? '';
+$regist_state = $_REQUEST["regist_state"] ?? '1';
+
+// 변수 초기화
+$first_writer = '';
+$update_log = '';
+$page = $_REQUEST["page"] ?? '';
+$item = '';
+$comment = '';    
   
-$title_message = '연구전담부서 운영비';  
-  
-$callback=$_REQUEST["callback"];  // 출고현황에서 체크번호
-  
+if ($mode == "modify") {
+    try {
+        $sql = "select * from " . $DB . "." . $tablename . " where num = ?";
+        $stmh = $pdo->prepare($sql);
+        $stmh->bindValue(1, $num, PDO::PARAM_INT);
+        $stmh->execute();
+        $count = $stmh->rowCount();
+        $row = $stmh->fetch(PDO::FETCH_ASSOC);
 
-  if(isset($_REQUEST["which"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $which=$_REQUEST["which"];
-  else
-   $which="2";
+        if ($count < 1) {
+            echo "검색결과가 없습니다.<br>";
+        } else {
+            include '_row.php';
+        }
+    } catch (PDOException $Exception) {
+        error_log("게시글 조회 오류: " . $Exception->getMessage());
+        echo "오류: " . $Exception->getMessage();
+    }
+}
   
-  if(isset($_REQUEST["num"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $num=$_REQUEST["num"];
-  else
-   $num="";
-
-  if(isset($_REQUEST["mode"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $mode=$_REQUEST["mode"];
-   
- 
-  if(isset($_REQUEST["tablename"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $tablename=$_REQUEST["tablename"];
-
-
-  if(isset($_REQUEST["regist_state"]))  // 등록하면 1로 설정 접수상태
-   $regist_state=$_REQUEST["regist_state"];
-  else
-   $regist_state="1";
-      
-  require_once(includePath('lib/mydb.php'));
-  $pdo = db_connect();    
-  
-  if ($mode=="modify"){
-    try{
-      $sql = "select * from ".$DB."." . $tablename . " where num = ? ";
-      $stmh = $pdo->prepare($sql); 
-
-      $stmh->bindValue(1,$num,PDO::PARAM_STR); 
-      $stmh->execute();
-      $count = $stmh->rowCount();            
-	  $row = $stmh->fetch(PDO::FETCH_ASSOC);  // $row 배열로 DB 정보를 불러온다.
-    if($count<1){  
-      print "검색결과가 없습니다.<br>";
-     }else{
-			include '_row.php';	
-			  
-      }
-     }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
-     }
-  }
-  
-  if ($mode!="modify"){    // 수정모드가 아닐때 신규 자료일때는 변수 초기화 한다.          
-			  $proDate=date("Y-m-d");
- 			  $writer=$_SESSION["name"];			  			  
- 			  $amount="";			  			  	  			  
- 			  $memo="";			  			  
-			  $which="2";
-  } 
+if ($mode != "modify") {
+    // 수정모드가 아닐때 신규 자료일때는 변수 초기화
+    $proDate = date("Y-m-d");
+    $writer = $_SESSION["name"] ?? '';
+    $amount = '';
+    $memo = '';
+    $which = '2';
+} 
 
 ?>
 
@@ -104,16 +103,21 @@ $callback=$_REQUEST["callback"];  // 출고현황에서 체크번호
 <table class="table table-bordered" >
 <tbody>
   <tr>  
- <?php	 		  
-	 	 $aryreg=array();
-	 	 $aryitem=array();
-		 if($which=='') $which='2';
-	     switch ($which) {
-					case   "1"             : $aryreg[0] = "checked" ; break;
-					case   "2"             :$aryreg[1] =  "checked" ; break;
-					default: break;
-				}		
-	   ?>
+<?php
+$aryreg = array('', '');  // 배열 초기화
+$aryitem = array();
+if (empty($which)) $which = '2';
+switch ($which) {
+    case "1":
+        $aryreg[0] = "checked";
+        break;
+    case "2":
+        $aryreg[1] = "checked";
+        break;
+    default:
+        break;
+}
+?>
 	<td colspan="4" class="text-center mt-3">	
 		<h6>	
 		   구분 :      

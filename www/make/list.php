@@ -5,8 +5,7 @@
  */
 
 // 공통 함수 및 세션 로드
-require_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session.php'));
+require_once __DIR__ . '/../bootstrap.php';
 
 // 권한 체크
 $level = $_SESSION["level"] ?? 999;
@@ -96,6 +95,21 @@ try {
     }
     
     $total_row = $stmh->rowCount();
+    
+    // 데이터를 배열로 미리 가져오기 (메모리 효율적이고 재사용 가능)
+    $dataList = [];
+    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+        $dataList[] = $row;
+    }
+
+} catch (PDOException $ex) {
+    error_log("목록 조회 오류: " . $ex->getMessage());
+    $dataList = [];
+    $total_row = 0;
+}
+
+// 디버그용 (필요시 주석 해제)
+// print $sql;
 ?>
 
 <?php include getDocumentRoot() . '/load_header.php' ?>
@@ -177,68 +191,97 @@ $form_params = http_build_query([
                     </thead>
                     <tbody>
 <?php
-                        $start_num = $total_row;
-                        
-                        while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-                            $num = $row["num"] ?? '';
-                            $orderdate = $row["orderdate"] ?? '';
-                            $indate = $row["indate"] ?? '';
-                            $company = $row["company"] ?? '';
-                            $text = $row["text"] ?? '';
-                            
-                            // 텍스트 정리
-                            $text = str_replace(",", " ", $text);
-                            $text = str_replace("|", " ", $text);
-                            $sumStr = $text;
-                            
-                            // 현재 날짜 강조
-                            $date_font = "color-black";
-                            if ($nowday == $orderdate) {
-                                $date_font = "color-red";
-                            }
-                            
-                            // 요일 추가
-                            if (!empty($orderdate)) {
-                                $week = array("(일)", "(월)", "(화)", "(수)", "(목)", "(금)", "(토)");
-                                $orderdate = $orderdate . $week[date('w', strtotime($orderdate))];
-                            }
-                            
-                            // 안전한 JavaScript 파라미터 생성
-                            $onclick_params = [
-                                $num,
-                                htmlspecialchars($page, ENT_QUOTES, 'UTF-8'),
-                                htmlspecialchars($find, ENT_QUOTES, 'UTF-8'),
-                                htmlspecialchars($search, ENT_QUOTES, 'UTF-8'),
-                                htmlspecialchars($process, ENT_QUOTES, 'UTF-8'),
-                                htmlspecialchars($asprocess, ENT_QUOTES, 'UTF-8'),
-                                htmlspecialchars($yearcheckbox, ENT_QUOTES, 'UTF-8'),
-                                htmlspecialchars($year, ENT_QUOTES, 'UTF-8'),
-                                htmlspecialchars($fromdate, ENT_QUOTES, 'UTF-8'),
-                                htmlspecialchars($todate, ENT_QUOTES, 'UTF-8'),
-                                htmlspecialchars($separate_date, ENT_QUOTES, 'UTF-8'),
-                                htmlspecialchars($scale, ENT_QUOTES, 'UTF-8')
-                            ];
-                            
-                            $onclick = "redirectToView(" . implode(", ", array_map(function($p) {
-                                return is_numeric($p) ? $p : "'{$p}'";
-                            }, $onclick_params)) . ")";
-                            ?>
-                            <tr style="cursor:pointer;" onclick="<?=$onclick?>">
-                                <td class="text-center"><?=htmlspecialchars($start_num, ENT_QUOTES, 'UTF-8')?></td>
-                                <td class="<?=$date_font?> text-center"><?=htmlspecialchars($orderdate, ENT_QUOTES, 'UTF-8')?></td>
-                                <td class="<?=$date_font?> text-center"><?=htmlspecialchars($indate, ENT_QUOTES, 'UTF-8')?></td>
-                                <td class="text-center"><?=htmlspecialchars($company, ENT_QUOTES, 'UTF-8')?></td>
-                                <td class="color-gray"><?=htmlspecialchars($sumStr, ENT_QUOTES, 'UTF-8')?></td>
-                            </tr>
-                            <?php
-                            $start_num--;
-                        }
-                    } catch (PDOException $ex) {
-                        error_log("목록 조회 오류: " . $ex->getMessage());
-                        echo "<tr><td colspan='5' class='text-center'>데이터 조회 중 오류가 발생했습니다.</td></tr>";
-                    }
-   
- ?>
+/**
+ * 테이블 행 렌더링 함수
+ * @param array $rowData 행 데이터
+ * @param int $rowNumber 행 번호
+ * @param string $currentDate 현재 날짜
+ * @param array $params 추가 파라미터
+ * @return void
+ */
+function renderTableRow($rowData, $rowNumber, $currentDate, $params) {
+    // 데이터 추출 및 기본값 설정
+    $num = $rowData["num"] ?? '';
+    $orderdate = $rowData["orderdate"] ?? '';
+    $indate = $rowData["indate"] ?? '';
+    $company = $rowData["company"] ?? '';
+    $text = $rowData["text"] ?? '';
+    
+    // 텍스트 정리
+    $text = str_replace([",", "|"], " ", $text);
+    
+    // 현재 날짜 강조
+    $date_font = ($currentDate == $orderdate) ? "color-red" : "color-black";
+    
+    // 요일 추가
+    if (!empty($orderdate)) {
+        $week = ["(일)", "(월)", "(화)", "(수)", "(목)", "(금)", "(토)"];
+        $orderdate = $orderdate . $week[date('w', strtotime($orderdate))];
+    }
+    
+    // JavaScript 함수 파라미터 생성 (JSON 방식으로 안전하게 처리)
+    $jsParams = [
+        'num' => $num,
+        'page' => $params['page'],
+        'find' => $params['find'],
+        'search' => $params['search'],
+        'process' => $params['process'],
+        'asprocess' => $params['asprocess'],
+        'yearcheckbox' => $params['yearcheckbox'],
+        'year' => $params['year'],
+        'fromdate' => $params['fromdate'],
+        'todate' => $params['todate'],
+        'separate_date' => $params['separate_date'],
+        'scale' => $params['scale']
+    ];
+    
+    // data-* 속성으로 안전하게 파라미터 전달
+    $dataAttrs = [];
+    foreach ($jsParams as $key => $value) {
+        $dataAttrs[] = sprintf('data-%s="%s"', 
+            htmlspecialchars($key, ENT_QUOTES, 'UTF-8'),
+            htmlspecialchars($value, ENT_QUOTES, 'UTF-8')
+        );
+    }
+    ?>
+    <tr style="cursor:pointer;" class="table-row-clickable" <?=implode(' ', $dataAttrs)?>>
+        <td class="text-center"><?=htmlspecialchars($rowNumber, ENT_QUOTES, 'UTF-8')?></td>
+        <td class="<?=$date_font?> text-center"><?=htmlspecialchars($orderdate, ENT_QUOTES, 'UTF-8')?></td>
+        <td class="<?=$date_font?> text-center"><?=htmlspecialchars($indate, ENT_QUOTES, 'UTF-8')?></td>
+        <td class="text-center"><?=htmlspecialchars($company, ENT_QUOTES, 'UTF-8')?></td>
+        <td class="color-gray"><?=htmlspecialchars($text, ENT_QUOTES, 'UTF-8')?></td>
+    </tr>
+<?php
+}
+
+// 데이터가 있는 경우 테이블 렌더링
+if (!empty($dataList)) {
+    // 파라미터 배열 준비
+    $renderParams = [
+        'page' => $page,
+        'find' => $find,
+        'search' => $search,
+        'process' => $process,
+        'asprocess' => $asprocess,
+        'yearcheckbox' => $yearcheckbox,
+        'year' => $year,
+        'fromdate' => $fromdate,
+        'todate' => $todate,
+        'separate_date' => $separate_date,
+        'scale' => $scale
+    ];
+    
+    // 각 행 렌더링 (1부터 시작)
+    $rowNumber = 1;
+    foreach ($dataList as $rowData) {
+        renderTableRow($rowData, $rowNumber, $nowday, $renderParams);
+        $rowNumber++;
+    }
+} else {
+    // 데이터가 없는 경우
+    echo '<tr><td colspan="5" class="text-center">조회된 데이터가 없습니다.</td></tr>';
+}
+?>
                     </tbody>
                 </table>
             </div>
@@ -300,7 +343,44 @@ $(document).ready(function() {
 		var page = paintpageNumber; // 현재 페이지 번호 (+1을 해서 1부터 시작하도록 조정)			
 		var url = "write_form.php"; 
 		customPopup(url, '신규 등록', 1400, 800); 	
-	 });			
+	});
+	
+	// 테이블 행 클릭 이벤트 (이벤트 위임 방식)
+	$('#myTable').on('click', '.table-row-clickable', function() {
+		var $row = $(this);
+		
+		// data-* 속성에서 파라미터 추출
+		var params = {
+			menu: 'no',
+			num: $row.data('num'),
+			page: paintpageNumber || $row.data('page') || '',
+			find: $row.data('find') || '',
+			search: $row.data('search') || '',
+			process: $row.data('process') || '',
+			asprocess: $row.data('asprocess') || '',
+			yearcheckbox: $row.data('yearcheckbox') || '',
+			year: $row.data('year') || '',
+			fromdate: $row.data('fromdate') || '',
+			todate: $row.data('todate') || '',
+			separate_date: $row.data('separate_date') || '',
+			scale: $row.data('scale') || ''
+		};
+		
+		// 쿼리스트링 생성
+		var queryString = Object.keys(params)
+			.filter(function(key) { return params[key] !== ''; })
+			.map(function(key) { return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]); })
+			.join('&');
+		
+		var url = 'view.php?' + queryString;
+		
+		// 팝업 열기
+		if (typeof customPopup === 'function') {
+			customPopup(url, '도장 발주', 1400, 800);
+		} else {
+			window.open(url, '도장 발주', 'width=1400,height=800');
+		}
+	});			
 });
 
 function restorePageNumber() {
@@ -310,8 +390,11 @@ function restorePageNumber() {
     }
 }
 
-// 상세 페이지로 이동
+// 상세 페이지로 이동 (레거시 함수 - data-* 속성 방식으로 대체됨)
+// 하위 호환성을 위해 유지하지만 더 이상 사용되지 않음
 function redirectToView(num, page, find, search, process, asprocess, yearcheckbox, year, fromdate, todate, separate_date, scale) {
+    console.warn('redirectToView는 더 이상 사용되지 않습니다. 이벤트 위임 방식을 사용하세요.');
+    
     var params = {
         menu: 'no',
         num: num,

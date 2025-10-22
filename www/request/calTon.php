@@ -1,6 +1,11 @@
 <?php session_start();
-isset($_REQUEST["steel_item"]) ? $steel_item=$_REQUEST["steel_item"] : $steel_item="";   
-isset($_REQUEST["spec"]) ? $spec=$_REQUEST["spec"] : $spec="";   
+isset($_REQUEST["steel_item"]) ? $steel_item=$_REQUEST["steel_item"] : $steel_item="";
+isset($_REQUEST["spec"]) ? $spec=$_REQUEST["spec"] : $spec="";
+isset($_REQUEST["num"]) ? $num=$_REQUEST["num"] : $num="";
+isset($_REQUEST["page"]) ? $page=$_REQUEST["page"] : $page="";
+isset($_REQUEST["calculate"]) ? $calculate=$_REQUEST["calculate"] : $calculate="";
+isset($_REQUEST["expected"]) ? $expected=$_REQUEST["expected"] : $expected="";
+isset($_REQUEST["steelnum"]) ? $steelnum=$_REQUEST["steelnum"] : $steelnum="";
 
  ?>
 

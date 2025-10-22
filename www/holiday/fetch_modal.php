@@ -80,61 +80,157 @@ if ($mode === 'update' && !empty($num)) {
 $title_message = ($mode === 'update') ? '휴무 수정' : '휴무 신규 등록';
 ?>
 
+<style>
+    .modal-form-container {
+        padding: 10px;
+    }
+    
+    .form-group-modern {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 2px solid rgba(102, 126, 234, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .form-group-modern:hover {
+        border-color: rgba(102, 126, 234, 0.3);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+    }
+    
+    .form-label-modern {
+        display: flex;
+        align-items: center;
+        font-weight: 600;
+        color: #667eea;
+        margin-bottom: 12px;
+        font-size: 0.95rem;
+    }
+    
+    .form-label-modern i {
+        margin-right: 8px;
+        font-size: 1.1rem;
+    }
+    
+    .date-input-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .custom-checkbox {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        user-select: none;
+        margin-bottom: 10px;
+    }
+    
+    .custom-checkbox input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: #667eea;
+        margin-right: 8px;
+    }
+    
+    .custom-checkbox label {
+        cursor: pointer;
+        margin: 0;
+        font-weight: 500;
+        color: #555;
+    }
+    
+    .date-separator {
+        font-size: 1.2rem;
+        color: #667eea;
+        font-weight: bold;
+        margin: 0 5px;
+    }
+    
+    input[type="date"],
+    input[type="text"] {
+        border: 2px solid #e0e7ff;
+        border-radius: 10px;
+        padding: 10px 15px;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+    }
+    
+    input[type="date"]:focus,
+    input[type="text"]:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        outline: none;
+    }
+    
+    .btn-group-modern {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 2px solid #f0f0f0;
+    }
+    
+    .btn-danger {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        border: none;
+    }
+    
+    .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+    }
+</style>
+
 <input type="hidden" id="update_log" name="update_log" value="<?php echo htmlspecialchars($update_log, ENT_QUOTES, 'UTF-8'); ?>">
 <input type="hidden" id="registedate" name="registedate" value="<?php echo htmlspecialchars($registedate, ENT_QUOTES, 'UTF-8'); ?>">
 
-<div class="container-fluid">
-    <div class="d-flex align-items-center justify-content-center">
-        <div class="card justify-content-center">
-            <div class="card-header text-center">
-                <span class="text-center fs-5"><?php echo htmlspecialchars($title_message, ENT_QUOTES, 'UTF-8'); ?></span>
-            </div>
-            
-            <div class="card-body">
-                <div class="row justify-content-center text-center">
-                    <div class="d-flex align-items-center justify-content-center m-2">
-                        <table class="table table-bordered">
-                            <tbody>
-                                <tr>
-                                    <td class="text-center fs-6 fw-bold" style="width:150px;">기간 설정</td>
-                                    <td class="text-start" style="width:450px;">
-                                        <input type="checkbox" id="periodcheck" name="periodcheck" value="1" <?php echo $periodcheck ? 'checked' : ''; ?>>
-                                        <span>
-                                            <input type="date" class="form-control d-inline fs-6" id="startdate" name="startdate" style="width:130px;" value="<?php echo htmlspecialchars($startdate, ENT_QUOTES, 'UTF-8'); ?>">
-                                            <span id="enddateWrapper" style="<?php echo $periodcheck ? '' : 'display:none;'; ?>">
-                                                ~
-                                                <input type="date" class="form-control d-inline fs-6" id="enddate" name="enddate" style="width:130px;" value="<?php echo htmlspecialchars($enddate, ENT_QUOTES, 'UTF-8'); ?>">
-                                            </span>
-                                        </span>
-                                    </td>
-                                </tr>
-                                
-                                <tr>
-                                    <td class="text-center fs-6 fw-bold" style="width:150px;">비고</td>
-                                    <td class="text-center">
-                                        <input type="text" class="form-control fs-6" id="comment" name="comment" value="<?php echo htmlspecialchars($comment, ENT_QUOTES, 'UTF-8'); ?>" autocomplete="off">
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                
-                <div class="d-flex justify-content-center">
-                    <button type="button" id="saveBtn" class="btn btn-dark btn-sm me-3">
-                        <i class="bi bi-floppy-fill"></i> 저장
-                    </button>
-                    <?php if ($mode === 'update'): ?>
-                    <button type="button" id="deleteBtn" class="btn btn-danger btn-sm me-3">
-                        <i class="bi bi-trash"></i> 삭제
-                    </button>
-                    <?php endif; ?>
-                    <button type="button" id="closeBtn" class="btn btn-outline-dark btn-sm me-2">
-                        &times; 닫기
-                    </button>
-                </div>
-            </div>
+<div class="modal-form-container">
+    <!-- 기간 설정 -->
+    <div class="form-group-modern">
+        <div class="form-label-modern">
+            <i class="bi bi-calendar-range"></i>
+            기간 설정
         </div>
+        <div class="custom-checkbox">
+            <input type="checkbox" id="periodcheck" name="periodcheck" value="1" <?php echo $periodcheck ? 'checked' : ''; ?>>
+            <label for="periodcheck">기간 범위 지정</label>
+        </div>
+        <div class="date-input-wrapper">
+            <input type="date" class="form-control" id="startdate" name="startdate" style="width:160px;" value="<?php echo htmlspecialchars($startdate, ENT_QUOTES, 'UTF-8'); ?>" required>
+            <span id="enddateWrapper" style="<?php echo $periodcheck ? 'display: flex; align-items: center; gap: 10px;' : 'display:none;'; ?>">
+                <span class="date-separator">→</span>
+                <input type="date" class="form-control" id="enddate" name="enddate" style="width:160px;" value="<?php echo htmlspecialchars($enddate, ENT_QUOTES, 'UTF-8'); ?>">
+            </span>
+        </div>
+    </div>
+    
+    <!-- 비고 -->
+    <div class="form-group-modern">
+        <div class="form-label-modern">
+            <i class="bi bi-chat-left-text"></i>
+            비고
+        </div>
+        <input type="text" class="form-control" id="comment" name="comment" placeholder="휴무 내용을 입력하세요..." value="<?php echo htmlspecialchars($comment, ENT_QUOTES, 'UTF-8'); ?>" autocomplete="off">
+    </div>
+    
+    <!-- 버튼 그룹 -->
+    <div class="btn-group-modern">
+        <button type="button" id="saveBtn" class="btn btn-dark btn-sm">
+            <i class="bi bi-check-circle"></i> 저장
+        </button>
+        <?php if ($mode === 'update'): ?>
+        <button type="button" id="deleteBtn" class="btn btn-danger btn-sm">
+            <i class="bi bi-trash"></i> 삭제
+        </button>
+        <?php endif; ?>
+        <button type="button" class="btn btn-outline-dark btn-sm closeBtn">
+            <i class="bi bi-x-circle"></i> 닫기
+        </button>
     </div>
 </div>
 
@@ -152,7 +248,9 @@ $title_message = ($mode === 'update') ? '휴무 수정' : '휴무 신규 등록'
     if (periodCheckbox && enddateWrapper) {
         periodCheckbox.addEventListener('change', function() {
             if (this.checked) {
-                enddateWrapper.style.display = 'inline';
+                enddateWrapper.style.display = 'flex';
+                enddateWrapper.style.alignItems = 'center';
+                enddateWrapper.style.gap = '10px';
             } else {
                 enddateWrapper.style.display = 'none';
                 // 체크 해제 시 종료일 초기화
@@ -165,7 +263,9 @@ $title_message = ($mode === 'update') ? '휴무 수정' : '휴무 신규 등록'
         
         // 초기 로드 시 체크박스 상태에 따라 종료일 표시
         if (periodCheckbox.checked) {
-            enddateWrapper.style.display = 'inline';
+            enddateWrapper.style.display = 'flex';
+            enddateWrapper.style.alignItems = 'center';
+            enddateWrapper.style.gap = '10px';
         } else {
             enddateWrapper.style.display = 'none';
         }

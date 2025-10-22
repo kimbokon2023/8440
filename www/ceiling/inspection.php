@@ -1,8 +1,5 @@
 <?php
-// 세션 시작
-if (!isset($_SESSION)) {
-    session_start();
-}
+require_once __DIR__ . '/../bootstrap.php';
 
 // 세션 변수 초기화
 $DB = isset($_SESSION["DB"]) ? $_SESSION["DB"] : "";

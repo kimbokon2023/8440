@@ -1,16 +1,5 @@
 <?php
-/**
- * Idea 직원 제안제도 운영 페이지
- * 직원들의 제안사항을 관리하고 검색합니다.
- */
-
-// 로컬과 서버 호환성을 위한 설정
-if (file_exists(__DIR__ . '/../common/functions.php')) {
-    require_once __DIR__ . '/../common/functions.php';
-}
-
-// 세션 시작
-require_once(includePath('session.php'));
+require_once __DIR__ . '/../bootstrap.php';
 
 // 세션 변수 초기화
 $DB = $_SESSION["DB"] ?? 'mirae8440';
@@ -144,8 +133,8 @@ if ($mode === "search" || empty($mode)) {
     $sql = "SELECT * FROM {$DB}.idea ORDER BY num DESC";
 }
 
-// numarr 배열 초기화
-$numarr = array();
+// 데이터 조회 및 저장
+$dataRows = array();
 
 try {
     if (isset($usesPrepared) && $usesPrepared === true) {
@@ -160,12 +149,20 @@ try {
         $stmh = $pdo->query($sql);
     }
     
-    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-        include "rowDB.php";
+    // 모든 결과를 배열에 저장
+    if ($stmh) {
+        while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+            $dataRows[] = $row;
+        }
     }
+    
+    // 전체 레코드 수 계산
+    $total_row = count($dataRows);
     
 } catch (PDOException $ex) {
     error_log("DB query error in idea/index.php: " . $ex->getMessage());
+    $dataRows = array();
+    $total_row = 0;
 }
 
 include getDocumentRoot() . '/load_header.php';
@@ -236,24 +233,12 @@ require_once(includePath('common/modal.php'));
 if ($menu !== 'no') {
     require_once(includePath('myheader.php'));
 }
-?>
 
-<?php
-// 전체 레코드수 파악
-try {
-    if (isset($usesPrepared) && $usesPrepared === true) {
-        $stmh = $pdo->prepare($sql);
-        $stmh->bindValue(1, $searchParam, PDO::PARAM_STR);
-        $stmh->bindValue(2, $searchParam, PDO::PARAM_STR);
-        $stmh->bindValue(3, $searchParam, PDO::PARAM_STR);
-        $stmh->bindValue(4, $searchParam, PDO::PARAM_STR);
-        $stmh->bindValue(5, $searchParam, PDO::PARAM_STR);
-        $stmh->execute();
-    } else {
-        $stmh = $pdo->query($sql);
-    }
-    
-    $total_row = $stmh->rowCount();
+
+// echo '<pre>';
+// echo print_r($dataRows);
+// echo '</pre>';
+
 ?>
 
 <form name="board_form" id="board_form" method="post" action="./index.php">
@@ -293,7 +278,7 @@ try {
                 </div>
                 
                 <div class="d-flex mb-2 px-5 px-lg-2 mt-2 justify-content-center align-items-center">
-                    ▷ <?php echo htmlspecialchars($total_row, ENT_QUOTES, 'UTF-8'); ?> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    ▷ 전체: <?php echo htmlspecialchars($total_row, ENT_QUOTES, 'UTF-8'); ?>건 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <input type="text" class="form-control mx-1" style="width:150px;" name="search" id="search" value="<?php echo htmlspecialchars($search, ENT_QUOTES, 'UTF-8'); ?>" autocomplete="off" onkeydown="JavaScript:SearchEnter();" placeholder="검색어">
                     <button type="button" id="searchBtn" class="btn btn-dark btn-sm me-2">
                         <i class="bi bi-search"></i> 검색
@@ -321,10 +306,13 @@ try {
                         </thead>
                         <tbody>
                             <?php
-                            $start_num = $total_row;
-                            
-                            while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-                                include "rowDB.php";
+                            // 디버깅: total_row 확인
+                            error_log("DEBUG idea/index.php - total_row: " . $total_row . ", dataRows count: " . count($dataRows));
+
+                            $start_num = 1;
+
+                            foreach ($dataRows as $row) {
+                                include "rowDB.php";                                
                             ?>
                             <tr onclick="redirectToView('<?php echo htmlspecialchars($num, ENT_QUOTES, 'UTF-8'); ?>', '<?php echo htmlspecialchars($tablename, ENT_QUOTES, 'UTF-8'); ?>')">
                                 <td class="text-center"><?php echo htmlspecialchars($start_num, ENT_QUOTES, 'UTF-8'); ?></td>
@@ -339,7 +327,7 @@ try {
                                 <td class="text-center"><?php echo htmlspecialchars($payment, ENT_QUOTES, 'UTF-8'); ?></td>
                             </tr>
                             <?php
-                                $start_num--;
+                                $start_num++;
                             }
                             ?>
                         </tbody>
@@ -352,19 +340,6 @@ try {
     <!-- Footer -->
     <?php include "footer.php"; ?>
 </form>
-
-<?php
-} catch (PDOException $ex) {
-    error_log("DB query error in idea/index.php: " . $ex->getMessage());
-    ?>
-    <div class="container">
-        <div class="alert alert-danger" role="alert">
-            데이터 조회 중 오류가 발생했습니다.
-        </div>
-    </div>
-    <?php
-}
-?>
 
 <script src="js/scripts.js"></script>
 
@@ -383,11 +358,19 @@ try {
             searching: true,
             pageLength: 50,
             lengthMenu: [25, 50, 100, 200, 500, 1000],
+            columnDefs: [
+                { orderable: false, targets: 0 } // 번호 컬럼 정렬 비활성화
+            ],
             language: {
                 lengthMenu: 'Show _MENU_ entries',
-                search: 'Live Search:'
+                search: 'Live Search:',
+                emptyTable: '등록된 제안이 없습니다.',
+                zeroRecords: '검색 결과가 없습니다.',
+                info: 'Showing _START_ to _END_ of _TOTAL_ entries',
+                infoEmpty: 'No entries to show',
+                infoFiltered: '(filtered from _MAX_ total entries)'
             },
-            order: [[0, 'desc']]
+            order: [[1, 'desc']] // 등록일 기준 내림차순
         });
         
         // 페이지 번호 복원 (초기 로드 시)

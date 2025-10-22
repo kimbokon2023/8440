@@ -1,47 +1,75 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
+<?php
+require_once __DIR__ . '/../bootstrap.php';
 
-header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문        
-$num=$_REQUEST["num"]; 
-$tablename=$_REQUEST["tablename"];    
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();   
-   
-   // 첨부파일 삭제
-   try{									
-		 $pdo->beginTransaction();
-		 $sql1 = "delete from {$DB}.picuploads where parentnum = ? and tablename = ? ";  
-		 $stmh1 = $pdo->prepare($sql1);
-		 $stmh1->bindValue(1,$num, PDO::PARAM_STR);      		 
-		 $stmh1->bindValue(2,$tablename, PDO::PARAM_STR);      
-		 $stmh1->execute();  
+/**
+ * RnDnotice 게시글 삭제 (Hard Delete)
+ * 
+ * 첨부파일과 함께 실제 데이터를 삭제
+ */
 
-		 $pdo->commit();
-		 
-		 } catch (Exception $ex) {
-			$pdo->rollBack();
-			print "오류: ".$Exception->getMessage();
-	   } 
-      
-   try{
-     $pdo->beginTransaction();
-     $sql = "delete from {$DB}.{$tablename} where num = ?";  
-     $stmh = $pdo->prepare($sql);
-     $stmh->bindValue(1,$num,PDO::PARAM_STR);      
-     $stmh->execute();   
-     $pdo->commit();
-                          
-     } catch (Exception $ex) {
-        $pdo->rollBack();
-        print "오류: ".$Exception->getMessage();
-   }
-   
-//각각의 정보를 하나의 배열 변수에 넣어준다.
-$data = array(
-		"num" =>  $num
-);
+// JSON 응답 헤더 설정
+header("Content-Type: application/json; charset=utf-8");
 
-//json 출력
-echo(json_encode($data, JSON_UNESCAPED_UNICODE));     
-   
+// 세션 변수 초기화
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+$level = $_SESSION["level"] ?? 999;
+$user_name = $_SESSION["name"] ?? '';
+
+// 요청 변수 초기화
+$num = $_REQUEST["num"] ?? '';
+$tablename = $_REQUEST["tablename"] ?? 'RnDnotice';
+
+// 필수 데이터 체크
+if (empty($num)) {
+    echo json_encode(array(
+        "success" => false,
+        "message" => "삭제할 데이터 번호가 없습니다."
+    ), JSON_UNESCAPED_UNICODE);
+    exit;
+}   
+
+
+// 1단계: 첨부파일 삭제
+try {
+    $pdo->beginTransaction();
+    $sql1 = "delete from " . $DB . ".picuploads where parentnum = ? and tablename = ?";
+    $stmh1 = $pdo->prepare($sql1);
+    $stmh1->bindValue(1, $num, PDO::PARAM_INT);
+    $stmh1->bindValue(2, $tablename, PDO::PARAM_STR);
+    $stmh1->execute();
+    $pdo->commit();
+} catch (Exception $ex) {
+    $pdo->rollBack();
+    error_log("첨부파일 삭제 오류: " . $ex->getMessage());
+} 
+
+
+// 2단계: RnDnotice 게시글 삭제
+try {
+    $pdo->beginTransaction();
+    $sql = "delete from " . $DB . "." . $tablename . " where num = ?";
+    $stmh = $pdo->prepare($sql);
+    $stmh->bindValue(1, $num, PDO::PARAM_INT);
+    $stmh->execute();
+    $pdo->commit();
+
+    // 성공 응답
+    echo json_encode(array(
+        "success" => true,
+        "num" => $num,
+        "message" => "게시글이 성공적으로 삭제되었습니다."
+    ), JSON_UNESCAPED_UNICODE);
+} catch (Exception $ex) {
+    $pdo->rollBack();
+    
+    // 에러 로그 기록
+    error_log("RnDnotice 게시글 삭제 오류: " . $ex->getMessage());
+    
+    // 에러 응답
+    echo json_encode(array(
+        "success" => false,
+        "message" => "게시글 삭제 중 오류가 발생했습니다.",
+        "error" => $ex->getMessage()
+    ), JSON_UNESCAPED_UNICODE);
+}
 ?>

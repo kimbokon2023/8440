@@ -1,21 +1,24 @@
 <?php
-require_once __DIR__ . '/../common/functions.php';
-?>
-﻿<?php require_once(includePath('session.php')); 
+require_once __DIR__ . '/../bootstrap.php';
 
-$title_message= "투표" ;
+// 세션 변수 초기화
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+$level = $_SESSION["level"] ?? 999;
+$user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["userid"] ?? '';
+$WebSite = $_SESSION["WebSite"] ?? getBaseUrl() . '/';
 
-?>
+// 권한 체크
+if($level > 5) {
+    sleep(1);
+    header("Location:" . $WebSite . "login/login_form.php"); 
+    exit;
+}
 
-<?php include getDocumentRoot() . '/load_header.php';
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-          /*   alert("관리자 승인이 필요합니다."); */
-		 sleep(1);
-         header("Location:".$_SESSION["WebSite"]."login/login_form.php"); 
-         exit;
-   } 
+$title_message = "투표";
 
- ?> 
+include includePath('load_header.php');
+?> 
   
 <title>  <?=$title_message?>  </title> 
     <style>
@@ -25,76 +28,86 @@ $title_message= "투표" ;
     </style>  
  </head>  
 <body>
-<?php include "../common/modal.php"; ?>      
+<?php include includePath('common/modal.php'); ?>
+      
 <?php   
 
-$id = isset($_REQUEST["id"]) ? $_REQUEST["id"] : "";
-$fileorimage = isset($_REQUEST["fileorimage"]) ? $_REQUEST["fileorimage"] : "";
-$item = isset($_REQUEST["item"]) ? $_REQUEST["item"] : "";
-$upfilename = isset($_REQUEST["upfilename"]) ? $_REQUEST["upfilename"] : "";
-$tablename = isset($_REQUEST["tablename"]) ? $_REQUEST["tablename"] : "";
-$savetitle = isset($_REQUEST["savetitle"]) ? $_REQUEST["savetitle"] : "";
-$mode = isset($_REQUEST["mode"]) ? $_REQUEST["mode"] : "";
-$num = isset($_REQUEST["num"]) ? $_REQUEST["num"] : "";
+// 요청 변수 초기화
+$id = $_REQUEST["id"] ?? '';
+$fileorimage = $_REQUEST["fileorimage"] ?? '';
+$item = $_REQUEST["item"] ?? '';
+$upfilename = $_REQUEST["upfilename"] ?? '';
+$tablename = $_REQUEST["tablename"] ?? 'vote';
+$savetitle = $_REQUEST["savetitle"] ?? '';
+$mode = $_REQUEST["mode"] ?? 'insert';
+$num = $_REQUEST["num"] ?? '';
+$parentid = $_REQUEST["parentid"] ?? '';
+$pInput = $_REQUEST["pInput"] ?? '';
+$searchtext = $_REQUEST["searchtext"] ?? '';
 
-$num_Array=array();     
-$piclist_Array=array();  	  
+// 변수 초기화 (신규 생성 모드 대응)
+$item_subject = '';
+$is_html = '';
+$content = '';
+$noticecheck = '';
+$status = '';
+$deadline = '';
+$votelist = '{}';
+
+$num_Array = array();     
+$piclist_Array = array();  	  
 		  
 require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();	
 
-  if ($mode=="modify"){
-    try{
-      $sql = "select * from ".$DB.".". $tablename . " where num = ? ";
-      $stmh = $pdo->prepare($sql); 
-
-    $stmh->bindValue(1,$num,PDO::PARAM_STR); 
-      $stmh->execute();
-      $count = $stmh->rowCount();              
-    if($count<1){  
-      print "검색결과가 없습니다.<br>";
-     }else{
-      $row = $stmh->fetch(PDO::FETCH_ASSOC);
-      $item_subject = $row["subject"];
-      $is_html = $row["is_html"];
-      $content = $row["content"];
-      $noticecheck = $row["noticecheck"];
-      $status = $row["status"];
-      $deadline = $row["deadline"];
-      $votelist = $row["votelist"] ?? '{}'; // votelist 값이 없을 경우의 기본값
-      }
-     }catch (PDOException $Exception) {
-       print "오류: ".$Exception->getMessage();
-     }
-  }  
-    else
-  {
-	  $num='';
-	  $id='';	  
-      $votelist = '{}';
-      $mode='insert';
-  }
+if($mode == "modify" && !empty($num)) {
+    try {
+        $sql = "SELECT * FROM " . $DB . "." . $tablename . " WHERE num = ?";
+        $stmh = $pdo->prepare($sql); 
+        $stmh->bindValue(1, $num, PDO::PARAM_INT); 
+        $stmh->execute();
+        
+        $row = $stmh->fetch(PDO::FETCH_ASSOC);
+        
+        if($row) {
+            $item_subject = $row["subject"] ?? '';
+            $is_html = $row["is_html"] ?? '';
+            $content = $row["content"] ?? '';
+            $noticecheck = $row["noticecheck"] ?? '';
+            $status = $row["status"] ?? '';
+            $deadline = $row["deadline"] ?? '';
+            $votelist = $row["votelist"] ?? '{}';
+        } else {
+            echo "<script>alert('게시글을 찾을 수 없습니다.'); window.close();</script>";
+            exit;
+        }
+    } catch (PDOException $Exception) {
+        error_log("데이터 조회 오류: " . $Exception->getMessage());
+        echo "<script>alert('데이터 조회 중 오류가 발생했습니다.'); window.close();</script>";
+        exit;
+    }
+}
 
 // 초기 프로그램은 $num사용 이후 $id로 수정중임  
-$id=$num;  
- // 신규데이터 작성시 키값지정 parentid값이 없으면 데이터 저장안됨
+$id = $num;  
+// 신규데이터 작성시 키값지정 parentid값이 없으면 데이터 저장안됨
 $timekey = date("Y_m_d_H_i_s");
 ?>
  
 <form  id="board_form" name="board_form" method="post" enctype="multipart/form-data"> 
   <!-- 전달함수 설정 input hidden -->
-	<input type="hidden" id="tablename" name="tablename" value="<?=$tablename?>" >			  								
-	<input type="hidden" id="id" name="id" value="<?=$id?>" >			  								
-	<input type="hidden" id="num" name="num" value="<?=$num?>" >			  									
-	<input type="hidden" id="parentid" name="parentid" value="<?=$parentid?>" >			  								
-	<input type="hidden" id="fileorimage" name="fileorimage" value="<?=$fileorimage?>" >			  								
-	<input type="hidden" id="item" name="item" value="<?=$item?>" >			  								
-	<input type="hidden" id="upfilename" name="upfilename" value="<?=$upfilename?>" >			  									
-	<input type="hidden" id="savetitle" name="savetitle" value="<?=$savetitle?>" >			  								
-	<input type="hidden" id="pInput" name="pInput" value="<?=$pInput?>" >			  								
-	<input type="hidden" id="mode" name="mode" value="<?=$mode?>" >		
-	<input type="hidden" id="timekey" name="timekey" value="<?=$timekey?>" >  <!-- 신규데이터 작성시 parentid key값으로 사용 -->		
-	<input type="hidden" id="searchtext" name="searchtext" value="<?=$searchtext?>" >  <!-- summernote text저장 -->				
+	<input type="hidden" id="tablename" name="tablename" value="<?= htmlspecialchars($tablename, ENT_QUOTES, 'UTF-8') ?>" >			  								
+	<input type="hidden" id="id" name="id" value="<?= htmlspecialchars($id, ENT_QUOTES, 'UTF-8') ?>" >			  								
+	<input type="hidden" id="num" name="num" value="<?= htmlspecialchars($num, ENT_QUOTES, 'UTF-8') ?>" >			  									
+	<input type="hidden" id="parentid" name="parentid" value="<?= htmlspecialchars($parentid, ENT_QUOTES, 'UTF-8') ?>" >			  								
+	<input type="hidden" id="fileorimage" name="fileorimage" value="<?= htmlspecialchars($fileorimage, ENT_QUOTES, 'UTF-8') ?>" >			  								
+	<input type="hidden" id="item" name="item" value="<?= htmlspecialchars($item, ENT_QUOTES, 'UTF-8') ?>" >			  								
+	<input type="hidden" id="upfilename" name="upfilename" value="<?= htmlspecialchars($upfilename, ENT_QUOTES, 'UTF-8') ?>" >			  									
+	<input type="hidden" id="savetitle" name="savetitle" value="<?= htmlspecialchars($savetitle, ENT_QUOTES, 'UTF-8') ?>" >			  								
+	<input type="hidden" id="pInput" name="pInput" value="<?= htmlspecialchars($pInput, ENT_QUOTES, 'UTF-8') ?>" >			  								
+	<input type="hidden" id="mode" name="mode" value="<?= htmlspecialchars($mode, ENT_QUOTES, 'UTF-8') ?>" >		
+	<input type="hidden" id="timekey" name="timekey" value="<?= htmlspecialchars($timekey, ENT_QUOTES, 'UTF-8') ?>" >  <!-- 신규데이터 작성시 parentid key값으로 사용 -->		
+	<input type="hidden" id="searchtext" name="searchtext" value="<?= htmlspecialchars($searchtext, ENT_QUOTES, 'UTF-8') ?>" >  <!-- summernote text저장 -->				
 
 <div class="container-fluid">  
 	<div class="d-flex mt-3 mb-1 justify-content-center align-items-center"> 
@@ -107,9 +120,9 @@ $timekey = date("Y_m_d_H_i_s");
 				 <div class="row"> 
 					 <div class="col-3-sm"> 
 						<div class="d-flex justify-content-center align-items-center"> 							 
-							작성자  : &nbsp;    <?=$_SESSION["nick"]?>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-							<input type="checkbox" name="is_html" value="y" <?php if($is_html=='y') print 'checked'; ?> >&nbsp; HTML 쓰기  &nbsp;
-							<input type="checkbox" name="noticecheck" value="y" <?php if($noticecheck=='y') print 'checked'; ?> > &nbsp; 전체공지 										
+							작성자  : &nbsp;    <?= htmlspecialchars($_SESSION["nick"] ?? '', ENT_QUOTES, 'UTF-8') ?>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+							<input type="checkbox" name="is_html" value="y" <?php if($is_html == 'y') echo 'checked'; ?> >&nbsp; HTML 쓰기  &nbsp;
+							<input type="checkbox" name="noticecheck" value="y" <?php if($noticecheck == 'y') echo 'checked'; ?> > &nbsp; 전체공지 										
 						</div>
 					</div>
 					 <div class="col-5-sm"> 													
@@ -118,25 +131,23 @@ $timekey = date("Y_m_d_H_i_s");
 						   <select name="status" id="status" class="form-control me-1" style="width:70px;" >
 						   <?php			   
 							   
-							   if($status === '')
+							   if($status === '') {
 									$status = '진행중';
+							   }
 								
-							   $arrStr = array();
-							   array_push($arrStr,'진행중','마감');
+							   $arrStr = array('진행중', '마감');
 							   
-							   for($i=0; $i<count($arrStr); $i++) {
-										 if($status===$arrStr[$i])
-													print "<option selected value='" . $arrStr[$i] . "'> " . $arrStr[$i] .   "</option>";
-											 else   
-									   print "<option value='" . $arrStr[$i] . "'> " . $arrStr[$i] .   "</option>";
-								   } 	
+							   foreach($arrStr as $statusOption) {
+									$selected = ($status === $statusOption) ? 'selected' : '';
+									echo "<option " . $selected . " value='" . htmlspecialchars($statusOption, ENT_QUOTES, 'UTF-8') . "'>" . htmlspecialchars($statusOption, ENT_QUOTES, 'UTF-8') . "</option>";
+								} 	
 										?>	  
 								</select> 
 								&nbsp;&nbsp;  마감일  &nbsp;&nbsp;     
-								<input id="deadline" name="deadline" type="date"  value="<?=$deadline?>" required  class="form-control me-1" style="width:100px;" >					   
+								<input id="deadline" name="deadline" type="date"  value="<?= htmlspecialchars($deadline, ENT_QUOTES, 'UTF-8') ?>" required  class="form-control me-1" style="width:100px;" >					   
 									&nbsp;&nbsp;   
 									제목 &nbsp; 					
-							<input id="subject" name="subject" type="text" required class="form-control" style="width:400px;" <?php if($mode=="modify"){ ?> value="<?=$item_subject?>" <?php }?>>&nbsp;														
+							<input id="subject" name="subject" type="text" required class="form-control" style="width:400px;" value="<?= htmlspecialchars($item_subject, ENT_QUOTES, 'UTF-8') ?>">&nbsp;														
 						</div>	
 					</div>
 				</div>
@@ -153,7 +164,7 @@ $timekey = date("Y_m_d_H_i_s");
 			</div>
  
  <div class="d-flex mt-2 mb-1 justify-content-center">  	
-	<textarea id="summernote" name="content" rows="15" required><?=$content?></textarea>
+	<textarea id="summernote" name="content" rows="15" required><?= htmlspecialchars($content, ENT_QUOTES, 'UTF-8') ?></textarea>
  </div>
  <div class="d-flex mt-3 mb-1 justify-content-center">  	
 		<div class="card p-2"> 

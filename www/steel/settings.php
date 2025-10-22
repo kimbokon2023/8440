@@ -1,19 +1,25 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
+<?php
+require_once __DIR__ . '/../common/functions.php';
 require_once(includePath('session.php'));
 
-$menu=$_REQUEST["menu"] ?? ''; 
-   
-$title_message = '원자재 가격 설정';   
-   
-?>
+// Environment detection for URL
+$is_local = (isset($_SERVER['HTTP_HOST']) && (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false));
+$base_url = $is_local ? 'http://localhost' : 'http://8440.co.kr';
+$WebSite = $base_url . '/';
 
-<?php 
+// Initialize request variables with null safety
+$menu = $_REQUEST["menu"] ?? '';
 
- if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-		 sleep(1);
-	          header("Location:" . $WebSite . "login/login_form.php"); 
-         exit;
-   }    
+// Initialize session variables with null safety
+$level = $_SESSION["level"] ?? null;
+
+$title_message = '원자재 가격 설정';
+
+if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+    sleep(1);
+    header("Location:" . $WebSite . "login/login_form.php");
+    exit;
+}    
 
 include getDocumentRoot() . '/load_header.php';   
    
@@ -35,10 +41,9 @@ $readIni = parse_ini_file("./settings.ini",false);
 $init_read = array();   // 환경파일 불러오기
 $init_read = parse_ini_file("./settings.ini",false);	
 
-if(isset($_REQUEST["SelectWork"]))  // 어떤 작업을 지시했는지 파악해서 돌려줌.
-	$SelectWork=$_REQUEST["SelectWork"];
-		else 
-			$SelectWork="";   // 초기화		
+// Initialize more request variables with null safety
+$SelectWork = $_REQUEST["SelectWork"] ?? '';
+$DB = $_SESSION["DB"] ?? 'mirae8440';		
 
  if(file_exists('uploadfilearr.txt'))
     $myfiles = file("uploadfilearr.txt");

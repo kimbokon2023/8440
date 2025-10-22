@@ -1,8 +1,15 @@
 <?php
- session_start();
+// Environment detection
+$isLocal = strpos($_SERVER['HTTP_HOST'], 'localhost') !== false ||
+           strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false ||
+           strpos($_SERVER['HTTP_HOST'], '::1') !== false;
+$baseUrl = $isLocal ? 'http://localhost' : 'http://8440.co.kr';
 
- $level= $_SESSION["level"];
- $user_name= $_SESSION["name"];
+session_start();
+
+// Initialize session variables with null safety
+$level = $_SESSION["level"] ?? null;
+$user_name = $_SESSION["name"] ?? null;
   
 // ctrl shift R 키를 누르지 않고 cache를 새로고침하는 구문....
 header("Expires: Tue, 01 Jan 2000 00:00:00 GMT");
@@ -51,8 +58,8 @@ if(preg_match($mobile_agent, $_SERVER['HTTP_USER_AGENT']))
 
 <link rel="stylesheet" type="text/css" href="../css/steel.css?v=1"> 
 
-<script src="http://8440.co.kr/js/date.js"></script>  <!-- 기간을 설정하는 관련 js 포함 -->
-<script src="http://8440.co.kr/common.js"></script>
+<script src="<?= $baseUrl ?>/js/date.js"></script>  <!-- 기간을 설정하는 관련 js 포함 -->
+<script src="<?= $baseUrl ?>/common.js"></script>
 
 <!-- 최초화면에서 보여주는 상단메뉴 -->
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -513,11 +520,11 @@ const grid = new tui.Grid({
 	
 	
 
-// 더블클릭 이벤트	
-grid.on('dblclick', (e) => {	
-    var link = 'http://8440.co.kr/steel/part_view.php?arr=' + numcopy[e.rowKey] ; 	   
-   popupCenter(link, '원자재 입출고 상세내역' ,1000,900);	
-   
+// 더블클릭 이벤트
+grid.on('dblclick', (e) => {
+    var baseUrl = '<?= $baseUrl ?>';
+    var link = baseUrl + '/steel/part_view.php?arr=' + numcopy[e.rowKey];
+    popupCenter(link, '원재재 입출고 상세내역', 1000, 900);
 });		
  	
 

@@ -1,10 +1,11 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
-require_once getDocumentRoot() . '/vendor/autoload.php';
-require_once(includePath('lib/mydb.php'));
+<?php
+/**
+ * request_etc 상세보기 페이지
+ * 로컬 및 서버 환경 모두 지원
+ */
 
-// 서비스 계정 JSON 파일 경로
-$serviceAccountKeyFile = getDocumentRoot() . '/tokens/mytoken.json';	
+require_once __DIR__ . '/../bootstrap.php';
+require_once getDocumentRoot() . '/vendor/autoload.php';
 
 // 서비스 계정 JSON 파일 경로
 $serviceAccountKeyFile = getDocumentRoot() . '/tokens/mytoken.json';
@@ -34,11 +35,12 @@ function getFolderId($service, $folderName, $parentFolderId = null) {
 }
 
   
- if(!isset($_SESSION["level"]) || $level>=8) {         
-		 sleep(1);
-		 header("Location:" . $WebSite . "login/login_form.php"); 
-         exit;
-   }   
+// 권한 체크
+if ($level >= 8) {
+    sleep(1);
+    header("Location:" . getBaseUrl() . "/login/login_form.php");
+    exit;
+}   
       
 ?>
 
@@ -87,29 +89,20 @@ if ($chkMobile) {
     </style>';
 }
    
-  if(isset($_REQUEST["mode"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $mode=$_REQUEST["mode"];
-  else
-   $mode="";
-  
-  if(isset($_REQUEST["num"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $num=$_REQUEST["num"];
-  else
-   $num="";
+// 세션 변수 초기화
+$level = $_SESSION["level"] ?? 999;
+$DB = $_SESSION["DB"] ?? 'mirae8440';
 
-   if(isset($_REQUEST["page"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $page=$_REQUEST["page"];
-  else
-   $page=1;   
+// 요청 변수 초기화
+include '_request.php';
 
-  if(isset($_REQUEST["search"]))  //수정 버튼을 클릭해서 호출했는지 체크
-   $search=$_REQUEST["search"];
-  else
-   $search="";
-  
+$mode = $_REQUEST["mode"] ?? '';  // 수정 버튼을 클릭해서 호출했는지 체크
+$num = $_REQUEST["num"] ?? '';    // 조회할 레코드 번호
+$page = $_REQUEST["page"] ?? 1;   // 페이지 번호
+$search = $_REQUEST["search"] ?? '';  // 검색어
 
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];
+$fromdate = $_REQUEST["fromdate"] ?? '';
+$todate = $_REQUEST["todate"] ?? '';
 
   if(isset($_REQUEST["separate_date"]))   //출고일 완료일
 	 $separate_date=$_REQUEST["separate_date"];	 
@@ -326,8 +319,8 @@ if($steelnum=='' or $steelnum==null )
 							</tbody>
 						</table>
 					</div>			  
-				  
-				  <?  } 
+
+				  <?php  }
 						 else
 						 {
 				   ?>
@@ -343,8 +336,8 @@ if($steelnum=='' or $steelnum==null )
 								</tr>
 							</tbody>
 						</table>
-					</div>	
-			  <?  }   ?>
+					</div>
+			  <?php  }   ?>
 				
 				
 		 </div> 			
@@ -395,15 +388,15 @@ if($steelnum=='' or $steelnum==null )
 	  echo '<div class="col-sm-12" >';
 	?>
 	  
-<?php	 		  
-	 $aryreg=array();
+<?php
+	 $aryreg = array('', '', '');
 	 if($which=='') $which='2';
 	 switch ($which) {
 		case   "1"             : $aryreg[0] = "checked" ; break;
 		case   "2"             :$aryreg[1] =  "checked" ; break;
 		case   "3"             :$aryreg[2] =  "checked" ; break;
 		default: break;
-	}		 
+	}
 ?>		  
    
       <table class="table table-bordered">
@@ -432,14 +425,14 @@ if($steelnum=='' or $steelnum==null )
           <td>
 
 		  
-	<?php	 		  
-	 	 $aryreg=array();
-		 if($payment=='') $which='법인카드';
+	<?php
+	 	 $aryreg = array('', '');
+		 if($payment=='') $payment='법인카드';
 	     switch ($payment) {
 			case   "법인카드"             : $aryreg[0] = "checked" ; break;
-			case   "세금계산서"             :$aryreg[1] =  "checked" ; break;			
+			case   "세금계산서"             :$aryreg[1] =  "checked" ; break;
 			default: break;
-		} 
+		}
    ?>			
             <span class="text-primary">법인카드</span> &nbsp;
             <input type="radio" <?=$aryreg[0]?> name="payment" value="법인카드">&nbsp;&nbsp;

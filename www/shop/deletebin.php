@@ -72,8 +72,8 @@ try{
      $mode="";     
  
  // 기간을 정하는 구간
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];	 
+$fromdate = $_REQUEST["fromdate"] ?? '';	 
+$todate = $_REQUEST["todate"] ?? '';	 
 
 if($fromdate=="")
 {

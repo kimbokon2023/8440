@@ -33,6 +33,23 @@ $num = $_REQUEST["num"] ?? '';
 require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
+// 변수 초기화 (신규 생성 모드 대응)
+$parentID = '';
+$subject = '';
+$regist_day = '';
+$check0 = '';
+$check1 = '';
+$check2 = '';
+$check3 = '';
+$check4 = '';
+$check5 = '';
+$check6 = '';
+$check7 = '';
+$check8 = '';
+$check9 = '';
+$writer = '';
+$page = '';
+
 // 수정/뷰 모드일 경우 데이터 조회
 if ($mode == "modify" || $mode == 'view') {
     try {

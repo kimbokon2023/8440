@@ -1,17 +1,23 @@
 <?php
-require_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session.php'));
+/**
+ * 경동화물/택배 관리 페이지
+ * 로컬 및 서버 환경 모두 지원
+ */
+
+require_once __DIR__ . '/../bootstrap.php';
 
 // 세션 변수 초기화
 $level = $_SESSION["level"] ?? 5;
-$WebSite = $_SESSION["WebSite"] ?? '';
 $user_name = $_SESSION["name"] ?? '';
 $DB = $_SESSION["DB"] ?? 'mirae8440';
+
+// 환경별 기본 URL 설정
+$WebSite = getBaseUrl() . '/';
 
 // 권한 체크
 if (!isset($_SESSION["level"]) || $level > 5) {
     sleep(1);
-    header("Location:" . $WebSite . "login/login_form.php");
+    header("Location:" . getBaseUrl() . "/login/login_form.php");
     exit;
 }
 
@@ -35,9 +41,7 @@ if ($fromdate === "" || $fromdate === null || $todate === "" || $todate === null
     $todate = $currentDate;
 }
 
-// 데이터베이스 연결
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();
+// $pdo는 bootstrap.php에서 이미 초기화됨
 
 // SQL 쿼리 생성 (날짜 범위 필터링)
 $sql = "SELECT * FROM {$DB}.{$tablename} 
@@ -50,6 +54,10 @@ if (!empty($search)) {
 }
 
 $sql .= " ORDER BY registedate DESC";
+
+// 데이터 조회
+$dataList = [];
+$total_row = 0;
 
 try {
     $stmh = $pdo->prepare($sql);
@@ -64,6 +72,17 @@ try {
     
     $stmh->execute();
     $total_row = $stmh->rowCount();
+    
+    // 데이터를 배열로 미리 가져오기
+    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+        $dataList[] = $row;
+    }
+    
+} catch (PDOException $ex) {
+    error_log("배송 리스트 조회 오류: " . $ex->getMessage());
+    $dataList = [];
+    $total_row = 0;
+}
 ?>
 
 <?php include getDocumentRoot() . '/load_header.php'; ?>
@@ -183,16 +202,30 @@ try {
                 </thead>
                 <tbody>
                     <?php
-                    $start_num = $total_row;
-                    
-                    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-                        include '_row.php';
+                    if (!empty($dataList)) {
+                        // 1부터 시작하는 행 번호
+                        $rowNumber = 1;
+                        
+                        foreach ($dataList as $row) {
+                            // 변수 추출
+                            $num = $row['num'] ?? '';
+                            $registedate = $row['registedate'] ?? '';
+                            $receiver = $row['receiver'] ?? '';
+                            $receiver_tel = $row['receiver_tel'] ?? '';
+                            $address = $row['address'] ?? '';
+                            $sender = $row['sender'] ?? '';
+                            $item_name = $row['item_name'] ?? '';
+                            $unit = $row['unit'] ?? '';
+                            $surang = $row['surang'] ?? '';
+                            $fee = $row['fee'] ?? '';
+                            $fee_type = $row['fee_type'] ?? '';
+                            $goods_price = $row['goods_price'] ?? '';
                     ?>
                         <tr onclick="loadForm('update', <?= $num ?>)" style="cursor: pointer;">
                             <td class="text-center" onclick="event.stopPropagation();">
                                 <input type="checkbox" class="rowCheckbox">
                             </td>
-                            <td class="text-center"><?= $start_num ?></td>
+                            <td class="text-center"><?= $rowNumber ?></td>
                             <td class="text-center"><?= htmlspecialchars($registedate) ?></td>
                             <td class="text-start fw-bold text-primary"><?= htmlspecialchars($receiver) ?></td>
                             <td class="text-center"><?= htmlspecialchars($receiver_tel) ?></td>
@@ -206,10 +239,11 @@ try {
                             <td class="text-end"><?= is_numeric($goods_price) ? number_format($goods_price) : htmlspecialchars($goods_price) ?></td>
                         </tr>
                     <?php
-                        $start_num--;
-                    }
-                    } catch (PDOException $ex) {
-                        error_log("배송 리스트 조회 오류: " . $ex->getMessage());
+                            $rowNumber++;
+                        }
+                    } else {
+                        // 데이터가 없는 경우
+                        echo '<tr><td colspan="13" class="text-center">조회된 데이터가 없습니다.</td></tr>';
                     }
                     ?>
                 </tbody>

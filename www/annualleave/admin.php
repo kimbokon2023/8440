@@ -222,8 +222,9 @@ $totalusedYear_arr = $totalusedYear_arr ?? array();
 
                             for ($i = 0; $i < count($totalname_arr); $i++) {
                                 // 해당년도가 같고 이름이 같으면 계산
-                                if (trim($name) == trim($totalname_arr[$i]) && $referencedate == $totalusedYear_arr[$i]) {
-                                    $totalusedday = $totalused_arr[$i];
+                                if (isset($totalname_arr[$i]) && isset($totalusedYear_arr[$i]) &&
+                                    trim($name) == trim($totalname_arr[$i]) && $referencedate == $totalusedYear_arr[$i]) {
+                                    $totalusedday = isset($totalused_arr[$i]) ? $totalused_arr[$i] : 0;
                                     $totalremainday = floatval($availableday) - floatval($totalusedday);
                                 }
                             }
@@ -321,7 +322,7 @@ $totalusedYear_arr = $totalusedYear_arr ?? array();
         <br>
         <br>
         <div class="container">
-            <? include '../footer_sub.php'; ?>
+            <?php include '../footer_sub.php'; ?>
         </div>
 
 </body>

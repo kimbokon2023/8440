@@ -4,7 +4,7 @@
  * 조명천장 홀타공 도면 표시 페이지
  */
 
-require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
+require_once __DIR__ . '/../bootstrap.php';
 
 // REQUEST/POST 변수 안전하게 초기화
 $check = isset($_REQUEST["check"]) ? $_REQUEST["check"] : (isset($_POST["check"]) ? $_POST["check"] : '1');

@@ -44,10 +44,10 @@ $sql="select * from mirae8440.error " . $a;
 				$start_num=$total_row-($page-1) * $scale;
 	    
 	       while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {	
-	       include "./error/_row.php";	   		   
+	       include "./errors/_row.php";	   		   
 	    ?>
 				   
-		<tr onclick="popupCenter('./error/write_form.php?num=<?=$num?>&option=approval', '부적합 보고서 조회/결재', 1000, 960)" style="cursor:pointer;">
+		<tr onclick="popupCenter('./errors/write_form.php?num=<?=$num?>&option=approval', '부적합 보고서 조회/결재', 1000, 960)" style="cursor:pointer;">
 			<td class="text-center"><?=$reporter?></td>
 			<td class="text-center"><?=iconv_substr($errortype,0,7,"utf-8")?></td>
 			<td class="text-center"><?=$occur?></td>

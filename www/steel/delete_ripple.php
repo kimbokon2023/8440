@@ -1,7 +1,14 @@
 <?php
-    $num=$_REQUEST["num"];
-    $page=$_REQUEST["page"];
-    $ripple_num=$_REQUEST["ripple_num"];    
+// Environment detection
+$isLocal = strpos($_SERVER['HTTP_HOST'], 'localhost') !== false ||
+           strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false ||
+           strpos($_SERVER['HTTP_HOST'], '::1') !== false;
+$baseUrl = $isLocal ? 'http://localhost:5130' : 'http://5130.co.kr';
+
+// Initialize request variables with null safety
+$num = $_REQUEST["num"] ?? null;
+$page = $_REQUEST["page"] ?? null;
+$ripple_num = $_REQUEST["ripple_num"] ?? null;    
     require_once("../lib/mydb.php");
     $pdo = db_connect();
         
@@ -13,7 +20,7 @@
        $stmh->execute();   
        $pdo->commit();
                 
-        header("Location:http://5130.co.kr/as/view.php?num=$num&page=$page");
+        header("Location:" . $baseUrl . "/as/view.php?num=$num&page=$page");
        } catch (Exception $ex) {
                 $pdo->rollBack();
                 print "오류: ".$Exception->getMessage();

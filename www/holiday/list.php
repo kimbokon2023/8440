@@ -45,27 +45,177 @@ include getDocumentRoot() . '/load_header.php';
 <title><?php echo htmlspecialchars($title_message, ENT_QUOTES, 'UTF-8'); ?></title>
 
 <style>
-    /* 테이블 스타일 */
-    #myTable,
-    #myTable th,
-    #myTable td {
-        border: 1px solid #dee2e6;
-        border-collapse: collapse;
+    /* 전체 레이아웃 */
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        font-family: 'Noto Sans KR', sans-serif;
     }
     
-    #myTable th,
-    #myTable td {
-        padding: 8px;
-        text-align: center;
+    /* 카드 스타일 */
+    .main-card {
+        background: rgba(255, 255, 255, 0.98);
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        overflow: hidden;
+        animation: fadeInUp 0.6s ease-out;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .card-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        padding: 20px;
+        color: white;
+    }
+    
+    .card-header .fs-5 {
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+    
+    /* 검색 영역 */
+    .search-area {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .inputWrap30 {
+        position: relative;
+    }
+    
+    .form-control {
+        border: 2px solid #e0e7ff;
+        border-radius: 10px;
+        padding: 8px 35px 8px 12px;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        outline: none;
+    }
+    
+    .btnClear {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        color: #999;
+        font-size: 16px;
+    }
+    
+    .btnClear:hover {
+        color: #667eea;
+    }
+    
+    /* 버튼 스타일 */
+    .btn {
+        border-radius: 10px;
+        padding: 8px 20px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: none;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-dark {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+    }
+    
+    .btn-dark:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-outline-dark {
+        border: 2px solid #667eea;
+        color: #667eea;
+        background: white;
+    }
+    
+    .btn-outline-dark:hover {
+        background: #667eea;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    /* 테이블 스타일 */
+    .table-responsive {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    
+    #myTable {
+        border-collapse: separate;
+        border-spacing: 0;
+        background: white;
+        margin-bottom: 0;
+    }
+    
+    #myTable thead {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    #myTable thead th {
+        color: white;
+        font-weight: 600;
+        padding: 15px;
+        border: none;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
     }
     
     #myTable tbody tr {
         cursor: pointer;
-        transition: background-color 0.2s;
+        transition: all 0.3s ease;
+        border-bottom: 1px solid #f0f0f0;
     }
     
     #myTable tbody tr:hover {
-        background-color: #f8f9fa;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        transform: scale(1.01);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    #myTable tbody td {
+        padding: 15px;
+        vertical-align: middle;
+        border: none;
+    }
+    
+    /* 데이터 카운트 */
+    .data-count {
+        display: inline-flex;
+        align-items: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-right: 10px;
     }
     
     /* 모달 스타일 */
@@ -78,43 +228,98 @@ include getDocumentRoot() . '/load_header.php';
         width: 100%;
         height: 100%;
         overflow: auto;
-        background-color: rgba(0, 0, 0, 0.4);
+        background-color: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(5px);
+        animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
     }
     
     .modal-content {
         background-color: #fefefe;
-        margin: 5% auto;
+        margin: 3% auto;
         padding: 0;
-        border: 1px solid #888;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: slideDown 0.4s ease;
+    }
+    
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
     
     .modal-header {
-        padding: 15px;
-        background-color: #f8f9fa;
-        border-bottom: 1px solid #dee2e6;
-        border-radius: 8px 8px 0 0;
+        padding: 20px 25px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-bottom: none;
+        border-radius: 20px 20px 0 0;
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
     
     .modal-title {
-        font-size: 1.25rem;
-        font-weight: bold;
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: white;
+        letter-spacing: 0.5px;
     }
     
     .close {
-        color: #aaa;
-        font-size: 28px;
-        font-weight: bold;
+        color: white;
+        font-size: 32px;
+        font-weight: 300;
         cursor: pointer;
+        opacity: 0.8;
+        transition: all 0.3s ease;
+        line-height: 1;
     }
     
     .close:hover,
     .close:focus {
-        color: #000;
+        opacity: 1;
+        transform: rotate(90deg);
+    }
+    
+    .modal-body {
+        padding: 25px;
+    }
+    
+    /* 아이콘 애니메이션 */
+    .btn i {
+        transition: transform 0.3s ease;
+    }
+    
+    .btn:hover i {
+        transform: scale(1.2);
+    }
+    
+    /* 반응형 디자인 */
+    @media (max-width: 768px) {
+        .main-card {
+            border-radius: 10px;
+        }
+        
+        .search-area {
+            padding: 15px;
+        }
+        
+        #myTable thead th,
+        #myTable tbody td {
+            padding: 10px;
+            font-size: 0.85rem;
+        }
     }
 </style>
 </head>
@@ -183,37 +388,46 @@ try {
         </div>
     </div>
     
-    <div class="container" style="width:40%;">
-        <div class="card">
+    <div class="container" style="width:50%; margin-top: 30px;">
+        <div class="card main-card">
             <div class="card-header">
                 <div class="d-flex justify-content-center align-items-center">
-                    <span class="text-center fs-5 me-4"><?php echo htmlspecialchars($title_message, ENT_QUOTES, 'UTF-8'); ?></span>
-                    <button type="button" class="btn btn-dark btn-sm me-1" onclick='location.href="list.php?header=header"'>
+                    <i class="bi bi-calendar-event me-3" style="font-size: 1.5rem;"></i>
+                    <span class="text-center fs-5 me-auto"><?php echo htmlspecialchars($title_message, ENT_QUOTES, 'UTF-8'); ?></span>
+                    <button type="button" class="btn btn-light btn-sm" onclick='location.href="list.php?header=header"' style="border-radius: 50%; width: 38px; height: 38px; padding: 0;">
                         <i class="bi bi-arrow-clockwise"></i>
                     </button>
                 </div>
             </div>
             
-            <div class="card-body">
-                <div class="d-flex justify-content-center align-items-center mt-1 mb-3">
-                    ▷ <?php echo htmlspecialchars($total_row, ENT_QUOTES, 'UTF-8'); ?> &nbsp;
-                    <div class="inputWrap30">
-                        <input type="text" id="search" class="form-control" style="width:150px;" name="search" value="<?php echo htmlspecialchars($search, ENT_QUOTES, 'UTF-8'); ?>" onKeyPress="if (event.keyCode == 13) { this.form.submit(); }">
-                        <button class="btnClear"></button>
+            <div class="card-body" style="padding: 25px;">
+                <div class="search-area">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div class="d-flex align-items-center">
+                            <span class="data-count">
+                                <i class="bi bi-folder2-open me-2"></i>
+                                <?php echo htmlspecialchars($total_row, ENT_QUOTES, 'UTF-8'); ?>건
+                            </span>
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="inputWrap30">
+                                <input type="text" id="search" class="form-control" style="width:180px;" name="search" placeholder="검색어 입력..." value="<?php echo htmlspecialchars($search, ENT_QUOTES, 'UTF-8'); ?>" onKeyPress="if (event.keyCode == 13) { this.form.submit(); }">
+                                <button class="btnClear" style="display: <?php echo !empty($search) ? 'block' : 'none'; ?>;"><i class="bi bi-x-circle-fill"></i></button>
+                            </div>
+                            <button class="btn btn-outline-dark btn-sm" type="button" id="searchBtn">
+                                <i class="bi bi-search"></i>
+                            </button>
+                            <button id="newBtn" type="button" class="btn btn-dark btn-sm">
+                                <i class="bi bi-plus-circle"></i> 신규
+                            </button>
+                            <?php if ($header !== 'header'): ?>
+                            <button id="closeBtn" type="button" class="btn btn-outline-dark btn-sm">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                            <?php endif; ?>
+                        </div>
                     </div>
-                    &nbsp;&nbsp;
-                    <button class="btn btn-outline-dark btn-sm" type="button" id="searchBtn">
-                        <i class="bi bi-search"></i>
-                    </button>
-                    &nbsp;&nbsp;&nbsp;&nbsp;
-                    <button id="newBtn" type="button" class="btn btn-dark btn-sm me-2">
-                        <i class="bi bi-pencil-square"></i> 신규
-                    </button>
-                    <?php if ($header !== 'header'): ?>
-                    <button id="closeBtn" type="button" class="btn btn-outline-dark btn-sm">
-                        <i class="bi bi-x-lg"></i> 창닫기
-                    </button>
-                    <?php endif; ?>
                 </div>
                 
                 <div class="row d-flex">
@@ -320,6 +534,21 @@ try {
         $('#closeBtn').on('click', function() {
             window.close();
         });
+        
+        // 검색 입력 필드 clear 버튼
+        $('#search').on('input', function() {
+            var clearBtn = $('.btnClear');
+            if ($(this).val().length > 0) {
+                clearBtn.show();
+            } else {
+                clearBtn.hide();
+            }
+        });
+        
+        $('.btnClear').on('click', function() {
+            $('#search').val('').focus();
+            $(this).hide();
+        });
     });
     
     /**
@@ -333,6 +562,12 @@ try {
         } else {
             $('#mode').val('update');
             $('#num').val(num);
+        }
+        
+        // 모달 타이틀 업데이트
+        var modalTitle = document.querySelector('.modal-title');
+        if (modalTitle) {
+            modalTitle.textContent = mode === 'update' ? '휴무 수정' : '휴무 신규 등록';
         }
         
         $.ajax({
@@ -360,7 +595,11 @@ try {
                     var enddateInput = $('#enddate');
                     
                     if ($(this).is(':checked')) {
-                        enddateWrapper.show();
+                        enddateWrapper.css({
+                            'display': 'flex',
+                            'align-items': 'center',
+                            'gap': '10px'
+                        });
                     } else {
                         enddateWrapper.hide();
                         enddateInput.val('');
@@ -369,18 +608,22 @@ try {
                 
                 // 초기 로드 시 체크박스 상태에 따른 필드 표시/숨김
                 if ($('#periodcheck').is(':checked')) {
-                    $('#enddateWrapper').show();
+                    $('#enddateWrapper').css({
+                        'display': 'flex',
+                        'align-items': 'center',
+                        'gap': '10px'
+                    });
                 } else {
                     $('#enddateWrapper').hide();
                 }
                 
-                // 모달 닫기 버튼
-                $('.closeBtn').on('click', function() {
+                // 모달 닫기 버튼 (동적으로 로드된 버튼에 이벤트 바인딩)
+                $('.closeBtn').off('click').on('click', function() {
                     $('#myModal').hide();
                 });
                 
                 // 저장 버튼
-                $('#saveBtn').on('click', function() {
+                $('#saveBtn').off('click').on('click', function() {
                     var formData = $('#board_form').serialize();
                     
                     // 시작일 필수 확인
@@ -443,7 +686,7 @@ try {
                 });
                 
                 // 삭제 버튼
-                $('#deleteBtn').on('click', function() {
+                $('#deleteBtn').off('click').on('click', function() {
                     deleteHoliday(num);
                 });
             },

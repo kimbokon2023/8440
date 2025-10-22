@@ -1,62 +1,87 @@
-<?php\nrequire_once __DIR__ . '/../common/functions.php';
-require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
+<?php
+/**
+ * RnD 연구개발 상세보기 페이지
+ * 로컬 및 서버 환경 모두 지원
+ */
 
-  // 첫 화면 표시 문구
- $title_message = '연구소';   
- 
- $menu=$_REQUEST["menu"];
-   
+require_once __DIR__ . '/../bootstrap.php';
+require_once includePath('load_GoogleDrive.php'); // 세션 등 여러가지 포함됨 파일 포함
+
+// 첫 화면 표시 문구
+$title_message = '연구소';
+
 ?>
-   
-<?php include getDocumentRoot() . '/load_header.php';
 
-	 if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
-			 sleep(1);
-			 header("Location:" . $WebSite . "login/login_form.php"); 
-			 exit;
-	   } 
- ?>
+<?php
+include includePath('load_header.php');
 
+// 권한 체크
+if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+    sleep(1);
+    header("Location:" . getBaseUrl() . "/login/login_form.php");
+    exit;
+}
+?>
 
-<title> <?=$title_message?> </title>  
- 
-</head> 
+<title> <?=$title_message?> </title>
+
+</head>
 
 <body>
 
-<?php include getDocumentRoot() . "/common/modal.php"; ?>
-    
- <?php
- 
- 
- $num=$_REQUEST["num"];
- $page=$_REQUEST["page"];   //페이지번호
- 
- $tablename=$_REQUEST["tablename"];   //DB 이름
-require_once(includePath('lib/mydb.php'));
+<?php include includePath("common/modal.php"); ?>
+
+<?php
+
+// 요청 변수 초기화
+$num = $_REQUEST["num"] ?? '';
+$page = $_REQUEST["page"] ?? '';   //페이지번호
+$tablename = $_REQUEST["tablename"] ?? '';   //DB 이름
+$menu = $_REQUEST["menu"] ?? '';
+$search = $_REQUEST["search"] ?? '';
+$Bigsearch = $_REQUEST["Bigsearch"] ?? '';
+$find = $_REQUEST["find"] ?? '';
+$year = $_REQUEST["year"] ?? '';
+$process = $_REQUEST["process"] ?? '';
+$asprocess = $_REQUEST["asprocess"] ?? '';
+$fromdate = $_REQUEST["fromdate"] ?? '';
+$todate = $_REQUEST["todate"] ?? '';
+$separate_date = $_REQUEST["separate_date"] ?? '';
+$item = '';
+$mode = '';
+$timekey = '';
+$searchtext = '';
+$noticecheck_memo = '';
+$user_id = $_SESSION["userid"] ?? '';
+$admin = $_SESSION["admin"] ?? '';
+$DB = $_SESSION['DB'] ?? 'mirae8440';
+
+// 데이터베이스 연결
 $pdo = db_connect();
  
  try{
-     $sql = "select * from mirae8440." . $tablename . " where num=?";
+     $sql = "select * from {$DB}." . $tablename . " where num=?";
      $stmh = $pdo->prepare($sql);  
      $stmh->bindValue(1, $num, PDO::PARAM_STR);      
      $stmh->execute();            
       
     $row = $stmh->fetch(PDO::FETCH_ASSOC);
-     $item_num     = $row["num"];
-     $item_id      = $row["id"];
-     $item_name    = $row["name"];
-     $item_nick    = $row["nick"];   
-     $item_subject = str_replace(" ", "&nbsp;", $row["subject"]);
-     $content = $row["content"];
-     $item_date    = $row["regist_day"];
-     $item_date    = substr($item_date, 0, 10);   
-     $item_hit     = $row["hit"];     
-     $is_html      = $row["is_html"];
-      
+     $item_num     = $row["num"] ?? '';
+     $item_id      = $row["id"] ?? '';
+     $item_name    = $row["name"] ?? '';
+     $item_nick    = $row["nick"] ?? '';
+     $item_subject = str_replace(" ", "&nbsp;", $row["subject"] ?? '');
+     $item_content = $row["content"] ?? '';
+     $content = $item_content;
+     $item_date    = $row["regist_day"] ?? '';
+     $item_date    = substr($item_date, 0, 10);
+     $item_hit     = $row["hit"] ?? '';
+     $is_html      = $row["is_html"] ?? '';
+
      if ($is_html!="y"){
 	$item_content = str_replace(" ", "&nbsp;", $item_content);
 	$item_content = str_replace("\n", "<br>", $item_content);
+	$content = $item_content;
      }	
        } catch (PDOException $Exception) {
          $pdo->rollBack();
@@ -83,7 +108,7 @@ $pdo = db_connect();
 $id=$num;  
 $author_id = $item_id  ;
   
-require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, image에 대한 정보 불러오기  
+require_once includePath('load_GoogleDriveSecond.php'); // attached, image에 대한 정보 불러오기  
 ?> 
 
 

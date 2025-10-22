@@ -1,4 +1,4 @@
-<?
+<?php
 // .almember  테이블의 자료
 $num = $row["num"] ?? '';
 $name = $row["name"] ?? '';

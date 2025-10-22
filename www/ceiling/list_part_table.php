@@ -1,6 +1,5 @@
 <?php
-require_once __DIR__ . '/../common/functions.php';
-include getDocumentRoot() . '/session.php';
+require_once __DIR__ . '/../bootstrap.php';
 
 // 세션 변수 초기화
 $level = isset($_SESSION["level"]) ? $_SESSION["level"] : 10;
@@ -16,7 +15,6 @@ ini_set('display_errors', '1');
 
 ?>
 
-<?php include getDocumentRoot() . '/common.php' ?>
 <?php include getDocumentRoot() . '/load_header.php' ?>
 
 <title> 조명천장 부자재 </title>
