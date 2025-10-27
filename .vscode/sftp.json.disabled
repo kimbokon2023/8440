@@ -5,6 +5,8 @@
     "port": 21, 
     "username": "mirae8440", 
     "password": "dnjstksfl1!!",
-    "remotePath": "/www",       
+    "remotePath": "/",       
     "uploadOnSave": false     
 } 
+
+// remotePath는 카페24의 경우는 위와 같이 해야 한다. /wwww 은 안된다.

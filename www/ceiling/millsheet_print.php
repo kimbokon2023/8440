@@ -27,7 +27,7 @@ $imgCount = 2;  // 필요한 랜덤 이미지 개수
 $randomNumbers = generateRandomNumbers($imgCount, 1, 15);
 
 // 이미지 베이스 URL
-$baseUrl = "http://8440.co.kr/ceiling/randomimg/";
+$baseUrl = "https://8440.co.kr/ceiling/randomimg/";
 
 // 이미지 URL 생성
 $imgUrls = array_map(function ($number) use ($baseUrl) {
@@ -43,7 +43,7 @@ $imgUrls = array_map(function ($number) use ($baseUrl) {
     
     <link rel="stylesheet" type="text/css" href="../css/common.css">
     <link rel="stylesheet" type="text/css" media="print" href="./css/style.css">
-    <link rel="stylesheet" type="text/css" href="./css/print.css">
+    <link rel="stylesheet" type="text/css" href="./css/millsheet.css">
     
     <title>자체시험성적서 인쇄</title>
     

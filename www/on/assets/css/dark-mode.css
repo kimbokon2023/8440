@@ -1,0 +1,77 @@
+/* 다크모드 CSS 변수 시스템 */
+
+:root {
+    /* 라이트 모드 색상 */
+    --bg-primary: #f5f7fa;
+    --bg-secondary: #ffffff;
+    --bg-gradient-start: #667eea;
+    --bg-gradient-end: #764ba2;
+    --text-primary: #333333;
+    --text-secondary: #666666;
+    --text-white: #ffffff;
+    --border-color: #ddd;
+    --border-light: #f0f0f0;
+    --shadow: rgba(0,0,0,0.1);
+    --shadow-hover: rgba(102, 126, 234, 0.3);
+    --hover-bg: #f8f9ff;
+
+    /* 거래처 관리 색상 */
+    --customer-gradient-start: #20b2aa;
+    --customer-gradient-end: #17a2b8;
+    --customer-hover-bg: #f0ffff;
+
+    /* 제품 관리 색상 */
+    --product-gradient-start: #f093fb;
+    --product-gradient-end: #f5576c;
+    --product-hover-bg: #fff5f8;
+}
+
+[data-theme="dark"] {
+    /* 다크 모드 색상 */
+    --bg-primary: #1a1a2e;
+    --bg-secondary: #16213e;
+    --bg-gradient-start: #4a5568;
+    --bg-gradient-end: #2d3748;
+    --text-primary: #e2e8f0;
+    --text-secondary: #cbd5e0;
+    --text-white: #ffffff;
+    --border-color: #4a5568;
+    --border-light: #2d3748;
+    --shadow: rgba(0,0,0,0.3);
+    --shadow-hover: rgba(74, 85, 104, 0.5);
+    --hover-bg: #2d3748;
+
+    /* 거래처 관리 다크모드 색상 */
+    --customer-gradient-start: #2d3748;
+    --customer-gradient-end: #1a202c;
+    --customer-hover-bg: #2d3748;
+
+    /* 제품 관리 다크모드 색상 */
+    --product-gradient-start: #2d3748;
+    --product-gradient-end: #1a202c;
+    --product-hover-bg: #2d3748;
+}
+
+/* Body 전환 효과 */
+body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* 다크모드 토글 버튼 */
+.theme-toggle {
+    background: rgba(255,255,255,0.2);
+    color: var(--text-white);
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+}
+
+.theme-toggle:hover {
+    background: rgba(255,255,255,0.3);
+    transform: scale(1.05);
+}

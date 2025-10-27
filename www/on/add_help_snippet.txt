@@ -1,0 +1,22 @@
+<!-- 다음 코드를 각 파일의 </body> 태그 직전에 추가 -->
+
+<!-- 도움말 버튼 -->
+<button class="help-btn" onclick="openHelp()" title="도움말">
+    <i class="fas fa-question-circle"></i>
+</button>
+
+<?php include 'help_modal.php'; ?>
+
+<script>
+// 도움말 내용 설정 (페이지별로 다름)
+document.addEventListener('DOMContentLoaded', function() {
+    const helpContent = document.getElementById('helpContent');
+    if (helpContent) {
+        <?php
+        require_once 'help_contents.php';
+        $page = 'customer_list'; // 또는 'product_list', 'order_view'
+        ?>
+        helpContent.innerHTML = `<?php echo getHelpContent($page); ?>`;
+    }
+});
+</script>

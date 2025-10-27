@@ -14,7 +14,7 @@ $user_id = isset($_SESSION["userid"]) ? $_SESSION["userid"] : "";
 $title_message = '자체시험 성적서';
 
 // 헤더 로드
-include getDocumentRoot() . '/load_header.php';
+include '../load_header.php';
 
 // 권한 체크
 if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
@@ -164,6 +164,17 @@ try {
                         <div class="input-group mb-1">
                             <span class="input-group-text" style="width:100px;">항목</span>
                             <input type="text" class="form-control" name="text" value="<?=$text?>">
+                        </div>
+                    </div>
+                    <div class="col-lg-4 mb-1"></div>
+                </div>
+                
+                
+                <div class="row">
+                    <div class="col-lg-8 mb-1">
+                        <div class="input-group mb-1">
+                            <span class="input-group-text" style="width:100px;">시험일자</span>
+                            <input type="date" class="form-control" name="inspectiondate" value="<?=$inspectiondate?>">
                         </div>
                     </div>
                     <div class="col-lg-4 mb-1"></div>

@@ -10,7 +10,8 @@
       "Bash(test:*)",
       "Bash(cat:*)",
       "Bash(curl:*)",
-      "Read(//c/**)"
+      "Read(//c/**)",
+      "Bash(mkdir:*)"
     ],
     "deny": [],
     "ask": []
