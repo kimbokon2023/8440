@@ -39,7 +39,7 @@ $rnd = rand(1, 10);
 $imgsrc = 'img/homepage/' . $rnd . '.png';
 
 $root_dir = getDocumentRoot() ;
-$version = '1';
+$version = '3'; // Increment to force cache refresh after Chart.js fixes
 ?>
 <!DOCTYPE html>
 <html lang="ko">
@@ -1771,7 +1771,7 @@ $version = '1';
   <script src="assets/js/isotope.min.js"></script>
   <script src="assets/js/owl-carousel.js"></script>
   <script src="assets/js/counter.js"></script>
-  <script src="assets/js/custom.js"></script>
+  <script src="assets/js/custom.js?v=<?php echo $version; ?>"></script>
   
   
 <script>

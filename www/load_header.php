@@ -115,6 +115,23 @@ if($user_name=='소현철' || $user_name=='김보곤' || $user_name=='이경묵'
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="<?= asset('css/style.css?version=' . $version) ?>">
 <link rel="stylesheet" href="<?= asset('css/eworks.css?version=' . $version) ?>">
+<script>
+    // 로컬/서버 환경 자동 감지 및 baseUrl 설정
+    <?php
+    $host = $_SERVER['HTTP_HOST'];
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+    
+    // 로컬 환경 감지 (8440.local 또는 localhost)
+    if (strpos($host, '8440.local') !== false || strpos($host, 'localhost') !== false || strpos($host, '127.0.0.1') !== false) {
+        $baseUrl = $protocol . '://' . $host;
+    } else {
+        // 서버 환경
+        $baseUrl = 'https://8440.co.kr';
+    }
+    ?>
+    window.baseUrl = '<?php echo $baseUrl; ?>';
+    console.log('Base URL set to:', window.baseUrl);
+</script>
 <script src="<?= asset('js/common.js?version=' . $version) ?>"></script>
 <script src="<?= asset('js/typingscript.js') ?>"></script>  <!-- typingscript.js 포함  글자 움직이면서 써지는 루틴 -->
 <script src="<?= asset('js/calinseung.js?version=' . $version) ?>"></script>

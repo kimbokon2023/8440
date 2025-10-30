@@ -44,11 +44,11 @@ $(function () {
         display: false
       },
       scales: {
-        yAxes: [{
+        y: {
           // display: false,
-          gridLines: {
+          grid: {
             display: true,
-            lineWidth: '4px',
+            lineWidth: 4,
             color: 'rgba(0, 0, 0, .2)',
             zeroLineColor: 'transparent'
           },
@@ -65,14 +65,14 @@ $(function () {
               return '$' + value
             }
           }, ticksStyle)
-        }],
-        xAxes: [{
+        },
+        x: {
           display: true,
-          gridLines: {
+          grid: {
             display: false
           },
           ticks: ticksStyle
-        }]
+        }
       }
     }
   })
@@ -119,11 +119,11 @@ $(function () {
         display: false
       },
       scales: {
-        yAxes: [{
+        y: {
           // display: false,
-          gridLines: {
+          grid: {
             display: true,
-            lineWidth: '4px',
+            lineWidth: 4,
             color: 'rgba(0, 0, 0, .2)',
             zeroLineColor: 'transparent'
           },
@@ -131,14 +131,14 @@ $(function () {
             beginAtZero: true,
             suggestedMax: 200
           }, ticksStyle)
-        }],
-        xAxes: [{
+        },
+        x: {
           display: true,
-          gridLines: {
+          grid: {
             display: false
           },
           ticks: ticksStyle
-        }]
+        }
       }
     }
   })

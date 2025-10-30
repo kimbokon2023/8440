@@ -1,6 +1,5 @@
 <?php
-session_start();
-include '../common.php';  // php 함수들 모음
+require_once __DIR__ . '/../bootstrap.php';
 
 // 캐시 제어 헤더
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");

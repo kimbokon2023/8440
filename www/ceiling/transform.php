@@ -1,9 +1,5 @@
 <?php
-require_once __DIR__ . '/../common/functions.php';
-
-if (!isset($_SESSION)) {
-    session_start();
-}
+require_once __DIR__ . '/../bootstrap.php';
 
 if (isset($_SESSION["DB"])) {
     $DB = $_SESSION["DB"];
@@ -12,7 +8,12 @@ if (isset($_SESSION["DB"])) {
 $level = isset($_SESSION["level"]) ? $_SESSION["level"] : 0;
 $user_name = isset($_SESSION["name"]) ? $_SESSION["name"] : "";
 $user_id = isset($_SESSION["userid"]) ? $_SESSION["userid"] : "";
-$WebSite = "http://8440.co.kr/";
+
+// 동적 URL 생성
+$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+$host = $_SERVER['HTTP_HOST'];
+$base_url = "{$protocol}://{$host}";
+$WebSite = $base_url . '/';
 
 $title_message = '본천장&조명천장 출고증';
 
@@ -93,34 +94,8 @@ try {
     $etc_su = isset($row["etc_su"]) ? (int)$row["etc_su"] : 0;
     $air_su = isset($row["air_su"]) ? (int)$row["air_su"] : 0;
     
-    // 날짜 변환 (trans_date 함수 사용)
-    $workday = trans_date($workday);
-    $demand = trans_date($demand);
-    $orderday = trans_date($orderday);
-    $deadline = trans_date($deadline);
-    $testday = trans_date($testday);
-    $lc_draw = trans_date($lc_draw);
-    $lclaser_date = trans_date($lclaser_date);
-    $lclbending_date = trans_date($lclbending_date);
-    $lclwelding_date = trans_date($lclwelding_date);
-    $lcpainting_date = trans_date($lcpainting_date);
-    $lcassembly_date = trans_date($lcassembly_date);
-    $main_draw = trans_date($main_draw);
-    $eunsung_make_date = trans_date($eunsung_make_date);
-    $eunsung_laser_date = trans_date($eunsung_laser_date);
-    $mainbending_date = trans_date($mainbending_date);
-    $mainwelding_date = trans_date($mainwelding_date);
-    $mainpainting_date = trans_date($mainpainting_date);
-    $mainassembly_date = trans_date($mainassembly_date);
-    
-    $order_date1 = trans_date($order_date1);
-    $order_date2 = trans_date($order_date2);
-    $order_date3 = trans_date($order_date3);
-    $order_date4 = trans_date($order_date4);
-    $order_input_date1 = trans_date($order_input_date1);
-    $order_input_date2 = trans_date($order_input_date2);
-    $order_input_date3 = trans_date($order_input_date3);
-    $order_input_date4 = trans_date($order_input_date4);
+    // 날짜 변환은 _rowDB.php에서 이미 수행됨
+    // 모든 날짜 변수들은 _rowDB.php에서 로드되어 이미 trans_date()가 적용된 상태
     
     // 시공소장 전화번호 설정
     switch ($worker) {

@@ -25,183 +25,11 @@ include includePath('common/modal.php');
 ?>
 
 <title><?php echo htmlspecialchars($title_message); ?></title>
+<link rel="stylesheet" href="<?php echo $base_url; ?>/assets/css/ceiling-view.css">
 
 </head>
 
-<body>
-
-<style>
-.table, td, input {
-	font-size: 14px !important;
-	vertical-align: middle;
-	padding: 2px; /* 셀 내부 여백을 5px로 설정 */
-	border-spacing: 2px; /* 셀 간 간격을 5px로 설정 */
-	text-align:center;
-}
-
-.table td input.form-control {
-	height: 25px;
-	border: 1px solid #ced4da; /* 테두리 스타일 추가 */
-	border-radius: 4px; /* 테두리 라운드 처리 */
-}
-
-/* textarea 자동 높이 조절을 위한 스타일 */
-textarea.form-control {
-	min-height: 40px;
-	max-height: 300px;
-	overflow-y: auto;
-	resize: vertical;
-	transition: height 0.2s ease;
-}	
-input[type="checkbox"] {
-	transform: scale(1.6); /* 크기를 1.6배로 확대 */
-	margin-right: 10px;   /* 확대 후의 여백 조정 */  
-}
-
-/* 외주가공 메모 말풍선 스타일 */
-.outsourcing-memo-bubble {
-    position: absolute;
-    top: 50%;
-    left: 100%;
-    transform: translateY(-50%);
-    margin-left: 15px;
-    z-index: 1000;
-    animation: slideInRight 0.3s ease-out;
-}
-
-/* 반응형 디자인 */
-@media (max-width: 768px) {
-    .outsourcing-memo-bubble {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        margin-left: 0;
-        width: 90%;
-        max-width: 350px;
-    }
-    
-    .bubble-content::before {
-        display: none;
-    }
-}
-
-.bubble-content {
-    background: linear-gradient(135deg,rgb(86, 193, 219) 0%,rgb(35, 173, 197) 100%);
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    min-width: 300px;
-    max-width: 400px;
-    position: relative;
-}
-
-.bubble-content::before {
-    content: '';
-    position: absolute;
-    left: -8px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 0;
-    height: 0;
-    border-top: 8px solid transparent;
-    border-bottom: 8px solid transparent;
-    border-right: 8px solid rgb(70, 188, 235);
-}
-
-.bubble-header {
-    background: rgba(255, 255, 255, 0.1);
-    padding: 12px 15px;
-    border-radius: 15px 15px 0 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.bubble-title {
-    color: white;
-    font-weight: 600;
-    font-size: 14px;
-}
-
-.bubble-close {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-    padding: 0;
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: background-color 0.2s;
-}
-
-.bubble-close:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-}
-
-.bubble-body {
-    padding: 15px;
-}
-
-.bubble-textarea {
-    border: none;
-    border-radius: 8px;
-    resize: vertical;
-    min-height: 80px;
-    font-size: 13px;
-    background: rgba(255, 255, 255, 0.95);
-    transition: all 0.2s;
-    pointer-events: none; /* 읽기 전용 */
-}
-
-.bubble-textarea:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
-    background: white;
-}
-
-.bubble-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 10px;
-}
-
-.bubble-footer small {
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 11px;
-}
-
-@keyframes slideInRight {
-    from {
-        opacity: 0;
-        transform: translateY(-50%) translateX(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(-50%) translateX(0);
-    }
-}
-
-@keyframes slideOutRight {
-    from {
-        opacity: 1;
-        transform: translateY(-50%) translateX(0);
-    }
-    to {
-        opacity: 0;
-        transform: translateY(-50%) translateX(-20px);
-    }
-}
-
-.bubble-hide {
-    animation: slideOutRight 0.2s ease-in forwards;
-}
-  </style> 
+<body> 
    
 <?php
    
@@ -278,68 +106,124 @@ $uploadsFolderId = getFolderId($service, 'imgwork', $miraeFolderId);
 
 $pdo = db_connect();
 
-// Google Drive 및 데이터베이스에서 파일 정보 가져오기
-$WrappicData = [];
-$tablename = 'ceilingwrap';
-$item = 'ceilingwrap';
+// ========================================
+// ✅ 개선: Google Drive API 호출 통합 함수
+// ========================================
+function fetchGoogleDriveFiles($pdo, $service, $DB, $num, $items) {
+    $results = [];
 
-// 파일 확인 및 Google Drive 정보 가져오기
-$sql = "SELECT * FROM {$DB}.picuploads WHERE item = ? AND parentnum = ?";
-try {
-    $stmh = $pdo->prepare($sql);
-    $stmh->execute([$item, $num]);
-    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-        $picname = $row["picname"];
+    // 1단계: 모든 item을 한 번의 쿼리로 조회
+    $placeholders = implode(',', array_fill(0, count($items), '?'));
+    $sql = "SELECT * FROM {$DB}.picuploads WHERE item IN ($placeholders) AND parentnum = ?";
 
-        if (preg_match('/^[a-zA-Z0-9_-]{25,}$/', $picname)) {
-            // Google Drive 파일 ID로 처리
-            $fileId = $picname;
+    try {
+        $stmh = $pdo->prepare($sql);
+        $stmh->execute(array_merge($items, [$num]));
 
-            try {
-                // Google Drive 파일 정보 가져오기
-                $file = $service->files->get($fileId, ['fields' => 'webViewLink, thumbnailLink']);
-                $thumbnailUrl = $file->thumbnailLink ?? "https://drive.google.com/uc?id=$fileId";
-                $webViewLink = $file->webViewLink;
-                $WrappicData[] = ['thumbnail' => $thumbnailUrl, 'link' => $webViewLink, 'fileId' => $fileId];
-            } catch (Exception $e) {
-                error_log("Google Drive 파일 정보 가져오기 실패: " . $e->getMessage());
-                $WrappicData[] = ['thumbnail' => "https://drive.google.com/uc?id=$fileId", 'link' => null, 'fileId' => $fileId];
+        // item별로 그룹핑
+        $groupedData = [];
+        while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+            $groupedData[$row['item']][] = $row;
+        }
+
+        // 2단계: 각 item별로 Google Drive 정보 수집
+        foreach ($items as $item) {
+            $results[$item] = [];
+
+            if (!isset($groupedData[$item])) {
+                continue;
             }
-        } else {
-            // Google Drive에서 파일 이름으로 검색
-            try {
-                $query = sprintf("name='%s' and trashed=false", addslashes($picname)); // 파일 이름으로 검색
-                $response = $service->files->listFiles([
-                    'q' => $query,
-                    'fields' => 'files(id, webViewLink, thumbnailLink)',
-                    'pageSize' => 1
-                ]);
 
-                if (count($response->files) > 0) {
-                    $file = $response->files[0];
-                    $fileId = $file->id; // 검색된 파일의 ID
-                    $thumbnailUrl = $file->thumbnailLink ?? "https://drive.google.com/uc?id=$fileId";
-                    $webViewLink = $file->webViewLink;
-                    $WrappicData[] = ['thumbnail' => $thumbnailUrl, 'link' => $webViewLink, 'fileId' => $fileId];
+            foreach ($groupedData[$item] as $row) {
+                $picname = $row["picname"];
+                $realname = $row["realname"] ?? '';
 
-                    // 데이터베이스 업데이트: 검색된 파일 ID 저장
-                    $updateSql = "UPDATE {$DB}.picuploads SET picname = ? WHERE item = ? AND parentnum = ? AND picname = ?";
-                    $updateStmh = $pdo->prepare($updateSql);
-                    $updateStmh->execute([$fileId, $item, $num, $picname]);
+                if (preg_match('/^[a-zA-Z0-9_-]{25,}$/', $picname)) {
+                    // Google Drive 파일 ID로 처리
+                    $fileId = $picname;
+
+                    try {
+                        $file = $service->files->get($fileId, ['fields' => 'webViewLink, thumbnailLink']);
+                        $thumbnailUrl = $file->thumbnailLink ?? "https://drive.google.com/uc?id=$fileId";
+                        $webViewLink = $file->webViewLink;
+                        $results[$item][] = [
+                            'thumbnail' => $thumbnailUrl,
+                            'link' => $webViewLink,
+                            'fileId' => $fileId,
+                            'realname' => $realname
+                        ];
+                    } catch (Exception $e) {
+                        error_log("Google Drive 파일 정보 가져오기 실패: " . $e->getMessage());
+                        $results[$item][] = [
+                            'thumbnail' => "https://drive.google.com/uc?id=$fileId",
+                            'link' => null,
+                            'fileId' => $fileId,
+                            'realname' => $realname
+                        ];
+                    }
                 } else {
-                    error_log("Google Drive에서 파일을 찾을 수 없습니다: " . $picname);
-                    $WrappicData[] = ['thumbnail' => null, 'link' => null, 'fileId' => null];
+                    // Google Drive에서 파일 이름으로 검색
+                    try {
+                        $query = sprintf("name='%s' and trashed=false", addslashes($picname));
+                        $response = $service->files->listFiles([
+                            'q' => $query,
+                            'fields' => 'files(id, webViewLink, thumbnailLink)',
+                            'pageSize' => 1
+                        ]);
+
+                        if (count($response->files) > 0) {
+                            $file = $response->files[0];
+                            $fileId = $file->id;
+                            $thumbnailUrl = $file->thumbnailLink ?? "https://drive.google.com/uc?id=$fileId";
+                            $webViewLink = $file->webViewLink;
+                            $results[$item][] = [
+                                'thumbnail' => $thumbnailUrl,
+                                'link' => $webViewLink,
+                                'fileId' => $fileId,
+                                'realname' => $realname
+                            ];
+
+                            // 데이터베이스 업데이트
+                            $updateSql = "UPDATE {$DB}.picuploads SET picname = ? WHERE item = ? AND parentnum = ? AND picname = ?";
+                            $updateStmh = $pdo->prepare($updateSql);
+                            $updateStmh->execute([$fileId, $item, $num, $picname]);
+                        } else {
+                            error_log("Google Drive에서 파일을 찾을 수 없습니다: " . $picname);
+                            $results[$item][] = [
+                                'thumbnail' => null,
+                                'link' => null,
+                                'fileId' => null,
+                                'realname' => $realname
+                            ];
+                        }
+                    } catch (Exception $e) {
+                        error_log("Google Drive 파일 검색 실패: " . $e->getMessage());
+                        $results[$item][] = [
+                            'thumbnail' => null,
+                            'link' => null,
+                            'fileId' => null,
+                            'realname' => $realname
+                        ];
+                    }
                 }
-            } catch (Exception $e) {
-                error_log("Google Drive 파일 검색 실패: " . $e->getMessage());
-                $WrappicData[] = ['thumbnail' => null, 'link' => null, 'fileId' => null];
             }
         }
+    } catch (PDOException $Exception) {
+        error_log("DB 쿼리 오류: " . $Exception->getMessage());
     }
-} catch (PDOException $Exception) {
-    print "오류: " . $Exception->getMessage();
+
+    return $results;
 }
 
+// 한 번의 호출로 모든 파일 정보 가져오기
+$allFilesData = fetchGoogleDriveFiles($pdo, $service, $DB, $num, [
+    'ceilingwrap',
+    'ceilingrendering',
+    'ceiling'
+]);
+
+// 각 변수에 할당
+$WrappicData = $allFilesData['ceilingwrap'] ?? [];
 $WrappicNum = count($WrappicData);
 
  
@@ -359,93 +243,29 @@ try {
     print "오류: " . $Exception->getMessage();
 }
 
-// _rowDB.php에서 로드되는 변수들의 기본값 설정 (선언되지 않은 경우 대비)
-$workplacename = $workplacename ?? '';
-$address = $address ?? '';
-$firstord = $firstord ?? '';
-$firstordman = $firstordman ?? '';
-$firstordmantel = $firstordmantel ?? '';
-$secondord = $secondord ?? '';
-$secondordman = $secondordman ?? '';
-$secondordmantel = $secondordmantel ?? '';
-$chargedman = $chargedman ?? '';
-$chargedmantel = $chargedmantel ?? '';
-$designer = $designer ?? '';
-$orderday = $orderday ?? '';
-$main_draw = $main_draw ?? '';
-$lc_draw = $lc_draw ?? '';
-$etc_draw = $etc_draw ?? '';
-$deadline = $deadline ?? '';
-$workday = $workday ?? '';
-$demand = $demand ?? '';
-$worker = $worker ?? '';
-$dwglocation = $dwglocation ?? '';
-$delivery = $delivery ?? '';
-$delipay = $delipay ?? '';
-$boxwrap = $boxwrap ?? '';
-$type = $type ?? '';
-$car_insize = $car_insize ?? '';
-$inseung = $inseung ?? '';
-$su = $su ?? '';
-$bon_su = $bon_su ?? '';
-$lc_su = $lc_su ?? '';
-$etc_su = $etc_su ?? '';
-$air_su = $air_su ?? '';
-$price = $price ?? '';
-$work_order = $work_order ?? '';
-$laserdueday = $laserdueday ?? '';
-$material1 = $material1 ?? '';
-$material2 = $material2 ?? '';
-$material3 = $material3 ?? '';
-$material4 = $material4 ?? '';
-$memo = $memo ?? '';
-$memo2 = $memo2 ?? '';
-$outsourcing = $outsourcing ?? '';
-$outsourcing_memo = $outsourcing_memo ?? '';
-$first_writer = $first_writer ?? '';
-$update_log = $update_log ?? '';
-$cabledone = $cabledone ?? '';
+// ✅ 개선: 변수 초기화 최적화
+$defaultVars = [
+    'workplacename', 'address', 'firstord', 'firstordman', 'firstordmantel',
+    'secondord', 'secondordman', 'secondordmantel', 'chargedman', 'chargedmantel',
+    'designer', 'orderday', 'main_draw', 'lc_draw', 'etc_draw', 'deadline',
+    'workday', 'demand', 'worker', 'dwglocation', 'delivery', 'delipay',
+    'boxwrap', 'type', 'car_insize', 'inseung', 'su', 'bon_su', 'lc_su',
+    'etc_su', 'air_su', 'price', 'work_order', 'laserdueday', 'material1',
+    'material2', 'material3', 'material4', 'memo', 'memo2', 'outsourcing',
+    'outsourcing_memo', 'first_writer', 'update_log', 'cabledone',
+    'order_com1', 'order_text1', 'order_date1', 'order_input_date1',
+    'order_com2', 'order_text2', 'order_date2', 'order_input_date2',
+    'order_com3', 'order_text3', 'order_date3', 'order_input_date3',
+    'order_com4', 'order_text4', 'order_date4', 'order_input_date4',
+    'lclaser_com', 'lclaser_date', 'lcbending_date', 'lcwelding_date',
+    'lcpainting_date', 'lcassembly_date', 'eunsung_make_date', 'eunsung_laser_date',
+    'mainbending_date', 'mainwelding_date', 'mainpainting_date', 'mainassembly_date',
+    'etclaser_date', 'etcbending_date', 'etcwelding_date', 'etcpainting_date', 'etcassembly_date'
+];
 
-// 발주 관련 변수
-$order_com1 = $order_com1 ?? '';
-$order_text1 = $order_text1 ?? '';
-$order_date1 = $order_date1 ?? '';
-$order_input_date1 = $order_input_date1 ?? '';
-$order_com2 = $order_com2 ?? '';
-$order_text2 = $order_text2 ?? '';
-$order_date2 = $order_date2 ?? '';
-$order_input_date2 = $order_input_date2 ?? '';
-$order_com3 = $order_com3 ?? '';
-$order_text3 = $order_text3 ?? '';
-$order_date3 = $order_date3 ?? '';
-$order_input_date3 = $order_input_date3 ?? '';
-$order_com4 = $order_com4 ?? '';
-$order_text4 = $order_text4 ?? '';
-$order_date4 = $order_date4 ?? '';
-$order_input_date4 = $order_input_date4 ?? '';
-
-// LC 제조 관련 변수
-$lclaser_com = $lclaser_com ?? '';
-$lclaser_date = $lclaser_date ?? '';
-$lcbending_date = $lcbending_date ?? '';
-$lcwelding_date = $lcwelding_date ?? '';
-$lcpainting_date = $lcpainting_date ?? '';
-$lcassembly_date = $lcassembly_date ?? '';
-
-// 본천장 제조 관련 변수
-$eunsung_make_date = $eunsung_make_date ?? '';
-$eunsung_laser_date = $eunsung_laser_date ?? '';
-$mainbending_date = $mainbending_date ?? '';
-$mainwelding_date = $mainwelding_date ?? '';
-$mainpainting_date = $mainpainting_date ?? '';
-$mainassembly_date = $mainassembly_date ?? '';
-
-// 기타 제조 관련 변수
-$etclaser_date = $etclaser_date ?? '';
-$etcbending_date = $etcbending_date ?? '';
-$etcwelding_date = $etcwelding_date ?? '';
-$etcpainting_date = $etcpainting_date ?? '';
-$etcassembly_date = $etcassembly_date ?? '';
+foreach ($defaultVars as $var) {
+    $$var = $$var ?? '';
+}
 
 // 부품 관련 변수 (part1~part20)
 for ($i = 1; $i <= 20; $i++) {
@@ -453,183 +273,14 @@ for ($i = 1; $i <= 20; $i++) {
     $$varName = $$varName ?? '';
 }
  
-// 랜더링 이미지 이미 있는 것 불러오기
-$picData = array();
-$tablename = 'ceiling';
-$item = 'ceilingrendering';
-
-// 폴더의 ID 가져오기
-$miraeFolderId = getFolderId($service, '미래기업');
-$uploadsFolderId = getFolderId($service, 'uploads', $miraeFolderId);
-
-// 파일 확인 및 Google Drive 정보 가져오기
-$sql = "SELECT * FROM {$DB}.picuploads WHERE item = ? AND parentnum = ?";
-try {
-    $stmh = $pdo->prepare($sql);
-    $stmh->execute([$item, $num]);
-    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-        $picname = $row["picname"];
-
-        if (preg_match('/^[a-zA-Z0-9_-]{25,}$/', $picname)) {
-            // Google Drive 파일 ID로 처리
-            $fileId = $picname;
-
-            try {
-                // Google Drive 파일 정보 가져오기
-                $file = $service->files->get($fileId, ['fields' => 'webViewLink, thumbnailLink']);
-                $thumbnailUrl = $file->thumbnailLink ?? "https://drive.google.com/uc?id=$fileId";				
-                $webViewLink = $file->webViewLink;
-                $picData[] = ['thumbnail' => $thumbnailUrl, 'link' => $webViewLink, 'fileId' => $fileId];
-            } catch (Exception $e) {
-                error_log("Google Drive 파일 정보 가져오기 실패: " . $e->getMessage());
-                $picData[] = ['thumbnail' => "https://drive.google.com/uc?id=$fileId", 'link' => null, 'fileId' => $fileId];
-            }
-        } else {
-            // Google Drive에서 파일 이름으로 검색
-            try {
-                $query = sprintf("name='%s' and trashed=false", addslashes($picname)); // 파일 이름으로 검색
-                $response = $service->files->listFiles([
-                    'q' => $query,
-                    'fields' => 'files(id, webViewLink, thumbnailLink)',
-                    'pageSize' => 1
-                ]);
-
-                if (count($response->files) > 0) {
-                    $file = $response->files[0];
-                    $fileId = $file->id; // 검색된 파일의 ID
-                    $thumbnailUrl = $file->thumbnailLink ?? "https://drive.google.com/uc?id=$fileId";                    
-                    $webViewLink = $file->webViewLink;
-                    $picData[] = ['thumbnail' => $thumbnailUrl, 'link' => $webViewLink, 'fileId' => $fileId];
-
-                    // 데이터베이스 업데이트: 검색된 파일 ID 저장
-                    $updateSql = "UPDATE {$DB}.picuploads SET picname = ? WHERE item = ? AND parentnum = ? AND picname = ?";
-                    $updateStmh = $pdo->prepare($updateSql);
-                    $updateStmh->execute([$fileId, $item, $num, $picname]);
-                } else {
-                    error_log("Google Drive에서 파일을 찾을 수 없습니다: " . $picname);
-                    $picData[] = ['thumbnail' => null, 'link' => null, 'fileId' => null];
-                }
-            } catch (Exception $e) {
-                error_log("Google Drive 파일 검색 실패: " . $e->getMessage());
-                $picData[] = ['thumbnail' => null, 'link' => null, 'fileId' => null];
-            }
-        }
-    }
-} catch (PDOException $Exception) {
-    print "오류: " . $Exception->getMessage();
-}
-
+// ✅ 통합 함수로 가져온 데이터 사용
+$picData = $allFilesData['ceilingrendering'] ?? [];
 $picNum = count($picData);
 
-$URLsave = $base_url . "/ceilingloadpic.php?num=" . $num;  
- 
-// // 첨부파일 있는 것 불러오기 
-// $savefilename_arr=array(); 
-// $realname_arr=array(); 
-// $attach_arr=array(); 
-// $tablename='ceiling';
-// $item = 'ceiling';
+$savefilename_arr = $allFilesData['ceiling'] ?? [];
+$realname_arr = array_column($savefilename_arr, 'realname');
 
-// $sql=" select * from mirae8440.picuploads where tablename ='$tablename' and item ='$item' and parentid ='$num' ";	
-
- // try{  
-   // $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh   
-   // while($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-			// array_push($realname_arr, $row["realname"]);			
-			// array_push($savefilename_arr, $row["savename"]);			
-			// array_push($attach_arr, $row["parentid"]);			
-        // }		 
-   // } catch (PDOException $Exception) {
-    // print "오류: ".$Exception->getMessage();
-  // }  
-    
-$savefilename_arr = [];
-$realname_arr = [];
-$tablename = 'ceiling';
-$item = 'ceiling';
-
-$sql = "SELECT * FROM {$DB}.picuploads WHERE tablename=? AND item = ? AND parentnum = ?";
-try {
-    $stmh = $pdo->prepare($sql);
-    $stmh->execute([$tablename, $item, $num]);
-    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-        $picname = $row["picname"];
-        $realname = $row["realname"];
-        $realname_arr[] = $realname; // realname 배열에 추가
-
-        if (preg_match('/^[a-zA-Z0-9_-]{25,}$/', $picname)) {
-            // Google Drive 파일 ID로 처리
-            $fileId = $picname;
-
-            try {
-                // Google Drive 파일 정보 가져오기
-                $file = $service->files->get($fileId, ['fields' => 'webViewLink, thumbnailLink']);
-                $thumbnailUrl = $file->thumbnailLink ?? "https://drive.google.com/uc?id=$fileId";
-                $webViewLink = $file->webViewLink;
-                $savefilename_arr[] = [
-                    'thumbnail' => $thumbnailUrl,
-                    'link' => $webViewLink,
-                    'fileId' => $fileId,
-                    'realname' => $realname // realname 포함
-                ];
-            } catch (Exception $e) {
-                error_log("Google Drive 파일 정보 가져오기 실패: " . $e->getMessage());
-                $savefilename_arr[] = [
-                    'thumbnail' => "https://drive.google.com/uc?id=$fileId",
-                    'link' => null,
-                    'fileId' => $fileId,
-                    'realname' => $realname // realname 포함
-                ];
-            }
-        } else {
-            // Google Drive에서 파일 이름으로 검색
-            try {
-                $query = sprintf("name='%s' and trashed=false", addslashes($picname)); // 파일 이름으로 검색
-                $response = $service->files->listFiles([
-                    'q' => $query,
-                    'fields' => 'files(id, webViewLink, thumbnailLink)',
-                    'pageSize' => 1
-                ]);
-
-                if (count($response->files) > 0) {
-                    $file = $response->files[0];
-                    $fileId = $file->id; // 검색된 파일의 ID
-                    $thumbnailUrl = $file->thumbnailLink ?? "https://drive.google.com/uc?id=$fileId";
-                    $webViewLink = $file->webViewLink;
-                    $savefilename_arr[] = [
-                        'thumbnail' => $thumbnailUrl,
-                        'link' => $webViewLink,
-                        'fileId' => $fileId,
-                        'realname' => $realname // realname 포함
-                    ];
-
-                    // 데이터베이스 업데이트: 검색된 파일 ID 저장
-                    $updateSql = "UPDATE {$DB}.picuploads SET picname = ? WHERE item = ? AND parentnum = ? AND picname = ?";
-                    $updateStmh = $pdo->prepare($updateSql);
-                    $updateStmh->execute([$fileId, $item, $num, $picname]);
-                } else {
-                    error_log("Google Drive에서 파일을 찾을 수 없습니다: " . $picname);
-                    $savefilename_arr[] = [
-                        'thumbnail' => null,
-                        'link' => null,
-                        'fileId' => null,
-                        'realname' => $realname // realname 포함
-                    ];
-                }
-            } catch (Exception $e) {
-                error_log("Google Drive 파일 검색 실패: " . $e->getMessage());
-                $savefilename_arr[] = [
-                    'thumbnail' => null,
-                    'link' => null,
-                    'fileId' => null,
-                    'realname' => $realname // realname 포함
-                ];
-            }
-        }
-    }
-} catch (PDOException $Exception) {
-    print "오류: " . $Exception->getMessage();
-}
+$URLsave = $base_url . "/ceilingloadpic.php?num=" . $num;
   
 // print_r($savefilename_arr);
 
@@ -1039,20 +690,9 @@ $material_arr = array('','304 Hair Line 1.2T','304 HL 1.2T','304 Mirror 1.2T','3
 <!-- 자재사용량 표시화면 -->
 <div id="display_partInput" >
 
-	<span class="text-center text-primary ">			
+	<span class="text-center text-primary ">
 	   <h5>  천장용 자재 사용량 입력 </h5>
-	</span>		   
-			   
-<style>
-  .table td {
-    padding: 2px;
-    width: 16.66%; /* 6개의 요소를 가로로 배치하기 위해 1/6(16.66%)의 너비 설정 */
-  }
-
-  .table td input.form-control {
-    height: 25px;
-  }
-</style>
+	</span>
 
 <table id="partlist" class="table table-bordered table-striped">
     <thead>
@@ -1152,22 +792,7 @@ $material_arr = array('','304 Hair Line 1.2T','304 HL 1.2T','304 Mirror 1.2T','3
 <!-- 자재사용량 표시화면 -->
 <div id="display_process_LC">
 	<div class="table-responsive">
-  
-			
-<style>
-/* 기본 td 스타일 */
-.custom-table td {
-  padding: 3px;
-  border: 1px solid #ddd;
-  /* 필요에 따라 기본 폭을 지정할 수 있음 */
-}
 
-/* input 요소가 없는 td의 폭을 좁게 지정 */
-.custom-table td:not(:has(input)) {
-  width: 50px; /* 원하는 폭으로 수정 */
-}
-
-</style>			
 <table class="table custom-table">
   <thead>
     <tr>
@@ -1377,14 +1002,7 @@ $material_arr = array('','304 Hair Line 1.2T','304 HL 1.2T','304 Mirror 1.2T','3
   <?php
   $update_log = preg_replace('/(\d{4})/', "\n$1", $update_log);
   ?>
-  <style>
-    textarea[name="update_log"] {
-      background-color: #f2f2f2;
-      border: 1px solid #ccc;
-      white-space: pre-wrap;
-    }
-  </style>
-  <textarea class="form-control p-3" readonly name="update_log"><?=$update_log?></textarea>
+  <textarea class="form-control p-3 update-log-textarea" readonly name="update_log"><?=$update_log?></textarea>
 </div>		
 
 </div> 	
@@ -1401,10 +1019,6 @@ $material_arr = array('','304 Hair Line 1.2T','304 HL 1.2T','304 Mirror 1.2T','3
 	</div>
 			 
 </div> 
-</body>
-</html>    
-
-
 <script>
 // 통합된 변수 체크 함수
 function areAllVariablesEmpty(...variables) {
@@ -1604,26 +1218,10 @@ $(document).ready(function(){
 		  });//end bigWrapperClick event	
 		  
 
-	// 매초 검사해서 이미지가 있으면 보여주기
-	$("#pInput").val('50'); // 최초화면 사진파일 보여주기
-		
-	let timer3 = setInterval(() => {  // 2초 간격으로 사진업데이트 체크한다.
-			  if($("#pInput").val()=='100')   // 사진이 등록된 경우
-			  {
-					 // displayFile(); 
-					 displayPicture();  
-					 // console.log(100);
-			  }	      
-			  if($("#pInput").val()=='50')   // 사진이 등록된 경우
-			  {
-					 displayFileLoad();				 				  
-					 displayPictureLoad();				 
-			  }	     
-			   
-		 }, 2000);	
-		 
- 
-WrapdisplayPictureLoad();
+	// ✅ 개선: 폴링 제거, 직접 호출로 변경
+	displayFileLoad();
+	displayPictureLoad();
+	WrapdisplayPictureLoad();
 
 // 기존 포장 사진 로드
 function WrapdisplayPictureLoad() {
@@ -1729,10 +1327,10 @@ function FileProcess(item) {
 				// opener.location.reload();
 				// window.close();	
 				setTimeout(function() {
-					$('#myModal').modal('hide');  
-					}, 1000);	
-				// 사진이 등록되었으면 100 입력됨
-				 $("#pInput").val('100');							
+					$('#myModal').modal('hide');
+					// ✅ 개선: 업로드 후 즉시 화면 갱신
+					displayPicture();
+					}, 1000);
 
 			},
 			error : function( jqxhr , status , error ){
@@ -2303,3 +1901,5 @@ function delFileFn(divID, fileId) {
 	});
 }
 </script>
+</body>
+</html>    

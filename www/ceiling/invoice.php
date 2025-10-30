@@ -1,5 +1,5 @@
 <?php
-require_once getDocumentRoot() . '/session.php';
+require_once __DIR__ . '/../bootstrap.php';
 include getDocumentRoot() . '/load_header.php';
 
 // REQUEST 변수 초기화

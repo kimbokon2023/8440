@@ -32,7 +32,7 @@ header("Cache-Control: no-cache, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
 
-include getDocumentRoot() . "/common.php";
+// Note: common/functions.php already loaded at line 7
 ?>
 
 <!DOCTYPE html>

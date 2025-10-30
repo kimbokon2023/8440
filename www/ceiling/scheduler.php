@@ -4,8 +4,7 @@
  * 조명/천장 작업 스케줄러 페이지 (주간 납기일 기준)
  */
 
-session_start();
-include 'common.php'; // PHP 함수들 모음
+require_once __DIR__ . '/../bootstrap.php';
 
 // 캐시 제어 헤더
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // Date in the past

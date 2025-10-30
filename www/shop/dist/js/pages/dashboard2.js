@@ -50,16 +50,16 @@ $(function () {
       display: false
     },
     scales: {
-      xAxes: [{
-        gridLines: {
+      x: {
+        grid: {
           display: false
         }
-      }],
-      yAxes: [{
-        gridLines: {
+      },
+      y: {
+        grid: {
           display: false
         }
-      }]
+      }
     }
   }
 

@@ -436,11 +436,9 @@ $('input[name="chart_sel"]').change(function() {
 		options: {
 			responsive: false,
 			scales: {
-				yAxes: [{
-					ticks: {
-						beginAtZero: true
-					}
-				}]
+				y: {
+					beginAtZero: true
+				}
 			},
 		}
 	});

@@ -454,11 +454,9 @@ var myChart = new Chart(ctx, {
     options: {
         responsive: false,
         scales: {
-            yAxes: [{
-                ticks: {
-                    beginAtZero: true
-                }
-            }]
+            y: {
+                beginAtZero: true
+            }
         }
     }
 });

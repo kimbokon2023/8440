@@ -942,11 +942,9 @@ if(item_type=='종류별비교')
 	options: {
 		responsive: false,
 		scales: {
-			yAxes: [{
-				ticks: {
-					beginAtZero: true
-				}
-			}]
+			y: {
+				beginAtZero: true
+			}
 		},
 	}
 	});
@@ -1009,11 +1007,9 @@ if(item_type=='월별비교')
 		options: {
 			responsive: false,
 			scales: {
-				yAxes: [{
-					ticks: {
-						beginAtZero: true
-					}
-				}]
+				y: {
+					beginAtZero: true
+				}
 			},
 		}
 	});	
@@ -1111,11 +1107,9 @@ if(item_type=='년도비교')
 		options: {
 			responsive: false,
 			scales: {
-				yAxes: [{
-					ticks: {
-						beginAtZero: true
-					}
-				}]
+				y: {
+					beginAtZero: true
+				}
 			},
 		}
 	});	

@@ -24,9 +24,9 @@ if (!isset($_SESSION["level"])) {
 
     if ($isLocal) {
         // 로컬 개발환경: 로컬 로그인 페이지로 리디렉션
-        $_SESSION["url"] = 'http://localhost:8000/absent/index.php?user_name=' . $user_name;
+        $_SESSION["url"] = 'http://8440.local/absent/index.php?user_name=' . $user_name;
         sleep(1);
-        header("Location:http://localhost:8000/login/login_form.php");
+        header("Location:http://8440.local/login/login_form.php");
         exit;
     } else {
         // 서버 환경: 서버 사이트로 리디렉션

@@ -160,9 +160,6 @@ try {
         $textnum = array();
         $textset = array();
         
-        $text[3] = "";
-        $text[4] = "";
-        
         $j = 0;
         if ($widejamb >= 1) {
             $text[$j] = "막판(유) ";
@@ -184,7 +181,7 @@ try {
         }
         
         $textgroup = '';
-        for ($i = 0; $i < count($text); $i++) {
+        for ($i = 0; $i < $j; $i++) {
             $textgroup .= $text[$i] . " " . $textnum[$i] . " " . $textset[$i];
         }
         

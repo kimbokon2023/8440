@@ -1,7 +1,6 @@
  <?php
+require_once __DIR__ . '/../bootstrap.php';
 
-session_start();  
-	
 ini_set('display_errors','1');  // 화면에 warning 없애기	0, 1은 나오기
 
 $today = date("Y-m-d");
@@ -9,8 +8,11 @@ $today = date("Y-m-d");
 $user_name= $_SESSION["name"];
 $user_id= $_SESSION["userid"]; 
 
-$WebSite = "https://8440.co.kr/";	
-
+// 동적 URL 생성
+$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+$host = $_SERVER['HTTP_HOST'];
+$base_url = "{$protocol}://{$host}";
+$WebSite = $base_url . '/';
 
  if(!isset($_SESSION["level"]) || $_SESSION["level"]>5) {
 		 sleep(1);
@@ -46,13 +48,13 @@ $counter=1;
   else 
      $mode="";        
  
- if(isset($_REQUEST["find"]))   //목록표에 제목,이름 등 나오는 부분
- $find=$_REQUEST["find"];
+if(isset($_REQUEST["find"]))   //목록표에 제목,이름 등 나오는 부분
+$find=$_REQUEST["find"];
+
  
-  
- // 기간을 정하는 구간
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];	 
+// 기간을 정하는 구간
+$fromdate = isset($_REQUEST["fromdate"]) ? $_REQUEST["fromdate"] : "";	 
+$todate = isset($_REQUEST["todate"]) ? $_REQUEST["todate"] : "";	 
 
 if($fromdate=="")
 {
@@ -82,14 +84,19 @@ if($todate=="")
    $work_order_arr=array();
    $sum_arr=array();
    $draw_arr=array();
-   $jamb1=array();
-   $jamb2=array();
-   $jamb3=array();
-   $firstord_arr=array();
-   $secondord_arr=array();
-   $outsourcing_arr=array();
+  $jamb1=array();
+  $jamb2=array();
+  $jamb3=array();
+  $firstord_arr=array();
+  $secondord_arr=array();
+  $outsourcing_arr=array();
+  
+  // Sum 변수 초기화
+  $sum1 = 0;
+  $sum2 = 0;
+  $sum3 = 0;
 
- try{  
+try{
  
    // $sql="select * from mirae8440.work"; 		 
    $stmh = $pdo->query($sql);            // 검색조건에 맞는글 stmh

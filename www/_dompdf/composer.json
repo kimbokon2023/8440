@@ -1,0 +1,12 @@
+{
+    "name": "my/dompdf-project",
+    "require": {
+        "php": "^7.3",
+        "dompdf/dompdf": "^2.0"
+    },
+    "config": {
+        "platform": {
+            "php": "7.3.0"
+        }
+    }
+}

@@ -14,7 +14,7 @@ if (!isset($_SESSION["level"]) || $level >= 5) {
     
     // 동적 리다이렉트 (로컬/서버 환경)
     $isLocal = (strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false || strpos($_SERVER['HTTP_HOST'], 'localhost') !== false);
-    $baseUrl = $isLocal ? 'http://127.0.0.1:8000' : 'http://8440.co.kr';
+    $baseUrl = $isLocal ? 'http://8440.local' : 'http://8440.co.kr';
     
     header("Location: {$baseUrl}/login/logout.php");
     exit;

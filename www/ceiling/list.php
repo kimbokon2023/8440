@@ -58,6 +58,7 @@ include includePath('load_header.php');
 <title><?php echo $title_message; ?></title>
 <!-- Tabulator CSS and JS -->
 <link href="https://unpkg.com/tabulator-tables@6.2.1/dist/css/tabulator.min.css" rel="stylesheet">
+<link rel="stylesheet" href="<?php echo $base_url; ?>/assets/css/ceiling-list.css">
 <script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.2.1/dist/js/tabulator.min.js"></script>
 <?php
 // 모바일 접속일 때만 viewport meta 태그 출력
@@ -101,956 +102,7 @@ function isMobile() {
     </div>
 </div>
 
-<?php require_once(includePath('myheader.php')); ?>   
-<style>
-/* 로딩 오버레이 스타일 */
- .loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    z-index: 9999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    backdrop-filter: blur(3px);
-    animation: fadeIn 0.3s ease-in-out;
-}
-
-.loading-container {
-    background: white;
-    border-radius: 15px;
-    padding: 40px;
-    text-align: center;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    max-width: 400px;
-    width: 90%;
-    animation: slideUp 0.4s ease-out;
-}
-
-.loading-spinner {
-    margin-bottom: 20px;
-}
-
-.loading-spinner .spinner-border {
-    width: 3rem;
-    height: 3rem;
-    border-width: 0.3em;
-}
-
-.loading-message h5 {
-    font-weight: 600;
-    margin-bottom: 10px;
-}
-
-.loading-message p {
-    font-size: 0.95rem;
-    margin: 0;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes slideUp {
-    from { 
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to { 
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* 다크 모드 지원 */
-[data-theme="dark"] .loading-container {
-    background: #2d3748;
-    color: white;
-}
-
-[data-theme="dark"] .loading-message h5 {
-    color: #63b3ed !important;
-}
-
-[data-theme="dark"] .loading-message p {
-    color: #a0aec0 !important;
-}
-
-/* 정렬 완료 모달 스타일 */
-.sort-complete-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 10000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    animation: fadeIn 0.3s ease-in-out;
-}
-
-.sort-complete-container {
-    background: white;
-    border-radius: 15px;
-    padding: 30px;
-    text-align: center;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    max-width: 400px;
-    width: 90%;
-    animation: slideUp 0.4s ease-out;
-    border: 2px solid #28a745;
-}
-
-.sort-complete-icon {
-    margin-bottom: 20px;
-}
-
-.sort-complete-icon i {
-    font-size: 4rem;
-    animation: bounceIn 0.6s ease-out;
-}
-
-.sort-complete-message h5 {
-    font-weight: 600;
-    margin-bottom: 10px;
-}
-
-.sort-complete-message p {
-    font-size: 1rem;
-    margin: 0;
-}
-
-@keyframes bounceIn {
-    0% {
-        opacity: 0;
-        transform: scale(0.3);
-    }
-    50% {
-        opacity: 1;
-        transform: scale(1.05);
-    }
-    70% {
-        transform: scale(0.9);
-    }
-    100% {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-/* 다크 모드 지원 - 정렬 완료 모달 */
-[data-theme="dark"] .sort-complete-container {
-    background: #2d3748;
-    color: white;
-    border-color: #28a745;
-}
-
-[data-theme="dark"] .sort-complete-message h5 {
-    color: #28a745 !important;
-}
-
-[data-theme="dark"] .sort-complete-message p {
-    color: #a0aec0 !important;
-}
-
-/* Light mode styles */
-body {
-  background-color: #ffffff;
-  color: #000000;
-  overflow-x: auto; /* 데스크톱에서 가로 스크롤 허용 */
-}
-
-/* 모바일 전용 스타일 */
-@media (max-width: 768px) {
-  body {
-    font-size: 16px; /* iOS 줌 방지 */
-    overflow-x: hidden; /* 모바일에서만 가로 스크롤 방지 */
-  }
-
-  /* 컨테이너 패딩 조정 */
-  .container-fluid {
-    padding-left: 8px;
-    padding-right: 8px;
-  }
-
-  /* 카드 마진 줄이기 */
-  .card {
-    margin-bottom: 0.5rem;
-    border-radius: 8px;
-  }
-
-  .card-body {
-    padding: 0.75rem;
-  }
-
-  /* 버튼 그룹 스택 방식 */
-  .d-flex.align-items-center {
-    flex-wrap: wrap;
-    gap: 0.25rem;
-  }
-
-  /* 버튼 크기 조정 */
-  .btn-sm {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.875rem;
-    min-height: 44px; /* 터치 친화적 크기 */
-    min-width: 44px;
-    margin: 0.125rem; /* 버튼 간 공간 */
-  }
-
-  /* 대형 버튼들 */
-  .btn:not(.btn-sm) {
-    min-height: 48px;
-    padding: 0.75rem 1rem;
-    font-weight: 500;
-  }
-
-  /* 옵션 버튼들 모바일 최적화 */
-  #showalign, #showextract {
-    min-width: 80px;
-    white-space: nowrap;
-  }
-
-  /* 하드웨어 버튼 스타일 */
-  .btn:active {
-    transform: scale(0.98);
-    transition: transform 0.1s ease;
-  }
-
-  /* 드롭다운 컨테이너 모바일 최적화 */
-  #showalignframe, #showextractframe {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1000;
-    max-width: 90vw;
-    max-height: 80vh;
-    overflow-y: auto;
-  }
-
-  /* 검색 영역 수직 스택 */
-  .d-flex.justify-content-center.align-items-center {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .d-flex.justify-content-center.align-items-center > * {
-    margin: 0.125rem;
-  }
-
-  /* 검색 드롭다운과 입력필드 */
-  #find, #search {
-    width: 100% !important;
-    max-width: 200px;
-  }
-
-  /* 날짜 입력필드 */
-  #fromdate, #todate {
-    width: 140px !important;
-  }
-
-  /* 체크박스 라벨 */
-  label[for="receptionDateFilter"] {
-    font-size: 0.875rem;
-    margin: 0.25rem;
-  }
-
-  /* D-day 선택 */
-  #dDaySelect {
-    width: 80px !important;
-    min-width: 80px;
-  }
-
-  /* 검색 영역 모바일 최적화 */
-  .form-control, .form-select {
-    font-size: 16px; /* iOS 줌 방지 */
-    min-height: 44px;
-  }
-
-  /* 공지사항 배너 모바일 최적화 */
-  .shadow-lg.rounded-4 {
-    margin: 0.5rem;
-    padding: 1rem;
-    min-height: auto;
-    text-align: center;
-  }
-
-  .shadow-lg.rounded-4 .badge {
-    font-size: 0.9rem;
-    padding: 0.5rem 1rem;
-    display: inline-block;
-    margin: 0.25rem;
-  }
-
-  /* 아이콘 크기 조정 */
-  .bi {
-    font-size: 1.1em;
-  }
-
-  /* 타이틀 항용 */
-  h5 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin: 0.5rem 0;
-  }
-
-  /* 배지 색상 */
-  .badge.bg-dark {
-    background-color: #495057 !important;
-    font-size: 0.8rem;
-    padding: 0.5rem 0.75rem;
-  }
-
-  /* 커스텀 입력 래퍼 */
-  .inputWrap {
-    position: relative;
-    display: flex;
-    align-items: center;
-    width: 100%;
-    max-width: 200px;
-  }
-
-  .inputWrap input {
-    width: 100% !important;
-    padding-right: 2.5rem;
-  }
-
-  .btnClear {
-    position: absolute;
-    right: 0.5rem;
-    width: 20px;
-    height: 20px;
-    background: #6c757d;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .btnClear:before {
-    content: '×';
-    color: white;
-    font-size: 14px;
-    line-height: 1;
-  }
-}
-
-/* Dark mode styles */
-[data-theme="dark"] {
-  background-color: #000000;
-  color: #ffffff;
-}
-
-/* Toggle switch styles */
-.toggle-switch {
-  display: inline-block;
-  position: relative;
-  width: 60px;
-  height: 34px;
-}
-
-.toggle-switch input[type="checkbox"] {
-  display: none;
-}
-
-.toggle-slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  transition: .4s;
-  border-radius: 34px;
-}
-
-.toggle-slider:before {
-	  position: absolute;
-	  content: "";
-	  height: 26px;
-	  width: 26px;
-	  left: 4px;
-	  bottom: 4px;
-	  background-color: white;
-	  transition: .4s;
-	  border-radius: 50%;
-}
-
-input[type="checkbox"]:checked + .toggle-slider {
-  background-color: #2196F3;
-}
-
-input[type="checkbox"]:checked + .toggle-slider:before {
-  transform: translateX(26px);
-}
-
-  .hidden-field,
-  .part-field {
-	display: none; /* 체크박스 체크 시 숨겨진 필드를 숨김 */
-  }
-  
-/* 기본적으로 숨김 처리 */
-
-#deadline_laserContainer {
-	cursor: pointer;
-}
-
-#autocomplete-list {
-	border: 1px solid #d4d4d4;
-	border-bottom: none;
-	border-top: none;
-	position: absolute;
-	top: 93%;
-	left: 50%;
-	right: 30%;
-	width : 10%;
-	z-index: 999;
-}
-.autocomplete-item {
-	padding: 10px;
-	cursor: pointer;
-	background-color: #fff;
-	border-bottom: 1px solid #d4d4d4;
-}
-.autocomplete-item:hover {
-	background-color: #e9e9e9;
-}
-
-.custom-tooltip {
-    display: none;
-    position: absolute;
-    border: 1px solid #ddd;
-    background-color: blue;
-	color:white;
-	font-size:25px;
-    padding: 10px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
-    top: 100px;
-}
-
-/* 툴팁 위치 조정 */
-#denkriModel:hover + .custom-tooltip {
-    display: block;
-    left: 70%; /* 화면 가로축의 중앙에 위치 */
-    top: 90px; /* Y축은 절대 좌표에 따라 설정 */
-    transform: translateX(-50%); /* 자신의 너비의 반만큼 왼쪽으로 이동 */
-}
-	
-#showalign {
-	display: inline-block;
-	position: relative;
-}
-		
-#showalignframe {
-	display: none;
-	position: absolute;
-	width: 1000px;
-	z-index: 1000;
-    left: 50%; /* 화면 가로축의 중앙에 위치 */    
-    transform: translateX(-40%); /* 자신의 너비의 반만큼 왼쪽으로 이동 */		
-}
-	
-#showextract {
-	display: inline-block;
-	position: relative;
-}
-
-#showextractframe {
-	display: none;
-	position: absolute;
-	width: 50%;
-	z-index: 1000;
-    left: 50%; /* 화면 가로축의 중앙에 위치 */    
-    transform: translateX(-40%); /* 자신의 너비의 반만큼 왼쪽으로 이동 */		
-}	
-
-th, td {
-    vertical-align: middle !important;
-}
-
-/* Tabulator 스타일 개선 */
-#tabulator-table {
-    width: 100%;
-    overflow-x: auto; /* 가로 스크롤 활성화 */
-}
-
-.tabulator {
-    border: 1px solid #dee2e6;
-    border-radius: 0.375rem;
-    overflow-x: auto; /* 가로 스크롤 활성화 */
-    min-width: 100%; /* 최소 너비 설정 */
-}
-
-.tabulator .tabulator-header,
-.tabulator .tabulator-header .tabulator-col {
-    background-color: #b6d7ff;
-}
-
-.tabulator .tabulator-header {
-    border-bottom: 1px solid #dee2e6;
-    height: 52px; /* 기본 40px의 1.3배 */
-}
-
-.tabulator .tabulator-header .tabulator-col {
-    border-right: 1px solid #dee2e6;
-}
-
-.tabulator .tabulator-row {
-    border-bottom: 1px solid #dee2e6;
-    height: 42px; /* 기본 32px의 1.3배 */
-}
-
-.tabulator .tabulator-row:hover {
-    background-color: #e3f2fd;
-    transition: background-color 0.2s ease;
-}
-
-.tabulator .tabulator-row.tabulator-row-even {
-    background-color: #ffffff;
-}
-
-.tabulator .tabulator-row.tabulator-row-odd {
-    background-color: #f8f9fa;
-}
-
-.tabulator .tabulator-cell {
-    border-right: 1px solid #dee2e6;
-    padding: 5px 10px; /* 1.3배 증가 (4px->5px, 8px->10px) */
-    line-height: 32px; /* 행 높이에 맞춘 line-height */
-}
-
-.tabulator .tabulator-cell:hover {
-    background-color: #e3f2fd;
-}
-
-/* 테이블 행 전체가 클릭 가능하도록 강조 및 통합된 스타일 */
-.tabulator .tabulator-row,
-.tabulator .tabulator-cell {
-    cursor: pointer;
-}
-
-.tabulator .tabulator-row:hover,
-.tabulator .tabulator-cell:hover {
-    transition: background-color 0.2s ease;
-}
-
-/* 클릭 시 시각적 피드백 */
-.tabulator .tabulator-row:active {
-    background-color: #bbdefb;
-}
-
-.tabulator .tabulator-footer {
-    background-color: #f8f9fa;
-    border-top: 1px solid #dee2e6;
-}
-
-/* 모바일 테이블 스타일 */
-@media (max-width: 768px) {
-  .tabulator {
-    font-size: 14px;
-    border-radius: 8px;
-  }
-
-  .tabulator .tabulator-header {
-    height: 48px;
-  }
-
-  .tabulator .tabulator-row {
-    height: 56px; /* 모바일에서 더 높게 */
-  }
-
-  .tabulator .tabulator-cell {
-    padding: 8px 6px;
-    line-height: 1.4;
-    word-break: break-word;
-  }
-
-  /* 모바일에서 특정 컬럼 숨기기 */
-  .tabulator .tabulator-col[data-field="reception_date"],
-  .tabulator .tabulator-col[data-field="delivery_date"],
-  .tabulator .tabulator-col[data-field="detailed_spec"] {
-    display: none;
-  }
-
-  .tabulator .tabulator-cell[tabulator-field="reception_date"],
-  .tabulator .tabulator-cell[tabulator-field="delivery_date"],
-  .tabulator .tabulator-cell[tabulator-field="detailed_spec"] {
-    display: none;
-  }
-
-  /* 모바일 카드형 레이아웃 대안 */
-  .mobile-card-view {
-    display: none;
-  }
-
-  .mobile-card-view.active {
-    display: block;
-  }
-
-  .mobile-card-view .tabulator {
-    display: none;
-  }
-
-  .data-card {
-    background: white;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    margin-bottom: 0.5rem;
-    padding: 1rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .data-card:hover {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    transform: translateY(-1px);
-  }
-
-  .data-card:active {
-    transform: translateY(0);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  }
-
-  .data-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid #e9ecef;
-  }
-
-  .data-card-title {
-    font-weight: 600;
-    font-size: 1rem;
-    color: #212529;
-    margin: 0;
-  }
-
-  .data-card-number {
-    background: #007bff;
-    color: white;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 500;
-  }
-
-  .data-card-body {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-  }
-
-  .data-card-item {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .data-card-item.full-width {
-    grid-column: span 2;
-  }
-
-  .data-card-label {
-    font-size: 0.75rem;
-    color: #6c757d;
-    margin-bottom: 0.125rem;
-  }
-
-  .data-card-value {
-    color: #212529;
-    font-weight: 500;
-  }
-
-  .status-badge {
-    display: inline-block;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 500;
-  }
-
-  .status-complete {
-    background-color: #d4edda;
-    color: #155724;
-  }
-
-  .status-pending {
-    background-color: #fff3cd;
-    color: #856404;
-  }
-
-  .status-progress {
-    background-color: #cce5ff;
-    color: #004085;
-  }
-
-  /* 추가 모바일 최적화 */
-
-  /* 로딩 스피너 및 모달 */
-  .loading-overlay .loading-container {
-    max-width: 90vw;
-    text-align: center;
-  }
-
-  .sort-complete-modal .sort-complete-container {
-    max-width: 90vw;
-    text-align: center;
-  }
-
-  /* 테이블 오버플로우 처리 */
-  .table-responsive {
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  }
-
-  /* Todo 리스트 영역 */
-  .card .table {
-    font-size: 0.875rem;
-    margin-bottom: 0;
-  }
-
-  #todolist, #todolist_draw {
-    font-size: 0.8rem;
-    padding: 0.5rem;
-    min-height: 100px;
-    resize: none;
-  }
-
-  /* 컬럼 설정 카드 */
-  .column-settings-card {
-    margin-bottom: 0.5rem;
-  }
-
-  .column-settings-card .card-body {
-    max-height: 40vh;
-    overflow-y: auto;
-  }
-
-  .form-check {
-    padding: 0.25rem 0;
-  }
-
-  .form-check-label {
-    font-size: 0.875rem;
-    cursor: pointer;
-  }
-
-  /* 터치 영역 예약 */
-  .data-card, .btn, .form-control, .form-select, .form-check-input {
-    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
-  }
-
-  /* iOS 사파리 보정 */
-  input, select, textarea, button {
-    -webkit-appearance: none;
-    appearance: none;
-    border-radius: 0.375rem;
-  }
-
-  /* 스크롤 바 스타일링 */
-  ::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 3px;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 3px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8;
-  }
-
-  /* 에니메이션 효과 */
-  .data-card, .btn, .form-control {
-    transition: all 0.2s ease;
-  }
-
-  /* 접근성 개선 */
-  .visually-hidden {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
-
-  /* 포커스 지시자 */
-  button:focus, .btn:focus,
-  input:focus, select:focus, textarea:focus,
-  .form-control:focus, .form-select:focus {
-    outline: 2px solid #007bff;
-    outline-offset: 2px;
-  }
-
-  /* 고대비 모드 지원 */
-  @media (prefers-contrast: high) {
-    .data-card {
-      border: 2px solid #000;
-    }
-    .status-badge {
-      border: 1px solid currentColor;
-    }
-  }
-
-  /* 다크 모드 상태에서의 모바일 스타일 */
-  [data-theme="dark"] .data-card {
-    background: #2d3748;
-    border-color: #4a5568;
-    color: #e2e8f0;
-  }
-
-  [data-theme="dark"] .data-card-label {
-    color: #a0aec0;
-  }
-
-  [data-theme="dark"] .btn-outline-primary {
-    color: #63b3ed;
-    border-color: #63b3ed;
-  }
-
-  [data-theme="dark"] .btn-outline-primary:hover {
-    background-color: #63b3ed;
-    color: #1a202c;
-  }
-}
-
-/* 컬럼 설정 카드 스타일 */
-.column-settings-card {
-    margin-bottom: 1rem;
-}
-
-.column-settings-card .form-check {
-    margin-bottom: 0.25rem;
-}
-
-.column-settings-card .form-check-label {
-    font-size: 0.9rem;
-}
-
-.column-settings-card .card-header:hover {
-    background-color: #f8f9fa;
-}
-
-.column-settings-card .collapse.show {
-    display: block;
-}
-
-.column-settings-card .collapse:not(.show) {
-    display: none;
-}
-
-#column-settings-icon {
-    transition: transform 0.3s ease;
-}
-
-#column-settings-icon.rotated {
-    transform: rotate(180deg);
-}
-
-/* 헤더 필터 스타일 */
-.tabulator .tabulator-header .tabulator-col .tabulator-header-filter {
-    background-color: #f8f9fa;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    padding: 5px 10px; /* 1.3배 증가 (4px->5px, 8px->10px) */
-    font-size: 12px;
-    margin: 2px;
-    transition: all 0.2s ease;
-}
-
-.tabulator .tabulator-header .tabulator-col .tabulator-header-filter:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-    background-color: #ffffff;
-}
-
-.tabulator .tabulator-header .tabulator-col .tabulator-header-filter input {
-    width: 100%;
-    border: none;
-    outline: none;
-    background: transparent;
-    font-size: 11px;
-    padding: 2px;
-}
-
-.tabulator .tabulator-header .tabulator-col .tabulator-header-filter select {
-    width: 100%;
-    border: none;
-    outline: none;
-    background: transparent;
-    font-size: 11px;
-    padding: 2px;
-    cursor: pointer;
-}
-
-/* 헤더 필터가 있는 컬럼의 높이 조정 */
-.tabulator .tabulator-header .tabulator-col.tabulator-col-title {
-    min-height: 78px; /* 필터를 위한 추가 공간 (60px * 1.3) */
-}
-
-/* 활성화된 필터 스타일 */
-.tabulator .tabulator-header .tabulator-col .tabulator-header-filter.tabulator-header-filter-active {
-    background-color: #e7f3ff;
-    border-color: #007bff;
-    font-weight: bold;
-}
-
-/* 필터 플레이스홀더 스타일 */
-.tabulator .tabulator-header .tabulator-col .tabulator-header-filter input::placeholder,
-.tabulator .tabulator-header .tabulator-col .tabulator-header-filter select option:first-child {
-    color: #6c757d;
-    font-style: italic;
-}
-
-/* 검색 결과 하이라이트 효과 */
-.tabulator-row.tabulator-filtered {
-    background-color: #fff3cd !important;
-    border-left: 3px solid #ffc107;
-}
-
-/* Tabulator 통합 폰트 크기 설정 */
-.tabulator {
-    font-size: 1.03em;
-}
-
-/* 테이블 뷰 가로 스크롤 설정 */
-.table-view {
-    width: 100%;
-    overflow-x: auto;
-}
-
-/* 데스크톱에서만 가로 스크롤 활성화 */
-@media (min-width: 769px) {
-    .table-view, #tabulator-table {
-        overflow-x: auto !important;
-    }
-}
-</style>
+<?php require_once(includePath('myheader.php')); ?>
 
 </head>
 <?php
@@ -2163,19 +1215,20 @@ $(document).ready(function() {
         }
     }
     
+
     // 🔥💪 강력한 Tabulator 컬럼 정의 (검색 필터 포함) 💪🔥
     var columns = [
         {
             title: "번호", 
             field: "num", 
-            width: 80, 
+            width: 60, 
             hozAlign: "center", 
             sorter: "number"
         },
         {
             title: "외주", 
             field: "outsourcing", 
-            width: 80, 
+            width: 60, 
             hozAlign: "center", 
             formatter: function(cell) {
                 var value = cell.getValue();
@@ -2185,31 +1238,31 @@ $(document).ready(function() {
         {
             title: "접수", 
             field: "orderday", 
-            width: 120, 
+            width: 90, 
             hozAlign: "center",
         },
         {
             title: "본설계", 
             field: "main_draw", 
-            width: 80, 
+            width: 60, 
             hozAlign: "center",
         },
         {
             title: "L/C설계", 
             field: "lc_draw", 
-            width: 80, 
+            width: 60, 
             hozAlign: "center",
         },
         {
             title: "기타설계", 
             field: "etc_draw", 
-            width: 80, 
+            width: 60, 
             hozAlign: "center",
         },
         {
-            title: "미설계 상태", 
+            title: "미설계", 
             field: "not_designed_status", 
-            width: 150, 
+            width: 80, 
             hozAlign: "center",
             formatter: function(cell, formatterParams) {
                 var rowData = cell.getRow().getData();
@@ -2237,7 +1290,7 @@ $(document).ready(function() {
         {
             title: "납기", 
             field: "deadline", 
-            width: 80, 
+            width: 70, 
             hozAlign: "center",
             formatter: function(cell, formatterParams) {
                 var value = cell.getValue();
@@ -2259,7 +1312,7 @@ $(document).ready(function() {
         {
             title: "출고", 
             field: "workday", 
-            width: 80, 
+            width: 70, 
             hozAlign: "center",
             formatter: function(cell, formatterParams) {
                 var value = cell.getValue();
@@ -2287,7 +1340,7 @@ $(document).ready(function() {
         {
             title: "청구", 
             field: "demand", 
-            width: 80, 
+            width: 70, 
             hozAlign: "center",
             formatter: function(cell, formatterParams) {
                 var value = cell.getValue();
@@ -2309,7 +1362,7 @@ $(document).ready(function() {
         {
             title: "현장명", 
             field: "workplacename", 
-            width: 200, 
+            width: 160, 
             hozAlign: "left",
         },
         {
@@ -2447,7 +1500,7 @@ $(document).ready(function() {
         {
             title: "비고", 
             field: "memo", 
-            width: 150, 
+            width: 100, 
             hozAlign: "left",
         }
     ];

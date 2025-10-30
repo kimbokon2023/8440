@@ -117,7 +117,7 @@ $pdo = db_connect();  // 환경에 맞는 설정으로 자동 연결
 - DB 사용자: `root`
 - DB 비밀번호: (빈 문자열)
 - DB 이름: `mirae8440`
-- 기본 URL: 현재 도메인 자동 감지 (예: http://localhost:8000)
+- 기본 URL: 현재 도메인 자동 감지 (예: http://8440.local)
 
 ### 서버 환경
 - DB 사용자: `mirae8440`

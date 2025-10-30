@@ -1,0 +1,195 @@
+/* Ceiling View Page Styles */
+
+.table, td, input {
+	font-size: 14px !important;
+	vertical-align: middle;
+	padding: 2px;
+	border-spacing: 2px;
+	text-align: center;
+}
+
+.table td input.form-control {
+	height: 25px;
+	border: 1px solid #ced4da;
+	border-radius: 4px;
+}
+
+/* textarea 자동 높이 조절 */
+textarea.form-control {
+	min-height: 40px;
+	max-height: 300px;
+	overflow-y: auto;
+	resize: vertical;
+	transition: height 0.2s ease;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.6);
+	margin-right: 10px;
+}
+
+/* 외주가공 메모 말풍선 스타일 */
+.outsourcing-memo-bubble {
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    transform: translateY(-50%);
+    margin-left: 15px;
+    z-index: 1000;
+    animation: slideInRight 0.3s ease-out;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .outsourcing-memo-bubble {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        margin-left: 0;
+        width: 90%;
+        max-width: 350px;
+    }
+
+    .bubble-content::before {
+        display: none;
+    }
+}
+
+.bubble-content {
+    background: linear-gradient(135deg, rgb(86, 193, 219) 0%, rgb(35, 173, 197) 100%);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    min-width: 300px;
+    max-width: 400px;
+    position: relative;
+}
+
+.bubble-content::before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-right: 8px solid rgb(70, 188, 235);
+}
+
+.bubble-header {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 12px 15px;
+    border-radius: 15px 15px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.bubble-title {
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.bubble-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.bubble-close:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.bubble-body {
+    padding: 15px;
+}
+
+.bubble-textarea {
+    border: none;
+    border-radius: 8px;
+    resize: vertical;
+    min-height: 80px;
+    font-size: 13px;
+    background: rgba(255, 255, 255, 0.95);
+    transition: all 0.2s;
+    pointer-events: none;
+}
+
+.bubble-textarea:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
+    background: white;
+}
+
+.bubble-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.bubble-footer small {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 11px;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateY(-50%) translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(-50%) translateX(0);
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        opacity: 1;
+        transform: translateY(-50%) translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-50%) translateX(-20px);
+    }
+}
+
+.bubble-hide {
+    animation: slideOutRight 0.2s ease-in forwards;
+}
+
+/* Custom table styles */
+.custom-table td {
+    padding: 3px;
+    border: 1px solid #ddd;
+}
+
+.custom-table td:not(:has(input)) {
+    width: 50px;
+}
+
+.w150px {
+    width: 150px;
+}
+
+/* Update log textarea */
+textarea[name="update_log"],
+.update-log-textarea {
+    background-color: #f2f2f2;
+    border: 1px solid #ccc;
+    white-space: pre-wrap;
+}

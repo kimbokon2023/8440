@@ -35,7 +35,7 @@ if (!$redirectUri) {
                 strpos($_SERVER['HTTP_HOST'], 'localhost') !== false);
     
     if ($isLocal) {
-        $redirectUri = 'http://127.0.0.1:8000/drive/view.php';
+        $redirectUri = 'http://8440.local/drive/view.php';
     } else {
         $redirectUri = 'https://8440.co.kr/drive/view.php';
     }

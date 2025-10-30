@@ -151,16 +151,16 @@ $(function () {
       display: false
     },
     scales: {
-      xAxes: [{
-        gridLines: {
+      x: {
+        grid: {
           display: false
         }
-      }],
-      yAxes: [{
-        gridLines: {
+      },
+      y: {
+        grid: {
           display: false
         }
-      }]
+      }
     }
   }
 
@@ -233,27 +233,27 @@ $(function () {
       display: false
     },
     scales: {
-      xAxes: [{
+      x: {
         ticks: {
-          fontColor: '#efefef'
+          color: '#efefef'
         },
-        gridLines: {
+        grid: {
           display: false,
           color: '#efefef',
           drawBorder: false
         }
-      }],
-      yAxes: [{
+      },
+      y: {
         ticks: {
           stepSize: 5000,
-          fontColor: '#efefef'
+          color: '#efefef'
         },
-        gridLines: {
+        grid: {
           display: true,
           color: '#efefef',
           drawBorder: false
         }
-      }]
+      }
     }
   }
 

@@ -397,9 +397,6 @@
 					<a class="dropdown-item" href="https://www.koita.or.kr/" target="_blank">
 						<i class="bi bi-globe"></i> 한국산업기술진흥협회
 					</a>
-					<a class="dropdown-item" href="http://workpt.co.kr" target="_blank">
-						<i class="bi bi-laptop"></i> Work Portal
-					</a>
 					<a class="dropdown-item" href="<?=$root_dir?>/RnD/list.php">
 						<i class="bi bi-easel"></i> 연구소 게시판
 					</a>

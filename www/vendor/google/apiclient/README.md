@@ -126,11 +126,11 @@ See the [`examples/`](examples) directory for examples of the key client feature
 view them in your browser by running the php built-in web server.
 
 ```
-$ php -S localhost:8000 -t examples/
+$ php -S 8440.local -t examples/
 ```
 
 And then browsing to the host and port you specified
-(in the above example, `http://localhost:8000`).
+(in the above example, `http://8440.local`).
 
 ### Basic Example ###
 

@@ -352,11 +352,9 @@ $year=substr($fromdate,0,4) ;
 		options: {
 			responsive: false,
 			scales: {
-				yAxes: [{
-					ticks: {
-						beginAtZero: true
-					}
-				}]
+				y: {
+					beginAtZero: true
+				}
 			},
 		}
 	});	
