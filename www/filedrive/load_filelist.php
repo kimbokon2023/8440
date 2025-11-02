@@ -96,10 +96,11 @@ try {
             $fileId = $picname;
             
             try {
-                $file = $service->files->get($fileId, array('fields' => 'webViewLink, thumbnailLink'));
+                $file = $service->files->get($fileId, array('fields' => 'webViewLink, webContentLink, thumbnailLink'));
                 $savefilename_arr[] = array(
                     'thumbnail' => $file->thumbnailLink ?? null,
                     'link' => $file->webViewLink ?? "https://drive.google.com/file/d/{$fileId}/view",
+                    'downloadLink' => $file->webContentLink ?? "https://drive.google.com/uc?export=download&id={$fileId}",
                     'fileId' => $fileId,
                     'realname' => $realname
                 );
@@ -108,6 +109,7 @@ try {
                 $savefilename_arr[] = array(
                     'thumbnail' => null,
                     'link' => "https://drive.google.com/file/d/{$fileId}/view",
+                    'downloadLink' => "https://drive.google.com/uc?export=download&id={$fileId}",
                     'fileId' => $fileId,
                     'realname' => $realname,
                     'error' => 'File info retrieval failed'

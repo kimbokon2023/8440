@@ -81,37 +81,96 @@ if ($mode == "search" && !empty($search)) {
     $params_con = [];
 }
 
+// 변수 초기화
+$member_list = [];
+$total_row = 0;
+$result_count = 0;
+
 // 쿼리 실행
 try {
-    // 전체 레코드 수
-    if (!empty($params_con)) {
-        $allstmh = $pdo->prepare($sqlcon);
-        foreach ($params_con as $key => $value) {
-            $allstmh->bindValue($key + 1, $value, PDO::PARAM_STR);
-        }
-        $allstmh->execute();
-    } else {
-        $allstmh = $pdo->query($sqlcon);
-    }
-    $total_row = $allstmh->rowCount();
+    // 디버깅: SQL 쿼리 확인
+    error_log("DEBUG - SQL: " . $sql);
+    error_log("DEBUG - Params: " . print_r($params, true));
+    error_log("DEBUG - DB: " . $DB);
+    error_log("DEBUG - Table: " . $tablename);
     
-    // 페이지별 레코드
-    $stmh = $pdo->prepare($sql);
-    foreach ($params as $key => $value) {
-        $stmh->bindValue($key + 1, $value, is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR);
+    // === 임시 디버깅: 화면에 출력 ===
+    echo "<!-- DEBUG INFO -->";
+    echo "<!-- DB: {$DB} -->";
+    echo "<!-- Table: {$tablename} -->";
+    echo "<!-- Mode: {$mode} -->";
+    echo "<!-- Search: {$search} -->";
+    
+    // 전체 레코드 수 (COUNT 사용)
+    if ($mode == "search" && !empty($search)) {
+        $count_sql = "SELECT COUNT(*) as total FROM {$DB}.{$tablename} 
+                      WHERE id LIKE ? OR name LIKE ? OR nick LIKE ?";
+        echo "<!-- COUNT SQL (SEARCH): {$count_sql} -->";
+        $count_stmh = $pdo->prepare($count_sql);
+        $searchParam = "%{$search}%";
+        $count_stmh->execute([$searchParam, $searchParam, $searchParam]);
+    } else {
+        $count_sql = "SELECT COUNT(*) as total FROM {$DB}.{$tablename}";
+        echo "<!-- COUNT SQL: {$count_sql} -->";
+        $count_stmh = $pdo->query($count_sql);
     }
-    $stmh->execute();
+    $count_result = $count_stmh->fetch(PDO::FETCH_ASSOC);
+    echo "<!-- COUNT RESULT: " . print_r($count_result, true) . " -->";
+    $total_row = (int)($count_result['total'] ?? 0);
+    
+    echo "<!-- TOTAL ROW: {$total_row} -->";
+    error_log("DEBUG - Total rows (COUNT): " . $total_row);
+    
+    // 페이지별 레코드 조회 (배열로 받기)
+    if ($mode == "search" && !empty($search)) {
+        $searchParam = "%{$search}%";
+        $sql_final = "SELECT * FROM {$DB}.{$tablename} 
+                      WHERE id LIKE ? OR name LIKE ? OR nick LIKE ? 
+                      {$order_clause} 
+                      LIMIT ?, ?";
+        $stmh = $pdo->prepare($sql_final);
+        $stmh->bindValue(1, $searchParam, PDO::PARAM_STR);
+        $stmh->bindValue(2, $searchParam, PDO::PARAM_STR);
+        $stmh->bindValue(3, $searchParam, PDO::PARAM_STR);
+        $stmh->bindValue(4, $first_num, PDO::PARAM_INT);
+        $stmh->bindValue(5, $scale, PDO::PARAM_INT);
+        $stmh->execute();
+        echo "<!-- SEARCH SQL: {$sql_final} -->";
+    } else {
+        $stmh = $pdo->prepare($sql);
+        $stmh->bindValue(1, $first_num, PDO::PARAM_INT);
+        $stmh->bindValue(2, $scale, PDO::PARAM_INT);
+        $stmh->execute();
+        echo "<!-- NORMAL SQL: {$sql} -->";
+    }
+    
+    // 배열로 전부 받기 - 이것이 핵심!
+    $member_list = $stmh->fetchAll(PDO::FETCH_ASSOC);
+    $result_count = count($member_list);
+    
+    echo "<!-- FETCHED ROWS: {$result_count} -->";
+    echo "<!-- FIRST MEMBER: " . print_r($member_list[0] ?? 'EMPTY', true) . " -->";
+    error_log("DEBUG - Result count: " . $result_count);
     
     $total_page = ceil($total_row / $scale);
     $current_page = ceil($page / $page_scale);
     
 } catch (PDOException $ex) {
     error_log("회원 목록 조회 오류: " . $ex->getMessage());
-    echo "오류: 데이터를 불러오는 중 문제가 발생했습니다.";
+    error_log("DEBUG - SQL that failed: " . $sql);
+    echo "<div class='container mt-5'>";
+    echo "<div class='alert alert-danger'>";
+    echo "<h4>오류: 데이터를 불러오는 중 문제가 발생했습니다.</h4>";
+    echo "<p>상세: " . htmlspecialchars($ex->getMessage()) . "</p>";
+    echo "<hr>";
+    echo "<p class='small'>SQL: " . htmlspecialchars($sql) . "</p>";
+    echo "<p><a href='test_query.php' class='btn btn-primary'>테스트 페이지에서 확인하기</a></p>";
+    echo "</div></div>";
     exit;
 }
 
 include getDocumentRoot() . '/load_header.php';
+
 ?>
 
 <title>미래기업 회원관리</title>
@@ -156,7 +215,8 @@ include getDocumentRoot() . '/load_header.php';
         </div>
         
         <div class="d-flex mt-1 mb-1 justify-content-center">
-            <div class="input-group p-2 mb-2 justify-content-center">
+            <div class="input-group p-2 mb-2 justify-content-center align-items-center">
+                <span class="badge bg-secondary me-2">총 <?= $total_row ?>명</span>
                 <button type="button" class="btn btn-dark btn-sm me-2" onclick="popupCenter('write_form.php?id=null', '회원 등록', 800, 500);return false;">등록</button>
                 <button type="button" class="btn btn-dark btn-sm me-2" onclick="popupCenter('setline.php?id=null', '결재라인 등록', 600, 400);return false;">결재라인 등록</button>
                 <input type="text" name="search" id="search" value="<?= htmlspecialchars($search, ENT_QUOTES, 'UTF-8') ?>" size="30" autocomplete="off" onkeydown="SearchEnter();" placeholder="검색어 입력">
@@ -220,27 +280,61 @@ include getDocumentRoot() . '/load_header.php';
                 <tbody>
                     <?php
                     $start_num = ($page == 1) ? $total_row : $total_row - ($page - 1) * $scale;
+                    $row_count = 0;
                     
-                    while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-                        include '_row.php';
+                    // 배열로 받은 데이터를 foreach로 처리
+                    foreach ($member_list as $row) {
+                        $row_count++;
+                        
+                        // _row.php의 변수 할당을 직접 여기서 처리
+                        $id = $row["id"] ?? '';
+                        $pass = $row["pass"] ?? '';
+                        $name = $row["name"] ?? '';
+                        $level = $row["level"] ?? '';
+                        $part = $row["part"] ?? '';
+                        $hp = $row["hp"] ?? '';
+                        $numorder = $row["numorder"] ?? '';
+                        $position = $row["position"] ?? '';
+                        $eworks_level = $row["eworks_level"] ?? '';
+                        $division = $row["division"] ?? '';
                         ?>
-                        <tr onclick="redirectToView('<?= htmlspecialchars($id ?? '', ENT_QUOTES, 'UTF-8') ?>')">
+                        <tr onclick="redirectToView('<?= htmlspecialchars($id, ENT_QUOTES, 'UTF-8') ?>')">
                             <td class="text-center"><?= $start_num ?></td>
-                            <td class="text-center"><?= htmlspecialchars($division ?? '', ENT_QUOTES, 'UTF-8') ?></td>
-                            <td class="text-center"><?= htmlspecialchars($name ?? '', ENT_QUOTES, 'UTF-8') ?></td>
-                            <td class="text-center"><?= htmlspecialchars($part ?? '', ENT_QUOTES, 'UTF-8') ?></td>
-                            <td class="text-center"><?= htmlspecialchars($position ?? '', ENT_QUOTES, 'UTF-8') ?></td>
-                            <td class="text-center"><?= htmlspecialchars($id ?? '', ENT_QUOTES, 'UTF-8') ?></td>
+                            <td class="text-center"><?= htmlspecialchars($division, ENT_QUOTES, 'UTF-8') ?></td>
+                            <td class="text-center"><?= htmlspecialchars($name, ENT_QUOTES, 'UTF-8') ?></td>
+                            <td class="text-center"><?= htmlspecialchars($part, ENT_QUOTES, 'UTF-8') ?></td>
+                            <td class="text-center"><?= htmlspecialchars($position, ENT_QUOTES, 'UTF-8') ?></td>
+                            <td class="text-center"><?= htmlspecialchars($id, ENT_QUOTES, 'UTF-8') ?></td>
                             <td class="text-center">
-                                <input type="password" name="password" value="<?= htmlspecialchars($pass ?? '', ENT_QUOTES, 'UTF-8') ?>" disabled>
+                                <input type="password" name="password" value="<?= htmlspecialchars($pass, ENT_QUOTES, 'UTF-8') ?>" disabled>
                             </td>
-                            <td class="text-center"><?= htmlspecialchars($hp ?? '', ENT_QUOTES, 'UTF-8') ?></td>
-                            <td class="text-center"><?= htmlspecialchars($level ?? '', ENT_QUOTES, 'UTF-8') ?></td>
-                            <td class="text-center"><?= htmlspecialchars($numorder ?? '', ENT_QUOTES, 'UTF-8') ?></td>
-                            <td class="text-center"><?= htmlspecialchars($eworks_level ?? '', ENT_QUOTES, 'UTF-8') ?></td>
+                            <td class="text-center"><?= htmlspecialchars($hp, ENT_QUOTES, 'UTF-8') ?></td>
+                            <td class="text-center"><?= htmlspecialchars($level, ENT_QUOTES, 'UTF-8') ?></td>
+                            <td class="text-center"><?= htmlspecialchars($numorder, ENT_QUOTES, 'UTF-8') ?></td>
+                            <td class="text-center"><?= htmlspecialchars($eworks_level, ENT_QUOTES, 'UTF-8') ?></td>
                         </tr>
                         <?php
                         $start_num--;
+                    }
+                    
+                    // 데이터가 없을 때 메시지 표시
+                    if ($row_count == 0) {
+                        ?>
+                        <tr>
+                            <td colspan="11" class="text-center py-5">
+                                <div class="text-muted">
+                                    <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                                    <p class="mt-3">표시할 데이터가 없습니다.</p>
+                                    <?php if ($mode == "search" && !empty($search)) { ?>
+                                        <p class="small">검색어: <strong><?= htmlspecialchars($search) ?></strong></p>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="location.href='list.php'">전체 목록 보기</button>
+                                    <?php } else { ?>
+                                        <p class="small">등록 버튼을 눌러 회원을 추가하세요.</p>
+                                    <?php } ?>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php
                     }
                     ?>
                 </tbody>

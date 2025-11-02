@@ -553,6 +553,12 @@ $pInput = $_REQUEST["pInput"] ?? '0';
 </form>		
 
 <script>
+// captureReturnKey 함수를 전역으로 먼저 정의 (폼에서 사용하기 때문)
+function captureReturnKey(e) {
+    if(e.keyCode==13 && e.srcElement.type != 'textarea')
+        return false;
+}
+
 (function() {
     'use strict';
     
@@ -721,25 +727,7 @@ $pInput = $_REQUEST["pInput"] ?? '0';
                     console.log(jqxhr, status, error);
                 }
             });
-        }	 
-  
-    delPicFn = function(divID, delChoice) {
-        console.log(divID, delChoice);
-
-        $.ajax({
-            url: '../file/del_file.php?savename=' + delChoice,
-            type: 'post',
-            data: $("board_form").serialize(),
-            dataType: 'json',
-        }).done(function(data) {
-            var savename = data["savename"] || '';
-            
-            // 시공전사진 삭제
-            $("#file" + divID).remove();  // 그림요소 삭제
-            $("#delPic" + divID).remove();  // 버튼요소 삭제
-            $("#pInput").val('');
-        });
-    };
+        }
 	    
  	 
 	 
@@ -860,154 +848,6 @@ $("#delattachedfileBtn").click(function(){
   $("#pdffile_name").val('');
   $("#copied_file").val('');
 });
-
-
-    calculateBoth = function(NUM, name1, name2) {
-        var type = $("input[name=type" + NUM + "]").val() || '';
-        var inside = $("input[name=car_inside" + NUM + "]").val() || '';
-        var lc_su = $("input[name=lc_su]").val() || 0;
-        var first_name = name1;
-        var second_name = name2;
-        var nextNUM = NUM + 1;
-        var result = 0;
-        var jungSu = 1;
-        var divider = 1;
-
-        var wide_inside = inside.split('*');
-        var wide = Number(wide_inside[0]) || 0;
-        var depth = Number(wide_inside[1]) || 0;
-
-        // 타입에 따른 result 계산
-        if (type == '011' || type == '012' || type == '025' || type == '017' || type == '014') {
-            result = depth - 50;
-        } else if (type == '013') {
-            result = depth - 20;
-        }
-
-        $("input[name=" + first_name + "1]").val('프레임');
-        $("input[name=" + first_name + "2]").val(result);
-        $("input[name=" + first_name + "3]").val(lc_su);
-        $("input[name=" + first_name + "4]").val('SET');
-
-        var result_wide = 0;
-
-        switch (type) {
-            case '011':
-                result_wide = wide - 730;
-                break;
-            case '012':
-                result_wide = wide - 750;
-                break;
-            case '013':
-                result_wide = wide - 705;
-                break;
-            case '014':
-                result_wide = wide / 2 - 143;
-                break;
-            case '017':
-                result_wide = wide - 810;
-                break;
-            case '017S':
-            case '017s':
-                result_wide = wide - 410;
-                break;
-            case '017m':
-            case '017M':
-                result_wide = wide - 610;
-                break;
-            case 'N20':
-                result_wide = wide - 705;
-                break;
-            case '026':
-                result_wide = wide - 670;
-                break;
-            default:
-                break;
-        }
-
-        if (depth < 1000) {
-            jungSu = 1;
-            divider = 1;
-        } else if (depth >= 1800) {
-            jungSu = 3;
-            divider = 3;
-        } else {
-            jungSu = 2;
-            divider = 2;
-        }
-
-        var result_depth = 0;
-
-        switch (type) {
-            case '011':
-                result_depth = (depth - 54) / divider;
-                break;
-            case '012':
-                result_depth = (depth - 54) / divider;
-                break;
-            case '013':
-                result_depth = (depth - 20) / divider;
-                break;
-            case '014':
-                result_depth = (depth - 54);
-                break;
-            case '017':
-                if (depth >= 1800) {
-                    result_depth = (depth - 60) / 3;
-                } else if (depth >= 1000) {
-                    result_depth = (depth - 60) / 2;
-                } else {
-                    result_depth = (depth - 60);
-                }
-                break;
-            case '017S':
-            case '017s':
-                result_depth = (depth - 60) / divider;
-                break;
-            case '017m':
-            case '017M':
-                result_depth = (depth - 60) / divider;
-                break;
-            case 'N20':
-                result_depth = (depth - 56) / divider;
-                break;
-            case '026':
-                result_depth = (depth - 58) / divider;
-                break;
-            default:
-                break;
-        }
-
-        $("input[name=" + second_name + "1]").val('중판');
-        $("input[name=" + second_name + "2]").val(result_wide + "*" + Math.floor(result_depth));
-        $("input[name=" + second_name + "3]").val(jungSu * lc_su);
-        $("input[name=" + second_name + "4]").val('EA');
-    };
-
-
-    calculateFrame = function(NUM, name1) {
-        var type = $("input[name=type" + NUM + "]").val() || '';
-        var inside = $("input[name=car_inside" + NUM + "]").val() || '';
-        var lc_su = $("input[name=lc_su]").val() || 0;
-        var first_name = name1;
-        var result = 0;
-        var jungSu = 1;
-
-        var wide_inside = inside.split('*');
-        var wide = Number(wide_inside[0]) || 0;
-        var depth = Number(wide_inside[1]) || 0;
-
-        if (type == '011' || type == '012' || type == '025' || type == '017' || type == '014') {
-            result = depth - 50;
-        } else if (type == '013') {
-            result = depth - 20;
-        }
-
-        $("input[name=" + first_name + "1]").val('프레임/중판X');
-        $("input[name=" + first_name + "2]").val(result);
-        $("input[name=" + first_name + "3]").val(lc_su);
-        $("input[name=" + first_name + "4]").val('SET');
-    };
 	
 
 
@@ -1050,7 +890,203 @@ $("#delattachedfileBtn").click(function(){
 	
 });  // end of ready
 
-  
+})();  // IIFE 닫기
+
+// 전역 함수들
+function getToday() {
+    var today = new Date();
+    var year = today.getFullYear();
+    var month = ('0' + (today.getMonth() + 1)).slice(-2);
+    var day = ('0' + today.getDate()).slice(-2);
+    return year + '-' + month + '-' + day;
+}
+
+function calinseung(wide, depth) {
+    // 인승 계산 로직
+    // 폭과 깊이를 기준으로 인승 계산
+    var area = wide * depth;
+    
+    if (area <= 0) return '';
+    
+    // 일반적인 엘리베이터 인승 계산식 (예시)
+    // 실제 로직은 업무 규칙에 따라 조정 필요
+    if (area < 1000000) return '3';
+    else if (area < 1200000) return '4';
+    else if (area < 1400000) return '6';
+    else if (area < 1600000) return '8';
+    else if (area < 1800000) return '9';
+    else if (area < 2000000) return '11';
+    else if (area < 2200000) return '13';
+    else if (area < 2400000) return '15';
+    else if (area < 2600000) return '17';
+    else if (area < 2800000) return '20';
+    else return '24';
+}
+
+function delPicFn(divID, delChoice) {
+    console.log(divID, delChoice);
+
+    $.ajax({
+        url: '../file/del_file.php?savename=' + delChoice,
+        type: 'post',
+        data: $("#board_form").serialize(),
+        dataType: 'json',
+    }).done(function(data) {
+        var savename = data["savename"] || '';
+        
+        // 시공전사진 삭제
+        $("#file" + divID).remove();  // 그림요소 삭제
+        $("#delPic" + divID).remove();  // 버튼요소 삭제
+        $("#pInput").val('');
+    });
+}
+
+function calculateBoth(NUM, name1, name2) {
+    var type = $("input[name=type" + NUM + "]").val() || '';
+    var inside = $("input[name=car_inside" + NUM + "]").val() || '';
+    var lc_su = $("input[name=lc_su]").val() || 0;
+    var first_name = name1;
+    var second_name = name2;
+    var nextNUM = NUM + 1;
+    var result = 0;
+    var jungSu = 1;
+    var divider = 1;
+
+    var wide_inside = inside.split('*');
+    var wide = Number(wide_inside[0]) || 0;
+    var depth = Number(wide_inside[1]) || 0;
+
+    // 타입에 따른 result 계산
+    if (type == '011' || type == '012' || type == '025' || type == '017' || type == '014') {
+        result = depth - 50;
+    } else if (type == '013') {
+        result = depth - 20;
+    }
+
+    $("input[name=" + first_name + "1]").val('프레임');
+    $("input[name=" + first_name + "2]").val(result);
+    $("input[name=" + first_name + "3]").val(lc_su);
+    $("input[name=" + first_name + "4]").val('SET');
+
+    var result_wide = 0;
+
+    switch (type) {
+        case '011':
+            result_wide = wide - 730;
+            break;
+        case '012':
+            result_wide = wide - 750;
+            break;
+        case '013':
+            result_wide = wide - 705;
+            break;
+        case '014':
+            result_wide = wide / 2 - 143;
+            break;
+        case '017':
+            result_wide = wide - 810;
+            break;
+        case '017S':
+        case '017s':
+            result_wide = wide - 410;
+            break;
+        case '017m':
+        case '017M':
+            result_wide = wide - 610;
+            break;
+        case 'N20':
+            result_wide = wide - 705;
+            break;
+        case '026':
+            result_wide = wide - 670;
+            break;
+        default:
+            break;
+    }
+
+    if (depth < 1000) {
+        jungSu = 1;
+        divider = 1;
+    } else if (depth >= 1800) {
+        jungSu = 3;
+        divider = 3;
+    } else {
+        jungSu = 2;
+        divider = 2;
+    }
+
+    var result_depth = 0;
+
+    switch (type) {
+        case '011':
+            result_depth = (depth - 54) / divider;
+            break;
+        case '012':
+            result_depth = (depth - 54) / divider;
+            break;
+        case '013':
+            result_depth = (depth - 20) / divider;
+            break;
+        case '014':
+            result_depth = (depth - 54);
+            break;
+        case '017':
+            if (depth >= 1800) {
+                result_depth = (depth - 60) / 3;
+            } else if (depth >= 1000) {
+                result_depth = (depth - 60) / 2;
+            } else {
+                result_depth = (depth - 60);
+            }
+            break;
+        case '017S':
+        case '017s':
+            result_depth = (depth - 60) / divider;
+            break;
+        case '017m':
+        case '017M':
+            result_depth = (depth - 60) / divider;
+            break;
+        case 'N20':
+            result_depth = (depth - 56) / divider;
+            break;
+        case '026':
+            result_depth = (depth - 58) / divider;
+            break;
+        default:
+            break;
+    }
+
+    $("input[name=" + second_name + "1]").val('중판');
+    $("input[name=" + second_name + "2]").val(result_wide + "*" + Math.floor(result_depth));
+    $("input[name=" + second_name + "3]").val(jungSu * lc_su);
+    $("input[name=" + second_name + "4]").val('EA');
+}
+
+function calculateFrame(NUM, name1) {
+    var type = $("input[name=type" + NUM + "]").val() || '';
+    var inside = $("input[name=car_inside" + NUM + "]").val() || '';
+    var lc_su = $("input[name=lc_su]").val() || 0;
+    var first_name = name1;
+    var result = 0;
+    var jungSu = 1;
+
+    var wide_inside = inside.split('*');
+    var wide = Number(wide_inside[0]) || 0;
+    var depth = Number(wide_inside[1]) || 0;
+
+    if (type == '011' || type == '012' || type == '025' || type == '017' || type == '014') {
+        result = depth - 50;
+    } else if (type == '013') {
+        result = depth - 20;
+    }
+
+    $("input[name=" + first_name + "1]").val('프레임/중판X');
+    $("input[name=" + first_name + "2]").val(result);
+    $("input[name=" + first_name + "3]").val(lc_su);
+    $("input[name=" + first_name + "4]").val('SET');
+}
+
 function inputNumberFormat(obj) { 
     obj.value = comma(uncomma(obj.value)); 
 } 
@@ -1165,16 +1201,10 @@ function exe_chargedman()
 	 }
 }
 
-function captureReturnKey(e) {
-    if(e.keyCode==13 && e.srcElement.type != 'textarea')
-    return false;
-}
-
 function recaptureReturnKey(e) {
     if (e.keyCode==13)
         exe_search();
 }
-
 
 function load_init() {
 
@@ -1183,37 +1213,37 @@ function load_init() {
 	// $('#board_form').find('textarea').each(function(){ $(this).val(''); });
 	// $('#board_form').find('select').each(function(){ $(this).val(''); });
 
-	$('#workplacename').val("<? echo $workplacename; ?>");
-	$('#address').val("<? echo $address; ?>");
-	$('#firstord').val("<? echo $firstord; ?>");
-	$('#firstordman').val("<? echo $firstordman; ?>");
-	$('#firstordmantel').val("<? echo $firstordmantel; ?>");
-	$('#secondord').val("<? echo $secondord; ?>");
-	$('#secondordman').val("<? echo $secondordman; ?>");
-	$('#secondordmantel').val("<? echo $secondordmantel; ?>");
-	$('#chargedman').val("<? echo $chargedman; ?>");
-	$('#chargedmantel').val("<? echo $chargedmantel; ?>");
-	$('input[name=first_item1]').val("<? echo $first_item1; ?>");
-	$('input[name=second_item1]').val("<? echo $second_item1; ?>");
-	$('input[name=third_item1]').val("<? echo $third_item1; ?>");
-	$('input[name=fourth_item1]').val("<? echo $fourth_item1; ?>");
-	$('input[name=fifth_item1]').val("<? echo $fifth_item1; ?>");
-	$('input[name=sixth_item1]').val("<? echo $sixth_item1; ?>");
-	$('input[name=seventh_item1]').val("<? echo $seventh_item1; ?>");
-	$('input[name=eighth_item1]').val("<? echo $eighth_item1; ?>");
-	$('input[name=ninth_item1]').val("<? echo $ninth_item1; ?>");
-	$('input[name=tenth_item1]').val("<? echo $tenth_item1; ?>");
+	$('#workplacename').val("<?= $workplacename ?? '' ?>");
+	$('#address').val("<?= $address ?? '' ?>");
+	$('#firstord').val("<?= $firstord ?? '' ?>");
+	$('#firstordman').val("<?= $firstordman ?? '' ?>");
+	$('#firstordmantel').val("<?= $firstordmantel ?? '' ?>");
+	$('#secondord').val("<?= $secondord ?? '' ?>");
+	$('#secondordman').val("<?= $secondordman ?? '' ?>");
+	$('#secondordmantel').val("<?= $secondordmantel ?? '' ?>");
+	$('#chargedman').val("<?= $chargedman ?? '' ?>");
+	$('#chargedmantel').val("<?= $chargedmantel ?? '' ?>");
+	$('input[name=first_item1]').val("<?= $first_item1 ?? '' ?>");
+	$('input[name=second_item1]').val("<?= $second_item1 ?? '' ?>");
+	$('input[name=third_item1]').val("<?= $third_item1 ?? '' ?>");
+	$('input[name=fourth_item1]').val("<?= $fourth_item1 ?? '' ?>");
+	$('input[name=fifth_item1]').val("<?= $fifth_item1 ?? '' ?>");
+	$('input[name=sixth_item1]').val("<?= $sixth_item1 ?? '' ?>");
+	$('input[name=seventh_item1]').val("<?= $seventh_item1 ?? '' ?>");
+	$('input[name=eighth_item1]').val("<?= $eighth_item1 ?? '' ?>");
+	$('input[name=ninth_item1]').val("<?= $ninth_item1 ?? '' ?>");
+	$('input[name=tenth_item1]').val("<?= $tenth_item1 ?? '' ?>");
 	
-	$('input[name=comment1]').val("<? echo $comment1; ?>");
-	$('input[name=comment2]').val("<? echo $comment2; ?>");
-	$('input[name=comment3]').val("<? echo $comment3; ?>");
-	$('input[name=comment4]').val("<? echo $comment4; ?>");
-	$('input[name=comment5]').val("<? echo $comment5; ?>");
-	$('input[name=comment6]').val("<? echo $comment6; ?>");
-	$('input[name=comment7]').val("<? echo $comment7; ?>");
-	$('input[name=comment8]').val("<? echo $comment8; ?>");
-	$('input[name=comment9]').val("<? echo $comment9; ?>");
-	$('input[name=comment10]').val("<? echo $comment10; ?>");
+	$('input[name=comment1]').val("<?= $comment1 ?? '' ?>");
+	$('input[name=comment2]').val("<?= $comment2 ?? '' ?>");
+	$('input[name=comment3]').val("<?= $comment3 ?? '' ?>");
+	$('input[name=comment4]').val("<?= $comment4 ?? '' ?>");
+	$('input[name=comment5]').val("<?= $comment5 ?? '' ?>");
+	$('input[name=comment6]').val("<?= $comment6 ?? '' ?>");
+	$('input[name=comment7]').val("<?= $comment7 ?? '' ?>");
+	$('input[name=comment8]').val("<?= $comment8 ?? '' ?>");
+	$('input[name=comment9]').val("<?= $comment9 ?? '' ?>");
+	$('input[name=comment10]').val("<?= $comment10 ?? '' ?>");
 	
 	// 초기화 해주는 부분
 	$('#orderday').val(getToday());
@@ -1232,16 +1262,13 @@ setTimeout(function() {
  load_init();
 }, 3000);
 
-$('#myModal').modal('show');		   
-  
-setTimeout(function() { 
-	 $('#myModal').modal('hide');	      
-}, 2500);	
-
- 
-function captureReturnKey(e) {
-    if(e.keyCode==13 && e.srcElement.type != 'textarea')
-    return false;
+// Bootstrap 모달이 있는 경우에만 실행
+if (typeof $.fn.modal !== 'undefined') {
+    $('#myModal').modal('show');		   
+    
+    setTimeout(function() { 
+        $('#myModal').modal('hide');	      
+    }, 2500);	
 }
 
 </script>

@@ -14,8 +14,8 @@ require_once(includePath('session.php'));
 
 // 변수 초기화
 $pdo = null;
-$user_id = $_SESSION['user_id'] ?? '';
-$user_name = $_SESSION['user_name'] ?? '';
+$user_id = $_SESSION['userid'] ?? $_SESSION['user_id'] ?? '';
+$user_name = $_SESSION['name'] ?? $_SESSION['user_name'] ?? '';
 $level = $_SESSION['level'] ?? 0;
 $DB = $_SESSION['DB'] ?? 'mirae8440';
 
@@ -165,6 +165,13 @@ $data = array();
 foreach ($statuses as $index => $status) {
     $data['val' . $index] = countEworksStatus($pdo, $user_id, $status, $workLevel, $DB);
 }
+
+// 디버깅 정보 추가
+$data['debug'] = array(
+    'user_id' => $user_id,
+    'workLevel' => $workLevel,
+    'timestamp' => date('Y-m-d H:i:s')
+);
 
 // 결과를 JSON으로 출력 (AJAX 요청인 경우)
 if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {

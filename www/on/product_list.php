@@ -22,10 +22,12 @@ try {
         $params[':search'] = '%' . $_GET['search'] . '%';
     }
 
-    $sql = "SELECT p.*, m.name as creator_name
+    $sql = "SELECT p.id, p.product_code, p.product_name, p.product_type, p.spec, 
+                   p.unit, p.standard_price, p.status, p.created_by, p.created_at, p.updated_at,
+                   (SELECT name FROM member WHERE id = p.created_by LIMIT 1) as creator_name
             FROM daon_products p
-            LEFT JOIN daon_member m ON p.created_by = m.id
             WHERE " . implode(" AND ", $where) . "
+            GROUP BY p.id
             ORDER BY p.product_type, p.product_name
             LIMIT 200";
 
@@ -235,19 +237,24 @@ body {
 }
 
 .btn-sm {
-    padding: 5px 12px;
-    font-size: 12px;
-    border-radius: 6px;
+    padding: 5px 9px;
+    font-size: 13px;
+    border-radius: 4px;
     border: none;
     cursor: pointer;
-    margin-right: 5px;
+    margin-right: 4px;
+    transition: all 0.3s ease;
 }
 
 .btn-view { background: #2196f3; color: var(--text-white); }
 .btn-edit { background: #ff9800; color: var(--text-white); }
 .btn-delete { background: #f44336; color: var(--text-white); }
 
-.btn-sm:hover { opacity: 0.8; }
+.btn-sm:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
 
 .empty-state {
     text-align: center;
@@ -316,8 +323,13 @@ body {
     }
 
     .btn-sm {
-        padding: 4px 8px;
-        font-size: 10px;
+        padding: 5px 8px;
+        font-size: 12px;
+        margin-right: 3px;
+    }
+    
+    .btn-sm i {
+        font-size: 12px;
     }
 }
 </style>
@@ -386,12 +398,12 @@ body {
             <tr>
                 <th width="12%">제품코드</th>
                 <th width="18%">제품명</th>
-                <th width="10%">제품구분</th>
+                <th width="10%" style="text-align:center;">제품구분</th>
                 <th width="18%">규격</th>
-                <th width="8%">단위</th>
-                <th width="10%">표준단가</th>
-                <th width="8%">상태</th>
-                <th width="16%">작업</th>
+                <th width="8%" style="text-align:center;">단위</th>
+                <th width="10%" style="text-align:right;">표준단가</th>
+                <th width="8%" style="text-align:center;">상태</th>
+                <th width="16%" style="text-align:center;">작업</th>
             </tr>
         </thead>
         <tbody>
@@ -399,24 +411,24 @@ body {
             <tr>
                 <td><strong><?php echo htmlspecialchars($product['product_code'] ?? '-'); ?></strong></td>
                 <td><?php echo htmlspecialchars($product['product_name']); ?></td>
-                <td>
+                <td style="text-align:center;">
                     <span class="product-type-badge">
                         <?php echo htmlspecialchars($product['product_type']); ?>
                     </span>
                 </td>
                 <td><?php echo htmlspecialchars($product['spec'] ?? '-'); ?></td>
-                <td><?php echo htmlspecialchars($product['unit']); ?></td>
+                <td style="text-align:center;"><?php echo htmlspecialchars($product['unit']); ?></td>
                 <td style="text-align:right;">
                     <?php echo $product['standard_price'] ? number_format($product['standard_price']) . '원' : '-'; ?>
                 </td>
-                <td>
+                <td style="text-align:center;">
                     <span class="status-badge status-<?php echo $product['status']; ?>">
                         <?php echo $product['status'] == 'active' ? '활성' : '비활성'; ?>
                     </span>
                 </td>
-                <td>
-                    <button class="btn-sm btn-edit" onclick="location.href='product_form.php?id=<?php echo $product['id']; ?>'">수정</button>
-                    <button class="btn-sm btn-delete" onclick="deleteProduct(<?php echo $product['id']; ?>)">삭제</button>
+                <td style="white-space: nowrap; text-align: center;">
+                    <button class="btn-sm btn-edit" onclick="location.href='product_form.php?id=<?php echo $product['id']; ?>'" title="수정"><i class="fas fa-edit"></i></button>
+                    <button class="btn-sm btn-delete" onclick="deleteProduct(<?php echo $product['id']; ?>)" title="삭제" style="margin-right: 0;"><i class="fas fa-trash"></i></button>
                 </td>
             </tr>
             <?php endforeach; ?>

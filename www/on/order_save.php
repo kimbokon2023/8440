@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../bootstrap.php';
 require_once __DIR__ . '/login/check_login.php';
+require_once __DIR__ . '/../api/file_api.php';
 
 $isEdit = isset($_POST['order_id']) && !empty($_POST['order_id']);
 
@@ -35,43 +36,44 @@ try {
         }
     }
 
+    // 발주사항 JSON 처리
+    $order_items = isset($_POST['order_items']) ? $_POST['order_items'] : null;
+    
+    // JSON 유효성 검사
+    if ($order_items) {
+        $decoded = json_decode($order_items, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new Exception('발주사항 데이터 형식 오류');
+        }
+    }
+    
     if ($isEdit) {
         // 수정
         $sql = "UPDATE daon_orders SET
                 order_date = ?,
                 delivery_date = ?,
+                billing_date = ?,
+                payment_date = ?,
                 customer_id = ?,
-                product_name = ?,
-                product_type = ?,
-                spec = ?,
-                quantity = ?,
-                unit = ?,
-                unit_price = ?,
-                total_price = ?,
-                vat_included = ?,
                 status = ?,
                 priority = ?,
                 delivery_address = ?,
-                note = ?
+                note = ?,
+                order_items = ?
                 WHERE id = ?";
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
             $_POST['order_date'],
             $_POST['delivery_date'] ?: null,
+            $_POST['billing_date'] ?: null,
+            $_POST['payment_date'] ?: null,
             $_POST['customer_id'],
-            $_POST['product_name'],
-            $_POST['product_type'] ?: null,
-            $_POST['spec'] ?: null,
-            $_POST['quantity'],
-            $_POST['unit'] ?: 'EA',
-            $_POST['unit_price'],
-            $_POST['total_price'],
-            isset($_POST['vat_included']) ? 1 : 0,
             $_POST['status'],
             $_POST['priority'],
             $_POST['delivery_address'] ?: null,
             $_POST['note'] ?: null,
+            $order_items,
             $_POST['order_id']
         ]);
 
@@ -81,32 +83,56 @@ try {
     } else {
         // 신규 등록
         $sql = "INSERT INTO daon_orders (
-                order_number, order_date, delivery_date, customer_id,
-                product_name, product_type, spec, quantity, unit,
-                unit_price, total_price, vat_included, status, priority,
-                delivery_address, note, created_by
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                order_number, order_date, delivery_date, billing_date, payment_date, customer_id,
+                status, priority, delivery_address, note, order_items, created_by
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
             $_POST['order_number'],
             $_POST['order_date'],
             $_POST['delivery_date'] ?: null,
+            $_POST['billing_date'] ?: null,
+            $_POST['payment_date'] ?: null,
             $_POST['customer_id'],
-            $_POST['product_name'],
-            $_POST['product_type'] ?: null,
-            $_POST['spec'] ?: null,
-            $_POST['quantity'],
-            $_POST['unit'] ?: 'EA',
-            $_POST['unit_price'],
-            $_POST['total_price'],
-            isset($_POST['vat_included']) ? 1 : 0,
             $_POST['status'] ?? 'pending',
             $_POST['priority'] ?? 'normal',
             $_POST['delivery_address'] ?: null,
             $_POST['note'] ?: null,
+            $order_items,
             $_SESSION['daon_userid']
         ]);
+
+        $newOrderId = $pdo->lastInsertId();
+        
+        error_log("신규 발주 등록 완료: order_id = {$newOrderId}");
+        
+        // 임시 파일번호를 실제 order_id로 업데이트
+        if (isset($_POST['temp_parentnum']) && !empty($_POST['temp_parentnum'])) {
+            $tempParentNum = $_POST['temp_parentnum'];
+            
+            error_log("temp_parentnum 확인: {$tempParentNum}");
+            
+            try {
+                $fileOptions = [
+                    'tablename' => 'daon_orders',
+                    'item' => 'attached',
+                    'old_parentnum' => $tempParentNum,
+                    'new_parentnum' => $newOrderId,
+                    'DBtable' => 'picuploads'
+                ];
+                
+                error_log("파일 업데이트 옵션: " . json_encode($fileOptions));
+                
+                $result = updateFileIdsInGoogleDrive($fileOptions);
+                
+                error_log("파일 번호 업데이트 결과: " . json_encode($result));
+            } catch (Exception $e) {
+                error_log("파일 번호 업데이트 오류: " . $e->getMessage());
+            }
+        } else {
+            error_log("temp_parentnum이 없습니다. POST 데이터: " . json_encode($_POST));
+        }
 
         $_SESSION['message'] = '발주가 등록되었습니다.';
         $_SESSION['message_type'] = 'success';

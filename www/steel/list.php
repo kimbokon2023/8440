@@ -10,7 +10,7 @@ require_once(includePath('session.php'));
 
 // Environment detection for URL
 $is_local = (isset($_SERVER['HTTP_HOST']) && (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false));
-$base_url = $is_local ? 'http://localhost' : 'https://8440.co.kr';
+$base_url = $is_local ? 'http://8440.local' : 'https://8440.co.kr';
 $WebSite = $base_url . '/';
 
 // Initialize session variables with null safety
@@ -140,9 +140,19 @@ try {
         $maincondition = isEligibleForProcessing($main_draw, $eunsung_laser_date, $eunsung_make_date);
         $lccondition = isEligibleForProcessing($lc_draw, $lclaser_date, '');
 
-        if (check_in_range($start_date, $end_date, $deadline) && ($maincondition || $lccondition)) {
-            array_push($todolist, $workplacename . '(' . $secondord .')');
-            array_push($todolistlink, $num);
+        // 날짜 범위 체크
+        if (check_in_range($start_date, $end_date, $deadline)) {
+            $shouldAdd = $maincondition; // 본가공은 항상 체크
+            
+            // L/C 가공이 필요 없는 모델이 아닌 경우에만 L/C 조건 추가
+            if (!in_array($type, ['011', '012', '013D', '025', '017', '014', '037', '038'])) {
+                $shouldAdd = $shouldAdd || $lccondition;
+            }
+            
+            if ($shouldAdd) {
+                array_push($todolist, $workplacename . '(' . $secondord .')');
+                array_push($todolistlink, $num);
+            }
         }
     }
 } catch (PDOException $Exception) {

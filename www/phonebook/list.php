@@ -7,19 +7,13 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
 $httpHost = $_SERVER['HTTP_HOST'] ?? '';
 $is_local = ($httpHost === 'localhost' || strpos($httpHost, '127.0.0.1') !== false);
-$base_url = $is_local ? 'http://localhost/mirae8440/www' : 'http://8440.co.kr';
+$base_url = $is_local ? 'http://8440.local' : 'http://8440.co.kr';
 
-$DB = $_SESSION['DB'] ?? '';
+$DB = $_SESSION['DB'] ?? 'mirae8440';
 $level = $_SESSION['level'] ?? '';
 $user_name = $_SESSION['name'] ?? '';
 $user_id = $_SESSION['userid'] ?? '';
 $website = $_SESSION['WebSite'] ?? '';
-
-if ($level === '' || (is_numeric($level) && (int)$level > 5)) {
-    $loginPath = $website !== '' ? rtrim($website, '/') . '/login/login_form.php' : '/login/login_form.php';
-    header('Location:' . $loginPath);
-    exit;
-}
 
 $search = $_REQUEST['search'] ?? '';
 $firstitem = $_REQUEST['firstitem'] ?? '';
@@ -53,11 +47,19 @@ try {
     $params = [];
 
     if ($searchTerm !== '') {
-        $whereClause = 'WHERE phone_name LIKE :search OR phonenumber LIKE :search';
-        $params[':search'] = '%' . $searchTerm . '%';
+        // PHP 7.3에서는 같은 파라미터를 두 번 사용하면 문제가 발생할 수 있으므로 별도로 분리
+        $whereClause = 'WHERE phone_name LIKE :search1 OR phonenumber LIKE :search2';
+        $params[':search1'] = '%' . $searchTerm . '%';
+        $params[':search2'] = '%' . $searchTerm . '%';
     }
 
+    // 디버그: SQL과 파라미터 출력
     $countSql = "SELECT COUNT(*) FROM {$DB}.{$tablename} {$whereClause}";
+    if (isLocal()) {
+        echo "<!-- DEBUG COUNT SQL: " . htmlspecialchars($countSql) . " -->\n";
+        echo "<!-- DEBUG PARAMS: " . htmlspecialchars(print_r($params, true)) . " -->\n";
+    }
+    
     $countStmt = $pdo->prepare($countSql);
     foreach ($params as $name => $value) {
         $countStmt->bindValue($name, $value, PDO::PARAM_STR);
@@ -65,13 +67,17 @@ try {
     $countStmt->execute();
     $totalRow = (int)$countStmt->fetchColumn();
 
-    $listSql = "SELECT num, phone_name, phonenumber, belongstr FROM {$DB}.{$tablename} {$whereClause} ORDER BY phone_name ASC, num DESC LIMIT :offset, :limit";
+    // LIMIT 절은 정수로 검증된 변수를 직접 사용 (SQL injection 위험 없음)
+    $listSql = "SELECT num, phone_name, phonenumber, belongstr FROM {$DB}.{$tablename} {$whereClause} ORDER BY phone_name ASC, num DESC LIMIT {$offset}, {$scale}";
+    if (isLocal()) {
+        echo "<!-- DEBUG LIST SQL: " . htmlspecialchars($listSql) . " -->\n";
+        echo "<!-- DEBUG OFFSET: {$offset}, SCALE: {$scale} -->\n";
+    }
+    
     $listStmt = $pdo->prepare($listSql);
     foreach ($params as $name => $value) {
         $listStmt->bindValue($name, $value, PDO::PARAM_STR);
     }
-    $listStmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-    $listStmt->bindValue(':limit', $scale, PDO::PARAM_INT);
     $listStmt->execute();
     $rows = $listStmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -126,7 +132,7 @@ include getDocumentRoot() . '/load_header.php';
         text-align: left !important;
         border-bottom: none;
     }
-
+ 
     .input-group-text {
         display: flex;
         align-items: center;
@@ -230,7 +236,7 @@ include getDocumentRoot() . '/load_header.php';
                                 <td><a href="#" onclick="maketext('<?= $safeName ?>','<?= $safePhone ?>','<?= $safeBelong ?>');return false;" title="<?= $safeName ?>"> <?= $safeName ?> </a></td>
                                 <td><a href="#" onclick="maketext('<?= $safeName ?>','<?= $safePhone ?>','<?= $safeBelong ?>');return false;" title="<?= $safePhone ?>"> <?= $safePhone ?> </a></td>
                                 <td>
-                                    <button type="button" class="btn btn-primary btn-sm" onclick="updateFn('<?= $safeNum ?>')"> <ion-icon name="create-outline"></ion-icon> </button>
+                                    <button type="button" class="btn btn-primary btn-sm" onclick="updateFn('<?= $safeNum ?>')"> <i class="bi bi-pencil-square"></i> </button>
                                     <button type="button" class="btn btn-danger btn-sm" onclick="delFn('<?= $safeNum ?>')"> <i class="bi bi-x-circle"></i> </button>
                                 </td>
                             </tr>

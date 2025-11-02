@@ -17,10 +17,13 @@ try {
         $params[':search'] = '%' . $_GET['search'] . '%';
     }
 
-    $sql = "SELECT c.*, m.name as creator_name
+    $sql = "SELECT c.id, c.company_name, c.business_number, c.ceo_name, c.address, 
+                   c.tel, c.fax, c.email, c.manager_name, c.manager_tel, 
+                   c.note, c.status, c.created_by, c.created_at, c.updated_at,
+                   (SELECT name FROM member WHERE id = c.created_by LIMIT 1) as creator_name
             FROM daon_customers c
-            LEFT JOIN daon_member m ON c.created_by = m.id
             WHERE " . implode(" AND ", $where) . "
+            GROUP BY c.id
             ORDER BY c.created_at DESC
             LIMIT 100";
 
@@ -225,19 +228,24 @@ body {
 }
 
 .btn-sm {
-    padding: 5px 12px;
-    font-size: 12px;
-    border-radius: 6px;
+    padding: 5px 9px;
+    font-size: 13px;
+    border-radius: 4px;
     border: none;
     cursor: pointer;
-    margin-right: 5px;
+    margin-right: 4px;
+    transition: all 0.3s ease;
 }
 
 .btn-view { background: #2196f3; color: var(--text-white); }
 .btn-edit { background: #ff9800; color: var(--text-white); }
 .btn-delete { background: #f44336; color: var(--text-white); }
 
-.btn-sm:hover { opacity: 0.8; }
+.btn-sm:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
 
 .empty-state {
     text-align: center;
@@ -306,8 +314,13 @@ body {
     }
 
     .btn-sm {
-        padding: 4px 8px;
-        font-size: 10px;
+        padding: 5px 8px;
+        font-size: 12px;
+        margin-right: 3px;
+    }
+    
+    .btn-sm i {
+        font-size: 12px;
     }
 }
 </style>
@@ -371,8 +384,8 @@ body {
                 <th width="10%">담당자</th>
                 <th width="12%">담당자연락처</th>
                 <th width="12%">이메일</th>
-                <th width="8%">상태</th>
-                <th width="14%">작업</th>
+                <th width="8%" style="text-align:center;">상태</th>
+                <th width="14%" style="text-align:center;">작업</th>
             </tr>
         </thead>
         <tbody>
@@ -384,15 +397,15 @@ body {
                 <td><?php echo htmlspecialchars($customer['manager_name'] ?? '-'); ?></td>
                 <td><?php echo htmlspecialchars($customer['manager_tel'] ?? '-'); ?></td>
                 <td><?php echo htmlspecialchars($customer['email'] ?? '-'); ?></td>
-                <td>
+                <td style="text-align:center;">
                     <span class="status-badge status-<?php echo $customer['status']; ?>">
                         <?php echo $customer['status'] == 'active' ? '활성' : '비활성'; ?>
                     </span>
                 </td>
-                <td>
-                    <button class="btn-sm btn-view" onclick="location.href='customer_view.php?id=<?php echo $customer['id']; ?>'">보기</button>
-                    <button class="btn-sm btn-edit" onclick="location.href='customer_form.php?id=<?php echo $customer['id']; ?>'">수정</button>
-                    <button class="btn-sm btn-delete" onclick="deleteCustomer(<?php echo $customer['id']; ?>)">삭제</button>
+                <td style="white-space: nowrap; text-align: center;">
+                    <button class="btn-sm btn-view" onclick="location.href='customer_view.php?id=<?php echo $customer['id']; ?>'" title="보기"><i class="fas fa-eye"></i></button>
+                    <button class="btn-sm btn-edit" onclick="location.href='customer_form.php?id=<?php echo $customer['id']; ?>'" title="수정"><i class="fas fa-edit"></i></button>
+                    <button class="btn-sm btn-delete" onclick="deleteCustomer(<?php echo $customer['id']; ?>)" title="삭제" style="margin-right: 0;"><i class="fas fa-trash"></i></button>
                 </td>
             </tr>
             <?php endforeach; ?>

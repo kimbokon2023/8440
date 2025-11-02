@@ -40,6 +40,7 @@ $contents = $contents ?? '';
                                             <select class="form-control" id="eworks_item" name="eworks_item" onchange="eworksItemChanged(this)">
                                                 <option value="일반">일반</option>
                                                 <option value="연차">연차</option>
+                                                <option value="연장근무">연장근무</option>
                                                 <option value="원자재구매">원자재구매</option>
                                                 <option value="부자재구매">부자재구매</option>
                                                 <option value="품의서">품의서</option>

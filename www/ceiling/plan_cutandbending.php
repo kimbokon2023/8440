@@ -1,13 +1,10 @@
 <?php
-session_start();
-
-// 에러 표시 설정
-ini_set('display_errors', '1');
+require_once __DIR__ . '/../bootstrap.php';
 
 // 세션 변수 초기화
-$user_name = isset($_SESSION["name"]) ? $_SESSION["name"] : "";
-$user_id = isset($_SESSION["userid"]) ? $_SESSION["userid"] : "";
-$level = isset($_SESSION["level"]) ? $_SESSION["level"] : 10;
+$user_name = $_SESSION["name"] ?? "";
+$user_id = $_SESSION["userid"] ?? "";
+$level = $_SESSION["level"] ?? 10;
 
 // 날짜 변환 함수
 function trans_date($tdate)

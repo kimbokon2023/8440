@@ -43,16 +43,33 @@ try {
     $e_num_safe = str_replace("'", "''", $e_num);
     
     $sql = "SELECT * FROM {$DB}.eworks WHERE num = '{$e_num_safe}' AND is_deleted IS NULL";
+    
+    error_log("=== load_listone.php 실행 ===");
+    error_log("e_num: " . $e_num);
+    error_log("SQL: " . $sql);
+    
     $stmh = $pdo->prepare($sql);       
     $stmh->execute();
-    $count = $stmh->rowCount();         	  
+    $count = $stmh->rowCount();    
+    
+    error_log("조회된 행 수: " . $count);
     
     if ($count < 1) {  
         // 검색결과가 없습니다.
         $eworks_item = '일반';
+        error_log("검색결과 없음");
     } else {      
         while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
             include includePath('eworks/_row.php');		
+            
+            error_log("DB에서 가져온 값:");
+            error_log("- eworks_item: " . $eworks_item);
+            error_log("- author: " . $author);
+            error_log("- author_id: " . $author_id);
+            error_log("- e_line: " . $e_line);
+            error_log("- e_line_id: " . $e_line_id);
+            error_log("- registdate: " . $registdate);
+            
             if ($eworks_item === '연차') {
                 $contents = urldecode($contents);
             }

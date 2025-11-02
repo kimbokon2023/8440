@@ -25,7 +25,7 @@ $author_id = $_REQUEST["author_id"] ?? '';
 
 // 세션 변수들 초기화
 $user_name = $_SESSION['name'] ?? '';
-$user_id = $_SESSION['user_id'] ?? '';
+$user_id = $_SESSION['userid'] ?? '';
 $DB = $_SESSION['DB'] ?? 'mirae8440';
 
 // 기타 변수들 초기화
@@ -117,7 +117,6 @@ try {
         $recent_num = $pdo->lastInsertId();
     } 
 
-
     // 결재상신 (작성에서 상신으로 수정)
     if ($SelectWork == "send") {     
         $status = 'send';
@@ -128,12 +127,25 @@ try {
 
     // 결재 승인
     if ($SelectWork == "approval") {
+        // 디버깅: 승인 처리 시작
+        error_log("=== APPROVAL 처리 시작 ===");
+        error_log("e_num: " . $e_num);
+        error_log("user_id: " . $user_id);
+        error_log("user_name: " . $user_name);
+        error_log("받은 e_confirm: " . ($e_confirm ?? 'NULL'));
+        error_log("받은 e_confirm_id: " . ($e_confirm_id ?? 'NULL'));
+        
         $e_confirm_value = ($e_confirm === '' || $e_confirm === null) ? $user_name . " " . getPosition($user_id, $pdo, $DB) . " " . $date : $e_confirm . '!' . $user_name . " " . getPosition($user_id, $pdo, $DB) . " " . $date;
         $e_confirm_id_value = ($e_confirm_id === '' || $e_confirm_id === null) ? $user_id : $e_confirm_id . '!' . $user_id;
+
+        error_log("생성된 e_confirm_value: " . $e_confirm_value);
+        error_log("생성된 e_confirm_id_value: " . $e_confirm_id_value);
 
         $sql = "UPDATE {$DB}.eworks SET e_confirm=?, e_confirm_id=? WHERE num=?";
         $stmh = $pdo->prepare($sql);
         $stmh->execute(array($e_confirm_value, $e_confirm_id_value, $e_num));
+        
+        error_log("UPDATE 완료 - affected rows: " . $stmh->rowCount());
         
         // 결재상태 확인 및 업데이트
         $arr = explode("!", $e_line_id);
@@ -143,12 +155,92 @@ try {
 
         if ($e_line_count > $e_confirm_count) {
             $status = 'ing';
-        } else if ($e_line_count == $e_confirm_count) {
+        } else if ($e_line_count <= $e_confirm_count) {
             $status = 'end';
             $done = 'done';
             $sql_done = "UPDATE {$DB}.eworks SET done=? WHERE num=?";
             $stmh_done = $pdo->prepare($sql_done);
             $stmh_done->execute(array($done, $e_num));
+
+            // 최종 결재 완료 시 연장근무인 경우 absent/absent_office 테이블에 자동 입력
+            if ($eworks_item === '연장근무') {
+                try {
+                    // 전자결재 문서 정보 조회
+                    $sql_eworks = "SELECT * FROM {$DB}.eworks WHERE num=?";
+                    $stmh_eworks = $pdo->prepare($sql_eworks);
+                    $stmh_eworks->execute(array($e_num));
+                    $eworks_row = $stmh_eworks->fetch(PDO::FETCH_ASSOC);
+
+                    if ($eworks_row) {
+                        $eworks_author = $eworks_row['author'] ?? '';
+                        $eworks_author_id = $eworks_row['author_id'] ?? '';
+                        $eworks_part = $eworks_row['al_part'] ?? '';
+                        $eworks_askdatefrom = $eworks_row['al_askdatefrom'] ?? '';
+                        $eworks_usedday = $eworks_row['al_usedday'] ?? '';
+                        $eworks_content = $eworks_row['al_content'] ?? '';
+                        $eworks_contents = $eworks_row['contents'] ?? '';
+
+                        // contents JSON에서 상세 정보 추출
+                        $contents_arr = json_decode($eworks_contents, true);
+                        $ot_type = $contents_arr['ot_type'] ?? '';
+
+                        // 연장근무 유형에 따른 content 매핑
+                        // ot_type이 '잔업'이면 '연장근로', '특근'이면 '특근'
+                        $absent_content = '';
+                        if ($ot_type === '잔업') {
+                            $absent_content = '연장근로';
+                        } else if ($ot_type === '특근') {
+                            $absent_content = '특근';
+                        } else {
+                            // 기본값: al_content 활용 또는 ot_type 그대로 사용
+                            $absent_content = $ot_type ?: '연장근로';
+                        }
+
+                        // 등록일 설정
+                        $registdate = date('Y-m-d H:i:s');
+                        $state = '결재완료';
+
+                        // 부서별 테이블 선택 및 INSERT
+                        if ($eworks_part === '제조파트') {
+                            // absent 테이블에 INSERT
+                            $sql_insert = "INSERT INTO {$DB}.absent (id, name, registdate, item, askdatefrom, askdateto, usedday, content, state, part) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                            $stmh_insert = $pdo->prepare($sql_insert);
+                            $stmh_insert->execute(array(
+                                $eworks_author_id,
+                                $eworks_author,
+                                $registdate,
+                                $eworks_usedday,      // item: 시간
+                                $eworks_askdatefrom,   // askdatefrom: 작업일
+                                $eworks_askdatefrom,   // askdateto: 작업일 (동일)
+                                '0',                   // usedday: 연장근무는 0
+                                $absent_content,       // content: 연장근로/특근
+                                $state,
+                                $eworks_part
+                            ));
+                            error_log("연장근무 자동입력 완료: absent 테이블 - {$eworks_author} ({$eworks_askdatefrom})");
+                        } else if ($eworks_part === '지원파트') {
+                            // absent_office 테이블에 INSERT
+                            $sql_insert = "INSERT INTO {$DB}.absent_office (id, name, registdate, item, askdatefrom, askdateto, usedday, content, state, part) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                            $stmh_insert = $pdo->prepare($sql_insert);
+                            $stmh_insert->execute(array(
+                                $eworks_author_id,
+                                $eworks_author,
+                                $registdate,
+                                $eworks_usedday,      // item: 시간
+                                $eworks_askdatefrom,   // askdatefrom: 작업일
+                                $eworks_askdatefrom,   // askdateto: 작업일 (동일)
+                                '0',                   // usedday: 연장근무는 0
+                                $absent_content,       // content: 특근
+                                $state,
+                                $eworks_part
+                            ));
+                            error_log("연장근무 자동입력 완료: absent_office 테이블 - {$eworks_author} ({$eworks_askdatefrom})");
+                        }
+                    }
+                } catch (PDOException $ex) {
+                    error_log("연장근무 자동입력 오류: " . $ex->getMessage());
+                }
+            }
         }
 
         // status 업데이트
@@ -156,6 +248,7 @@ try {
         $stmh_status = $pdo->prepare($sql_status);
         $stmh_status->execute(array($status, $e_num));
     }
+
     // 복구
     if ($SelectWork == "restore") {
         $idArray = explode('!', $e_viewexcept_id);

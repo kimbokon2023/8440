@@ -17,11 +17,8 @@ try {
                 o.order_number,
                 o.delivery_date,
                 o.status,
-                o.quantity,
-                o.unit,
-                o.total_price,
-                c.company_name as customer_name,
-                o.product_name
+                o.order_items,
+                c.company_name as customer_name
             FROM daon_orders o
             LEFT JOIN daon_customers c ON o.customer_id = c.id
             WHERE o.delivery_date BETWEEN ? AND ?
@@ -38,14 +35,47 @@ try {
         if (!isset($calendar[$date])) {
             $calendar[$date] = [];
         }
+        
+        // order_items JSON 파싱
+        $first_product_name = '-';
+        $item_count = 0;
+        $total_amount = 0;
+        $items_summary = [];
+        
+        if (!empty($order['order_items'])) {
+            try {
+                $items = json_decode($order['order_items'], true);
+                if (is_array($items) && count($items) > 0) {
+                    $first_product_name = $items[0]['product_name'] ?? '-';
+                    $item_count = count($items);
+                    
+                    foreach ($items as $item) {
+                        $amount = intval($item['amount'] ?? 0);
+                        $total_amount += $amount;
+                        
+                        $items_summary[] = [
+                            'product_name' => $item['product_name'] ?? '',
+                            'spec' => $item['spec'] ?? '',
+                            'quantity' => $item['quantity'] ?? '',
+                            'unit' => $item['unit'] ?? 'EA',
+                            'unit_price' => intval($item['unit_price'] ?? 0),
+                            'amount' => $amount
+                        ];
+                    }
+                }
+            } catch (Exception $e) {
+                $first_product_name = '(오류)';
+            }
+        }
+        
         $calendar[$date][] = [
             'id' => $order['id'],
             'order_number' => $order['order_number'],
             'customer_name' => $order['customer_name'],
-            'product_name' => $order['product_name'],
-            'quantity' => $order['quantity'],
-            'unit' => $order['unit'],
-            'total_price' => $order['total_price'],
+            'first_product_name' => $first_product_name,
+            'item_count' => $item_count,
+            'total_amount' => $total_amount,
+            'items' => $items_summary,
             'status' => $order['status']
         ];
     }

@@ -1,12 +1,10 @@
 <?php
 require_once __DIR__ . '/../bootstrap.php';
 require_once __DIR__ . '/login/check_login.php';
-require_once __DIR__ . '/../api/file_api.php';
 
 $isEdit = false;
 $order = null;
 $pageTitle = "신규 발주 등록";
-$fileParentNum = 'temp_' . time(); // 임시 파일번호 (신규일 때)
 
 // 수정 모드인 경우
 if (isset($_GET['id']) && !empty($_GET['id'])) {
@@ -23,9 +21,6 @@ if (isset($_GET['id']) && !empty($_GET['id'])) {
             header('Location: index.php');
             exit;
         }
-        
-        // 수정 모드일 때는 실제 order_id 사용
-        $fileParentNum = $order['id'];
     } catch (PDOException $e) {
         die("오류: " . $e->getMessage());
     }
@@ -60,12 +55,6 @@ try {
 
 <!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-
-<!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<!-- File Manager -->
-<script src="../js/file_manager.js"></script>
 
 <!-- 다크모드 CSS -->
 <?php include 'common/dark-mode-header.php'; ?>
@@ -345,381 +334,6 @@ body {
     transform: translateY(-1px);
 }
 
-/* 파일 드롭존 스타일 */
-.drop-zone {
-    border: 2px dashed var(--border-color);
-    border-radius: 10px;
-    padding: 20px 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    background: var(--bg-primary);
-    margin-bottom: 20px;
-}
-
-.drop-zone:hover {
-    border-color: #667eea;
-    background: var(--hover-bg);
-}
-
-.drop-zone.drag-over {
-    border-color: #667eea;
-    background: rgba(102, 126, 234, 0.1);
-    transform: scale(1.02);
-}
-
-.file-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 15px;
-    margin-top: 15px;
-}
-
-/* file_manager.js가 생성하는 요소 스타일링 */
-#displayFile {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 15px;
-    margin-top: 15px;
-}
-
-#displayFile .row {
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 15px;
-    margin: 0 !important;
-    transition: all 0.2s ease;
-}
-
-#displayFile .row:hover {
-    box-shadow: 0 4px 12px var(--shadow);
-    transform: translateY(-2px);
-}
-
-#displayFile .d-flex {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-}
-
-#displayFile span[id^="file"] {
-    flex: 1;
-    min-width: 0;
-}
-
-#displayFile span[id^="file"] a {
-    color: var(--text-primary);
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    word-break: break-all;
-    padding: 10px 12px;
-    background: var(--bg-secondary);
-    border-radius: 6px;
-    transition: all 0.2s ease;
-}
-
-#displayFile span[id^="file"] a:hover {
-    background: var(--hover-bg);
-    color: #667eea;
-    transform: translateX(5px);
-}
-
-#displayFile span[id^="file"] a i {
-    font-size: 24px;
-    flex-shrink: 0;
-}
-
-#displayFile .btn {
-    padding: 6px 10px;
-    border-radius: 4px;
-    font-size: 12px;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    flex-shrink: 0;
-}
-
-#displayFile .btn-danger {
-    background: #f44336;
-    color: white;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-}
-
-#displayFile .btn-danger:hover {
-    background: #d32f2f;
-    transform: scale(1.1);
-}
-
-#displayFile .btn-sm {
-    padding: 0;
-}
-
-#displayFile .text-center {
-    display: none;
-}
-
-/* 파일이 없을 때 메시지 스타일 */
-#displayFile > div.text-center {
-    display: block;
-    text-align: center;
-    padding: 20px;
-    color: var(--text-secondary);
-    font-size: 13px;
-}
-
-.file-item {
-    background: var(--bg-secondary);
-    transition: all 0.2s ease;
-}
-
-.file-item:hover {
-    background: var(--hover-bg);
-}
-
-.file-item .file-name {
-    font-size: 14px;
-    color: var(--text-primary);
-    font-weight: 500;
-    word-break: break-word;
-}
-
-.file-item .file-actions {
-    display: flex;
-    gap: 5px;
-}
-
-.file-item .file-actions button {
-    flex: 1;
-    padding: 6px 10px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
-    transition: all 0.2s ease;
-}
-
-.file-btn-download {
-    background: #2196f3;
-    color: white;
-}
-
-.file-btn-delete {
-    background: #f44336;
-    color: white;
-}
-
-.file-item .file-actions button:hover {
-    opacity: 0.9;
-    transform: scale(1.05);
-}
-
-.upload-progress {
-    margin-top: 10px;
-    padding: 10px;
-    background: var(--hover-bg);
-    border-radius: 6px;
-    display: none;
-}
-
-.upload-progress.show {
-    display: block;
-}
-
-.progress-bar {
-    width: 100%;
-    height: 20px;
-    background: var(--border-color);
-    border-radius: 10px;
-    overflow: hidden;
-    margin-top: 5px;
-}
-
-.progress-bar-fill {
-    height: 100%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    transition: width 0.3s ease;
-}
-
-/* 업로드 중 모달 스타일 */
-.file-upload-loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10000;
-    backdrop-filter: blur(4px);
-}
-
-.file-upload-loading-content {
-    background: white;
-    padding: 40px 60px;
-    border-radius: 12px;
-    text-align: center;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    min-width: 300px;
-}
-
-[data-theme="dark"] .file-upload-loading-content {
-    background: #2d3748;
-    color: #e2e8f0;
-}
-
-.file-upload-loading-content p {
-    font-size: 18px;
-    font-weight: 600;
-    margin-top: 20px;
-    color: var(--text-primary);
-}
-
-.file-upload-loading-content small {
-    font-size: 14px;
-    color: var(--text-secondary);
-}
-
-/* 스피너 애니메이션 */
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-.spinner-border {
-    display: inline-block;
-    border: 4px solid rgba(0, 0, 0, 0.1);
-    border-left-color: #667eea;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-[data-theme="dark"] .spinner-border {
-    border-left-color: #667eea;
-}
-
-/* Toast 메시지 스타일 */
-.toast-container {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 9999;
-}
-
-.toast {
-    background: white;
-    border-left: 4px solid #4caf50;
-    border-radius: 8px;
-    padding: 15px 20px;
-    margin-bottom: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-width: 300px;
-    max-width: 400px;
-    animation: slideInRight 0.3s ease;
-}
-
-[data-theme="dark"] .toast {
-    background: #2d3748;
-    color: #e2e8f0;
-}
-
-.toast.success {
-    border-left-color: #4caf50;
-}
-
-.toast.error {
-    border-left-color: #f44336;
-}
-
-.toast.info {
-    border-left-color: #2196f3;
-}
-
-.toast-icon {
-    font-size: 24px;
-    flex-shrink: 0;
-}
-
-.toast.success .toast-icon {
-    color: #4caf50;
-}
-
-.toast.error .toast-icon {
-    color: #f44336;
-}
-
-.toast.info .toast-icon {
-    color: #2196f3;
-}
-
-.toast-content {
-    flex: 1;
-}
-
-.toast-title {
-    font-weight: 600;
-    margin-bottom: 4px;
-    font-size: 14px;
-}
-
-.toast-message {
-    font-size: 13px;
-    color: var(--text-secondary);
-}
-
-.toast-close {
-    background: none;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-    color: var(--text-secondary);
-    padding: 0;
-    width: 24px;
-    height: 24px;
-    flex-shrink: 0;
-}
-
-.toast-close:hover {
-    color: var(--text-primary);
-}
-
-@keyframes slideInRight {
-    from {
-        transform: translateX(400px);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-@keyframes slideOutRight {
-    from {
-        transform: translateX(0);
-        opacity: 1;
-    }
-    to {
-        transform: translateX(400px);
-        opacity: 0;
-    }
-}
-
 /* 모달 스타일 */
 .modal {
     display: none;
@@ -967,10 +581,7 @@ body {
         <div class="form-card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <div class="form-section-title" style="margin-bottom: 0;">📝 발주사항</div>
-                <button type="button" class="btn-icon" onclick="openProductModal()" 
-                        style="padding: 8px 12px; background: #4caf50; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; transition: all 0.3s ease;"
-                        onmouseover="this.style.background='#45a049'; this.style.transform='translateY(-1px)'"
-                        onmouseout="this.style.background='#4caf50'; this.style.transform='translateY(0)'">
+                <button type="button" class="btn btn-primary btn-sm" onclick="openProductModal()" style="padding: 8px 16px;">
                     <i class="fas fa-plus"></i> 제품관리
                 </button>
             </div>
@@ -1009,34 +620,15 @@ body {
 
             <div class="form-group">
                 <label>납품주소</label>
-                <textarea name="delivery_address" class="form-control" rows="1"
+                <textarea name="delivery_address" class="form-control" rows="3"
                           placeholder="납품받을 주소를 입력하세요"><?php echo $isEdit ? htmlspecialchars($order['delivery_address']) : ''; ?></textarea>
             </div>
 
             <div class="form-group">
                 <label>비고</label>
-                <textarea name="note" class="form-control" rows="2"
+                <textarea name="note" class="form-control" rows="4"
                           placeholder="특이사항이나 요청사항을 입력하세요"><?php echo $isEdit ? htmlspecialchars($order['note']) : ''; ?></textarea>
             </div>
-        </div>
-
-        <!-- 첨부파일 -->
-        <div class="form-card">
-            <div class="form-section-title">📎 첨부파일</div>
-            
-            <!-- 드롭 영역 -->
-            <div id="dropZone" class="drop-zone">
-                <i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: #667eea; margin-bottom: 15px;"></i>
-                <p style="margin: 0 0 10px 0; font-size: 16px; font-weight: 500;">파일을 여기에 드래그하거나 클릭하여 선택하세요</p>
-                <p style="margin: 0; font-size: 13px; color: var(--text-secondary);">최대 10MB, 이미지/문서 파일 지원</p>
-                <input type="file" id="upfile" multiple style="display: none;">
-            </div>
-            
-            <!-- 파일 목록 표시 영역 -->
-            <div id="displayFile" class="file-list"></div>
-            
-            <!-- 임시 파일번호 (신규 등록 시 사용) -->
-            <input type="hidden" id="temp_parentnum" name="temp_parentnum" value="<?php echo $fileParentNum; ?>">
         </div>
 
         <!-- 버튼 -->
@@ -1053,9 +645,6 @@ body {
         </div>
     </form>
 </div>
-
-<!-- Toast 컨테이너 -->
-<div id="toastContainer" class="toast-container"></div>
 
 <script>
 // ===== 발주사항 멀티행 관련 함수 =====
@@ -1096,7 +685,7 @@ async function saveProduct() {
     // 유효성 검사
     const productName = formData.get('product_name');
     if (!productName || productName.trim() === '') {
-        showToast('제품명을 입력해주세요.', 'error');
+        alert('제품명을 입력해주세요.');
         return;
     }
     
@@ -1123,21 +712,21 @@ async function saveProduct() {
             result = JSON.parse(responseText);
         } catch (jsonError) {
             console.error('JSON 파싱 오류:', jsonError);
-            showToast('서버 응답 오류가 발생했습니다.', 'error');
+            alert('서버 응답 오류:\n' + responseText.substring(0, 200));
             return;
         }
         
         if (result.success) {
-            showToast('제품이 등록되었습니다.', 'success');
+            alert('제품이 등록되었습니다.');
             
             // 페이지 새로고침하여 제품 목록 갱신
-            setTimeout(() => location.reload(), 1000);
+            location.reload();
         } else {
-            showToast('오류: ' + (result.message || '제품 등록에 실패했습니다.'), 'error');
+            alert('오류: ' + (result.message || '제품 등록에 실패했습니다.'));
         }
     } catch (error) {
         console.error('제품 등록 오류:', error);
-        showToast('제품 등록 중 오류가 발생했습니다.', 'error');
+        alert('제품 등록 중 오류가 발생했습니다.\n' + error.message);
     }
 }
 
@@ -1382,7 +971,7 @@ document.getElementById('orderForm').addEventListener('submit', function(e) {
     
     // 최소 1개 이상의 발주사항 필요
     if (orderItemsData.length === 0) {
-        showToast('최소 1개 이상의 발주사항을 입력해주세요.', 'error');
+        alert('최소 1개 이상의 발주사항을 입력해주세요.');
         e.preventDefault();
         return false;
     }
@@ -1403,156 +992,10 @@ document.getElementById('orderForm').addEventListener('submit', function(e) {
     console.log('발주사항 JSON:', orderItemsJson);
 });
 
-// 페이지 로드 시 발주사항 데이터 로드 
+// 페이지 로드 시 발주사항 데이터 로드
 document.addEventListener('DOMContentLoaded', function() {
     loadOrderItems();
-    initFileUpload();
 });
-
-/**
- * ===== Toast 메시지 =====
- */
-function showToast(message, type = 'success', fileName = '') {
-    const container = document.getElementById('toastContainer');
-    const toast = document.createElement('div');
-    toast.className = 'toast ' + type;
-    
-    const iconMap = {
-        'success': 'fa-check-circle',
-        'error': 'fa-exclamation-circle',
-        'info': 'fa-info-circle'
-    };
-    
-    const titleMap = {
-        'success': '성공',
-        'error': '오류',
-        'info': '알림'
-    };
-    
-    toast.innerHTML = `
-        <div class="toast-icon">
-            <i class="fas ${iconMap[type]}"></i>
-        </div>
-        <div class="toast-content">
-            <div class="toast-title">${titleMap[type]}</div>
-            <div class="toast-message">${message}${fileName ? '<br><strong>' + fileName + '</strong>' : ''}</div>
-        </div>
-        <button class="toast-close" onclick="this.parentElement.remove()">
-            <i class="fas fa-times"></i>
-        </button>
-    `;
-    
-    container.appendChild(toast);
-    
-    // 3초 후 자동 제거
-    setTimeout(function() {
-        toast.style.animation = 'slideOutRight 0.3s ease';
-        setTimeout(function() {
-            toast.remove();
-        }, 300);
-    }, 3000);
-}
-
-/**
- * ===== 첨부파일 관리 =====
- */
-var orderFileManager;
-
-function initFileUpload() {
-    const parentNum = document.getElementById('temp_parentnum').value;
-    
-    console.log('');
-    console.log('=== 파일 매니저 초기화 ===');
-    console.log('parentnum:', parentNum);
-    console.log('========================');
-    console.log('');
-    
-    // 파일 매니저 초기화
-    orderFileManager = new GoogleDriveFileManager({
-        containerId: 'dropZone',
-        displayContainerId: 'displayFile',
-        uploadInputId: 'upfile',
-        tablename: 'daon_orders',
-        item: 'attached',
-        parentnum: parentNum,
-        folderPath: 'Daon/Orders',
-        DBtable: 'picuploads',
-        showDeleteButton: true,
-        showDownloadButton: true,
-        allowMultiple: true,
-        maxFileSize: 10 * 1024 * 1024, // 10MB
-        allowedTypes: ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'xls', 'xlsx'],
-        uploadUrl: '../filedrive/fileprocess.php',
-        deleteUrl: '../filedrive/fileprocess.php',
-        onUploadSuccess: function(response) {
-            console.log('파일 업로드 성공:', response);
-            
-            // Toast 메시지 표시
-            if (response && response.length > 0) {
-                var fileNames = response.map(function(file) {
-                    return file.realname || file.file;
-                }).join(', ');
-                
-                showToast(
-                    response.length + '개의 파일이 업로드되었습니다.', 
-                    'success', 
-                    fileNames
-                );
-            }
-            
-            // 파일 목록 다시 로드
-            if (orderFileManager) {
-                setTimeout(function() {
-                    orderFileManager.loadFiles();
-                }, 500);
-            }
-        },
-        onUploadError: function(xhr, status, error) {
-            console.error('파일 업로드 실패:', error);
-            showToast('파일 업로드에 실패했습니다.', 'error');
-        },
-        onDeleteSuccess: function(response) {
-            showToast('파일이 삭제되었습니다.', 'success');
-        },
-        onLoadSuccess: function(files) {
-            console.log('파일 로드 완료:', files);
-        },
-        autoLoad: true
-    });
-    
-    orderFileManager.init();
-    
-    // 드롭존 클릭 시 파일 선택 창 열기
-    document.getElementById('dropZone').addEventListener('click', function() {
-        document.getElementById('upfile').click();
-    });
-    
-    // 드래그 앤 드롭 이벤트
-    const dropZone = document.getElementById('dropZone');
-    
-    dropZone.addEventListener('dragover', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        this.classList.add('drag-over');
-    });
-    
-    dropZone.addEventListener('dragleave', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        this.classList.remove('drag-over');
-    });
-    
-    dropZone.addEventListener('drop', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        this.classList.remove('drag-over');
-        
-        const files = e.dataTransfer.files;
-        if (files.length > 0 && orderFileManager) {
-            orderFileManager.uploadFiles(files);
-        }
-    });
-}
 
 /**
  * 제품 옵션 생성
@@ -1656,7 +1099,7 @@ function copyOrderItemRow(button) {
 function deleteOrderItemRow(button) {
     const tbody = document.getElementById('orderItemsTableBody');
     if (tbody.querySelectorAll('tr').length <= 1) {
-        showToast('최소 1개 이상의 행이 필요합니다.', 'error');
+        alert('최소 1개 이상의 행이 필요합니다.');
         return;
     }
     
@@ -1722,18 +1165,142 @@ function closeCustomerModal() {
     document.getElementById('customerModal').style.display = 'none';
 }
 
-// 모달 외부 클릭 시 닫기
-window.addEventListener('click', function(event) {
-    const customerModal = document.getElementById('customerModal');
-    const productModal = document.getElementById('productModal');
+/**
+ * 거래처 등록 처리
+ */
+async function saveCustomer() {
+    const form = document.getElementById('customerForm');
+    const formData = new FormData(form);
     
-    if (event.target === customerModal) {
-        closeCustomerModal();
+    // 유효성 검사
+    const companyName = formData.get('company_name');
+    if (!companyName || companyName.trim() === '') {
+        alert('회사명을 입력해주세요.');
+        return;
     }
-    if (event.target === productModal) {
-        closeProductModal();
+    
+    try {
+        console.log('거래처 등록 시작...');
+        
+        // select에서 선택된 제품명 또는 직접입력한 제품명
+        let productName = '';
+        if (select.value === '__custom__') {
+            productName = customInput.value;
+        } else if (select.value) {
+            productName = select.options[select.selectedIndex].dataset.name || '';
+        }
+        
+        const data = {
+            product_name: productName,
+            spec: row.querySelector('.order-item-spec').value,
+            quantity: row.querySelector('.order-item-quantity').value,
+            unit: row.querySelector('.order-item-unit').value,
+            unit_price: row.querySelector('.order-item-price').value.replace(/,/g, ''),
+            amount: row.querySelector('.order-item-amount').value.replace(/,/g, ''),
+            note: row.querySelector('.order-item-note').value
+        };
+        
+        // 제품명이 있는 행만 추가
+        if (data.product_name && data.product_name.trim()) {
+            orderItems.push(data);
+        }
+    });
+    
+    return orderItems;
+}
+
+/**
+ * 기존 데이터 로드 (수정 모드)
+ */
+function loadOrderItems() {
+    <?php if ($isEdit && !empty($order['order_items'])): ?>
+    try {
+        const orderItemsData = <?php echo $order['order_items'] ?? '[]'; ?>;
+        
+        let parsedData;
+        if (typeof orderItemsData === 'string') {
+            parsedData = JSON.parse(orderItemsData);
+        } else {
+            parsedData = orderItemsData;
+        }
+        
+        console.log('발주사항 로드:', parsedData);
+        
+        if (Array.isArray(parsedData) && parsedData.length > 0) {
+            parsedData.forEach(item => {
+                const rowData = {
+                    product_name: item.product_name || '',
+                    spec: item.spec || '',
+                    quantity: item.quantity || '',
+                    unit: item.unit || 'EA',
+                    unit_price: item.unit_price ? parseInt(item.unit_price).toLocaleString('ko-KR') : '',
+                    amount: item.amount ? parseInt(item.amount).toLocaleString('ko-KR') : '',
+                    note: item.note || ''
+                };
+                addOrderItemRow(rowData);
+            });
+        } else {
+            // 데이터가 없으면 빈 행 추가
+            addOrderItemRow();
+        }
+    } catch (e) {
+        console.error('발주사항 로드 오류:', e);
+        addOrderItemRow(); // 오류 시 빈 행 추가
     }
+    <?php else: ?>
+    // 신규 등록: 빈 행 1개 추가
+    addOrderItemRow();
+    <?php endif; ?>
+}
+
+// 폼 제출 시 발주사항 데이터를 hidden input에 추가
+document.getElementById('orderForm').addEventListener('submit', function(e) {
+    // 발주사항 데이터 수집 및 JSON 변환
+    const orderItems = collectOrderItems();
+    
+    // 최소 1개 이상의 발주사항 필요
+    if (orderItems.length === 0) {
+        alert('최소 1개 이상의 발주사항을 입력해주세요.');
+        e.preventDefault();
+        return false;
+    }
+    
+    const orderItemsJson = JSON.stringify(orderItems);
+    
+    // hidden input 생성하여 추가
+    let hiddenInput = document.getElementById('order_items_data');
+    if (!hiddenInput) {
+        hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.id = 'order_items_data';
+        hiddenInput.name = 'order_items';
+        this.appendChild(hiddenInput);
+    }
+    hiddenInput.value = orderItemsJson;
+    
+    console.log('발주사항 JSON:', orderItemsJson);
 });
+
+// 페이지 로드 시 발주사항 데이터 로드
+document.addEventListener('DOMContentLoaded', function() {
+    loadOrderItems();
+});
+
+/**
+ * 거래처 등록 모달 열기
+ */
+function openCustomerModal() {
+    document.getElementById('customerModal').style.display = 'block';
+    // 폼 초기화
+    document.getElementById('customerForm').reset();
+}
+
+/**
+ * 거래처 등록 모달 닫기
+ */
+function closeCustomerModal() {
+    document.getElementById('customerModal').style.display = 'none';
+}
 
 /**
  * 거래처 등록 처리
@@ -1745,7 +1312,7 @@ async function saveCustomer() {
     // 유효성 검사
     const companyName = formData.get('company_name');
     if (!companyName || companyName.trim() === '') {
-        showToast('회사명을 입력해주세요.', 'error');
+        alert('회사명을 입력해주세요.');
         return;
     }
     
@@ -1774,12 +1341,12 @@ async function saveCustomer() {
         } catch (jsonError) {
             console.error('JSON 파싱 오류:', jsonError);
             console.error('응답 텍스트:', responseText);
-            showToast('서버 응답 오류가 발생했습니다.', 'error');
+            alert('서버 응답 오류:\n' + responseText.substring(0, 200));
             return;
         }
         
         if (result.success) {
-            showToast('거래처가 등록되었습니다.', 'success');
+            alert('거래처가 등록되었습니다.');
             
             // 거래처 목록 갱신
             await refreshCustomerList();
@@ -1791,11 +1358,11 @@ async function saveCustomer() {
             
             closeCustomerModal();
         } else {
-            showToast('오류: ' + (result.message || '거래처 등록에 실패했습니다.'), 'error');
+            alert('오류: ' + (result.message || '거래처 등록에 실패했습니다.'));
         }
     } catch (error) {
         console.error('거래처 등록 오류:', error);
-        showToast('거래처 등록 중 오류가 발생했습니다.', 'error');
+        alert('거래처 등록 중 오류가 발생했습니다.\n' + error.message);
     }
 }
 
@@ -1829,6 +1396,14 @@ async function refreshCustomerList() {
         }
     } catch (error) {
         console.error('거래처 목록 갱신 오류:', error);
+    }
+}
+
+// 모달 외부 클릭 시 닫기
+window.onclick = function(event) {
+    const modal = document.getElementById('customerModal');
+    if (event.target === modal) {
+        closeCustomerModal();
     }
 }
 </script>
@@ -1928,7 +1503,7 @@ async function refreshCustomerList() {
 <!-- 제품관리 모달 -->
 <div id="productModal" class="modal">
     <div class="modal-content" style="max-width: 700px;">
-        <div class="modal-header" style="background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);">
+        <div class="modal-header" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);">
             <div>
                 <h2><i class="fas fa-box-open"></i> 제품 등록</h2>
                 <p style="margin: 5px 0 0 0; font-size: 13px; opacity: 0.9;">새로운 제품을 등록하세요</p>
@@ -1982,6 +1557,14 @@ async function refreshCustomerList() {
                         <label>기준단가</label>
                         <input type="text" name="standard_price" class="form-control" 
                                oninput="formatProductPrice(this)" placeholder="0">
+                    </div>
+                </div>
+                
+                <!-- Row 4: 비고 (전체 너비) -->
+                <div class="modal-row">
+                    <div class="form-group modal-row-full">
+                        <label>비고</label>
+                        <textarea name="note" class="form-control" rows="2"></textarea>
                     </div>
                 </div>
             </form>

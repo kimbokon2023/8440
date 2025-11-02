@@ -77,7 +77,7 @@ $pdo = db_connect();
 
 // 수입/지출 합계 계산
 try {
-    $sql_sum = "SELECT * FROM {$DB}.fund WHERE proDate BETWEEN DATE('2010-01-01') AND DATE(?) ORDER BY proDate";
+    $sql_sum = "SELECT * FROM {$DB}.fund WHERE proDate BETWEEN DATE('2010-01-01') AND DATE(?) ORDER BY proDate desc, num desc";
     $stmh_sum = $pdo->prepare($sql_sum);
     $stmh_sum->bindValue(1, $todate, PDO::PARAM_STR);
     $stmh_sum->execute();
@@ -102,14 +102,14 @@ $resultText = "총수입(" . number_format($input_sum) . "원) - 총지출(" . n
 
 // SQL 쿼리 생성
 if ($mode == "search" && !empty($search)) {
-    $sql = "SELECT * FROM {$DB}.fund WHERE ({$SettingDate} BETWEEN ? AND ?) AND (memo LIKE ? OR writer LIKE ?) ORDER BY {$SettingDate} DESC, num DESC LIMIT ?, ?";
+    $sql = "SELECT * FROM {$DB}.fund WHERE ({$SettingDate} BETWEEN ? AND ?) AND (memo LIKE ? OR writer LIKE ?) ORDER BY {$SettingDate} desc, num desc LIMIT ?, ?";
 } else {
-    $sql = "SELECT * FROM {$DB}.fund WHERE {$SettingDate} BETWEEN '{$fromdate}' AND '{$Transtodate}' ORDER BY {$SettingDate} DESC, num DESC LIMIT {$first_num}, {$scale}";
+    $sql = "SELECT * FROM {$DB}.fund WHERE {$SettingDate} BETWEEN '{$fromdate}' AND '{$Transtodate}' ORDER BY {$SettingDate} desc, num desc LIMIT {$first_num}, {$scale}";
 }
 
 // 전체 레코드 수 조회
 try {
-    $count_sql = "SELECT COUNT(*) as cnt FROM {$DB}.fund WHERE proDate BETWEEN '{$fromdate}' AND '{$Transtodate}'";
+    $count_sql = "SELECT COUNT(*) as cnt FROM {$DB}.fund WHERE proDate BETWEEN '{$fromdate}' AND '{$Transtodate}' ORDER BY proDate desc, num desc";
     $count_result = $pdo->query($count_sql);
     if ($count_result) {
         $count_row = $count_result->fetch(PDO::FETCH_ASSOC);
@@ -207,12 +207,8 @@ include getDocumentRoot() . '/load_header.php';
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php
-                                if ($page <= 1) {
-                                    $start_num = $total_row;
-                                } else {
-                                    $start_num = $total_row - ($page - 1) * $scale;
-                                }
+                                <?php                                
+                                $start_num = 1;
                                 
                                 try {
                                     if (!isset($sum_data)) {
@@ -262,7 +258,7 @@ include getDocumentRoot() . '/load_header.php';
                                     <td class="text-center"><?php echo htmlspecialchars($writer, ENT_QUOTES, 'UTF-8'); ?></td>
                                 </tr>
                                 <?php
-                                        $start_num--;
+                                        $start_num++;
                                     }
 
                                     if ($row_count == 0) {
@@ -339,8 +335,7 @@ $(document).ready(function() {
             "language": {
                 "lengthMenu": "Show _MENU_ entries",
                 "search": "Live Search:"
-            },
-            "order": [[0, 'desc']]
+            }
         });
         
         var savedPageNumber = getCookie('fundpageNumber');

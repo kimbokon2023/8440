@@ -16,6 +16,13 @@ $EworksSearch = $_REQUEST["EworksSearch"] ?? '';
 $eworksel = $_REQUEST["eworksel"] ?? 'draft';
 $author_id = $_REQUEST["author_id"] ?? '';
 
+// 디버깅
+error_log("=== list.php 호출 ===");
+error_log("eworksel: " . $eworksel);
+error_log("user_id: " . $user_id);
+error_log("eworksPage: " . $eworksPage);
+error_log("EworksSearch: " . $EworksSearch);
+
 // 페이지 번호 검증
 if ((int)$eworksPage < 1) {
     $eworksPage = 1;
@@ -49,11 +56,6 @@ $e_viewexcept_id = '';
 ?>
 
 <div id="eworks_list" style="height:520px;" class="mb-1">
-    <!-- 로딩 인디케이터 -->
-    <div id="loadingIndicator" style="display: none;">
-        <div class="loader"></div>
-    </div>
-    
     <table class="table table-hover table-sm" id="myEworks_Table">
 
 <?php
@@ -155,6 +157,7 @@ switch($eworksel) {
 		$all = "CONCAT('!', e_line_id, '!') LIKE '%!{$user_id}!%' AND CONCAT('!', e_confirm_id, '!') LIKE '%!{$user_id}!%' AND is_deleted IS NULL AND status = 'end'" . $viewcon ;
 		$where = "WHERE " . $all;
 		$andwhere = "AND " . $all;
+		error_log("결재완료(end) 조건: " . $all);
 		break;
 
 	case 'reject': // 반려인 경우
@@ -311,11 +314,15 @@ if ($EworksSearch == "") {
 }
 
 try {
+    error_log("실행할 COUNT SQL: " . $sqlcon);
     $allstmh = $pdo->query($sqlcon);
     $total_row = $allstmh->rowCount();
+    error_log("total_row: " . $total_row);
     
+    error_log("실행할 LIST SQL: " . $sql);
     $stmh = $pdo->query($sql);
     $count = $stmh->rowCount();
+    error_log("count: " . $count);
     
     // 페이지 계산
     $total_page = ceil($total_row / $scale);

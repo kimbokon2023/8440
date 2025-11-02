@@ -1,33 +1,78 @@
+<?php
+// OpCache 클리어 (개발 중에만 사용)
+if (function_exists('opcache_reset')) {
+    opcache_reset();
+}
 
- <?php
-	  
-require_once("../lib/mydb.php");
-$pdo = db_connect();	
-   
- // 기간을 정하는 구간
- 
-$todate=date("Y-m-d");   // 현재일자 변수지정   
-	 
-if(isset($_REQUEST["num"]))
-     $num=$_REQUEST["num"];
-  else 
-     $num="";     
+require_once __DIR__ . '/../bootstrap.php';
 
-$common=" where  num=$num ";  // 생산예정일이 현재일보다 클때 조건
+// 디버그: 파일 버전 확인
+echo "<!-- FILE VERSION: 2025-10-31 v2.0 -->\n";
 
-$sql = "select * from mirae8440.work " . $common; 							
+// 파라미터 초기화 (안전한 방식)
+$num = $_REQUEST["num"] ?? '';
 
-$nowday=date("Y-m-d");   // 현재일자 변수지정   
+// num이 비어있으면 에러 처리
+if ($num === '') {
+    die("Error: num parameter is required - Please check URL");
+}
 
-$stmh = $pdo->query($sql);    
-   
-$row = $stmh->fetch(PDO::FETCH_ASSOC) ;
-include '_row.php';
-	 
-// print $sql;		 		 
-		 
+// 현재일자 변수지정
+$todate = date("Y-m-d");
+$nowday = date("Y-m-d");
+
+// Prepared Statement를 사용한 안전한 쿼리
+$sql = "SELECT * FROM mirae8440.work WHERE num = :num";
+
+// 디버그 정보
+if (isLocal()) {
+    echo "<!-- DEBUG: Using PREPARE statement (not query) -->\n";
+    echo "<!-- DEBUG SQL: " . htmlspecialchars($sql) . " -->\n";
+    echo "<!-- DEBUG num parameter: " . htmlspecialchars($num) . " -->\n";
+}
+
+try {
+    require_once(includePath('lib/mydb.php'));
+    $pdo = db_connect();
+    
+    if (isLocal()) {
+        echo "<!-- DEBUG: PDO connection established -->\n";
+    }
+    
+    $stmh = $pdo->prepare($sql);
+    
+    if (isLocal()) {
+        echo "<!-- DEBUG: SQL prepared successfully -->\n";
+    }
+    
+    $stmh->bindValue(':num', $num, PDO::PARAM_INT);
+    
+    if (isLocal()) {
+        echo "<!-- DEBUG: Parameter bound successfully -->\n";
+    }
+    
+    $stmh->execute();
+    
+    $row = $stmh->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$row) {
+        die("Error: No data found for num = " . htmlspecialchars($num));
+    }
+    
+    include '_row.php';
+} catch (PDOException $e) {
+    if (isLocal()) {
+        die("Database Error: " . $e->getMessage());
+    } else {
+        die("Database Error occurred. Please contact administrator.");
+    }
+}
+
+// 디버그용 (로컬에서만)
+// if (isLocal()) echo "<!-- DEBUG SQL: " . htmlspecialchars($sql) . " -->\n";
+
 ?>
-	
+
 <?php include getDocumentRoot() . '/load_header.php' ?>	
    
    

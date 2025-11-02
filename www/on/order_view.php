@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../bootstrap.php';
 require_once __DIR__ . '/login/check_login.php';
+require_once __DIR__ . '/../api/file_api.php';
 
 $id = $_GET['id'] ?? '';
 
@@ -186,6 +187,32 @@ body {
     color: #667eea;
 }
 
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th {
+    border: 1px solid var(--border-color);
+    background: var(--hover-bg);
+}
+
+.table td {
+    border: 1px solid var(--border-color);
+}
+
+.table-bordered {
+    border: 1px solid var(--border-color);
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-end {
+    text-align: right;
+}
+
 .btn-group {
     display: flex;
     gap: 10px;
@@ -301,6 +328,18 @@ body {
                 </div>
             </div>
             <div class="info-item">
+                <div class="info-label">청구일</div>
+                <div class="info-value">
+                    <?php echo $order['billing_date'] ? date('Y-m-d', strtotime($order['billing_date'])) : '-'; ?>
+                </div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">입금일</div>
+                <div class="info-value">
+                    <?php echo $order['payment_date'] ? date('Y-m-d', strtotime($order['payment_date'])) : '-'; ?>
+                </div>
+            </div>
+            <div class="info-item">
                 <div class="info-label">우선순위</div>
                 <div class="info-value">
                     <?php
@@ -340,49 +379,62 @@ body {
         </div>
     </div>
 
-    <!-- 제품 정보 -->
+    <!-- 발주사항 -->
+    <?php if (!empty($order['order_items'])): ?>
     <div class="info-card">
-        <div class="info-section-title">📦 제품 정보</div>
-        <div class="info-grid">
-            <div class="info-item">
-                <div class="info-label">제품명</div>
-                <div class="info-value"><?php echo htmlspecialchars($order['product_name']); ?></div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">제품구분</div>
-                <div class="info-value"><?php echo htmlspecialchars($order['product_type'] ?? '-'); ?></div>
-            </div>
-            <div class="info-item" style="grid-column: span 2;">
-                <div class="info-label">규격</div>
-                <div class="info-value"><?php echo htmlspecialchars($order['spec'] ?? '-'); ?></div>
-            </div>
-        </div>
+        <div class="info-section-title">📝 발주사항</div>
+        <table class="table table-bordered" style="background: var(--bg-secondary); margin: 0;">
+            <thead style="background: #f0f0f0;">
+                <tr>
+                    <th width="6%" class="text-center" style="padding: 10px; font-size: 13px;">번호</th>
+                    <th width="22%" style="padding: 10px; font-size: 13px;">제품명</th>
+                    <th width="15%" style="padding: 10px; font-size: 13px;">규격</th>
+                    <th width="10%" class="text-center" style="padding: 10px; font-size: 13px;">수량</th>
+                    <th width="8%" class="text-center" style="padding: 10px; font-size: 13px;">단위</th>
+                    <th width="13%" class="text-end" style="padding: 10px; font-size: 13px;">단가</th>
+                    <th width="13%" class="text-end" style="padding: 10px; font-size: 13px;">금액</th>
+                    <th width="13%" style="padding: 10px; font-size: 13px;">비고</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                try {
+                    $order_items_data = json_decode($order['order_items'], true);
+                    if (is_array($order_items_data) && count($order_items_data) > 0) {
+                        $rowNum = 1;
+                        $totalAmount = 0;
+                        foreach ($order_items_data as $item) {
+                            $amount = intval($item['amount'] ?? 0);
+                            $totalAmount += $amount;
+                            
+                            echo '<tr>';
+                            echo '<td class="text-center" style="padding: 8px; font-size: 13px;">' . $rowNum . '</td>';
+                            echo '<td style="padding: 8px; font-size: 13px;">' . htmlspecialchars($item['product_name'] ?? '') . '</td>';
+                            echo '<td style="padding: 8px; font-size: 13px;">' . htmlspecialchars($item['spec'] ?? '') . '</td>';
+                            echo '<td class="text-center" style="padding: 8px; font-size: 13px;">' . htmlspecialchars($item['quantity'] ?? '') . '</td>';
+                            echo '<td class="text-center" style="padding: 8px; font-size: 13px;">' . htmlspecialchars($item['unit'] ?? 'EA') . '</td>';
+                            echo '<td class="text-end" style="padding: 8px; font-size: 13px;">' . number_format(intval($item['unit_price'] ?? 0)) . '원</td>';
+                            echo '<td class="text-end" style="padding: 8px; font-size: 13px;"><strong>' . number_format($amount) . '원</strong></td>';
+                            echo '<td style="padding: 8px; font-size: 13px;">' . htmlspecialchars($item['note'] ?? '') . '</td>';
+                            echo '</tr>';
+                            $rowNum++;
+                        }
+                        
+                        // 합계 행 추가
+                        echo '<tr style="background: #f8f9fa; font-weight: bold;">';
+                        echo '<td colspan="6" class="text-end" style="padding: 10px; font-size: 14px;">합계</td>';
+                        echo '<td class="text-end" style="padding: 10px; font-size: 14px; color: #667eea;">' . number_format($totalAmount) . '원</td>';
+                        echo '<td></td>';
+                        echo '</tr>';
+                    }
+                } catch (Exception $e) {
+                    echo '<tr><td colspan="8" class="text-center" style="padding: 20px;">발주사항 데이터를 불러올 수 없습니다.</td></tr>';
+                }
+                ?>
+            </tbody>
+        </table>
     </div>
-
-    <!-- 금액 정보 -->
-    <div class="info-card">
-        <div class="info-section-title">💰 금액 정보</div>
-        <div class="info-grid">
-            <div class="info-item">
-                <div class="info-label">수량</div>
-                <div class="info-value">
-                    <?php echo number_format(intval($order['quantity'])); ?> <?php echo htmlspecialchars($order['unit']); ?>
-                </div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">단가</div>
-                <div class="info-value"><?php echo number_format($order['unit_price']); ?>원</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">총액</div>
-                <div class="info-value large"><?php echo number_format($order['total_price']); ?>원</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">부가세</div>
-                <div class="info-value"><?php echo $order['vat_included'] ? '포함' : '별도'; ?></div>
-            </div>
-        </div>
-    </div>
+    <?php endif; ?>
 
     <!-- 배송 정보 -->
     <?php if ($order['delivery_address'] || $order['note']): ?>
@@ -400,6 +452,53 @@ body {
             <div class="info-value"><?php echo nl2br(htmlspecialchars($order['note'])); ?></div>
         </div>
         <?php endif; ?>
+    </div>
+    <?php endif; ?>
+
+    <!-- 첨부파일 -->
+    <?php
+    try {
+        $fileOptions = [
+            'tablename' => 'daon_orders',
+            'item' => 'attached',
+            'parentnum' => $order['id'],
+            'DBtable' => 'picuploads'
+        ];
+        $files = getFilesFromGoogleDrive($fileOptions);
+    } catch (Exception $e) {
+        $files = [];
+        error_log("파일 목록 조회 오류: " . $e->getMessage());
+    }
+    
+    if (count($files) > 0): ?>
+    <div class="info-card">
+        <div class="info-section-title">📎 첨부파일 (<?php echo count($files); ?>개)</div>
+        <div class="file-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+            <?php foreach ($files as $file): ?>
+            <div class="file-item" style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px;">
+                <?php if (in_array(strtolower(pathinfo($file['realname'], PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'gif'])): ?>
+                <img src="<?php echo $file['thumbnail']; ?>" 
+                     alt="<?php echo htmlspecialchars($file['realname']); ?>"
+                     style="width: 100%; height: 150px; object-fit: cover; border-radius: 6px; margin-bottom: 10px;">
+                <?php else: ?>
+                <div style="width: 100%; height: 150px; display: flex; align-items: center; justify-content: center; background: #f0f0f0; border-radius: 6px; margin-bottom: 10px;">
+                    <i class="fas fa-file" style="font-size: 48px; color: #999;"></i>
+                </div>
+                <?php endif; ?>
+                
+                <div style="font-size: 13px; margin-bottom: 8px; word-break: break-all;">
+                    <?php echo htmlspecialchars($file['realname']); ?>
+                </div>
+                
+                <div style="display: flex; gap: 5px;">
+                    <a href="<?php echo $file['link']; ?>" target="_blank" 
+                       style="flex: 1; padding: 6px 10px; background: #2196f3; color: white; border-radius: 4px; text-decoration: none; text-align: center; font-size: 12px;">
+                        <i class="fas fa-download"></i> 다운로드
+                    </a>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
     </div>
     <?php endif; ?>
 

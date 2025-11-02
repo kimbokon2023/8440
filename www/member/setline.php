@@ -19,7 +19,6 @@ $mode = isset($_REQUEST['mode']) ? $_REQUEST['mode'] : '';
 $partsep = isset($_REQUEST['partsep']) ? $_REQUEST['partsep'] : '';
 $workprocessval = isset($_REQUEST['workprocessval']) ? $_REQUEST['workprocessval'] : '';
 
-include getDocumentRoot() . '/common.php';
 require_once(includePath('lib/mydb.php'));
 
 $_SESSION["partsep"] = '';

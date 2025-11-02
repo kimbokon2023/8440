@@ -300,12 +300,13 @@ body {
 }
 
 .btn-sm {
-    padding: 5px 12px;
-    font-size: 12px;
-    border-radius: 6px;
+    padding: 5px 9px;
+    font-size: 13px;
+    border-radius: 4px;
     border: none;
     cursor: pointer;
-    margin-right: 5px;
+    margin-right: 4px;
+    transition: all 0.3s ease;
 }
 
 .btn-view {
@@ -324,7 +325,9 @@ body {
 }
 
 .btn-sm:hover {
-    opacity: 0.8;
+    opacity: 0.9;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
 .empty-state {
@@ -424,12 +427,15 @@ body {
         margin-bottom: 10px;
     }
 
+    /* 태블릿: 납품일, 청구일, 입금일, 항목수 숨김 */
     .order-table th:nth-child(3),
     .order-table td:nth-child(3),
-    .order-table th:nth-child(6),
-    .order-table td:nth-child(6),
-    .order-table th:nth-child(11),
-    .order-table td:nth-child(11) {
+    .order-table th:nth-child(4),
+    .order-table td:nth-child(4),
+    .order-table th:nth-child(5),
+    .order-table td:nth-child(5),
+    .order-table th:nth-child(8),
+    .order-table td:nth-child(8) {
         display: none;
     }
 }
@@ -443,19 +449,20 @@ body {
         font-size: 11px;
     }
 
-    .order-table th:nth-child(4),
-    .order-table td:nth-child(4),
+    /* 모바일: 제품명만 표시 (발주번호, 발주일, 거래처, 제품명, 상태, 작업만 표시) */
     .order-table th:nth-child(7),
-    .order-table td:nth-child(7),
-    .order-table th:nth-child(8),
-    .order-table td:nth-child(8) {
-        display: none;
+    .order-table td:nth-child(7) {
+        width: 30% !important;
     }
 
     .btn-sm {
-        padding: 4px 8px;
-        font-size: 10px;
-        margin-right: 2px;
+        padding: 5px 8px;
+        font-size: 12px;
+        margin-right: 3px;
+    }
+    
+    .btn-sm i {
+        font-size: 12px;
     }
 }
 </style>
@@ -577,7 +584,7 @@ body {
         }
 
         if (!empty($_GET['search'])) {
-            $where[] = "(c.company_name LIKE :search OR o.product_name LIKE :search)";
+            $where[] = "(c.company_name LIKE :search OR o.order_items LIKE :search)";
             $params[':search'] = '%' . $_GET['search'] . '%';
         }
 
@@ -586,14 +593,11 @@ body {
                     o.order_number,
                     o.order_date,
                     o.delivery_date,
+                    o.billing_date,
+                    o.payment_date,
                     o.customer_id,
                     c.company_name as customer_name,
-                    o.product_name,
-                    o.product_type,
-                    o.quantity,
-                    o.unit,
-                    o.unit_price,
-                    o.total_price,
+                    o.order_items,
                     o.status,
                     o.priority,
                     o.created_by,
@@ -613,18 +617,17 @@ body {
             echo '<table class="order-table">';
             echo '<thead>';
             echo '<tr>';
-            echo '<th width="8%">발주번호</th>';
+            echo '<th width="9%">발주번호</th>';
             echo '<th width="8%">발주일</th>';
-            echo '<th width="8%">납품일</th>';
-            echo '<th width="12%">거래처</th>';
-            echo '<th width="15%">제품명</th>';
-            echo '<th width="8%">제품구분</th>';
-            echo '<th width="6%">수량</th>';
-            echo '<th width="8%">단가</th>';
-            echo '<th width="8%">총액</th>';
-            echo '<th width="7%">상태</th>';
-            echo '<th width="6%">작성자</th>';
-            echo '<th width="12%">작업</th>';
+            echo '<th width="7%">납품일</th>';
+            echo '<th width="7%">청구일</th>';
+            echo '<th width="7%">입금일</th>';
+            echo '<th width="11%">거래처</th>';
+            echo '<th width="17%">제품명 (첫항목)</th>';
+            echo '<th width="6%" style="text-align:center;">항목수</th>';
+            echo '<th width="10%" style="text-align:right;">총액</th>';
+            echo '<th width="7%" style="text-align:center;">상태</th>';
+            echo '<th width="11%" style="text-align:center;">작업</th>';
             echo '</tr>';
             echo '</thead>';
             echo '<tbody>';
@@ -661,22 +664,42 @@ body {
 
                 $priority_class = $order['priority'] == 'high' ? 'priority-high' : 'priority-normal';
 
+                // 발주사항 파싱
+                $first_product_name = '-';
+                $item_count = 0;
+                $total_amount = 0;
+                
+                if (!empty($order['order_items'])) {
+                    try {
+                        $items = json_decode($order['order_items'], true);
+                        if (is_array($items) && count($items) > 0) {
+                            $first_product_name = $items[0]['product_name'] ?? '-';
+                            $item_count = count($items);
+                            
+                            foreach ($items as $item) {
+                                $total_amount += intval($item['amount'] ?? 0);
+                            }
+                        }
+                    } catch (Exception $e) {
+                        $first_product_name = '(오류)';
+                    }
+                }
+
                 echo '<tr class="' . $priority_class . '">';
                 echo '<td><strong>' . htmlspecialchars($order['order_number']) . '</strong></td>';
                 echo '<td>' . date('Y-m-d', strtotime($order['order_date'])) . '</td>';
                 echo '<td>' . ($order['delivery_date'] ? date('Y-m-d', strtotime($order['delivery_date'])) : '-') . '</td>';
+                echo '<td>' . ($order['billing_date'] ? date('Y-m-d', strtotime($order['billing_date'])) : '-') . '</td>';
+                echo '<td>' . ($order['payment_date'] ? date('Y-m-d', strtotime($order['payment_date'])) : '-') . '</td>';
                 echo '<td>' . htmlspecialchars($order['customer_name']) . '</td>';
-                echo '<td>' . htmlspecialchars($order['product_name']) . '</td>';
-                echo '<td>' . htmlspecialchars($order['product_type']) . '</td>';
-                echo '<td style="text-align:right;">' . number_format($order['quantity']) . ' ' . htmlspecialchars($order['unit']) . '</td>';
-                echo '<td style="text-align:right;">' . number_format($order['unit_price']) . '원</td>';
-                echo '<td style="text-align:right;"><strong>' . number_format($order['total_price']) . '원</strong></td>';
-                echo '<td><span class="status-badge ' . $status_class . '">' . $status_text . '</span></td>';
-                echo '<td>' . htmlspecialchars($order['creator_name']) . '</td>';
-                echo '<td>';
-                echo '<button class="btn-sm btn-view" onclick="location.href=\'order_view.php?id=' . $order['id'] . '\'">보기</button>';
-                echo '<button class="btn-sm btn-edit" onclick="location.href=\'order_form.php?id=' . $order['id'] . '\'">수정</button>';
-                echo '<button class="btn-sm btn-delete" onclick="deleteOrder(' . $order['id'] . ')">삭제</button>';
+                echo '<td>' . htmlspecialchars($first_product_name) . ($item_count > 1 ? ' 외 ' . ($item_count - 1) . '건' : '') . '</td>';
+                echo '<td style="text-align:center;">' . $item_count . '개</td>';
+                echo '<td style="text-align:right;"><strong>' . number_format($total_amount) . '원</strong></td>';
+                echo '<td style="text-align:center;"><span class="status-badge ' . $status_class . '">' . $status_text . '</span></td>';
+                echo '<td style="white-space: nowrap; text-align: center;">';
+                echo '<button class="btn-sm btn-view" onclick="location.href=\'order_view.php?id=' . $order['id'] . '\'" title="보기"><i class="fas fa-eye"></i></button>';
+                echo '<button class="btn-sm btn-edit" onclick="location.href=\'order_form.php?id=' . $order['id'] . '\'" title="수정"><i class="fas fa-edit"></i></button>';
+                echo '<button class="btn-sm btn-delete" onclick="deleteOrder(' . $order['id'] . ')" title="삭제" style="margin-right: 0;"><i class="fas fa-trash"></i></button>';
                 echo '</td>';
                 echo '</tr>';
             }

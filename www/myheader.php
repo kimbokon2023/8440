@@ -4,6 +4,7 @@
 	<input type="hidden" id="eworksPage" name="eworksPage" value="<?= isset($eworksPage) ? $eworksPage : '' ?>" > 
 	<input type="hidden" id="e_viewexcept_id" name="e_viewexcept_id" value="<?= isset($e_viewexcept_id) ? $e_viewexcept_id : '' ?>" >   <!-- 전자결재 보기 제한 -->    
 	<input type="hidden" id="e_num" name="e_num" value="<?= isset($e_num) ? $e_num : '' ?>" > 
+	<input type="hidden" id="num" name="num" value="<?= isset($num) ? $num : '' ?>" > 
 	<input type="hidden" id="ripple_num" name="ripple_num" value="<?= isset($ripple_num) ? $ripple_num : '' ?>" > 
 	<input type="hidden" id="SelectWork" name="SelectWork" value="<?= isset($SelectWork) ? $SelectWork : '' ?>" > 
 	<input type="hidden" id="eworksel" name="eworksel" value="<?= isset($eworksel) ? $eworksel : '' ?>" >    <!-- 전자결재 진행상태  draft send -->    
@@ -12,7 +13,21 @@
 	<input type="hidden" id="status" name="status" value="<?= isset($status) ? $status : '' ?>" >   
 	<input type="hidden" id="done" name="done" value="<?= isset($done) ? $done : '' ?>" >    <!-- 전자결재 진행상태  done -->        
 	<input type="hidden" id="author_id" name="author_id" value="<?= isset($author_id) ? $author_id : '' ?>" > 
+	<input type="hidden" id="author" name="author" value="<?= isset($author) ? $author : '' ?>" > 
 	<input type="hidden" id="ework_approval" name="ework_approval" value="<?= isset($ework_approval) ? $ework_approval : 0 ?>" > 
+	
+	<!-- 전자결재 단일 필드 -->
+	<input type="hidden" id="eworks_item" name="eworks_item" value="<?= isset($eworks_item) ? $eworks_item : '' ?>">
+	<input type="hidden" id="e_title" name="e_title" value="<?= isset($e_title) ? $e_title : '' ?>">
+	<input type="hidden" id="e_line" name="e_line" value="<?= isset($e_line) ? $e_line : '' ?>">
+	<input type="hidden" id="e_line_id" name="e_line_id" value="<?= isset($e_line_id) ? $e_line_id : '' ?>">
+	<input type="hidden" id="e_confirm" name="e_confirm" value="<?= isset($e_confirm) ? $e_confirm : '' ?>">
+	<input type="hidden" id="e_confirm_id" name="e_confirm_id" value="<?= isset($e_confirm_id) ? $e_confirm_id : '' ?>">
+	<input type="hidden" id="r_line" name="r_line" value="<?= isset($r_line) ? $r_line : '' ?>">
+	<input type="hidden" id="r_line_id" name="r_line_id" value="<?= isset($r_line_id) ? $r_line_id : '' ?>">
+	<input type="hidden" id="contents" name="contents" value="<?= isset($contents) ? htmlspecialchars($contents, ENT_QUOTES, 'UTF-8') : '' ?>">
+	<input type="hidden" id="registdate" name="registdate" value="<?= isset($registdate) ? $registdate : '' ?>">
+	<input type="hidden" id="recordtime" name="recordtime" value="<?= isset($recordtime) ? $recordtime : '' ?>">
 
 	<!-- 전자결재 관련 배열 -->	
 	<input type="hidden" id="numid_arr" name="numid_arr[]">
@@ -25,10 +40,19 @@
 	<input type="hidden" id="e_line_arr" name="e_line_arr[]">
 	<input type="hidden" id="r_line_arr" name="r_line_arr[]">
 	<input type="hidden" id="r_line_id_arr" name="r_line_id_arr[]">
-	<input type="hidden" id="e_confirm" name="e_confirm">
 	<input type="hidden" id="e_confirm_arr" name="e_confirm_arr[]">
-	<input type="hidden" id="e_confirm_id" name="e_confirm_id">
 	<input type="hidden" id="e_confirm_id_arr" name="e_confirm_id_arr[]">	  
+	
+<!-- 전자결재 로딩 인디케이터 -->
+<div id="loadingIndicator" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 9999; justify-content: center; align-items: center;">
+    <div style="background: white; border-radius: 15px; padding: 40px; text-align: center; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem; border-width: 0.3em;">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <h5 class="mt-3 mb-2" style="color: #113366;">자료를 조회중입니다...</h5>
+        <p class="text-muted mb-0">잠시만 기다려주세요</p>
+    </div>
+</div>
 	
  <?php if($chkMobile==false) { ?>
 	<div class="container">     
@@ -176,7 +200,7 @@
             <div class="nav-item dropdown ">			 			 
                 <!-- 드롭다운 메뉴-->
                 <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
-                    JAMB(쟘)
+                    JAMB
                 </a>
 				<div class="dropdown-menu">
 					<a class="dropdown-item" href="<?=$root_dir?>/work/list.php">
@@ -185,9 +209,7 @@
 					<a class="dropdown-item" href="<?=$root_dir?>/work/month_schedule.php">
 						<i class="bi bi-calendar-week"></i> 월간 생산일정
 					</a>
-					<a class="dropdown-item" href="<?=$root_dir?>/work/work_statistics.php">
-						<i class="bi bi-bar-chart-line-fill"></i> 제조 통계
-					</a>
+					<hr style="margin:7px!important; border-color:#007bff;">
 					<a class="dropdown-item" href="<?=$root_dir?>/work_voc/list.php">
 						<i class="bi bi-ear"></i> 시공소장 VOC
 					</a>
@@ -197,11 +219,15 @@
 					<a class="dropdown-item" href="<?=$root_dir?>/work/list_hpi.php">
 						<i class="bi bi-megaphone"></i> 업체별 HPI정보
 					</a>
+					<a class="dropdown-item" href="<?=$root_dir?>/work/workfee.php">
+						<i class="bi bi-calculator"></i> 시공비 결산
+					</a>
+					<hr style="margin:7px!important; border-color:#007bff;">					
 					<a class="dropdown-item" href="<?=$root_dir?>/work/statistics.php">
 						<i class="bi bi-person-workspace"></i> 시공비 통계
 					</a>
-					<a class="dropdown-item" href="<?=$root_dir?>/work/workfee.php">
-						<i class="bi bi-calculator"></i> 시공비 결산
+					<a class="dropdown-item" href="<?=$root_dir?>/work/work_statistics.php">
+						<i class="bi bi-bar-chart-line-fill"></i> 제조 통계
 					</a>
 					<a class="dropdown-item" href="<?=$root_dir?>/graph/monthly_jamb.php?header=header">
 						<i class="bi bi-bar-chart-line-fill"></i> 수주통계
@@ -209,6 +235,7 @@
 					<a class="dropdown-item" href="<?=$root_dir?>/work/output_statis.php">
 						<i class="bi bi-graph-up-arrow"></i> 매출통계
 					</a>
+					<hr style="margin:7px!important; border-color:#007bff;">
 					<a class="dropdown-item" href="<?=$root_dir?>/work/front_log.php">
 						<i class="bi bi-infinity"></i> Front Log
 					</a>
@@ -227,11 +254,13 @@
 					<a class="dropdown-item" href="<?=$root_dir?>/ceiling/month_schedule.php">
 						<i class="bi bi-calendar-week"></i> 월간 생산일정
 					</a>
-					<a class="dropdown-item" href="<?=$root_dir?>/ceiling/work_statistics.php">
-						<i class="bi bi-bar-chart-line-fill"></i> 제조 통계
-					</a>
+					<hr style="margin:7px!important; border-color:#007bff;">					
 					<a class="dropdown-item" href="<?=$root_dir?>/sillcover/list.php">
 						<i class="bi bi-bookshelf"></i> [재료분리대 출고]
+					</a>
+					<hr style="margin:7px!important; border-color:#007bff;">
+					<a class="dropdown-item" href="<?=$root_dir?>/ceiling/work_statistics.php">
+						<i class="bi bi-bar-chart-line-fill"></i> 제조 통계
 					</a>
 					<a class="dropdown-item" href="<?=$root_dir?>/graph/monthly_ceiling.php?header=header">
 						<i class="bi bi-bar-chart-line-fill"></i> 수주통계
@@ -239,6 +268,7 @@
 					<a class="dropdown-item" href="<?=$root_dir?>/ceiling/output_statis.php">
 						<i class="bi bi-graph-up-arrow"></i> 매출통계
 					</a>
+					<hr style="margin:7px!important; border-color:#007bff;">
 					<a class="dropdown-item" href="<?=$root_dir?>/ceiling/front_log.php">
 						<i class="bi bi-infinity"></i> Front Log
 					</a>
@@ -257,10 +287,12 @@
 					</a>    										
 					<a class="dropdown-item" href="<?=$root_dir?>/corp/index.php">
 						<i class="bi bi-building"></i> 거래처 관리
-					</a>    										
+					</a>    			
+					<hr style="margin:7px!important; border-color:#007bff;">							
 					<a class="dropdown-item" href="<?=$root_dir?>/askitem/list.php">
 						<i class="bi bi-basket3"></i> 품의서
-					</a>    										
+					</a>    		
+					<hr style="margin:7px!important; border-color:#007bff;">								
 					<a class="dropdown-item" href="<?=$root_dir?>/request/list.php">
 						<i class="bi bi-cart-check"></i> 원자재 구매/입출고
 					</a>    										
@@ -270,12 +302,14 @@
 					<a class="dropdown-item" href="<?=$root_dir?>/steel/rawmaterial.php">
 						<i class="bi bi-box-seam"></i> 원자재 재고현황
 					</a>
+					<hr style="margin:7px!important; border-color:#007bff;">
 					<a class="dropdown-item" href="<?=$root_dir?>/request_etc/list.php">
 						<i class="bi bi-cart-check"></i> 부자재 구매/입출고
 					</a>                                                
 					<a class="dropdown-item" href="<?=$root_dir?>/ceiling/list_part_table.php">
 						<i class="bi bi-archive"></i> 부자재 재고현황
 					</a>	
+					<hr style="margin:7px!important; border-color:#007bff;">
 					<a class="dropdown-item" href="<?=$root_dir?>/outorder/list.php">
 						<i class="bi bi-diagram-3"></i> 외주(덴크리,서한,다온텍)
 					</a>									
@@ -285,9 +319,11 @@
 					<a class="dropdown-item" href="<?=$root_dir?>/delivery/list.php">
 						<i class="bi bi-truck"></i> 화물/택배 배송
 					</a>	
+					<hr style="margin:7px!important; border-color:#007bff;">
 					<a class="dropdown-item" href="<?=$root_dir?>/afterorder/index.php">
 						<i class="bi bi-cup-straw"></i> 중식석식 주문
-					</a>									
+					</a>			
+					<hr style="margin:7px!important; border-color:#007bff;">						
 					<a class="dropdown-item" href="<?=$root_dir?>/oem/list.php">
 						<i class="bi bi-exclamation-triangle-fill"></i> 구 서한(NP)-이전메뉴
 					</a>						
@@ -310,7 +346,8 @@
 					</a>					
 					<a class="dropdown-item" href="<?=$root_dir?>/idea/index.php">
 						<i class="bi bi-person-plus-fill"></i> 직원 제안제도 운영
-					</a>					
+					</a>				
+					<hr style="margin:7px!important; border-color:#007bff;">
 					<a class="dropdown-item" href="<?=$root_dir?>/errors/index.php">
 						<i class="bi bi-file-earmark-text-fill"></i> 부적합 보고
 					</a>					
@@ -319,7 +356,8 @@
 					</a>					
 					<a class="dropdown-item" href="<?=$root_dir?>/errormeeting/index.php">
 						<i class="bi bi-person-gear"></i> 부적합개선(품질분임조)
-					</a>					
+					</a>				
+					<hr style="margin:15px!important; border-color:#007bff;">						
 					<a class="dropdown-item" href="<?=$root_dir?>/p_workstandard/list.php">
 						<i class="bi bi-diagram-3-fill"></i> 작업표준서
 					</a>                    
@@ -329,12 +367,14 @@
 					<a class="dropdown-item" href="<?=$root_dir?>/p_inspection/list.php">
 						<i class="bi bi-upc-scan"></i> 출하 검사서
 					</a>   
+					<hr style="margin:15px!important; border-color:#007bff;">						
 					<a class="dropdown-item" href="<?=$root_dir?>/qc/menu.php">
 						<i class="bi bi-clipboard2-check-fill"></i> 장비 점검
 					</a>                    
 					<a class="dropdown-item" href="<?=$root_dir?>/qcoffice/menu.php">
 						<i class="bi bi-building-gear"></i> 사무실 정비
-					</a>                    
+					</a>       
+					<hr style="margin:15px!important; border-color:#007bff;">						             
 					<a class="dropdown-item" href="<?=$root_dir?>/p_evaluation/list.php">
 						<i class="bi bi-people-fill"></i> 협력업체 평가표
 					</a> 
@@ -354,7 +394,8 @@
 				</a>					
 				<a class="dropdown-item" href="<?=$root_dir?>/RiskAssessment/list.php">
 					<i class="bi bi-list-task"></i> 위험성 평가 자료실
-				</a>				
+				</a>		
+				<hr style="margin:7px!important; border-color:#007bff;">
 				<a class="dropdown-item" href="<?=$root_dir?>/safetycard/menu.php">
 					<i class="bi bi-exclamation-triangle-fill"></i> 안전 카드뉴스
 				</a>					
@@ -370,7 +411,7 @@
             <div class="nav-item dropdown flex-fill">			 
                 <!-- 드롭다운 메뉴-->
                 <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
-                    연구소
+                    연구소/개발
                 </a> 
 				<div class="dropdown-menu">				
 					<a class="dropdown-item" href="<?=$root_dir?>/ask_rndplan/list.php">
@@ -382,6 +423,7 @@
 					<a class="dropdown-item" href="<?=$root_dir?>/ask_rndreport/list.php">
 						<i class="bi bi-journal-medical"></i> 연구개발보고서
 					</a>
+					<hr style="margin:7px!important; border-color:#007bff;">
 					<a class="dropdown-item" href="<?=$root_dir?>/RnDfund/list.php">
 						<i class="bi bi-credit-card"></i> 연구전담부서 운영비
 					</a>
@@ -400,6 +442,7 @@
 					<a class="dropdown-item" href="<?=$root_dir?>/RnD/list.php">
 						<i class="bi bi-easel"></i> 연구소 게시판
 					</a>
+					<hr style="margin:7px!important; border-color:#007bff;">					
 					<a class="dropdown-item" href="<?=$root_dir?>/RnDnotice/list.php">
 						<i class="bi bi-megaphone-fill"></i> 개발 공지&자료
 					</a>
@@ -412,10 +455,20 @@
 					<a class="dropdown-item" href="<?=$root_dir?>/channel/list.php">
 						<i class="bi bi-robot"></i> 연구 유튜브 채널분석
 					</a>
-					<hr style="margin:7px!important;">
+					<hr style="margin:7px!important; border-color:#007bff;">
 					<a class="dropdown-item" href="<?=$root_dir?>/ad/index.php">
 						<i class="bi bi-robot"></i> 미래기업 IT 사업 메뉴얼
 					</a>
+					<hr style="margin:7px!important; border-color:#007bff;">
+						<a class="dropdown-item" href="https://8440.co.kr/school" target="_blank">
+					<i class="bi bi-laptop"></i> 코딩강의
+					</a>
+					<a class="dropdown-item" href="https://8440.co.kr/quiz" target="_blank">
+					<i class="bi bi-question-circle"></i> 코딩퀴즈
+					</a>
+					<a class="dropdown-item" href="https://www.youtube.com/watch?v=GjawjeSDRM0&list=PLS4D8xUyesvcgvy6d9vFjJpRiUFZblaai" target="_blank">
+					<i class="bi bi-youtube"></i> 코딩팟캐스트
+					</a>					
 				</div>
 
 
@@ -423,7 +476,36 @@
             <div class="nav-item dropdown flex-fill">			 
                 <!-- 드롭다운 메뉴-->
                 <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
-                    게시&코딩
+                    근태관리
+                </a>
+			<div class="dropdown-menu">
+				<a class="dropdown-item" href="<?=$root_dir?>/annualleave/index.php">
+					<i class="bi bi-person-bounding-box"></i> 연차
+				</a>
+				<hr style="margin:7px!important; border-color:#007bff;">
+				<a class="dropdown-item" href="<?=$root_dir?>/request_overtime/index.php">
+					<i class="bi bi-clock-history"></i> 연장근무(잔업/특근) 사전승인 신청
+				</a>
+				<hr style="margin:7px!important; border-color:#007bff;">
+				<a class="dropdown-item" href="<?=$root_dir?>/absent_office/index.php">
+					<i class="bi bi-people-fill"></i> 사무실
+				</a>
+				<a class="dropdown-item" href="<?=$root_dir?>/absent/index.php">
+					<i class="bi bi-building-gear"></i> 공장
+				</a>
+				<a class="dropdown-item" href="<?=$root_dir?>/daylaborer/index.php">
+					<i class="bi bi-person-workspace"></i> 일용직
+				</a>    				
+				<hr style="margin:7px!important; border-color:#007bff;">
+				<a class="dropdown-item" href="<?=$root_dir?>/holiday/list.php?header=header">
+					<i class="bi bi-calendar-event-fill"></i> 달력 휴일설정
+				</a>
+			</div>
+			</div>
+            <div class="nav-item dropdown flex-fill">			 
+                <!-- 드롭다운 메뉴-->
+                <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
+                    게시
                 </a>
 			<div class="dropdown-menu">
 				<a class="dropdown-item" href="<?=$root_dir?>/notice/list.php">
@@ -432,6 +514,7 @@
 				<a class="dropdown-item" href="<?=$root_dir?>/qna/list.php">
 					<i class="bi bi-folder-symlink"></i> 자료실
 				</a>                    			
+				<hr style="margin:7px!important; border-color:#007bff;">
 				<a class="dropdown-item" href="<?=$root_dir?>/popupwindow/list.php">
 					<i class="bi bi-window-stack"></i> 팝업창
 				</a>                    			
@@ -440,17 +523,7 @@
 				</a>                    			
 				<a class="dropdown-item" href="<?=$root_dir?>/vote/list.php">
 					<i class="bi bi-check2-square"></i> 투표
-				</a>     
-				<a class="dropdown-item" href="https://8440.co.kr/school" target="_blank">
-				  <i class="bi bi-laptop"></i> 코딩강의
-				</a>
-				<a class="dropdown-item" href="https://8440.co.kr/quiz" target="_blank">
-				  <i class="bi bi-question-circle"></i> 코딩퀴즈
-				</a>
-				<a class="dropdown-item" href="https://www.youtube.com/watch?v=GjawjeSDRM0&list=PLS4D8xUyesvcgvy6d9vFjJpRiUFZblaai" target="_blank">
-				  <i class="bi bi-youtube"></i> 코딩팟캐스트
-				</a>
-				
+				</a>     				
 			</div>
 
             </div>                      
@@ -460,23 +533,8 @@
                     공유
                 </a>
 				<div class="dropdown-menu">
-					<a class="dropdown-item" href="<?=$root_dir?>/holiday/list.php?header=header">
-						<i class="bi bi-calendar-event-fill"></i> 일정표 휴일설정
-					</a>
 					<a class="dropdown-item" href="<?=$root_dir?>/youtube.php">
 						<i class="bi bi-youtube"></i> 미래기업
-					</a>
-					<a class="dropdown-item" href="<?=$root_dir?>/annualleave/index.php">
-						<i class="bi bi-person-bounding-box"></i> 연차 휴가
-					</a>
-					<a class="dropdown-item" href="<?=$root_dir?>/absent_office/index.php">
-						<i class="bi bi-people-fill"></i> 사무실 근태관리
-					</a>
-					<a class="dropdown-item" href="<?=$root_dir?>/absent/index.php">
-						<i class="bi bi-building-gear"></i> 공장 근태관리
-					</a>
-					<a class="dropdown-item" href="<?=$root_dir?>/daylaborer/index.php">
-						<i class="bi bi-person-workspace"></i> 일용직 근태관리
 					</a>
 					<a class="dropdown-item" href="<?=$root_dir?>/fund/list.php">
 						<i class="bi bi-piggy-bank-fill"></i> 공동자금
@@ -484,12 +542,14 @@
 					<a class="dropdown-item" href="<?=$root_dir?>/roadview.php">
 						<i class="bi bi-geo-alt-fill"></i> 직원연락처
 					</a>
+					<hr style="margin:7px!important; border-color:#007bff;">
 					<a class="dropdown-item" href="<?=$root_dir?>/shop/index.php">
 						<i class="bi bi-puzzle-fill"></i> 금속 작품쇼핑몰
 					</a>
 					<a class="dropdown-item" href="<?=$root_dir?>/jamb/jamb.php">
 						<i class="bi bi-boxes"></i> 잠설계모델링
 					</a>
+					<hr style="margin:7px!important; border-color:#007bff;">
 					<a class="dropdown-item" href="<?=$root_dir?>/roulette/index.php">
 						<i class="bi bi-record-circle"></i> 룰렛(roulette)
 					</a>
@@ -531,9 +591,7 @@
 					<a class="dropdown-item" href="<?=$root_dir?>/phomi/unit_price.php">
 						<i class="bi bi-currency-dollar"></i> 단가표
 					</a>									
-					<!-- <a class="dropdown-item" href="<?=$root_dir?>/phomi/intro_code.php">
-						<i class="bi bi-table"></i> 코드별 질감/제품명/사이즈
-					</a>					 -->
+					<hr style="margin:7px!important; border-color:#007bff;">
 					<a class="dropdown-item" href="https://phomi.co.kr/default/index.php" target="_blank">
 						<i class="bi bi-globe"></i> 포미스톤 웹사이트
 					</a>					
@@ -549,12 +607,14 @@
 						</a>                    
 						<a class="dropdown-item" href="<?=$root_dir?>/member/updateForm.php?id=<?=$_SESSION["userid"]?>">
 							<i class="bi bi-person-gear"></i> 정보수정
-						</a>                    
+						</a>           
+						<hr style="margin:7px!important; border-color:#007bff;">         
 						<?php if ($_SESSION["name"] == '김보곤' || $_SESSION["name"] == '소현철') { ?>
 							<a class="dropdown-item" href="<?=$root_dir?>/member/list.php">
 								<i class="bi bi-person-lines-fill"></i> 회원관리
 							</a> 
-						<?php } ?>   			
+						<?php } ?>   		
+						<hr style="margin:7px!important; border-color:#007bff;">	
 						<?php if ($_SESSION["name"] == '김보곤' || $_SESSION["name"] == '소현철') { ?>													
 						<a class="dropdown-item" href="<?=$root_dir?>/logdata_python.php">
 							<i class="bi bi-terminal-fill"></i> 파이썬 자동설계 기록
@@ -594,24 +654,27 @@
 					</a>         
 					<a class="dropdown-item" href="<?=$root_dir?>/ask_rndnote/list.php">
 						<i class="bi bi-journal-medical"></i> 연구노트
-					</a>						
+					</a>				
+					<hr style="margin:7px!important; border-color:#007bff;">		
 					<a class="dropdown-item " href="<?=$root_dir?>/askitem/list.php"> 
 						<i class="bi bi-basket3"></i> 품의서
 					</a>         
 					<a class="dropdown-item" href="<?=$root_dir?>/annualleave/index.php">
-						<i class="bi bi-person-bounding-box"></i> 연차 휴가
+						<i class="bi bi-person-bounding-box"></i> 연차
 					</a>
 					<a class="dropdown-item" href="<?=$root_dir?>/absent_office/index.php"> 
-						<i class="bi bi-people-fill"></i> 사무실 근태관리
+						<i class="bi bi-people-fill"></i> 사무실 근태
 					</a>
 					<?php if($user_name  == '소현철' || $user_name == '김보곤' || $user_name == '최장중' || $user_name == '이경묵' || $user_name == '소민지') : ?>
 					<a class="dropdown-item" href="<?=$root_dir?>/absent/index.php">
-						<i class="bi bi-building-gear"></i> 공장 근태관리
+						<i class="bi bi-building-gear"></i> 공장 근태
 					</a>
 					<?php endif; ?>
+					<hr style="margin:7px!important; border-color:#007bff;">
 					<a class="dropdown-item" href="<?=$root_dir?>/idea/index.php">
 						<i class="bi bi-person-plus-fill"></i> 직원 제안제도 운영
 					</a>		
+					<hr style="margin:7px!important; border-color:#007bff;">
 					<a class="dropdown-item" href="<?=$root_dir?>/errors/index.php">
 						<i class="bi bi-file-earmark-text-fill"></i> 부적합 보고
 					</a>								

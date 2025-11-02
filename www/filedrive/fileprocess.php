@@ -181,13 +181,39 @@ function getOrCreateFolderByPath($service, $path) {
  * @return bool 성공 여부
  */
 function setFilePublic($service, $fileId) {
-    /** @var Google_Service_Drive_Permission $permission */
-    $permission = new Google_Service_Drive_Permission();
-    $permission->setRole('reader');
-    $permission->setType('anyone');
-
     try {
+        // 1. 링크가 있는 사람은 누구나 볼 수 있도록 설정
+        /** @var Google_Service_Drive_Permission $permission */
+        $permission = new Google_Service_Drive_Permission();
+        $permission->setRole('reader');
+        $permission->setType('anyone');
         $service->permissions->create($fileId, $permission);
+        
+        // 2. 특정 이메일 계정에 편집 권한 부여 (선택사항)
+        // 환경변수나 설정 파일에서 공유할 이메일 주소를 가져옴
+        $sharedEmails = [
+            // 'your-email@gmail.com',  // 여기에 공유받을 이메일 추가
+            // 'another-email@gmail.com'
+        ];
+        
+        foreach ($sharedEmails as $email) {
+            if (!empty($email)) {
+                $userPermission = new Google_Service_Drive_Permission();
+                $userPermission->setRole('writer');  // 또는 'reader'
+                $userPermission->setType('user');
+                $userPermission->setEmailAddress($email);
+                
+                try {
+                    $service->permissions->create($fileId, $userPermission, [
+                        'sendNotificationEmail' => false  // 알림 이메일 보내지 않음
+                    ]);
+                    error_log("파일 공유 성공: {$email}");
+                } catch (Exception $e) {
+                    error_log("파일 공유 실패 ({$email}): " . $e->getMessage());
+                }
+            }
+        }
+        
         return true;
     } catch (Exception $ex) {
         error_log("권한 설정 실패: " . $ex->getMessage());
@@ -207,9 +233,12 @@ $DBtable = $_REQUEST['DBtable'] ?? 'picuploads';
 $upfilename = $_REQUEST['upfilename'] ?? 'upfile';
 $num = $_REQUEST["num"] ?? '';
 $timekey = $_REQUEST["timekey"] ?? '';
+$parentnumFromRequest = $_REQUEST["parentnum"] ?? '';
 
-// parentnum 설정: num이 있으면 num, 없으면 timekey
-$parentnum = !empty($num) ? $num : $timekey;
+// parentnum 설정: 직접 전달된 parentnum이 있으면 우선 사용, 없으면 num 또는 timekey
+$parentnum = !empty($parentnumFromRequest) ? $parentnumFromRequest : (!empty($num) ? $num : $timekey);
+
+error_log("parentnum 설정: parentnumFromRequest={$parentnumFromRequest}, num={$num}, timekey={$timekey}, 최종 parentnum={$parentnum}");
 
 // 변수 초기화
 $uploadsFolderId = null;

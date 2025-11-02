@@ -383,21 +383,38 @@ $tablename = 'popupwindow';
     </div>
 </div>
 
-<form id="board_form" name="board_form" method="post" enctype="multipart/form-data" >	  
-	<input type="hidden" id="searchOpt" name="searchOpt" value="<?=$searchOpt?>" > 
-	<input type="hidden" id="partOpt" name="partOpt" value="<?=$partOpt?>" >  
-	<input type="hidden" id="page" name="page" value="<?=$page?>" > 	
-	<input type="hidden" id="mode" name="mode" value="<?=$mode?>" > 
-	<input type="hidden" id="partsep" name="partsep" value="<?=$partsep?>" > 
-	<input type="hidden" id="num" name="num" value="<?=$num?>" > 
-	
+<!-- 전자결재용 폼 -->
+<form id="eworks_board_form" name="eworks_board_form" method="post">
+	<input type="hidden" id="eworks_user_id" name="user_id" value="<?=$user_id?>" >
+	<input type="hidden" id="eworks_user_name" name="user_name" value="<?=$user_name?>" >
+</form>
+
+<!-- 전자결재 로딩 인디케이터 -->
+<div id="loadingIndicator" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 9999; justify-content: center; align-items: center;">
+    <div style="background: white; border-radius: 15px; padding: 40px; text-align: center; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem; border-width: 0.3em;">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <h5 class="mt-3 mb-2" style="color: #113366;">자료를 조회중입니다...</h5>
+        <p class="text-muted mb-0">잠시만 기다려주세요</p>
+    </div>
+</div>
+
+<form id="board_form" name="board_form" method="post" enctype="multipart/form-data" >
+	<input type="hidden" id="searchOpt" name="searchOpt" value="<?=$searchOpt?>" >
+	<input type="hidden" id="partOpt" name="partOpt" value="<?=$partOpt?>" >
+	<input type="hidden" id="page" name="page" value="<?=$page?>" >
+	<input type="hidden" id="mode" name="mode" value="<?=$mode?>" >
+	<input type="hidden" id="partsep" name="partsep" value="<?=$partsep?>" >
+	<input type="hidden" id="num" name="num" value="<?=$num?>" >
+
 	<input type="hidden" id="SelectWork" name="SelectWork" value="<?=$SelectWork?>" >
-	<input type="hidden" id="choice" name="choice" value="<?=$choice?>" >    <!-- 전자결재 진행상태  draft send -->	
-	<input type="hidden" id="user_name" name="user_name" value="<?=$user_name?>" >   
-	<input type="hidden" id="approval_right" name="approval_right" value="<?=$approval_right?>" > 
-	<input type="hidden" id="status" name="status" value="<?=$status?>" >   
-	<input type="hidden" id="done" name="done" value="<?=$done?>" >    <!-- 전자결재 진행상태  done -->	
-	<input type="hidden" id="user_id" name="user_id" value="<?=$user_id?>" >    <!-- 전자결재 진행상태  done -->	
+	<input type="hidden" id="choice" name="choice" value="<?=$choice?>" >    <!-- 전자결재 진행상태  draft send -->
+	<input type="hidden" id="user_name" name="user_name" value="<?=$user_name?>" >
+	<input type="hidden" id="approval_right" name="approval_right" value="<?=$approval_right?>" >
+	<input type="hidden" id="status" name="status" value="<?=$status?>" >
+	<input type="hidden" id="done" name="done" value="<?=$done?>" >    <!-- 전자결재 진행상태  done -->
+	<input type="hidden" id="user_id" name="user_id" value="<?=$user_id?>" >    <!-- 전자결재 진행상태  done -->
 	
  <?php if($chkMobile==false) { ?>
 	<div class="container">     

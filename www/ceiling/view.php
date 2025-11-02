@@ -64,8 +64,12 @@ $upnum = '';
 $sort = '';
 $m2 = '';
 
-// Initialize admin variable
-$admin = $_SESSION["admin"] ?? '';
+// $level이 1이면 관리자임
+if ($level == 1) {
+    $admin = 1;
+} else {
+    $admin = 0;
+}
 
 // Database connection
 $pdo = db_connect();
@@ -1587,7 +1591,7 @@ function del(href) {
     var first_writer = <?php echo json_encode($first_writer); ?>;
     var admin = <?php echo json_encode($admin); ?>;
 
-if (first_writer.includes(user_name) && admin !== '1') 
+if (first_writer.includes(user_name) && admin !== 1) 
    {	
         Swal.fire({
             title: '삭제불가',

@@ -524,12 +524,69 @@ function deleteFileFromGoogleDrive($fileId, $options = []) {
 }
 
 /**
+ * parentnum 업데이트 (임시번호 → 실제 ID)
+ * 
+ * @param array $options 설정 옵션
+ * @return array 결과
+ */
+function updateParentNumInDB($options = []) {
+    $defaultOptions = [
+        'tablename' => '',
+        'item' => 'attached',
+        'old_parentnum' => '',
+        'new_parentnum' => '',
+        'DBtable' => 'picuploads'
+    ];
+    
+    $options = array_merge($defaultOptions, $options);
+    
+    try {
+        $pdo = db_connect();
+        $DB = $_SESSION['DB'] ?? 'mirae8440';
+        
+        // parentnum 업데이트
+        $sql = "UPDATE {$DB}.{$options['DBtable']} 
+                SET parentnum = ? 
+                WHERE tablename = ? 
+                AND item = ? 
+                AND parentnum = ?";
+        
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([
+            $options['new_parentnum'],
+            $options['tablename'],
+            $options['item'],
+            $options['old_parentnum']
+        ]);
+        
+        $affected = $stmt->rowCount();
+        
+        error_log("parentnum 업데이트 완료: {$options['old_parentnum']} → {$options['new_parentnum']}, 영향받은 행: {$affected}");
+        
+        return [
+            'status' => 'success',
+            'message' => "{$affected}개 파일의 parentnum이 업데이트되었습니다.",
+            'updated_count' => $affected
+        ];
+    } catch (Exception $e) {
+        error_log("updateParentNumInDB 오류: " . $e->getMessage());
+        return ['status' => 'error', 'message' => $e->getMessage()];
+    }
+}
+
+/**
  * 파일 ID 업데이트 헬퍼 함수
  * 
  * @param array $options 설정 옵션
  * @return array 결과
  */
 function updateFileIdsInGoogleDrive($options = []) {
+    // old_parentnum이 있으면 parentnum 업데이트
+    if (isset($options['old_parentnum']) && isset($options['new_parentnum'])) {
+        return updateParentNumInDB($options);
+    }
+    
+    // 그 외에는 기존 로직 (파일명 → 파일ID 업데이트)
     try {
         $fileManager = new GoogleDriveFileManager();
         return $fileManager->updateFileIds($options);

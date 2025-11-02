@@ -125,6 +125,53 @@ class GoogleDriveFileManager {
     }
     
     /**
+     * 업로드 중 모달 표시
+     */
+    showLoadingModal() {
+        // 모달이 이미 있으면 제거
+        const existingModal = document.getElementById('fileUploadLoadingModal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+        
+        // 모달 생성
+        const modal = document.createElement('div');
+        modal.id = 'fileUploadLoadingModal';
+        modal.innerHTML = `
+            <div class="file-upload-loading-overlay">
+                <div class="file-upload-loading-content">
+                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3 mb-0">업로드 중입니다...</p>
+                    <small class="text-muted">잠시만 기다려주세요</small>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // 키보드/마우스 이벤트 차단
+        document.body.style.overflow = 'hidden';
+        document.body.style.pointerEvents = 'none';
+        modal.style.pointerEvents = 'auto';
+    }
+    
+    /**
+     * 업로드 중 모달 숨김
+     */
+    hideLoadingModal() {
+        const modal = document.getElementById('fileUploadLoadingModal');
+        if (modal) {
+            modal.remove();
+        }
+        
+        // 이벤트 차단 해제
+        document.body.style.overflow = '';
+        document.body.style.pointerEvents = '';
+    }
+    
+    /**
      * 파일 업로드
      */
     uploadFiles(files) {
@@ -133,6 +180,9 @@ class GoogleDriveFileManager {
         // 파일 검증
         const validFiles = this.validateFiles(files);
         if (validFiles.length === 0) return;
+        
+        // 업로드 중 모달 표시
+        this.showLoadingModal();
         
         // FormData 생성
         const formData = new FormData();
@@ -164,7 +214,11 @@ class GoogleDriveFileManager {
             cache: false,
             timeout: 600000,
             success: (response) => this.handleUploadSuccess(response),
-            error: (xhr, status, error) => this.handleUploadError(xhr, status, error)
+            error: (xhr, status, error) => this.handleUploadError(xhr, status, error),
+            complete: () => {
+                // 완료 시 모달 숨김
+                this.hideLoadingModal();
+            }
         });
     }
     
@@ -200,20 +254,10 @@ class GoogleDriveFileManager {
     handleUploadSuccess(response) {
         this.hideProgress();
         
-        if (Array.isArray(response)) {
-            response.forEach(result => {
-                if (result.status === 'success') {
-                    this.showSuccess(`파일 "${result.file}" 업로드 완료`);
-                } else {
-                    this.showError(`파일 "${result.file}" 업로드 실패: ${result.message}`);
-                }
-            });
-        }
-        
         // 파일 목록 새로고침
         this.loadFiles();
         
-        // 콜백 실행
+        // 콜백 실행 (toast 메시지는 콜백에서 처리)
         if (this.options.onUploadSuccess) {
             this.options.onUploadSuccess(response);
         }
@@ -302,24 +346,106 @@ class GoogleDriveFileManager {
      */
     createFileElement(file, index) {
         const div = document.createElement('div');
-        div.className = 'row mt-1 mb-2';
+        div.className = 'file-item mb-2';
+        div.id = `file-item-${index}`;
+        
+        // 파일 아이콘 결정
+        const extension = file.realname.split('.').pop().toLowerCase();
+        let iconClass = 'fa-file';
+        let iconColor = '#6c757d';
+        
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(extension)) {
+            iconClass = 'fa-file-image';
+            iconColor = '#4caf50';
+        } else if (extension === 'pdf') {
+            iconClass = 'fa-file-pdf';
+            iconColor = '#f44336';
+        } else if (['doc', 'docx'].includes(extension)) {
+            iconClass = 'fa-file-word';
+            iconColor = '#2196f3';
+        } else if (['xls', 'xlsx'].includes(extension)) {
+            iconClass = 'fa-file-excel';
+            iconColor = '#4caf50';
+        }
+        
+        // 버튼 이벤트 핸들러용 인스턴스 참조 (글로벌)
+        const managerInstanceName = this.options.instanceName || 'fileManager';
+        
         div.innerHTML = `
-            <div class="d-flex align-items-center justify-content-center">
-                <span id="file${index}">
-                    <a href="#" onclick="popupCenter('${file.link}', 'filePopup', 800, 600); return false;">
-                        ${file.realname}
-                    </a>
-                </span>
-                ${this.options.showDeleteButton ? `
-                    <button type="button" class="btn btn-danger btn-sm ms-2" 
-                            onclick="fileManager.deleteFile('${index}', '${file.fileId}')">
-                        <i class="bi bi-trash"></i>
+            <div class="d-flex align-items-center justify-content-between p-2 border rounded">
+                <div class="d-flex align-items-center flex-grow-1">
+                    <i class="fas ${iconClass}" style="color: ${iconColor}; font-size: 24px; margin-right: 12px;"></i>
+                    <span class="file-name" style="flex-grow: 1;">${file.realname}</span>
+                </div>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-sm btn-outline-primary" 
+                            data-action="view" data-link="${file.link}"
+                            title="보기">
+                        <i class="fas fa-eye"></i> 보기
                     </button>
-                ` : ''}
+                    <button type="button" class="btn btn-sm btn-outline-success" 
+                            data-action="download" data-link="${file.downloadLink || file.link}" data-filename="${file.realname}"
+                            title="다운로드">
+                        <i class="fas fa-download"></i> 다운로드
+                    </button>
+                    ${this.options.showDeleteButton ? `
+                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                data-action="delete" data-index="${index}" data-fileid="${file.fileId}"
+                                title="삭제">
+                            <i class="fas fa-trash"></i> 삭제
+                        </button>
+                    ` : ''}
+                </div>
             </div>
         `;
         
+        // 이벤트 리스너 추가 (인라인 onclick 대신)
+        const buttons = div.querySelectorAll('button[data-action]');
+        buttons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const action = e.currentTarget.getAttribute('data-action');
+                
+                if (action === 'view') {
+                    const link = e.currentTarget.getAttribute('data-link');
+                    this.viewFile(link);
+                } else if (action === 'download') {
+                    const link = e.currentTarget.getAttribute('data-link');
+                    const filename = e.currentTarget.getAttribute('data-filename');
+                    this.downloadFile(link, filename);
+                } else if (action === 'delete') {
+                    const idx = e.currentTarget.getAttribute('data-index');
+                    const fileId = e.currentTarget.getAttribute('data-fileid');
+                    this.deleteFile(idx, fileId);
+                }
+            });
+        });
+        
         return div;
+    }
+    
+    /**
+     * 파일 보기 (팝업)
+     */
+    viewFile(link) {
+        if (typeof popupCenter === 'function') {
+            popupCenter(link, 'filePopup', 800, 600);
+        } else {
+            window.open(link, 'filePopup', 'width=800,height=600,scrollbars=yes,resizable=yes');
+        }
+    }
+    
+    /**
+     * 파일 다운로드
+     */
+    downloadFile(downloadLink, filename) {
+        // 링크를 새 탭에서 열어서 다운로드 시작
+        const a = document.createElement('a');
+        a.href = downloadLink;
+        a.download = filename;
+        a.target = '_blank';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
     }
     
     /**
@@ -352,12 +478,14 @@ class GoogleDriveFileManager {
      */
     handleDeleteSuccess(response, index) {
         if (response.status === 'success') {
-            this.showSuccess('파일이 성공적으로 삭제되었습니다.');
-            
             // UI에서 파일 제거
-            const fileElement = document.getElementById(`file${index}`);
-            const deleteButton = fileElement?.nextElementSibling;
-            if (fileElement) fileElement.parentElement.parentElement.remove();
+            const fileItem = document.getElementById(`file-item-${index}`);
+            if (fileItem) {
+                fileItem.remove();
+            }
+            
+            // 파일 목록 새로고침
+            this.loadFiles();
             
             // 콜백 실행
             if (this.options.onDeleteSuccess) {
@@ -420,9 +548,8 @@ class GoogleDriveFileManager {
                     background: "linear-gradient(to right, #00b09b, #96c93d)"
                 }
             }).showToast();
-        } else {
-            alert(message);
         }
+        // alert 제거됨
     }
     
     /**
@@ -447,9 +574,8 @@ class GoogleDriveFileManager {
                     background: "linear-gradient(to right, #ff6b6b, #ee5a24)"
                 }
             }).showToast();
-        } else {
-            alert(message);
         }
+        // alert 제거됨
     }
     
     /**

@@ -268,10 +268,11 @@
     background: var(--bg-secondary);
     border: 1px solid #667eea;
     border-radius: 8px;
-    padding: 10px;
+    padding: 12px;
     box-shadow: 0 4px 12px var(--shadow);
     z-index: 1000;
-    min-width: 250px;
+    min-width: 320px;
+    max-width: 450px;
     font-size: 12px;
     display: none;
     pointer-events: none;
@@ -336,9 +337,9 @@
 
 .calendar-detail-item {
     background: var(--bg-secondary);
-    padding: 12px;
+    padding: 15px;
     border-radius: 8px;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     border-left: 4px solid #667eea;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -352,18 +353,28 @@
 .calendar-detail-item .order-number {
     font-weight: 600;
     color: var(--text-primary);
-    margin-bottom: 5px;
+    margin-bottom: 8px;
+    font-size: 14px;
 }
 
 .calendar-detail-item .customer-name {
     color: var(--text-secondary);
     font-size: 13px;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
 }
 
 .calendar-detail-item .product-info {
     color: var(--text-secondary);
     font-size: 12px;
+    line-height: 1.6;
+}
+
+.calendar-detail-item .product-info ul {
+    list-style-type: none;
+}
+
+.calendar-detail-item .product-info li {
+    padding: 4px 0;
 }
 
 .calendar-detail-item.status-pending {
@@ -574,9 +585,22 @@ function renderCalendar() {
 
                 // 거래처명 - 제품명 형태로 표시 (null 체크)
                 const customerName = event.customer_name || '거래처명 없음';
-                const productName = event.product_name || '제품명 없음';
-                eventItem.innerHTML = `${customerName} - ${productName}`;
-                eventItem.title = `${event.order_number}\n${customerName}\n${productName}\n${event.quantity} ${event.unit} | ${new Intl.NumberFormat('ko-KR').format(event.total_price)}원`;
+                const productName = event.first_product_name || '제품명 없음';
+                const itemCountText = event.item_count > 1 ? ` 외 ${event.item_count - 1}건` : '';
+                
+                eventItem.innerHTML = `${customerName} - ${productName}${itemCountText}`;
+                
+                // 툴팁 텍스트 생성
+                let tooltipText = `${event.order_number}\n${customerName}\n`;
+                if (event.items && event.items.length > 0) {
+                    event.items.forEach((item, idx) => {
+                        tooltipText += `${idx + 1}. ${item.product_name} ${item.quantity}${item.unit}\n`;
+                    });
+                    tooltipText += `총액: ${new Intl.NumberFormat('ko-KR').format(event.total_amount)}원`;
+                } else {
+                    tooltipText += `${productName}\n총액: ${new Intl.NumberFormat('ko-KR').format(event.total_amount)}원`;
+                }
+                eventItem.title = tooltipText;
 
                 // Hover 시 tooltip 표시
                 eventItem.addEventListener('mouseenter', (e) => showTooltip(e, event));
@@ -619,12 +643,24 @@ function showTooltip(e, event) {
         'cancelled': '취소'
     };
 
+    let itemsHtml = '';
+    if (event.items && event.items.length > 0) {
+        itemsHtml = '<div class="tooltip-row"><span class="tooltip-label">발주사항:</span></div>';
+        event.items.forEach((item, idx) => {
+            itemsHtml += `<div class="tooltip-row" style="margin-left: 15px; font-size: 11px;">
+                ${idx + 1}. ${item.product_name} 
+                ${item.spec ? '(' + item.spec + ')' : ''} 
+                ${item.quantity}${item.unit} 
+                ${new Intl.NumberFormat('ko-KR').format(item.amount)}원
+            </div>`;
+        });
+    }
+    
     tooltipElement.innerHTML = `
         <div class="tooltip-header">${event.order_number}</div>
         <div class="tooltip-row"><span class="tooltip-label">거래처:</span> ${event.customer_name}</div>
-        <div class="tooltip-row"><span class="tooltip-label">제품:</span> ${event.product_name}</div>
-        <div class="tooltip-row"><span class="tooltip-label">수량:</span> ${event.quantity} ${event.unit}</div>
-        <div class="tooltip-row"><span class="tooltip-label">금액:</span> ${new Intl.NumberFormat('ko-KR').format(event.total_price)}원</div>
+        ${itemsHtml}
+        <div class="tooltip-row"><span class="tooltip-label">총액:</span> ${new Intl.NumberFormat('ko-KR').format(event.total_amount)}원</div>
         <div class="tooltip-row"><span class="tooltip-label">상태:</span> ${statusText[event.status]}</div>
     `;
 
@@ -670,11 +706,39 @@ function showDayDetails(dateStr) {
     let html = `<h4>${formattedDate} 납품 일정 (${events.length}건)</h4>`;
 
     events.forEach(event => {
+        let itemsHtml = '';
+        
+        if (event.items && event.items.length > 0) {
+            // 품목이 여러 개인 경우
+            itemsHtml = '<div class="product-info" style="margin-top: 8px;">';
+            itemsHtml += `<strong>📦 발주사항 (${event.item_count}개 품목)</strong>`;
+            itemsHtml += '<ul style="margin: 5px 0 0 0; padding-left: 20px; font-size: 12px;">';
+            
+            event.items.forEach((item, idx) => {
+                itemsHtml += `<li style="margin: 3px 0;">
+                    ${item.product_name} 
+                    ${item.spec ? '<span style="color: #999;">(' + item.spec + ')</span>' : ''} 
+                    - ${item.quantity}${item.unit} 
+                    @ ${new Intl.NumberFormat('ko-KR').format(item.unit_price)}원 
+                    = <strong>${new Intl.NumberFormat('ko-KR').format(item.amount)}원</strong>
+                </li>`;
+            });
+            
+            itemsHtml += '</ul>';
+            itemsHtml += `<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-color); font-size: 14px;">
+                <strong>총액: ${new Intl.NumberFormat('ko-KR').format(event.total_amount)}원</strong>
+            </div>`;
+            itemsHtml += '</div>';
+        } else {
+            // 품목이 없는 경우
+            itemsHtml = `<div class="product-info">📦 ${event.first_product_name} | ${new Intl.NumberFormat('ko-KR').format(event.total_amount)}원</div>`;
+        }
+        
         html += `
         <div class="calendar-detail-item status-${event.status}" onclick="location.href='order_view.php?id=${event.id}'">
             <div class="order-number">${event.order_number}</div>
             <div class="customer-name">📍 ${event.customer_name}</div>
-            <div class="product-info">📦 ${event.product_name} | ${event.quantity} ${event.unit} | ${new Intl.NumberFormat('ko-KR').format(event.total_price)}원</div>
+            ${itemsHtml}
         </div>`;
     });
 

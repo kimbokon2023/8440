@@ -46,7 +46,18 @@ $EworksSearch = $_REQUEST["EworksSearch"] ?? '';
                         </div>
                         
                         <!-- 리스트 -->
-                        <div class="row">
+                        <div class="row" style="position: relative;">
+                            <!-- 전자결재 전용 로딩 인디케이터 -->
+                            <div id="eworksLoadingIndicator" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 100;">
+                                <div style="background: white; border-radius: 15px; padding: 30px; text-align: center; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);">
+                                    <div class="spinner-border text-primary" role="status" style="width: 2.5rem; height: 2.5rem; border-width: 0.3em;">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <h6 class="mt-3 mb-2" style="color: #113366;">자료를 조회중입니다...</h6>
+                                    <p class="text-muted mb-0 small">잠시만 기다려주세요</p>
+                                </div>
+                            </div>
+                            
                             <?php include getDocumentRoot() . "/eworks/list.php"; ?>
                         </div>
                     </div>

@@ -63,125 +63,114 @@ for ($i = 0; $i < count($eworks_level_arr); $i++) {
 $status_arr = array();
 
 /**
- * 전자결재 상태별 카운트 조회
+ * 각 상태별 문서 개수를 카운트하는 함수
+ * load_eworkslist.php와 동일한 로직 사용
  * 
- * @param PDO $pdo 데이터베이스 연결
+ * @param PDO $pdo 데이터베이스 연결 객체
  * @param string $user_id 사용자 ID
- * @param string $viewCondition 조회 조건
- * @param int $isApprover 결재권자 여부 (0 또는 1)
- * @return array 상태별 카운트 배열
+ * @param string $status 문서 상태
+ * @param int $workLevel 결재권자 여부
+ * @param string $DB 데이터베이스명
+ * @return int 문서 개수
  */
-function countEworksStatus($pdo, $user_id, $viewCondition, $isApprover) {
-    global $DB;
+function countEworksStatus($pdo, $user_id, $status, $workLevel, $DB = 'mirae8440') {	
+    // SQL Injection 방지
+    $user_id = str_replace("'", "''", $user_id);
     
-    // 상태별 카운트 초기화
-    $counts = array(
-        "draft" => 0,
-        "send" => 0,
-        "noend" => 0,
-        "ing" => 0,
-        "end" => 0,
-        "reject" => 0,
-        "wait" => 0,
-        "refer" => 0,
-        "deleted" => 0
-    );
+    // 데이터베이스명 설정
+    $dbName = $DB;
     
-    // SQL 쿼리 생성
-    if ($isApprover) {
-        $sqlBase = "SELECT * FROM {$DB}.eworks WHERE CONCAT('!', e_line_id, '!') LIKE '%!{$user_id}!%' AND is_deleted IS NULL";
-    } else {
-        $sqlBase = "SELECT * FROM {$DB}.eworks WHERE author_id = '{$user_id}' AND is_deleted IS NULL";
-    }
-    
-    $sql = $sqlBase . $viewCondition;
-    
-    try {
-        $stmh = $pdo->prepare($sql);
-        $stmh->execute();
-        
-        while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
-            include includePath('eworks/_row.php');
-            
-            // 결재권자인 경우 상태 재계산
-            if ($isApprover) {
-                $arr = explode("!", $e_line_id);
-                $approval_time = explode("!", $e_confirm_id);
-                $last_user_id = end($arr);
-                $last_approved_id = end($approval_time);
-                
-                foreach ($arr as $id) {
-                    if ($id == $user_id) {
-                        // 특정 상태가 아닌 경우 재계산
-                        if ($status !== 'reject' && $status !== 'wait' && 
-                            $status !== 'refer' && $status !== 'end') {
-                            
-                            if ($id == $last_user_id) {
-                                // 마지막 사용자인 경우
-                                if ($last_approved_id == $id) {
-                                    $status = 'end';
-                                } else {
-                                    if ($status !== 'send') {
-                                        $status = 'noend';
-                                    } else {
-                                        $status = '';
-                                    }
-                                }
-                            } else {
-                                // 마지막 사용자가 아닌 경우
-                                if (in_array($id, $approval_time)) {
-                                    $status = 'ing';
-                                } else {
-                                    $status = 'noend';
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            
-            if (isset($counts[$status])) {
-                $counts[$status]++;
-            }
+    // view 설정
+    $viewcon = " AND CONCAT('!', e_viewexcept_id, '!') NOT LIKE '%!{$user_id}!%' ";
+    $viewconNone = " AND CONCAT('!', e_viewexcept_id, '!') LIKE '%!{$user_id}!%' ";
+
+    $count = 0;
+    $sql = "";
+
+    if (!$workLevel) { // 일반 사용자의 경우 자신이 작성한 문서만 카운트
+        // 상신인 경우는 send 상신인 경우도 미결도 함께 숫자표시
+        if ($status == 'noend') {
+            $sql = "SELECT COUNT(*) FROM {$dbName}.eworks WHERE author_id = '{$user_id}' AND status = 'send' AND is_deleted IS NULL " . $viewcon;
+        } else {
+            $sql = "SELECT COUNT(*) FROM {$dbName}.eworks WHERE author_id = '{$user_id}' AND status = '{$status}' AND is_deleted IS NULL " . $viewcon;
         }
-    } catch (PDOException $ex) {
-        error_log("전자결재 상태 조회 오류: " . $ex->getMessage());
+    } else { // 결재권자의 경우 다양한 상태의 문서를 카운트
+        switch ($status) {
+            case 'draft':
+                $sql = "SELECT COUNT(*) FROM {$dbName}.eworks WHERE author_id = '{$user_id}' AND status = 'draft' AND is_deleted IS NULL" . $viewcon;
+                break;
+            case 'send':
+                $sql = "SELECT COUNT(*) FROM {$dbName}.eworks WHERE author_id = '{$user_id}' AND CONCAT('!', e_line_id, '!') LIKE '%!{$user_id}!%' AND status = 'send' AND is_deleted IS NULL" . $viewcon;
+                break;
+            case 'noend':
+                // '미결' 상태: 사용자가 결재해야 하는 문서 카운트
+                $sql = "SELECT COUNT(*) FROM {$dbName}.eworks WHERE CONCAT('!', e_line_id, '!') LIKE '%!{$user_id}!%' " .
+                       " AND ( " .
+                       "    (CONCAT('!', e_confirm_id, '!') = '!!' AND LOCATE('{$user_id}', e_line_id) = 1 AND status = 'send') " .
+                       "    OR " .
+                       "    (CONCAT('!', e_confirm_id, '!') NOT LIKE '%!{$user_id}!%' AND INSTR(CONCAT('!', e_line_id, '!'), CONCAT('!', SUBSTRING_INDEX(e_confirm_id, '!', -1), '!', '{$user_id}', '!')) > 0 AND status IN ('send', 'noend', 'ing')) " .
+                       ") AND is_deleted IS NULL" . $viewcon;
+                break;
+            case 'ing':
+                // '진행중' 상태: 사용자가 결재 중인 문서 카운트
+                $sql = "SELECT COUNT(*) FROM {$dbName}.eworks WHERE CONCAT('!', e_line_id, '!') LIKE '%!{$user_id}!%' AND CONCAT('!', e_confirm_id, '!') LIKE '%!{$user_id}!%' AND status IN ('send', 'ing') AND is_deleted IS NULL" . $viewcon;
+                break;
+            case 'end':
+                $sql = "SELECT COUNT(*) FROM {$dbName}.eworks WHERE CONCAT('!', e_line_id, '!') LIKE '%!{$user_id}!%' AND status = 'end' AND is_deleted IS NULL" . $viewcon;
+                break;
+            case 'reject':
+                $sql = "SELECT COUNT(*) FROM {$dbName}.eworks WHERE CONCAT('!', e_line_id, '!') LIKE '%!{$user_id}!%' AND status = 'reject' AND is_deleted IS NULL" . $viewcon;
+                break;
+            case 'wait':
+                $sql = "SELECT COUNT(*) FROM {$dbName}.eworks WHERE CONCAT('!', e_line_id, '!') LIKE '%!{$user_id}!%' AND status = 'wait' AND is_deleted IS NULL" . $viewcon;
+                break;
+            case 'refer':
+                $sql = "SELECT COUNT(*) FROM {$dbName}.eworks WHERE CONCAT('!', e_line_id, '!') LIKE '%!{$user_id}!%' AND status = 'refer' AND is_deleted IS NULL" . $viewcon;
+                break;
+        }
     }
-    
-    return $counts;
+
+    try {
+        $stmh = $pdo->query($sql);
+        $count = $stmh->fetchColumn();
+    } catch (PDOException $ex) {
+        error_log("Database error in countEworksStatus: " . $ex->getMessage());
+        $count = 0;
+    }
+     
+    return (int)$count;
 }
 
-// 함수 호출
-$viewconVisible = " AND CONCAT('!', e_viewexcept_id, '!') NOT LIKE '%!{$user_id}!%' ";
-$visibleCounts = countEworksStatus($pdo, $user_id, $viewconVisible, $foundUser1);
+// 각 상태별 문서 개수 카운트 (load_eworkslist.php와 동일)
+$statuses = array('draft', 'send', 'noend', 'ing', 'end', 'reject', 'wait', 'refer');
+$data = array();
 
+foreach ($statuses as $index => $status) {
+    $data['val' . ($index + 1)] = countEworksStatus($pdo, $user_id, $status, $foundUser1, $DB);
+}
+
+// 삭제된 문서 카운트 (viewexcept)
 $viewconDeleted = " AND CONCAT('!', e_viewexcept_id, '!') LIKE '%!{$user_id}!%' ";
-$deletedCounts = countEworksStatus($pdo, $user_id, $viewconDeleted, $foundUser1);
-
-// 각 상태별 카운트 할당
-$data = array(
-    "val1" => $visibleCounts["draft"],
-    "val2" => $visibleCounts["send"],
-    "val3" => $visibleCounts["noend"],
-    "val4" => $visibleCounts["ing"],
-    "val5" => $visibleCounts["end"],
-    "val6" => $visibleCounts["reject"],
-    "val7" => $visibleCounts["wait"],
-    "val8" => $visibleCounts["refer"],
-    "val9" => $deletedCounts["deleted"]
-);
+try {
+    $sql_deleted = "SELECT COUNT(*) FROM {$DB}.eworks WHERE (author_id = '{$user_id}' OR CONCAT('!', e_line_id, '!') LIKE '%!{$user_id}!%') " . $viewconDeleted;
+    $stmh_deleted = $pdo->query($sql_deleted);
+    $data['val9'] = (int)$stmh_deleted->fetchColumn();
+} catch (PDOException $ex) {
+    error_log("삭제 문서 카운트 오류: " . $ex->getMessage());
+    $data['val9'] = 0;
+}
 
 // 탭 데이터 설정
 $tabs = array(
-    array("작성", 1, "bi-pencil-square", $data["val1"]),
-    array("상신", 2, "bi-cloud-arrow-up", $data["val2"]),
-    array("미결", 3, "bi-patch-minus", $data["val3"]),
-    array("진행", 4, "bi-arrow-right-circle", $data["val4"]),
-    array("결재", 5, "bi-journal-check", $data["val5"]),
-    array("반려", 6, "bi-slash-circle", $data["val6"]),
-    array("보류", 7, "bi-hourglass", $data["val7"]),
-    array("참조", 8, "bi-info-circle", $data["val8"]),
-    array("삭제", 9, "bi-trash", $data["val9"])
+    array("작성", 1, "bi-pencil-square", $data["val1"] ?? 0),
+    array("상신", 2, "bi-cloud-arrow-up", $data["val2"] ?? 0),
+    array("미결", 3, "bi-patch-minus", $data["val3"] ?? 0),
+    array("진행", 4, "bi-arrow-right-circle", $data["val4"] ?? 0),
+    array("결재", 5, "bi-journal-check", $data["val5"] ?? 0),
+    array("반려", 6, "bi-slash-circle", $data["val6"] ?? 0),
+    array("보류", 7, "bi-hourglass", $data["val7"] ?? 0),
+    array("참조", 8, "bi-info-circle", $data["val8"] ?? 0),
+    array("삭제", 9, "bi-trash", $data["val9"] ?? 0)
 );
 
 ?>
