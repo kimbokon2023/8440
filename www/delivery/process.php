@@ -18,20 +18,6 @@ $num = $_REQUEST['num'] ?? '';
 require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
-// _request.php에서 사용되는 변수들을 include 전에 초기화
-$registedate = '';
-$receiver = '';
-$receiver_tel = '';
-$address = '';
-$sender = '';
-$item_name = '';
-$unit = '';
-$surang = '';
-$fee = '';
-$fee_type = '';
-$goods_price = '';
-$update_log = '';
-
 include "_request.php";
 
 // 검색 태그 생성

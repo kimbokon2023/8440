@@ -32,6 +32,9 @@ $mode = $_REQUEST["mode"] ?? '';
 $id = $_REQUEST["id"] ?? 0;
 $id = (int)$id;
 
+// iframe 모드 확인 (모달에서 열렸는지)
+$iframe_mode = isset($_GET['iframe']) && $_GET['iframe'] === '1';
+
 // 데이터베이스 연결
 try {
     $pdo = db_connect();
@@ -74,37 +77,67 @@ if ($order_data && isset($order_data['order_no']) && $order_data['order_no']) {
 <link href="https://unpkg.com/tabulator-tables@6.2.1/dist/css/tabulator.min.css" rel="stylesheet">
 <script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.2.1/dist/js/tabulator.min.js"></script>
 
-<style>
-/* 기존 시스템 톤앤매너에 맞춘 발주서 스타일 */
-:root {
+<?php
+// CSS 변수 설정 (iframe 모드에 따라)
+if ($iframe_mode) {
+    $css_vars = "
+    --dashboard-primary: #e3f2fd;
+    --dashboard-secondary: #bbdefb;
+    --dashboard-accent: #2196f3;
+    --dashboard-text: #333333;
+    --dashboard-border: #e0e0e0;
+    --dashboard-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --bg-gradient-start: #2196f3;
+    --bg-gradient-end: #1976d2;";
+
+    $header_bg = "background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%); color: #ffffff;";
+    $section_header_bg = "background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); color: #1976d2; font-weight: 600;";
+    $btn_primary_bg = "background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); color: white; border-color: #2196f3;";
+    $btn_primary_hover = "background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%); border-color: #1976d2;";
+
+    $body_extra = "margin: 0; padding: 0; overflow: visible;";
+    $container_layout = "margin: 0; padding: 10px; border: none; border-radius: 0; box-shadow: none;";
+} else {
+    $css_vars = "
     --dashboard-primary: #f8fafc;
     --dashboard-secondary: #f1f5f9;
     --dashboard-accent: #64748b;
     --dashboard-text: #334155;
     --dashboard-border: #e2e8f0;
-    --dashboard-shadow: 0 1px 3px rgba(51, 65, 85, 0.04);
+    --dashboard-shadow: 0 1px 3px rgba(51, 65, 85, 0.04);";
+
+    $header_bg = "background: var(--dashboard-secondary); color: #000;";
+    $section_header_bg = "background: var(--dashboard-secondary); color: var(--dashboard-text);";
+    $btn_primary_bg = "background: var(--dashboard-accent); color: white; border-color: var(--dashboard-accent);";
+    $btn_primary_hover = "background: #475569; border-color: #475569;";
+
+    $body_extra = "";
+    $container_layout = "margin: 10px auto; border: 1px solid var(--dashboard-border); border-radius: 8px; box-shadow: var(--dashboard-shadow);";
+}
+?>
+
+<style>
+/* 기존 시스템 톤앤매너에 맞춘 발주서 스타일 */
+:root {
+<?php echo $css_vars; ?>
 }
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #ffffff;
     color: var(--dashboard-text);
+    <?php echo $body_extra; ?>
 }
 
 .order-container {
     max-width: 100%;
-    margin: 10px auto;
+    <?php echo $container_layout; ?>
     background: white;
-    border: 1px solid var(--dashboard-border);
-    border-radius: 8px;
-    box-shadow: var(--dashboard-shadow);
     font-size: 16px;
-    overflow: hidden;
 }
 
 .order-header {
-    background: var(--dashboard-secondary);
-    color: #000;
+    <?php echo $header_bg; ?>
     padding: 12px 20px;
     font-weight: 500;
     font-size: 18px;
@@ -135,12 +168,11 @@ body {
 }
 
 .section-header {
-    background: var(--dashboard-secondary);
+    <?php echo $section_header_bg; ?>
     padding: 8px 12px;
     text-align: center;
     font-weight: 500;
     border-bottom: 1px solid var(--dashboard-border);
-    color: var(--dashboard-text);
 }
 
 .info-grid {
@@ -196,15 +228,29 @@ body {
 }
 
 .tabulator .tabulator-header {
-    background: var(--dashboard-secondary);
-    color: var(--dashboard-text);
-    border-bottom: 1px solid var(--dashboard-border);
+    background: var(--dashboard-secondary) !important;
+    color: var(--dashboard-text) !important;
+    border-bottom: 1px solid var(--dashboard-border) !important;
+    display: table-header-group !important;
+    visibility: visible !important;
+}
+
+.tabulator .tabulator-headers {
+    display: table-header-group !important;
+    visibility: visible !important;
+}
+
+.tabulator .tabulator-col {
+    display: table-cell !important;
+    visibility: visible !important;
 }
 
 .tabulator .tabulator-col-title {
-    color: var(--dashboard-text);
+    color: var(--dashboard-text) !important;
     font-weight: 500;
-    font-size: 14px;
+    font-size: 14px !important;
+    text-align: center;
+    padding: 8px 4px;
 }
 
 .summary-section {
@@ -286,14 +332,11 @@ body {
 }
 
 .btn-primary {
-    background: var(--dashboard-accent);
-    color: white;
-    border-color: var(--dashboard-accent);
+    <?php echo $btn_primary_bg; ?>
 }
 
 .btn-primary:hover {
-    background: #475569;
-    border-color: #475569;
+    <?php echo $btn_primary_hover; ?>
 }
 
 .btn-success {
@@ -375,9 +418,12 @@ body {
 
 </head>
 <body>
-<?php include getDocumentRoot() . '/myheader.php'; ?>
+<?php if (!$iframe_mode): ?>
+    <?php include getDocumentRoot() . '/myheader.php'; ?>
+<?php endif; ?>
 
 <div class="order-container">
+    <?php if (!$iframe_mode): ?>
     <div class="order-header">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <div style="display: flex; align-items: center; gap: 15px;">
@@ -395,6 +441,7 @@ body {
             </div>
         </div>
     </div>
+    <?php endif; ?>
 
     <form id="orderForm" method="POST" action="insert.php">
         <?php if ($id > 0 && $mode !== 'copy'): ?>
@@ -404,12 +451,13 @@ body {
             <input type="hidden" name="action" value="insert">
         <?php endif; ?>
 
+        <?php if (!$iframe_mode): ?>
         <div class="order-title">발 주 서</div>
+        <?php endif; ?>
 
         <div class="order-info">
-            <!-- 왼쪽: 발주자 정보 -->
+            <!-- 왼쪽: 공급자 정보 (거래처) -->
             <div class="info-section">
-                <div class="section-header">발주자</div>
                 <div class="info-grid">
                     <div class="info-label">거래처명</div>
                     <div class="info-value">
@@ -427,19 +475,20 @@ body {
                     <div class="info-value">
                         <input type="text" name="fax" value="<?php echo $order_data ? htmlspecialchars($order_data['fax'] ?? '') : ''; ?>" placeholder="팩스번호를 입력하세요">
                     </div>
-                    <div class="info-label">합계금액</div>
+                    <div class="info-label">제목</div>
                     <div class="info-value">
+                        <input type="text" name="title" value="<?php echo $order_data ? htmlspecialchars($order_data['title'] ?? '') : ''; ?>" placeholder="제목을 입력하세요">
+                    </div>
+                    <div class="info-label" style="border-bottom: none;">합계금액</div>
+                    <div class="info-value" style="border-bottom: none;">
                         <input type="text" id="totalAmount" name="total_amount" value="₩0" readonly style="background: #f8f9fa; font-weight: bold;">
                     </div>
                 </div>
             </div>
 
-            <!-- 오른쪽: 공급업체 정보 -->
+            <!-- 오른쪽: 발주자 정보 (미래기업) -->
             <div class="info-section">
-                <div class="section-header">공급업체</div>
-                <div style="text-align: right; padding: 10px;">
-                    <span style="font-size: 11px;">PAGE: 1 / 1</span>
-                </div>
+                <div class="section-header">발주자</div>
                 <div class="info-grid">
                     <div class="info-label">등록번호</div>
                     <div class="info-value">
@@ -468,6 +517,10 @@ body {
                     <div class="info-label">팩스번호</div>
                     <div class="info-value">
                         <input type="text" name="supplier_fax" value="031-982-8443" readonly style="background: #f8f9fa;">
+                    </div>
+                    <div class="info-label">프로젝트/현장</div>
+                    <div class="info-value">
+                        <input type="text" name="project_site" value="<?php echo $order_data ? htmlspecialchars($order_data['project_site'] ?? '') : ''; ?>" placeholder="프로젝트/현장명을 입력하세요">
                     </div>
                 </div>
             </div>
@@ -544,25 +597,26 @@ orderItems = [
 document.addEventListener('DOMContentLoaded', function() {
     orderTable = new Tabulator("#orderItemsTable", {
         data: orderItems,
-        layout: "fitDataStretch", // 행 합치기 방지 및 전체 너비 사용
+        layout: "fitColumns", // 컬럼을 컨테이너에 맞춤
         height: "300px",
-        autoResize: false, // 자동 리사이즈 방지
-        resizableColumns: false, // 컬럼 리사이즈 방지
+        headerVisible: true, // 헤더 표시
+        autoResize: true, // 자동 리사이즈
+        resizableColumns: true, // 컬럼 리사이즈 허용
         columns: [
-            {title: "순번", field: "순번", width: 50, editor: "input", resizable: false},
-            {title: "품목", field: "품목", width: 350, editor: "input", resizable: false,
+            {title: "순번", field: "순번", width: 60, hozAlign: "center", headerHozAlign: "center", editor: "input", resizable: false},
+            {title: "품목", field: "품목", width: 300, hozAlign: "left", headerHozAlign: "center", editor: "input", resizable: true,
              cellClick: function() { return true; }},
-            {title: "규격", field: "규격", width: 250, editor: "input", resizable: false,
+            {title: "규격", field: "규격", width: 200, hozAlign: "left", headerHozAlign: "center", editor: "input", resizable: true,
              cellClick: function() { return true; }},
-            {title: "수량", field: "수량", width: 70, editor: "input", validator: "numeric", resizable: false,
+            {title: "수량", field: "수량", width: 80, hozAlign: "right", headerHozAlign: "center", editor: "input", validator: "numeric", resizable: false,
              cellClick: function() { return true; }},
-            {title: "단가", field: "단가", width: 80, editor: "input", validator: "numeric", resizable: false,
+            {title: "단가", field: "단가", width: 100, hozAlign: "right", headerHozAlign: "center", editor: "input", validator: "numeric", resizable: true,
              formatter: function(cell) {
                  var value = cell.getValue();
                  return value ? Number(value).toLocaleString() : '';
              },
              cellClick: function() { return true; }},
-            {title: "공급가액", field: "공급가액", width: 90, editor: false, validator: "numeric", resizable: false,
+            {title: "공급가액", field: "공급가액", width: 120, hozAlign: "right", headerHozAlign: "center", editor: false, validator: "numeric", resizable: true,
              formatter: function(cell) {
                  var value = cell.getValue();
                  return value ? Number(value).toLocaleString() : '';
@@ -571,7 +625,7 @@ document.addEventListener('DOMContentLoaded', function() {
                  console.log('공급가액은 자동 계산됩니다 (수량 × 단가)');
                  return false;
              }},
-            {title: "세액", field: "세액", width: 70, editor: false, validator: "numeric", resizable: false,
+            {title: "세액", field: "세액", width: 100, hozAlign: "right", headerHozAlign: "center", editor: false, validator: "numeric", resizable: true,
              formatter: function(cell) {
                  var value = cell.getValue();
                  return value ? Number(value).toLocaleString() : '';
@@ -580,7 +634,7 @@ document.addEventListener('DOMContentLoaded', function() {
                  console.log('세액은 자동 계산됩니다 (공급가액의 10%)');
                  return false;
              }},
-            {title: "비고", field: "비고", width: 120, editor: "input", resizable: false}
+            {title: "비고", field: "비고", widthGrow: 1, hozAlign: "left", headerHozAlign: "center", editor: "input", resizable: true}
         ],
         cellEdited: function(cell) {
             console.log(`📝 [DEBUG] 셀 편집: ${cell.getField()} = ${cell.getValue()}`);

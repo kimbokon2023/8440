@@ -1206,7 +1206,7 @@ function addOrderItemRow(data = null, afterRow = null) {
             <input type="number" class="form-control order-item-quantity"
                    value="${data ? data.quantity : ''}" 
                    placeholder="수량"
-                   min="0" step="1"
+                   min="0" step="0.1"
                    oninput="calculateRowTotal(this)"
                    style="font-size: 13px; padding: 6px; text-align: right;">
         </td>
@@ -1475,7 +1475,7 @@ function initFileUpload() {
         tablename: 'daon_orders',
         item: 'attached',
         parentnum: parentNum,
-        folderPath: 'Daon/Orders',
+        folderPath: '다온/발주',  // Google Drive 저장 경로: 다온 폴더 > 발주 폴더
         DBtable: 'picuploads',
         showDeleteButton: true,
         showDownloadButton: true,
@@ -1695,9 +1695,9 @@ function formatNumberInput(input) {
  */
 function calculateRowTotal(input) {
     const row = input.closest('tr');
-    const quantity = parseInt(row.querySelector('.order-item-quantity').value) || 0;
+    const quantity = parseFloat(row.querySelector('.order-item-quantity').value) || 0;
     const unitPrice = parseInt(row.querySelector('.order-item-price').value.replace(/,/g, '')) || 0;
-    const total = quantity * unitPrice;
+    const total = Math.round(quantity * unitPrice); // 소수점 계산 후 반올림
     
     row.querySelector('.order-item-amount').value = total.toLocaleString('ko-KR');
 }
@@ -2067,7 +2067,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <li><strong>제품명</strong>: 발주할 제품의 이름 (필수)</li>
                     <li><strong>제품구분</strong>: 아크릴, LED바 등의 분류</li>
                     <li><strong>규격</strong>: 제품의 크기나 사양 (예: 1200x600x3T)</li>
-                    <li><strong>수량</strong>: 발주할 수량 (필수, 정수만 입력)</li>
+                    <li><strong>수량</strong>: 발주할 수량 (필수, 소수점 입력 가능 예: LED바 1.2개)</li>
                     <li><strong>단위</strong>: 수량의 단위 (EA, 개, m 등)</li>
                     <li><strong>단가</strong>: 개당 가격 (필수, 원 단위)</li>
                     <li><strong>총액</strong>: 수량 × 단가로 자동 계산됩니다</li>
@@ -2092,7 +2092,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <strong><i class="fas fa-exclamation-triangle"></i> 주의사항:</strong>
                 <p>• 빨간색 별표(*)가 있는 항목은 필수 입력 항목입니다</p>
                 <p>• 제품을 직접 입력할 수도 있고, 드롭다운에서 선택할 수도 있습니다</p>
-                <p>• 수량과 단가는 정수만 입력 가능합니다 (소수점 입력 불가)</p>
+                <p>• 수량은 소수점 입력 가능 (예: LED바 1.2개), 단가는 정수만 입력 가능합니다</p>
                 <p>• 총액이 0원인 발주는 등록할 수 없습니다</p>
             </div>
 

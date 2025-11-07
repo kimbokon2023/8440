@@ -18,8 +18,11 @@ try {
     }
 
     if (!empty($_GET['search'])) {
-        $where[] = "(product_name LIKE :search OR product_code LIKE :search OR spec LIKE :search)";
-        $params[':search'] = '%' . $_GET['search'] . '%';
+        $where[] = "(product_name LIKE :search1 OR product_code LIKE :search2 OR spec LIKE :search3)";
+        $searchTerm = '%' . $_GET['search'] . '%';
+        $params[':search1'] = $searchTerm;
+        $params[':search2'] = $searchTerm;
+        $params[':search3'] = $searchTerm;
     }
 
     $sql = "SELECT p.id, p.product_code, p.product_name, p.product_type, p.spec, 
@@ -31,8 +34,18 @@ try {
             ORDER BY p.product_type, p.product_name
             LIMIT 200";
 
+    // 디버깅: SQL과 파라미터 출력 (개발 중에만 사용)
+    // echo "<!-- SQL: " . htmlspecialchars($sql) . " -->\n";
+    // echo "<!-- Params: " . htmlspecialchars(print_r($params, true)) . " -->\n";
+
     $stmt = $pdo->prepare($sql);
-    $stmt->execute($params);
+    
+    // 파라미터를 하나씩 바인딩 (PHP 7.3 호환성)
+    foreach ($params as $key => $value) {
+        $stmt->bindValue($key, $value);
+    }
+    
+    $stmt->execute();
     $products = $stmt->fetchAll();
 
     // 제품 구분 목록 가져오기

@@ -620,6 +620,9 @@ sort($spec_arr);  // 오름차순으로 배열 정렬
 </form>
 <script>
 
+// AJAX 요청 변수 선언
+var ajaxRequest = null;
+
 if($("#backBtn").length>0)	
     document.getElementById('backBtn').addEventListener('click', function() {
         window.history.back();
@@ -649,15 +652,23 @@ $("#rawmaterialBtn").click(function(){
  // document.getElementById('outworkplace').reset(); 	
  
  $("#saveBtn").click(function(){ 
+    console.log('저장 버튼 클릭됨');
+    
     // 필요한 값 설정
     $('#steelitem').val($('#steel_item').val());
     $('#steelspec').val($('#spec').val());
     $('#steeltake').val($('#company').val());    
 	
+    console.log('현장명:', $("#outworkplace").val());
+    console.log('수량:', $("#steelnum").val());
+    console.log('납기일:', $("#requestdate").val());
+    
     // 조건 확인
     if($("#outworkplace").val() === '' || $("#steelnum").val()  === ''  || $("#requestdate").val()  === ''   ) {
+        console.log('필수 입력값 누락');
         showWarningModal();
     } else {
+		console.log('저장 시작');
 		
 		Toastify({
 			text: "변경사항 저장중...",
@@ -670,6 +681,7 @@ $("#rawmaterialBtn").click(function(){
 			},
 		}).showToast();	
 		setTimeout(function(){
+		         console.log('saveData() 호출');
 		         saveData();
 		}, 1000);
       
@@ -692,26 +704,37 @@ $("#rawmaterialBtn").click(function(){
 	}
 
 	function saveData() {		
-	
+		console.log('saveData() 함수 실행');
+		console.log('update_steelsource.php 호출 시작');
+		
 		$.ajax({
 			url: "update_steelsource.php",
 			type: "post",        
 			data: $("#board_form").serialize(),
 			dataType:"json",
+			timeout: 30000, // 30초 타임아웃
 			success : function( data ){
-				console.log( data);	
+				console.log('update_steelsource.php 성공:', data);	
 				saveData1();
 				
 			},
 			error : function( jqxhr , status , error ){
-				console.log( jqxhr , status , error );
+				console.error('update_steelsource.php 오류:', jqxhr , status , error );
+				Swal.fire({
+					title: '저장 오류',
+					text: 'update_steelsource.php 처리 중 오류가 발생했습니다: ' + error,
+					icon: 'error',
+					confirmButtonText: '확인'
+				});
 			}                     
 		}); // end of ajax
 	}	
 
 	function saveData1() {
+		console.log('saveData1() 함수 실행');
 		
-		var num = $("#num").val();  
+		var num = $("#num").val();
+		console.log('num 값:', num);  
 		
 	   showMsgModal(2); // 파일저장중
 		
@@ -719,15 +742,17 @@ $("#rawmaterialBtn").click(function(){
 		if(Number(num) < 1) 				
 				$("#mode").val('insert');     			  			
 			
-		//  console.log($("#mode").val());    
+		console.log('mode 값:', $("#mode").val());    
 		// 폼데이터 전송시 사용함 Get form         
 		var form = $('#board_form')[0];  	    	
 		var datasource = new FormData(form); 
 
 		// console.log(data);
 		if (ajaxRequest !== null) {
+			console.log('이전 AJAX 요청 취소');
 			ajaxRequest.abort();
 		}		 
+		console.log('insert.php AJAX 요청 시작');
 		ajaxRequest = $.ajax({
 			enctype: 'multipart/form-data',    // file을 서버에 전송하려면 이렇게 해야 함 주의
 			processData: false,    
@@ -739,29 +764,67 @@ $("#rawmaterialBtn").click(function(){
 			data: datasource,			
 			dataType: "json", 
 			success : function(data){
-				  // console.log('data :' , data);
+				  console.log('insert.php 성공 응답:', data);
+				  
+				  // 서버에서 에러를 JSON으로 반환한 경우 처리
+				  if (data.error) {
+					  console.error('서버 에러:', data.error);
+					  hideMsgModal();
+					  Swal.fire({
+						  title: '저장 오류',
+						  text: data.error,
+						  icon: 'error',
+						  confirmButtonText: '확인'
+					  });
+					  return;
+				  }
+				  
 				  // Swal.fire(
 					  // '자료등록 완료',
 					  // '데이터가 성공적으로 등록되었습니다.',
 					  // 'success'
 					// );
-				setTimeout(function(){									
+				setTimeout(function(){	
+							console.log('부모 창 업데이트 시도');
 							if (window.opener && !window.opener.closed) {
 								// 부모 창에 restorePageNumber 함수가 있는지 확인
 								if (typeof window.opener.restorePageNumber === 'function') {
 									window.opener.restorePageNumber(); // 함수가 있으면 실행
+									console.log('부모 창 restorePageNumber 실행됨');
 								}
 							}							
 				}, 1000);		
 				
-				setTimeout(function(){											
+				setTimeout(function(){	
+					console.log('view.php로 이동 준비:', data["num"]);
 					hideMsgModal();								
 					location.href = "view.php?num=" + data["num"];
 				}, 1000);					
 			},
 			error : function( jqxhr , status , error ){
-				console.log( jqxhr , status , error );
-						} 			      		
+				console.error('insert.php AJAX 오류 발생');
+				console.error('jqxhr:', jqxhr);
+				console.error('status:', status);
+				console.error('error:', error);
+				console.error('===== 전체 응답 내용 (responseText) =====');
+				console.error(jqxhr.responseText);
+				console.error('=========================================');
+				hideMsgModal();
+				
+				// 오류 메시지를 더 보기 쉽게 표시
+				var errorDetail = jqxhr.responseText ? jqxhr.responseText.substring(0, 500) : '상세 정보 없음';
+				
+				Swal.fire({
+					title: '저장 오류',
+					html: '<div style="text-align:left;"><strong>오류:</strong> ' + error + 
+						  '<br><strong>상태:</strong> ' + status + 
+						  '<br><br><strong>서버 응답 내용:</strong><br><pre style="max-height:300px;overflow:auto;font-size:11px;background:#f5f5f5;padding:10px;">' + 
+						  errorDetail.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</pre></div>',
+					icon: 'error',
+					width: '600px',
+					confirmButtonText: '확인'
+				});
+			} 			      		
 		   });		
 			
 	}	

@@ -141,10 +141,11 @@ body {
 
 /* 거래처 조회 전용 스타일 */
 .customer-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
     color: white;
     padding: 2rem 0;
     margin-bottom: 2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
 }
 
 .customer-header h1 {
@@ -185,15 +186,18 @@ body {
 }
 
 .filter-buttons .btn:hover {
-    background: #007bff;
+    background: #2196f3;
     color: white;
-    border-color: #007bff;
+    border-color: #2196f3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
 }
 
 .filter-buttons .btn.active {
-    background: #007bff;
+    background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
     color: white;
-    border-color: #007bff;
+    border-color: #2196f3;
+    box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
 }
 
 .search-input-group {
@@ -209,8 +213,8 @@ body {
 }
 
 .search-input-group .form-control:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    border-color: #2196f3;
+    box-shadow: 0 0 0 0.2rem rgba(33, 150, 243, 0.25);
 }
 
 .search-input-group .search-icon {
@@ -241,18 +245,18 @@ body {
 
 /* 테이블 스타일 개선 */
 .tabulator .tabulator-header {
-    background: #343a40;
+    background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
     color: white;
     font-weight: 600;
 }
 
 .tabulator .tabulator-header .tabulator-col {
-    background: #343a40;
-    border-right: 1px solid #495057;
+    background: transparent;
+    border-right: 1px solid rgba(255,255,255,0.2);
 }
 
 .tabulator .tabulator-header .tabulator-col:hover {
-    background: #495057;
+    background: rgba(255,255,255,0.1);
 }
 
 .tabulator .tabulator-row {
@@ -273,6 +277,14 @@ body {
 
 .tabulator .tabulator-row.tabulator-selectable:hover {
     background: #e3f2fd;
+}
+
+.tabulator .tabulator-row-even {
+    background-color: #fafafa;
+}
+
+.tabulator .tabulator-row-even:hover {
+    background-color: #f5f9ff !important;
 }
 
 /* 상태 배지 스타일 */
@@ -338,12 +350,16 @@ body {
 }
 
 [data-theme="dark"] .filter-buttons .btn:hover {
-    background: #3182ce;
+    background: #2196f3;
     color: white;
 }
 
+[data-theme="dark"] .filter-buttons .btn.active {
+    background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+}
+
 [data-theme="dark"] .tabulator .tabulator-header {
-    background: #2d3748;
+    background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%);
 }
 
 [data-theme="dark"] .tabulator .tabulator-row:hover {
@@ -391,6 +407,9 @@ body {
             </div>
             
             <div class="col-md-4 text-end">
+                <button type="button" class="btn btn-outline-primary me-2" onclick="openColumnSettings()" style="border-radius: 25px; padding: 0.75rem 1.5rem;">
+                    <i class="bi bi-gear"></i> 컬럼 설정
+                </button>
                 <button type="button" class="btn add-customer-btn" onclick="addCustomer()">
                     <i class="bi bi-plus-circle"></i> + 거래처 등록
                 </button>
@@ -417,7 +436,7 @@ body {
                 <option value="100">100</option>
             </select>
         </div>
-        
+
         <div class="pagination-controls">
             <button type="button" class="btn btn-outline-secondary btn-sm" onclick="goToFirstPage()">
                 <i class="bi bi-chevron-double-left"></i>
@@ -433,9 +452,37 @@ body {
                 <i class="bi bi-chevron-double-right"></i>
             </button>
         </div>
-        
+
         <div class="pagination-controls">
             <span id="totalCount">총 0건</span>
+        </div>
+    </div>
+
+    <!-- 컬럼 설정 모달 -->
+    <div class="modal fade" id="columnSettingsModal" tabindex="-1" aria-labelledby="columnSettingsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header" style="background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); color: white;">
+                    <h5 class="modal-title" id="columnSettingsModalLabel">
+                        <i class="bi bi-gear"></i> 컬럼 표시 설정
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small mb-3">표시할 컬럼을 선택하세요. 설정은 자동으로 저장됩니다.</p>
+                    <div id="columnCheckboxes" class="row">
+                        <!-- JavaScript로 동적 생성 -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="resetColumnSettings()">
+                        <i class="bi bi-arrow-clockwise"></i> 초기화
+                    </button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+                        <i class="bi bi-check-lg"></i> 확인
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -855,11 +902,14 @@ try {
         }
         });
 
-            // 테이블 초기화 완료 후 페이지네이션 정보 업데이트
+            // 테이블 초기화 완료 후 페이지네이션 정보 업데이트 및 컬럼 설정 로드
             setTimeout(function() {
                 if (table && typeof table.getDataCount === 'function') {
                     updatePaginationInfo();
                 }
+
+                // 저장된 컬럼 설정 불러오기
+                loadColumnSettings();
 
                 // 행 클릭 가능함을 사용자에게 알리는 툴팁 추가
                 $('#tabulator-table .tabulator-row').attr('title', '클릭하여 거래처 정보를 수정합니다');
@@ -1043,6 +1093,159 @@ try {
             var baseUrl = getBaseUrl();
             var url = baseUrl + "/corp/add.php";
             window.open(url, '_blank', 'width=1200,height=900,scrollbars=yes,resizable=yes');
+        }
+
+        // 컬럼 설정 관련 함수들
+
+        // 쿠키 저장 함수
+        function setCookie(name, value, days) {
+            var expires = "";
+            if (days) {
+                var date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        }
+
+        // 쿠키 읽기 함수
+        function getCookie(name) {
+            var nameEQ = name + "=";
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        // 컬럼 설정 모달 열기
+        function openColumnSettings() {
+            var columns = table.getColumns();
+            var checkboxContainer = $('#columnCheckboxes');
+            checkboxContainer.empty();
+
+            // 각 컬럼에 대한 체크박스 생성
+            columns.forEach(function(column) {
+                var definition = column.getDefinition();
+                var field = definition.field;
+                var title = definition.title;
+
+                // 선택 컬럼과 번호 컬럼은 제외
+                if (field === 'select' || field === 'num') {
+                    return;
+                }
+
+                var isVisible = column.isVisible();
+                var checkboxHtml =
+                    '<div class="col-md-6 mb-2">' +
+                    '  <div class="form-check">' +
+                    '    <input class="form-check-input" type="checkbox" value="' + field + '" ' +
+                    '           id="col_' + field + '" ' + (isVisible ? 'checked' : '') +
+                    '           onchange="toggleColumn(\'' + field + '\')">' +
+                    '    <label class="form-check-label" for="col_' + field + '">' +
+                    '      ' + title +
+                    '    </label>' +
+                    '  </div>' +
+                    '</div>';
+
+                checkboxContainer.append(checkboxHtml);
+            });
+
+            // 모달 표시
+            var modal = new bootstrap.Modal(document.getElementById('columnSettingsModal'));
+            modal.show();
+        }
+
+        // 컬럼 표시/숨김 토글
+        function toggleColumn(field) {
+            var checkbox = $('#col_' + field);
+            var isChecked = checkbox.is(':checked');
+
+            if (isChecked) {
+                table.showColumn(field);
+            } else {
+                table.hideColumn(field);
+            }
+
+            // 설정 저장
+            saveColumnSettings();
+        }
+
+        // 컬럼 설정 저장
+        function saveColumnSettings() {
+            var columns = table.getColumns();
+            var settings = {};
+
+            columns.forEach(function(column) {
+                var definition = column.getDefinition();
+                var field = definition.field;
+
+                // 선택 컬럼과 번호 컬럼은 제외
+                if (field === 'select' || field === 'num') {
+                    return;
+                }
+
+                settings[field] = column.isVisible();
+            });
+
+            // JSON 문자열로 변환하여 쿠키에 저장 (365일 유지)
+            setCookie('corp_table_columns', JSON.stringify(settings), 365);
+        }
+
+        // 컬럼 설정 불러오기
+        function loadColumnSettings() {
+            var settingsStr = getCookie('corp_table_columns');
+
+            if (!settingsStr) {
+                return; // 저장된 설정이 없으면 기본값 사용
+            }
+
+            try {
+                var settings = JSON.parse(settingsStr);
+
+                // 각 컬럼의 표시 여부 적용
+                Object.keys(settings).forEach(function(field) {
+                    var isVisible = settings[field];
+
+                    if (isVisible) {
+                        table.showColumn(field);
+                    } else {
+                        table.hideColumn(field);
+                    }
+                });
+            } catch (e) {
+                console.error('컬럼 설정 로드 실패:', e);
+            }
+        }
+
+        // 컬럼 설정 초기화
+        function resetColumnSettings() {
+            // 쿠키 삭제
+            setCookie('corp_table_columns', '', -1);
+
+            // 모든 컬럼 표시 (선택, 번호 제외)
+            var columns = table.getColumns();
+            columns.forEach(function(column) {
+                var definition = column.getDefinition();
+                var field = definition.field;
+
+                if (field !== 'select' && field !== 'num') {
+                    table.showColumn(field);
+                }
+            });
+
+            // 모달 닫기
+            var modal = bootstrap.Modal.getInstance(document.getElementById('columnSettingsModal'));
+            if (modal) {
+                modal.hide();
+            }
+
+            // 모달 재오픈 (체크박스 상태 업데이트 위해)
+            setTimeout(function() {
+                openColumnSettings();
+            }, 300);
         }
     </script>
 

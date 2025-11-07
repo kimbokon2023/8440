@@ -1,5 +1,6 @@
 <?php
-include getDocumentRoot() . '/session.php';
+require_once __DIR__ . '/../common/functions.php';
+require_once(includePath('session.php'));
 
 // 변수 초기화 (null coalescing operator 사용)
 $menu = $_REQUEST["menu"] ?? '';
@@ -19,15 +20,13 @@ $title_message = '원자재 내역 추적';
 ?>
 
 <?php
-
-include getDocumentRoot() . '/load_header.php';
-
+    include includePath('load_header.php');
 ?>
 
-<?php include getDocumentRoot() . '/common/modal.php'; ?>
+<?php include includePath('common/modal.php'); ?>
 
 <title> <?=$title_message?>  </title>
-
+ 
 </head>
 
 <body>

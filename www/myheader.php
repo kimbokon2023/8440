@@ -442,7 +442,11 @@
 					<a class="dropdown-item" href="<?=$root_dir?>/RnD/list.php">
 						<i class="bi bi-easel"></i> 연구소 게시판
 					</a>
-					<hr style="margin:7px!important; border-color:#007bff;">					
+					<hr style="margin:7px!important; border-color:#007bff;">										
+					<a class="dropdown-item" href="<?=$root_dir?>/it/index.php">
+						<i class="bi bi-megaphone-fill"></i> IT 개발 프로세트 소개
+					</a>
+					<hr style="margin:7px!important; border-color:#007bff;">		
 					<a class="dropdown-item" href="<?=$root_dir?>/RnDnotice/list.php">
 						<i class="bi bi-megaphone-fill"></i> 개발 공지&자료
 					</a>
@@ -592,8 +596,11 @@
 						<i class="bi bi-currency-dollar"></i> 단가표
 					</a>									
 					<hr style="margin:7px!important; border-color:#007bff;">
+					<a class="dropdown-item" href="https://phomistonekorea.co.kr/index.php" target="_blank">
+						<i class="bi bi-globe"></i> 미래기업 포미스톤 웹
+					</a>					
 					<a class="dropdown-item" href="https://phomi.co.kr/default/index.php" target="_blank">
-						<i class="bi bi-globe"></i> 포미스톤 웹사이트
+						<i class="bi bi-globe"></i> 본사 포미스톤 웹사이트
 					</a>					
 				</div>
             </div>

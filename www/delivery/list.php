@@ -94,9 +94,7 @@ try {
 <body>
 <?php require_once(includePath('myheader.php')); ?>
 
-<form id="board_form" name="board_form" method="post" enctype="multipart/form-data">
-    <input type="hidden" id="mode" name="mode" value="<?= htmlspecialchars($mode) ?>">
-    <input type="hidden" id="num" name="num">
+<form id="board_form" name="board_form" method="post" enctype="multipart/form-data">    
     <input type="hidden" id="tablename" name="tablename" value="<?= htmlspecialchars($tablename) ?>">
     <input type="hidden" id="header" name="header" value="<?= htmlspecialchars($header) ?>">
     
@@ -309,6 +307,10 @@ function loadForm(mode, num) {
                 isSaving = true;
 
                 var header = $("#header").val();
+                var registedate = $("#registedate").val(); // 수정된 등록일자 가져오기
+                var mode = $("#mode").val();
+                console.log('registedate',registedate);
+                console.log('mode',mode);
                 var formData = $("#board_form").serialize();                
 
                 $.ajax({
@@ -316,6 +318,7 @@ function loadForm(mode, num) {
                     type: "post",
                     data: formData,
                     success: function(response) {
+                        console.log('response',response);
                         Toastify({
                             text: "저장완료",
                             duration: 3000,
@@ -327,7 +330,23 @@ function loadForm(mode, num) {
 
                         setTimeout(function() {
                             $("#myModal").hide();
-                            location.reload();
+                            
+                            // // 등록일자가 현재 검색 범위 밖이면 날짜 범위를 조정
+                            // var fromdate = $("#fromdate").val();
+                            // var todate = $("#todate").val();
+                            
+                            // if (registedate && (registedate < fromdate || registedate > todate)) {
+                            //     // 등록일자를 포함하도록 날짜 범위 확장
+                            //     if (registedate < fromdate) {
+                            //         $("#fromdate").val(registedate);
+                            //     }
+                            //     if (registedate > todate) {
+                            //         $("#todate").val(registedate);
+                            //     }
+                            //     $("#board_form").submit(); // 조정된 날짜로 재조회
+                            // } else {
+                            //     location.reload();
+                            // }
                         }, 2000);
                     },
                     error: function(jqxhr, status, error) {
@@ -335,6 +354,8 @@ function loadForm(mode, num) {
                         isSaving = false;
                     }
                 });
+            
+            
             });		
 
             // 복사 버튼 (기존 이벤트 제거 후 재등록)
@@ -448,6 +469,7 @@ function copyForm(mode, num) {
                 isSaving = true;
 
                 var header = $("#header").val();
+                var registedate = $("#registedate").val(); // 수정된 등록일자 가져오기
                 var formData = $("#board_form").serialize();                
 
                 $.ajax({
@@ -468,7 +490,23 @@ function copyForm(mode, num) {
 
                         setTimeout(function() {
                             $("#myModal").hide();
-                            location.reload();
+                            
+                            // 등록일자가 현재 검색 범위 밖이면 날짜 범위를 조정
+                            var fromdate = $("#fromdate").val();
+                            var todate = $("#todate").val();
+                            
+                            if (registedate && (registedate < fromdate || registedate > todate)) {
+                                // 등록일자를 포함하도록 날짜 범위 확장
+                                if (registedate < fromdate) {
+                                    $("#fromdate").val(registedate);
+                                }
+                                if (registedate > todate) {
+                                    $("#todate").val(registedate);
+                                }
+                                $("#board_form").submit(); // 조정된 날짜로 재조회
+                            } else {
+                                location.reload();
+                            }
                         }, 2000);
                     },
                     error: function(jqxhr, status, error) {

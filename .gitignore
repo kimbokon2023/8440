@@ -48,3 +48,12 @@ copilot-messages.log
 
 # Token and credential files
 www/tokens/
+www/apikey
+tokens/
+apikey/
+
+# SSL certificates (local development only)
+*.pem
+*.key
+*.crt
+*.csr

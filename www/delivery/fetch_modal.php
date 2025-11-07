@@ -89,6 +89,8 @@ else {
 ?>
 
 <input type="hidden" id="update_log" name="update_log" value="<?= htmlspecialchars($update_log) ?>">
+<input type="hidden" id="num" name="num" value="<?= htmlspecialchars($num) ?>">
+<input type="hidden" id="mode" name="mode" value="<?= htmlspecialchars($mode) ?>">
 
 <div class="container-fluid">
     <div class="d-flex align-items-center justify-content-center">

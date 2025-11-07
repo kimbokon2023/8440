@@ -1,32 +1,27 @@
  <?php   
- 
-if(!isset($_SESSION))      
-    session_start(); 
-if(isset($_SESSION["DB"]))
-    $DB = $_SESSION["DB"];  
-$level = $_SESSION["level"];
-$user_name = $_SESSION["name"];
-$user_id = $_SESSION["userid"];  
 
+require_once __DIR__ . '/../bootstrap.php';
+
+// JSON 헤더는 세션 시작 후 출력 전에 설정
 header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문  
 
- if(isset($_REQUEST["mode"]))  //modify_form에서 호출할 경우
-    $mode=$_REQUEST["mode"];
- else 
-    $mode="";
- 
- if(isset($_REQUEST["num"]))
-    $num=$_REQUEST["num"];
- else 
-    $num="";
+// 세션 변수 가져오기
+$level = $_SESSION["level"] ?? 999;
+$user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["userid"] ?? '';
 
+// 요청 변수 처리
+$mode = $_REQUEST["mode"] ?? '';
+$num = $_REQUEST["num"] ?? '';
+$fromdate = $_REQUEST["fromdate"] ?? '';	 
+$todate = $_REQUEST["todate"] ?? '';
 
-$fromdate=$_REQUEST["fromdate"];	 
-$todate=$_REQUEST["todate"];
+// 요청 변수 로드
 include 'request.php';
 
- require_once("../lib/mydb.php");
- $pdo = db_connect();
+// DB 연결
+require_once(includePath('lib/mydb.php'));
+$pdo = db_connect();
      
  if ($mode=="modify"){
     $data=date("Y-m-d H:i:s") . " - "  . $_SESSION["name"] . "  " ;	
@@ -39,7 +34,8 @@ include 'request.php';
         $row = $stmh->fetch(PDO::FETCH_ASSOC);
      } catch (PDOException $Exception) {
         $pdo->rollBack();
-        print "오류: ".$Exception->getMessage();
+        echo json_encode(array("error" => "DB 조회 오류: " . $Exception->getMessage()), JSON_UNESCAPED_UNICODE);
+        exit;
      } 
 	  
 	 
@@ -91,7 +87,8 @@ include 'request.php';
      $pdo->commit(); 
         } catch (PDOException $Exception) {
            $pdo->rollBack();
-           print "오류: ".$Exception->getMessage();
+           echo json_encode(array("error" => "DB 업데이트 오류: " . $Exception->getMessage()), JSON_UNESCAPED_UNICODE);
+           exit;
        }                         
        
  } else	{
@@ -188,7 +185,8 @@ include 'request.php';
      $pdo->commit(); 
      } catch (PDOException $Exception) {
           $pdo->rollBack();
-       print "오류: ".$Exception->getMessage();
+          echo json_encode(array("error" => "DB 삽입 오류: " . $Exception->getMessage()), JSON_UNESCAPED_UNICODE);
+          exit;
      }   
 
 // 신규레코드 번호 추출
@@ -201,7 +199,8 @@ include 'request.php';
 		 $num=$row["num"];		 
 		}
 	   catch (PDOException $Exception) {
-		   print "오류: ".$Exception->getMessage();
+		   echo json_encode(array("error" => "신규 레코드 조회 오류: " . $Exception->getMessage()), JSON_UNESCAPED_UNICODE);
+		   exit;
 	  }	 
 	 
    }

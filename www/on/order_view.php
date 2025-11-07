@@ -465,12 +465,23 @@ body {
             'DBtable' => 'picuploads'
         ];
         $files = getFilesFromGoogleDrive($fileOptions);
+        
+        // 배열이 아니거나 null인 경우 빈 배열로 설정
+        if (!is_array($files)) {
+            $files = [];
+        }
+        
+        // 빈 요소 필터링
+        $files = array_filter($files, function($file) {
+            return !empty($file) && is_array($file) && !empty($file['realname']);
+        });
+        
     } catch (Exception $e) {
         $files = [];
         error_log("파일 목록 조회 오류: " . $e->getMessage());
     }
     
-    if (count($files) > 0): ?>
+    if (is_array($files) && count($files) > 0): ?>
     <div class="info-card">
         <div class="info-section-title">📎 첨부파일 (<?php echo count($files); ?>개)</div>
         <div class="file-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">

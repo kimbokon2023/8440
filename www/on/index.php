@@ -584,8 +584,10 @@ body {
         }
 
         if (!empty($_GET['search'])) {
-            $where[] = "(c.company_name LIKE :search OR o.order_items LIKE :search)";
-            $params[':search'] = '%' . $_GET['search'] . '%';
+            $where[] = "(c.company_name LIKE :search1 OR o.order_items LIKE :search2)";
+            $searchTerm = '%' . $_GET['search'] . '%';
+            $params[':search1'] = $searchTerm;
+            $params[':search2'] = $searchTerm;
         }
 
         $sql = "SELECT DISTINCT
@@ -609,8 +611,18 @@ body {
                 ORDER BY o.order_date DESC, o.created_at DESC
                 LIMIT 100";
 
+        // 디버깅: SQL과 파라미터 출력 (개발 중에만 사용)
+        // echo "<!-- SQL: " . htmlspecialchars($sql) . " -->\n";
+        // echo "<!-- Params: " . htmlspecialchars(print_r($params, true)) . " -->\n";
+
         $stmt = $pdo->prepare($sql);
-        $stmt->execute($params);
+        
+        // 파라미터를 하나씩 바인딩 (PHP 7.3 호환성)
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+        
+        $stmt->execute();
         $orders = $stmt->fetchAll();
 
         if (count($orders) > 0) {

@@ -1847,15 +1847,15 @@ $("#form-submit").click(function () {
 ajaxRequest = null;	 
   
 $(document).ready(function(){  
-	$("#loginBtn").click(function(){ 
-	
-     const home = '<?php echo $home; ?>';			
-	  
-	  if (ajaxRequest !== null) {
-		ajaxRequest.abort();
-	  }
+	// 로그인 처리 함수
+	function performLogin() {
+		const home = '<?php echo $home; ?>';			
+		
+		if (ajaxRequest !== null) {
+			ajaxRequest.abort();
+		}
 
-	 // data 전송해서 php 값을 넣기 위해 필요한 구문
+		// data 전송해서 php 값을 넣기 위해 필요한 구문
 		ajaxRequest = $.ajax({
 			url: '/login/login_confirm.php',
 			type: "post",		
@@ -1891,7 +1891,28 @@ $(document).ready(function(){
 			error : function( jqxhr , status , error ){
 				console.log( jqxhr , status , error );
 						} 			      		
-		   });				  
+		   });
+	}
+	
+	// 로그인 버튼 클릭 이벤트
+	$("#loginBtn").click(function(){ 
+		performLogin();
+	});
+	
+	// 폼 제출 이벤트 (엔터키 처리)
+	$("#login_form").on('submit', function(e){
+		e.preventDefault(); // 기본 폼 제출 방지
+		performLogin();
+		return false;
+	});
+	
+	// ID, Password 입력창에서 엔터키 처리
+	$("#uid, #upw").on('keypress', function(e){
+		if(e.which === 13) { // 엔터키 코드
+			e.preventDefault();
+			performLogin();
+			return false;
+		}
 	});		
 		
 	$("#logoutBtn").click(function(){ 	

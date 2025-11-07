@@ -679,161 +679,165 @@ try{
 		  <button id="searchBtn" type="button" class="btn btn-dark  btn-sm" > <i class="bi bi-search"></i> 검색 </button> 		  
 		  &nbsp;&nbsp;&nbsp;		    
 
-				 <button type="button" class="btn btn-dark  btn-sm me-1" id="writeBtn"> <i class="bi bi-pencil-fill"></i> 신규  </button> 	     
-				 <button  type="button" id="rawmaterialBtn"  class="btn btn-dark btn-sm" > <i class="bi bi-list"></i> 재고 </button> &nbsp;	
-         </div> 	 
+				 <button type="button" class="btn btn-dark  btn-sm me-1" id="writeBtn"> <i class="bi bi-pencil-fill"></i> 신규  </button>
+				 <button  type="button" id="rawmaterialBtn"  class="btn btn-dark btn-sm" > <i class="bi bi-list"></i> 재고 </button> &nbsp;
+				 <button type="button" class="btn btn-outline-primary btn-sm me-2" onclick="openColumnSettings()" style="border-radius: 25px; padding: 0.5rem 1rem;">
+					<i class="bi bi-gear"></i> 컬럼 설정
+				 </button>
+         </div>
    </div> <!--card-body-->
-   </div> <!--card -->   
-</div> <!--card -->   
-<div class="container-fluid">   
-<!-- Column Visibility Controls -->
-<div class="row">
-    <!-- 컬럼 표시 설정 카드 (전체 너비) --> 
-    <div class="col-12"> 
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card column-settings-card">
-                    <div class="card-header" style="cursor: pointer;" id="column-settings-header">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h6 class="mb-0">🔧 컬럼 표시 설정</h6>
-                            <i class="bi bi-chevron-down" id="column-settings-icon"></i>
+   </div> <!--card -->
+</div> <!--card -->
+<div class="container-fluid">
+
+<!-- 컬럼 설정 모달 -->
+<div class="modal fade" id="columnSettingsModal" tabindex="-1" aria-labelledby="columnSettingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); color: white;">
+                <h5 class="modal-title" id="columnSettingsModalLabel">
+                    <i class="bi bi-gear"></i> 컬럼 표시 설정
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted small mb-3">표시할 컬럼을 선택하세요. 설정은 자동으로 저장됩니다.</p>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="num" id="col-num" checked>
+                            <label class="form-check-label" for="col-num">번호</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="outsourcing" id="col-outsourcing" checked>
+                            <label class="form-check-label" for="col-outsourcing">외주</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="orderday" id="col-orderday" checked>
+                            <label class="form-check-label" for="col-orderday">접수</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="main_draw" id="col-main_draw" checked>
+                            <label class="form-check-label" for="col-main_draw">본설계</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="lc_draw" id="col-lc_draw" checked>
+                            <label class="form-check-label" for="col-lc_draw">L/C설계</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="etc_draw" id="col-etc_draw" checked>
+                            <label class="form-check-label" for="col-etc_draw">기타설계</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="mainassembly" id="col-mainassembly" checked>
+                            <label class="form-check-label" for="col-mainassembly">본제작</label>
                         </div>
                     </div>
-                    <div class="card-body collapse" id="column-settings-body">
-                        <div class="row">
-                            <div class="col-md-3">
-                                <div class="form-check">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="num" id="col-num" checked>
-                                    <label class="form-check-label" for="col-num">번호</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="outsourcing" id="col-outsourcing" checked>
-                                    <label class="form-check-label" for="col-outsourcing">외주</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="orderday" id="col-orderday" checked>
-                                    <label class="form-check-label" for="col-orderday">접수</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="main_draw" id="col-main_draw" checked>
-                                    <label class="form-check-label" for="col-main_draw">본설계</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="lc_draw" id="col-lc_draw" checked>
-                                    <label class="form-check-label" for="col-lc_draw">L/C설계</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="etc_draw" id="col-etc_draw" checked>
-                                    <label class="form-check-label" for="col-etc_draw">기타설계</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="mainassembly" id="col-mainassembly" checked>
-                                    <label class="form-check-label" for="col-mainassembly">본제작</label>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-check">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="lcassembly" id="col-lcassembly" checked>
-                                    <label class="form-check-label" for="col-lcassembly">L/C제작</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="etcassembly" id="col-etcassembly" checked>
-                                    <label class="form-check-label" for="col-etcassembly">기타제작</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="deadline" id="col-deadline" checked>
-                                    <label class="form-check-label" for="col-deadline">납기</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="workday" id="col-workday" checked>
-                                    <label class="form-check-label" for="col-workday">출고</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="photo" id="col-photo" checked>
-                                    <label class="form-check-label" for="col-photo">사진</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="demand" id="col-demand" checked>
-                                    <label class="form-check-label" for="col-demand">청구</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="workplacename" id="col-workplacename" checked>
-                                    <label class="form-check-label" for="col-workplacename">현장명</label>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-check">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="secondord" id="col-secondord" checked>
-                                    <label class="form-check-label" for="col-secondord">발주처</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="type" id="col-type" checked>
-                                    <label class="form-check-label" for="col-type">타입</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="inseung" id="col-inseung" checked>
-                                    <label class="form-check-label" for="col-inseung">인승</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="car_insize" id="col-car_insize" checked>
-                                    <label class="form-check-label" for="col-car_insize">inside</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="bon_su" id="col-bon_su" checked>
-                                    <label class="form-check-label" for="col-bon_su">본</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="lc_su" id="col-lc_su" checked>
-                                    <label class="form-check-label" for="col-lc_su">L/C</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="etc_su" id="col-etc_su" checked>
-                                    <label class="form-check-label" for="col-etc_su">기타</label>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-check">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="air_su" id="col-air_su" checked>
-                                    <label class="form-check-label" for="col-air_su">공청</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="order_com1" id="col-order_com1" checked>
-                                    <label class="form-check-label" for="col-order_com1">납품1</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="order_date1" id="col-order_date1" checked>
-                                    <label class="form-check-label" for="col-order_date1">주문1</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="order_com2" id="col-order_com2" checked>
-                                    <label class="form-check-label" for="col-order_com2">납품2</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="order_date2" id="col-order_date2" checked>
-                                    <label class="form-check-label" for="col-order_date2">주문2</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="order_com3" id="col-order_com3" checked>
-                                    <label class="form-check-label" for="col-order_com3">납품3</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="order_date3" id="col-order_date3" checked>
-                                    <label class="form-check-label" for="col-order_date3">주문3</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="memo" id="col-memo" checked>
-                                    <label class="form-check-label" for="col-memo">비고</label>
-                                </div>
-                            </div>
+                    <div class="col-md-3">
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="lcassembly" id="col-lcassembly" checked>
+                            <label class="form-check-label" for="col-lcassembly">L/C제작</label>
                         </div>
-                        <div class="mt-3">
-                            <button type="button" class="btn btn-primary btn-sm" id="select-all-columns">전체 선택</button>
-                            <button type="button" class="btn btn-secondary btn-sm" id="deselect-all-columns">전체 해제</button>
-                            <button type="button" class="btn btn-success btn-sm" id="save-column-settings">수동 저장</button>
-                            <small class="text-muted ms-2">* 체크박스 변경 시 자동 저장됩니다</small>
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="etcassembly" id="col-etcassembly" checked>
+                            <label class="form-check-label" for="col-etcassembly">기타제작</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="deadline" id="col-deadline" checked>
+                            <label class="form-check-label" for="col-deadline">납기</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="workday" id="col-workday" checked>
+                            <label class="form-check-label" for="col-workday">출고</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="photo" id="col-photo" checked>
+                            <label class="form-check-label" for="col-photo">사진</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="demand" id="col-demand" checked>
+                            <label class="form-check-label" for="col-demand">청구</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="workplacename" id="col-workplacename" checked>
+                            <label class="form-check-label" for="col-workplacename">현장명</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="secondord" id="col-secondord" checked>
+                            <label class="form-check-label" for="col-secondord">발주처</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="type" id="col-type" checked>
+                            <label class="form-check-label" for="col-type">타입</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="inseung" id="col-inseung" checked>
+                            <label class="form-check-label" for="col-inseung">인승</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="car_insize" id="col-car_insize" checked>
+                            <label class="form-check-label" for="col-car_insize">inside</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="bon_su" id="col-bon_su" checked>
+                            <label class="form-check-label" for="col-bon_su">본</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="lc_su" id="col-lc_su" checked>
+                            <label class="form-check-label" for="col-lc_su">L/C</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="etc_su" id="col-etc_su" checked>
+                            <label class="form-check-label" for="col-etc_su">기타</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="air_su" id="col-air_su" checked>
+                            <label class="form-check-label" for="col-air_su">공청</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="order_com1" id="col-order_com1" checked>
+                            <label class="form-check-label" for="col-order_com1">납품1</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="order_date1" id="col-order_date1" checked>
+                            <label class="form-check-label" for="col-order_date1">주문1</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="order_com2" id="col-order_com2" checked>
+                            <label class="form-check-label" for="col-order_com2">납품2</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="order_date2" id="col-order_date2" checked>
+                            <label class="form-check-label" for="col-order_date2">주문2</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="order_com3" id="col-order_com3" checked>
+                            <label class="form-check-label" for="col-order_com3">납품3</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="order_date3" id="col-order_date3" checked>
+                            <label class="form-check-label" for="col-order_date3">주문3</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="memo" id="col-memo" checked>
+                            <label class="form-check-label" for="col-memo">비고</label>
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" id="select-all-columns">전체 선택</button>
+                <button type="button" class="btn btn-secondary btn-sm" id="deselect-all-columns">전체 해제</button>
+                <button type="button" class="btn btn-outline-secondary" onclick="resetColumnSettings()">
+                    <i class="bi bi-arrow-clockwise"></i> 초기화
+                </button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+                    <i class="bi bi-check-lg"></i> 확인
+                </button>
             </div>
         </div>
     </div>
@@ -1654,9 +1658,6 @@ $(document).ready(function() {
         
         // Tabulator 행에 직접 클릭 이벤트 연결 (기존 함수)
         attachRowClickEvents();
-        
-        // 컬럼 설정 패널 상태 로드
-        loadPanelState();
 
         // 컬럼 가시성 설정은 tableBuilt 이벤트에서 로드됩니다
         
@@ -1679,21 +1680,6 @@ $(document).ready(function() {
         setCookie('ceilingpageNumber', pageno, 10);
     });
     
-    // 컬럼 설정 패널 토글
-    $('#column-settings-header').on('click', function() {
-        var body = $('#column-settings-body');
-        var icon = $('#column-settings-icon');
-        
-        if (body.hasClass('show')) {
-            body.removeClass('show');
-            icon.removeClass('rotated');
-            setCookie('columnPanelExpanded', 'false', 365);
-        } else {
-            body.addClass('show');
-            icon.addClass('rotated');
-            setCookie('columnPanelExpanded', 'true', 365);
-        }
-    });
     
     // 컬럼 토글 이벤트 (실시간 적용)
     $('.column-toggle').on('change', function() {
@@ -1730,12 +1716,14 @@ $(document).ready(function() {
         saveColumnSettings();
     });
     
-    // 설정 저장 버튼 (수동 저장)
-    $('#save-column-settings').on('click', function() {
-        saveColumnSettings();
-        alert('컬럼 설정이 저장되었습니다.');
-    });
 });
+
+// 컬럼 설정 모달 열기
+function openColumnSettings() {
+    // 모달 표시
+    var modal = new bootstrap.Modal(document.getElementById('columnSettingsModal'));
+    modal.show();
+}
 
 // 컬럼 설정 저장 함수
 function saveColumnSettings() {
@@ -1746,24 +1734,30 @@ function saveColumnSettings() {
     setCookie('columnSettings', JSON.stringify(settings), 365);
 }
 
-// 패널 상태 로드 함수
-function loadPanelState() {
-    var isExpanded = getCookie('columnPanelExpanded');
-    var body = $('#column-settings-body');
-    var icon = $('#column-settings-icon');
-    
-    if (isExpanded === 'true') {
-        body.addClass('show');
-        icon.addClass('rotated');
-    } else if (isExpanded === 'false') {
-        body.removeClass('show');
-        icon.removeClass('rotated');
-    } else {
-        // 기본값: 접힌 상태
-        body.removeClass('show');
-        icon.removeClass('rotated');
-        setCookie('columnPanelExpanded', 'false', 365);
+// 컬럼 설정 초기화
+function resetColumnSettings() {
+    // 쿠키 삭제
+    setCookie('columnSettings', '', -1);
+
+    // 모든 컬럼 표시
+    $('.column-toggle').prop('checked', true);
+    $('.column-toggle').each(function() {
+        var field = $(this).val();
+        if (table && table.showColumn) {
+            table.showColumn(field);
+        }
+    });
+
+    // 모달 닫기
+    var modal = bootstrap.Modal.getInstance(document.getElementById('columnSettingsModal'));
+    if (modal) {
+        modal.hide();
     }
+
+    // 모달 재오픈 (체크박스 상태 업데이트 위해)
+    setTimeout(function() {
+        openColumnSettings();
+    }, 300);
 }
 
 // 컬럼 설정 로드 함수

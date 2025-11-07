@@ -13,8 +13,11 @@ try {
     }
 
     if (!empty($_GET['search'])) {
-        $where[] = "(company_name LIKE :search OR manager_name LIKE :search OR tel LIKE :search)";
-        $params[':search'] = '%' . $_GET['search'] . '%';
+        $where[] = "(company_name LIKE :search1 OR manager_name LIKE :search2 OR tel LIKE :search3)";
+        $searchTerm = '%' . $_GET['search'] . '%';
+        $params[':search1'] = $searchTerm;
+        $params[':search2'] = $searchTerm;
+        $params[':search3'] = $searchTerm;
     }
 
     $sql = "SELECT c.id, c.company_name, c.business_number, c.ceo_name, c.address, 
@@ -27,8 +30,18 @@ try {
             ORDER BY c.created_at DESC
             LIMIT 100";
 
+    // 디버깅: SQL과 파라미터 출력 (개발 중에만 사용)
+    // echo "<!-- SQL: " . htmlspecialchars($sql) . " -->\n";
+    // echo "<!-- Params: " . htmlspecialchars(print_r($params, true)) . " -->\n";
+
     $stmt = $pdo->prepare($sql);
-    $stmt->execute($params);
+    
+    // 파라미터를 하나씩 바인딩 (PHP 7.3 호환성)
+    foreach ($params as $key => $value) {
+        $stmt->bindValue($key, $value);
+    }
+    
+    $stmt->execute();
     $customers = $stmt->fetchAll();
 
 } catch (PDOException $e) {

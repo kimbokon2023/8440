@@ -34,7 +34,7 @@ $title_message = '연장근무(잔업/특근) 사전승인 신청';
 
     // 관리자 권한 확인
     $admin = 0;
-    if ($user_name == '소현철' || $user_name == '김보곤' || $user_name == '최장중' || $user_name == '이경묵') {
+    if ($user_name == '소현철' || $user_name == '김보곤' || $user_name == '최장중' || $user_name == '이경묵' || $user_name == '조경임'  ) {
         $admin = 1;
     }
 
@@ -42,6 +42,8 @@ $title_message = '연장근무(잔업/특근) 사전승인 신청';
     $search = $_REQUEST["search"] ?? '';
     $mode = $_REQUEST["mode"] ?? '';
     $page = $_REQUEST["page"] ?? 1;
+    $year = $_REQUEST["year"] ?? date("Y");
+    $month = $_REQUEST["month"] ?? date("m");
 
     $tablename = "eworks";
     $scale = 50;
@@ -53,6 +55,9 @@ $title_message = '연장근무(잔업/특근) 사전승인 신청';
 
     // ot_type 컬럼을 이용해 연장근무만 필터링
     $overtimeFilter = " AND ot_type IS NOT NULL ";
+    
+    // 년월 필터링 (al_askdatefrom 기준)
+    $yearMonthFilter = " AND DATE_FORMAT(al_askdatefrom, '%Y-%m') = '" . $year . "-" . str_pad($month, 2, "0", STR_PAD_LEFT) . "' ";
 
     // 재직 직원 정보 로드 (연장근무는 제조파트, 지원파트만 대상)
     $employee_name_arr = array();
@@ -88,7 +93,7 @@ $title_message = '연장근무(잔업/특근) 사전승인 신청';
     }
     ?>
 
-    <form name="board_form" id="board_form" method="post" action="index.php?mode=search&search=<?= $search ?>">
+    <form name="board_form" id="board_form" method="post" action="index.php?mode=search&search=<?= $search ?>&year=<?= $year ?>&month=<?= $month ?>">
         <?php if ($chkMobile == false) { ?>
             <div class="container">
             <?php } else { ?>
@@ -111,22 +116,22 @@ $title_message = '연장근무(잔업/특근) 사전승인 신청';
                         if ($mode == "search" || $mode == "") {
                             if ($search == "") {
                                 if ($admin == 1) {
-                                    $sql = "SELECT * FROM " . $DB . "." . $tablename . $WhereisDeleted . $overtimeFilter . " ORDER BY al_askdatefrom DESC, registdate DESC LIMIT $first_num, $scale";
-                                    $sqlcon = "SELECT * FROM " . $DB . "." . $tablename . $WhereisDeleted . $overtimeFilter . " ORDER BY al_askdatefrom DESC, registdate DESC";
+                                    $sql = "SELECT * FROM " . $DB . "." . $tablename . $WhereisDeleted . $overtimeFilter . $yearMonthFilter . " ORDER BY al_askdatefrom DESC, registdate DESC LIMIT $first_num, $scale";
+                                    $sqlcon = "SELECT * FROM " . $DB . "." . $tablename . $WhereisDeleted . $overtimeFilter . $yearMonthFilter . " ORDER BY al_askdatefrom DESC, registdate DESC";
                                 } else {
-                                    $sql = "SELECT * FROM " . $DB . "." . $tablename . " WHERE author LIKE '%$user_name%' " . $AndisDeleted . $overtimeFilter . " ORDER BY al_askdatefrom DESC, registdate DESC LIMIT $first_num, $scale";
-                                    $sqlcon = "SELECT * FROM " . $DB . "." . $tablename . " WHERE author LIKE '%$user_name%' " . $AndisDeleted . $overtimeFilter . " ORDER BY al_askdatefrom DESC, registdate DESC";
+                                    $sql = "SELECT * FROM " . $DB . "." . $tablename . " WHERE author LIKE '%$user_name%' " . $AndisDeleted . $overtimeFilter . $yearMonthFilter . " ORDER BY al_askdatefrom DESC, registdate DESC LIMIT $first_num, $scale";
+                                    $sqlcon = "SELECT * FROM " . $DB . "." . $tablename . " WHERE author LIKE '%$user_name%' " . $AndisDeleted . $overtimeFilter . $yearMonthFilter . " ORDER BY al_askdatefrom DESC, registdate DESC";
                                 }
                             } elseif ($search != "") {
                                 if ($admin == 1) {
-                                    $sql = "SELECT * FROM " . $DB . "." . $tablename . " WHERE (author LIKE '%$search%') " . $AndisDeleted . $overtimeFilter;
+                                    $sql = "SELECT * FROM " . $DB . "." . $tablename . " WHERE (author LIKE '%$search%') " . $AndisDeleted . $overtimeFilter . $yearMonthFilter;
                                     $sql .= " ORDER BY al_askdatefrom DESC, registdate DESC LIMIT $first_num, $scale";
-                                    $sqlcon = "SELECT * FROM " . $DB . "." . $tablename . " WHERE (author LIKE '%$search%') " . $AndisDeleted . $overtimeFilter;
+                                    $sqlcon = "SELECT * FROM " . $DB . "." . $tablename . " WHERE (author LIKE '%$search%') " . $AndisDeleted . $overtimeFilter . $yearMonthFilter;
                                     $sqlcon .= " ORDER BY al_askdatefrom DESC, registdate DESC";
                                 } else {
-                                    $sql = "SELECT * FROM " . $DB . "." . $tablename . " WHERE (author = '$user_name') AND (author LIKE '%$search%') " . $AndisDeleted . $overtimeFilter;
+                                    $sql = "SELECT * FROM " . $DB . "." . $tablename . " WHERE (author = '$user_name') AND (author LIKE '%$search%') " . $AndisDeleted . $overtimeFilter . $yearMonthFilter;
                                     $sql .= " ORDER BY al_askdatefrom DESC, registdate DESC LIMIT $first_num, $scale";
-                                    $sqlcon = "SELECT * FROM " . $DB . "." . $tablename . " WHERE (author = '$user_name') AND (author LIKE '%$search%') " . $AndisDeleted . $overtimeFilter;
+                                    $sqlcon = "SELECT * FROM " . $DB . "." . $tablename . " WHERE (author = '$user_name') AND (author LIKE '%$search%') " . $AndisDeleted . $overtimeFilter . $yearMonthFilter;
                                     $sqlcon .= " ORDER BY al_askdatefrom DESC, registdate DESC";
                                 }
                             }
@@ -179,11 +184,46 @@ $title_message = '연장근무(잔업/특근) 사전승인 신청';
 
                             <div class="row">
                                 <div class="col-sm-12">
-                                    <div class="d-flex justify-content-end align-items-center mt-2 mb-2">
-                                        &nbsp;&nbsp;&nbsp; ▷ <?= $total_row ?> &nbsp;&nbsp;&nbsp;
-                                        <input type="text" name="search" id="search" class="form-control me-1" style="width:180px;" value="<?= $search ?>" onkeydown="JavaScript:SearchEnter();" autocomplete="off" placeholder="검색어">
-                                        <button type="button" id="searchBtn" class="btn btn-dark btn-sm ms-1 me-1"><i class="bi bi-search"></i> 검색</button>
-                                        <button type="button" id="writeBtn" class="btn btn-primary btn-sm ms-1 me-1"><i class="bi bi-pencil-square"></i> 신청</button>
+                                    <div class="d-flex justify-content-between align-items-center mt-2 mb-2">
+                                        <div class="d-flex align-items-center">
+                                            <span class="me-2" style="font-weight: 500;">년월 설정</span>
+                                            <select name="year" id="year" class="form-select form-select-sm w-auto text-center me-2">
+                                                <?php
+                                                $current_year = date("Y");
+                                                $year_arr = array();
+                                                
+                                                for ($i = 0; $i < 3; $i++) {
+                                                    $year_arr[] = $current_year - $i;
+                                                }
+                                                
+                                                for ($i = 0; $i < count($year_arr); $i++) {
+                                                    if ($year == $year_arr[$i]) {
+                                                        echo "<option selected value='" . $year_arr[$i] . "'>" . $year_arr[$i] . "</option>";
+                                                    } else {
+                                                        echo "<option value='" . $year_arr[$i] . "'>" . $year_arr[$i] . "</option>";
+                                                    }
+                                                }
+                                                ?>
+                                            </select>
+                                            <select name="month" id="month" class="form-select form-select-sm w-auto text-center">
+                                                <?php
+                                                $month_arr = array("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12");
+                                                for ($i = 0; $i < count($month_arr); $i++) {
+                                                    if ($month == $month_arr[$i]) {
+                                                        echo "<option selected value='" . $month_arr[$i] . "'>" . $month_arr[$i] . "</option>";
+                                                    } else {
+                                                        echo "<option value='" . $month_arr[$i] . "'>" . $month_arr[$i] . "</option>";
+                                                    }
+                                                }
+                                                ?>
+                                            </select>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            &nbsp;&nbsp;&nbsp; ▷ <?= $total_row ?> &nbsp;&nbsp;&nbsp;
+                                            <input type="text" name="search" id="search" class="form-control me-1" style="width:180px;" value="<?= $search ?>" onkeydown="JavaScript:SearchEnter();" autocomplete="off" placeholder="검색어">
+                                            <button type="button" id="searchBtn" class="btn btn-dark btn-sm ms-1 me-1"><i class="bi bi-search"></i> 검색</button>
+                                            <button type="button" id="writeBtn" class="btn btn-primary btn-sm ms-1 me-1"><i class="bi bi-pencil-square"></i> 신청</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -272,19 +312,19 @@ $title_message = '연장근무(잔업/특근) 사전승인 신청';
                                         $prev_page = $page - $page_scale;
                                         if ($prev_page <= 0)
                                             $prev_page = 1;
-                                        print "<a href=index.php?page=$prev_page&mode=search&search=$search>◀ </a>";
+                                        print "<a href='index.php?page=$prev_page&mode=search&search=$search&year=$year&month=$month'>◀ </a>";
                                     }
                                     for ($i = $start_page; $i <= $end_page && $i <= $total_page; $i++) {
                                         if ($page == $i)
                                             print "<font color=red><b>[$i]</b></font>";
                                         else
-                                            print "<a href=index.php?page=$i&mode=search&search=$search>[$i]</a>";
+                                            print "<a href='index.php?page=$i&mode=search&search=$search&year=$year&month=$month'>[$i]</a>";
                                     }
                                     if ($page < $total_page) {
                                         $next_page = $page + $page_scale;
                                         if ($next_page > $total_page)
                                             $next_page = $total_page;
-                                        print "<a href=index.php?page=$next_page&mode=search&search=$search> ▶</a><p>";
+                                        print "<a href='index.php?page=$next_page&mode=search&search=$search&year=$year&month=$month'> ▶</a><p>";
                                     }
                                     ?>
                                 </div>
@@ -392,7 +432,12 @@ $title_message = '연장근무(잔업/특근) 사전승인 신청';
                         </div>
 
                         <div class="mb-3">
-                            <label for="al_content" class="form-label">신청사유</label>
+                            <label for="al_content" class="form-label">
+                                신청사유
+                                <button type="button" class="btn btn-sm btn-outline-secondary ms-2" id="voiceBtn" title="음성으로 입력하기">
+                                    <i class="bi bi-mic-fill"></i>
+                                </button>
+                            </label>
                             <textarea class="form-control" id="al_content" name="al_content" rows="3" placeholder="연장근무 사유를 입력하세요" required></textarea>
                         </div>
 
@@ -467,6 +512,49 @@ function updatePartAndId(selectedName) {
         console.log('5-4. author_id 필드 설정 후:', $('#author_id').val());
         console.log('5-5. 🔥 전역 변수에 저장됨:', selectedEmployeeInfo);
         console.log('✅ 부서와 ID 설정 완료:', partValue, '/', idValue);
+
+        // 🔥 신규 작성 모드일 때만 근무유형 자동 선택
+        var currentMode = $('#mode').val();
+        console.log('6. 현재 모드:', currentMode);
+        
+        if (currentMode === 'insert') {
+            if (partValue === '지원파트') {
+                $('#ot_type').val('특근');
+                console.log('✅ 지원파트 감지 → 근무유형 "특근" 자동 선택');
+                
+                // 특근: 시작시간 08:00, 기본 8시간 (종료시간 16:00)
+                $('#ot_start_time').val('08:00');
+                console.log('✅ 특근 선택 → 시작시간 08:00 자동 설정');
+                
+                // 기본 8시간 후로 설정 (08:00 + 8시간 = 16:00)
+                // 쿠키가 있으면 나중에 loadFormFromCookie()에서 덮어씀
+                setEndTimeByHours(8);
+                console.log('✅ 특근 기본: 종료시간 16:00 (8시간) 자동 설정');
+                
+                // 빠른 시간 선택 버튼 생성
+                generateTimeButtons();
+                console.log('✅ 빠른 시간 선택 버튼 생성');
+                
+            } else if (partValue === '제조파트') {
+                $('#ot_type').val('잔업');
+                console.log('✅ 제조파트 감지 → 근무유형 "잔업" 자동 선택');
+                
+                // 잔업: 시작시간 17:00, 기본 3시간 (종료시간 20:00)
+                $('#ot_start_time').val('17:00');
+                console.log('✅ 잔업 선택 → 시작시간 17:00 자동 설정');
+                
+                // 기본 3시간 후로 설정 (17:00 + 3시간 = 20:00)
+                // 쿠키가 있으면 나중에 loadFormFromCookie()에서 덮어씀
+                setEndTimeByHours(3);
+                console.log('✅ 잔업 기본: 종료시간 20:00 (3시간) 자동 설정');
+                
+                // 빠른 시간 선택 버튼 생성
+                generateTimeButtons();
+                console.log('✅ 빠른 시간 선택 버튼 생성');
+            }
+        } else {
+            console.log('ℹ️ 수정 모드이므로 근무유형 자동 선택하지 않음 (기존 값 유지)');
+        }
     } else {
         console.log('❌ 선택된 이름이 배열에 없음');
         console.log('   배열 내용:', employeeNameArray);
@@ -527,8 +615,14 @@ $(document).ready(function() {
         resetModal();
         $('#overtimeModal').modal('show');
     });
+    
+    // 년월 선택 시 자동 검색
+    $("#year, #month").change(function() {
+        console.log('년월 변경:', $('#year').val() + '-' + $('#month').val());
+        document.getElementById('board_form').submit();
+    });
 
-    // 모달이 완전히 표시된 후 부서 정보 자동 매칭
+    // 모달이 완전히 표시된 후 처리
     $('#overtimeModal').on('shown.bs.modal', function () {
         var currentMode = $('#mode').val();
         console.log('모달이 표시되었습니다. 현재 모드:', currentMode);
@@ -542,6 +636,23 @@ $(document).ready(function() {
             console.log('수정 모드: 전역 변수 확인 -', selectedEmployeeInfo);
             console.log('성명 필드 값:', $('#author').val());
         }
+        
+        // 🔥 빠른 시간 선택 버튼이 항상 나오도록 시작시간 확인
+        setTimeout(function() {
+            var startTime = $('#ot_start_time').val();
+            if (startTime) {
+                // 버튼이 이미 생성되어 있는지 확인
+                var buttonCount = $('#time_button_container button').length;
+                if (buttonCount === 0) {
+                    generateTimeButtons();
+                    console.log('✅ 모달 표시 후: 빠른 시간 선택 버튼 생성 (시작시간:', startTime, ')');
+                } else {
+                    console.log('ℹ️ 빠른 시간 선택 버튼이 이미 생성되어 있음 (', buttonCount, '개)');
+                }
+            } else {
+                console.log('ℹ️ 시작시간이 없어 빠른 시간 선택 버튼을 생성하지 않음');
+            }
+        }, 200); // 모든 값이 설정된 후 실행
     });
 
     // 테이블 행 클릭 (수정)
@@ -552,15 +663,33 @@ $(document).ready(function() {
         }
     });
 
-    // 시작/종료 시간 변경 시 연장시간 자동 계산 및 쿠키 저장
-    $("#ot_start_time, #ot_end_time").change(function() {
-        calculateHours();
+    // 시작시간 변경 시 처리
+    $("#ot_start_time").change(function() {
+        const overtimeType = $('#ot_type').val();
+        const startTime = $(this).val();
+        
+        console.log('시작시간 변경:', startTime, ', 근무유형:', overtimeType);
+        
+        // 특근이고 종료시간이 비어있으면 자동으로 8시간 후 설정
+        if (overtimeType === '특근' && startTime && !$('#ot_end_time').val()) {
+            setEndTimeByHours(8);
+            console.log('✅ 특근: 시작시간 입력 → 8시간 후 자동 설정');
+        } else {
+            // 그 외의 경우는 연장시간 재계산
+            calculateHours();
+        }
+        
+        // 빠른 시간 선택 버튼 생성
+        generateTimeButtons();
+        
+        // 쿠키 저장
         saveTimeToCookie();
     });
 
-    // 시작시간 변경 시 빠른 시간 선택 버튼 생성
-    $("#ot_start_time").change(function() {
-        generateTimeButtons();
+    // 종료시간 변경 시 연장시간 자동 계산 및 쿠키 저장
+    $("#ot_end_time").change(function() {
+        calculateHours();
+        saveTimeToCookie();
     });
 
     // 식사시간 공제 체크박스 변경 시
@@ -571,8 +700,8 @@ $(document).ready(function() {
     // 기억하기 체크박스 변경 시
     $("#remember_time").change(function() {
         if ($(this).is(':checked')) {
-            console.log('✅ 기억하기 활성화: 시간 변경 시 쿠키에 자동 저장됩니다.');
-            // 현재 설정된 시간이 있으면 즉시 저장
+            console.log('✅ 기억하기 활성화: 폼 데이터가 저장 시 쿠키에 저장됩니다.');
+            // 현재 설정된 값이 있으면 즉시 저장
             const currentStartTime = $('#ot_start_time').val();
             const currentEndTime = $('#ot_end_time').val();
             if (currentStartTime || currentEndTime) {
@@ -580,10 +709,15 @@ $(document).ready(function() {
                 console.log('현재 시간을 쿠키에 저장했습니다.');
             }
         } else {
-            console.log('❌ 기억하기 비활성화: 쿠키가 삭제됩니다.');
-            // 쿠키 삭제 (만료일을 과거로 설정)
-            setCookie('ot_start_time', '', -1);
-            setCookie('ot_end_time', '', -1);
+            console.log('❌ 기억하기 비활성화: 모든 쿠키가 삭제됩니다.');
+            // 모든 쿠키 삭제 (만료일을 과거로 설정)
+            setCookie('overtime_ot_type', '', -1);
+            setCookie('overtime_al_askdatefrom', '', -1);
+            setCookie('overtime_ot_start_time', '', -1);
+            setCookie('overtime_ot_end_time', '', -1);
+            setCookie('overtime_meal_deduction', '', -1);
+            setCookie('overtime_al_content', '', -1);
+            console.log('✅ 모든 폼 데이터 쿠키 삭제 완료');
         }
     });
 
@@ -650,56 +784,114 @@ function getCookie(name) {
     return null;
 }
 
-// 시간 쿠키 저장
+// 폼 데이터를 쿠키에 저장 (저장 버튼 클릭 시)
+function saveFormToCookie() {
+    if ($('#remember_time').is(':checked')) {
+        const formData = {
+            ot_type: $('#ot_type').val(),
+            al_askdatefrom: $('#al_askdatefrom').val(),
+            ot_start_time: $('#ot_start_time').val(),
+            ot_end_time: $('#ot_end_time').val(),
+            meal_deduction: $('#meal_deduction').is(':checked') ? '1' : '0',
+            al_content: $('#al_content').val()
+        };
+
+        // 각 필드를 쿠키에 저장 (30일 유효)
+        Object.keys(formData).forEach(key => {
+            if (formData[key]) {
+                setCookie('overtime_' + key, formData[key], 30);
+            }
+        });
+
+        console.log('✅ 모든 폼 데이터 쿠키에 저장:', formData);
+    } else {
+        console.log('ℹ️ 기억하기가 체크되지 않아 쿠키에 저장하지 않음');
+    }
+}
+
+// 시간 변경 시 즉시 쿠키 저장 (기존 기능 유지)
 function saveTimeToCookie() {
     if ($('#remember_time').is(':checked')) {
         const startTime = $('#ot_start_time').val();
         const endTime = $('#ot_end_time').val();
 
-        if (startTime) setCookie('ot_start_time', startTime, 30);
-        if (endTime) setCookie('ot_end_time', endTime, 30);
+        if (startTime) setCookie('overtime_ot_start_time', startTime, 30);
+        if (endTime) setCookie('overtime_ot_end_time', endTime, 30);
 
         console.log('시간 쿠키 저장:', { startTime, endTime });
     }
 }
 
-// 쿠키에서 시간 불러오기 (신규 작성 모드에서만)
-function loadTimeFromCookie() {
+// 쿠키에서 폼 데이터 불러오기 (신규 작성 모드에서만)
+function loadFormFromCookie() {
     // 신규 작성 모드가 아니면 쿠키 불러오기 안 함
     const currentMode = $('#mode').val();
     if (currentMode !== 'insert') {
-        console.log('수정 모드이므로 쿠키에서 시간을 불러오지 않습니다.');
+        console.log('수정 모드이므로 쿠키에서 데이터를 불러오지 않습니다.');
         return;
     }
 
     if ($('#remember_time').is(':checked')) {
-        const savedStartTime = getCookie('ot_start_time');
-        const savedEndTime = getCookie('ot_end_time');
-
         console.log('');
-        console.log('=== 쿠키에서 시간 불러오기 (기억하기 기능) ===');
-        console.log('저장된 시작시간:', savedStartTime || '없음');
-        console.log('저장된 종료시간:', savedEndTime || '없음');
+        console.log('=== 쿠키에서 폼 데이터 불러오기 (기억하기 기능) ===');
+        
+        const savedData = {
+            ot_type: getCookie('overtime_ot_type'),
+            al_askdatefrom: getCookie('overtime_al_askdatefrom'),
+            ot_start_time: getCookie('overtime_ot_start_time'),
+            ot_end_time: getCookie('overtime_ot_end_time'),
+            meal_deduction: getCookie('overtime_meal_deduction'),
+            al_content: getCookie('overtime_al_content')
+        };
 
-        if (savedStartTime) {
-            $('#ot_start_time').val(savedStartTime);
-            console.log('✅ 시작시간 복원:', savedStartTime);
+        console.log('저장된 데이터:', savedData);
+
+        // 근무유형 복원 (부서별 자동 설정보다 우선)
+        if (savedData.ot_type) {
+            $('#ot_type').val(savedData.ot_type);
+            console.log('✅ 근무유형 복원:', savedData.ot_type);
         }
-        if (savedEndTime) {
-            $('#ot_end_time').val(savedEndTime);
-            console.log('✅ 종료시간 복원:', savedEndTime);
+
+        // 작업일자 복원
+        if (savedData.al_askdatefrom) {
+            $('#al_askdatefrom').val(savedData.al_askdatefrom);
+            console.log('✅ 작업일자 복원:', savedData.al_askdatefrom);
+        }
+
+        // 시작시간 복원
+        if (savedData.ot_start_time) {
+            $('#ot_start_time').val(savedData.ot_start_time);
+            console.log('✅ 시작시간 복원:', savedData.ot_start_time);
+        }
+
+        // 종료시간 복원
+        if (savedData.ot_end_time) {
+            $('#ot_end_time').val(savedData.ot_end_time);
+            console.log('✅ 종료시간 복원:', savedData.ot_end_time);
+        }
+
+        // 식사시간 공제 복원
+        if (savedData.meal_deduction) {
+            $('#meal_deduction').prop('checked', savedData.meal_deduction === '1');
+            console.log('✅ 식사시간 공제 복원:', savedData.meal_deduction === '1');
+        }
+
+        // 신청사유 복원
+        if (savedData.al_content) {
+            $('#al_content').val(savedData.al_content);
+            console.log('✅ 신청사유 복원:', savedData.al_content);
         }
 
         // 시간이 모두 있으면 자동 계산
-        if (savedStartTime && savedEndTime) {
+        if (savedData.ot_start_time && savedData.ot_end_time) {
             calculateHours();
             console.log('✅ 연장시간 자동 계산 완료');
-            
-            // 빠른 시간 선택 버튼도 생성
-            if (savedStartTime) {
-                generateTimeButtons();
-                console.log('✅ 빠른 시간 선택 버튼 생성 완료');
-            }
+        }
+        
+        // 시작시간이 있으면 빠른 시간 선택 버튼 생성
+        if (savedData.ot_start_time) {
+            generateTimeButtons();
+            console.log('✅ 빠른 시간 선택 버튼 생성 완료');
         }
         
         console.log('===========================================');
@@ -743,14 +935,26 @@ function resetModal() {
 
     // 성명이 설정되었으므로 부서와 ID도 자동으로 설정
     // (change 이벤트가 발생하지 않으므로 명시적으로 호출)
+    // ✅ updatePartAndId() 안에서 부서에 따른 근무유형 자동 선택 및 시간 설정이 이루어짐
     console.log('resetModal에서 updatePartAndId() 호출');
-    updatePartAndId(currentUser);
-
+    
     // 기억하기 체크박스 기본값으로 체크
     $('#remember_time').prop('checked', true);
-
-    // 쿠키에서 시간 불러오기
-    loadTimeFromCookie();
+    
+    // updatePartAndId() 호출 (부서별 근무유형 자동 선택 포함)
+    updatePartAndId(currentUser);
+    
+    // 🔥 쿠키에서 모든 폼 데이터 불러오기 (쿠키가 있으면 부서별 기본값을 덮어씀)
+    loadFormFromCookie();
+    
+    // 🔥 빠른 시간 선택 버튼이 항상 나오도록 시작시간 확인
+    setTimeout(function() {
+        var startTime = $('#ot_start_time').val();
+        if (startTime) {
+            generateTimeButtons();
+            console.log('✅ resetModal: 빠른 시간 선택 버튼 생성 (시작시간:', startTime, ')');
+        }
+    }, 100); // 약간의 지연을 두어 모든 값이 설정된 후 실행
 
     console.log('===== resetModal() 함수 종료 =====');
 }
@@ -758,15 +962,45 @@ function resetModal() {
 function handleOvertimeTypeChange() {
     const overtimeType = $('#ot_type').val();
 
+    console.log('근무유형 변경:', overtimeType);
+
     if (overtimeType === '잔업') {
         // 잔업 선택 시 시작시간을 오후 5:00 (17:00)로 자동 설정
         $('#ot_start_time').val('17:00');
-        // 시간이 변경되었으므로 연장시간 재계산
-        if ($('#ot_end_time').val()) {
+        console.log('✅ 잔업 선택 → 시작시간 17:00 자동 설정');
+        
+        // 종료시간이 없으면 기본 3시간 후 (20:00) 자동 설정
+        if (!$('#ot_end_time').val()) {
+            setEndTimeByHours(3);
+            console.log('✅ 잔업 선택 → 종료시간 20:00 (3시간) 자동 설정');
+        } else {
+            // 종료시간이 있으면 연장시간 재계산
             calculateHours();
         }
+        
+        // 빠른 시간 선택 버튼 생성
+        generateTimeButtons();
+        
+    } else if (overtimeType === '특근') {
+        console.log('✅ 특근 선택');
+        
+        // 특근: 시작시간 08:00, 기본 8시간 (종료시간 16:00)
+        $('#ot_start_time').val('08:00');
+        console.log('✅ 특근 선택 → 시작시간 08:00 자동 설정');
+        
+        // 종료시간이 없으면 기본 8시간 후 (16:00) 자동 설정
+        if (!$('#ot_end_time').val()) {
+            setEndTimeByHours(8);
+            console.log('✅ 특근 선택 → 종료시간 16:00 (8시간) 자동 설정');
+        } else {
+            // 종료시간이 있으면 연장시간 재계산
+            calculateHours();
+        }
+        
+        // 빠른 시간 선택 버튼 생성
+        generateTimeButtons();
+        console.log('✅ 빠른 시간 선택 버튼 생성');
     }
-    // 특근 선택 시에는 자동 설정하지 않음
 }
 
 function handleReasonChange() {
@@ -946,6 +1180,13 @@ function loadOvertimeData(num) {
                 }
 
                 $('#overtimeModalLabel').text('연장근무 수정');
+                
+                // 🔥 수정 모드에서도 빠른 시간 선택 버튼 생성
+                if (data.data.ot_start_time) {
+                    generateTimeButtons();
+                    console.log('✅ 수정 모드: 빠른 시간 선택 버튼 생성 (시작시간:', data.data.ot_start_time, ')');
+                }
+                
                 $('#overtimeModal').modal('show');
             } else {
                 alert(data.message || '데이터 로드 실패');
@@ -988,6 +1229,41 @@ function calculateHours() {
         $('#al_usedday').val(diff.toFixed(1));
         console.log('계산된 연장시간:', diff.toFixed(1), '시간 (식사시간 공제:', isMealDeduction, ')');
     }
+}
+
+/**
+ * 시작시간으로부터 지정된 시간만큼 후의 종료시간을 자동으로 설정하는 함수
+ * @param {number} hours - 연장 근무 시간 (3 또는 8)
+ */
+function setEndTimeByHours(hours) {
+    const startTime = $('#ot_start_time').val();
+    
+    if (!startTime) {
+        console.warn('시작시간이 설정되지 않아 종료시간을 계산할 수 없습니다.');
+        return;
+    }
+    
+    // 시작시간을 Date 객체로 변환
+    const start = new Date('2000-01-01 ' + startTime);
+    
+    // 지정된 시간(hours)을 밀리초로 변환하여 더하기
+    const endTimeMs = start.getTime() + (hours * 60 * 60 * 1000);
+    const end = new Date(endTimeMs);
+    
+    // 시간과 분을 추출
+    let endHours = end.getHours();
+    let endMinutes = end.getMinutes();
+    
+    // HH:MM 형식으로 변환
+    const endTimeStr = String(endHours).padStart(2, '0') + ':' + String(endMinutes).padStart(2, '0');
+    
+    // 종료시간 설정
+    $('#ot_end_time').val(endTimeStr);
+    
+    // 연장시간 자동 계산
+    calculateHours();
+    
+    console.log('✅ setEndTimeByHours: 시작시간', startTime, '+ ', hours, '시간 =', endTimeStr);
 }
 
 function calculateEndTime() {
@@ -1159,6 +1435,10 @@ function saveOvertimeData() {
             console.log(JSON.stringify(data, null, 2));
             
             if (data.success) {
+                // 🔥 저장 성공 시 쿠키에 폼 데이터 저장
+                saveFormToCookie();
+                console.log('✅ 저장 성공 후 쿠키에 폼 데이터 저장 완료');
+                
                 alert(data.message || '저장되었습니다.');
                 $('#overtimeModal').modal('hide');
                 location.reload();
@@ -1242,9 +1522,15 @@ function generateTimeButtons() {
             workTimeLabel = workMinutesPart + '분';
         }
 
+        // 3시간(180분) 또는 8시간(480분)일 때, "btn-outline-danger" 추가
+        let btnClass = 'btn btn-outline-primary btn-sm';
+        if (workMinutes === 180 || workMinutes === 480) {
+            btnClass = 'btn btn-outline-danger btn-sm';
+        }
+
         // 버튼 생성: "30분" 또는 "1시간" 형식 (종료시간 표시 제거)
         const button = $('<button>')
-            .addClass('btn btn-outline-primary btn-sm')
+            .addClass(btnClass)
             .attr('type', 'button')
             .attr('data-time', timeStr)
             .attr('title', '종료시간: ' + timeStr)  // 마우스 오버 시 종료시간 표시
@@ -1274,6 +1560,136 @@ function selectQuickTime(timeStr) {
 $(document).ready(function() {
     var title = '<?php echo $title_message; ?>';
     saveMenuLog(title);
+});
+
+// ===== 음성인식 기능 =====
+let recognition = null;
+let isRecording = false;
+let finalTranscript = '';
+let interimTranscript = '';
+
+// Web Speech API 초기화
+function initSpeechRecognition() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+        alert('이 브라우저는 음성 인식을 지원하지 않습니다.\nChrome 브라우저를 사용하세요.');
+        return false;
+    }
+
+    recognition = new SpeechRecognition();
+    recognition.lang = 'ko-KR';           // 한국어 설정
+    recognition.continuous = true;        // 연속 인식
+    recognition.interimResults = true;    // 중간 결과 표시
+    recognition.maxAlternatives = 1;
+
+    // 음성 인식 결과 처리
+    recognition.onresult = function(event) {
+        interimTranscript = '';
+
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcript = event.results[i][0].transcript;
+
+            if (event.results[i].isFinal) {
+                finalTranscript += transcript + ' ';
+            } else {
+                interimTranscript += transcript;
+            }
+        }
+
+        // textarea에 실시간 업데이트
+        const displayText = finalTranscript + interimTranscript;
+        $('#al_content').val(displayText);
+
+        console.log('음성 인식 중:', displayText);
+    };
+
+    // 음성 인식 시작
+    recognition.onstart = function() {
+        console.log('음성 인식 시작');
+        isRecording = true;
+        $('#voiceBtn').removeClass('btn-outline-secondary').addClass('btn-danger');
+        $('#voiceBtn').html('<i class="bi bi-stop-fill"></i>');
+        $('#voiceBtn').attr('title', '녹음 중지');
+    };
+
+    // 음성 인식 종료
+    recognition.onend = function() {
+        console.log('음성 인식 종료');
+        isRecording = false;
+        $('#voiceBtn').removeClass('btn-danger').addClass('btn-outline-secondary');
+        $('#voiceBtn').html('<i class="bi bi-mic-fill"></i>');
+        $('#voiceBtn').attr('title', '음성으로 입력하기');
+    };
+
+    // 에러 처리
+    recognition.onerror = function(event) {
+        console.error('음성 인식 오류:', event.error);
+
+        switch(event.error) {
+            case 'no-speech':
+                console.log('음성이 감지되지 않았습니다.');
+                break;
+            case 'aborted':
+                console.log('음성 인식이 중단되었습니다.');
+                break;
+            case 'not-allowed':
+                alert('마이크 권한을 허용해주세요.');
+                break;
+            default:
+                console.error('음성 인식 오류가 발생했습니다:', event.error);
+        }
+
+        // 오류 발생 시 버튼 상태 초기화
+        isRecording = false;
+        $('#voiceBtn').removeClass('btn-danger').addClass('btn-outline-secondary');
+        $('#voiceBtn').html('<i class="bi bi-mic-fill"></i>');
+        $('#voiceBtn').attr('title', '음성으로 입력하기');
+    };
+
+    return true;
+}
+
+// 음성 인식 시작/중지 토글
+function toggleVoiceRecognition() {
+    if (!recognition) {
+        if (!initSpeechRecognition()) {
+            return;
+        }
+    }
+
+    if (isRecording) {
+        // 녹음 중지
+        recognition.stop();
+        console.log('음성 인식 중지 요청');
+    } else {
+        // 녹음 시작
+        finalTranscript = $('#al_content').val() || '';  // 기존 텍스트 유지
+        interimTranscript = '';
+
+        try {
+            recognition.start();
+            console.log('음성 인식 시작 요청');
+        } catch (error) {
+            console.error('음성 인식 시작 오류:', error);
+            alert('음성 인식을 시작할 수 없습니다.');
+        }
+    }
+}
+
+// 음성 버튼 클릭 이벤트
+$(document).on('click', '#voiceBtn', function(e) {
+    e.preventDefault();
+    console.log('음성 버튼 클릭, 현재 상태:', isRecording ? '녹음 중' : '대기 중');
+    toggleVoiceRecognition();
+});
+
+// 모달이 닫힐 때 음성 인식 중지
+$('#overtimeModal').on('hidden.bs.modal', function () {
+    if (recognition && isRecording) {
+        recognition.stop();
+        console.log('모달 닫힘: 음성 인식 중지');
+    }
 });
 </script>
 

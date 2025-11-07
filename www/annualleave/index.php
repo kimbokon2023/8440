@@ -140,22 +140,22 @@ $title_message = '직원 연차';
                         if ($mode == "search" || $mode == "") {
                             if ($search == "") {
                                 if ($admin == 1) {
-                                    $sql = "select * from " . $DB . "." . $tablename . $WhereisDeleted . " order by al_askdatefrom desc, registdate desc limit $first_num, $scale";
-                                    $sqlcon = "select * from " . $DB . "." . $tablename . $WhereisDeleted . " order by al_askdatefrom desc, registdate desc";
+                                    $sql = "select * from " . $DB . "." . $tablename . $WhereisDeleted . " AND al_item IS NOT NULL AND al_item != '' order by al_askdatefrom desc, registdate desc limit $first_num, $scale";
+                                    $sqlcon = "select * from " . $DB . "." . $tablename . $WhereisDeleted . " AND al_item IS NOT NULL AND al_item != '' order by al_askdatefrom desc, registdate desc";
                                 } else {
-                                    $sql = "select * from " . $DB . "." . $tablename . " where author like '%$user_name%' " . $AndisDeleted . " order by al_askdatefrom desc, registdate desc limit $first_num, $scale";
-                                    $sqlcon = "select * from " . $DB . "." . $tablename . " where author like '%$user_name%' " . $AndisDeleted . " order by al_askdatefrom desc, registdate desc";
+                                    $sql = "select * from " . $DB . "." . $tablename . " where author like '%$user_name%' " . $AndisDeleted . " AND al_item IS NOT NULL AND al_item != '' order by al_askdatefrom desc, registdate desc limit $first_num, $scale";
+                                    $sqlcon = "select * from " . $DB . "." . $tablename . " where author like '%$user_name%' " . $AndisDeleted . " AND al_item IS NOT NULL AND al_item != '' order by al_askdatefrom desc, registdate desc";
                                 }
                             } elseif ($search != "") {
                                 if ($admin == 1) {
-                                    $sql = "select * from " . $DB . "." . $tablename . " where (author like '%$search%') " . $AndisDeleted;
+                                    $sql = "select * from " . $DB . "." . $tablename . " where (author like '%$search%') " . $AndisDeleted . " AND al_item IS NOT NULL AND al_item != ''";
                                     $sql .= " order by al_askdatefrom desc, registdate desc limit $first_num, $scale";
-                                    $sqlcon = "select * from " . $DB . "." . $tablename . " where (author like '%$search%') " . $AndisDeleted;
+                                    $sqlcon = "select * from " . $DB . "." . $tablename . " where (author like '%$search%') " . $AndisDeleted . " AND al_item IS NOT NULL AND al_item != ''";
                                     $sqlcon .= " order by al_askdatefrom desc, registdate desc";
                                 } else {
-                                    $sql = "select * from " . $DB . "." . $tablename . " where (author = '$user_name') and (author like '%$search%') " . $AndisDeleted;
+                                    $sql = "select * from " . $DB . "." . $tablename . " where (author = '$user_name') and (author like '%$search%') " . $AndisDeleted . " AND al_item IS NOT NULL AND al_item != ''";
                                     $sql .= " order by al_askdatefrom desc, registdate desc limit $first_num, $scale";
-                                    $sqlcon = "select * from " . $DB . "." . $tablename . " where (author = '$user_name') and (author like '%$search%') " . $AndisDeleted;
+                                    $sqlcon = "select * from " . $DB . "." . $tablename . " where (author = '$user_name') and (author like '%$search%') " . $AndisDeleted . " AND al_item IS NOT NULL AND al_item != ''";
                                     $sqlcon .= " order by al_askdatefrom desc, registdate desc";
                                 }
                             }

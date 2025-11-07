@@ -12,7 +12,8 @@
       "Bash(curl:*)",
       "Read(//c/**)",
       "Bash(mkdir:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(c:/xampp/apache/bin/httpd.exe:*)"
     ],
     "deny": [],
     "ask": []
