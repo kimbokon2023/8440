@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../common/functions.php';
 require_once(includePath('session.php'));
 require_once(includePath('lib/mydb.php'));
+require_once __DIR__ . '/helpers.php';
 
 // 세션 변수 초기화
 $user_id = $_SESSION["userid"] ?? '';
@@ -109,8 +110,8 @@ for ($i = 0; $i < count($firstStepID); $i++) {
 }
 
 // 숨김 조건 설정
-$viewcon = " AND CONCAT('!', e_viewexcept_id, '!') NOT LIKE '%!{$user_id}!%' ";
-$viewconNone = " AND CONCAT('!', e_viewexcept_id, '!') LIKE '%!{$user_id}!%' ";
+$viewcon = " AND CONCAT('!', COALESCE(e_viewexcept_id, ''), '!') NOT LIKE '%!{$user_id}!%' ";
+$viewconNone = " AND CONCAT('!', COALESCE(e_viewexcept_id, ''), '!') LIKE '%!{$user_id}!%' ";
 
 if($admin)
 {
@@ -132,17 +133,16 @@ switch($eworksel) {
 		$andwhere = "AND " . $all;
 		break;
 	case 'noend': // 미결인 경우
-		// 첫 번째 결재권자에 대해 '상신' 상태를 '미결'로 처리
-		// 그리고 나머지 결재권자에 대해서는 다음 결재자가 되는 경우를 처리
-		$all = "CONCAT('!', e_line_id, '!') LIKE '%!{$user_id}!%' " .
-			   "AND ( " .
-			   "    (CONCAT('!', e_confirm_id, '!') = '!!' AND LOCATE('{$user_id}', e_line_id) = 1 AND status = 'send') " .
-			   "    OR " .
-			   "    (CONCAT('!', e_confirm_id, '!') NOT LIKE '%!{$user_id}!%' AND INSTR(CONCAT('!', e_line_id, '!'), CONCAT('!', SUBSTRING_INDEX(e_confirm_id, '!', -1), '!', '{$user_id}', '!')) > 0 AND status != 'send')" .
-			   ") " .
-			   "AND is_deleted IS NULL AND status != 'end' AND status != 'reject' AND status != 'wait'" . $viewcon;
-		$where = "WHERE " . $all;
-		$andwhere = "AND " . $all;
+		$pendingIds = fetchPendingApprovalIds($pdo, $DB, $user_id);
+		if (empty($pendingIds)) {
+			$where = "WHERE 0";
+			$andwhere = "AND 0";
+		} else {
+			$idList = implode(',', array_map('intval', $pendingIds));
+			$condition = "num IN ({$idList})";
+			$where = "WHERE {$condition}";
+			$andwhere = "AND {$condition}";
+		}
 		break;
 
 	case 'ing': // 진행중인 경우

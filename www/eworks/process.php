@@ -136,6 +136,7 @@ try {
         error_log("받은 e_confirm_id: " . ($e_confirm_id ?? 'NULL'));
         
         $e_confirm_value = ($e_confirm === '' || $e_confirm === null) ? $user_name . " " . getPosition($user_id, $pdo, $DB) . " " . $date : $e_confirm . '!' . $user_name . " " . getPosition($user_id, $pdo, $DB) . " " . $date;
+        // update approval history: append current approver id separated by '!'
         $e_confirm_id_value = ($e_confirm_id === '' || $e_confirm_id === null) ? $user_id : $e_confirm_id . '!' . $user_id;
 
         error_log("생성된 e_confirm_value: " . $e_confirm_value);

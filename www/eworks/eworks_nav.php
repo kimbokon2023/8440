@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../common/functions.php';
 require_once(includePath('session.php'));
 require_once(includePath('lib/mydb.php'));
+require_once __DIR__ . '/helpers.php';
 
 // 세션 변수 초기화
 $user_id = $_SESSION["userid"] ?? '';
@@ -73,7 +74,9 @@ $status_arr = array();
  * @param string $DB 데이터베이스명
  * @return int 문서 개수
  */
-function countEworksStatus($pdo, $user_id, $status, $workLevel, $DB = 'mirae8440') {	
+function countEworksStatus($pdo, $user_id, $status, $workLevel, $DB = 'mirae8440') {
+    $rawUserId = $user_id;
+
     // SQL Injection 방지
     $user_id = str_replace("'", "''", $user_id);
     
@@ -81,11 +84,12 @@ function countEworksStatus($pdo, $user_id, $status, $workLevel, $DB = 'mirae8440
     $dbName = $DB;
     
     // view 설정
-    $viewcon = " AND CONCAT('!', e_viewexcept_id, '!') NOT LIKE '%!{$user_id}!%' ";
-    $viewconNone = " AND CONCAT('!', e_viewexcept_id, '!') LIKE '%!{$user_id}!%' ";
+    $viewcon = " AND CONCAT('!', COALESCE(e_viewexcept_id, ''), '!') NOT LIKE '%!{$user_id}!%' ";
+    $viewconNone = " AND CONCAT('!', COALESCE(e_viewexcept_id, ''), '!') LIKE '%!{$user_id}!%' ";
 
     $count = 0;
     $sql = "";
+    $customCount = false;
 
     if (!$workLevel) { // 일반 사용자의 경우 자신이 작성한 문서만 카운트
         // 상신인 경우는 send 상신인 경우도 미결도 함께 숫자표시
@@ -103,13 +107,9 @@ function countEworksStatus($pdo, $user_id, $status, $workLevel, $DB = 'mirae8440
                 $sql = "SELECT COUNT(*) FROM {$dbName}.eworks WHERE author_id = '{$user_id}' AND CONCAT('!', e_line_id, '!') LIKE '%!{$user_id}!%' AND status = 'send' AND is_deleted IS NULL" . $viewcon;
                 break;
             case 'noend':
-                // '미결' 상태: 사용자가 결재해야 하는 문서 카운트
-                $sql = "SELECT COUNT(*) FROM {$dbName}.eworks WHERE CONCAT('!', e_line_id, '!') LIKE '%!{$user_id}!%' " .
-                       " AND ( " .
-                       "    (CONCAT('!', e_confirm_id, '!') = '!!' AND LOCATE('{$user_id}', e_line_id) = 1 AND status = 'send') " .
-                       "    OR " .
-                       "    (CONCAT('!', e_confirm_id, '!') NOT LIKE '%!{$user_id}!%' AND INSTR(CONCAT('!', e_line_id, '!'), CONCAT('!', SUBSTRING_INDEX(e_confirm_id, '!', -1), '!', '{$user_id}', '!')) > 0 AND status IN ('send', 'noend', 'ing')) " .
-                       ") AND is_deleted IS NULL" . $viewcon;
+                $pendingIds = fetchPendingApprovalIds($pdo, $dbName, $rawUserId);
+                $count = count($pendingIds);
+                $customCount = true;
                 break;
             case 'ing':
                 // '진행중' 상태: 사용자가 결재 중인 문서 카운트
@@ -130,14 +130,16 @@ function countEworksStatus($pdo, $user_id, $status, $workLevel, $DB = 'mirae8440
         }
     }
 
-    try {
-        $stmh = $pdo->query($sql);
-        $count = $stmh->fetchColumn();
-    } catch (PDOException $ex) {
-        error_log("Database error in countEworksStatus: " . $ex->getMessage());
-        $count = 0;
+    if (!$customCount) {
+        try {
+            $stmh = $pdo->query($sql);
+            $count = $stmh->fetchColumn();
+        } catch (PDOException $ex) {
+            error_log("Database error in countEworksStatus: " . $ex->getMessage());
+            $count = 0;
+        }
     }
-     
+
     return (int)$count;
 }
 

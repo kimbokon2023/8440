@@ -1900,7 +1900,7 @@ else if (eworks_item === '연구개발보고서') {
 					}); // end of function			
 				
 					// 전자결재 승인	
-				$("#eworks_approvalBtn").click(function () {
+				$("#eworks_approvalBtn").off('click').on('click', function () {
 					const $btn = $(this);
 					
 					// 중복 클릭 방지: 버튼 비활성화
