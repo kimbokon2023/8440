@@ -13,7 +13,8 @@
       "Read(//c/**)",
       "Bash(mkdir:*)",
       "Bash(ls:*)",
-      "Bash(c:/xampp/apache/bin/httpd.exe:*)"
+      "Bash(c:/xampp/apache/bin/httpd.exe:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

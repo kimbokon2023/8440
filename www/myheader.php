@@ -60,16 +60,22 @@
  	<div class="container-xxl">     
 	<?php } ?>	
   
-<div class="row d-flex">        
-    <div class="col-sm-2 justify-content-center">        	
+<div class="row d-flex align-items-center">
+    <div class="col-6 col-sm-2 justify-content-start d-flex align-items-center">
 		<a href="<?= $root_dir ?>/index.php">
-			<?php //<img class="img-fluid" src="<?$root_dir /img/companylogo.jpg"> ?>            
-			<img src="<?= $root_dir ?>/img/mirae_logo.png" style="width:70%;"> &nbsp;	
-		</a>		
+			<?php //<img class="img-fluid" src="<?$root_dir /img/companylogo.jpg"> ?>
+			<img src="<?= $root_dir ?>/img/mirae_logo.png" style="width:70%; max-width: 150px;"> &nbsp;
+		</a>
 	</div>
-<div class="col-sm-10 justify-content-center">     
-	<nav class="navbar navbar-expand navbar-custom "> 	 
-	<div class="navbar-nav ">   
+<div class="col-6 col-sm-10 justify-content-end">
+	<!-- 모바일 햄버거 메뉴 버튼 -->
+	<button class="btn btn-primary d-md-none mobile-menu-toggle" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNavMenu" aria-controls="mobileNavMenu" style="float: right;">
+		<i class="bi bi-list" style="font-size: 1.5rem;"></i>
+	</button>
+
+	<!-- PC 네비게이션 -->
+	<nav class="navbar navbar-expand navbar-custom d-none d-md-flex">
+	<div class="navbar-nav ">
             <div class="nav-item" id="home-menu">
 			<!-- 드롭다운 메뉴-->
 			<a class="nav-link" href="<?= $root_dir ?>/index.php?home=1" title="mirae Homepage"  ><svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-house-check-fill" viewBox="0 0 16 16">
@@ -714,9 +720,429 @@
 	<div class="d-flex" >
 		<div class="sideEworksBanner" style="display:none;">
 			<span class="text-center text-dark">
-				<img src="<?=getBaseUrl()?>/img/eworks_reach.png" > 
-			</span>     
-		</div>	  
+				<img src="<?=getBaseUrl()?>/img/eworks_reach.png" >
+			</span>
+		</div>
 	</div>
 </div>
+
+<!-- 모바일 오프캔버스 메뉴 -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="mobileNavMenu" aria-labelledby="mobileNavMenuLabel" style="width: 85%; max-width: 360px;">
+	<div class="offcanvas-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+		<h5 class="offcanvas-title" id="mobileNavMenuLabel">
+			<i class="bi bi-menu-button-wide"></i> 메뉴
+		</h5>
+		<button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+	</div>
+	<div class="offcanvas-body p-0">
+		<div class="accordion accordion-flush" id="mobileMenuAccordion">
+			<?php if($_SESSION["level"] !==20 && $_SESSION["level"] < 6) : ?>
+
+			<!-- 홈 -->
+			<div class="mobile-menu-item">
+				<a href="<?= $root_dir ?>/index.php?home=1" class="mobile-menu-link">
+					<i class="bi bi-house-check-fill"></i>
+					<span>홈</span>
+				</a>
+			</div>
+
+			<!-- JAMB -->
+			<div class="accordion-item">
+				<h2 class="accordion-header">
+					<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseJamb">
+						<i class="bi bi-wrench-adjustable-circle"></i> JAMB
+					</button>
+				</h2>
+				<div id="collapseJamb" class="accordion-collapse collapse" data-bs-parent="#mobileMenuAccordion">
+					<div class="accordion-body p-0">
+						<a href="<?=$root_dir?>/work/list.php" class="mobile-sub-link"><i class="bi bi-card-checklist"></i> 수주 현황</a>
+						<a href="<?=$root_dir?>/work/month_schedule.php" class="mobile-sub-link"><i class="bi bi-calendar-week"></i> 월간 생산일정</a>
+						<a href="<?=$root_dir?>/work_voc/list.php" class="mobile-sub-link"><i class="bi bi-ear"></i> 시공소장 VOC</a>
+						<a href="<?=$root_dir?>/work/picgal.php" class="mobile-sub-link"><i class="bi bi-images"></i> 시공 사진</a>
+						<a href="<?=$root_dir?>/work/list_hpi.php" class="mobile-sub-link"><i class="bi bi-megaphone"></i> 업체별 HPI정보</a>
+						<a href="<?=$root_dir?>/work/workfee.php" class="mobile-sub-link"><i class="bi bi-calculator"></i> 시공비 결산</a>
+						<a href="<?=$root_dir?>/work/statistics.php" class="mobile-sub-link"><i class="bi bi-person-workspace"></i> 시공비 통계</a>
+						<a href="<?=$root_dir?>/work/work_statistics.php" class="mobile-sub-link"><i class="bi bi-bar-chart-line-fill"></i> 제조 통계</a>
+						<a href="<?=$root_dir?>/graph/monthly_jamb.php?header=header" class="mobile-sub-link"><i class="bi bi-bar-chart-line-fill"></i> 수주통계</a>
+						<a href="<?=$root_dir?>/work/output_statis.php" class="mobile-sub-link"><i class="bi bi-graph-up-arrow"></i> 매출통계</a>
+						<a href="<?=$root_dir?>/work/front_log.php" class="mobile-sub-link"><i class="bi bi-infinity"></i> Front Log</a>
+					</div>
+				</div>
+			</div>
+
+			<!-- 수주 -->
+			<div class="accordion-item">
+				<h2 class="accordion-header">
+					<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSuju">
+						<i class="bi bi-clipboard-check"></i> 수주
+					</button>
+				</h2>
+				<div id="collapseSuju" class="accordion-collapse collapse" data-bs-parent="#mobileMenuAccordion">
+					<div class="accordion-body p-0">
+						<a href="<?=$root_dir?>/ceiling/list.php" class="mobile-sub-link"><i class="bi bi-card-checklist"></i> 수주현황</a>
+						<a href="<?=$root_dir?>/ceiling/month_schedule.php" class="mobile-sub-link"><i class="bi bi-calendar-week"></i> 월간 생산일정</a>
+						<a href="<?=$root_dir?>/sillcover/list.php" class="mobile-sub-link"><i class="bi bi-bookshelf"></i> [재료분리대 출고]</a>
+						<a href="<?=$root_dir?>/ceiling/work_statistics.php" class="mobile-sub-link"><i class="bi bi-bar-chart-line-fill"></i> 제조 통계</a>
+						<a href="<?=$root_dir?>/graph/monthly_ceiling.php?header=header" class="mobile-sub-link"><i class="bi bi-bar-chart-line-fill"></i> 수주통계</a>
+						<a href="<?=$root_dir?>/ceiling/output_statis.php" class="mobile-sub-link"><i class="bi bi-graph-up-arrow"></i> 매출통계</a>
+						<a href="<?=$root_dir?>/ceiling/front_log.php" class="mobile-sub-link"><i class="bi bi-infinity"></i> Front Log</a>
+					</div>
+				</div>
+			</div>
+
+			<!-- 구매/발주/자재 -->
+			<div class="accordion-item">
+				<h2 class="accordion-header">
+					<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePurchase">
+						<i class="bi bi-cart-check"></i> 구매/발주/자재
+					</button>
+				</h2>
+				<div id="collapsePurchase" class="accordion-collapse collapse" data-bs-parent="#mobileMenuAccordion">
+					<div class="accordion-body p-0">
+						<a href="<?=$root_dir?>/order/index.php" class="mobile-sub-link"><i class="bi bi-clipboard-check"></i> 발주 리스트</a>
+						<a href="<?=$root_dir?>/corp/index.php" class="mobile-sub-link"><i class="bi bi-building"></i> 거래처 관리</a>
+						<a href="<?=$root_dir?>/askitem/list.php" class="mobile-sub-link"><i class="bi bi-basket3"></i> 품의서</a>
+						<a href="<?=$root_dir?>/request/list.php" class="mobile-sub-link"><i class="bi bi-cart-check"></i> 원자재 구매/입출고</a>
+						<a href="<?=$root_dir?>/steel/list.php" class="mobile-sub-link"><i class="bi bi-box-arrow-up-right"></i> 원자재 출고</a>
+						<a href="<?=$root_dir?>/steel/rawmaterial.php" class="mobile-sub-link"><i class="bi bi-box-seam"></i> 원자재 재고현황</a>
+						<a href="<?=$root_dir?>/request_etc/list.php" class="mobile-sub-link"><i class="bi bi-cart-check"></i> 부자재 구매/입출고</a>
+						<a href="<?=$root_dir?>/ceiling/list_part_table.php" class="mobile-sub-link"><i class="bi bi-archive"></i> 부자재 재고현황</a>
+						<a href="<?=$root_dir?>/outorder/list.php" class="mobile-sub-link"><i class="bi bi-diagram-3"></i> 외주(덴크리,서한,다온텍)</a>
+						<a href="<?=$root_dir?>/make/list.php" class="mobile-sub-link"><i class="bi bi-bag-check"></i> 도장발주</a>
+						<a href="<?=$root_dir?>/delivery/list.php" class="mobile-sub-link"><i class="bi bi-truck"></i> 화물/택배 배송</a>
+						<a href="<?=$root_dir?>/afterorder/index.php" class="mobile-sub-link"><i class="bi bi-cup-straw"></i> 중식석식 주문</a>
+					</div>
+				</div>
+			</div>
+
+			<!-- 품질(EQ/ISO) -->
+			<div class="accordion-item">
+				<h2 class="accordion-header">
+					<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseQuality">
+						<i class="bi bi-award"></i> 품질(EQ/ISO)
+					</button>
+				</h2>
+				<div id="collapseQuality" class="accordion-collapse collapse" data-bs-parent="#mobileMenuAccordion">
+					<div class="accordion-body p-0">
+						<a href="<?=$root_dir?>/QC/goal.php" class="mobile-sub-link"><i class="bi bi-1-circle-fill"></i> 품질방침/품질목표</a>
+						<a href="<?=$root_dir?>/iso/list.php" class="mobile-sub-link"><i class="bi bi-globe2"></i> ISO 9001/14001 인증</a>
+						<a href="<?=$root_dir?>/errors/qc_method.php" class="mobile-sub-link"><i class="bi bi-sliders2-vertical"></i> 품질불량 관리기법/교육</a>
+						<a href="<?=$root_dir?>/idea/index.php" class="mobile-sub-link"><i class="bi bi-person-plus-fill"></i> 직원 제안제도 운영</a>
+						<a href="<?=$root_dir?>/errors/index.php" class="mobile-sub-link"><i class="bi bi-file-earmark-text-fill"></i> 부적합 보고</a>
+						<a href="<?=$root_dir?>/errors/statistics.php" class="mobile-sub-link"><i class="bi bi-bar-chart-line-fill"></i> 부적합(품질)통계</a>
+						<a href="<?=$root_dir?>/errormeeting/index.php" class="mobile-sub-link"><i class="bi bi-person-gear"></i> 부적합개선(품질분임조)</a>
+						<a href="<?=$root_dir?>/p_workstandard/list.php" class="mobile-sub-link"><i class="bi bi-diagram-3-fill"></i> 작업표준서</a>
+						<a href="<?=$root_dir?>/p_qccontrol/list.php" class="mobile-sub-link"><i class="bi bi-kanban-fill"></i> QC 공정표</a>
+						<a href="<?=$root_dir?>/p_inspection/list.php" class="mobile-sub-link"><i class="bi bi-upc-scan"></i> 출하 검사서</a>
+						<a href="<?=$root_dir?>/qc/menu.php" class="mobile-sub-link"><i class="bi bi-clipboard2-check-fill"></i> 장비 점검</a>
+						<a href="<?=$root_dir?>/qcoffice/menu.php" class="mobile-sub-link"><i class="bi bi-building-gear"></i> 사무실 정비</a>
+						<a href="<?=$root_dir?>/p_evaluation/list.php" class="mobile-sub-link"><i class="bi bi-people-fill"></i> 협력업체 평가표</a>
+					</div>
+				</div>
+			</div>
+
+			<!-- 안전보건/위험성 -->
+			<div class="accordion-item">
+				<h2 class="accordion-header">
+					<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSafety">
+						<i class="bi bi-shield-check"></i> 안전보건/위험성
+					</button>
+				</h2>
+				<div id="collapseSafety" class="accordion-collapse collapse" data-bs-parent="#mobileMenuAccordion">
+					<div class="accordion-body p-0">
+						<a href="<?=$root_dir?>/s_board/list.php" class="mobile-sub-link"><i class="bi bi-calendar-plus"></i> 안전보건 통합관리</a>
+						<a href="<?=$root_dir?>/safety/index.php" class="mobile-sub-link"><i class="bi bi-award-fill"></i> 위험성 평가</a>
+						<a href="<?=$root_dir?>/RiskAssessment/list.php" class="mobile-sub-link"><i class="bi bi-list-task"></i> 위험성 평가 자료실</a>
+						<a href="<?=$root_dir?>/safetycard/menu.php" class="mobile-sub-link"><i class="bi bi-exclamation-triangle-fill"></i> 안전 카드뉴스</a>
+						<a href="<?=$root_dir?>/safety/law.php" class="mobile-sub-link"><i class="bi bi-journal-bookmark-fill"></i> 고용노동부고시(지침)</a>
+						<a href="<?=$root_dir?>/safety/sif/list.php" class="mobile-sub-link"><i class="bi bi-qr-code-scan"></i> 핵심위험요인SIF 평가표</a>
+					</div>
+				</div>
+			</div>
+
+			<!-- 연구소/개발 -->
+			<div class="accordion-item">
+				<h2 class="accordion-header">
+					<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRnD">
+						<i class="bi bi-lightbulb"></i> 연구소/개발
+					</button>
+				</h2>
+				<div id="collapseRnD" class="accordion-collapse collapse" data-bs-parent="#mobileMenuAccordion">
+					<div class="accordion-body p-0">
+						<a href="<?=$root_dir?>/ask_rndplan/list.php" class="mobile-sub-link"><i class="bi bi-journal-medical"></i> 연구개발계획서</a>
+						<a href="<?=$root_dir?>/ask_rndnote/list.php" class="mobile-sub-link"><i class="bi bi-journal-medical"></i> 연구노트</a>
+						<a href="<?=$root_dir?>/ask_rndreport/list.php" class="mobile-sub-link"><i class="bi bi-journal-medical"></i> 연구개발보고서</a>
+						<a href="<?=$root_dir?>/RnDfund/list.php" class="mobile-sub-link"><i class="bi bi-credit-card"></i> 연구전담부서 운영비</a>
+						<a href="<?=$root_dir?>/RnD/list.php" class="mobile-sub-link"><i class="bi bi-easel"></i> 연구소 게시판</a>
+						<a href="<?=$root_dir?>/it/index.php" class="mobile-sub-link"><i class="bi bi-megaphone-fill"></i> IT 개발 프로세트 소개</a>
+						<a href="<?=$root_dir?>/RnDnotice/list.php" class="mobile-sub-link"><i class="bi bi-megaphone-fill"></i> 개발 공지&자료</a>
+						<a href="<?=$root_dir?>/RnDlist/list.php" class="mobile-sub-link"><i class="bi bi-kanban"></i> 개발 진행현황</a>
+						<a href="<?=$root_dir?>/AIprompt/list.php" class="mobile-sub-link"><i class="bi bi-robot"></i> AI prompt</a>
+						<a href="<?=$root_dir?>/channel/list.php" class="mobile-sub-link"><i class="bi bi-robot"></i> 연구 유튜브 채널분석</a>
+						<a href="<?=$root_dir?>/ad/index.php" class="mobile-sub-link"><i class="bi bi-robot"></i> 미래기업 IT 사업 메뉴얼</a>
+						<a href="https://8440.co.kr/school" target="_blank" class="mobile-sub-link"><i class="bi bi-laptop"></i> 코딩강의</a>
+						<a href="https://8440.co.kr/quiz" target="_blank" class="mobile-sub-link"><i class="bi bi-question-circle"></i> 코딩퀴즈</a>
+					</div>
+				</div>
+			</div>
+
+			<!-- 근태관리 -->
+			<div class="accordion-item">
+				<h2 class="accordion-header">
+					<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAttendance">
+						<i class="bi bi-clock-history"></i> 근태관리
+					</button>
+				</h2>
+				<div id="collapseAttendance" class="accordion-collapse collapse" data-bs-parent="#mobileMenuAccordion">
+					<div class="accordion-body p-0">
+						<a href="<?=$root_dir?>/annualleave/index.php" class="mobile-sub-link"><i class="bi bi-person-bounding-box"></i> 연차</a>
+						<a href="<?=$root_dir?>/request_overtime/index.php" class="mobile-sub-link"><i class="bi bi-clock-history"></i> 연장근무(잔업/특근) 사전승인 신청</a>
+						<a href="<?=$root_dir?>/absent_office/index.php" class="mobile-sub-link"><i class="bi bi-people-fill"></i> 사무실</a>
+						<a href="<?=$root_dir?>/absent/index.php" class="mobile-sub-link"><i class="bi bi-building-gear"></i> 공장</a>
+						<a href="<?=$root_dir?>/daylaborer/index.php" class="mobile-sub-link"><i class="bi bi-person-workspace"></i> 일용직</a>
+						<a href="<?=$root_dir?>/holiday/list.php?header=header" class="mobile-sub-link"><i class="bi bi-calendar-event-fill"></i> 달력 휴일설정</a>
+					</div>
+				</div>
+			</div>
+
+			<!-- 게시 -->
+			<div class="accordion-item">
+				<h2 class="accordion-header">
+					<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBoard">
+						<i class="bi bi-megaphone"></i> 게시
+					</button>
+				</h2>
+				<div id="collapseBoard" class="accordion-collapse collapse" data-bs-parent="#mobileMenuAccordion">
+					<div class="accordion-body p-0">
+						<a href="<?=$root_dir?>/notice/list.php" class="mobile-sub-link"><i class="bi bi-megaphone"></i> 공지사항</a>
+						<a href="<?=$root_dir?>/qna/list.php" class="mobile-sub-link"><i class="bi bi-folder-symlink"></i> 자료실</a>
+						<a href="<?=$root_dir?>/popupwindow/list.php" class="mobile-sub-link"><i class="bi bi-window-stack"></i> 팝업창</a>
+						<a href="<?=$root_dir?>/HRboard/list.php" class="mobile-sub-link"><i class="bi bi-people-fill"></i> 인사/교육/총무</a>
+						<a href="<?=$root_dir?>/vote/list.php" class="mobile-sub-link"><i class="bi bi-check2-square"></i> 투표</a>
+					</div>
+				</div>
+			</div>
+
+			<!-- 공유 -->
+			<div class="accordion-item">
+				<h2 class="accordion-header">
+					<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseShare">
+						<i class="bi bi-share"></i> 공유
+					</button>
+				</h2>
+				<div id="collapseShare" class="accordion-collapse collapse" data-bs-parent="#mobileMenuAccordion">
+					<div class="accordion-body p-0">
+						<a href="<?=$root_dir?>/youtube.php" class="mobile-sub-link"><i class="bi bi-youtube"></i> 미래기업</a>
+						<a href="<?=$root_dir?>/fund/list.php" class="mobile-sub-link"><i class="bi bi-piggy-bank-fill"></i> 공동자금</a>
+						<a href="<?=$root_dir?>/roadview.php" class="mobile-sub-link"><i class="bi bi-geo-alt-fill"></i> 직원연락처</a>
+						<a href="<?=$root_dir?>/shop/index.php" class="mobile-sub-link"><i class="bi bi-puzzle-fill"></i> 금속 작품쇼핑몰</a>
+						<a href="<?=$root_dir?>/jamb/jamb.php" class="mobile-sub-link"><i class="bi bi-boxes"></i> 잠설계모델링</a>
+						<a href="<?=$root_dir?>/roulette/index.php" class="mobile-sub-link"><i class="bi bi-record-circle"></i> 룰렛(roulette)</a>
+						<a href="<?=$root_dir?>/roulette/index_dart.php" class="mobile-sub-link"><i class="bi bi-bullseye"></i> 다트 선정 룰렛</a>
+						<a href="<?=$root_dir?>/tetris/index.php" class="mobile-sub-link"><i class="bi bi-controller"></i> 테트리스 게임</a>
+						<a href="<?=$root_dir?>/race/index.php" class="mobile-sub-link"><i class="bi bi-controller"></i> 동물 경주 게임</a>
+						<a href="<?=$root_dir?>/ranking/index.php" class="mobile-sub-link"><i class="bi bi-gift"></i> 선물 순위 선정</a>
+					</div>
+				</div>
+			</div>
+
+			<?php if($_SESSION["level"] ==20 || $_SESSION["level"] < 6) : ?>
+			<!-- 포미스톤 -->
+			<div class="accordion-item">
+				<h2 class="accordion-header">
+					<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePhomi">
+						<i class="bi bi-gem"></i> 포미스톤
+					</button>
+				</h2>
+				<div id="collapsePhomi" class="accordion-collapse collapse" data-bs-parent="#mobileMenuAccordion">
+					<div class="accordion-body p-0">
+						<a href="<?=$root_dir?>/phomi/list_estimate.php" class="mobile-sub-link"><i class="bi bi-receipt"></i> 견적서</a>
+						<a href="<?=$root_dir?>/phomi/list.php" class="mobile-sub-link"><i class="bi bi-card-checklist"></i> 수주현황</a>
+						<a href="<?=$root_dir?>/phomi/list_outorder.php" class="mobile-sub-link"><i class="bi bi-box-arrow-right"></i> 출고요청서</a>
+						<?php if($_SESSION["level"] !== 20) : ?>
+						<a href="<?=$root_dir?>/phomi/list_deposit.php" class="mobile-sub-link"><i class="bi bi-cash-coin"></i> 본사입금(예치금)</a>
+						<?php endif; ?>
+						<a href="<?=$root_dir?>/phomi/unit_price.php" class="mobile-sub-link"><i class="bi bi-currency-dollar"></i> 단가표</a>
+						<a href="https://phomistonekorea.co.kr/index.php" target="_blank" class="mobile-sub-link"><i class="bi bi-globe"></i> 미래기업 포미스톤 웹</a>
+						<a href="https://phomi.co.kr/default/index.php" target="_blank" class="mobile-sub-link"><i class="bi bi-globe"></i> 본사 포미스톤 웹사이트</a>
+					</div>
+				</div>
+			</div>
+			<?php endif; ?>
+
+			<!-- 전자결재 -->
+			<div class="accordion-item">
+				<h2 class="accordion-header">
+					<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEworks">
+						<i class="bi bi-file-earmark-text"></i> 전자결재
+					</button>
+				</h2>
+				<div id="collapseEworks" class="accordion-collapse collapse" data-bs-parent="#mobileMenuAccordion">
+					<div class="accordion-body p-0">
+						<a href="<?=$root_dir?>/ask_rndnote_mirae/list.php" class="mobile-sub-link"><i class="bi bi-journal-medical"></i> 프로젝트 개발진행 노트</a>
+						<a href="<?=$root_dir?>/ask_rndnote/list.php" class="mobile-sub-link"><i class="bi bi-journal-medical"></i> 연구노트</a>
+						<a href="<?=$root_dir?>/askitem/list.php" class="mobile-sub-link"><i class="bi bi-basket3"></i> 품의서</a>
+						<a href="<?=$root_dir?>/annualleave/index.php" class="mobile-sub-link"><i class="bi bi-person-bounding-box"></i> 연차</a>
+						<a href="<?=$root_dir?>/absent_office/index.php" class="mobile-sub-link"><i class="bi bi-people-fill"></i> 사무실 근태</a>
+						<?php if($user_name  == '소현철' || $user_name == '김보곤' || $user_name == '최장중' || $user_name == '이경묵' || $user_name == '소민지') : ?>
+						<a href="<?=$root_dir?>/absent/index.php" class="mobile-sub-link"><i class="bi bi-building-gear"></i> 공장 근태</a>
+						<?php endif; ?>
+						<a href="<?=$root_dir?>/idea/index.php" class="mobile-sub-link"><i class="bi bi-person-plus-fill"></i> 직원 제안제도 운영</a>
+						<a href="<?=$root_dir?>/errors/index.php" class="mobile-sub-link"><i class="bi bi-file-earmark-text-fill"></i> 부적합 보고</a>
+					</div>
+				</div>
+			</div>
+
+			<?php endif; ?>
+
+			<!-- 사용자 메뉴 -->
+			<div class="mobile-menu-item" style="margin-top: 10px; border-top: 2px solid #e9ecef; padding-top: 10px;">
+				<div style="padding: 15px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-weight: 600;">
+					<i class="bi bi-person-circle"></i> <?=$_SESSION["name"]?>님
+				</div>
+			</div>
+
+			<div class="mobile-menu-item">
+				<a href="<?=$root_dir?>/login/logout.php" class="mobile-menu-link">
+					<i class="bi bi-box-arrow-right"></i>
+					<span>로그아웃</span>
+				</a>
+			</div>
+
+			<div class="mobile-menu-item">
+				<a href="<?=$root_dir?>/member/updateForm.php?id=<?=$_SESSION["userid"]?>" class="mobile-menu-link">
+					<i class="bi bi-person-gear"></i>
+					<span>정보수정</span>
+				</a>
+			</div>
+
+			<?php if ($_SESSION["name"] == '김보곤' || $_SESSION["name"] == '소현철') { ?>
+			<div class="mobile-menu-item">
+				<a href="<?=$root_dir?>/member/list.php" class="mobile-menu-link">
+					<i class="bi bi-person-lines-fill"></i>
+					<span>회원관리</span>
+				</a>
+			</div>
+			<?php } ?>
+		</div>
+	</div>
+</div>
+
+<!-- 모바일 메뉴 스타일 -->
+<style>
+.mobile-menu-toggle {
+	border-radius: 8px;
+	padding: 8px 12px;
+	box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.offcanvas {
+	box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.accordion-button {
+	padding: 15px 20px;
+	font-weight: 600;
+	color: #2d3748;
+	background-color: #f8f9fa;
+}
+
+.accordion-button:not(.collapsed) {
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	color: white;
+	box-shadow: none;
+}
+
+.accordion-button:focus {
+	box-shadow: none;
+	border-color: rgba(102, 126, 234, 0.5);
+}
+
+.accordion-button i {
+	margin-right: 10px;
+	font-size: 1.1rem;
+}
+
+.mobile-sub-link {
+	display: block;
+	padding: 12px 20px 12px 50px;
+	color: #4a5568;
+	text-decoration: none;
+	transition: all 0.2s ease;
+	border-left: 3px solid transparent;
+}
+
+.mobile-sub-link:hover {
+	background-color: #f0f4f8;
+	color: #667eea;
+	border-left-color: #667eea;
+	padding-left: 55px;
+}
+
+.mobile-sub-link i {
+	margin-right: 10px;
+	color: #667eea;
+	width: 20px;
+	text-align: center;
+}
+
+.mobile-menu-item {
+	border-bottom: 1px solid #e9ecef;
+}
+
+.mobile-menu-link {
+	display: flex;
+	align-items: center;
+	padding: 15px 20px;
+	color: #2d3748;
+	text-decoration: none;
+	transition: all 0.2s ease;
+	font-weight: 500;
+}
+
+.mobile-menu-link:hover {
+	background-color: #f0f4f8;
+	color: #667eea;
+}
+
+.mobile-menu-link i {
+	margin-right: 12px;
+	font-size: 1.2rem;
+	width: 25px;
+	text-align: center;
+	color: #667eea;
+}
+
+.accordion-body {
+	background-color: #ffffff;
+}
+
+.accordion-item {
+	border: none;
+	border-bottom: 1px solid #e9ecef;
+}
+
+.accordion-item:last-child {
+	border-bottom: none;
+}
+
+/* 스크롤바 스타일링 */
+.offcanvas-body::-webkit-scrollbar {
+	width: 6px;
+}
+
+.offcanvas-body::-webkit-scrollbar-track {
+	background: #f1f1f1;
+}
+
+.offcanvas-body::-webkit-scrollbar-thumb {
+	background: #667eea;
+	border-radius: 3px;
+}
+
+.offcanvas-body::-webkit-scrollbar-thumb:hover {
+	background: #764ba2;
+}
+</style>
+
 </form>
