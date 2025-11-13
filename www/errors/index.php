@@ -8,14 +8,6 @@ $user_name = $_SESSION["name"] ?? '';
 $user_id = $_SESSION["userid"] ?? '';
 $WebSite = $_SESSION["WebSite"] ?? '';
 
-// 권한 체크
-if (!isset($_SESSION["level"]) || $level > 5) {
-    sleep(1);
-    $_SESSION["url"] = $WebSite . 'error/index.php?user_name=' . $user_name;
-    header("Location:" . $WebSite . "login/login_form.php");
-    exit;
-}
-
 // 관리자 권한 설정
 $admin = 0;
 $admin_names = array('소현철', '김보곤', '최장중', '이경묵', '조경임');
@@ -117,21 +109,19 @@ $voc_alert = $_REQUEST["voc_alert"] ?? '';
 $ma_alert = $_REQUEST["ma_alert"] ?? '';
 $order_alert = $_REQUEST["order_alert"] ?? '';
 
+include getDocumentRoot() . '/load_header.php';
+
 ?>
 
-<?php include includePath('load_header.php') ?>
-
 <title>부적합 품질경영</title> 
-<div id="cookiedisplay"></div>
-
 </head>
-<html>
+
 <body>
-<div class="container-fluid">
-    <?php include includePath('myheader.php') ?>
-</div>
+
+<?php include includePath('myheader.php') ?>
+
 <form name="board_form" id="board_form" method="post">
-    <div class="container">
+    <div class="container-fluid">
         <div class="card">
             <div class="card-body">
                 <div class="row">
@@ -146,19 +136,11 @@ $order_alert = $_REQUEST["order_alert"] ?? '';
                                             <img src="<?= asset('img/click.gif') ?>" width="5%" height="5%" alt="클릭">
                                         </h4>
                                     </div>
-                                    &nbsp;
-                                    <button id="adminprocess" class="btn btn-outline-dark" type="button">
-                                        <i class="bi bi-credit-card-2-back"></i>
-                                        결재중
-                                        <span class="badge bg-dark text-white ms-1 rounded-pill"><?= $approvalwait ?></span>
-                                    </button>
-                                    &nbsp;
                                 </div>
                                 
                                 <div class="d-flex justify-content-center mt-2 mb-2">
                                     <div id="Material" style="display:none;">
-                                        <section class="page-section">
-                                            <div class="container">
+                                        <section class="page-section">                                            
                                                 <div class="row text-center">
                                                     <?php include '8d.php'; ?>
                                                 </div>
@@ -171,7 +153,6 @@ $order_alert = $_REQUEST["order_alert"] ?? '';
                                                     <img src="<?= asset('img/qm5.jpg') ?>" alt="품질경영 5">
                                                     <img src="<?= asset('img/qm6.jpg') ?>" alt="품질경영 6">
                                                 </div>
-                                            </div>
                                         </section>
                                     </div>
                                 </div>
@@ -192,9 +173,7 @@ $order_alert = $_REQUEST["order_alert"] ?? '';
                 </div>
             </div>
         </div>
-    </div>
-    
-    <div class="container-fluid">
+    </div>    
         <?php
         // 기간을 정하는 구간
         if ($fromdate == "") {
@@ -271,10 +250,11 @@ $order_alert = $_REQUEST["order_alert"] ?? '';
             </button>
             &nbsp;&nbsp;&nbsp;
         </div>
-        
-        <div class="d-flex mt-3 mb-1 justify-content-center align-items-center">
-            <table class="table table-hover" id="myTable">
-                <thead class="table-primary">
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover w-100" id="myTable">
+                    <thead class="table-primary">
                     <tr class="middle-align">
                         <th class="text-center align-middle w30px">번호</th>
                         <th class="text-center align-middle w80px">확인일</th>
@@ -325,10 +305,12 @@ $order_alert = $_REQUEST["order_alert"] ?? '';
                         error_log("테이블 출력 오류: " . $ex->getMessage());
                     }
                     ?>
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
+        </div>
+        </div>
     
     <!-- Footer -->
     <?php include "footer.php"; ?>

@@ -51,7 +51,7 @@
 								<i class="bi bi-search"></i>
 							</button>
 						</div>
-					</div>
+					</div> 
 				</div>
 				<div id="todo-board">
 					<div class="row d-flex">
@@ -111,3 +111,57 @@
 		</div>
 	</div>
 </div>
+
+<style>
+/* 모바일에서 월간상세일정 가로 스크롤 */
+@media (max-width: 768px) {
+    /* 월간상세일정 카드 */
+    .schedule_card {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch; /* iOS 부드러운 스크롤 */
+    }
+
+    /* 달력 컨테이너 */
+    #todo-calendar-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        min-width: 100%;
+    }
+
+    /* 달력 테이블 */
+    #todo-calendar-container table {
+        min-width: 600px; /* 최소 너비 설정 */
+        width: auto;
+    }
+
+    /* todosMain-list도 스크롤 가능하게 */
+    #todosMain-list {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #todosMain-list table {
+        min-width: 600px;
+        width: auto;
+    }
+
+    /* scheduleContentWrapper 전체 컨테이너 */
+    #scheduleContentWrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* 필터 옵션 모바일 대응 */
+    #todo-board .d-flex {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* 검색 입력창 모바일 크기 조정 */
+    #searchTodo {
+        width: 120px !important;
+        min-width: 120px;
+    }
+}
+</style>

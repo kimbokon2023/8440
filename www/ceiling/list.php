@@ -58,7 +58,7 @@ include includePath('load_header.php');
 <title><?php echo $title_message; ?></title>
 <!-- Tabulator CSS and JS -->
 <link href="https://unpkg.com/tabulator-tables@6.2.1/dist/css/tabulator.min.css" rel="stylesheet">
-<link rel="stylesheet" href="<?php echo $base_url; ?>/assets/css/ceiling-list.css">
+<link rel="stylesheet" href="<?php echo $base_url; ?>/assets/css/ceiling-list.css?v=<?php echo time(); ?>">
 <script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.2.1/dist/js/tabulator.min.js"></script>
 <?php
 // 모바일 접속일 때만 viewport meta 태그 출력
@@ -506,23 +506,22 @@ try{
 <div class="container-fluid">  
 	<div class="card mb-2">  
 	<div class="card-body">  	 
-	<div class="d-flex justify-content-center align-items-center my-1">
-		<div class="w-100" style="max-width: 1000px;">
+	<div class="d-flex justify-content-center align-items-center d-none d-md-flex">
+		<div class="w-100" style="max-width: 700px;">
 			<div class="shadow-lg rounded-4 d-flex align-items-center px-2 py-1" style="background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%); min-height:70px; border: 2px solid #0369a1;">
-				<i class="bi bi-megaphone-fill text-white me-3" style="font-size:2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.3);"></i>
+				<i class="bi bi-megaphone-fill text-white me-3" style="font-size:1.5rem; text-shadow: 0 2px 4px rgba(0,0,0,0.3);"></i>
 				<div class="flex-grow-1">
-					<div class="text-white fw-bold mb-1" style="font-size:1.2rem; text-shadow: 0 1px 3px rgba(0,0,0,0.3);">
+					<div class="text-white fw-bold mb-1" style="font-size:1rem; text-shadow: 0 1px 3px rgba(0,0,0,0.3);">
 						2025년 8월부터 
-						<span class="badge bg-white text-cyan px-3 py-2 mx-2" style="font-size:1.1rem; font-weight:700; box-shadow: 0 2px 4px rgba(0,0,0,0.2); color: #0369a1 !important;">037</span>
-						<span class="badge bg-white text-cyan px-3 py-2 mx-2" style="font-size:1.1rem; font-weight:700; box-shadow: 0 2px 4px rgba(0,0,0,0.2); color: #0369a1 !important;">038</span>
+						<span class="badge bg-white text-cyan px-3 py-2 mx-2" style="font-size:0.9rem; font-weight:700; box-shadow: 0 2px 4px rgba(0,0,0,0.2); color: #0369a1 !important;">037</span>
+						<span class="badge bg-white text-cyan px-3 py-2 mx-2" style="font-size:0.9rem; font-weight:700; box-shadow: 0 2px 4px rgba(0,0,0,0.2); color: #0369a1 !important;">038</span>
 						자체 생산!
 					</div>
-					<div class="text-white-50" style="font-size:1rem;">
+					<div class="text-white-50" style="font-size:0.8rem;">
 						코드는 <span class="fw-bold" style="text-shadow: 0 1px 2px rgba(0,0,0,0.5); color: #e0f2fe !important;">N037, N038</span>로 입력해 주세요.
 						<small class="text-white-75 ms-2" style="font-size:0.9em;">※ 기존 청디자인 모델과 구분하기 위함입니다.</small>
 					</div>
-				</div>
-				<img src="../img/notice-ceiling.svg" alt="Notice" class="ms-3 d-none d-md-block" style="height:40px; filter: brightness(0) invert(1);">
+				</div>				
 			</div>
 		</div>
 	</div>

@@ -140,6 +140,10 @@ $(document).ready(function () {
 	if ($(".sideBanner").length > 0) {
 	  $(window).scroll(function() {
 		// 모바일에선 나타나지 않게 하기
+		// 모바일에서는 스크롤 애니메이션 비활성화 (토글로 제어)
+		if (window.innerWidth <= 768) {
+			return;
+		}
 
 		// 현재 스크롤 위치
 		var currentTop = $(window).scrollTop();
@@ -166,7 +170,10 @@ $(document).ready(function () {
 
 	if ($(".sideEworksBanner").length > 0) {
 	  $(window).scroll(function() {
-		// 모바일에선 나타나지 않게 하기
+		// 모바일에서는 스크롤 애니메이션 비활성화 (토글로 제어)
+		if (window.innerWidth <= 768) {
+			return;
+		}
 
 		// 현재 스크롤 위치
 		var currentTop = $(window).scrollTop();
@@ -390,11 +397,11 @@ $(document).ready(function(){
 
 /////////////////////////////////////////////// 전자 결재관련
 			
-	$("#closeModalxBtn, #closeEworksBtn").click(function() { 
+	$("#closeModalxBtn, #closeEworksBtn").click(function() {
 		$('#eworks_form').modal('hide'); // 모달 숨김
 
-		// .sideEworksBanner 요소가 존재하면 해당 요소를 보이게 설정
-		if ($('.sideEworksBanner').length > 0) {
+		// .sideEworksBanner 요소가 존재하면 해당 요소를 보이게 설정 (PC만)
+		if ($('.sideEworksBanner').length > 0 && window.innerWidth > 768) {
 			$('.sideEworksBanner').css('display', 'block');
 		}
 	});
@@ -1299,9 +1306,12 @@ else if (eworks_item === '연구개발보고서') {
 					 }, 1000); //중복 방지를 위해 타임아웃 설정    
 
 					$("#eworks_viewmodal").on("shown.bs.modal", function () {
-						// 모달에 대해 shown.bs.modal 가동하고										
+						// 모달에 대해 shown.bs.modal 가동하고
 						isModalOpen = true; // 모달이 열리면 true로 설정
-						$('.sideEworksBanner').css('display', 'none'); // sideEworksBanner 숨김
+						// PC에서만 숨김 (모바일은 토글로 제어)
+						if (window.innerWidth > 768) {
+							$('.sideEworksBanner').css('display', 'none'); // sideEworksBanner 숨김
+						}
 						
 						 
 						  // 모달창에서 
@@ -2798,7 +2808,10 @@ function eworksList()
 
 	$("#eworks_form").on("shown.bs.modal", function () {
 		isModalOpen = true; // 모달이 열리면 true로 설정
-		$('.sideEworksBanner').css('display', 'none'); // sideEworksBanner 숨김
+		// PC에서만 숨김 (모바일은 토글로 제어)
+		if (window.innerWidth > 768) {
+			$('.sideEworksBanner').css('display', 'none'); // sideEworksBanner 숨김
+		}
 			  
 	  // 뒷배경 누를때 안닫히게
 		$('#eworks_form').modal( {
@@ -3150,12 +3163,15 @@ function alert_eworkslist() {
                 if (Number(badge3) > 0 && parseInt(ework_approval) > 0 ) {
                     alertEworks.style.display = 'inline';
                     alertEworks.classList.add('blink');
-					if(!isModalOpen)
+					// PC에서만 자동으로 보여줌 (모바일은 토글로 제어)
+					if(!isModalOpen && window.innerWidth > 768)
 						$('.sideEworksBanner').css('display', 'block'); // '미결'이 존재하면 sideEworksBanner 보여줌
                 } else {
                     alertEworks.style.display = 'none';
                     alertEworks.classList.remove('blink');
-                    $('.sideEworksBanner').css('display', 'none'); // '미결'이 없으면 sideEworksBanner 숨김
+					// PC에서만 자동으로 숨김 (모바일은 토글로 제어)
+					if (window.innerWidth > 768)
+                    	$('.sideEworksBanner').css('display', 'none'); // '미결'이 없으면 sideEworksBanner 숨김
                 }
             }
         },

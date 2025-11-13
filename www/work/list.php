@@ -12,7 +12,7 @@ include includePath('load_header.php');
  ?>
  
 <title> <?=$title_message?> </title>
-<link rel="stylesheet" href="<?= getBaseUrl() ?>/work/css/style.css">
+<link rel="stylesheet" href="<?= getBaseUrl() ?>/work/css/style.css?v=<?php echo time(); ?>">
 
 <?php require_once(includePath('myheader.php')); ?>   
 
@@ -254,18 +254,17 @@ try{
 	<div class="row">  
 	<div class="card mb-2 mt-2">  
 	<div class="card-body">  	
-	<div class="d-flex justify-content-center align-items-center my-1">
-		<div class="w-100" style="max-width: 1000px;">
-			<div class="shadow-lg rounded-4 d-flex align-items-center px-3 py-1" style="background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%); min-height:70px; border: 2px solid #0369a1;">
-				<i class="bi bi-megaphone-fill text-white me-3" style="font-size:2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.3);"></i>
+	<div class="d-flex justify-content-center align-items-center my-1 d-none d-md-flex">
+		<div class="w-100" style="max-width: 800px;">
+			<div class="shadow-lg rounded-4 d-flex align-items-center px-2 " style="background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%); min-height:55px; border: 2px solid #0369a1;">
+				<i class="bi bi-megaphone-fill text-white me-3" style="font-size:1.5rem; text-shadow: 0 2px 4px rgba(0,0,0,0.3);"></i>
 				<div class="flex-grow-1">
 					<div class="text-white fw-bold mb-1" style="font-size:1.2rem; text-shadow: 0 1px 3px rgba(0,0,0,0.3);">
-						한산에 도장을 맡길때는 <span class="badge bg-white text-cyan px-3 py-2 mx-2" style="font-size:1.1rem; font-weight:700; box-shadow: 0 2px 4px rgba(0,0,0,0.2); color: #0369a1 !important;">도장홀</span>을 각 4개씩 타공해야 도장이 가능합니다. <span class="text-warning" style="font-weight:700;">주의하세요!</span>
+						한산에 도장을 맡길때는 <span class="badge bg-white text-cyan px-3 py-2 mx-2" style="font-size:0.9rem; font-weight:700; box-shadow: 0 2px 4px rgba(0,0,0,0.2); color: #0369a1 !important;">도장홀</span>을 각 4개씩 타공해야 도장이 가능합니다. <span class="text-warning" style="font-weight:700;">주의하세요!</span>
+					</div>
+				</div>				
 			</div>
 		</div>
-		<!-- <img src="<?= asset('img/notice-ceiling.svg') ?>" alt="Notice" class="ms-3 d-none d-md-block" style="height:40px; filter: brightness(0) invert(1);"> -->
-		</div>
-	</div>
 	</div>
 
 	<div class="d-flex  p-1 m-1 mt-1 mb-2 justify-content-center align-items-center "> 
@@ -488,6 +487,425 @@ try{
 	 .card-header, .card-body {
 			padding: 4px;
 		}
+
+	/* 모바일 반응형 스타일 */
+	@media (max-width: 768px) {
+		/* body와 html의 width 제한 */
+		html, body {
+			max-width: 100vw !important;
+			overflow-x: hidden !important;
+			font-size: 16px !important;
+		}
+
+		/* 컨테이너 패딩 조정 및 width 제한 */
+		.container-fluid {
+			max-width: 100vw !important;
+			padding-left: 10px !important;
+			padding-right: 10px !important;
+			overflow-x: hidden !important;
+		}
+
+		/* 모든 row의 width 제한 */
+		.row {
+			max-width: 100vw !important;
+			margin-left: 0 !important;
+			margin-right: 0 !important;
+			overflow-x: hidden !important;
+		}
+
+		/* card의 width 제한 */
+		.card {
+			max-width: 100% !important;
+			overflow-x: hidden !important;
+		}
+
+		/* 공지사항 배너 모바일 최적화 */
+		.shadow-lg {
+			min-height: auto !important;
+			padding: 12px !important;
+			max-width: 100% !important;
+			overflow: hidden !important;
+		}
+
+		.shadow-lg i {
+			font-size: 1.8rem !important;
+		}
+
+		.shadow-lg .text-white {
+			font-size: 1rem !important;
+			line-height: 1.4 !important;
+		}
+
+		.shadow-lg .badge {
+			font-size: 1rem !important;
+			padding: 5px 10px !important;
+		}
+
+		/* 공지사항 배너 이미지 숨기기 */
+		.shadow-lg img {
+			display: none !important;
+		}
+
+		/* 제목 영역 모바일 최적화 */
+		.d-flex h5 {
+			font-size: 1.1rem !important;
+			white-space: nowrap !important;
+		}
+
+		/* 버튼 그룹 모바일 최적화 */
+		.btn-sm {
+			font-size: 0.85rem !important;
+			padding: 0.4rem 0.6rem !important;
+			white-space: nowrap !important;
+		}
+
+		/* 검색 영역 모바일 최적화 */
+		#fromdate, #todate {
+			width: 110px !important;
+			font-size: 0.9rem !important;
+			padding: 0.4rem !important;
+		}
+
+		#search {
+			width: 110px !important;
+			font-size: 0.9rem !important;
+			padding: 0.4rem !important;
+		}
+
+		.form-select {
+			font-size: 0.9rem !important;
+			height: 32px !important;
+			padding: 0.4rem 0.6rem !important;
+		}
+
+		/* 팝업 프레임 모바일 최적화 */
+		#showalignframe,
+		#showextractframe,
+		#showframe,
+		#showsearchtoolframe {
+			position: fixed !important;
+			left: 50% !important;
+			top: 50% !important;
+			transform: translate(-50%, -50%) !important;
+			width: 95% !important;
+			max-width: 400px !important;
+			z-index: 9999 !important;
+			max-height: 80vh !important;
+			overflow-y: auto !important;
+		}
+
+		/* 정렬, 부가기능 버튼들 정리 */
+		#showalign, #showextract, #showdate, #showsearchtool {
+			min-width: 70px !important;
+		}
+
+		/* 기간/검색 영역과 버튼 분리 */
+		.card-body > .d-flex.justify-content-center {
+			background: #f8f9fa !important;
+			padding: 10px !important;
+			border-radius: 8px !important;
+			margin: 8px 0 !important;
+		}
+
+		/* 테이블 헤더 숨기기 */
+		#myTable thead {
+			display: none;
+		}
+
+		/* 테이블을 카드 레이아웃으로 변경 */
+		#myTable,
+		#myTable tbody,
+		#myTable tr,
+		#myTable td {
+			display: block;
+			width: 100%;
+		}
+
+		#myTable tr {
+			margin-bottom: 15px;
+			border: 1px solid #dee2e6;
+			border-radius: 10px;
+			background: white;
+			box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+			padding: 14px;
+			overflow: hidden;
+		}
+
+		/* 모바일에서 불필요한 필드 숨기기 */
+		#myTable td:nth-child(1),  /* 구분 (신규/덧방) - 헤더 */
+		#myTable td:nth-child(2),  /* 외주 */
+		#myTable td:nth-child(4),  /* 검사 */
+		#myTable td:nth-child(5),  /* 배정 */
+		#myTable td:nth-child(6),  /* 예정 */
+		#myTable td:nth-child(7),  /* 설계 */
+		#myTable td:nth-child(8),  /* 출고 */
+		#myTable td:nth-child(9),  /* 시공 */
+		#myTable td:nth-child(10), /* 전사진 */
+		#myTable td:nth-child(11), /* 후사진 */
+		#myTable td:nth-child(12), /* 청구 */
+		#myTable td:nth-child(14), /* 재질(소재) */
+		#myTable td:nth-child(16), /* 시공팀 */
+		#myTable td:nth-child(18), /* HPI */
+		#myTable td:nth-child(19)  /* 비고 */
+		{
+			display: none !important;
+		}
+
+		#myTable td {
+			text-align: left !important;
+			padding: 12px !important;
+			border: none !important;
+			position: relative;
+			padding-left: 35% !important; /* 40% → 35% 값이 더 많은 공간 */
+			white-space: normal !important;
+			word-wrap: break-word;
+			min-height: 40px;
+			font-size: 1rem !important;
+			line-height: 1.6 !important;
+		}
+
+		/* 모바일에서 라벨 표시 */
+		#myTable td:before {
+			content: attr(data-label);
+			position: absolute;
+			left: 12px;
+			width: 30%; /* 35% → 30% 라벨 영역 축소 */
+			padding-right: 8px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis; /* 길면 ... 표시 */
+			font-weight: 600;
+			color: #6b7280;
+			font-size: 0.85rem; /* 0.9rem → 0.85rem */
+		}
+
+		/* 라벨과 값 사이 구분선 */
+		#myTable td:after {
+			content: ':';
+			position: absolute;
+			left: 32%; /* 38% → 32% */
+			font-weight: bold;
+			color: #9ca3af;
+		}
+
+		/* 첫 번째 셀은 구분선 없음 */
+		#myTable td:first-child:after {
+			display: none;
+		}
+
+		/* 첫 번째 셀 숨김 처리 */
+		#myTable td:first-child {
+			display: none !important;
+		}
+
+		#myTable td:first-child:before {
+			display: none;
+		}
+
+		/* 접수일 (3번째) */
+		#myTable td:nth-child(3) {
+			font-weight: 600;
+			color: #495057;
+			border-bottom: 1px solid #e9ecef;
+			padding-bottom: 12px !important;
+			margin-bottom: 8px;
+		}
+
+		/* 현장명 (13번째) - 가장 중요 */
+		#myTable td:nth-child(13) {
+			background: #e7f3ff;
+			font-weight: 700;
+			font-size: 1.05rem !important;
+			color: #0056b3;
+			padding: 14px 12px !important;
+			padding-left: 12px !important; /* 왼쪽 패딩만 적용 */
+			margin: 8px 0;
+			border-radius: 4px;
+			border-left: 4px solid #0056b3;
+			display: block !important;
+		}
+
+		/* 현장명 라벨 스타일 */
+		#myTable td:nth-child(13):before {
+			position: static !important;
+			display: block !important;
+			width: 100% !important;
+			margin-bottom: 6px;
+			font-size: 0.85rem !important;
+			color: #6b7280 !important;
+			font-weight: 600 !important;
+		}
+
+		/* 현장명 콜론 제거 */
+		#myTable td:nth-child(13):after {
+			display: none !important;
+		}
+
+		/* 원청 (15번째) */
+		#myTable td:nth-child(15) {
+			font-weight: 600;
+			color: #059669;
+		}
+
+		/* 발주처 (16번째) - 원청과 구분되나 현재 15번째로 표시됨 */
+		/* 수량 (17번째) */
+		#myTable td:nth-child(17) {
+			font-weight: 600;
+			color: #dc2626;
+			font-size: 1rem !important;
+		}
+
+		/* DataTables 컨트롤 모바일에서 숨기기 */
+		.dataTables_wrapper .dataTables_length,
+		.dataTables_wrapper .dataTables_filter {
+			display: none !important;
+		}
+
+		/* DataTables 페이지네이션 최적화 */
+		.dataTables_wrapper .dataTables_paginate {
+			font-size: 0.9rem !important;
+			margin-top: 15px !important;
+		}
+
+		.dataTables_wrapper .dataTables_paginate .paginate_button {
+			padding: 0.5rem 0.7rem !important;
+			margin: 0 2px !important;
+		}
+
+		/* DataTables 정보 표시 최적화 */
+		.dataTables_wrapper .dataTables_info {
+			font-size: 0.9rem !important;
+			text-align: center !important;
+			margin-top: 10px !important;
+			margin-bottom: 10px !important;
+		}
+
+		/* 버튼 영역 줄바꿈 허용 */
+		.d-flex.justify-content-center {
+			flex-wrap: wrap !important;
+			overflow-x: visible !important;
+			gap: 0.4rem !important;
+			justify-content: flex-start !important;
+		}
+
+		/* 버튼 영역 가운데 정렬 유지 */
+		.d-flex.justify-content-center.align-items-center {
+			justify-content: center !important;
+		}
+
+		/* 검색 도구 영역 */
+		.inputWrap {
+			min-width: 110px !important;
+		}
+
+		/* 배지 크기 조정 */
+		.badge {
+			font-size: 0.85rem !important;
+			padding: 0.3rem 0.6rem !important;
+		}
+
+		/* 카드 패딩 조정 */
+		.card {
+			margin-bottom: 10px !important;
+		}
+
+		.card-body {
+			padding: 12px !important;
+		}
+
+		/* 상단 검색 영역 정리 */
+		.card-body .d-flex {
+			flex-direction: column !important;
+			align-items: stretch !important;
+			gap: 10px !important;
+		}
+
+		/* 제목과 총 개수 영역 */
+		.card-body > .d-flex:first-of-type {
+			flex-direction: row !important;
+			justify-content: space-between !important;
+			align-items: center !important;
+			margin-bottom: 15px !important;
+			padding-bottom: 12px !important;
+			border-bottom: 2px solid #e9ecef !important;
+		}
+
+		/* 버튼 그룹들을 세로로 배치 */
+		.card-body > .d-flex {
+			margin-bottom: 10px !important;
+		}
+
+		/* 날짜 입력 영역 */
+		.card-body .d-flex:has(#fromdate) {
+			display: grid !important;
+			grid-template-columns: 1fr auto 1fr !important;
+			gap: 8px !important;
+			align-items: center !important;
+		}
+
+		#fromdate, #todate {
+			width: 100% !important;
+		}
+
+		/* 검색 영역 */
+		.card-body .d-flex:has(#search) {
+			display: grid !important;
+			grid-template-columns: auto 1fr auto !important;
+			gap: 8px !important;
+			align-items: center !important;
+		}
+
+		#find {
+			width: auto !important;
+			min-width: 80px !important;
+		}
+
+		#search {
+			width: 100% !important;
+		}
+
+		#searchBtn {
+			white-space: nowrap !important;
+		}
+
+		/* 아이콘 크기 조정 */
+		ion-icon {
+			font-size: 1.2rem !important;
+			vertical-align: middle;
+		}
+
+		/* 총 개수 표시 */
+		.d-flex.justify-content-center ion-icon[name="play"] {
+			font-size: 1rem !important;
+		}
+
+		/* 테이블 래퍼 */
+		.table-responsive {
+			overflow-x: visible !important;
+		}
+
+		/* 13. 모바일에서 불필요한 버튼 숨기기 - 검색 버튼만 남김 */
+
+		/* 상단 버튼 영역의 버튼들 숨기기 */
+		#showalign,           /* 정렬 버튼 */
+		#showextract,         /* 부가기능 버튼 */
+		#planMakingBtn,       /* 생산예정 버튼 */
+		#showdate,            /* 기간 버튼 */
+		#showsearchtool,      /* 검색 도구 버튼 */
+		#writeBtn {           /* 신규 버튼 */
+			display: none !important;
+		}
+
+		/* 검색 버튼만 표시 */
+		#searchBtn {
+			display: inline-block !important;
+		}
+
+		/* 배지 숨기기 (미출고 List 등) */
+		.badge.bg-primary.fs-5 {
+			display: none !important;
+		}
+	}
 	  </style>
 	</div>
 	
@@ -496,8 +914,9 @@ try{
 	 
 		  </div> <!-- end of 2단계 list_search1  -->
 </div> <!--card-body-->
-			 
-<div class="row p-1 mt-1 mb-1 justify-content-center align-items-center">     
+
+<div class="row p-1 mt-1 mb-1 justify-content-center align-items-center">
+<div class="table-responsive">
 <table class="table table-hover" id="myTable">
     <thead class="table-primary">
       <tr>
@@ -588,29 +1007,29 @@ try{
 			  }		  
 ?>
 			 
-<tr onclick="redirectToView('<?=htmlspecialchars($num ?? '')?>', '<?=htmlspecialchars($tablename ?? '')?>')">   
+<tr onclick="redirectToView('<?=htmlspecialchars($num ?? '')?>', '<?=htmlspecialchars($tablename ?? '')?>')">
   <td>
     <?php
       if($checkstep == '신규') {
         print '<span class="badge bg-danger">' . $checkstep . '</span>';
         $workplacename = "[신규] " . $workplacename;
       } else {
-        print $checkstep; 
+        print $checkstep;
       }
     ?>
   </td>
-  <td class="text-center"><span class="badge bg-success"><?=$outsourcing?></span></td>
-  <td class="text-center"  data-order="<?= $orderday ?>"><?=$orderday?></td>
-  <td class="text-center text-danger"  data-order="<?= $testday ?>"><?=echo_null(iconv_substr($testday, 5, 5, "utf-8"))?></td>
-  <td class="text-center text-secondary"  data-order="<?= $assigndate ?>"><?=echo_null(iconv_substr($assigndate, 5, 5, "utf-8"))?></td>  
-  <td class="text-center text-success"  data-order="<?= $endworkday ?>"><?=echo_null(iconv_substr($endworkday, 5, 5, "utf-8"))?></td>  
-  <td class="text-center"  data-order="<?= $draw_done ?>"><?=echo_null($draw_done)?></td>  
-  <td class="text-center"  data-order="<?= $workday ?>"><?=echo_null(iconv_substr($workday, 5, 5, "utf-8"))?></td>
-  <td class="text-center"  data-order="<?= $doneday ?>"><?=echo_null(iconv_substr($doneday, 5, 5, "utf-8"))?></td>
-  <td class="text-center"><?=echo_null($filename1)?></td>
-  <td class="text-center "><?=echo_null($filename2)?></td>
-  <td class="text-center "  data-order="<?= $demand ?>"><?=echo_null(iconv_substr($demand, 5, 5, "utf-8"))?></td>
-  <td><?=echo_null($workplacename)?></td>
+  <td data-label="외주" class="text-center"><span class="badge bg-success"><?=$outsourcing?></span></td>
+  <td data-label="접수" class="text-center"  data-order="<?= $orderday ?>"><?=$orderday?></td>
+  <td data-label="검사" class="text-center text-danger"  data-order="<?= $testday ?>"><?=echo_null(iconv_substr($testday, 5, 5, "utf-8"))?></td>
+  <td data-label="배정" class="text-center text-secondary"  data-order="<?= $assigndate ?>"><?=echo_null(iconv_substr($assigndate, 5, 5, "utf-8"))?></td>
+  <td data-label="예정" class="text-center text-success"  data-order="<?= $endworkday ?>"><?=echo_null(iconv_substr($endworkday, 5, 5, "utf-8"))?></td>
+  <td data-label="설계" class="text-center"  data-order="<?= $draw_done ?>"><?=echo_null($draw_done)?></td>
+  <td data-label="출고" class="text-center"  data-order="<?= $workday ?>"><?=echo_null(iconv_substr($workday, 5, 5, "utf-8"))?></td>
+  <td data-label="시공" class="text-center"  data-order="<?= $doneday ?>"><?=echo_null(iconv_substr($doneday, 5, 5, "utf-8"))?></td>
+  <td data-label="전사진" class="text-center"><?=echo_null($filename1)?></td>
+  <td data-label="후사진" class="text-center "><?=echo_null($filename2)?></td>
+  <td data-label="청구" class="text-center "  data-order="<?= $demand ?>"><?=echo_null(iconv_substr($demand, 5, 5, "utf-8"))?></td>
+  <td data-label="현장명"><?=echo_null($workplacename)?></td>
   <?php
   
   if($checkmat1 == 'checked')
@@ -658,15 +1077,15 @@ $spanClass3 = (strpos($materials3, '사급') !== false) ? 'text-primary' : '';
 $brTag2 = (!empty(trim($materials2)) !== false) ? '<br>' : '';
 $brTag3 = (!empty(trim($materials3)) !== false) ? '<br>' : '';
 
-echo '<td class="text-center"><span class="'.$spanClass1.'">'.$materials1.'</span> '.$brTag2.' <span class="'.$spanClass2.'">'.$materials2.'</span>'.$brTag3.' <span class="'.$spanClass3.'">'.$materials3.'</span></td>';
+echo '<td data-label="재질(소재)" class="text-center"><span class="'.$spanClass1.'">'.$materials1.'</span> '.$brTag2.' <span class="'.$spanClass2.'">'.$materials2.'</span>'.$brTag3.' <span class="'.$spanClass3.'">'.$materials3.'</span></td>';
 ?>
 
-  <td class="text-center"><?=echo_null(iconv_substr($firstord, 0, 5, "utf-8"))?></td>
-  <td class="text-center"><?=echo_null($secondord)?></td>
-  <td class="text-center"><?=echo_null($worker)?></td>
-  <td class="text-center"><?=echo_null($workitem)?></td>
-  <td class="text-center text-success"><?=echo_null(iconv_substr($hpi, 0, 10, "utf-8"))?></td>
-  <td><?=echo_null(iconv_substr($memo, 0, 10, "utf-8"))?></td>
+  <td data-label="원청" class="text-center"><?=echo_null(iconv_substr($firstord, 0, 5, "utf-8"))?></td>
+  <td data-label="발주처" class="text-center"><?=echo_null($secondord)?></td>
+  <td data-label="시공팀" class="text-center"><?=echo_null($worker)?></td>
+  <td data-label="설치수량" class="text-center"><?=echo_null($workitem)?></td>
+  <td data-label="HPI" class="text-center text-success"><?=echo_null(iconv_substr($hpi, 0, 10, "utf-8"))?></td>
+  <td data-label="비고"><?=echo_null(iconv_substr($memo, 0, 10, "utf-8"))?></td>
 </tr>
 
 <?php
@@ -682,10 +1101,11 @@ echo '<td class="text-center"><span class="'.$spanClass1.'">'.$materials1.'</spa
   }  
 
  ?>
- 
+
     </tbody>
   </table>
-</div>
+</div><!-- table-responsive -->
+</div><!-- row -->
   
  
 <? include '../footer_sub.php'; ?>

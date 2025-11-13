@@ -61,8 +61,6 @@ $delivery_count_today = 0;
 /* 택배 알림 말풍선 */
 .delivery-reminder {
     position: fixed;
-    top: 20px;
-    right: 20px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     padding: 12px 16px;
@@ -71,22 +69,64 @@ $delivery_count_today = 0;
     font-weight: 500;
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
     z-index: 1000;
-    animation: float 3s ease-in-out infinite;
     cursor: pointer;
     max-width: 250px;
     text-align: center;
+    /* PC 기본 위치 */
+    top: 20px;
+    right: 20px;
+    animation: float 3s ease-in-out infinite;
+}
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+    .delivery-reminder {
+        /* 모바일에서는 하단 중앙에 고정 (전자결재 버튼 위) */
+        top: auto;
+        bottom: 90px;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        max-width: calc(100% - 40px);
+        width: auto;
+        animation: float-mobile 3s ease-in-out infinite;
+    }
+
+    @keyframes float-mobile {
+        0%, 100% {
+            transform: translateX(-50%) translateY(0px);
+        }
+        50% {
+            transform: translateX(-50%) translateY(-8px);
+        }
+    }
 }
 
 .delivery-reminder::before {
     content: '';
     position: absolute;
-    bottom: -8px;
-    right: 20px;
     width: 0;
     height: 0;
     border-left: 8px solid transparent;
     border-right: 8px solid transparent;
+    /* PC: 하단 꼬리 */
+    bottom: -8px;
+    right: 20px;
     border-top: 8px solid #764ba2;
+    border-bottom: none;
+}
+
+@media (max-width: 768px) {
+    .delivery-reminder::before {
+        /* 모바일: 상단 꼬리 (위쪽 방향) */
+        bottom: auto;
+        top: -8px;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        border-top: none;
+        border-bottom: 8px solid #667eea;
+    }
 }
 
 /* 테이블 헤더 하이라이트 */
@@ -112,8 +152,14 @@ $delivery_count_today = 0;
     transition: transform 0.2s ease;
 }
 
+@media (max-width: 768px) {
+    .delivery-reminder:hover {
+        transform: translateX(-50%) scale(1.05);
+    }
+}
+
 @keyframes float {
-    0%, 100% { transform: translateY(0px); } 
+    0%, 100% { transform: translateY(0px); }
     50% { transform: translateY(-10px); }
 }
 
@@ -150,8 +196,6 @@ $delivery_count_today = 0;
 /* 식사주문 알림 말풍선 */
 .lunch-reminder {
     position: fixed;
-    top: 80px;
-    right: 20px;
     background: linear-gradient(135deg, #20b2aa 0%, #17a2b8 100%);
     color: white;
     padding: 12px 16px;
@@ -160,28 +204,67 @@ $delivery_count_today = 0;
     font-weight: 500;
     box-shadow: 0 4px 15px rgba(32, 178, 170, 0.3);
     z-index: 1000;
-    animation: float 3s ease-in-out infinite;
     cursor: pointer;
     max-width: 250px;
     text-align: center;
     display: none;
+    /* PC 기본 위치 */
+    top: 80px;
+    right: 20px;
+    animation: float 3s ease-in-out infinite;
+}
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+    .lunch-reminder {
+        /* 모바일에서는 하단 중앙에 고정 (택배 알림보다 위) */
+        top: auto;
+        bottom: 165px;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        max-width: calc(100% - 40px);
+        width: auto;
+        animation: float-mobile 3s ease-in-out infinite;
+    }
 }
 
 .lunch-reminder::before {
     content: '';
     position: absolute;
-    bottom: -8px;
-    right: 20px;
     width: 0;
     height: 0;
     border-left: 8px solid transparent;
     border-right: 8px solid transparent;
+    /* PC: 하단 꼬리 */
+    bottom: -8px;
+    right: 20px;
     border-top: 8px solid #17a2b8;
+    border-bottom: none;
+}
+
+@media (max-width: 768px) {
+    .lunch-reminder::before {
+        /* 모바일: 상단 꼬리 (위쪽 방향) */
+        bottom: auto;
+        top: -8px;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        border-top: none;
+        border-bottom: 8px solid #20b2aa;
+    }
 }
 
 .lunch-reminder:hover {
     transform: scale(1.05);
     transition: transform 0.2s ease;
+}
+
+@media (max-width: 768px) {
+    .lunch-reminder:hover {
+        transform: translateX(-50%) scale(1.05);
+    }
 }
 
 .lunch-reminder .icon {
@@ -206,6 +289,19 @@ $delivery_count_today = 0;
 .lunch-reminder .close-btn:hover {
     opacity: 1;
     transform: scale(1.1);
+}
+
+/* 모바일 가로 스크롤 방지 */
+@media (max-width: 768px) {
+    body {
+        overflow-x: hidden;
+    }
+
+    /* 컨테이너 최대 너비 제한 */
+    .container, .container-xxl {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
 }
 </style>
 </head> 
@@ -326,35 +422,44 @@ $tablename = 'popupwindow';
     );
 ?>
  
-<div class="sideBanner">
+<!-- 모바일 전자결재 토글 버튼 -->
+<div class="eworks-mobile-toggle d-md-none" id="eworksMobileToggle">
+    <button type="button" class="eworks-toggle-btn" onclick="toggleEworksSidebar()">
+        <i class="bi bi-file-earmark-text"></i>
+        <span class="eworks-badge-container" id="eworksTotalBadge"></span>
+    </button>
+</div>
+
+<!-- 전자결재 사이드바 -->
+<div class="sideBanner" id="eworksSidebar">
     <span class="text-center text-dark">&nbsp; 전자결재 </span>
-     
-	<?php	
-		// print $eworks_level  ;		
+
+	<?php
+		// print $eworks_level  ;
 		foreach ($tabs as $label => $tabId) {
 			$badgeId = "badge" . $tabId;
     ?>
-	
+
 	<div class="mb-1 mt-1">
-		 <?php if ($label !== "알림") 
-			{					
+		 <?php if ($label !== "알림")
+			{
 					if($eworks_level && ($tabId>=3) )
 					{
 					  print '<button type="button" class="btn btn-dark rounded-pill" onclick="seltab(' . $tabId . '); "> ';
-					  echo $label; 
-					  print '<span class="badge badge-pill badge-dark" id="' . $badgeId . '"></span>';				  
-					} 
+					  echo $label;
+					  print '<span class="badge badge-pill badge-dark" id="' . $badgeId . '"></span>';
+					}
 					else if (!$eworks_level)  // 일반결재 상신하는 그룹
-					{				
+					{
 					  print '<button type="button" class="btn btn-dark rounded-pill" onclick="seltab(' . $tabId . '); "> ';
-					  echo $label; 
-					  print '<span class="badge badge-pill badge-dark" id="' . $badgeId . '"></span>';				  
-					} 
-					
+					  echo $label;
+					  print '<span class="badge badge-pill badge-dark" id="' . $badgeId . '"></span>';
+					}
+
 				}
-				else 
-				{		
-					   print '<div id="bellIcon"> 🔔결재 </div>';					
+				else
+				{
+					   print '<div id="bellIcon"> 🔔결재 </div>';
 				}
 			?>
 		</button>
@@ -362,8 +467,149 @@ $tablename = 'popupwindow';
     <?php
     }
     ?>
-</div>  
 </div>
+</div>
+
+<style>
+/* 모바일 전자결재 토글 버튼 */
+.eworks-mobile-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 999;
+}
+
+.eworks-toggle-btn {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    color: white;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.eworks-toggle-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
+
+.eworks-toggle-btn:active {
+    transform: scale(0.95);
+}
+
+.eworks-badge-container {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    min-width: 24px;
+    height: 24px;
+    background: #ff4757;
+    border-radius: 12px;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 0 6px;
+    border: 2px solid white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.eworks-badge-container.active {
+    display: flex;
+    animation: badge-pop 0.3s ease;
+}
+
+@keyframes badge-pop {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* PC에서는 기존 사이드바 표시 */
+@media (min-width: 769px) {
+    .eworks-mobile-toggle {
+        display: none !important;
+    }
+
+    .sideBanner {
+        display: block !important;
+    }
+}
+
+/* 모바일에서 사이드바 완전히 숨김 */
+@media (max-width: 768px) {
+    .sideBanner,
+    .sideEworksBanner {
+        display: none !important; /* 기본적으로 완전히 숨김 */
+        position: fixed;
+        right: 0;
+        top: 0;
+        width: 260px;
+        height: 100vh;
+        background: white;
+        box-shadow: -4px 0 15px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease;
+        transform: translateX(100%); /* 화면 밖으로 이동 */
+        z-index: 1001;
+        overflow-y: auto;
+        padding: 20px 10px;
+    }
+
+    .sideBanner.active,
+    .sideEworksBanner.active {
+        display: block !important; /* 활성화 시에만 표시 */
+        transform: translateX(0); /* 화면 안으로 슬라이드 */
+    }
+
+    /* 모바일에서 카드 너비 100%로 조정 */
+    .board_list {
+        width: 100% !important;
+        padding: 7px !important;
+    }
+
+    .modern-management-card,
+    .card {
+        width: 100% !important;
+        margin: 0 0 10px 0 !important;
+    }
+
+    /* 컨테이너 최대 너비 */
+    .container-xxl {
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+        max-width: 100% !important;
+    }
+}
+
+/* 사이드바 오버레이 */
+.eworks-sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.eworks-sidebar-overlay.active {
+    display: block;
+}
+</style>
+
+<!-- 사이드바 오버레이 -->
+<div class="eworks-sidebar-overlay" id="eworksSidebarOverlay" onclick="toggleEworksSidebar()"></div>
 
 <!-- 달력 일자에 대한 모달 -->
 <div class="modal fade" id="dayModal" tabindex="-1" aria-labelledby="dayModalLabel" aria-hidden="true">
@@ -3046,6 +3292,92 @@ function closeDeliveryReminder() {
 function closeLunchReminder() {
     $('#lunchReminder').fadeOut(300);
 }
+
+// 모바일 체크 함수
+function isMobileDevice() {
+    return window.innerWidth <= 768;
+}
+
+// 전자결재 사이드바 토글 함수
+function toggleEworksSidebar() {
+    // 모바일에서만 작동
+    if (!isMobileDevice()) return;
+
+    const sidebar = document.getElementById('eworksSidebar');
+    const overlay = document.getElementById('eworksSidebarOverlay');
+
+    if (sidebar && overlay) {
+        const isActive = sidebar.classList.contains('active');
+
+        if (isActive) {
+            // 닫기
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        } else {
+            // 열기
+            sidebar.classList.add('active');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+}
+
+// 전자결재 배지 총합 업데이트 함수
+function updateEworksTotalBadge() {
+    let total = 0;
+
+    // 모든 개별 배지의 숫자를 합산
+    for (let i = 0; i <= 5; i++) {
+        const badge = document.getElementById('badge' + i);
+        if (badge && badge.textContent) {
+            const count = parseInt(badge.textContent) || 0;
+            total += count;
+        }
+    }
+
+    // 총합 배지 업데이트
+    const totalBadge = document.getElementById('eworksTotalBadge');
+    if (totalBadge) {
+        if (total > 0) {
+            totalBadge.textContent = total;
+            totalBadge.classList.add('active');
+        } else {
+            totalBadge.classList.remove('active');
+        }
+    }
+}
+
+// 페이지 로드 시 초기화
+$(document).ready(function() {
+    // 초기 배지 업데이트
+    updateEworksTotalBadge();
+
+    // 주기적으로 배지 업데이트 (10초마다)
+    setInterval(updateEworksTotalBadge, 10000);
+
+    // 모바일 전자결재 사이드바 초기화
+    if (isMobileDevice()) {
+        const sidebar = document.getElementById('eworksSidebar');
+        const overlay = document.getElementById('eworksSidebarOverlay');
+
+        if (sidebar && overlay) {
+            // 모바일에서는 기본적으로 숨김 상태 확보
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+
+            // 리사이즈 시 열린 사이드바 닫기
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768 && sidebar.classList.contains('active')) {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+        }
+    }
+});
 
 // 한국시간 오전 10시 이후 중식 주문 확인 함수
 function checkLunchOrder() {

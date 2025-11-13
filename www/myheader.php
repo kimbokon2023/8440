@@ -60,16 +60,16 @@
  	<div class="container-xxl">     
 	<?php } ?>	
   
-<div class="row d-flex align-items-center">
-    <div class="col-6 col-sm-2 justify-content-start d-flex align-items-center">
+<div class="row d-flex align-items-center" style="margin: 0; padding: 8px 0;">
+    <div class="col-4 col-sm-2 d-flex align-items-center" style="padding: 0 8px;">
 		<a href="<?= $root_dir ?>/index.php">
 			<?php //<img class="img-fluid" src="<?$root_dir /img/companylogo.jpg"> ?>
-			<img src="<?= $root_dir ?>/img/mirae_logo.png" style="width:70%; max-width: 150px;"> &nbsp;
+			<img src="<?= $root_dir ?>/img/mirae_logo.png" style="width:100%; max-width: 120px;">
 		</a>
 	</div>
-<div class="col-6 col-sm-10 justify-content-end">
+<div class="col-8 col-sm-10 d-flex justify-content-end align-items-center" style="padding: 0 8px;">
 	<!-- 모바일 햄버거 메뉴 버튼 -->
-	<button class="btn btn-primary d-md-none mobile-menu-toggle" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNavMenu" aria-controls="mobileNavMenu" style="float: right;">
+	<button class="btn btn-primary d-md-none mobile-menu-toggle" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNavMenu" aria-controls="mobileNavMenu">
 		<i class="bi bi-list" style="font-size: 1.5rem;"></i>
 	</button>
 

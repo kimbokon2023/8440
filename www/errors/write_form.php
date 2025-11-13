@@ -137,116 +137,145 @@ if ($num == '') {
     <div class="container h-30">
         <div class="row d-flex justify-content-center align-items-center h-30">
             <div class="col-12 text-center">
-                <div class="card align-middle" style="width:58rem; border-radius:20px;">
-                    <div class="card" style="padding:6px;margin:7px;">
+                <div class="card align-middle" style="width:58rem; border-radius:20px;">                    
                         <h4 class="card-title text-danger text-center">품질불량(부적합) 원인분석 및 개선 대책 보고서</h4>
-                    </div>
-                    <div class="card-body text-center">
-                        <div class="d-flex mt-1 mb-1 align-items-center justify-content-center">
-                            성명 &nbsp;
-                            <input type="text" id="reporter" name="reporter" class="form-control text-center" 
-                                   style="width:100px;" value="<?= htmlspecialchars($reporter) ?>">
-                            &nbsp;&nbsp; 부서 &nbsp;
-                            
-                            <select name="part" id="part" class="form-select form-select-sm w-auto text-start">
-                                <?php
-                                for ($i = 0; $i < count($mypart_arr); $i++) {
-                                    $selected = ($part == $mypart_arr[$i]) ? 'selected' : '';
-                                    echo "<option {$selected} value='" . htmlspecialchars($mypart_arr[$i]) . "'>" . 
-                                         htmlspecialchars($mypart_arr[$i]) . "</option>";
-                                }
-                                ?>
-                            </select>
-                            
-                            &nbsp;&nbsp; 현장명 &nbsp;
-                            <input type="text" name="place" id="place" class="form-control text-start" 
-                                   style="width:400px;" value="<?= htmlspecialchars($place) ?>" autofocus>
-                            <button type="button" id="searchPlaceBtn" class="btn btn-primary btn-sm ms-1" style="padding:3px;">
-                                <i class="bi bi-search"></i>
-                            </button>
-                            &nbsp;
+                    <div class="card-body">
+                        <div class="row gy-3 gx-3">
+                            <div class="col-12 col-sm-6 col-lg-2">
+                                <label for="reporter" class="form-label text-muted small mb-1">성명</label>
+                                <input type="text" id="reporter" name="reporter" class="form-control text-center"
+                                       value="<?= htmlspecialchars($reporter) ?>">
+                            </div>
+                            <div class="col-12 col-sm-6 col-lg-2">
+                                <label for="part" class="form-label text-muted small mb-1">부서</label>
+                                <select name="part" id="part" class="form-select form-select-sm">
+                                    <?php
+                                    for ($i = 0; $i < count($mypart_arr); $i++) {
+                                        $selected = ($part == $mypart_arr[$i]) ? 'selected' : '';
+                                        echo "<option {$selected} value='" . htmlspecialchars($mypart_arr[$i]) . "'>" .
+                                             htmlspecialchars($mypart_arr[$i]) . "</option>";
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="col-12 col-lg-8">
+                                <label for="place" class="form-label text-muted small mb-1">현장명</label>
+                                <div class="input-group">
+                                    <input type="text" name="place" id="place" class="form-control"
+                                           value="<?= htmlspecialchars($place) ?>" autofocus>
+                                    <button type="button" id="searchPlaceBtn" class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-search"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-				
-                        <div class="d-flex mt-1 mb-1 align-items-center justify-content-center">
-                            &nbsp;&nbsp; 부적합 유형 &nbsp;&nbsp;
-                            <select name="errortype" id="errortype" class="form-select form-select-sm w-auto text-start">
-                                <?php
-                                for ($i = 0; $i < count($errortype_arr); $i++) {
-                                    $selected = ($errortype == $errortype_arr[$i]) ? 'selected' : '';
-                                    echo "<option {$selected} value='" . htmlspecialchars($errortype_arr[$i]) . "'>" . 
-                                         htmlspecialchars($errortype_arr[$i]) . "</option>";
-                                }
-                                ?>
-                            </select>
-                            &nbsp;
-                            <button type="button" id="registerrortypeBtn" class="btn btn-outline-primary btn-sm">부적합유형 등록</button>
-                            &nbsp;&nbsp; 발생일 &nbsp;
-                            <input type="date" id="occur" name="occur" value="<?= htmlspecialchars($occur) ?>" 
-                                   class="form-control text-start" style="width:100px;">
-                            
-                            &nbsp;&nbsp; 불량확인일 &nbsp;
-                            <input type="date" id="occurconfirm" name="occurconfirm" value="<?= htmlspecialchars($occurconfirm) ?>" 
-                                   class="form-control text-start" style="width:100px;">
-                        </div>
-                        
-                        <div class="d-flex mt-1 mb-1 align-items-center justify-content-center">
-                            <span style="color:gray">도면 저장위치 &nbsp;</span>
-                            <input type="text" id="saveurl" class="form-control text-start w500px" name="saveurl" 
-                                   value="<?= htmlspecialchars($saveurl) ?>" placeholder="nas2dual 도면 저장위치">
-                        </div>
-                        
-                        <div class="d-flex mt-1 mb-1 align-items-center justify-content-center">
-                            <span style="color:gray">&nbsp;&nbsp; 관련직원 &nbsp;</span>
-                            <input type="text" id="involved" name="involved" class="form-control text-start" 
-                                   style="width:300px;" value="<?= htmlspecialchars($involved) ?>" placeholder="관련 직원">
-                        </div>
-                        
-                        <div class="d-flex mt-1 mb-1 align-items-center justify-content-center">
-                            <span style="color:green">첨부파일(이미지) &nbsp;</span>
-                            <?php if ($filename != null) echo htmlspecialchars($filename); ?>
-                            &nbsp;&nbsp;&nbsp;&nbsp;
-                            <input id="mainbefore" name="mainBefore" type="file">
-                        </div>
-                        
-                        <div class="d-flex mt-3 justify-content-center">
-                            <span class="text-primary fs-5">불량 발생 원인 및 분석</span>
-                        </div>
-                        <textarea id="content" class="form-control" rows="4" name="content"><?= htmlspecialchars($content) ?></textarea>
-                        
-                        <div class="d-flex mt-2 justify-content-center">
-                            <span class="text-danger fs-5">처리방안 및 개선사항</span>
-                        </div>
-                        <textarea id="method" class="form-control text-start" rows="4" name="method"><?= htmlspecialchars($method) ?></textarea>
-                        
-                        <h5 class="form-signin-heading text-success mt-2">원자재 및 자재 소요량 내역</h5>
-                        <textarea id="steelrequirement" class="form-control" rows="2" name="steelrequirement"><?= htmlspecialchars($steelrequirement) ?></textarea>
-                        <input type="text" id="materialRaw" name="materialRaw" class="form-control text-start" 
-                               value="<?= htmlspecialchars($materialRaw) ?>" readonly placeholder="자재내역 가져온 자료">
-				<div class="table-responsive mt-3">
-				  <table class="table table-bordered"  id="myTable">
-					<thead class="table-secondary">
-					  <tr class="middle-align">      
-						<th class="text-center align-middle"> 자재 비용
-							<button  type="button" class="btn btn-primary btn-sm ms-1 searchmaterialFee" style="padding:3px;"> <i class="bi bi-search"></i>  </button> 
-						</th>
-						<th class="text-center align-middle"> 운송 비용</th>
-						<th class="text-center align-middle"> 시공 비용</th>
-						<th class="text-center align-middle"> 기타 비용</th>
-						<th class="text-center align-middle"> 비용 합계</th>
-					  </tr>
-					</thead>
-					<tbody>        
-					  <tr>
-						<td><input type="text" id="materialFee" name="materialFee" class="form-control text-end number-input" value="<?= ($materialFee !== '') ? number_format($materialFee) : '' ?>"></td>
-						<td><input type="text" id="deliveryFee" name="deliveryFee" class="form-control text-end number-input" value="<?= ($deliveryFee !== '') ? number_format($deliveryFee) : '' ?>"></td>
-						<td><input type="text" id="workFee" name="workFee" class="form-control text-end number-input" value="<?= ($workFee !== '') ? number_format($workFee) : '' ?>"></td>
-						<td><input type="text" id="etcFee" name="etcFee" class="form-control text-end number-input" value="<?= ($etcFee !== '') ? number_format($etcFee) : '' ?>"></td>
-						<td><input type="text" id="totalFee" name="totalFee" class="form-control text-end" value="<?= ($totalFee !== '') ? number_format($totalFee) : '' ?>" readonly></td>
 
-					  </tr>            
-					</tbody>
-				  </table>
-				</div>						
+                        <div class="row gy-3 gx-3 mt-1">
+                            <div class="col-12 col-md-4 col-lg-3">
+                                <label for="errortype" class="form-label text-muted small mb-1">부적합 유형</label>
+                                <div class="input-group input-group-sm">
+                                    <select name="errortype" id="errortype" class="form-select">
+                                        <?php
+                                        for ($i = 0; $i < count($errortype_arr); $i++) {
+                                            $selected = ($errortype == $errortype_arr[$i]) ? 'selected' : '';
+                                            echo "<option {$selected} value='" . htmlspecialchars($errortype_arr[$i]) . "'>" .
+                                                 htmlspecialchars($errortype_arr[$i]) . "</option>";
+                                        }
+                                        ?>
+                                    </select>
+                                    <button type="button" id="registerrortypeBtn" class="btn btn-outline-primary">
+                                        부적합유형 등록
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-6 col-md-4 col-lg-2">
+                                <label for="occur" class="form-label text-muted small mb-1">발생일</label>
+                                <input type="date" id="occur" name="occur" value="<?= htmlspecialchars($occur) ?>"
+                                       class="form-control">
+                            </div>
+                            <div class="col-12 col-sm-6 col-md-4 col-lg-2">
+                                <label for="occurconfirm" class="form-label text-muted small mb-1">불량확인일</label>
+                                <input type="date" id="occurconfirm" name="occurconfirm" value="<?= htmlspecialchars($occurconfirm) ?>"
+                                       class="form-control">
+                            </div>
+                            <div class="col-12 col-lg-5">
+                                <label for="saveurl" class="form-label text-muted small mb-1">도면 저장위치</label>
+                                <input type="text" id="saveurl" class="form-control" name="saveurl"
+                                       value="<?= htmlspecialchars($saveurl) ?>" placeholder="nas2dual 도면 저장위치">
+                            </div>
+                        </div>
+
+                        <div class="row gy-3 gx-3 mt-1">
+                            <div class="col-12 col-md-6">
+                                <label for="involved" class="form-label text-muted small mb-1">관련 직원</label>
+                                <input type="text" id="involved" name="involved" class="form-control"
+                                       value="<?= htmlspecialchars($involved) ?>" placeholder="관련 직원">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label text-muted small mb-1">첨부파일(이미지)</label>
+                                <div class="d-flex flex-wrap align-items-center gap-2">
+                                    <?php if ($filename != null) : ?>
+                                        <span class="badge bg-light text-dark border"><?= htmlspecialchars($filename) ?></span>
+                                    <?php endif; ?>
+                                    <input id="mainbefore" name="mainBefore" type="file" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <h5 class="text-primary fw-semibold text-center">불량 발생 원인 및 분석</h5>
+                            <textarea id="content" class="form-control mt-2" rows="2" name="content"><?= htmlspecialchars($content) ?></textarea>
+                        </div>
+
+                        <div class="mt-4">
+                            <h5 class="text-danger fw-semibold text-center">처리방안 및 개선사항</h5>
+                            <textarea id="method" class="form-control mt-2" rows="2" name="method"><?= htmlspecialchars($method) ?></textarea>
+                        </div>
+
+                        <div class="mt-4">
+                            <h5 class="text-success fw-semibold">원자재 및 자재 소요량 내역</h5>
+                            <h6 class="text-danger" style="animation: blinkEffect 1s linear infinite;">
+                                (원자재 불량시 반드시 아래의 자재 비용을 추가해 주세요)
+                            </h6>
+                            <style>
+                            @keyframes blinkEffect {
+                                0% { opacity: 1; }
+                                50% { opacity: 0.2; }
+                                100% { opacity: 1; }
+                            }
+                            </style>
+                            <textarea id="steelrequirement" class="form-control mt-2" rows="2" name="steelrequirement"><?= htmlspecialchars($steelrequirement) ?></textarea>
+                            <input type="text" id="materialRaw" name="materialRaw" class="form-control mt-2"
+                                   value="<?= htmlspecialchars($materialRaw) ?>" readonly placeholder="자재내역 가져온 자료">
+                        </div>
+
+                        <div class="table-responsive mt-3">
+                            <table class="table table-bordered" id="myTable">
+                                <thead class="table-secondary">
+                                    <tr class="middle-align">
+                                        <th class="text-center align-middle">자재 비용
+                                            <button type="button" class="btn btn-primary btn-sm ms-1 searchmaterialFee" style="padding:3px;">
+                                                <i class="bi bi-search"></i>
+                                            </button>
+                                        </th>
+                                        <th class="text-center align-middle">운송 비용</th>
+                                        <th class="text-center align-middle">시공 비용</th>
+                                        <th class="text-center align-middle">기타 비용</th>
+                                        <th class="text-center align-middle">비용 합계</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input type="text" id="materialFee" name="materialFee" class="form-control text-end number-input" value="<?= ($materialFee !== '') ? number_format($materialFee) : '' ?>"></td>
+                                        <td><input type="text" id="deliveryFee" name="deliveryFee" class="form-control text-end number-input" value="<?= ($deliveryFee !== '') ? number_format($deliveryFee) : '' ?>"></td>
+                                        <td><input type="text" id="workFee" name="workFee" class="form-control text-end number-input" value="<?= ($workFee !== '') ? number_format($workFee) : '' ?>"></td>
+                                        <td><input type="text" id="etcFee" name="etcFee" class="form-control text-end number-input" value="<?= ($etcFee !== '') ? number_format($etcFee) : '' ?>"></td>
+                                        <td><input type="text" id="totalFee" name="totalFee" class="form-control text-end" value="<?= ($totalFee !== '') ? number_format($totalFee) : '' ?>" readonly></td>
+
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
 	  <?php 
 			if($filename!=null) {	
 			  print " <span class='form-control'> ";
@@ -274,7 +303,7 @@ if ($num == '') {
 				<button type="button" id="closeBtn"  class="btn btn-dark btn-sm ms-3" > &times; 닫기 </button>				 
 			 </div>
 		  
-			</div>
+			        </div>
 		</div>
 		</div>			
 	  </div>
