@@ -594,6 +594,65 @@ if ($method === 'POST') {
     
     echo json_encode($response, JSON_UNESCAPED_UNICODE);
     
+} elseif ($method === 'PUT') {
+    // 임시 번호를 실제 번호로 업데이트
+    $rawInput = file_get_contents('php://input');
+    $input = json_decode($rawInput, true);
+    
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        error_log("JSON decode error: " . json_last_error_msg());
+        http_response_code(400);
+        echo json_encode(array('status' => 'error', 'message' => 'Invalid JSON data'), JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    
+    $oldParentnum = $input['oldParentnum'] ?? '';
+    $newParentnum = $input['newParentnum'] ?? '';
+    $tablename = $input['tablename'] ?? '';
+    $item = $input['item'] ?? '';
+    $DBtable = $input['DBtable'] ?? 'picuploads';
+    
+    // 입력 검증
+    if (empty($oldParentnum) || empty($newParentnum) || empty($tablename) || empty($item)) {
+        http_response_code(400);
+        echo json_encode(array(
+            'status' => 'error',
+            'message' => 'oldParentnum, newParentnum, tablename, item are required'
+        ), JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    
+    try {
+        $pdo = db_connect();
+        $pdo->beginTransaction();
+        
+        // parentnum 업데이트
+        $sql = "UPDATE {$DB}.{$DBtable} SET parentnum = ? WHERE tablename = ? AND item = ? AND parentnum = ?";
+        $stmh = $pdo->prepare($sql);
+        $stmh->execute(array($newParentnum, $tablename, $item, $oldParentnum));
+        
+        $updatedCount = $stmh->rowCount();
+        
+        $pdo->commit();
+        
+        error_log("파일 parentnum 업데이트 완료: {$oldParentnum} -> {$newParentnum}, 업데이트된 파일 수: {$updatedCount}");
+        
+        $response = array(
+            'status' => 'success',
+            'message' => '파일 번호 업데이트 완료',
+            'updatedCount' => $updatedCount
+        );
+    } catch (Exception $ex) {
+        if (isset($pdo) && $pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        error_log("파일 parentnum 업데이트 실패: " . $ex->getMessage());
+        http_response_code(500);
+        $response = array('status' => 'error', 'message' => $ex->getMessage());
+    }
+    
+    echo json_encode($response, JSON_UNESCAPED_UNICODE);
+    
 } else {
     http_response_code(405);
     echo json_encode(array('error' => '지원하지 않는 요청 방식입니다.'), JSON_UNESCAPED_UNICODE);

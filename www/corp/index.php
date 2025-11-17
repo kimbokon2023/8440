@@ -9,19 +9,19 @@ $WebSite = $_SESSION["WebSite"] ?? '';
 // 첫 화면 표시 문구
 $title_message = '거래처 조회';
 
-// 권한 체크
-if (!isset($_SESSION["level"]) || $level > 5) {
-    sleep(1);
+// // 권한 체크
+// if (!isset($_SESSION["level"]) || $level > 5) {
+//     sleep(1);
     
-    // 로컬/서버 환경에 따른 동적 리다이렉션
-    $host = $_SERVER['HTTP_HOST'] ?? '';
-    if (strpos($host, 'localhost') !== false || strpos($host, '127.0.0.1') !== false) {
-        header("Location: http://" . $host . "/login/login_form.php");
-    } else {
-        header("Location: " . $WebSite . "login/login_form.php");
-    }
-    exit;
-}
+//     // 로컬/서버 환경에 따른 동적 리다이렉션
+//     $host = $_SERVER['HTTP_HOST'] ?? '';
+//     if (strpos($host, 'localhost') !== false || strpos($host, '127.0.0.1') !== false) {
+//         header("Location: http://" . $host . "/login/login_form.php");
+//     } else {
+//         header("Location: http://" . $host . "/login/login_form.php");
+//     }
+//     exit;
+// }
 
 include getDocumentRoot() . '/load_header.php';
 ?>
@@ -38,7 +38,7 @@ include getDocumentRoot() . '/load_header.php';
 body {
   background-color: #ffffff;
   color: #000000;
-  overflow-x: auto; /* 데스크톱에서 가로 스크롤 허용 */
+  overflow-x: hidden; /* 가로 스크롤 제거 */
 }
 
 /* 모바일 전용 스타일 */
@@ -124,123 +124,344 @@ body {
 /* Tabulator 통합 폰트 크기 설정 */
 .tabulator {
     font-size: 1.03em;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* Tabulator 테이블 컨테이너 가로 스크롤 제거 */
+#tabulator-table {
+    max-width: 100%;
+    overflow-x: hidden !important;
+}
+
+#tabulator-table .tabulator-tableHolder {
+    overflow-x: hidden !important;
 }
 
 /* 테이블 뷰 가로 스크롤 설정 */
 .table-view {
     width: 100%;
-    overflow-x: auto;
+    overflow-x: hidden;
 }
 
 /* 데스크톱에서만 가로 스크롤 활성화 */
 @media (min-width: 769px) {
     .table-view, #tabulator-table {
-        overflow-x: auto !important;
+        overflow-x: hidden !important;
     }
 }
 
-/* 거래처 조회 전용 스타일 */
-.customer-header {
-    background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
-    color: white;
-    padding: 2rem 0;
-    margin-bottom: 2rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+/* 모달 z-index 설정 (검색창 위에 표시되도록) */
+.modal {
+    z-index: 1050 !important;
 }
 
-.customer-header h1 {
-    font-size: 2.5rem;
+.modal-backdrop {
+    z-index: 1040 !important;
+}
+
+.modal.show {
+    z-index: 1050 !important;
+}
+
+#customerDetailModal,
+#customerEditModal,
+#columnSettingsModal {
+    z-index: 1050 !important;
+}
+
+/* 거래처 수정 모달 body 스크롤 제거 (iframe 내부에서만 스크롤) */
+#customerEditModal .modal-body {
+    overflow: hidden !important;
+    padding: 0 !important;
+}
+
+/* 거래처 조회 전용 스타일 */
+.page-header {
+    background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+    color: white;
+    padding: 1.5rem 2rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.page-header h1 {
+    font-size: 1.8rem;
     font-weight: 700;
     margin: 0;
 }
 
-.customer-header p {
-    font-size: 1.1rem;
-    margin: 0.5rem 0 0 0;
-    opacity: 0.9;
+.page-header p {
+    margin: 0.25rem 0 0;
+    opacity: 0.85;
+    font-size: 0.95rem;
 }
 
-.search-section {
+.action-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.action-bar .btn-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.action-bar .btn {
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.action-bar .btn-primary {
+    background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+    border: none;
+}
+
+.action-bar .btn-outline-secondary {
+    border: 1px solid #d1d5db;
+    color: #374151;
+}
+
+.filter-section {
     background: #f8f9fa;
-    padding: 1.5rem;
-    border-radius: 10px;
-    margin-bottom: 2rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 1.25rem 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    position: relative;
+    z-index: 1;
+}
+
+.filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 220px;
+}
+
+.filter-group label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #6b7280;
+}
+
+.search-input-wrapper {
+    position: relative;
+    z-index: 1;
+}
+
+.search-input-wrapper input {
+    padding-left: 2.4rem;
+    padding-right: 2.5rem;
+    border-radius: 999px;
+    border: 2px solid #e5e7eb;
+    width: 300px;
+    max-width: 100%;
+    position: relative;
+    z-index: 1;
+}
+
+.search-input-wrapper > i.bi-search {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 1rem;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.search-input-wrapper .clear-search {
+    position: absolute;
+    right: 10px !important;
+    left: auto !important;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: none !important;
+    padding: 4px 6px;
+    border-radius: 50%;
+    transition: all 0.2s;
+    z-index: 3;
+    line-height: 1;
+    pointer-events: auto !important;
+}
+
+.search-input-wrapper .clear-search:hover {
+    background: #e5e7eb;
+    color: #475569;
+}
+
+.search-input-wrapper .clear-search.show {
+    display: block !important;
 }
 
 .filter-buttons {
     display: flex;
-    gap: 0.5rem;
+    gap: 8px;
     flex-wrap: wrap;
-    margin-bottom: 1rem;
 }
 
 .filter-buttons .btn {
-    border-radius: 20px;
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
-    border: 1px solid #dee2e6;
+    border-radius: 999px;
+    padding: 0.4rem 0.9rem;
+    font-size: 0.85rem;
+    border: 1px solid #e5e7eb;
     background: white;
-    color: #495057;
-    transition: all 0.3s ease;
+    color: #475569;
+    transition: all 0.2s;
 }
 
 .filter-buttons .btn:hover {
-    background: #2196f3;
-    color: white;
-    border-color: #2196f3;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
+    background: #e0f2fe;
+    color: #0f172a;
+    border-color: #93c5fd;
+    transform: translateY(-1px);
 }
 
 .filter-buttons .btn.active {
-    background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
-    color: white;
-    border-color: #2196f3;
-    box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
 }
 
-.search-input-group {
-    position: relative;
-    max-width: 400px;
+.detail-section {
+    margin-bottom: 24px;
 }
 
-.search-input-group .form-control {
-    border-radius: 25px;
-    padding-left: 2.5rem;
-    border: 2px solid #e9ecef;
-    transition: all 0.3s ease;
-}
-
-.search-input-group .form-control:focus {
-    border-color: #2196f3;
-    box-shadow: 0 0 0 0.2rem rgba(33, 150, 243, 0.25);
-}
-
-.search-input-group .search-icon {
-    position: absolute;
-    left: 0.75rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #6c757d;
-    z-index: 3;
-}
-
-.add-customer-btn {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    border: none;
-    border-radius: 25px;
-    padding: 0.75rem 2rem;
+.detail-section-title {
+    font-size: 1rem;
     font-weight: 600;
-    color: white;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    color: #2563eb;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
-.add-customer-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
-    color: white;
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+}
+
+.detail-item {
+    padding: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+}
+
+.detail-item.full-width {
+    grid-column: 1 / -1;
+}
+
+.detail-label {
+    font-size: 0.78rem;
+    color: #6b7280;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.detail-value {
+    font-size: 1rem;
+    color: #0f172a;
+    font-weight: 600;
+}
+
+.detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.detail-table th,
+.detail-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 0.9rem;
+}
+
+.detail-table th {
+    background: #f1f5f9;
+    font-weight: 600;
+    color: #475569;
+}
+
+.detail-empty {
+    padding: 1rem;
+    text-align: center;
+    border: 1px dashed #cbd5f5;
+    border-radius: 10px;
+    color: #94a3b8;
+    background: #f8fafc;
+}
+
+/* 첨부 파일 목록 스타일 */
+.customer-files-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.customer-file-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 15px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.customer-file-item:hover {
+    background: #e7f3ff;
+    border-color: #007bff;
+    transform: translateX(4px);
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.1);
+}
+
+.customer-file-item .file-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.customer-file-item .file-name {
+    flex: 1;
+    color: #1e293b;
+    font-size: 0.9rem;
+    word-break: break-all;
+}
+
+.customer-file-item:hover .file-name {
+    color: #007bff;
+    font-weight: 500;
 }
 
 /* 테이블 스타일 개선 */
@@ -262,6 +483,8 @@ body {
 .tabulator .tabulator-row {
     transition: all 0.2s ease;
     cursor: pointer;
+    pointer-events: auto !important;
+    user-select: none;
 }
 
 .tabulator .tabulator-row:hover {
@@ -373,46 +596,52 @@ body {
 </style>
 
 <div class="container-fluid">
-    <!-- 헤더 섹션 (1/2 크기) -->
-    <div class="customer-header text-center" style="font-size:1.25rem; padding: 0.5rem 0; background:none; color:#000;">
-        <div class="container" style="max-width:600px;">
-            <h1 style="font-size:1.5rem; margin-bottom:0.25rem; color:#000;"><i class="bi bi-building"></i> 거래처 조회</h1>
-            <p style="font-size:0.9rem; margin-bottom:0; color:#000;">거래처 정보를 조회하고 관리할 수 있습니다</p>
+    <div class="page-header">
+        <div>
+            <h1><i class="bi bi-building"></i> 거래처 관리</h1>
+            <p>거래처 정보를 조회하고 관리할 수 있습니다.</p>
         </div>
     </div>
 
-    <!-- 검색 및 필터 섹션 -->
-    <div class="search-section">
-        <div class="row align-items-center">
-            <div class="col-md-8">
+    <div class="action-bar">
+        <div class="btn-group">
+            <button type="button" class="btn btn-outline-secondary" onclick="openColumnSettings()">
+                <i class="bi bi-gear"></i> 컬럼 설정
+                    </button>
+        </div>
+        <div class="btn-group">
+            <!-- <button type="button" class="btn btn-success" onclick="importExcel()">
+                <i class="bi bi-file-earmark-excel"></i> Excel 임포트
+            </button> -->
+            <button type="button" class="btn btn-primary" onclick="addCustomer()">
+                <i class="bi bi-plus-circle"></i> 거래처 등록
+                    </button>
+        </div>
+                </div>
+                
+    <div class="filter-section">
+        <div class="filter-form">
+            <div class="filter-group">
+                <label>검색어</label>
+                <div class="search-input-wrapper">
+                    <i class="bi bi-search"></i>
+                    <input type="text" class="form-control" id="searchInput" placeholder="거래처명, 대표자, 연락처 등을 입력하세요">
+                    <i class="bi bi-x-circle clear-search" id="clearSearchBtn"></i>
+                </div>
+            </div>
+            <div class="filter-group">
+                <label>빠른 필터</label>
                 <div class="filter-buttons">
                     <button type="button" class="btn active" data-filter="all">
                         <i class="bi bi-people"></i> 전체 그룹
-                    </button>
-                    <button type="button" class="btn" data-filter="group1">
-                        <i class="bi bi-trash"></i> 삭제
-                    </button>
-                    <button type="button" class="btn" data-filter="date">
-                        <i class="bi bi-calendar"></i> 최종수정일 <i class="bi bi-arrow-down"></i>
-                    </button>
-                    <button type="button" class="btn" data-filter="memo">
-                        <i class="bi bi-sticky"></i> 전체 메모
-                    </button>
-                </div>
-                
-                <div class="search-input-group">
-                    <i class="bi bi-search search-icon"></i>
-                    <input type="text" class="form-control" id="searchInput" placeholder="검색어를 입력하세요">
-                </div>
-            </div>
-            
-            <div class="col-md-4 text-end">
-                <button type="button" class="btn btn-outline-primary me-2" onclick="openColumnSettings()" style="border-radius: 25px; padding: 0.75rem 1.5rem;">
-                    <i class="bi bi-gear"></i> 컬럼 설정
                 </button>
-                <button type="button" class="btn add-customer-btn" onclick="addCustomer()">
-                    <i class="bi bi-plus-circle"></i> + 거래처 등록
+                    <button type="button" class="btn" data-filter="sales">
+                        <i class="bi bi-currency-dollar"></i> 매출
+                    </button>
+                    <button type="button" class="btn" data-filter="purchase">
+                        <i class="bi bi-cart"></i> 매입
                 </button>
+                </div>
             </div>
         </div>
     </div>
@@ -455,6 +684,63 @@ body {
 
         <div class="pagination-controls">
             <span id="totalCount">총 0건</span>
+        </div>
+    </div>
+
+    <!-- 거래처 상세 모달 -->
+    <div class="modal fade" id="customerDetailModal" tabindex="-1" aria-labelledby="customerDetailModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header" style="background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); color: white;">
+                    <h5 class="modal-title" id="customerDetailModalLabel"><i class="bi bi-card-list me-2"></i>거래처 상세 정보</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="customerDetailContent">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3 text-muted">거래처 정보를 불러오는 중입니다...</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" id="customerDeleteBtn">
+                        <i class="bi bi-trash"></i> 삭제
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> 닫기
+                    </button>
+                    <button type="button" class="btn btn-primary" id="customerEditBtn">
+                        <i class="bi bi-pencil-square"></i> 수정하기
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 거래처 수정 모달 -->
+    <div class="modal fade" id="customerEditModal" tabindex="-1" aria-labelledby="customerEditModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header" style="background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); color: white; display: flex; justify-content: space-between; align-items: center;">
+                    <h5 class="modal-title" id="customerEditModalLabel"><i class="bi bi-pencil-square me-2"></i><span id="customerEditModalTitle">거래처 수정</span></h5>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <button type="button" class="btn btn-sm btn-success" onclick="iframeSaveCustomer()" id="iframeSaveBtn" style="display: none;">
+                            <i class="bi bi-check-lg"></i> 저장
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger" onclick="iframeDeleteCustomer()" id="iframeDeleteBtn" style="display: none;">
+                            <i class="bi bi-trash"></i> 삭제
+                        </button>
+                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle"></i> 취소
+                        </button>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                </div>
+                <div class="modal-body p-0" style="height: calc(100vh - 56px); overflow: hidden;">
+                    <iframe id="customerEditIframe" src="" style="width: 100%; height: 100%; border: none; display: block;"></iframe>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -618,8 +904,14 @@ try {
     error_log("거래처 테이블 생성 오류: " . $ex->getMessage());
 }
 
-// 거래처 데이터 조회
-$sql = "SELECT * FROM mirae8440.customer WHERE is_deleted = 'N' ORDER BY num DESC";
+// 거래처 데이터 조회 (담당자 이메일 포함)
+$sql = "SELECT c.*, 
+        GROUP_CONCAT(DISTINCT cc.contact_email SEPARATOR ', ') as contact_emails
+        FROM mirae8440.customer c
+        LEFT JOIN mirae8440.customer_contact cc ON c.num = cc.customer_id AND (cc.is_deleted = 'N' OR cc.is_deleted IS NULL)
+        WHERE (c.is_deleted = 'N' OR c.is_deleted IS NULL) 
+        GROUP BY c.num
+        ORDER BY c.num DESC";
 $table_data = array();
 
 try {
@@ -647,7 +939,8 @@ try {
             'is_other_customer' => $row['is_other_customer'],
             'bank_name' => $row['bank_name'],
             'account_number' => $row['account_number'],
-            'account_holder' => $row['account_holder']
+            'account_holder' => $row['account_holder'],
+            'contact_emails' => $row['contact_emails'] ? $row['contact_emails'] : ''
         );
         $table_data[] = $js_data;
     }
@@ -661,8 +954,177 @@ try {
         var phpTableData = <?php echo json_encode($table_data); ?>;
 
         var table; // Tabulator 인스턴스 전역 변수
+        var currentCustomerId = null;
+        var customerDetailModal = null;
+        var customerEditModal = null;
+        var rowClickLock = false; // 중복 클릭 방지
+        console.log('[DEBUG] customer/corp script initialized');
+
+        // 거래처 상세 모달 열기 함수 (전역 함수로 정의)
+        window.openCustomerDetail = function(customerNum) {
+            console.log('[DEBUG] openCustomerDetail invoked', customerNum);
+            if (!customerNum) {
+                alert('거래처 정보를 찾을 수 없습니다.');
+                return;
+            }
+
+            currentCustomerId = customerNum;
+
+            var modalElement = document.getElementById('customerDetailModal');
+            var contentElement = document.getElementById('customerDetailContent');
+            if (!modalElement || !contentElement) {
+                console.error('모달 요소를 찾을 수 없습니다.');
+                return;
+            }
+
+            // 부트스트랩 모달 인스턴스 생성 또는 가져오기
+            if (!customerDetailModal) {
+                if (typeof bootstrap === 'undefined') {
+                    console.error('Bootstrap이 로드되지 않았습니다.');
+                    alert('페이지를 새로고침해주세요.');
+                    return;
+                }
+                customerDetailModal = new bootstrap.Modal(modalElement, {
+                    backdrop: 'static',
+                    keyboard: true
+                });
+            }
+
+            // 로딩 표시
+            contentElement.innerHTML = '<div class="text-center py-5">' +
+                '<div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">' +
+                '<span class="visually-hidden">Loading...</span>' +
+                '</div>' +
+                '<p class="mt-3 text-muted">거래처 정보를 불러오는 중입니다...</p>' +
+                '</div>';
+
+            // 모달 열기
+            try {
+                customerDetailModal.show();
+            } catch (e) {
+                console.error('모달 열기 오류:', e);
+                // Bootstrap 모달이 없으면 직접 표시
+                modalElement.style.display = 'block';
+                modalElement.classList.add('show');
+                document.body.classList.add('modal-open');
+                var backdrop = document.createElement('div');
+                backdrop.className = 'modal-backdrop fade show';
+                backdrop.id = 'modalBackdrop';
+                document.body.appendChild(backdrop);
+            }
+
+            // 거래처 데이터 로드
+            fetch('get_customer_detail.php?num=' + encodeURIComponent(customerNum))
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(data) {
+                    if (data.success) {
+                        if (typeof renderCustomerDetail === 'function') {
+                            contentElement.innerHTML = renderCustomerDetail(data.customer, data.contacts || []);
+                            // 첨부 파일 목록 로드
+                            loadCustomerFiles(customerNum);
+                        } else {
+                            contentElement.innerHTML = '<div class="detail-empty">거래처 정보를 렌더링할 수 없습니다.</div>';
+                        }
+                    } else {
+                        contentElement.innerHTML = '<div class="detail-empty">' + (data.message || '거래처 정보를 불러올 수 없습니다.') + '</div>';
+                    }
+                })
+                .catch(function(error) {
+                    console.error('거래처 정보 로드 오류:', error);
+                    contentElement.innerHTML = '<div class="detail-empty">거래처 정보를 불러오는 중 오류가 발생했습니다.</div>';
+                });
+        };
+
+        // 거래처 등록/수정 모달 열기 함수 (통합 함수)
+        // customerNum이 null이거나 없으면 등록 모드, 있으면 수정 모드
+        window.openCustomerEditModal = function(customerNum) {
+            console.log('[DEBUG] openCustomerEditModal invoked', customerNum, 'currentCustomerId:', currentCustomerId);
+            
+            // 등록 모드인지 수정 모드인지 확인
+            var isEditMode = customerNum && customerNum > 0;
+            
+            if (isEditMode) {
+                currentCustomerId = customerNum;
+            } else {
+                // 등록 모드
+                currentCustomerId = null;
+            }
+
+            // 상세 모달 닫기
+            if (customerDetailModal) {
+                try {
+                    customerDetailModal.hide();
+                } catch (e) {}
+            }
+
+            var modalElement = document.getElementById('customerEditModal');
+            var iframe = document.getElementById('customerEditIframe');
+            var modalTitle = document.getElementById('customerEditModalTitle');
+            var saveBtn = document.getElementById('iframeSaveBtn');
+            var deleteBtn = document.getElementById('iframeDeleteBtn');
+
+            if (!modalElement || !iframe) {
+                console.error('거래처 편집 모달 요소를 찾을 수 없습니다.');
+                return;
+            }
+
+            // 모달 제목 변경
+            if (modalTitle) {
+                modalTitle.textContent = isEditMode ? '거래처 수정' : '거래처 등록';
+            }
+
+            // 버튼 표시/숨김 처리
+            if (deleteBtn) {
+                // 삭제 버튼: 수정 모드일 때만 표시
+                deleteBtn.style.display = isEditMode ? 'inline-flex' : 'none';
+            }
+            if (saveBtn) {
+                // 저장 버튼: 항상 표시
+                saveBtn.style.display = 'inline-flex';
+            }
+
+            // 부트스트랩 모달 인스턴스 생성 또는 가져오기
+            if (!customerEditModal) {
+                if (typeof bootstrap === 'undefined') {
+                    console.error('Bootstrap이 로드되지 않았습니다.');
+                    alert('페이지를 새로고침해주세요.');
+                    return;
+                }
+                customerEditModal = new bootstrap.Modal(modalElement, {
+                    backdrop: 'static',
+                    keyboard: true
+                });
+            }
+
+            // iframe에 해당 페이지 로드
+            if (isEditMode) {
+                // 수정 모드: edit.php 로드
+                iframe.src = 'edit.php?num=' + encodeURIComponent(currentCustomerId) + '&iframe=1';
+            } else {
+                // 등록 모드: add.php 로드
+                iframe.src = 'add.php?iframe=1';
+            }
+
+            // 모달 열기
+            try {
+                customerEditModal.show();
+            } catch (e) {
+                console.error('모달 열기 오류:', e);
+                // Bootstrap 모달이 없으면 직접 표시
+                modalElement.style.display = 'block';
+                modalElement.classList.add('show');
+                document.body.classList.add('modal-open');
+                var backdrop = document.createElement('div');
+                backdrop.className = 'modal-backdrop fade show';
+                backdrop.id = 'modalBackdrop';
+                document.body.appendChild(backdrop);
+            }
+        };
 
         $(document).ready(function() {
+            console.log('[DEBUG] Document ready fired');
             // PHP에서 전달받은 데이터 사용
             var tableData = phpTableData || [];
     
@@ -678,15 +1140,22 @@ try {
         {
             title: "선택",
             field: "select",
+            minWidth: 60,
             width: 60,
             hozAlign: "center",
             formatter: function(cell, formatterParams) {
                 return '<input type="checkbox" class="form-check-input">';
+            },
+            cellClick: function(e, cell) {
+                // 체크박스 셀 클릭 시 이벤트 전파 중단 (모달 방지)
+                // 체크박스 기본 동작은 유지하기 위해 return false 제거
+                e.stopPropagation();
             }
         },
         {
             title: "구분",
             field: "classification",
+            minWidth: 70,
             width: 80,
             hozAlign: "center",
             formatter: function(cell, formatterParams) {
@@ -698,7 +1167,8 @@ try {
         {
             title: "거래처명",
             field: "company_name",
-            width: 200,
+            minWidth: 150,
+            widthGrow: 2,
             hozAlign: "left",
             formatter: function(cell, formatterParams) {
                 var value = cell.getValue();
@@ -708,50 +1178,109 @@ try {
         {
             title: "상호(법인명)",
             field: "trade_name",
-            width: 180,
-            hozAlign: "left"
+            minWidth: 120,
+            widthGrow: 1.5,
+            hozAlign: "left",
+            visible: false
         },
         {
             title: "등록번호",
             field: "registration_number",
+            minWidth: 100,
             width: 120,
             hozAlign: "center"
         },
         {
             title: "대표자명",
             field: "representative_name",
+            minWidth: 80,
             width: 100,
             hozAlign: "center"
         },
         {
             title: "전화번호",
             field: "phone_number",
+            minWidth: 100,
             width: 120,
             hozAlign: "center"
         },
         {
             title: "휴대폰번호",
             field: "mobile_number",
+            minWidth: 100,
             width: 120,
             hozAlign: "center"
         },
         {
             title: "FAX번호",
             field: "fax_number",
+            minWidth: 100,
             width: 120,
             hozAlign: "center"
         },
         {
-            title: "최종수정일",
-            field: "last_modified_date",
+            title: "거래처등록일",
+            field: "registration_date",
+            minWidth: 100,
             width: 120,
             hozAlign: "center",
+            sorter: function(a, b, aRow, bRow, column, dir, sorterParams) {
+                // 날짜 문자열을 비교 가능한 형식으로 변환
+                var dateA = a ? (a.length >= 10 ? a.substring(0, 10) : a) : '';
+                var dateB = b ? (b.length >= 10 ? b.substring(0, 10) : b) : '';
+                
+                if (!dateA && !dateB) return 0;
+                if (!dateA) return 1;
+                if (!dateB) return -1;
+                
+                // YYYY-MM-DD 형식이므로 문자열 비교로 정렬 가능
+                return dateA.localeCompare(dateB);
+            },
             formatter: function(cell, formatterParams) {
                 var value = cell.getValue();
                 if (value) {
-                    var date = new Date(value);
-                    var formattedDate = date.toISOString().split('T')[0].substring(5); // MM-DD 형식
-                    return formattedDate + ' <span class="status-new">N</span>';
+                    // YYYY-MM-DD 형식으로 표시
+                    if (value.length >= 10) {
+                        return value.substring(0, 10); // YYYY-MM-DD
+                    }
+                    return value;
+                }
+                return '';
+            }
+        },
+        {
+            title: "최종수정일",
+            field: "last_modified_date",
+            minWidth: 100,
+            width: 120,
+            hozAlign: "center",
+            sorter: function(a, b, aRow, bRow, column, dir, sorterParams) {
+                // 날짜 문자열을 비교 가능한 형식으로 변환
+                var dateA = a ? (a.length >= 10 ? a.substring(0, 10) : a) : '';
+                var dateB = b ? (b.length >= 10 ? b.substring(0, 10) : b) : '';
+                
+                if (!dateA && !dateB) return 0;
+                if (!dateA) return 1;
+                if (!dateB) return -1;
+                
+                // YYYY-MM-DD 형식이므로 문자열 비교로 정렬 가능
+                return dateA.localeCompare(dateB);
+            },
+            formatter: function(cell, formatterParams) {
+                var value = cell.getValue();
+                if (value) {
+                    // YYYY-MM-DD 형식으로 표시
+                    if (value.length >= 10) {
+                        return value.substring(0, 10); // YYYY-MM-DD
+                    }
+                    // Date 객체인 경우
+                    if (value instanceof Date) {
+                        var year = value.getFullYear();
+                        var month = String(value.getMonth() + 1).padStart(2, '0');
+                        var day = String(value.getDate()).padStart(2, '0');
+                        return year + '-' + month + '-' + day;
+                    }
+                    return value;
                 }
                 return '';
             }
@@ -759,49 +1288,49 @@ try {
         {
             title: "업태",
             field: "business_type",
+            minWidth: 70,
             width: 80,
             hozAlign: "center"
         },
         {
             title: "종목",
             field: "business_category",
+            minWidth: 80,
             width: 100,
             hozAlign: "center"
         },
         {
             title: "적요",
             field: "remarks",
-            width: 120,
+            minWidth: 100,
+            widthGrow: 1,
             hozAlign: "left"
         },
         {
             title: "주소",
             field: "address",
-            width: 200,
-            hozAlign: "left"
+            minWidth: 150,
+            widthGrow: 2.5,
+            hozAlign: "left",
+            formatter: function(cell, formatterParams) {
+                var value = cell.getValue();
+                if (value && value.length > 30) {
+                    return value.substring(0, 30) + '...';
+                }
+                return value || '';
+            }
         },
         {
             title: "사업자번호",
             field: "business_registration_number",
+            minWidth: 100,
             width: 120,
             hozAlign: "center"
         },
         {
-            title: "거래처등록일",
-            field: "registration_date",
-            width: 120,
-            hozAlign: "center",
-            formatter: function(cell, formatterParams) {
-                var value = cell.getValue();
-                if (value) {
-                    return value.substring(5); // MM-DD 형식
-                }
-                return '';
-            }
-        },
-        {
             title: "그룹",
             field: "groups",
+            minWidth: 100,
             width: 120,
             hozAlign: "center",
             formatter: function(cell, formatterParams) {
@@ -816,6 +1345,7 @@ try {
         {
             title: "계좌정보",
             field: "account_info",
+            minWidth: 120,
             width: 150,
             hozAlign: "center",
             formatter: function(cell, formatterParams) {
@@ -825,6 +1355,25 @@ try {
                 }
                 return '';
             }
+        },
+        {
+            title: "담당자 이메일",
+            field: "contact_emails",
+            minWidth: 150,
+            widthGrow: 1.5,
+            hozAlign: "left",
+            formatter: function(cell, formatterParams) {
+                var value = cell.getValue();
+                if (value) {
+                    // 여러 이메일이 콤마로 구분되어 있을 경우 처리
+                    var emails = value.split(', ');
+                    if (emails.length > 1) {
+                        return '<i class="bi bi-envelope me-2"></i>' + emails[0] + ' <span class="text-muted">(+' + (emails.length - 1) + ')</span>';
+                    }
+                    return '<i class="bi bi-envelope me-2"></i>' + value;
+                }
+                return '<span class="text-muted">-</span>';
+            }
         }
     ];
     
@@ -832,8 +1381,8 @@ try {
     table = new Tabulator("#tabulator-table", {
         data: tableData,
         columns: columns,
-        layout: "fitColumns",
-        responsiveLayout: false,
+        layout: "fitDataFill",
+        responsiveLayout: "hide",
         tooltips: true,
         addRowPos: "top",
         history: true,
@@ -841,41 +1390,12 @@ try {
         paginationSize: 20,
         paginationSizeSelector: [20, 50, 100, 200],
         movableColumns: true,
-        resizableRows: true,
-        selectable: true,
+        resizableColumns: true,
+        autoResize: true,
+        selectable: false, // 행 선택 기능 비활성화 (클릭 이벤트와 충돌 방지)
         initialSort: [
             {column: "num", dir: "desc"}
         ],
-            rowClick: function(e, row) {
-                var rowData = row.getData();
-                var num = rowData.num;
-
-                if (num && num > 0) {
-                    var baseUrl = getBaseUrl();
-                    var url = baseUrl + "/corp/edit.php?num=" + encodeURIComponent(num);
-                    var newWindow = window.open(url, '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
-                    if (!newWindow) {
-                        alert('팝업이 차단되었습니다. 팝업 차단을 해제하고 다시 시도해주세요.');
-                    }
-                } else {
-                    alert('거래처 번호를 찾을 수 없습니다.');
-                }
-            },
-            rowDblClick: function(e, row) {
-                var rowData = row.getData();
-                var num = rowData.num;
-
-                if (num && num > 0) {
-                    var baseUrl = getBaseUrl();
-                    var url = baseUrl + "/corp/edit.php?num=" + encodeURIComponent(num);
-                    var newWindow = window.open(url, '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
-                    if (!newWindow) {
-                        alert('팝업이 차단되었습니다. 팝업 차단을 해제하고 다시 시도해주세요.');
-                    }
-                } else {
-                    alert('거래처 번호를 찾을 수 없습니다.');
-                }
-            },
         locale: "ko-kr",
         langs: {
             "ko-kr": {
@@ -901,6 +1421,68 @@ try {
             }
         }
         });
+        console.log('[DEBUG] Tabulator created. Data count:', typeof table.getDataCount === 'function' ? table.getDataCount() : 'unknown');
+
+            // 테이블 생성 후 rowClick 이벤트 수동 바인딩 (더 안정적)
+            console.log('[DEBUG] Binding rowClick event with .on() method');
+            table.on("rowClick", function(e, row) {
+                console.log('[DEBUG] .on() rowClick fired', e, row);
+                
+                // 체크박스 클릭인지 확인 (체크박스 영역 클릭 시 모달 열지 않음)
+                if (e.target && (e.target.classList.contains('form-check-input') || 
+                    e.target.type === 'checkbox' || 
+                    e.target.tagName === 'INPUT')) {
+                    console.log('[DEBUG] 체크박스 클릭 감지 - 모달 열지 않음 (.on)');
+                    return;
+                }
+                
+                // 중복 클릭 방지
+                if (rowClickLock) {
+                    console.log('[DEBUG] rowClick locked, ignoring');
+                    return;
+                }
+                rowClickLock = true;
+                setTimeout(function() {
+                    rowClickLock = false;
+                }, 100);
+                
+                var rowData = row.getData();
+                console.log('[DEBUG] .on() rowClick data', rowData);
+                
+                if (rowData && rowData.num) {
+                    console.log('[DEBUG] Calling openCustomerDetail with num:', rowData.num);
+                    if (typeof window.openCustomerDetail === 'function') {
+                        window.openCustomerDetail(rowData.num);
+                    } else {
+                        console.error('[DEBUG] openCustomerDetail 함수를 찾을 수 없습니다.');
+                    }
+                } else {
+                    console.warn('[DEBUG] .on() rowClick missing num value', rowData);
+                }
+            });
+
+            // 테이블 생성 후 rowDblClick 이벤트 수동 바인딩
+            table.on("rowDblClick", function(e, row) {
+                console.log('[DEBUG] .on() rowDblClick fired');
+                
+                // 체크박스 클릭인지 확인
+                if (e.target && (e.target.classList.contains('form-check-input') || 
+                    e.target.type === 'checkbox' || 
+                    e.target.tagName === 'INPUT')) {
+                    return;
+                }
+                
+                var rowData = row.getData();
+                console.log('[DEBUG] .on() rowDblClick data', rowData);
+                
+                if (rowData && rowData.num) {
+                    if (typeof window.openCustomerEditModal === 'function') {
+                        window.openCustomerEditModal(rowData.num);
+                    } else {
+                        console.error('[DEBUG] openCustomerEditModal 함수를 찾을 수 없습니다.');
+            }
+        }
+        });
 
             // 테이블 초기화 완료 후 페이지네이션 정보 업데이트 및 컬럼 설정 로드
             setTimeout(function() {
@@ -912,8 +1494,30 @@ try {
                 loadColumnSettings();
 
                 // 행 클릭 가능함을 사용자에게 알리는 툴팁 추가
-                $('#tabulator-table .tabulator-row').attr('title', '클릭하여 거래처 정보를 수정합니다');
-            }, 200);
+                $('#tabulator-table .tabulator-row').attr('title', '클릭하여 거래처 상세 정보를 확인합니다');
+                
+                // 직접 DOM 이벤트 리스너도 추가 (추가 보험)
+                console.log('[DEBUG] Adding direct DOM event listeners');
+                var rows = document.querySelectorAll('#tabulator-table .tabulator-row');
+                console.log('[DEBUG] Found', rows.length, 'rows');
+                rows.forEach(function(rowElement, index) {
+                    rowElement.addEventListener('click', function(e) {
+                        console.log('[DEBUG] Direct DOM click on row', index, e);
+                        // Tabulator 이벤트가 작동하지 않을 때를 대비한 백업
+                        if (e.target && (e.target.classList.contains('form-check-input') || e.target.type === 'checkbox')) {
+                            return;
+                        }
+                        // Tabulator의 rowClick이 작동하면 중복 실행을 방지하기 위해 주석 처리
+                        // var row = table.getRowFromPosition(index);
+                        // if (row) {
+                        //     var rowData = row.getData();
+                        //     if (rowData && rowData.num && typeof window.openCustomerDetail === 'function') {
+                        //         window.openCustomerDetail(rowData.num);
+                        //     }
+                        // }
+                    }, true); // capture phase에서 실행
+                });
+            }, 500);
 
             // 테이블 데이터 변경 시 페이지네이션 정보 업데이트
             table.on("dataLoaded", function(data) {
@@ -921,7 +1525,7 @@ try {
                     if (table && typeof table.getDataCount === 'function') {
                         updatePaginationInfo();
                     }
-                    $('#tabulator-table .tabulator-row').attr('title', '클릭하여 거래처 정보를 수정합니다');
+                    $('#tabulator-table .tabulator-row').attr('title', '클릭하여 거래처 상세 정보를 확인합니다');
                 }, 100);
             });
 
@@ -932,36 +1536,156 @@ try {
                     }
                 }, 100);
             });
-        });
 
-        // BaseURL 가져오기 함수
-        function getBaseUrl() {
-            var host = window.location.hostname;
-            var protocol = window.location.protocol;
-            var port = window.location.port;
-
-            if (host === 'localhost' || host === '127.0.0.1') {
-                return protocol + '//' + host + (port ? ':' + port : '');
-            } else {
-                return protocol + '//' + host;
+            var editBtn = document.getElementById('customerEditBtn');
+            if (editBtn) {
+                editBtn.addEventListener('click', function() {
+                    if (typeof window.openCustomerEditModal === 'function') {
+                        window.openCustomerEditModal(currentCustomerId);
+                    } else {
+                        console.error('openCustomerEditModal 함수를 찾을 수 없습니다.');
+                    }
+                });
             }
-        }
 
-        // 검색 기능
+            // 삭제 버튼 클릭 이벤트
+            var deleteBtn = document.getElementById('customerDeleteBtn');
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', function() {
+                    if (typeof window.deleteCustomerFromDetail === 'function') {
+                        window.deleteCustomerFromDetail(currentCustomerId);
+            } else {
+                        console.error('deleteCustomerFromDetail 함수를 찾을 수 없습니다.');
+                    }
+                });
+            }
+
+            var editModalElement = document.getElementById('customerEditModal');
+            if (editModalElement) {
+                editModalElement.addEventListener('hidden.bs.modal', function() {
+                    var iframe = document.getElementById('customerEditIframe');
+                    if (iframe) {
+                        iframe.src = '';
+                    }
+                    // 모달 제목과 버튼 초기화
+                    var modalTitle = document.getElementById('customerEditModalTitle');
+                    if (modalTitle) {
+                        modalTitle.textContent = '거래처 수정';
+                    }
+                    var saveBtn = document.getElementById('iframeSaveBtn');
+                    var deleteBtn = document.getElementById('iframeDeleteBtn');
+                    if (saveBtn) {
+                        saveBtn.style.display = 'none';
+                    }
+                    if (deleteBtn) {
+                        deleteBtn.style.display = 'none';
+                    }
+                });
+            }
+
+            // 검색어 필터링 함수
+            var applySearchFilter = function() {
+                if (!table) {
+                    console.error('[DEBUG] 테이블이 초기화되지 않았습니다.');
+                    return;
+                }
+                
+                var searchValue = $('#searchInput').val().trim();
+                var currentFilter = $('.filter-buttons .btn.active').data('filter');
+                
+                // 검색어와 그룹 필터를 모두 적용하는 커스텀 필터
+                table.setFilter(function(data) {
+                    // 그룹 필터 검사
+                    var groupMatch = true;
+                    if (currentFilter === 'sales') {
+                        groupMatch = data.is_sales_customer === 'Y';
+                    } else if (currentFilter === 'purchase') {
+                        groupMatch = data.is_purchase_customer === 'Y';
+                    }
+                    // 'all'인 경우는 모든 그룹 통과
+                    
+                    if (!groupMatch) {
+                        return false;
+                    }
+                    
+                    // 검색어 필터 검사
+                    if (!searchValue || searchValue === '') {
+                        return true; // 검색어가 없으면 그룹 필터만 적용
+                    }
+                    
+                    var searchLower = searchValue.toLowerCase();
+                    
+                    // 각 필드에서 검색 (대소문자 구분 없음)
+                    var companyName = (data.company_name || '').toString().toLowerCase();
+                    var tradeName = (data.trade_name || '').toString().toLowerCase();
+                    var representativeName = (data.representative_name || '').toString().toLowerCase();
+                    var registrationNumber = (data.registration_number || '').toString().toLowerCase();
+                    var phoneNumber = (data.phone_number || '').toString().toLowerCase();
+                    var mobileNumber = (data.mobile_number || '').toString().toLowerCase();
+                    var faxNumber = (data.fax_number || '').toString().toLowerCase();
+                    var businessType = (data.business_type || '').toString().toLowerCase();
+                    var businessCategory = (data.business_category || '').toString().toLowerCase();
+                    var bankName = (data.bank_name || '').toString().toLowerCase();
+                    var accountNumber = (data.account_number || '').toString().toLowerCase();
+                    var address = (data.address || '').toString().toLowerCase();
+                    var remarks = (data.remarks || '').toString().toLowerCase();
+                    
+                    // OR 조건: 하나라도 매칭되면 true
+                    var searchMatch = companyName.indexOf(searchLower) !== -1 ||
+                                     tradeName.indexOf(searchLower) !== -1 ||
+                                     representativeName.indexOf(searchLower) !== -1 ||
+                                     registrationNumber.indexOf(searchLower) !== -1 ||
+                                     phoneNumber.indexOf(searchLower) !== -1 ||
+                                     mobileNumber.indexOf(searchLower) !== -1 ||
+                                     faxNumber.indexOf(searchLower) !== -1 ||
+                                     businessType.indexOf(searchLower) !== -1 ||
+                                     businessCategory.indexOf(searchLower) !== -1 ||
+                                     bankName.indexOf(searchLower) !== -1 ||
+                                     accountNumber.indexOf(searchLower) !== -1 ||
+                                     address.indexOf(searchLower) !== -1 ||
+                                     remarks.indexOf(searchLower) !== -1;
+                    
+                    return searchMatch;
+                });
+            };
+
+            // X 버튼 표시/숨김 제어 함수
+            var updateClearButton = function() {
+                var searchValue = $('#searchInput').val().trim();
+                if (searchValue) {
+                    $('#clearSearchBtn').addClass('show').show();
+                } else {
+                    $('#clearSearchBtn').removeClass('show').hide();
+                }
+            };
+
+            // 검색어 입력 이벤트
         $('#searchInput').on('input', function() {
-            var searchValue = $(this).val();
-            table.setFilter([
-                {field: "company_name", type: "like", value: searchValue},
-                {field: "trade_name", type: "like", value: searchValue},
-                {field: "representative_name", type: "like", value: searchValue},
-                {field: "registration_number", type: "like", value: searchValue},
-                {field: "phone_number", type: "like", value: searchValue},
-                {field: "business_type", type: "like", value: searchValue},
-                {field: "business_category", type: "like", value: searchValue},
-                {field: "bank_name", type: "like", value: searchValue},
-                {field: "account_number", type: "like", value: searchValue}
-            ], "or");
-        });
+                var searchValue = $(this).val().trim();
+                console.log('[DEBUG] 검색어 입력:', searchValue);
+                
+                // X 버튼 표시/숨김 제어
+                updateClearButton();
+                
+                applySearchFilter();
+            });
+
+            // 검색어 입력란 focus 이벤트 (값이 있을 때 X 버튼 표시)
+            $('#searchInput').on('focus', function() {
+                updateClearButton();
+            });
+
+            // 검색어 지우기 버튼 클릭 이벤트
+            $('#clearSearchBtn').on('click', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                $('#searchInput').val('').focus();
+                updateClearButton();
+                applySearchFilter();
+            });
+
+            // 초기 상태 확인 (페이지 로드 시)
+            updateClearButton();
 
         // 필터 버튼 클릭 이벤트
         $('.filter-buttons .btn').on('click', function() {
@@ -969,26 +1693,10 @@ try {
             $(this).addClass('active');
 
             var filter = $(this).data('filter');
-
-            switch (filter) {
-                case 'all':
-                    table.clearFilter();
-                    break;
-                case 'group1':
-                    // 매출거래처만 필터
-                    table.setFilter("is_sales_customer", "=", "Y");
-                    break;
-                case 'date':
-                    // 최종수정일 기준 정렬
-                    table.setSort([
-                        {column: "last_modified_date", dir: "desc"}
-                    ]);
-                    break;
-                case 'memo':
-                    // 메모가 있는 항목만 필터
-                    table.setFilter("remarks", "!=", "");
-                    break;
-            }
+                console.log('[DEBUG] 그룹 필터 변경:', filter);
+                
+                applySearchFilter();
+            });
         });
 
         // 페이지네이션 정보 업데이트 함수
@@ -1088,11 +1796,404 @@ try {
             }
         }
 
-        // 거래처 등록 함수
+        // Excel 임포트 함수
+        function importExcel() {
+            if (confirm('Excel 파일을 임포트하시겠습니까?\n\n주의: 기존 데이터를 삭제하고 새로 임포트하려면 "확인"을, 기존 데이터를 유지하면서 중복만 업데이트하려면 "취소"를 누르신 후 다음 단계에서 선택하세요.')) {
+                // 기존 데이터 삭제 후 임포트
+                if (confirm('⚠️ 경고: 모든 기존 거래처 데이터가 삭제됩니다!\n\n정말로 기존 데이터를 모두 삭제하고 새로 임포트하시겠습니까?')) {
+                    window.location.href = 'import_excel.php?clear=1';
+                } else {
+                    // 기존 데이터 유지하면서 임포트 (중복은 업데이트)
+                    window.location.href = 'import_excel.php';
+                }
+            } else {
+                // 기존 데이터 유지하면서 임포트 (중복은 업데이트)
+                if (confirm('거래처리스트.xls 파일의 내용을 데이터베이스에 임포트하시겠습니까?\n\n기존 거래처는 업데이트되고, 새로운 거래처는 추가됩니다.')) {
+                    window.location.href = 'import_excel.php';
+                }
+            }
+        }
+
+        // 거래처 등록 함수 (통합 함수 재사용)
         function addCustomer() {
-            var baseUrl = getBaseUrl();
-            var url = baseUrl + "/corp/add.php";
-            window.open(url, '_blank', 'width=1200,height=900,scrollbars=yes,resizable=yes');
+            console.log('[DEBUG] addCustomer called');
+            // customerNum을 null로 전달하여 등록 모드로 열기
+            openCustomerEditModal(null);
+        }
+
+        // postMessage 리스너 (전역으로 정의)
+        window.addEventListener('message', function(event) {
+            var data = event.data || {};
+            if (data.scope !== 'customerModule') {
+                return;
+            }
+
+            if (data.type === 'customerUpdated' || data.type === 'customerCreated') {
+                if (customerEditModal) {
+                    customerEditModal.hide();
+                }
+                var iframe = document.getElementById('customerEditIframe');
+                if (iframe) {
+                    iframe.src = '';
+                }
+                location.reload();
+            } else if (data.type === 'editClosed' || data.type === 'customerEditCanceled') {
+                if (customerEditModal) {
+                    customerEditModal.hide();
+                }
+                var cancelIframe = document.getElementById('customerEditIframe');
+                if (cancelIframe) {
+                    cancelIframe.src = '';
+                }
+            }
+        });
+
+        // iframe 내부 함수 호출 (모달 헤더 버튼용)
+        window.iframeSaveCustomer = function() {
+            var iframe = document.getElementById('customerEditIframe');
+            if (iframe && iframe.contentWindow) {
+                // add.php나 edit.php의 폼 제출
+                try {
+                    var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    var form = iframeDoc.getElementById('customerForm');
+                    if (form) {
+                        form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+                    } else {
+                        // jQuery 이벤트로 제출
+                        if (iframe.contentWindow.$) {
+                            iframe.contentWindow.$('#customerForm').submit();
+                        }
+                    }
+                } catch (e) {
+                    console.error('iframe 내부 폼 제출 오류:', e);
+                }
+            }
+        };
+
+        window.iframeDeleteCustomer = function() {
+            if (!currentCustomerId) {
+                alert('삭제할 거래처가 선택되지 않았습니다.');
+                return;
+            }
+            
+            if (!confirm('정말로 이 거래처를 삭제하시겠습니까?')) {
+                return;
+            }
+            
+            var iframe = document.getElementById('customerEditIframe');
+            if (iframe && iframe.contentWindow && typeof iframe.contentWindow.deleteCustomer === 'function') {
+                iframe.contentWindow.deleteCustomer();
+            } else {
+                alert('삭제 기능을 사용할 수 없습니다.');
+            }
+        };
+
+        // 거래처 상세 모달에서 삭제 함수
+        window.deleteCustomerFromDetail = function(customerNum) {
+            if (!customerNum) {
+                alert('삭제할 거래처가 선택되지 않았습니다.');
+                return;
+            }
+
+            if (!confirm('정말로 이 거래처를 삭제하시겠습니까?\n\n삭제된 데이터는 복구할 수 없습니다.')) {
+                return;
+            }
+
+            console.log('[DEBUG] 거래처 삭제 시작:', customerNum);
+
+            // AJAX로 삭제 요청
+            var formData = new FormData();
+            formData.append('num', customerNum);
+
+            fetch('delete.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(data) {
+                if (data.success) {
+                    alert(data.message || '거래처가 성공적으로 삭제되었습니다.');
+                    
+                    // 모달 닫기
+                    if (customerDetailModal) {
+                        customerDetailModal.hide();
+                    }
+                    
+                    // 목록 새로고침
+                    location.reload();
+                } else {
+                    alert('삭제 실패: ' + (data.message || '알 수 없는 오류가 발생했습니다.'));
+                }
+            })
+            .catch(function(error) {
+                console.error('거래처 삭제 오류:', error);
+                alert('삭제 중 오류가 발생했습니다: ' + error.message);
+            });
+        };
+
+        function renderCustomerDetail(customer, contacts) {
+            if (!customer) {
+                return '<div class="detail-empty">거래처 정보를 찾을 수 없습니다.</div>';
+            }
+
+            var groups = [];
+            if (customer.is_sales_customer === 'Y') groups.push('<span class="badge bg-success me-1">매출</span>');
+            if (customer.is_purchase_customer === 'Y') groups.push('<span class="badge bg-info me-1">매입</span>');
+            if (customer.is_other_customer === 'Y') groups.push('<span class="badge bg-secondary me-1">기타</span>');
+            if (!groups.length) {
+                groups.push('<span class="text-muted">-</span>');
+            }
+
+            var html = '';
+            html += '<div class="detail-section">';
+            html += '<div class="detail-section-title"><i class="bi bi-info-circle"></i> 기본 정보</div>';
+            html += '<div class="detail-grid">';
+            html += detailItem('거래처명', formatValue(customer.company_name));
+            html += detailItem('상호(법인명)', formatValue(customer.trade_name));
+            html += detailItem('구분', formatValue(customer.classification));
+            html += detailItem('등록번호', formatValue(customer.registration_number));
+            html += detailItem('대표자명', formatValue(customer.representative_name));
+            html += detailItem('사업자번호', formatValue(customer.business_registration_number));
+            html += '</div></div>';
+
+            html += '<div class="detail-section">';
+            html += '<div class="detail-section-title"><i class="bi bi-telephone"></i> 연락처 / 주소</div>';
+            html += '<div class="detail-grid">';
+            html += detailItem('전화번호', formatValue(customer.phone_number));
+            html += detailItem('휴대폰번호', formatValue(customer.mobile_number));
+            html += detailItem('FAX번호', formatValue(customer.fax_number));
+            html += detailItem('주소', formatValue(customer.address), true);
+            html += '</div></div>';
+
+            html += '<div class="detail-section">';
+            html += '<div class="detail-section-title"><i class="bi bi-briefcase"></i> 사업 정보</div>';
+            html += '<div class="detail-grid">';
+            html += detailItem('업태', formatValue(customer.business_type));
+            html += detailItem('종목', formatValue(customer.business_category));
+            html += detailItem('등록일', formatDate(customer.registration_date));
+            html += detailItem('최종수정일', formatDate(customer.last_modified_date));
+            html += detailItem('계좌정보', formatValue(customer.bank_name && customer.account_number ? customer.bank_name + ' ' + customer.account_number : ''));
+            html += detailItem('예금주', formatValue(customer.account_holder));
+            html += detailItem('그룹', groups.join(' '));
+            html += detailItem('비고', formatValue(customer.remarks));
+            html += '</div></div>';
+
+            html += '<div class="detail-section">';
+            html += '<div class="detail-section-title"><i class="bi bi-person-lines-fill"></i> 담당자 정보</div>';
+            if (contacts && contacts.length) {
+                html += '<div class="table-responsive"><table class="detail-table">';
+                html += '<thead><tr><th>#</th><th>이름</th><th>연락처</th><th>이메일</th><th>직급/부서</th><th>계산서</th><th>비고</th></tr></thead><tbody>';
+                contacts.forEach(function(contact, index) {
+                    html += '<tr>' +
+                        '<td>' + (index + 1) + '</td>' +
+                        '<td>' + formatValue(contact.contact_name) + '</td>' +
+                        '<td>' + formatValue(contact.contact_phone) + '</td>' +
+                        '<td>' + formatValue(contact.contact_email) + '</td>' +
+                        '<td>' + formatValue(contact.position_department) + '</td>' +
+                        '<td>' + (contact.is_invoice_contact === 'Y' ? '예' : '아니오') + '</td>' +
+                        '<td>' + formatValue(contact.contact_remarks) + '</td>' +
+                        '</tr>';
+                });
+                html += '</tbody></table></div>';
+            } else {
+                html += '<div class="detail-empty">등록된 담당자 정보가 없습니다.</div>';
+            }
+            html += '</div>';
+
+            // 첨부 파일 섹션 추가
+            html += '<div class="detail-section">';
+            html += '<div class="detail-section-title"><i class="bi bi-paperclip"></i> 첨부 파일</div>';
+            html += '<div id="customerFilesList" class="customer-files-list">';
+            html += '<div class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+            html += '</div>';
+            html += '</div>';
+
+            return html;
+        }
+
+        function detailItem(label, value, fullWidth) {
+            var classes = 'detail-item' + (fullWidth ? ' full-width' : '');
+            return '<div class="' + classes + '">' +
+                '<div class="detail-label">' + label + '</div>' +
+                '<div class="detail-value">' + (value || '-') + '</div>' +
+                '</div>';
+        }
+
+        // 거래처 첨부 파일 목록 로드
+        function loadCustomerFiles(customerNum) {
+            var filesListElement = document.getElementById('customerFilesList');
+            if (!filesListElement) {
+                console.warn('customerFilesList 요소를 찾을 수 없습니다.');
+                return;
+            }
+
+            $.ajax({
+                url: '/filedrive/fileprocess.php',
+                type: 'GET',
+                data: {
+                    num: customerNum,
+                    tablename: 'customer',
+                    item: 'attached',
+                    folderPath: '미래기업/uploads/customer'
+                },
+                dataType: 'json'
+            }).done(function(data) {
+                console.log('첨부 파일 목록 조회 결과:', data);
+                
+                var html = '';
+                
+                if (Array.isArray(data) && data.length > 0) {
+                    data.forEach(function(file, index) {
+                        // 파일 정보 정규화
+                        var fileId = file.fileId || file.picname || '';
+                        var realname = file.realname || 'Unknown';
+                        var link = file.link || file.webViewLink || '';
+                        
+                        // link가 없으면 Google Drive 링크 생성
+                        if (!link && fileId) {
+                            link = 'https://drive.google.com/file/d/' + fileId + '/view';
+                        }
+                        
+                        // 파일 확장자로 아이콘 결정
+                        var fileIcon = '📄';
+                        var fileExt = '';
+                        if (realname) {
+                            var extMatch = realname.match(/\.([^.]+)$/i);
+                            if (extMatch) {
+                                fileExt = extMatch[1].toLowerCase();
+                            }
+                        }
+                        
+                        // 확장자별 아이콘
+                        if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExt)) {
+                            fileIcon = '🖼️';
+                        } else if (fileExt === 'pdf') {
+                            fileIcon = '📕';
+                        } else if (['doc', 'docx'].includes(fileExt)) {
+                            fileIcon = '📘';
+                        } else if (['xls', 'xlsx'].includes(fileExt)) {
+                            fileIcon = '📊';
+                        }
+                        
+                        // HTML 이스케이프 처리 (data 속성용 - 작은따옴표도 이스케이프)
+                        var escapedRealname = escapeHtml(realname).replace(/'/g, '&#39;');
+                        var escapedFileId = escapeHtml(String(fileId)).replace(/'/g, '&#39;');
+                        var escapedLink = escapeHtml(link || '').replace(/'/g, '&#39;');
+                        
+                        // data 속성에 안전하게 저장
+                        html += '<div class="customer-file-item" data-file-id="' + escapedFileId + '" data-link="' + escapedLink + '" data-realname="' + escapedRealname + '" data-index="' + index + '">';
+                        html += '<span class="file-icon">' + fileIcon + '</span>';
+                        html += '<span class="file-name">' + escapeHtml(realname) + '</span>';
+                        html += '</div>';
+                    });
+                } else {
+                    html = '<div class="detail-empty">첨부된 파일이 없습니다.</div>';
+                }
+                
+                filesListElement.innerHTML = html;
+                
+                // 파일 아이템 클릭 이벤트 바인딩
+                $(filesListElement).find('.customer-file-item').on('click', function() {
+                    var fileId = $(this).data('file-id');
+                    var link = $(this).data('link');
+                    var realname = $(this).data('realname');
+                    var index = $(this).data('index');
+                    viewCustomerFile(fileId, link, realname, index);
+                });
+            }).fail(function(jqxhr, status, error) {
+                console.error('첨부 파일 목록 조회 오류:', jqxhr, status, error);
+                filesListElement.innerHTML = '<div class="detail-empty text-muted">파일 목록을 불러올 수 없습니다.</div>';
+            });
+        }
+
+        // 거래처 파일 보기/다운로드 함수 (전역 함수)
+        window.viewCustomerFile = function(fileId, link, realname, index) {
+            console.log('파일 클릭:', { fileId: fileId, link: link, realname: realname, index: index });
+            
+            // link가 없으면 Google Drive 링크 생성
+            if (!link && fileId) {
+                link = 'https://drive.google.com/file/d/' + fileId + '/view';
+            }
+            
+            if (!link) {
+                alert('파일 링크를 가져올 수 없습니다.');
+                return;
+            }
+            
+            // 파일 확장자 확인
+            var isImage = false;
+            var isPdf = false;
+            var isViewable = false;
+            
+            if (realname) {
+                var extMatch = realname.match(/\.([^.]+)$/i);
+                if (extMatch) {
+                    var ext = extMatch[1].toLowerCase();
+                    isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
+                    isPdf = ext === 'pdf';
+                    isViewable = isImage || isPdf;
+                }
+            }
+            
+            if (isImage) {
+                // 이미지인 경우: 팝업으로 확대 보기
+                if (typeof popupCenter === 'function') {
+                    popupCenter(link, 'imageViewer', 1000, 700);
+                } else {
+                    var width = 1000;
+                    var height = 700;
+                    var left = (window.innerWidth / 2) - (width / 2) + window.screenX;
+                    var top = (window.innerHeight / 2) - (height / 2) + window.screenY;
+                    window.open(link, 'imageViewer_' + Date.now(), 'width=' + width + ', height=' + height + ', left=' + left + ', top=' + top + ', scrollbars=yes, resizable=yes');
+                }
+            } else if (isViewable) {
+                // PDF나 이미지는 새 창에서 열기
+                if (typeof popupCenter === 'function') {
+                    popupCenter(link, 'fileViewer', 900, 700);
+                } else {
+                    var width = 900;
+                    var height = 700;
+                    var left = (window.innerWidth / 2) - (width / 2) + window.screenX;
+                    var top = (window.innerHeight / 2) - (height / 2) + window.screenY;
+                    window.open(link, 'fileViewer_' + Date.now(), 'width=' + width + ', height=' + height + ', left=' + left + ', top=' + top + ', scrollbars=yes, resizable=yes');
+                }
+            } else {
+                // 다운로드 가능한 파일은 다운로드 링크 생성
+                var a = document.createElement('a');
+                a.href = link;
+                a.download = realname || 'download';
+                a.target = '_blank';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+        }
+
+        function formatValue(value, fallback) {
+            if (value === null || value === undefined || value === '') {
+                return fallback || '-';
+            }
+            return escapeHtml(String(value));
+        }
+
+        function formatDate(value) {
+            if (!value) return '-';
+            var date = new Date(value);
+            if (isNaN(date.getTime())) {
+                return escapeHtml(value);
+            }
+            return date.toISOString().split('T')[0];
+        }
+
+        function escapeHtml(value) {
+            return value
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
         }
 
         // 컬럼 설정 관련 함수들

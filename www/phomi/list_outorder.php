@@ -320,8 +320,8 @@ th {
 				$dispatch_type = $row['dispatch_type'];
 				$area_sqm = $row['area_sqm'];
 				$construction_done = $row['construction_done'];
-				$createdAt = $row['creatAt'];
-				$updatedAt = $row['updateAt'];
+				$createdAt = $row['createdAt'] ?? $row['creatAt'] ?? '';
+				$updatedAt = $row['updatedAt'] ?? $row['updateAt'] ?? '';
 				$note = $row['note'];
 
 				

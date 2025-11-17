@@ -35,12 +35,40 @@ $id = (int)$id;
 // iframe 모드 확인 (모달에서 열렸는지)
 $iframe_mode = isset($_GET['iframe']) && $_GET['iframe'] === '1';
 
+// 구매카트 항목 파라미터 확인
+$cart_items_param = $_GET['cart_items'] ?? '';
+$cart_items_data = [];
+
 // 데이터베이스 연결
 try {
     $pdo = db_connect();
 } catch (Exception $e) {
     echo "<div class='alert alert-danger'>데이터베이스 연결 실패: " . htmlspecialchars($e->getMessage()) . "</div>";
     exit;
+}
+
+// 구매카트 항목이 있으면 데이터 조회
+if (!empty($cart_items_param)) {
+    $item_nums = explode(',', $cart_items_param);
+    $item_nums = array_filter(array_map('intval', $item_nums));
+    
+    if (!empty($item_nums)) {
+        $DB = $_SESSION["DB"] ?? 'mirae8440';
+        $placeholders = implode(',', array_fill(0, count($item_nums), '?'));
+        $sql = "SELECT * FROM {$DB}.eworks 
+                WHERE num IN ({$placeholders}) 
+                AND is_deleted IS NULL 
+                AND eworks_item = '원자재구매'
+                ORDER BY num ASC";
+        
+        try {
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($item_nums);
+            $cart_items_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("구매카트 항목 조회 오류: " . $e->getMessage());
+        }
+    }
 }
 
 // 수정 모드일 경우 기존 데이터 조회
@@ -55,6 +83,14 @@ if ($id > 0) {
         exit;
     }
 }
+
+// 상태 옵션
+$status_options = [
+    'draft' => '임시저장',
+    'sent' => '발송완료',
+    'completed' => '완료'
+];
+$current_status = $order_data['status'] ?? 'draft';
 
 // 제목 설정
 if ($mode === 'copy') {
@@ -78,70 +114,69 @@ if ($order_data && isset($order_data['order_no']) && $order_data['order_no']) {
 <script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.2.1/dist/js/tabulator.min.js"></script>
 
 <?php
-// CSS 변수 설정 (iframe 모드에 따라)
-if ($iframe_mode) {
-    $css_vars = "
-    --dashboard-primary: #e3f2fd;
-    --dashboard-secondary: #bbdefb;
-    --dashboard-accent: #2196f3;
-    --dashboard-text: #333333;
-    --dashboard-border: #e0e0e0;
-    --dashboard-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    --bg-gradient-start: #2196f3;
-    --bg-gradient-end: #1976d2;";
+$body_class = $iframe_mode ? 'iframe-mode' : 'default-mode';
+?>
 
-    $header_bg = "background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%); color: #ffffff;";
-    $section_header_bg = "background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); color: #1976d2; font-weight: 600;";
-    $btn_primary_bg = "background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); color: white; border-color: #2196f3;";
-    $btn_primary_hover = "background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%); border-color: #1976d2;";
-
-    $body_extra = "margin: 0; padding: 0; overflow: visible;";
-    $container_layout = "margin: 0; padding: 10px; border: none; border-radius: 0; box-shadow: none;";
-} else {
-    $css_vars = "
+<style>
+/* stylelint-disable */
+/* 기존 시스템 톤앤매너에 맞춘 발주서 스타일 */
+:root {
     --dashboard-primary: #f8fafc;
     --dashboard-secondary: #f1f5f9;
     --dashboard-accent: #64748b;
     --dashboard-text: #334155;
     --dashboard-border: #e2e8f0;
-    --dashboard-shadow: 0 1px 3px rgba(51, 65, 85, 0.04);";
-
-    $header_bg = "background: var(--dashboard-secondary); color: #000;";
-    $section_header_bg = "background: var(--dashboard-secondary); color: var(--dashboard-text);";
-    $btn_primary_bg = "background: var(--dashboard-accent); color: white; border-color: var(--dashboard-accent);";
-    $btn_primary_hover = "background: #475569; border-color: #475569;";
-
-    $body_extra = "";
-    $container_layout = "margin: 10px auto; border: 1px solid var(--dashboard-border); border-radius: 8px; box-shadow: var(--dashboard-shadow);";
-}
-?>
-
-<style>
-/* 기존 시스템 톤앤매너에 맞춘 발주서 스타일 */
-:root {
-<?php echo $css_vars; ?>
+    --dashboard-shadow: 0 1px 3px rgba(51, 65, 85, 0.04);
 }
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #ffffff;
     color: var(--dashboard-text);
-    <?php echo $body_extra; ?>
+}
+
+body.iframe-mode {
+    --dashboard-primary: #e3f2fd;
+    --dashboard-secondary: #bbdefb;
+    --dashboard-accent: #2196f3;
+    --dashboard-text: #333333;
+    --dashboard-border: #e0e0e0;
+    --dashboard-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    margin: 0;
+    padding: 0;
+    overflow: visible;
 }
 
 .order-container {
     max-width: 100%;
-    <?php echo $container_layout; ?>
+    margin: 10px auto;
+    border: 1px solid var(--dashboard-border);
+    border-radius: 8px;
+    box-shadow: var(--dashboard-shadow);
     background: white;
     font-size: 16px;
 }
 
+body.iframe-mode .order-container {
+    margin: 0;
+    padding: 10px;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+}
+
 .order-header {
-    <?php echo $header_bg; ?>
+    background: var(--dashboard-secondary);
+    color: #000;
     padding: 12px 20px;
     font-weight: 500;
     font-size: 18px;
     border-bottom: 1px solid var(--dashboard-border);
+}
+
+body.iframe-mode .order-header {
+    background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+    color: #ffffff;
 }
 
 .order-title {
@@ -167,17 +202,53 @@ body {
     overflow: hidden;
 }
 
+.info-section.orderer-section .info-label,
+.info-section.orderer-section .info-value {
+    font-size: 14px;
+}
+
+.info-section.orderer-section input,
+.info-section.orderer-section select {
+    font-size: 14px;
+}
+
 .section-header {
-    <?php echo $section_header_bg; ?>
+    background: var(--dashboard-secondary);
+    color: var(--dashboard-text);
     padding: 8px 12px;
     text-align: center;
     font-weight: 500;
     border-bottom: 1px solid var(--dashboard-border);
 }
 
+body.iframe-mode .section-header {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    color: #1976d2;
+    font-weight: 600;
+}
+
 .info-grid {
     display: grid;
     grid-template-columns: 100px 1fr;
+}
+
+.info-grid.grid-4 {
+    grid-template-columns: 120px 1fr 120px 1fr;
+}
+
+.info-grid .info-label.colspan-1,
+.info-grid .info-value.colspan-1 {
+    grid-column: span 1;
+}
+
+.info-grid .info-label.colspan-2,
+.info-grid .info-value.colspan-2 {
+    grid-column: span 2;
+}
+
+.info-grid .info-label.colspan-3,
+.info-grid .info-value.colspan-3 {
+    grid-column: span 3;
 }
 
 .info-label {
@@ -220,11 +291,71 @@ body {
     margin: 20px;
 }
 
+.items-header {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 10px;
+}
+
+.items-header .btn-add-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border: none;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(33, 150, 243, 0.3);
+}
+
+.items-header .btn-add-row:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(33, 150, 243, 0.4);
+}
+
+.row-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.row-actions .row-index {
+    font-weight: 600;
+    width: 18px;
+    text-align: center;
+}
+
+.row-action-btn {
+    border: none;
+    background: transparent;
+    color: #2196f3;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 2px;
+    line-height: 1;
+}
+
+.row-action-btn:hover {
+    color: #0d47a1;
+}
+
 .tabulator {
     border: 1px solid var(--dashboard-border);
     border-radius: 6px;
     overflow: hidden;
     box-shadow: var(--dashboard-shadow);
+    background: #ffffff;
+}
+
+.tabulator .tabulator-tableHolder {
+    background: #ffffff;
+}
+
+.tabulator .tabulator-table {
+    background: #ffffff;
 }
 
 .tabulator .tabulator-header {
@@ -255,33 +386,27 @@ body {
 
 .summary-section {
     margin: 20px;
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 20px;
 }
 
 .delivery-info {
     border: 1px solid #ddd;
+    border-radius: 6px;
+    overflow: hidden;
 }
 
 .delivery-grid {
     display: grid;
-    grid-template-columns: 80px 1fr;
+    grid-template-columns: 120px 1fr 120px 1fr;
 }
 
-.summary-table {
-    border: 1px solid #ddd;
-    width: 200px;
+.delivery-grid .info-label,
+.delivery-grid .info-value {
+    border-bottom: 1px solid var(--dashboard-border);
 }
 
-.summary-table th, .summary-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: center;
-}
-
-.summary-table th {
-    background: #f5f5f5;
+.delivery-grid .info-label:nth-last-child(-n+4),
+.delivery-grid .info-value:nth-last-child(-n+4) {
+    border-bottom: none;
 }
 
 .note-section {
@@ -332,11 +457,24 @@ body {
 }
 
 .btn-primary {
-    <?php echo $btn_primary_bg; ?>
+    background: var(--dashboard-accent);
+    color: white;
+    border-color: var(--dashboard-accent);
 }
 
 .btn-primary:hover {
-    <?php echo $btn_primary_hover; ?>
+    background: #475569;
+    border-color: #475569;
+}
+
+body.iframe-mode .btn-primary {
+    background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+    border-color: #2196f3;
+}
+
+body.iframe-mode .btn-primary:hover {
+    background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+    border-color: #1976d2;
 }
 
 .btn-success {
@@ -397,6 +535,11 @@ body {
 
 .tabulator .tabulator-row {
     border-bottom: 1px solid var(--dashboard-border);
+    background: #ffffff;
+}
+
+.tabulator .tabulator-row:nth-child(even) {
+    background: #f9fbff;
 }
 
 .tabulator .tabulator-row:hover {
@@ -414,10 +557,11 @@ body {
         box-shadow: none;
     }
 }
+/* stylelint-enable */
 </style>
 
 </head>
-<body>
+<body class="<?php echo $body_class; ?>">
 <?php if (!$iframe_mode): ?>
     <?php include getDocumentRoot() . '/myheader.php'; ?>
 <?php endif; ?>
@@ -432,7 +576,6 @@ body {
                 <button type="button" class="btn btn-sm" onclick="location.href='index.php'">목록</button>
             </div>
             <div class="header-buttons" style="display: flex; gap: 5px;">
-                <button type="button" class="btn btn-sm" onclick="addRow()">행 추가</button>
                 <button type="button" class="btn btn-primary btn-sm" onclick="saveOrder()">저장</button>
                 <?php if ($id > 0 && $mode !== 'copy'): ?>
                 <button type="button" class="btn btn-danger btn-sm" onclick="deleteOrder()">삭제</button>
@@ -450,6 +593,9 @@ body {
         <?php else: ?>
             <input type="hidden" name="action" value="insert">
         <?php endif; ?>
+        <?php if (!empty($cart_items_param)): ?>
+            <input type="hidden" name="cart_items" value="<?php echo htmlspecialchars($cart_items_param); ?>">
+        <?php endif; ?>
 
         <?php if (!$iframe_mode): ?>
         <div class="order-title">발 주 서</div>
@@ -458,26 +604,57 @@ body {
         <div class="order-info">
             <!-- 왼쪽: 공급자 정보 (거래처) -->
             <div class="info-section">
-                <div class="info-grid">
-                    <div class="info-label">거래처명</div>
-                    <div class="info-value">
-                        <input type="text" name="contact_name" value="<?php echo $order_data ? htmlspecialchars($order_data['contact_name'] ?? '') : ''; ?>" placeholder="거래처명을 입력하세요">
+                <div class="info-grid grid-4">
+                    <div class="info-label colspan-1">프로젝트/현장</div>
+                    <div class="info-value colspan-3">
+                        <input type="text" name="project_site" id="project_site" value="<?php 
+                            if (!empty($cart_items_data)) {
+                                // 구매카트 항목의 첫 번째 항목의 현장명(outworkplace)을 프로젝트/현장에 입력
+                                echo htmlspecialchars($cart_items_data[0]['outworkplace'] ?? '');
+                            } else {
+                                echo $order_data ? htmlspecialchars($order_data['project_site'] ?? '') : '';
+                            }
+                        ?>" placeholder="프로젝트/현장명을 입력하세요">
+                    </div>
+                    <div class="info-label colspan-1">거래처명</div>
+                    <div class="info-value colspan-3" style="display: flex; gap: 0.5rem; align-items: center;">
+                        <input type="text" name="contact_name" id="contact_name" value="<?php 
+                            if (!empty($cart_items_data)) {
+                                // 구매카트 항목의 첫 번째 항목의 supplier(공급/제조사) 값을 거래처명에 입력
+                                echo htmlspecialchars($cart_items_data[0]['supplier'] ?? '');
+                            } else {
+                                echo $order_data ? htmlspecialchars($order_data['contact_name'] ?? '') : '';
+                            }
+                        ?>" placeholder="거래처명을 입력하세요" style="flex: 1;">
+                        <button type="button" class="btn btn-sm btn-primary" id="searchCustomerBtn" style="white-space: nowrap;">
+                            <i class="bi bi-search"></i> 검색
+                        </button>
                     </div>
                     <div class="info-label">발주일자</div>
                     <div class="info-value">
                         <input type="date" name="issue_date" value="<?php echo $order_data ? ($order_data['issue_date'] ?? date('Y-m-d')) : date('Y-m-d'); ?>" required>
                     </div>
+                    <div class="info-label">진행상태</div>
+                    <div class="info-value">
+                        <select name="status" id="status" required>
+                            <?php foreach ($status_options as $value => $label): ?>
+                                <option value="<?php echo $value; ?>" <?php echo $current_status === $value ? 'selected' : ''; ?>>
+                                    <?php echo $label; ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
                     <div class="info-label">전화번호</div>
                     <div class="info-value">
-                        <input type="text" name="phone" value="<?php echo $order_data ? htmlspecialchars($order_data['phone'] ?? '') : ''; ?>" placeholder="전화번호를 입력하세요">
+                        <input type="text" name="phone" value="<?php echo $order_data ? htmlspecialchars($order_data['phone'] ?? '') : ''; ?>" placeholder="전화번호">
                     </div>
                     <div class="info-label">팩스번호</div>
                     <div class="info-value">
-                        <input type="text" name="fax" value="<?php echo $order_data ? htmlspecialchars($order_data['fax'] ?? '') : ''; ?>" placeholder="팩스번호를 입력하세요">
+                        <input type="text" name="fax" value="<?php echo $order_data ? htmlspecialchars($order_data['fax'] ?? '') : ''; ?>" placeholder="팩스번호">
                     </div>
-                    <div class="info-label">제목</div>
+                    <div class="info-label">사업자번호</div>
                     <div class="info-value">
-                        <input type="text" name="title" value="<?php echo $order_data ? htmlspecialchars($order_data['title'] ?? '') : ''; ?>" placeholder="제목을 입력하세요">
+                        <input type="text" name="business_registration_number" id="business_registration_number" value="<?php echo $order_data ? htmlspecialchars($order_data['business_registration_number'] ?? '') : ''; ?>" placeholder="사업자등록번호">
                     </div>
                     <div class="info-label" style="border-bottom: none;">합계금액</div>
                     <div class="info-value" style="border-bottom: none;">
@@ -487,9 +664,9 @@ body {
             </div>
 
             <!-- 오른쪽: 발주자 정보 (미래기업) -->
-            <div class="info-section">
+            <div class="info-section orderer-section">
                 <div class="section-header">발주자</div>
-                <div class="info-grid">
+                <div class="info-grid grid-4">
                     <div class="info-label">등록번호</div>
                     <div class="info-value">
                         <input type="text" name="supplier_code" value="722-88-00035" readonly style="background: #f8f9fa;">
@@ -498,9 +675,9 @@ body {
                     <div class="info-value">
                         <input type="text" name="supplier_name" value="주식회사미래기업" readonly style="background: #f8f9fa;" required>
                     </div>
-                    <div class="info-label">주소</div>
-                    <div class="info-value">
-                        <input type="text" name="supplier_address" value="경기도 김포시 양촌읍 옹심리 220-27 (옹심리)" readonly style="background: #f8f9fa;">
+                    <div class="info-label colspan-1">주소</div>
+                    <div class="info-value colspan-3">
+                        <input type="text" name="supplier_address" value="경기도 김포시 양촌읍 흥신리 220-27 (흥신리)" readonly style="background: #f8f9fa;">
                     </div>
                     <div class="info-label">업태</div>
                     <div class="info-value">
@@ -518,16 +695,15 @@ body {
                     <div class="info-value">
                         <input type="text" name="supplier_fax" value="031-982-8443" readonly style="background: #f8f9fa;">
                     </div>
-                    <div class="info-label">프로젝트/현장</div>
-                    <div class="info-value">
-                        <input type="text" name="project_site" value="<?php echo $order_data ? htmlspecialchars($order_data['project_site'] ?? '') : ''; ?>" placeholder="프로젝트/현장명을 입력하세요">
-                    </div>
                 </div>
             </div>
         </div>
 
         <!-- 품목 그리드 -->
         <div class="items-section" style="overflow-x: auto; margin: 20px 0;">
+            <div class="items-header">
+                <button type="button" class="btn-add-row" onclick="addRow()">+ 행 추가</button>
+            </div>
             <div id="orderItemsTable" style="min-width: 1000px;"></div>
         </div>
 
@@ -537,7 +713,16 @@ body {
                 <div class="delivery-grid">
                     <div class="info-label">납기일자</div>
                     <div class="info-value">
-                        <input type="date" name="delivery_date" value="<?php echo $order_data ? ($order_data['delivery_date'] ?? '') : ''; ?>">
+                        <input type="date" name="delivery_date" id="delivery_date" value="<?php 
+                            if (!empty($cart_items_data)) {
+                                $first_requestdate = $cart_items_data[0]['requestdate'] ?? '';
+                                if (!empty($first_requestdate) && $first_requestdate !== '0000-00-00') {
+                                    echo htmlspecialchars(substr($first_requestdate, 0, 10));
+                                }
+                            } else {
+                                echo $order_data ? ($order_data['delivery_date'] ?? '') : '';
+                            }
+                        ?>">
                     </div>
                     <div class="info-label">유효일자</div>
                     <div class="info-value">
@@ -553,13 +738,6 @@ body {
                     </div>
                 </div>
             </div>
-
-            <table class="summary-table">
-                <tr>
-                    <th>합계</th>
-                    <td id="summaryTotal">0</td>
-                </tr>
-            </table>
         </div>
 
         <!-- 비고 -->
@@ -577,12 +755,104 @@ body {
 (function() {
     'use strict';
     
+    var isIframeMode = <?php echo $iframe_mode ? 'true' : 'false'; ?>;
+    
+    function notifyParent(type, payload) {
+        if (!isIframeMode || !window.parent) {
+            return;
+        }
+        
+        try {
+            window.parent.postMessage({
+                scope: 'orderModule',
+                type: type,
+                payload: payload || {}
+            }, '*');
+        } catch (error) {
+            console.warn('부모 창 메시지 전송 실패:', error);
+        }
+    }
+    
 // 전역 변수
 var orderTable;
 var orderItems = [];
 
+function createEmptyRowData(index) {
+    return {
+        순번: index,
+        품목: '',
+        규격: '',
+        수량: '',
+        단가: '',
+        공급가액: '',
+        세액: '',
+        비고: ''
+    };
+}
+
+function renumberRows() {
+    if (!orderTable) return;
+    var rows = orderTable.getRows();
+    rows.forEach(function(row, idx) {
+        row.update({ 순번: idx + 1 });
+    });
+}
+
+function handleRowAction(action, row) {
+    if (!orderTable) return;
+
+    var referenceRow = row;
+    var insertAfter = function(data) {
+        orderTable.addRow(data, false, referenceRow);
+        renumberRows();
+    };
+
+    if (action === 'add') {
+        var newData = createEmptyRowData(orderTable.getData().length + 1);
+        insertAfter(newData);
+    } else if (action === 'copy') {
+        var copied = Object.assign({}, row.getData());
+        copied.순번 = orderTable.getData().length + 1;
+        insertAfter(copied);
+        setTimeout(updateTotalAmount, 50);
+    } else if (action === 'delete') {
+        if (orderTable.getData().length <= 1) {
+            alert('최소 한 개의 행은 필요합니다.');
+            return;
+        }
+        row.delete();
+        renumberRows();
+        setTimeout(updateTotalAmount, 50);
+    }
+}
+
 // 초기 데이터
-<?php if ($order_data && isset($order_data['order_items']) && $order_data['order_items']): ?>
+<?php if (!empty($cart_items_data)): ?>
+// 구매카트에서 가져온 데이터로 초기화
+<?php
+$cart_order_items = [];
+$index = 1;
+foreach ($cart_items_data as $item): 
+    $quantity = floatval($item['steelnum'] ?? 0);
+    $unit_price = floatval(str_replace(',', '', $item['suppliercost'] ?? 0));
+    $supply_amount = $quantity * $unit_price;
+    $tax = round($supply_amount * 0.1);
+    
+    $cart_order_items[] = [
+        '순번' => $index,
+        '품목' => $item['steel_item'] ?? '',
+        '규격' => $item['spec'] ?? '',
+        '수량' => $quantity,
+        '단가' => $unit_price,
+        '공급가액' => $supply_amount,
+        '세액' => $tax,
+        '비고' => $item['request_comment'] ?? ''
+    ];
+    $index++;
+endforeach;
+?>
+orderItems = <?php echo json_encode($cart_order_items, JSON_UNESCAPED_UNICODE); ?>;
+<?php elseif ($order_data && isset($order_data['order_items']) && $order_data['order_items']): ?>
 orderItems = <?php echo $order_data['order_items']; ?>;
 <?php else: ?>
 orderItems = [
@@ -603,17 +873,83 @@ document.addEventListener('DOMContentLoaded', function() {
         autoResize: true, // 자동 리사이즈
         resizableColumns: true, // 컬럼 리사이즈 허용
         columns: [
-            {title: "순번", field: "순번", width: 60, hozAlign: "center", headerHozAlign: "center", editor: "input", resizable: false},
+            {title: "순번", field: "순번", width: 90, hozAlign: "center", headerHozAlign: "center", resizable: false,
+             formatter: function(cell) {
+                 var row = cell.getRow();
+                 var position = row.getPosition(true) + 1;
+                 return '<div class="row-actions">' +
+                        '<span class="row-index">' + position + '</span>' +
+                        '<button type="button" class="row-action-btn" data-action="add">＋</button>' +
+                        '<button type="button" class="row-action-btn" data-action="copy">⧉</button>' +
+                        '<button type="button" class="row-action-btn" data-action="delete">×</button>' +
+                        '</div>';
+             },
+             cellClick: function(e, cell) {
+                 var action = e.target.getAttribute('data-action');
+                 if (!action) return;
+                 e.stopPropagation();
+                 handleRowAction(action, cell.getRow());
+             }},
             {title: "품목", field: "품목", width: 300, hozAlign: "left", headerHozAlign: "center", editor: "input", resizable: true,
              cellClick: function() { return true; }},
             {title: "규격", field: "규격", width: 200, hozAlign: "left", headerHozAlign: "center", editor: "input", resizable: true,
              cellClick: function() { return true; }},
             {title: "수량", field: "수량", width: 80, hozAlign: "right", headerHozAlign: "center", editor: "input", validator: "numeric", resizable: false,
+             cellEdited: function(cell) {
+                 var row = cell.getRow();
+                 var data = row.getData();
+                 var 수량 = parseFloat(String(data.수량).replace(/,/g, '')) || 0;
+                 var 단가 = parseFloat(String(data.단가).replace(/,/g, '')) || 0;
+                 if (수량 && 단가) {
+                     var 공급가액 = Math.round(수량 * 단가);
+                     var 세액 = Math.round(공급가액 * 0.1);
+                     row.update({공급가액: 공급가액, 세액: 세액});
+                     setTimeout(updateTotalAmount, 50);
+                 }
+             },
              cellClick: function() { return true; }},
-            {title: "단가", field: "단가", width: 100, hozAlign: "right", headerHozAlign: "center", editor: "input", validator: "numeric", resizable: true,
+            {title: "단가", field: "단가", width: 100, hozAlign: "right", headerHozAlign: "center", 
+             editor: function(cell, onRendered, success, cancel) {
+                 var input = document.createElement("input");
+                 input.type = "text";
+                 input.style.width = "100%";
+                 input.style.padding = "4px";
+                 input.value = cell.getValue() || '';
+                 input.addEventListener("blur", function() {
+                     var value = input.value.replace(/,/g, '');
+                     var numValue = parseFloat(value) || 0;
+                     success(numValue);
+                 });
+                 input.addEventListener("keydown", function(e) {
+                     if (e.key === "Enter") {
+                         var value = input.value.replace(/,/g, '');
+                         var numValue = parseFloat(value) || 0;
+                         success(numValue);
+                     } else if (e.key === "Escape") {
+                         cancel();
+                     }
+                 });
+                 onRendered(function() {
+                     input.focus();
+                     input.select();
+                 });
+                 return input;
+             },
              formatter: function(cell) {
                  var value = cell.getValue();
                  return value ? Number(value).toLocaleString() : '';
+             },
+             cellEdited: function(cell) {
+                 var row = cell.getRow();
+                 var data = row.getData();
+                 var 수량 = parseFloat(String(data.수량).replace(/,/g, '')) || 0;
+                 var 단가 = parseFloat(String(data.단가).replace(/,/g, '')) || 0;
+                 if (수량 && 단가) {
+                     var 공급가액 = Math.round(수량 * 단가);
+                     var 세액 = Math.round(공급가액 * 0.1);
+                     row.update({공급가액: 공급가액, 세액: 세액});
+                     setTimeout(updateTotalAmount, 50);
+                 }
              },
              cellClick: function() { return true; }},
             {title: "공급가액", field: "공급가액", width: 120, hozAlign: "right", headerHozAlign: "center", editor: false, validator: "numeric", resizable: true,
@@ -638,7 +974,10 @@ document.addEventListener('DOMContentLoaded', function() {
         ],
         cellEdited: function(cell) {
             console.log(`📝 [DEBUG] 셀 편집: ${cell.getField()} = ${cell.getValue()}`);
-            updateCalculations(cell);
+            // 컬럼별 cellEdited에서 계산하므로 여기서는 전체 합계만 업데이트
+            if (cell.getField() !== '공급가액' && cell.getField() !== '세액') {
+                setTimeout(updateTotalAmount, 100);
+            }
         },
         rowAdded: function(row) {
             console.log('📋 [DEBUG] 새 행 추가됨');
@@ -724,12 +1063,6 @@ function updateTotalAmount() {
     // 합계금액 필드 업데이트
     document.getElementById('totalAmount').value = '₩' + grandTotal.toLocaleString();
     
-    // 하단 요약 정보가 있다면 업데이트
-    var summaryElement = document.getElementById('summaryTotal');
-    if (summaryElement) {
-        summaryElement.textContent = grandTotal.toLocaleString();
-    }
-    
     console.log('💰 [DEBUG] 합계 계산: 공급가액(' + totalSupply.toLocaleString() + ') + 세액(' + totalTax.toLocaleString() + ') = 총액(' + grandTotal.toLocaleString() + ')');
 }
 
@@ -737,17 +1070,8 @@ function updateTotalAmount() {
 window.addRow = function() {
     var data = orderTable.getData();
     var newRowNum = data.length + 1;
-    
-    orderTable.addRow({
-        순번: newRowNum,
-        품목: '',
-        규격: '',
-        수량: '',
-        단가: '',
-        공급가액: '',
-        세액: '',
-        비고: ''
-    });
+    orderTable.addRow(createEmptyRowData(newRowNum), false);
+    renumberRows();
 };
 
 // AJAX 저장 함수 - 디버그 코드 포함
@@ -867,6 +1191,15 @@ function handleJsonResponse(data) {
     
     if (data.success) {
         console.log('✅ [DEBUG] 저장 성공');
+        
+        if (isIframeMode) {
+            notifyParent('orderSaved', {
+                id: data.id || null,
+                message: data.message || ''
+            });
+            return;
+        }
+        
         showSuccessMessage(data.message || '발주서가 성공적으로 저장되었습니다.');
         
         if (data.redirect_url) {
@@ -899,6 +1232,23 @@ function handleHtmlResponse(data) {
         console.log('📢 [DEBUG] 추출된 알림 메시지:', message);
         
         if (message.includes('성공')) {
+                if (isIframeMode) {
+                    var redirectedId = null;
+                    if (locationMatch) {
+                        var urlForId = locationMatch[1] || '';
+                        var idMatch = urlForId.match(/id=(\d+)/);
+                        if (idMatch) {
+                            redirectedId = parseInt(idMatch[1], 10);
+                        }
+                    }
+                    
+                    notifyParent('orderSaved', {
+                        id: redirectedId,
+                        message: message
+                    });
+                    return;
+                }
+                
             showSuccessMessage(message);
             
             if (locationMatch) {
@@ -1012,9 +1362,16 @@ window.submitOrder = function() {
 };
 
 window.cancelOrder = function() {
-    if (confirm('작성 중인 내용이 사라집니다. 계속하시겠습니까?')) {
-        location.href = 'index.php';
+    if (!confirm('작성 중인 내용이 사라집니다. 계속하시겠습니까?')) {
+        return;
     }
+    
+    if (isIframeMode) {
+        notifyParent('orderCanceled');
+        return;
+    }
+    
+    location.href = 'index.php';
 };
 
 window.deleteOrder = function() {
@@ -1050,6 +1407,13 @@ window.deleteOrder = function() {
         hideLoadingSpinner();
         
         if (data.success) {
+            if (isIframeMode) {
+                notifyParent('orderDeleted', {
+                    id: parseInt(orderId, 10) || null
+                });
+                return;
+            }
+            
             alert('발주서가 성공적으로 삭제되었습니다.');
             location.href = 'index.php';
         } else {
@@ -1096,6 +1460,155 @@ window.onload = function() {
 
 })();
 </script>
+
+    <!-- 거래처 검색 모달 -->
+    <div class="modal fade" id="customerSearchModal" tabindex="-1" aria-labelledby="customerSearchModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="customerSearchModalLabel">거래처 검색</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="customerSearchInput" placeholder="거래처명, 사업자번호로 검색...">
+                    </div>
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-hover table-sm">
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th>거래처명</th>
+                                    <th>사업자번호</th>
+                                    <th>대표자명</th>
+                                    <th>전화번호</th>
+                                    <th>선택</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customerSearchResults">
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">검색어를 입력하세요</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 거래처 검색 기능
+        var customerSearchModal = new bootstrap.Modal(document.getElementById('customerSearchModal'));
+        var searchTimeout = null;
+
+        // 검색 버튼 클릭
+        document.getElementById('searchCustomerBtn').addEventListener('click', function() {
+            // 현재 거래처명 필드의 값을 검색창에 기본값으로 설정
+            var currentContactName = document.getElementById('contact_name').value.trim();
+            var searchInput = document.getElementById('customerSearchInput');
+            var modalElement = document.getElementById('customerSearchModal');
+            
+            if (currentContactName) {
+                searchInput.value = currentContactName;
+            } else {
+                searchInput.value = '';
+            }
+            
+            // 모달이 완전히 표시된 후 포커스 및 자동 검색
+            modalElement.addEventListener('shown.bs.modal', function() {
+                searchInput.focus();
+                
+                // 거래처명이 있으면 자동으로 검색 실행
+                if (currentContactName) {
+                    searchCustomers(currentContactName);
+                }
+            }, { once: true });
+            
+            customerSearchModal.show();
+        });
+
+        // 검색 입력 이벤트
+        document.getElementById('customerSearchInput').addEventListener('input', function() {
+            var searchTerm = this.value.trim();
+            
+            clearTimeout(searchTimeout);
+            
+            if (searchTerm.length < 1) {
+                document.getElementById('customerSearchResults').innerHTML = 
+                    '<tr><td colspan="5" class="text-center text-muted">검색어를 입력하세요</td></tr>';
+                return;
+            }
+
+            searchTimeout = setTimeout(function() {
+                searchCustomers(searchTerm);
+            }, 300);
+        });
+
+        // 선택 버튼 클릭 이벤트 (이벤트 위임)
+        document.getElementById('customerSearchResults').addEventListener('click', function(e) {
+            if (e.target.classList.contains('select-customer-btn')) {
+                var customerData = e.target.getAttribute('data-customer');
+                if (customerData) {
+                    try {
+                        var customer = JSON.parse(decodeURIComponent(customerData));
+                        selectCustomer(customer);
+                    } catch (err) {
+                        console.error('거래처 데이터 파싱 오류:', err);
+                        alert('거래처 선택 중 오류가 발생했습니다.');
+                    }
+                }
+            }
+        });
+
+        // 거래처 검색 함수
+        function searchCustomers(searchTerm) {
+            var tbody = document.getElementById('customerSearchResults');
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center">검색 중...</td></tr>';
+
+            fetch('/corp/search_customers.php?q=' + encodeURIComponent(searchTerm))
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.customers && data.customers.length > 0) {
+                        var html = '';
+                        data.customers.forEach(function(customer, index) {
+                            var customerData = encodeURIComponent(JSON.stringify(customer));
+                            html += '<tr>';
+                            html += '<td>' + (customer.company_name || '') + '</td>';
+                            html += '<td>' + (customer.business_registration_number || '') + '</td>';
+                            html += '<td>' + (customer.representative_name || '') + '</td>';
+                            html += '<td>' + (customer.phone_number || '') + '</td>';
+                            html += '<td><button type="button" class="btn btn-sm btn-primary select-customer-btn" data-customer="' + customerData + '">선택</button></td>';
+                            html += '</tr>';
+                        });
+                        tbody.innerHTML = html;
+                    } else {
+                        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">검색 결과가 없습니다</td></tr>';
+                    }
+                })
+                .catch(error => {
+                    console.error('검색 오류:', error);
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">검색 중 오류가 발생했습니다</td></tr>';
+                });
+        }
+
+        // 거래처 선택 함수
+        function selectCustomer(customer) {
+            document.getElementById('contact_name').value = customer.company_name || '';
+            document.getElementById('business_registration_number').value = customer.business_registration_number || '';
+            
+            // 전화번호와 팩스번호도 자동 입력 (있는 경우)
+            if (customer.phone_number) {
+                var phoneInput = document.querySelector('input[name="phone"]');
+                if (phoneInput) phoneInput.value = customer.phone_number;
+            }
+            if (customer.fax_number) {
+                var faxInput = document.querySelector('input[name="fax"]');
+                if (faxInput) faxInput.value = customer.fax_number;
+            }
+            
+            customerSearchModal.hide();
+        }
+    </script>
 
 </body>
 </html>

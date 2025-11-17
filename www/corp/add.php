@@ -5,6 +5,7 @@ require_once getDocumentRoot() . '/session.php';
 // 세션 변수 초기화
 $level = $_SESSION["level"] ?? 10;
 $WebSite = $_SESSION["WebSite"] ?? '';
+$iframe_mode = isset($_GET['iframe']) && $_GET['iframe'] === '1';
 
 // 권한 체크
 if (!isset($_SESSION["level"]) || $level > 5) {
@@ -28,7 +29,10 @@ $title_message = '거래처 추가';
 <?php include getDocumentRoot() . '/load_header.php'; ?>
 <title> <?=$title_message?> </title>
 
-<body>
+<body<?php if ($iframe_mode) echo ' style="background:#f5f7fb; overflow-y: auto; height: 100vh; margin: 0; padding: 0;"'; ?> >
+    <?php if (!$iframe_mode): ?>
+        <?php require_once(includePath('myheader.php')); ?>   
+    <?php endif; ?>
 
 <style>
 .customer-form-container {
@@ -174,6 +178,11 @@ $title_message = '거래처 추가';
     min-width: 200px;
 }
 
+.address-input:first-of-type {
+    flex: 2;
+    min-width: 400px;
+}
+
 .account-input-group {
     display: flex;
     gap: 0.5rem;
@@ -182,6 +191,10 @@ $title_message = '거래처 추가';
 }
 
 .bank-select {
+    width: 120px;
+}
+
+.bank-custom-input {
     width: 120px;
 }
 
@@ -252,6 +265,119 @@ $title_message = '거래처 추가';
 
 .file-attach-link:hover {
     text-decoration: underline;
+}
+
+/* 업로드 영역 스타일 */
+.upload-area {
+    border: 2px dashed #ced4da;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    background: #f8f9fa;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 1rem;
+}
+
+.upload-area:hover {
+    border-color: #007bff;
+    background: #e7f3ff;
+}
+
+.upload-area.dragover {
+    border-color: #007bff;
+    background: rgba(0, 123, 255, 0.1);
+    transform: scale(1.02);
+}
+
+.upload-icon {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+
+.upload-text {
+    color: #6c757d;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.upload-text strong {
+    color: #007bff;
+}
+
+/* 파일 미리보기 영역 */
+.file-preview {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.file-preview-item {
+    position: relative;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.file-preview-item img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    display: block;
+}
+
+.file-preview-item .file-info {
+    padding: 0.5rem;
+    font-size: 0.8rem;
+    color: #495057;
+    word-break: break-all;
+}
+
+.file-preview-item .file-remove {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.file-preview-item .file-remove:hover {
+    background: #c82333;
+    transform: scale(1.1);
+}
+
+/* 파일 미리보기 호버 효과 */
+.file-preview-item:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+    transition: all 0.2s ease;
+}
+
+.file-image-wrapper,
+.file-icon-wrapper {
+    transition: all 0.2s ease;
+}
+
+.file-image-wrapper:hover,
+.file-icon-wrapper:hover {
+    opacity: 0.9;
+}
+
+.file-overlay {
+    transition: all 0.2s ease;
 }
 
 .btn-group {
@@ -397,6 +523,24 @@ $title_message = '거래처 추가';
                 </div>
             </div>
 
+            <!-- 거래처 등록일 및 최종수정일 -->
+            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <label class="form-label">거래처 등록일</label>
+                    <div class="form-input-group">
+                        <input type="date" class="form-control w200px" id="registration_date" name="registration_date" 
+                               value="<?php echo date('Y-m-d'); ?>" placeholder="등록일을 선택하세요">
+                    </div>
+                </div>
+                <div>
+                    <label class="form-label">최종수정일</label>
+                    <div class="form-input-group">
+                        <input type="date" class="form-control w200px" id="last_modified_date" name="last_modified_date" 
+                               value="<?php echo date('Y-m-d'); ?>" placeholder="최종수정일을 선택하세요">
+                    </div>
+                </div>
+            </div>
+
             <!-- 등록번호 -->
             <div class="form-row">
                 <label class="form-label">등록번호</label>
@@ -426,6 +570,20 @@ $title_message = '거래처 추가';
                 </div>
             </div>
 
+            <!-- 휴대폰번호 -->
+            <div class="form-row">
+                <label class="form-label">휴대폰번호</label>
+                <div class="phone-input-group">
+                    <select class="form-control country-select" name="mobile_country_code">
+                        <option value="+82">🇰🇷 +82</option>
+                        <option value="+1">🇺🇸 +1</option>
+                        <option value="+81">🇯🇵 +81</option>
+                        <option value="+86">🇨🇳 +86</option>
+                    </select>
+                    <input type="text" class="form-control phone-input" name="mobile_number" placeholder="휴대폰번호를 입력하세요">
+                </div>
+            </div>
+
             <!-- 주소 -->
             <div class="form-row">
                 <label class="form-label">주소</label>
@@ -440,9 +598,9 @@ $title_message = '거래처 추가';
             <div class="form-row" style="align-items: center;">
                 <label class="form-label" style="margin-bottom:0;">업태/종목</label>
                 <div class="form-input-group" style="flex-direction: row; align-items: center; gap: 1rem;">
-                    <input type="text" class="form-control w100px" name="business_type" placeholder="업태" style="min-width:100px;">
+                    <input type="text" class="form-control w100px" name="business_type" placeholder="업태" style="min-width:200px; width:200px;">
                     <span style="margin: 0 0.5rem;">/</span>
-                    <input type="text" class="form-control w100px" name="business_category" placeholder="종목" style="min-width:100px;">
+                    <input type="text" class="form-control w100px" name="business_category" placeholder="종목" style="min-width:200px; width:200px;">
                 </div>
             </div>
 
@@ -476,35 +634,22 @@ $title_message = '거래처 추가';
             <!-- 계좌 정보 -->
             <div class="form-row">
                 <label class="form-label">계좌 정보</label>
-                <div class="account-input-group">
-                    <select class="form-select bank-select" name="bank_name" style="font-size:0.7rem;">
+                <div class="account-input-group" id="accountInputGroup">
+                    <?php
+                    // 기본 은행 목록
+                    $defaultBanks = array('기업은행', '신한은행', '국민은행', '우리은행', '하나은행', '농협은행', '새마을금고', '신협');
+                    ?>
+                    <select class="form-select bank-select" name="bank_name" id="bankSelect" style="font-size:0.7rem;">
                         <option value="">은행 선택</option>
-                        <option value="기업은행">기업은행</option>
-                        <option value="신한은행">신한은행</option>
-                        <option value="국민은행">국민은행</option>
-                        <option value="우리은행">우리은행</option>
-                        <option value="하나은행">하나은행</option>
-                        <option value="농협은행">농협은행</option>
-                        <option value="새마을금고">새마을금고</option>
-                        <option value="신협">신협</option>
+                        <?php foreach ($defaultBanks as $bank): ?>
+                            <option value="<?php echo htmlspecialchars($bank); ?>"><?php echo htmlspecialchars($bank); ?></option>
+                        <?php endforeach; ?>
+                        <option value="__CUSTOM__">직접입력</option>
                     </select>
                     <input type="text" class="form-control account-input" name="account_number" placeholder="계좌번호를 입력하세요">
-                    <button type="button" class="btn btn-outline-primary btn-sm">예금주조회</button>
-                    <a href="#" class="file-attach-link">통장사본 첨부</a>
-                    <button type="button" class="add-button" onclick="addAccount()">+</button>
-                </div>
-            </div>
-
-            <!-- 내 계좌정보 -->
-            <div class="form-row" style="align-items: center;">
-                <label class="form-label" style="margin-bottom:0;">내 계좌정보</label>
-                <div class="form-input-group" style="flex-direction: row; align-items: center; gap: 1rem;">
-                    <select class="form-select w250px" name="my_account_id" style="min-width:150px; font-size:0.7rem;">
-                        <option value="">내 계좌 선택</option>
-                        <option value="1">기업은행 123-456789-01-012 (미래건설)</option>
-                        <option value="2">신한은행 110-456-789012 (미래건설)</option>
-                    </select>
-                    <div class="form-note" style="margin-bottom:0; white-space:nowrap;">거래처로부터 입금 또는 출금할 나의 기본 계좌를 설정합니다</div>
+                    <input type="text" class="form-control bank-custom-input" id="bankCustomInput" 
+                           name="bank_custom_name" placeholder="은행명을 직접 입력하세요" 
+                           style="display: none; width: 120px;">
                 </div>
             </div>
 
@@ -512,8 +657,31 @@ $title_message = '거래처 추가';
             <div class="form-row">
                 <label class="form-label">문서첨부</label>
                 <div class="form-input-group">
-                    <a href="#" class="file-attach-link">파일첨부 (파일당 최대 5M)</a>
-                    <div class="form-note">※ 사업자등록증, 계약서 등 거래처 관련 문서를 첨부합니다</div>
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">📎</div>
+                        <div class="upload-text">
+                            <strong>클릭</strong>하거나 <strong>드래그앤드롭</strong>으로<br>
+                            파일을 업로드하세요 (여러 개 선택 가능)
+                        </div>
+                        <input type="file" id="fileInput" name="attached_files[]" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" multiple style="display: none;">
+                    </div>
+                    <div class="file-preview" id="filePreview"></div>
+                    <div class="form-note">※ 사업자등록증, 계약서, 통장사본 등 거래처 관련 문서를 첨부합니다 (파일당 최대 10M)</div>
+                </div>
+            </div>
+
+            <!-- 업로드 진행 중 모달 -->
+            <div class="modal fade" id="uploadProgressModal" tabindex="-1" aria-labelledby="uploadProgressModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-body text-center py-4">
+                            <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <h5 class="mb-2">업로드 중입니다.</h5>
+                            <p class="text-muted mb-0">잠시 기다려주세요...</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -563,7 +731,64 @@ $title_message = '거래처 추가';
 </div>
 
     <script>
+        var isIframeMode = <?php echo $iframe_mode ? 'true' : 'false'; ?>;
+
+        function notifyParent(type, payload) {
+            if (!isIframeMode || !window.parent) {
+                return;
+            }
+            try {
+                window.parent.postMessage({
+                    scope: 'customerModule',
+                    type: type,
+                    payload: payload || {}
+                }, '*');
+            } catch (error) {
+                console.warn('부모 창 메시지 전송 실패:', error);
+            }
+        }
+
         $(document).ready(function() {
+            // 은행 선택 직접입력 처리
+            var $bankSelect = $('#bankSelect');
+            var $bankCustomInput = $('#bankCustomInput');
+            
+            // 은행 선택 변경 이벤트
+            $bankSelect.on('change', function() {
+                var selectedValue = $(this).val();
+                
+                if (selectedValue === '__CUSTOM__') {
+                    // 직접입력 선택 시
+                    $bankCustomInput.show();
+                    $bankCustomInput.focus();
+                    $bankSelect.attr('name', ''); // 기존 select의 name 제거
+                    $bankCustomInput.attr('name', 'bank_name'); // 직접입력 필드에 name 부여
+                } else {
+                    // 일반 은행 선택 시
+                    $bankCustomInput.hide();
+                    $bankSelect.attr('name', 'bank_name'); // select의 name 복원
+                    $bankCustomInput.attr('name', 'bank_custom_name'); // 직접입력 필드의 name 제거
+                }
+            });
+            
+            // 직접입력 필드에서 값 입력 시 select에 옵션 추가
+            $bankCustomInput.on('blur', function() {
+                var customValue = $(this).val().trim();
+                if (customValue && $bankSelect.find('option[value="' + customValue + '"]').length === 0) {
+                    // 직접입력한 값이 select에 없으면 옵션으로 추가
+                    var $customOption = $('<option>', {
+                        value: customValue,
+                        text: customValue
+                    });
+                    // "직접입력" 옵션 앞에 추가
+                    $bankSelect.find('option[value="__CUSTOM__"]').before($customOption);
+                    $bankSelect.val(customValue);
+                    $bankSelect.attr('name', 'bank_name');
+                    $bankCustomInput.attr('name', 'bank_custom_name');
+                    $bankCustomInput.hide();
+                }
+            });
+            
             // 폼 제출 이벤트
             $('#customerForm').on('submit', function(e) {
                 e.preventDefault();
@@ -589,12 +814,39 @@ $title_message = '거래처 추가';
                     dataType: 'json',
                     success: function(response) {
                         if (response.success) {
-                            alert('거래처가 성공적으로 등록되었습니다.');
-                            // 부모 창 새로고침
-                            if (window.opener) {
-                                window.opener.location.reload();
+                            // 저장된 거래처 번호 저장 (num 또는 id 중 하나라도 있으면 사용)
+                            var newCustomerNum = response.num || response.id;
+                            
+                            if (newCustomerNum) {
+                                console.log('거래처 저장 성공, 번호:', newCustomerNum, '임시 번호:', originalTempCustomerNum);
+                                
+                                // 임시 번호로 업로드된 파일이 있으면 실제 번호로 업데이트
+                                if (originalTempCustomerNum && originalTempCustomerNum < 0) {
+                                    console.log('임시 번호로 업로드된 파일이 있음, 업데이트 시작:', originalTempCustomerNum, '->', newCustomerNum);
+                                    updateFileParentNum(originalTempCustomerNum, newCustomerNum);
+                                } else {
+                                    tempCustomerNum = newCustomerNum;
+                                    // 파일 목록 로드
+                                    loadExistingFiles();
+                                }
+                            } else {
+                                console.error('거래처 번호를 받지 못했습니다. response:', response);
                             }
-                            closeWindow();
+                            
+                            if (isIframeMode) {
+                                // iframe 모드: 부모 창에 메시지 전송
+                                notifyParent('customerCreated', {
+                                    num: newCustomerNum || response.num || response.id || null,
+                                    message: '거래처가 성공적으로 등록되었습니다.'
+                                });
+                            } else {
+                                // 팝업 모드: 기존 방식
+                                alert('거래처가 성공적으로 등록되었습니다.');
+                                if (window.opener) {
+                                    window.opener.location.reload();
+                                }
+                                closeWindow();
+                            }
                         } else {
                             alert('오류가 발생했습니다: ' + response.message);
                         }
@@ -607,6 +859,19 @@ $title_message = '거래처 추가';
 
             // 전화번호 자동 포맷팅
             $('input[name="phone_number"]').on('input', function() {
+                var value = $(this).val().replace(/[^0-9]/g, '');
+                if (value.length >= 10) {
+                    if (value.length === 10) {
+                        value = value.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+                    } else if (value.length === 11) {
+                        value = value.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+                    }
+                }
+                $(this).val(value);
+            });
+
+            // 휴대폰번호 자동 포맷팅
+            $('input[name="mobile_number"]').on('input', function() {
                 var value = $(this).val().replace(/[^0-9]/g, '');
                 if (value.length >= 10) {
                     if (value.length === 10) {
@@ -674,8 +939,614 @@ $title_message = '거래처 추가';
 
         // 창 닫기 함수
         function closeWindow() {
-            window.close();
+            if (isIframeMode) {
+                notifyParent('customerEditCanceled');
+            } else {
+                window.close();
+            }
         }
+
+        // ==================== 파일 업로드 (드래그앤드롭) ====================
+        var uploadedFiles = []; // 업로드된 파일 목록 저장
+        // 임시 번호 생성 (음수로 생성하여 실제 번호와 구분)
+        // 타임스탬프 기반으로 고유한 임시 번호 생성 (예: -202401011200001234)
+        var tempCustomerNum = 0;
+        var originalTempCustomerNum = 0; // 저장 전 임시 번호 보관용
+        
+        // 업로드 영역 클릭 시 파일 선택
+        $('#uploadArea').on('click', function(e) {
+            // fileInput 자체를 클릭한 경우는 무시 (무한 루프 방지)
+            if (e.target === document.getElementById('fileInput')) {
+                return;
+            }
+            e.preventDefault();
+            e.stopPropagation();
+            $('#fileInput').click();
+        });
+
+        // 드래그앤드롭 이벤트
+        $('#uploadArea').on('dragover', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).addClass('dragover');
+        });
+
+        $('#uploadArea').on('dragleave', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).removeClass('dragover');
+        });
+
+        $('#uploadArea').on('drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).removeClass('dragover');
+            
+            var files = e.originalEvent.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileUpload(files);
+            }
+        });
+
+        // 파일 선택 시
+        $('#fileInput').on('change', function(e) {
+            e.stopPropagation(); // 이벤트 버블링 방지
+            if (this.files.length > 0) {
+                handleFileUpload(this.files);
+            }
+        });
+        
+        // fileInput 클릭 이벤트가 버블링되지 않도록 처리
+        $('#fileInput').on('click', function(e) {
+            e.stopPropagation();
+        });
+
+        // 업로드 진행 모달 표시
+        function showUploadModal() {
+            var modalElement = document.getElementById('uploadProgressModal');
+            if (!modalElement) {
+                return;
+            }
+            
+            // Bootstrap 모달 사용
+            if (typeof bootstrap !== 'undefined') {
+                var uploadModal = new bootstrap.Modal(modalElement, {
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                uploadModal.show();
+                // 모달 인스턴스를 전역 변수에 저장하여 나중에 닫을 수 있게 함
+                window.uploadProgressModal = uploadModal;
+            } else {
+                // Bootstrap이 없으면 직접 표시
+                modalElement.style.display = 'block';
+                modalElement.classList.add('show');
+                document.body.classList.add('modal-open');
+                var backdrop = document.createElement('div');
+                backdrop.className = 'modal-backdrop fade show';
+                backdrop.id = 'uploadModalBackdrop';
+                document.body.appendChild(backdrop);
+            }
+        }
+
+        // 업로드 진행 모달 숨김
+        function hideUploadModal() {
+            var modalElement = document.getElementById('uploadProgressModal');
+            if (!modalElement) {
+                return;
+            }
+            
+            // Bootstrap 모달 사용
+            if (window.uploadProgressModal) {
+                window.uploadProgressModal.hide();
+                window.uploadProgressModal = null;
+            } else if (typeof bootstrap !== 'undefined') {
+                var modal = bootstrap.Modal.getInstance(modalElement);
+                if (modal) {
+                    modal.hide();
+                }
+            }
+            
+            // Bootstrap이 없거나 인스턴스를 찾을 수 없는 경우 직접 숨김
+            modalElement.style.display = 'none';
+            modalElement.classList.remove('show');
+            document.body.classList.remove('modal-open');
+            var backdrop = document.getElementById('uploadModalBackdrop');
+            if (backdrop) {
+                backdrop.remove();
+            }
+        }
+
+        // 파일 업로드 처리
+        function handleFileUpload(files) {
+            // 임시 번호가 없으면 생성 (등록 모드)
+            if (!tempCustomerNum || tempCustomerNum === 0) {
+                // 타임스탬프 기반 임시 번호 생성 (음수로 생성하여 실제 번호와 구분)
+                var timestamp = Date.now();
+                tempCustomerNum = -timestamp; // 음수로 생성
+                originalTempCustomerNum = tempCustomerNum; // 원본 임시 번호 보관
+                console.log('임시 번호 생성:', tempCustomerNum);
+            }
+            
+            // 파일 검증
+            var validFiles = [];
+            var maxSize = 10 * 1024 * 1024; // 10MB
+            
+            for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+                
+                // 파일 크기 검증
+                if (file.size > maxSize) {
+                    alert(file.name + ' 파일 크기는 10MB를 초과할 수 없습니다.');
+                    continue;
+                }
+                
+                validFiles.push(file);
+            }
+            
+            if (validFiles.length === 0) {
+                return;
+            }
+            
+            // 업로드 진행 모달 표시
+            showUploadModal();
+            
+            // FormData 생성
+            var formData = new FormData();
+            
+            for (var i = 0; i < validFiles.length; i++) {
+                formData.append('attached_files[]', validFiles[i]);
+            }
+            
+            // 추가 데이터 설정
+            formData.append('tablename', 'customer');
+            formData.append('item', 'attached');
+            formData.append('upfilename', 'attached_files');
+            formData.append('folderPath', '미래기업/uploads/customer');
+            formData.append('DBtable', 'picuploads');
+            formData.append('num', tempCustomerNum);
+            
+            // 로딩 표시
+            console.log('업로드 시작: ' + validFiles.length + '개 파일');
+            
+            // AJAX 요청 (Google Drive API)
+            $.ajax({
+                enctype: 'multipart/form-data',
+                processData: false,
+                contentType: false,
+                cache: false,
+                timeout: 600000,
+                url: '/filedrive/fileprocess.php',
+                type: 'POST',
+                data: formData,
+                dataType: 'json',
+                success: function(response) {
+                    console.log('업로드 응답 데이터:', response);
+                    
+                    var successCount = 0;
+                    var errorCount = 0;
+                    var errorMessages = [];
+                    
+                    if (Array.isArray(response)) {
+                        response.forEach(function(item) {
+                            if (item.status === 'success') {
+                                successCount++;
+                            } else if (item.status === 'error') {
+                                errorCount++;
+                                errorMessages.push('파일: ' + (item.file || 'Unknown') + ', 메시지: ' + (item.message || 'Unknown error'));
+                            }
+                        });
+                    }
+                    
+                    // 업로드 모달 숨김
+                    hideUploadModal();
+                    
+                    if (successCount > 0) {
+                        // 업로드 성공한 파일들을 uploadedFiles 배열에 추가
+                        if (Array.isArray(response)) {
+                            response.forEach(function(item) {
+                                if (item.status === 'success') {
+                                    // 파일 정보 정규화
+                                    var fileInfo = {
+                                        fileId: item.fileId || '',
+                                        realname: item.realname || item.file || 'Unknown',
+                                        link: item.link || '',
+                                        thumbnail: item.thumbnail || ''
+                                    };
+                                    
+                                    // link가 없으면 Google Drive 링크 생성
+                                    if (!fileInfo.link && fileInfo.fileId) {
+                                        fileInfo.link = 'https://drive.google.com/file/d/' + fileInfo.fileId + '/view';
+                                    }
+                                    
+                                    // thumbnail이 없으면 생성 (이미지인 경우)
+                                    if (!fileInfo.thumbnail && fileInfo.fileId) {
+                                        // 이미지 파일인 경우 Google Drive 썸네일 링크 사용
+                                        if (fileInfo.realname && /\.(jpg|jpeg|png|gif|webp)$/i.test(fileInfo.realname)) {
+                                            fileInfo.thumbnail = 'https://drive.google.com/uc?id=' + fileInfo.fileId;
+                                        } else {
+                                            fileInfo.thumbnail = fileInfo.link || '';
+                                        }
+                                    }
+                                    
+                                    // uploadedFiles 배열에 추가 (중복 체크)
+                                    var exists = uploadedFiles.some(function(f) {
+                                        return f.fileId === fileInfo.fileId;
+                                    });
+                                    
+                                    if (!exists) {
+                                        uploadedFiles.push(fileInfo);
+                                        console.log('파일 추가됨:', fileInfo);
+                                    }
+                                }
+                            });
+                            
+                            // 파일 목록 표시
+                            displayFiles();
+                        }
+                        
+                        // 추가로 DB에서 최신 파일 목록 조회 (임시 번호로도 조회 가능하도록)
+                        setTimeout(function() {
+                            loadExistingFiles();
+                        }, 500);
+                        
+                        if (typeof Toastify !== 'undefined') {
+                            Toastify({
+                                text: successCount + '개의 파일이 성공적으로 업로드되었습니다.',
+                                duration: 2000,
+                                close: true,
+                                gravity: 'top',
+                                position: 'center',
+                                backgroundColor: '#4fbe87'
+                            }).showToast();
+                        } else {
+                            alert(successCount + '개의 파일이 성공적으로 업로드되었습니다.');
+                        }
+                    }
+                    
+                    if (errorCount > 0) {
+                        var errorMsg = '오류 발생: ' + errorCount + '개의 파일 업로드 실패';
+                        if (errorMessages.length > 0) {
+                            errorMsg += '\n상세 오류: ' + errorMessages.join('\n');
+                        }
+                        if (typeof Toastify !== 'undefined') {
+                            Toastify({
+                                text: errorMsg,
+                                duration: 5000,
+                                close: true,
+                                gravity: 'top',
+                                position: 'center',
+                                backgroundColor: '#f44336'
+                            }).showToast();
+                        } else {
+                            alert(errorMsg);
+                        }
+                    }
+                    
+                    // 파일 입력 초기화
+                    $('#fileInput').val('');
+                },
+                error: function(jqxhr, status, error) {
+                    console.error('업로드 실패:', jqxhr, status, error);
+                    
+                    // 업로드 모달 숨김
+                    hideUploadModal();
+                    
+                    alert('파일 업로드 중 오류가 발생했습니다.');
+                }
+            });
+        }
+
+        // 업로드된 파일 표시
+        function displayFiles() {
+            var preview = $('#filePreview');
+            preview.html('');
+            
+            if (uploadedFiles.length === 0) {
+                preview.hide();
+                return;
+            }
+            
+            preview.show();
+            
+            uploadedFiles.forEach(function(file, index) {
+                // 파일 정보 확인 및 기본값 설정
+                var fileId = file.fileId || '';
+                var realname = file.realname || 'Unknown';
+                var link = file.link || '';
+                var thumbnail = file.thumbnail || file.link || '';
+                
+                // link가 없으면 fileId로 생성
+                if (!link && fileId) {
+                    link = '/filedrive/fileprocess.php?action=download&fileId=' + encodeURIComponent(fileId);
+                }
+                
+                // thumbnail이 없으면 link 사용 (이미지인 경우)
+                if (!thumbnail && link) {
+                    thumbnail = link;
+                }
+                
+                // 이미지 여부 확인
+                var isImage = false;
+                if (realname) {
+                    isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(realname);
+                }
+                if (!isImage && thumbnail) {
+                    isImage = thumbnail.match(/\.(jpg|jpeg|png|gif|webp)$/i) || thumbnail.startsWith('http');
+                }
+                
+                var itemHtml = '<div class="file-preview-item" data-index="' + index + '" data-file-id="' + fileId + '">';
+                
+                // 파일 클릭 가능하게 만들기
+                var fileClickHandler = 'viewFile(' + index + ')';
+                var cursorStyle = 'cursor: pointer;';
+                
+                if (isImage) {
+                    itemHtml += '<div class="file-image-wrapper" style="position:relative; ' + cursorStyle + '" onclick="' + fileClickHandler + '">';
+                    itemHtml += '<img src="' + thumbnail + '" alt="' + realname + '" onerror="this.src=\'/assets/default-thumbnail.png\'" style="width:100%; height:150px; object-fit:cover;">';
+                    itemHtml += '<div class="file-overlay" style="position:absolute; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.3); display:none; align-items:center; justify-content:center; color:white; font-size:1.2rem;"><i class="bi bi-eye"></i></div>';
+                    itemHtml += '</div>';
+                } else {
+                    itemHtml += '<div class="file-icon-wrapper" style="' + cursorStyle + '" onclick="' + fileClickHandler + '">';
+                    itemHtml += '<div style="width:100%; height:150px; background:#f8f9fa; display:flex; align-items:center; justify-content:center; font-size:3rem; position:relative;">';
+                    itemHtml += '📄';
+                    itemHtml += '<div class="file-overlay" style="position:absolute; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.3); display:none; align-items:center; justify-content:center; color:white; font-size:1.2rem;"><i class="bi bi-download"></i></div>';
+                    itemHtml += '</div>';
+                    itemHtml += '</div>';
+                }
+                
+                itemHtml += '<div class="file-info" style="cursor:pointer;" onclick="' + fileClickHandler + '">' + realname + '</div>';
+                itemHtml += '<button type="button" class="file-remove" onclick="event.stopPropagation(); removeFile(' + index + ', \'' + fileId + '\')" title="삭제">×</button>';
+                itemHtml += '</div>';
+                
+                var $item = $(itemHtml);
+                
+                // 호버 효과 추가
+                $item.find('.file-image-wrapper, .file-icon-wrapper, .file-info').hover(
+                    function() {
+                        $(this).find('.file-overlay').show();
+                    },
+                    function() {
+                        $(this).find('.file-overlay').hide();
+                    }
+                );
+                
+                preview.append($item);
+            });
+        }
+
+        // 파일 보기/다운로드 함수
+        function viewFile(index) {
+            if (!uploadedFiles[index]) {
+                console.error('파일 정보를 찾을 수 없습니다. index:', index);
+                return;
+            }
+            
+            var file = uploadedFiles[index];
+            console.log('파일 정보:', file);
+            
+            // link가 없는 경우 fileId로 다운로드 링크 생성
+            if (!file.link && file.fileId) {
+                file.link = '/filedrive/fileprocess.php?action=download&fileId=' + encodeURIComponent(file.fileId);
+            }
+            
+            // link가 여전히 없으면 오류
+            if (!file.link) {
+                alert('파일 링크를 가져올 수 없습니다. 잠시 후 다시 시도해주세요.');
+                console.error('파일 링크 없음:', file);
+                return;
+            }
+            
+            var isImage = false;
+            
+            // 파일 확장자로 이미지 여부 확인
+            if (file.realname) {
+                isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(file.realname);
+            }
+            
+            // thumbnail이 있으면 이미지로 간주
+            if (!isImage && file.thumbnail) {
+                isImage = file.thumbnail.match(/\.(jpg|jpeg|png|gif|webp)$/i) || file.thumbnail.startsWith('http');
+            }
+            
+            if (isImage) {
+                // 이미지인 경우: 팝업으로 확대 보기
+                if (typeof popupCenter === 'function') {
+                    popupCenter(file.link, 'imageViewer', 1000, 700);
+                } else {
+                    // popupCenter 함수가 없으면 기본 window.open 사용
+                    var width = 1000;
+                    var height = 700;
+                    var left = (window.innerWidth / 2) - (width / 2) + window.screenX;
+                    var top = (window.innerHeight / 2) - (height / 2) + window.screenY;
+                    window.open(file.link, 'imageViewer_' + Date.now(), 'width=' + width + ', height=' + height + ', left=' + left + ', top=' + top + ', scrollbars=yes, resizable=yes');
+                }
+            } else {
+                // 이미지가 아닌 경우: 다운로드 또는 새 창에서 열기
+                var isPdf = file.realname && file.realname.toLowerCase().match(/\.pdf$/i);
+                var isViewable = isPdf || (file.realname && file.realname.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp)$/i));
+                
+                if (isViewable) {
+                    // PDF나 이미지는 새 창에서 열기
+                    if (typeof popupCenter === 'function') {
+                        popupCenter(file.link, 'fileViewer', 900, 700);
+                    } else {
+                        var width = 900;
+                        var height = 700;
+                        var left = (window.innerWidth / 2) - (width / 2) + window.screenX;
+                        var top = (window.innerHeight / 2) - (height / 2) + window.screenY;
+                        window.open(file.link, 'fileViewer_' + Date.now(), 'width=' + width + ', height=' + height + ', left=' + left + ', top=' + top + ', scrollbars=yes, resizable=yes');
+                    }
+                } else {
+                    // 다운로드 가능한 파일은 다운로드 링크 생성
+                    var a = document.createElement('a');
+                    a.href = file.link;
+                    a.download = file.realname || 'download';
+                    a.target = '_blank';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                }
+            }
+        }
+
+        // 파일 삭제
+        function removeFile(index, fileId) {
+            if (!confirm('이 파일을 삭제하시겠습니까?')) {
+                return;
+            }
+            
+            $.ajax({
+                url: '/filedrive/fileprocess.php',
+                type: 'DELETE',
+                data: JSON.stringify({
+                    fileId: fileId,
+                    tablename: 'customer',
+                    item: 'attached',
+                    folderPath: '미래기업/uploads/customer',
+                    DBtable: 'picuploads'
+                }),
+                contentType: 'application/json',
+                dataType: 'json'
+            }).done(function(response) {
+                if (response.status === 'success') {
+                    uploadedFiles.splice(index, 1);
+                    displayFiles();
+                    
+                    if (typeof Toastify !== 'undefined') {
+                        Toastify({
+                            text: '파일이 삭제되었습니다.',
+                            duration: 2000,
+                            close: true,
+                            gravity: 'top',
+                            position: 'center',
+                            backgroundColor: '#4fbe87'
+                        }).showToast();
+                    } else {
+                        alert('파일이 삭제되었습니다.');
+                    }
+                } else {
+                    alert(response.message || '파일 삭제 중 오류가 발생했습니다.');
+                }
+            }).fail(function(error) {
+                console.error('삭제 중 오류:', error);
+                alert('파일 삭제 중 오류가 발생했습니다.');
+            });
+        }
+
+        // 임시 번호로 업로드된 파일의 parentnum을 실제 번호로 업데이트
+        function updateFileParentNum(oldTempNum, newNum) {
+            console.log('파일 parentnum 업데이트 시작:', oldTempNum, '->', newNum);
+            
+            if (!oldTempNum || oldTempNum >= 0) {
+                console.warn('잘못된 임시 번호:', oldTempNum);
+                // 임시 번호가 아니면 그냥 파일 목록 로드
+                tempCustomerNum = newNum;
+                loadExistingFiles();
+                return;
+            }
+            
+            $.ajax({
+                url: '/filedrive/fileprocess.php',
+                type: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    oldParentnum: oldTempNum.toString(),
+                    newParentnum: newNum.toString(),
+                    tablename: 'customer',
+                    item: 'attached',
+                    DBtable: 'picuploads'
+                }),
+                dataType: 'json'
+            }).done(function(response) {
+                console.log('파일 parentnum 업데이트 성공:', response);
+                
+                if (response.status === 'success') {
+                    console.log('업데이트된 파일 수:', response.updatedCount || 0);
+                }
+                
+                // 업데이트 성공 후 실제 번호로 변경하고 파일 목록 로드
+                tempCustomerNum = newNum;
+                originalTempCustomerNum = 0; // 초기화
+                loadExistingFiles();
+            }).fail(function(jqxhr, status, error) {
+                console.error('파일 parentnum 업데이트 오류:', jqxhr, status, error);
+                console.error('응답 내용:', jqxhr.responseText);
+                
+                // 업데이트 실패해도 파일 목록은 로드 시도 (실제 번호로 직접 조회)
+                tempCustomerNum = newNum;
+                originalTempCustomerNum = 0;
+                loadExistingFiles();
+            });
+        }
+
+        // 기존 파일 불러오기 (임시 번호 포함)
+        function loadExistingFiles() {
+            // tempCustomerNum이 없으면 조회 불가
+            if (!tempCustomerNum || tempCustomerNum === 0) {
+                console.log('거래처 번호가 없어 파일을 불러올 수 없습니다. tempCustomerNum:', tempCustomerNum);
+                return;
+            }
+            
+            // 임시 번호(음수)도 조회 가능하도록 허용
+            
+            console.log('파일 목록 조회 시작, num:', tempCustomerNum);
+            
+            $.ajax({
+                url: '/filedrive/fileprocess.php',
+                type: 'GET',
+                data: {
+                    num: tempCustomerNum,
+                    tablename: 'customer',
+                    item: 'attached',
+                    folderPath: '미래기업/uploads/customer'
+                },
+                dataType: 'json'
+            }).done(function(data) {
+                console.log('파일 목록 조회 결과:', data);
+                
+                if (Array.isArray(data) && data.length > 0) {
+                    uploadedFiles = data.map(function(file) {
+                        // 응답 데이터 구조 확인 및 정규화
+                        var fileInfo = {
+                            fileId: file.fileId || file.picname || '',
+                            realname: file.realname || 'Unknown',
+                            link: file.link || file.webViewLink || '',
+                            thumbnail: file.thumbnail || file.thumbnailLink || file.link || ''
+                        };
+                        
+                        // link가 없으면 Google Drive 링크 생성
+                        if (!fileInfo.link && fileInfo.fileId) {
+                            fileInfo.link = 'https://drive.google.com/file/d/' + fileInfo.fileId + '/view';
+                        }
+                        
+                        // thumbnail이 없으면 link 사용 (이미지인 경우)
+                        if (!fileInfo.thumbnail && fileInfo.link) {
+                            // 이미지 파일인 경우 Google Drive 썸네일 링크 사용
+                            if (fileInfo.realname && /\.(jpg|jpeg|png|gif|webp)$/i.test(fileInfo.realname)) {
+                                fileInfo.thumbnail = 'https://drive.google.com/uc?id=' + fileInfo.fileId;
+                            } else {
+                                fileInfo.thumbnail = fileInfo.link;
+                            }
+                        }
+                        
+                        console.log('파일 정보 처리:', fileInfo);
+                        return fileInfo;
+                    });
+                    
+                    console.log('최종 uploadedFiles:', uploadedFiles);
+                    displayFiles();
+                } else {
+                    console.log('파일 목록이 비어있습니다.');
+                    uploadedFiles = [];
+                    displayFiles();
+                }
+            }).fail(function(jqxhr, status, error) {
+                console.error('파일 불러오기 오류:', jqxhr, status, error);
+                console.error('응답 내용:', jqxhr.responseText);
+            });
+        }
+
     </script>
 
 </body>

@@ -408,10 +408,11 @@ $BigsearchTag = $_REQUEST["BigsearchTag"] ?? '';
 <div class="container-fluid justify-content-center align-items-center">
 <div class="card mt-2 "> 
 <div class="card-body">
-    <div class="d-flex mb-3 mt-2 justify-content-center align-items-center">  
+	<div class="d-flex mb-3 mt-2 justify-content-center align-items-center">  
 		<h5> 원자재 구매 & 입출고</h5>  
-		<button type="button" class="btn btn-dark btn-sm mx-3"  onclick='location.reload();' title="새로고침"> <i class="bi bi-arrow-clockwise"></i> </button>  
-	</div>	
+		<button type="button" class="btn btn-dark btn-sm mx-3"  onclick='location.reload();' title="새로고침"> <i class="bi bi-arrow-clockwise"></i> </button>
+		<button type="button" class="btn btn-primary btn-sm mx-2" id="addToCartBtn" title="구매카트에 담기"> <i class="bi bi-cart-plus"></i> 구매카트 담기 </button>
+	</div>
 	<div class="d-flex mb-1 mt-1 justify-content-center align-items-center">  		
 		<!-- Replace the checkbox code with the Bootstrap-styled button -->					
 			<?php
@@ -573,14 +574,18 @@ $BigsearchTag = $_REQUEST["BigsearchTag"] ?? '';
 		 <table class="table table-hover table-border w-100" id="myTable">
 		   <thead class="table-primary">
 		   <tr>
+            <th class=" text-center" style="width:3%;" >
+				<input type="checkbox" id="selectAll" title="전체 선택/해제">
+			</th>
             <th class=" text-center" style="width:4%;" >번호</th>
             <th class=" text-center" style="width:6%;" > 접수 </th>    
             <th class=" text-center" style="width:5%;"> 납기</th>   
-            <th class=" text-center" style="width:5%;"> 완료 </th>     <!-- 완료일 -->
+            <th class=" text-center" style="width:5%;"> 결재 </th>     
+            <th class=" text-center" style="width:6%;"> 구매카트 </th>     
+            <th class=" text-center" style="width:5%;"> 완료일 </th>     <!-- 완료일 -->
             <th class=" text-center" style="width:5%;"> 요청인 </th>     
             <th class=" text-center" style="width:5%;"> 진행상태 </th>     
             <th class=" text-center" style="width:5%;"> 이관 </th>     
-            <th class=" text-center" style="width:5%;"> 결재 </th>     
             <th class=" text-center" style="width:10%;" > 현 장 명 </th>     
             <th class=" text-center" style="width:4%;" >  모 델 명 </th>     
             <th class=" text-primary text-center" style="width:9%;"> 철판종류 </th>    
@@ -669,14 +674,37 @@ try {
 ?>
 
 <tr onclick="redirectToView('<?= $num ?>', '<?= $find ?>', '<?= $search ?>', '<?= $Bigsearch ?>', '<?= $yearcheckbox ?>', '<?= $year ?>', '<?= $fromdate ?>', '<?= $todate ?>', '<?= $separate_date ?>', '<?= $scale ?>','<?= $mywrite ?>')">
+    <td class="text-center" onclick="event.stopPropagation();">
+		<input type="checkbox" class="row-checkbox" name="selected_items[]" value="<?= $num ?>" data-num="<?= $num ?>">
+	</td>
     <td class="text-center"><?= $start_num ?></td>
     <td class="<?= $date_font ?> text-center" data-order="<?= $outdate ?>"><?= iconv_substr($outdate, 0, 15, "utf-8") ?></td>
     <td class="<?= $date_font ?> text-center" data-order="<?= $requestdate ?>"><?= iconv_substr($requestdate, 5, 9, "utf-8") ?></td>
+    <td class="text-center<?php if ($status === 'ing') echo ' text-primary blink'; ?>"><?= $statusstr ?> &nbsp;</td>
+    <style>
+    @keyframes blink {
+        0%   { opacity: 1; }
+        50%  { opacity: 0.35; }
+        100% { opacity: 1; }
+    }
+    .blink {
+        animation: blink 1s linear infinite;
+    }
+    </style>
+    <td class="text-center">
+        <?php
+        $cart_value = $cart ?? 0;
+        if ($cart_value == 1) {
+            echo '<span class="badge bg-primary"><i class="bi bi-cart-check"></i> 담김</span>';
+        } else {
+            echo '&nbsp;';
+        }
+        ?>
+    </td>
     <td class="text-center" data-order="<?= $indate ?>"><?= iconv_substr($indate, 5, 9, "utf-8") ?></td>
     <td class="text-center"><?= $tmpStr ?></td>
     <td class="<?= $font_state ?> text-center"><?= $tmp_word ?></td>
     <td class="text-center"><?= $inventory ?> &nbsp;</td>
-    <td class="text-center"><?= $statusstr ?> &nbsp;</td>
     <td class=""><?= $outworkplace ?></td>
     <td class="text-center"><?= iconv_substr($model, 0, 8, "utf-8") ?></td>
     <td class="color-blue text-center"><?= $steel_item ?></td>
@@ -713,7 +741,30 @@ try {
 </div>
 </div>
 
-</form>	
+</form>
+
+<!-- 발주서 작성 모달 -->
+<div class="modal fade" id="orderWriteModal" tabindex="-1" aria-labelledby="orderWriteModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); color: white; display: flex; justify-content: space-between; align-items: center;">
+                <h5 class="modal-title" id="orderWriteModalLabel">🛒 구매카트에서 발주서 작성</h5>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <button type="button" class="btn btn-sm btn-success" onclick="iframeSaveOrderFromCart()">
+                        <i class="fas fa-save"></i> 저장
+                    </button>
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="iframeCancelOrderFromCart()">
+                        <i class="fas fa-times"></i> 취소
+                    </button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+            </div>
+            <div class="modal-body p-0" style="height: calc(100vh - 60px); overflow: auto;">
+                <iframe id="orderWriteIframe" src="" style="width: 100%; min-height: 100%; border: none; display: block;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>	
 
 <div class="container-fluid">
 <?php include '../footer_sub.php'; ?>
@@ -1041,6 +1092,160 @@ function formatDate(date) {
 
     return [year, month, day].join('-');
 }
+
+// 전체 선택/해제 기능
+$(document).ready(function() {
+    $('#selectAll').on('change', function() {
+        var isChecked = $(this).prop('checked');
+        $('.row-checkbox').prop('checked', isChecked);
+    });
+
+    // 개별 체크박스 변경 시 전체 선택 체크박스 상태 업데이트
+    $(document).on('change', '.row-checkbox', function() {
+        var totalCheckboxes = $('.row-checkbox').length;
+        var checkedCheckboxes = $('.row-checkbox:checked').length;
+        $('#selectAll').prop('checked', totalCheckboxes === checkedCheckboxes);
+    });
+
+    // 구매카트 담기 버튼 클릭 이벤트
+    $('#addToCartBtn').on('click', function() {
+        var selectedItems = [];
+        $('.row-checkbox:checked').each(function() {
+            selectedItems.push($(this).val());
+        });
+
+        if (selectedItems.length === 0) {
+            alert('구매카트에 담을 항목을 선택해주세요.');
+            return;
+        }
+
+        // 모달 열기 (발주서 작성 화면)
+        openOrderWriteModal(selectedItems);
+    });
+
+    // 발주서 작성 모달 열기
+    function openOrderWriteModal(itemNums) {
+        var modalElement = document.getElementById('orderWriteModal');
+        if (!modalElement) {
+            console.error('orderWriteModal 요소를 찾을 수 없습니다.');
+            return;
+        }
+
+        var orderWriteModal = bootstrap.Modal.getOrCreateInstance(modalElement, {
+            backdrop: 'static',
+            keyboard: true
+        });
+
+        var iframe = document.getElementById('orderWriteIframe');
+        if (!iframe) {
+            console.error('orderWriteIframe 요소를 찾을 수 없습니다.');
+            return;
+        }
+
+        // 체크된 항목의 num을 콤마로 구분하여 전달
+        var cartItems = itemNums.join(',');
+        var iframeUrl = '../order/write_form.php?iframe=1&cart_items=' + encodeURIComponent(cartItems);
+
+        iframe.src = iframeUrl;
+        
+        // 모달 메시지 리스너 설정
+        ensureIframeMessageListenerForCart();
+        
+        orderWriteModal.show();
+    }
+
+    // iframe에서 메시지를 받는 리스너 (구매카트 모달용)
+    function ensureIframeMessageListenerForCart() {
+        if (window.iframeMessageListenerForCartRegistered) {
+            return;
+        }
+        
+        window.addEventListener('message', function(event) {
+            // 보안: 같은 출처에서 온 메시지만 처리
+            if (event.origin !== window.location.origin) {
+                return;
+            }
+            
+            var message = event.data;
+            if (message && message.scope === 'orderModule') {
+                if (message.type === 'orderSaved') {
+                    // 발주서 저장 완료
+                    alert(message.payload.message || '발주서가 저장되었습니다.');
+                    var modalElement = document.getElementById('orderWriteModal');
+                    if (modalElement) {
+                        var modal = bootstrap.Modal.getInstance(modalElement);
+                        if (modal) {
+                            modal.hide();
+                        }
+                    }
+                    // 페이지 새로고침 또는 필요한 작업
+                    location.reload();
+                } else if (message.type === 'orderCanceled') {
+                    // 발주서 작성 취소
+                    var modalElement = document.getElementById('orderWriteModal');
+                    if (modalElement) {
+                        var modal = bootstrap.Modal.getInstance(modalElement);
+                        if (modal) {
+                            modal.hide();
+                        }
+                    }
+                }
+            }
+        });
+        
+        window.iframeMessageListenerForCartRegistered = true;
+    }
+
+    // iframe 내부의 저장 함수 호출
+    window.iframeSaveOrderFromCart = function() {
+        var iframe = document.getElementById('orderWriteIframe');
+        if (iframe && iframe.contentWindow) {
+            try {
+                // iframe 내부의 saveOrder 함수 호출
+                if (typeof iframe.contentWindow.saveOrder === 'function') {
+                    iframe.contentWindow.saveOrder();
+                } else {
+                    alert('저장 기능을 사용할 수 없습니다.');
+                }
+            } catch (e) {
+                console.error('저장 함수 호출 오류:', e);
+                alert('저장 중 오류가 발생했습니다.');
+            }
+        }
+    };
+
+    // iframe 내부의 취소 함수 호출
+    window.iframeCancelOrderFromCart = function() {
+        var iframe = document.getElementById('orderWriteIframe');
+        if (iframe && iframe.contentWindow) {
+            try {
+                // iframe 내부의 cancelOrder 함수 호출
+                if (typeof iframe.contentWindow.cancelOrder === 'function') {
+                    iframe.contentWindow.cancelOrder();
+                } else {
+                    // 함수가 없으면 모달만 닫기
+                    var modalElement = document.getElementById('orderWriteModal');
+                    if (modalElement) {
+                        var modal = bootstrap.Modal.getInstance(modalElement);
+                        if (modal) {
+                            modal.hide();
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error('취소 함수 호출 오류:', e);
+                // 오류 발생 시에도 모달 닫기
+                var modalElement = document.getElementById('orderWriteModal');
+                if (modalElement) {
+                    var modal = bootstrap.Modal.getInstance(modalElement);
+                    if (modal) {
+                        modal.hide();
+                    }
+                }
+            }
+        }
+    };
+});
 
 </script>
 

@@ -1775,27 +1775,25 @@ $tablename = 'popupwindow';
 
 		<div class="modern-card-body">
 			<div class="text-center mb-2">
-				<span class="fw-bold shop-header fs-6">2025년 홍천 스키여행!</span>
+				<span class="fw-bold shop-header fs-6">2025년 카페 자투라</span>
 			</div>
 				<div class="d-flex justify-content-center align-items-center mb-1">		
-				<iframe width="135" height="230" src="https://www.youtube.com/embed/CpgEZMwbamU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> &nbsp;&nbsp;&nbsp;
-				<iframe width="135" height="230" src="https://www.youtube.com/embed/GWBmJ-EQz8c" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>		    			
+				<iframe width="240" height="135" src="https://www.youtube.com/embed/KEXDABu2_9Q" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> &nbsp;&nbsp;&nbsp;	
 				</div>
 				<div class="d-flex justify-content-center align-items-center">		
 					<div class="photo-frame justify-content-center text-center">
 						<?php
-						for ($i = 1; $i <= 4; $i++) {
+						for ($i = 1; $i <= 6; $i++) {
 							// 사진 파일 경로 생성
-							$photoPath = "img/trip/202501trip" . $i . ".jpg";
+							$photoPath = "img/trip/20251113_trip" . sprintf("%02d", $i) . ".jpg";
 							// 사진 태그 출력
 							echo '<img src="' . $photoPath . '" class="framed-photo">';
 						}
 						?>
 					</div>
 				</div>
-
+			</div>
 		</div>
-	</div>
 
 		</div>	<!-- end of col-sm-4 -->
 	<!-- Jamb 금일출고와 본천장/조명천장 출고를 나란히 표시 -->
@@ -2251,8 +2249,37 @@ $tablename = 'popupwindow';
 			<?php include "./load_errorstatistics.php"; ?>		
 		</div>   
 	</div> 		
-		
-	</div>	<!-- end of col-sm-4 -->
+
+	<!-- 추억 사진&영상 -->
+	<div class="modern-management-card">
+		<div class="modern-dashboard-header">
+			<a href="./youtube.php" style="color: white; text-decoration: none;">
+				📸 추억의 사진&영상 <span style="font-size: 0.7rem; opacity: 0.9;">(미디어)</span>
+			</a>
+		</div>
+		<div class="modern-card-body">
+			<div class="text-center mb-2">
+				<span class="fw-bold shop-header fs-6">2025년 카페 자투라</span>
+			</div>
+				<div class="d-flex justify-content-center align-items-center mb-1">		
+				<iframe width="240" height="135" src="https://www.youtube.com/embed/KEXDABu2_9Q" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> &nbsp;&nbsp;&nbsp;	
+				</div>
+				<!-- <div class="d-flex justify-content-center align-items-center">		
+					<div class="photo-frame justify-content-center text-center">
+						<?php
+						// for ($i = 1; $i <= 4; $i++) {
+						// 	// 사진 파일 경로 생성
+						// 	$photoPath = "img/trip/20251113_trip" . sprintf("%02d", $i) . ".jpg";
+						// 	// 사진 태그 출력
+						// 	echo '<img src="' . $photoPath . '" class="framed-photo">';
+						// }
+						?>
+					</div>
+				</div> -->
+		</div>
+	</div>
+	
+</div>	<!-- end of col-sm-4 -->
 
 	<!-- Jamb 금일출고와 본천장/조명천장 출고를 나란히 표시 -->
 	<div class="row d-flex" style="padding:0; margin-top: 10px;">

@@ -119,6 +119,34 @@ include includePath('load_header.php');
             </div>
         </div>
     </div> 
+    <!-- 2025 카페 자투라 -->
+    <div class="row d-flex board_list" style="padding:0;">
+        <div class="col-sm-12 board_list" style="padding:7;">
+            <div class="card justify-content-center my-card-padding">
+                <div class="card-header text-center my-card-padding mt-2 mb-2">
+                    <button type="button" id="albumBtn6" class="btn btn-dark btn-sm me-2 fw-bold"><i class="bi bi-chevron-down"></i></button>
+                    <span class="fw-bold shop-header fs-5">2025 카페 자투라</span>
+                </div>
+                <div id="album6">
+                    <div class="d-flex p-2 mb-2 justify-content-center">
+                        <iframe width="560" height="315" src="https://www.youtube.com/embed/KEXDABu2_9Q" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>                        
+                    </div>
+                    <div class="d-flex justify-content-center align-items-center">
+                        <div class="photo-frame justify-content-center text-center">
+                            <?php
+                            for ($i = 1; $i <= 14; $i++) {
+                                // 사진 파일 경로 생성, $i를 2자리로 포맷 (예: 01, 02, ...)
+                                $photoPath = "img/trip/20251113_trip" . sprintf("%02d", $i) . ".jpg";
+                                // 사진 태그 출력
+                                echo '<img src="' . $base_url . '/' . $photoPath . '" class="framed-photo">';
+                            }
+                            ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> 
     <!-- 2025 홍천 스키 -->
     <div class="row d-flex board_list" style="padding:0;">
         <div class="col-sm-12 board_list" style="padding:7;">
@@ -422,6 +450,7 @@ include includePath('load_header.php');
         toggleAlbum("#albumBtn3", "#album3", "showAlbum3");
         toggleAlbum("#albumBtn4", "#album4", "showAlbum4");
         toggleAlbum("#albumBtn5", "#album5", "showAlbum5");
+        toggleAlbum("#albumBtn6", "#album6", "showAlbum6"); // 카페 자투라
 
         // 방문기록 남김
         var title = '<?php echo $title_message; ?>';

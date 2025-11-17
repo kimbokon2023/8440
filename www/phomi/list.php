@@ -291,6 +291,7 @@ th {
 			$total_company_amount = 0; // 전체 업체매출금액 합계
 			$total_sum_ex_vat = 0; // 전체 합계(부가세별도)
 			$total_sum_inc_vat = 0; // 전체 합계(부가세포함)
+			$total_tax_invoice_amount = 0; // 전체 세금계산서 금액 합계
 			
 			while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
 				$num = $row['num'];
@@ -301,15 +302,15 @@ th {
 				$signed_by = $row['signed_by'];
 				$delivery_due_date = $row['delivery_due_date'];
 				$delivery_date = $row['delivery_date'];
-				$company_amount = $row['company_amount'];
-				$company_amount_ex_vat = $row['company_amount_ex_vat'];
-				$company_amount_inc_vat = $row['company_amount_inc_vat'];
-				$createdAt = $row['createdAt'];
-				$updatedAt = $row['updatedAt'];
-				$total_inc_vat = $row['total_inc_vat'];
-				$total_ex_vat = $row['total_ex_vat'];
-				$tax_invoice_amount = $row['tax_invoice_amount'];
-				$deposit_status = $row['deposit_status'];
+				$company_amount = $row['company_amount'] ?? 0;
+				$company_amount_ex_vat = $row['company_amount_ex_vat'] ?? 0;
+				$company_amount_inc_vat = $row['company_amount_inc_vat'] ?? 0;
+				$createdAt = $row['createdAt'] ?? '';
+				$updatedAt = $row['updatedAt'] ?? '';
+				$total_inc_vat = $row['total_inc_vat'] ?? 0;
+				$total_ex_vat = $row['total_ex_vat'] ?? 0;
+				$tax_invoice_amount = $row['tax_invoice_amount'] ?? 0;
+				$deposit_status = $row['deposit_status'] ?? '';
 				$author = $row['author'];
 				$author_id = $row['author_id'];
 				$estimate_num = $row['estimate_num'];
@@ -318,6 +319,7 @@ th {
 				$total_company_amount += $company_amount;
 				$total_sum_ex_vat += $total_ex_vat;
 				$total_sum_inc_vat += $total_inc_vat;
+				$total_tax_invoice_amount += $tax_invoice_amount;
 				
 				// 금액 포맷팅
 				$company_amount_formatted = $company_amount ? number_format($company_amount) : '-';
@@ -325,6 +327,7 @@ th {
 				$company_amount_inc_vat_formatted = $company_amount_inc_vat ? number_format($company_amount_inc_vat) : '-';
 				$total_inc_vat_formatted = $total_inc_vat ? number_format($total_inc_vat) : '-';
 				$total_ex_vat_formatted = $total_ex_vat ? number_format($total_ex_vat) : '-';
+				$tax_invoice_amount_formatted = $tax_invoice_amount ? number_format($tax_invoice_amount) : '-';
 				
 				// 날짜 포맷팅
 				$delivery_due_date_formatted = $delivery_due_date ? $delivery_due_date : '-';

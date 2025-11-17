@@ -35,6 +35,7 @@ $status = $row["status"];
 $e_confirm = $row["e_confirm"];
 $e_confirm_id = $row["e_confirm_id"];
 $stock = $row["stock"] ?? 0;  // 재고량
+$cart = $row["cart"] ?? 0;  // 구매카트 여부 (0: 미담기, 1: 담김)
 
 
 ?>

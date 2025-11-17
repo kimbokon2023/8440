@@ -1,7 +1,7 @@
 {
     "notosanskr": {
-        "normal": "\/mirae8440\/www\/_dompdf\/vendor\/dompdf\/dompdf\/lib\/fonts\/notosanskr_normal_8f299ce4494209243974337e9c5519c5",
+        "normal": "notosanskr_normal_8dc571ec77b1eb90d07e6ba531d0068f",
         "500": "\/mirae8440\/www\/_dompdf\/vendor\/dompdf\/dompdf\/lib\/fonts\/notosanskr_500_9b2ce57339de26db506017433bfdce67",
-        "bold": "notosanskr_bold_d1397e8ea9ae612f84226f4605b78d43"
+        "bold": "C:\\Project\\mirae8440\\www\\_dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/notosanskr_bold_d1397e8ea9ae612f84226f4605b78d43"
     }
 }

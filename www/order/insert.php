@@ -89,6 +89,7 @@ try {
 // 폼 데이터 받기
 $action = $_POST['action'] ?? '';
 $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
+$cart_items_param = $_POST['cart_items'] ?? ''; // 구매카트 항목 (저장 시 cart 컬럼 업데이트용)
 
 // 새로운 발주서 번호 생성
 $order_no = $_POST['order_no'] ?? '';
@@ -126,6 +127,7 @@ $business_item = trim($_POST['business_item'] ?? '');
 $supplier_phone = trim($_POST['supplier_phone'] ?? '');
 $supplier_fax = trim($_POST['supplier_fax'] ?? '');
 $contact_name = trim($_POST['contact_name'] ?? '');
+$business_registration_number = trim($_POST['business_registration_number'] ?? '');
 $phone = trim($_POST['phone'] ?? '');
 $fax = trim($_POST['fax'] ?? '');
 $delivery_date = $_POST['delivery_date'] ?? null;
@@ -219,6 +221,7 @@ try {
                 supplier_phone = :supplier_phone,
                 supplier_fax = :supplier_fax,
                 contact_name = :contact_name,
+                business_registration_number = :business_registration_number,
                 phone = :phone,
                 fax = :fax,
                 order_items = :order_items,
@@ -243,6 +246,7 @@ try {
             ':supplier_phone' => $supplier_phone ?: null,
             ':supplier_fax' => $supplier_fax ?: null,
             ':contact_name' => $contact_name ?: null,
+            ':business_registration_number' => $business_registration_number ?: null,
             ':phone' => $phone ?: null,
             ':fax' => $fax ?: null,
             ':order_items' => $order_items_json,
@@ -282,12 +286,12 @@ try {
         $sql = "INSERT INTO `order` (
                 order_no, issue_date, supplier_code, supplier_name, supplier_address,
                 business_type, business_item, supplier_phone, supplier_fax, contact_name,
-                phone, fax, order_items, subtotal, delivery_date, delivery_location,
+                business_registration_number, phone, fax, order_items, subtotal, delivery_date, delivery_location,
                 payment_terms, note, status, created_at, updated_at, is_deleted
                 ) VALUES (
                 :order_no, :issue_date, :supplier_code, :supplier_name, :supplier_address,
                 :business_type, :business_item, :supplier_phone, :supplier_fax, :contact_name,
-                :phone, :fax, :order_items, :subtotal, :delivery_date, :delivery_location,
+                :business_registration_number, :phone, :fax, :order_items, :subtotal, :delivery_date, :delivery_location,
                 :payment_terms, :note, :status, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0
                 )";
 
@@ -303,6 +307,7 @@ try {
             ':supplier_phone' => $supplier_phone ?: null,
             ':supplier_fax' => $supplier_fax ?: null,
             ':contact_name' => $contact_name ?: null,
+            ':business_registration_number' => $business_registration_number ?: null,
             ':phone' => $phone ?: null,
             ':fax' => $fax ?: null,
             ':order_items' => $order_items_json,
@@ -317,6 +322,32 @@ try {
         if ($stmt->execute($params)) {
             $new_id = $pdo->lastInsertId();
             debug_log("등록 완료 - 새 ID: " . $new_id);
+            
+            // 구매카트 항목이 있으면 eworks 테이블의 cart 컬럼을 1로 업데이트
+            if (!empty($cart_items_param)) {
+                try {
+                    $item_nums = explode(',', $cart_items_param);
+                    $item_nums = array_filter(array_map('intval', $item_nums));
+                    
+                    if (!empty($item_nums)) {
+                        $placeholders = implode(',', array_fill(0, count($item_nums), '?'));
+                        $update_cart_sql = "UPDATE {$DB}.eworks 
+                                            SET cart = 1 
+                                            WHERE num IN ({$placeholders}) 
+                                            AND is_deleted IS NULL 
+                                            AND eworks_item = '원자재구매'";
+                        
+                        $update_cart_stmt = $pdo->prepare($update_cart_sql);
+                        $update_cart_stmt->execute($item_nums);
+                        $updated_rows = $update_cart_stmt->rowCount();
+                        debug_log("구매카트 업데이트 완료 - 업데이트된 행 수: " . $updated_rows);
+                    }
+                } catch (PDOException $e) {
+                    debug_log("구매카트 업데이트 오류: " . $e->getMessage());
+                    error_log("구매카트 업데이트 오류: " . $e->getMessage());
+                    // 구매카트 업데이트 실패해도 발주서 저장은 성공으로 처리
+                }
+            }
             
             if ($is_ajax) {
                 header('Content-Type: application/json; charset=utf-8');

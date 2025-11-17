@@ -42,6 +42,45 @@ $offset = ($page - 1) * $per_page;
 $search_keyword = isset($_GET['search_keyword']) ? trim($_GET['search_keyword']) : '';
 $search_date_from = $_GET['search_date_from'] ?? '';
 $search_date_to = $_GET['search_date_to'] ?? '';
+$search_status = $_GET['search_status'] ?? 'all';
+$date_field = $_GET['date_field'] ?? 'issue';
+
+// 정렬 조건
+$sort_column = $_GET['sort'] ?? 'issue_date';
+$sort_direction = $_GET['dir'] ?? 'desc';
+
+// 허용된 정렬 컬럼
+$allowed_sort_columns = [
+    'issue_date' => '발행일',
+    'contact_name' => '거래처명',
+    'subtotal' => '공급가액',
+    'business_registration_number' => '사업자번호',
+    'status' => '상태',
+    'delivery_date' => '납기일자',
+    'created_at' => '등록일'
+];
+
+// 정렬 컬럼 검증
+if (!array_key_exists($sort_column, $allowed_sort_columns)) {
+    $sort_column = 'issue_date';
+}
+
+// 정렬 방향 검증
+if (!in_array(strtolower($sort_direction), ['asc', 'desc'])) {
+    $sort_direction = 'desc';
+}
+
+$sort_direction = strtoupper($sort_direction);
+
+$allowed_status = ['all', 'draft', 'sent', 'completed'];
+if (!in_array($search_status, $allowed_status, true)) {
+    $search_status = 'all';
+}
+
+$allowed_date_fields = ['issue', 'delivery'];
+if (!in_array($date_field, $allowed_date_fields, true)) {
+    $date_field = 'issue';
+}
 
 // WHERE 조건 구성
 $where_conditions = ["is_deleted = 0"];
@@ -57,13 +96,26 @@ if ($search_keyword) {
 }
 
 if ($search_date_from) {
-    $where_conditions[] = "issue_date >= :search_date_from";
+    if ($date_field === 'delivery') {
+        $where_conditions[] = "delivery_date >= :search_date_from";
+    } else {
+        $where_conditions[] = "issue_date >= :search_date_from";
+    }
     $params[':search_date_from'] = $search_date_from;
 }
 
 if ($search_date_to) {
-    $where_conditions[] = "issue_date <= :search_date_to";
+    if ($date_field === 'delivery') {
+        $where_conditions[] = "delivery_date <= :search_date_to";
+    } else {
+        $where_conditions[] = "issue_date <= :search_date_to";
+    }
     $params[':search_date_to'] = $search_date_to;
+}
+
+if ($search_status !== 'all') {
+    $where_conditions[] = "status = :search_status";
+    $params[':search_status'] = $search_status;
 }
 
 $where_clause = implode(' AND ', $where_conditions);
@@ -81,7 +133,15 @@ $total_records = $count_stmt->fetchColumn();
 $total_pages = ceil($total_records / $per_page);
 
 // 데이터 조회
-$sql = "SELECT * FROM `order` WHERE $where_clause ORDER BY issue_date DESC, created_at DESC LIMIT :offset, :per_page";
+// 정렬 컬럼이 contact_name인 경우 COALESCE로 처리
+$order_by_clause = '';
+if ($sort_column === 'contact_name') {
+    $order_by_clause = "ORDER BY COALESCE(contact_name, supplier_name) $sort_direction, created_at DESC";
+} else {
+    $order_by_clause = "ORDER BY $sort_column $sort_direction, created_at DESC";
+}
+
+$sql = "SELECT * FROM `order` WHERE $where_clause $order_by_clause LIMIT :offset, :per_page";
 $stmt = $pdo->prepare($sql);
 
 // 파라미터 바인딩
@@ -370,6 +430,29 @@ body {
     gap: 6px;
 }
 
+.status-filter {
+    display: flex;
+    gap: 8px;
+}
+
+.status-btn {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    background: #f0f4ff;
+    color: #3b5bdb;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+}
+
+.status-btn.active {
+    background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+}
+
 .filter-group label {
     font-size: 13px;
     color: var(--text-secondary);
@@ -410,6 +493,32 @@ body {
 
 .order-table thead {
     background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+    color: var(--text-white);
+}
+
+.order-table th.sortable {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: 25px;
+    transition: background-color 0.2s;
+}
+
+.order-table th.sortable:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.order-table th.sortable i {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+}
+
+.order-table th.sortable i.fa-sort-up,
+.order-table th.sortable i.fa-sort-down {
+    opacity: 1 !important;
     color: var(--text-white);
 }
 
@@ -665,19 +774,16 @@ a:hover {
             </button>
         </div>
         <div class="btn-group">
-            <a href="write_form.php" class="btn btn-primary">
+            <button type="button" class="btn btn-primary" id="createOrderBtn">
                 <i class="fas fa-plus"></i> 신규 발주서 작성
-            </a>
+            </button>
         </div>
     </div>
 
     <!-- 필터 섹션 -->
     <div class="filter-section">
-        <form method="GET" class="filter-form">
-            <div class="filter-group">
-                <label>검색어</label>
-                <input type="text" name="search_keyword" value="<?php echo htmlspecialchars($search_keyword); ?>" placeholder="공급업체, 품목, 규격 검색" style="width: 280px;">
-            </div>
+        <form method="GET" class="filter-form" id="orderFilterForm">
+            <input type="hidden" name="search_status" id="searchStatusInput" value="<?php echo htmlspecialchars($search_status); ?>">
             <div class="filter-group">
                 <label>발행일 (시작)</label>
                 <input type="date" name="search_date_from" value="<?php echo htmlspecialchars($search_date_from); ?>">
@@ -686,12 +792,32 @@ a:hover {
                 <label>발행일 (종료)</label>
                 <input type="date" name="search_date_to" value="<?php echo htmlspecialchars($search_date_to); ?>">
             </div>
+            <div class="filter-group">
+                <label>검색어</label>
+                <input type="text" name="search_keyword" value="<?php echo htmlspecialchars($search_keyword); ?>" placeholder="공급업체, 품목, 규격 검색" style="width: 280px;">
+            </div>
             <button type="submit" class="btn btn-primary">
                 <i class="fas fa-search"></i> 검색
             </button>
             <a href="index.php" class="btn" style="background: #999; color: white;">
                 <i class="fas fa-redo"></i> 초기화
             </a>
+            <div class="status-filter">
+                <?php
+                $status_buttons = [
+                    'all' => '전체',
+                    'draft' => '임시저장',
+                    'sent' => '발송완료',
+                    'completed' => '완료'
+                ];
+                foreach ($status_buttons as $value => $label):
+                    $active_class = $search_status === $value ? 'active' : '';
+                ?>
+                <button type="button" class="status-btn <?php echo $active_class; ?>" data-status="<?php echo $value; ?>">
+                    <?php echo $label; ?>
+                </button>
+                <?php endforeach; ?>
+            </div>
         </form>
     </div>
 
@@ -703,21 +829,64 @@ a:hover {
                     <th width="3%" class="text-center">
                         <input type="checkbox" id="selectAll" class="form-check-input">
                     </th>
-                    <th width="8%">발행일</th>
-                    <th width="15%">공급업체명</th>
+                    <th width="8%" class="sortable" data-sort="issue_date">
+                        발행일
+                        <?php if ($sort_column === 'issue_date'): ?>
+                            <i class="fas fa-sort-<?php echo strtolower($sort_direction) === 'asc' ? 'up' : 'down'; ?>"></i>
+                        <?php else: ?>
+                            <i class="fas fa-sort text-muted" style="opacity: 0.3;"></i>
+                        <?php endif; ?>
+                    </th>
+                    <th width="15%" class="sortable" data-sort="contact_name">
+                        거래처명
+                        <?php if ($sort_column === 'contact_name'): ?>
+                            <i class="fas fa-sort-<?php echo strtolower($sort_direction) === 'asc' ? 'up' : 'down'; ?>"></i>
+                        <?php else: ?>
+                            <i class="fas fa-sort text-muted" style="opacity: 0.3;"></i>
+                        <?php endif; ?>
+                    </th>
                     <th width="30%">품목/규격</th>
-                    <th width="8%">공급가액</th>
+                    <th width="8%" class="sortable" data-sort="subtotal">
+                        공급가액
+                        <?php if ($sort_column === 'subtotal'): ?>
+                            <i class="fas fa-sort-<?php echo strtolower($sort_direction) === 'asc' ? 'up' : 'down'; ?>"></i>
+                        <?php else: ?>
+                            <i class="fas fa-sort text-muted" style="opacity: 0.3;"></i>
+                        <?php endif; ?>
+                    </th>
                     <th width="6%">세액</th>
+                    <th width="10%" class="sortable" data-sort="business_registration_number">
+                        사업자번호
+                        <?php if ($sort_column === 'business_registration_number'): ?>
+                            <i class="fas fa-sort-<?php echo strtolower($sort_direction) === 'asc' ? 'up' : 'down'; ?>"></i>
+                        <?php else: ?>
+                            <i class="fas fa-sort text-muted" style="opacity: 0.3;"></i>
+                        <?php endif; ?>
+                    </th>
                     <th width="8%">합계금액</th>
-                    <th width="8%" class="text-center">상태</th>
-                    <th width="8%">납기일자</th>
+                    <th width="8%" class="text-center sortable" data-sort="status">
+                        상태
+                        <?php if ($sort_column === 'status'): ?>
+                            <i class="fas fa-sort-<?php echo strtolower($sort_direction) === 'asc' ? 'up' : 'down'; ?>"></i>
+                        <?php else: ?>
+                            <i class="fas fa-sort text-muted" style="opacity: 0.3;"></i>
+                        <?php endif; ?>
+                    </th>
+                    <th width="8%" class="sortable" data-sort="delivery_date">
+                        납기일자
+                        <?php if ($sort_column === 'delivery_date'): ?>
+                            <i class="fas fa-sort-<?php echo strtolower($sort_direction) === 'asc' ? 'up' : 'down'; ?>"></i>
+                        <?php else: ?>
+                            <i class="fas fa-sort text-muted" style="opacity: 0.3;"></i>
+                        <?php endif; ?>
+                    </th>
                     <th width="6%">비고</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (empty($orders)): ?>
                 <tr>
-                    <td colspan="10">
+                    <td colspan="11">
                         <div class="empty-state">
                             <i class="fas fa-inbox"></i>
                             <h3>등록된 발주서가 없습니다</h3>
@@ -736,20 +905,61 @@ a:hover {
                         <?php echo date('Y-m-d', strtotime($order['issue_date'])); ?>
                     </td>
                     <td>
-                        <strong><?php echo htmlspecialchars($order['supplier_name']); ?></strong>
-                    </td>
-                    <td>
                         <?php
-                        // JSON 데이터에서 품목 정보 추출
+                        $partner_name = $order['contact_name'] ?? $order['supplier_name'] ?? '';
+                        ?>
+                        <strong><?php echo htmlspecialchars($partner_name); ?></strong>
+                    </td>
+                    <td style="max-width: 300px; word-wrap: break-word; white-space: normal;">
+                        <?php
+                        // JSON 데이터에서 품목+규격 정보 추출
                         $items_display = '';
                         if (!empty($order['order_items'])) {
                             $items = json_decode($order['order_items'], true);
                             if (is_array($items)) {
-                                $item_names = array_filter(array_column($items, '품목'));
-                                $spec_names = array_filter(array_column($items, '규격'));
-                                $combined = array_merge($item_names, $spec_names);
-                                $items_display = implode(', ', array_slice($combined, 0, 3));
-                                if (count($combined) > 3) $items_display .= '...';
+                                $item_spec_pairs = [];
+                                foreach ($items as $item) {
+                                    $item_name = trim($item['품목'] ?? $item['item_name'] ?? '');
+                                    $spec_name = trim($item['규격'] ?? $item['spec'] ?? '');
+                                    
+                                    // 품목과 규격이 모두 있는 경우만 조합
+                                    if (!empty($item_name) || !empty($spec_name)) {
+                                        if (!empty($item_name) && !empty($spec_name)) {
+                                            $item_spec_pairs[] = $item_name . ' ' . $spec_name;
+                                        } elseif (!empty($item_name)) {
+                                            $item_spec_pairs[] = $item_name;
+                                        } elseif (!empty($spec_name)) {
+                                            $item_spec_pairs[] = $spec_name;
+                                        }
+                                    }
+                                }
+                                
+                                if (!empty($item_spec_pairs)) {
+                                    // 열의 폭을 고려하여 최대한 많은 항목 표시
+                                    $max_length = 100; // 최대 표시 길이
+                                    $display_items = [];
+                                    $current_length = 0;
+                                    
+                                    foreach ($item_spec_pairs as $pair) {
+                                        $pair_length = mb_strlen($pair, 'UTF-8');
+                                        $separator_length = count($display_items) > 0 ? 2 : 0; // ', ' 길이
+                                        
+                                        if ($current_length + $separator_length + $pair_length <= $max_length) {
+                                            $display_items[] = $pair;
+                                            $current_length += $separator_length + $pair_length;
+                                        } else {
+                                            // 더 이상 추가할 수 없으면 중단
+                                            break;
+                                        }
+                                    }
+                                    
+                                    $items_display = implode(', ', $display_items);
+                                    
+                                    // 표시하지 못한 항목이 있으면 말줄임표 추가
+                                    if (count($item_spec_pairs) > count($display_items)) {
+                                        $items_display .= '...';
+                                    }
+                                }
                             }
                         }
                         echo htmlspecialchars($items_display ?: '품목 없음');
@@ -760,6 +970,9 @@ a:hover {
                     </td>
                     <td class="amount-cell">
                         <?php echo $order['subtotal'] ? number_format($order['subtotal'] * 0.1) : '0'; ?>
+                    </td>
+                    <td class="text-center">
+                        <?php echo htmlspecialchars($order['business_registration_number'] ?? '-'); ?>
                     </td>
                     <td class="amount-cell">
                         <?php echo $order['subtotal'] ? number_format($order['subtotal'] * 1.1) : '0'; ?>
@@ -777,7 +990,30 @@ a:hover {
                         ?>
                     </td>
                     <td class="text-center">
-                        <?php echo $order['delivery_date'] ? date('Y-m-d', strtotime($order['delivery_date'])) : '-'; ?>
+                        <?php
+                        $delivery_date = $order['delivery_date'] ?? '';
+                        // 빈 값이거나 '0000-00-00' 형식의 날짜는 공백으로 표시
+                        if (empty($delivery_date) || 
+                            $delivery_date === '0000-00-00' || 
+                            strpos($delivery_date, '0000-00-00') !== false ||
+                            strpos($delivery_date, '-0001-') !== false) {
+                            echo '';
+                        } else {
+                            // 날짜 유효성 검사
+                            $timestamp = strtotime($delivery_date);
+                            if ($timestamp !== false) {
+                                $year = date('Y', $timestamp);
+                                // 연도가 1900년 이후인 경우만 표시
+                                if ($year > 1900 && $year < 2100) {
+                                    echo date('Y-m-d', $timestamp);
+                                } else {
+                                    echo '';
+                                }
+                            } else {
+                                echo '';
+                            }
+                        }
+                        ?>
                     </td>
                     <td>
                         <?php echo htmlspecialchars(mb_substr($order['note'] ?? '', 0, 20)); ?>
@@ -803,6 +1039,11 @@ a:hover {
             if ($search_keyword) $url_params .= '&search_keyword=' . urlencode($search_keyword);
             if ($search_date_from) $url_params .= '&search_date_from=' . urlencode($search_date_from);
             if ($search_date_to) $url_params .= '&search_date_to=' . urlencode($search_date_to);
+            if ($search_status) $url_params .= '&search_status=' . urlencode($search_status);
+            if ($date_field) $url_params .= '&date_field=' . urlencode($date_field);
+            // 정렬 파라미터 추가
+            if ($sort_column) $url_params .= '&sort=' . urlencode($sort_column);
+            if ($sort_direction) $url_params .= '&dir=' . urlencode(strtolower($sort_direction));
 
             // 이전 페이지
             if ($page > 1):
@@ -854,6 +1095,12 @@ a:hover {
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <i class="fas fa-times"></i> 닫기
                 </button>
+                <button type="button" class="btn btn-success" id="modalPdfBtn">
+                    <i class="fas fa-file-pdf"></i> PDF 저장
+                </button>
+                <button type="button" class="btn btn-danger" id="modalDeleteBtn">
+                    <i class="fas fa-trash"></i> 삭제
+                </button>
                 <button type="button" class="btn btn-primary" id="modalEditBtn">
                     <i class="fas fa-edit"></i> 수정하기
                 </button>
@@ -869,9 +1116,6 @@ a:hover {
             <div class="modal-header" style="background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); color: white; display: flex; justify-content: space-between; align-items: center;">
                 <h5 class="modal-title" id="orderEditModalLabel">✏️ 발주서 수정</h5>
                 <div style="display: flex; gap: 8px; align-items: center;">
-                    <button type="button" class="btn btn-sm btn-light" onclick="iframeAddRow()">
-                        <i class="fas fa-plus"></i> 행 추가
-                    </button>
                     <button type="button" class="btn btn-sm btn-success" onclick="iframeSaveOrder()">
                         <i class="fas fa-save"></i> 저장
                     </button>
@@ -1060,6 +1304,8 @@ a:hover {
      */
     var currentOrderId = null;
     var orderModal = null;
+    var orderEditModal = null;
+    var iframeMessageListenerRegistered = false;
 
     /**
      * 발주서 상세 모달 열기 (부트스트랩 방식)
@@ -1100,26 +1346,57 @@ a:hover {
         }
     };
     
-    /**
-     * 발주서 수정 모달 열기 (iframe 방식)
-     */
-    var orderEditModal = null;
-
-    window.editOrder = function() {
-        console.log('수정하기 클릭, currentOrderId:', currentOrderId);
-
-        if (!currentOrderId) {
-            alert('발주서 ID를 찾을 수 없습니다.');
+    function ensureIframeMessageListener() {
+        if (iframeMessageListenerRegistered) {
             return;
         }
 
-        // 상세 모달 닫기
-        if (orderModal) {
-            orderModal.hide();
+        window.addEventListener('message', function(event) {
+            var data = event.data;
+
+            if (!data || typeof data !== 'object' || data.scope !== 'orderModule') {
+                return;
+            }
+
+            if (data.type === 'orderSaved' || data.type === 'orderDeleted') {
+                if (orderEditModal) {
+                    orderEditModal.hide();
+                }
+
+                var iframe = document.getElementById('editOrderIframe');
+                if (iframe) {
+                    iframe.src = '';
+                }
+
+                location.reload();
+            } else if (data.type === 'orderEditCanceled') {
+                if (orderEditModal) {
+                    orderEditModal.hide();
+                }
+
+                var cancelIframe = document.getElementById('editOrderIframe');
+                if (cancelIframe) {
+                    cancelIframe.src = '';
+                }
+            }
+        });
+
+        iframeMessageListenerRegistered = true;
+    }
+
+    function toggleIframeDeleteButton(shouldShow) {
+        var deleteBtn = document.getElementById('iframeDeleteBtn');
+        if (!deleteBtn) return;
+        deleteBtn.style.display = shouldShow ? 'inline-flex' : 'none';
+    }
+
+    function showOrderEditModal(orderId) {
+        var editModalElement = document.getElementById('orderEditModal');
+        if (!editModalElement) {
+            console.error('orderEditModal 요소를 찾을 수 없습니다.');
+            return;
         }
 
-        // 수정 모달 인스턴스 생성 또는 가져오기
-        var editModalElement = document.getElementById('orderEditModal');
         if (!orderEditModal) {
             orderEditModal = new bootstrap.Modal(editModalElement, {
                 backdrop: 'static',
@@ -1127,27 +1404,154 @@ a:hover {
             });
         }
 
-        // iframe에 write_form.php 로드 (iframe 모드 파라미터 추가)
         var iframe = document.getElementById('editOrderIframe');
-        iframe.src = 'write_form.php?id=' + currentOrderId + '&iframe=1';
+        if (!iframe) {
+            console.error('editOrderIframe 요소를 찾을 수 없습니다.');
+            return;
+        }
 
-        // 수정 모달 열기
+        var iframeUrl = 'write_form.php?iframe=1';
+        if (orderId) {
+            iframeUrl += '&id=' + encodeURIComponent(orderId);
+        }
+
+        iframe.src = iframeUrl;
+        toggleIframeDeleteButton(Boolean(orderId));
+        ensureIframeMessageListener();
         orderEditModal.show();
+    }
 
-        // iframe 로드 완료 이벤트 (저장 후 목록 새로고침)
-        iframe.onload = function() {
-            console.log('write_form.php 로드 완료');
-
-            // iframe 내부에서 저장 완료 메시지 수신 대기
-            window.addEventListener('message', function(event) {
-                if (event.data === 'orderSaved') {
-                    console.log('발주서 저장 완료, 목록 새로고침');
-                    orderEditModal.hide();
-                    location.reload();
-                }
-            });
-        };
+    window.openCreateOrderModal = function() {
+        currentOrderId = null;
+        showOrderEditModal(null);
     };
+
+    window.editOrder = function() {
+        if (!currentOrderId) {
+            alert('발주서 ID를 찾을 수 없습니다.');
+            return;
+        }
+
+        if (orderModal) {
+            orderModal.hide();
+        }
+
+        showOrderEditModal(currentOrderId);
+    };
+
+    var createOrderBtn = document.getElementById('createOrderBtn');
+    if (createOrderBtn) {
+        createOrderBtn.addEventListener('click', function() {
+            openCreateOrderModal();
+        });
+    }
+
+    // 테이블 헤더 정렬 기능
+    var sortableHeaders = document.querySelectorAll('.order-table th.sortable');
+    sortableHeaders.forEach(function(header) {
+        header.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            var sortColumn = this.getAttribute('data-sort');
+            if (!sortColumn) return;
+            
+            // 현재 정렬 상태 확인
+            var currentSort = '<?php echo $sort_column; ?>';
+            var currentDir = '<?php echo strtolower($sort_direction); ?>';
+            
+            // 같은 컬럼이면 방향 토글, 다른 컬럼이면 오름차순으로 시작
+            var newDir = 'asc';
+            if (currentSort === sortColumn && currentDir === 'asc') {
+                newDir = 'desc';
+            }
+            
+            // URL 파라미터 구성
+            var url = new URL(window.location.href);
+            url.searchParams.set('sort', sortColumn);
+            url.searchParams.set('dir', newDir);
+            
+            // 페이지는 1로 리셋
+            url.searchParams.set('page', '1');
+            
+            // 페이지 이동
+            window.location.href = url.toString();
+        });
+    });
+
+    // 상태 필터 버튼
+    var statusButtons = document.querySelectorAll('.status-btn');
+    var statusInput = document.getElementById('searchStatusInput');
+    var filterForm = document.getElementById('orderFilterForm');
+    if (statusButtons.length && statusInput && filterForm) {
+        statusButtons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                var statusValue = button.getAttribute('data-status') || 'all';
+                statusInput.value = statusValue;
+                filterForm.submit();
+            });
+        });
+    }
+
+    // 삭제하기 버튼 이벤트 리스너
+    var modalDeleteBtn = document.getElementById('modalDeleteBtn');
+    if (modalDeleteBtn) {
+        modalDeleteBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('삭제 버튼 클릭');
+            deleteOrderFromModal();
+        });
+    }
+
+    /**
+     * 발주서 상세 모달에서 삭제 처리
+     */
+    function deleteOrderFromModal() {
+        if (!currentOrderId) {
+            alert('삭제할 발주서가 선택되지 않았습니다.');
+            return;
+        }
+
+        // 삭제 확인
+        if (!confirm('정말로 이 발주서를 삭제하시겠습니까?\n삭제된 발주서는 복구할 수 없습니다.')) {
+            return;
+        }
+
+        // 삭제 요청
+        fetch('delete.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                id: currentOrderId,
+                bulk: false
+            })
+        })
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(data) {
+            if (data.success) {
+                alert(data.message || '발주서가 삭제되었습니다.');
+                
+                // 모달 닫기
+                if (orderModal) {
+                    orderModal.hide();
+                }
+                
+                // 목록 새로고침
+                location.reload();
+            } else {
+                alert('삭제 실패: ' + (data.message || '알 수 없는 오류가 발생했습니다.'));
+            }
+        })
+        .catch(function(error) {
+            console.error('삭제 오류:', error);
+            alert('삭제 중 오류가 발생했습니다.');
+        });
+    }
 
     // 수정하기 버튼 이벤트 리스너
     var modalEditBtn = document.getElementById('modalEditBtn');
@@ -1157,6 +1561,24 @@ a:hover {
             e.stopPropagation();
             console.log('수정하기 버튼 클릭');
             editOrder();
+        });
+    }
+
+    // PDF 저장 버튼 이벤트 리스너
+    var modalPdfBtn = document.getElementById('modalPdfBtn');
+    if (modalPdfBtn) {
+        modalPdfBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('PDF 저장 버튼 클릭');
+            
+            if (!currentOrderId) {
+                alert('발주서 ID를 찾을 수 없습니다.');
+                return;
+            }
+            
+            // PDF 다운로드
+            location.href = '../pdf/order_send_pdf.php?id=' + encodeURIComponent(currentOrderId) + '&download=1';
         });
     }
 
@@ -1206,6 +1628,111 @@ a:hover {
         }
     };
     
+    function toNumber(value) {
+        if (value === null || value === undefined) {
+            return 0;
+        }
+
+        if (typeof value === 'number') {
+            return isNaN(value) ? 0 : value;
+        }
+
+        if (typeof value === 'string') {
+            var cleaned = value.replace(/[^\d.-]/g, '');
+            if (cleaned === '' || cleaned === '-' || cleaned === '.') {
+                return 0;
+            }
+
+            var parsed = parseFloat(cleaned);
+            return isNaN(parsed) ? 0 : parsed;
+        }
+
+        var numberValue = Number(value);
+        return isNaN(numberValue) ? 0 : numberValue;
+    }
+
+    function formatNumber(value) {
+        return toNumber(value).toLocaleString('ko-KR');
+    }
+
+    function normalizeOrderItems(rawItems) {
+        var result = {
+            rows: [],
+            totals: {
+                supply: 0,
+                tax: 0,
+                total: 0
+            }
+        };
+
+        var items = [];
+        if (Array.isArray(rawItems)) {
+            items = rawItems;
+        } else if (typeof rawItems === 'string' && rawItems.trim() !== '') {
+            try {
+                items = JSON.parse(rawItems);
+            } catch (error) {
+                console.warn('품목 JSON 파싱 실패:', error);
+            }
+        }
+
+        if (!Array.isArray(items)) {
+            return result;
+        }
+
+        items.forEach(function(item, index) {
+            if (!item) return;
+
+            var quantity = toNumber(item['수량'] ?? item.quantity);
+            var unit = (item['단위'] ?? item.unit ?? 'EA') || 'EA';
+            var unitPrice = toNumber(item['단가'] ?? item.unit_price);
+            var supply = toNumber(item['공급가액'] ?? item.amount ?? 0);
+
+            if (!supply && quantity && unitPrice) {
+                supply = Math.round(quantity * unitPrice);
+            }
+
+            var tax = toNumber(item['세액'] ?? item.tax_amount ?? 0);
+            if (!tax && supply) {
+                tax = Math.round(supply * 0.1);
+            }
+
+            var total = toNumber(item['금액'] ?? item.total_amount ?? 0);
+            if (!total) {
+                total = supply + tax;
+            }
+
+            var normalized = {
+                index: index + 1,
+                itemName: item['품목'] || item.item_name || '-',
+                spec: item['규격'] || item.spec || '-',
+                quantity: quantity,
+                unit: unit || 'EA',
+                unitPrice: unitPrice,
+                taxAmount: tax,
+                totalAmount: total
+            };
+
+            result.rows.push({
+                index: normalized.index,
+                itemName: normalized.itemName,
+                spec: normalized.spec,
+                quantity: normalized.quantity,
+                unit: normalized.unit,
+                unitPrice: normalized.unitPrice,
+                taxAmount: normalized.taxAmount,
+                totalAmount: normalized.totalAmount,
+                supplyAmount: supply
+            });
+
+            result.totals.supply += supply;
+            result.totals.tax += tax;
+            result.totals.total += total;
+        });
+
+        return result;
+    }
+
     /**
      * AJAX로 발주서 상세 정보 로드
      */
@@ -1235,6 +1762,11 @@ a:hover {
      */
     function displayOrderDetail(order) {
         var contentDiv = document.getElementById('orderDetailContent');
+        var normalizedItems = normalizeOrderItems(order.order_items);
+        var hasItems = normalizedItems.rows.length > 0;
+        var subtotal = hasItems ? normalizedItems.totals.supply : toNumber(order.subtotal);
+        var tax = hasItems ? normalizedItems.totals.tax : Math.round(subtotal * 0.1);
+        var total = hasItems ? normalizedItems.totals.total : subtotal + tax;
         
         var statusLabels = {
             'draft': '임시저장',
@@ -1249,65 +1781,58 @@ a:hover {
         html += '<div class="detail-section-title">📋 기본 정보</div>';
         html += '<div class="detail-grid">';
         html += '<div class="detail-item"><div class="detail-label">발행일</div><div class="detail-value">' + (order.issue_date || '-') + '</div></div>';
-        html += '<div class="detail-item"><div class="detail-label">공급업체</div><div class="detail-value">' + (order.supplier_name || '-') + '</div></div>';
+        var partnerName = order.contact_name || order.supplier_name || '-';
+        html += '<div class="detail-item"><div class="detail-label">거래처</div><div class="detail-value">' + partnerName + '</div></div>';
         html += '<div class="detail-item"><div class="detail-label">상태</div><div class="detail-value">' + (statusLabels[order.status] || '알 수 없음') + '</div></div>';
-        html += '<div class="detail-item"><div class="detail-label">납기일자</div><div class="detail-value">' + (order.delivery_date || '-') + '</div></div>';
+        // 납기일자 처리 (빈 값이나 유효하지 않은 날짜는 공백)
+        var deliveryDate = '';
+        if (order.delivery_date && 
+            order.delivery_date !== '0000-00-00' && 
+            order.delivery_date.indexOf('0000-00-00') === -1 &&
+            order.delivery_date.indexOf('-0001-') === -1) {
+            var dateObj = new Date(order.delivery_date);
+            if (dateObj && !isNaN(dateObj.getTime()) && dateObj.getFullYear() > 1900) {
+                deliveryDate = order.delivery_date.substring(0, 10); // YYYY-MM-DD 형식
+            }
+        }
+        html += '<div class="detail-item"><div class="detail-label">납기일자</div><div class="detail-value">' + (deliveryDate || '') + '</div></div>';
         html += '</div>';
         html += '</div>';
         
         // 금액 정보
-        var subtotal = parseInt(order.subtotal) || 0;
-        var tax = Math.round(subtotal * 0.1);
-        var total = subtotal + tax;
-        
         html += '<div class="detail-section">';
         html += '<div class="detail-section-title">💰 금액 정보</div>';
         html += '<div class="detail-grid">';
-        html += '<div class="detail-item"><div class="detail-label">공급가액</div><div class="detail-value">' + subtotal.toLocaleString('ko-KR') + '원</div></div>';
-        html += '<div class="detail-item"><div class="detail-label">세액 (10%)</div><div class="detail-value">' + tax.toLocaleString('ko-KR') + '원</div></div>';
-        html += '<div class="detail-item"><div class="detail-label">합계금액</div><div class="detail-value" style="color: #2196f3; font-size: 18px;">' + total.toLocaleString('ko-KR') + '원</div></div>';
+        html += '<div class="detail-item"><div class="detail-label">공급가액</div><div class="detail-value">' + formatNumber(subtotal) + '원</div></div>';
+        html += '<div class="detail-item"><div class="detail-label">세액 (10%)</div><div class="detail-value">' + formatNumber(tax) + '원</div></div>';
+        html += '<div class="detail-item"><div class="detail-label">합계금액</div><div class="detail-value" style="color: #2196f3; font-size: 18px;">' + formatNumber(total) + '원</div></div>';
         html += '</div>';
         html += '</div>';
         
         // 품목 정보
-        if (order.order_items) {
-            var items;
-            try {
-                items = typeof order.order_items === 'string' ? JSON.parse(order.order_items) : order.order_items;
-            } catch (e) {
-                items = [];
-            }
-            
-            if (Array.isArray(items) && items.length > 0) {
+        if (hasItems) {
                 html += '<div class="detail-section">';
                 html += '<div class="detail-section-title">📦 품목 내역</div>';
                 html += '<table class="detail-table">';
-                html += '<thead><tr><th width="5%">번호</th><th width="25%">품목</th><th width="20%">규격</th><th width="10%">수량</th><th width="10%">단위</th><th width="15%">단가</th><th width="15%">금액</th></tr></thead>';
+                html += '<thead><tr><th width="5%">번호</th><th width="23%">품목</th><th width="18%">규격</th><th width="10%">수량</th><th width="10%">단위</th><th width="12%">단가</th><th width="12%">세액</th><th width="15%">금액</th></tr></thead>';
                 html += '<tbody>';
                 
-                items.forEach(function(item, index) {
-                    var itemName = item['품목'] || item.item_name || '-';
-                    var spec = item['규격'] || item.spec || '-';
-                    var quantity = item['수량'] || item.quantity || 0;
-                    var unit = item['단위'] || item.unit || 'EA';
-                    var unitPrice = parseInt(item['단가'] || item.unit_price || 0);
-                    var amount = parseInt(item['금액'] || item.amount || (quantity * unitPrice));
-                    
+                normalizedItems.rows.forEach(function(row) {
                     html += '<tr>';
-                    html += '<td class="text-center">' + (index + 1) + '</td>';
-                    html += '<td>' + itemName + '</td>';
-                    html += '<td>' + spec + '</td>';
-                    html += '<td class="text-center">' + quantity + '</td>';
-                    html += '<td class="text-center">' + unit + '</td>';
-                    html += '<td style="text-align: right;">' + unitPrice.toLocaleString('ko-KR') + '</td>';
-                    html += '<td style="text-align: right;">' + amount.toLocaleString('ko-KR') + '</td>';
+                    html += '<td class="text-center">' + row.index + '</td>';
+                    html += '<td>' + row.itemName + '</td>';
+                    html += '<td>' + row.spec + '</td>';
+                    html += '<td class="text-center">' + formatNumber(row.quantity) + '</td>';
+                    html += '<td class="text-center">' + (row.unit || 'EA') + '</td>';
+                    html += '<td style="text-align: right;">' + formatNumber(row.unitPrice) + '</td>';
+                    html += '<td style="text-align: right;">' + formatNumber(row.taxAmount) + '</td>';
+                    html += '<td style="text-align: right;">' + formatNumber(row.totalAmount) + '</td>';
                     html += '</tr>';
                 });
                 
                 html += '</tbody>';
                 html += '</table>';
                 html += '</div>';
-            }
         }
         
         // 비고

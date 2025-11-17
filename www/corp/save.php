@@ -38,6 +38,7 @@ try {
     $address = trim($_POST['address'] ?? '');
     $business_registration_number = trim($_POST['business_registration_number'] ?? '');
     $registration_date = $_POST['registration_date'] ?? date('Y-m-d');
+    $last_modified_date = $_POST['last_modified_date'] ?? date('Y-m-d');
 
     // 그룹 정보
     $is_sales_customer = isset($_POST['is_sales_customer']) ? 'Y' : 'N';
@@ -98,6 +99,7 @@ try {
         address, 
         business_registration_number, 
         registration_date,
+        last_modified_date,
         is_sales_customer,
         is_purchase_customer,
         is_other_customer,
@@ -107,7 +109,13 @@ try {
         my_account_id,
         created_at,
         is_deleted
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), 'N')";
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), 'N')";
+
+    // last_modified_date를 TIMESTAMP 형식으로 변환 (날짜만 입력된 경우 시간 추가)
+    $lastModifiedDateValue = $last_modified_date;
+    if (strlen($lastModifiedDateValue) === 10) {
+        $lastModifiedDateValue .= ' 00:00:00';
+    }
 
     $stmt = $pdo->prepare($insertSQL);
     $result = $stmt->execute(array(
@@ -125,6 +133,7 @@ try {
         $address,
         $business_registration_number,
         $registration_date,
+        $lastModifiedDateValue,
         $is_sales_customer,
         $is_purchase_customer,
         $is_other_customer,
@@ -197,7 +206,8 @@ try {
     echo json_encode(array(
         'success' => true,
         'message' => '거래처가 성공적으로 등록되었습니다.',
-        'id' => $customerId
+        'id' => $customerId,
+        'num' => $customerId  // num 필드 추가 (add.php에서 사용)
     ), JSON_UNESCAPED_UNICODE);
 } catch (PDOException $ex) {
     if (isset($pdo) && $pdo->inTransaction()) {

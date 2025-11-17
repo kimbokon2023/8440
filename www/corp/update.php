@@ -44,7 +44,10 @@ try {
     $remarks = trim($_POST['remarks'] ?? '');
     $address = trim($_POST['address'] ?? '');
     $business_registration_number = trim($_POST['business_registration_number'] ?? '');
-    $registration_date = $_POST['registration_date'] ?? null;
+    // registration_date 처리: 값이 없으면 기존 값 유지, 있으면 업데이트
+    $registration_date = !empty($_POST['registration_date']) ? $_POST['registration_date'] : null;
+    // last_modified_date 처리: 값이 없으면 현재 시간, 있으면 업데이트
+    $last_modified_date = !empty($_POST['last_modified_date']) ? $_POST['last_modified_date'] : null;
 
     // 그룹 정보
     $is_sales_customer = isset($_POST['is_sales_customer']) ? 'Y' : 'N';
@@ -62,53 +65,29 @@ try {
         throw new Exception('거래처명은 필수 입력 항목입니다.');
     }
 
-    // 거래처 존재 여부 확인
-    $checkSQL = "SELECT company_name FROM {$DB}.customer WHERE num = ? AND is_deleted = 'N'";
+    // 거래처 존재 여부 확인 및 기존 데이터 조회
+    $checkSQL = "SELECT company_name, registration_date, last_modified_date FROM {$DB}.customer WHERE num = ? AND is_deleted = 'N'";
     $checkStmt = $pdo->prepare($checkSQL);
     $checkStmt->execute(array($num));
     $existingCustomer = $checkStmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$existingCustomer) {
         throw new Exception('수정할 거래처를 찾을 수 없습니다.');
-    }
-
-    // 거래처명 중복 검사 (자기 자신 제외)
-    $checkSQL = "SELECT COUNT(*) as count FROM {$DB}.customer WHERE company_name = ? AND num != ? AND is_deleted = 'N'";
-    $checkStmt = $pdo->prepare($checkSQL);
-    $checkStmt->execute(array($company_name, $num));
-    $countRow = $checkStmt->fetch(PDO::FETCH_ASSOC);
-    $count = $countRow ? $countRow['count'] : 0;
-
-    if ($count > 0) {
-        throw new Exception('이미 등록된 거래처명입니다.');
-    }
-
-    // 사업자번호 중복 검사 (사업자번호가 입력된 경우, 자기 자신 제외)
-    if (!empty($business_registration_number)) {
-        $checkSQL = "SELECT COUNT(*) as count FROM {$DB}.customer WHERE business_registration_number = ? AND num != ? AND is_deleted = 'N'";
-        $checkStmt = $pdo->prepare($checkSQL);
-        $checkStmt->execute(array($business_registration_number, $num));
-        $countRow = $checkStmt->fetch(PDO::FETCH_ASSOC);
-        $count = $countRow ? $countRow['count'] : 0;
-
-        if ($count > 0) {
-            throw new Exception('이미 등록된 사업자번호입니다.');
-        }
     }
     
-    // 필수 필드 검증
-    if (empty($company_name)) {
-        throw new Exception('거래처명은 필수 입력 항목입니다.');
+    // registration_date가 비어있으면 기존 값 유지
+    if (empty($registration_date)) {
+        $registration_date = $existingCustomer['registration_date'] ?? date('Y-m-d');
     }
-
-    // 거래처 존재 여부 확인
-    $checkSQL = "SELECT company_name FROM {$DB}.customer WHERE num = ? AND is_deleted = 'N'";
-    $checkStmt = $pdo->prepare($checkSQL);
-    $checkStmt->execute(array($num));
-    $existingCustomer = $checkStmt->fetch(PDO::FETCH_ASSOC);
-
-    if (!$existingCustomer) {
-        throw new Exception('수정할 거래처를 찾을 수 없습니다.');
+    
+    // last_modified_date가 비어있으면 기존 값 유지, 없으면 현재 시간
+    if (empty($last_modified_date)) {
+        $last_modified_date = $existingCustomer['last_modified_date'] ?? date('Y-m-d H:i:s');
+    } else {
+        // 날짜만 입력된 경우 시간 추가
+        if (strlen($last_modified_date) === 10) {
+            $last_modified_date .= ' 00:00:00';
+        }
     }
 
     // 거래처명 중복 검사 (자기 자신 제외)
@@ -154,14 +133,14 @@ try {
         address = ?, 
         business_registration_number = ?, 
         registration_date = ?,
+        last_modified_date = ?,
         is_sales_customer = ?,
         is_purchase_customer = ?,
         is_other_customer = ?,
         bank_name = ?,
         account_number = ?,
         account_holder = ?,
-        my_account_id = ?,
-        last_modified_date = NOW()
+        my_account_id = ?
     WHERE num = ?";
 
     $stmt = $pdo->prepare($updateSQL);
@@ -180,6 +159,7 @@ try {
         $address,
         $business_registration_number,
         $registration_date,
+        $last_modified_date,
         $is_sales_customer,
         $is_purchase_customer,
         $is_other_customer,
