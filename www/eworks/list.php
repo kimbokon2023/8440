@@ -395,7 +395,8 @@ try {
             if ($start_num < 1) {
 ?>
         <thead class="table-primary">
-            <tr>
+            <!-- PC용 헤더 (한 줄) -->
+            <tr class="d-none d-md-table-row">
                 <th class="text-center" style="width:5%;">
                     <input type="checkbox" id="checkAll" class="master-checkbox" />
                     <label for="checkAll" class="checkbox-numbered-label"></label>
@@ -426,13 +427,54 @@ try {
                             <i class="bi bi-duffle"></i> 결재
                         </button>
                     </th>
+                <?php } else { ?>
+                    <th class="text-center align-items-center" style="width:10%;">
+                        <i class="bi bi-briefcase"></i> 결재
+                    </th>
                 <?php } ?>
+            </tr>
+            
+            <!-- 모바일용 헤더 (두 줄) -->
+            <tr class="d-md-none">
+                <!-- 첫 번째 행 -->
+                <th class="text-center" rowspan="2" style="width:5%; vertical-align: middle; padding: 12px 4px;">
+                    <input type="checkbox" id="checkAllMobile" class="master-checkbox" />
+                    <label for="checkAllMobile" class="checkbox-numbered-label"></label>
+                </th>
+                <th class="text-center" style="width:18%;">구분</th>
+                <th class="text-center" style="width:22%;">작성일시</th>
+                <th class="text-center" style="width:18%;">작성자</th>
+                <th class="text-center" style="width:18%;">현재상태</th>
+                <th class="text-center" style="width:19%;">결재진행</th>
+            </tr>
+            <tr class="d-md-none">
+                <!-- 두 번째 행 -->
+                <th class="text-center" style="width:22%;">참조자</th>
+                <th class="text-center" colspan="3" style="width:45%;">제목</th>
+                <th class="text-center" style="width:33%;">
+                    <?php if ($e_viewexcept_exist) { ?>
+                        <i class="bi bi-skip-backward"></i> 복구
+                    <?php } elseif ($status === 'end') { ?>
+                        <button type="button" class="btn btn-outline-danger btn-sm btn-sm-mobile" id="selectedDeleteBtnMobile" 
+                                onclick="deleteSelectedEworks()">
+                            <i class="bi bi-trash"></i> 삭제
+                        </button>
+                    <?php } elseif ($admin && $status === 'ing') { ?>
+                        <button type="button" class="btn btn-outline-primary btn-sm btn-sm-mobile" id="approvalselectedBtnMobile" 
+                                onclick="approvalSelectedEworks()">
+                            <i class="bi bi-duffle"></i> 결재
+                        </button>
+                    <?php } else { ?>
+                        <i class="bi bi-briefcase"></i> 결재
+                    <?php } ?>
+                </th>
             </tr>
         </thead>
         <tbody>
 <?php } ?>
 
-            <tr>
+            <!-- PC용 데이터 행 (한 줄) -->
+            <tr class="d-none d-md-table-row">
                 <td class="text-center">
                     <input type="checkbox" class="checkItem" style="width:5%;" 
                            id="checkItem<?= $Eworks_record_num + 1 ?>" 
@@ -504,6 +546,85 @@ try {
                         </button>
                     </td>
                 <?php } ?>
+            </tr>
+            
+            <!-- 모바일용 데이터 행 (두 줄) -->
+            <tr class="d-md-none">
+                <!-- 첫 번째 행 -->
+                <td class="text-center" rowspan="2" style="width:5%; vertical-align: middle; padding: 12px 4px;">
+                    <input type="checkbox" class="checkItem" 
+                           id="checkItemMobile<?= $Eworks_record_num + 1 ?>" 
+                           data-id="<?= htmlspecialchars($e_num) ?>" />
+                    <label for="checkItemMobile<?= ($Eworks_record_num + 1) ?>" class="checkbox-numbered-label">
+                        <?= ($Eworks_record_num + 1) ?>
+                    </label>
+                </td>
+                
+                <td class="text-center" style="width:18%;" 
+                    onclick="viewEworks_detail('<?= htmlspecialchars($e_num, ENT_QUOTES) ?>','<?= $eworksPage ?>');">
+                    <?= htmlspecialchars($eworks_item) ?>
+                </td>
+                
+                <td class="text-center" style="width:22%;" 
+                    onclick="viewEworks_detail('<?= htmlspecialchars($e_num, ENT_QUOTES) ?>','<?= $eworksPage ?>');">
+                    <?= htmlspecialchars($registdate) ?>
+                </td>
+                
+                <td class="text-center" style="width:18%;" 
+                    onclick="viewEworks_detail('<?= htmlspecialchars($e_num, ENT_QUOTES) ?>','<?= $eworksPage ?>');">
+                    <?= htmlspecialchars($author) ?>
+                </td>
+                
+                <td class="text-center" style="width:18%;" 
+                    onclick="viewEworks_detail('<?= htmlspecialchars($e_num, ENT_QUOTES) ?>','<?= $eworksPage ?>');">
+                    <?= htmlspecialchars($statusStr) ?>
+                </td>
+                
+                <td class="text-center" style="width:19%;" 
+                    onclick="viewEworks_detail('<?= htmlspecialchars($e_num, ENT_QUOTES) ?>','<?= $eworksPage ?>');">
+                    <?= $prograssStr ?>
+                </td>
+            </tr>
+            <tr class="d-md-none">
+                <!-- 두 번째 행 -->
+                <?php
+                // 참조자 문자열 길이 제한
+                $display_text = mb_strlen($r_line) > 10 ? mb_substr($r_line, 0, 8) . '...' : $r_line;
+                ?>
+                <td class="text-start" style="width:22%;" 
+                    onclick="viewEworks_detail('<?= htmlspecialchars($e_num, ENT_QUOTES) ?>','<?= $eworksPage ?>');" 
+                    title="<?= htmlspecialchars($r_line, ENT_QUOTES, 'UTF-8') ?>">
+                    <?= htmlspecialchars($display_text, ENT_QUOTES, 'UTF-8') ?>
+                </td>
+                
+                <td class="text-start" colspan="3" style="width:45%;" 
+                    onclick="viewEworks_detail('<?= htmlspecialchars($e_num, ENT_QUOTES) ?>','<?= $eworksPage ?>');">
+                    <?= htmlspecialchars(iconv_substr($e_title, 0, 30, "utf-8")) ?>
+                </td>
+                
+                <td class="text-center" style="width:33%;">
+                    <?php if ($e_viewexcept_exist) { ?>
+                        <button type="button" class="btn btn-outline-dark btn-sm btn-sm-mobile" 
+                                onclick="restore('<?= htmlspecialchars($e_num, ENT_QUOTES) ?>','<?= $eworksPage ?>');">
+                            <i class="bi bi-skip-backward"></i>
+                        </button>
+                    <?php } elseif ($status === 'end') { ?>
+                        <button type="button" class="btn btn-outline-danger btn-sm btn-sm-mobile" 
+                                onclick="viewExcept('<?= htmlspecialchars($e_num, ENT_QUOTES) ?>','<?= $eworksPage ?>');">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    <?php } elseif ($admin && $status === 'ing') { ?>
+                        <button type="button" class="btn btn-outline-primary btn-sm btn-sm-mobile" 
+                                onclick="approvalviewExcept('<?= htmlspecialchars($e_num, ENT_QUOTES) ?>','<?= $eworksPage ?>');">
+                            <i class="bi bi-duffle"></i>
+                        </button>
+                    <?php } else { ?>
+                        <button type="button" class="btn btn-outline-primary btn-sm btn-sm-mobile" 
+                                onclick="viewEworks_detail('<?= htmlspecialchars($e_num, ENT_QUOTES) ?>','<?= $eworksPage ?>');">
+                            <i class="bi bi-briefcase"></i>
+                        </button>
+                    <?php } ?>
+                </td>
             </tr>
 <?php
             $Eworks_record_num++;

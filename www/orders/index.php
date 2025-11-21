@@ -16,7 +16,7 @@ if (!isset($_SESSION["level"]) || $level > 5) {
     $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
     $host = $_SERVER['HTTP_HOST'];
     $base_url = "{$protocol}://{$host}";
-    $_SESSION["url"] = "{$base_url}/order/index.php";
+    $_SESSION["url"] = "{$base_url}/orders/index.php";
     sleep(1);
     header("Location: {$base_url}/login/logout.php");
     exit;
@@ -121,7 +121,7 @@ if ($search_status !== 'all') {
 $where_clause = implode(' AND ', $where_conditions);
 
 // 전체 레코드 수 조회
-$count_sql = "SELECT COUNT(*) FROM `order` WHERE $where_clause";
+$count_sql = "SELECT COUNT(*) FROM `orders` WHERE $where_clause";
 $count_stmt = $pdo->prepare($count_sql);
 
 foreach ($params as $key => $value) {
@@ -141,7 +141,7 @@ if ($sort_column === 'contact_name') {
     $order_by_clause = "ORDER BY $sort_column $sort_direction, created_at DESC";
 }
 
-$sql = "SELECT * FROM `order` WHERE $where_clause $order_by_clause LIMIT :offset, :per_page";
+$sql = "SELECT * FROM `orders` WHERE $where_clause $order_by_clause LIMIT :offset, :per_page";
 $stmt = $pdo->prepare($sql);
 
 // 파라미터 바인딩
@@ -160,7 +160,7 @@ $stats_sql = "SELECT
     SUM(CASE WHEN status = 'draft' THEN 1 ELSE 0 END) as draft_count,
     SUM(CASE WHEN status = 'sent' THEN 1 ELSE 0 END) as sent_count,
     SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed_count
-FROM `order` WHERE is_deleted = 0";
+FROM `orders` WHERE is_deleted = 0";
 $stats = $pdo->query($stats_sql)->fetch();
 ?>
 

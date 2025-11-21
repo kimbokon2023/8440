@@ -432,26 +432,30 @@ $tablename = 'popupwindow';
 
 <!-- 전자결재 사이드바 -->
 <div class="sideBanner" id="eworksSidebar">
-    <span class="text-center text-dark">&nbsp; 전자결재 </span>
+    <div class="eworks-sidebar-header">
+        <span class="text-center text-dark fw-bold">전자결재</span>
+        <button type="button" class="btn-close" onclick="toggleEworksSidebar()" aria-label="Close"></button>
+    </div>
 
+    <div class="eworks-sidebar-content">
 	<?php
 		// print $eworks_level  ;
 		foreach ($tabs as $label => $tabId) {
 			$badgeId = "badge" . $tabId;
     ?>
 
-	<div class="mb-1 mt-1">
+	<div class="mb-2">
 		 <?php if ($label !== "알림")
 			{
 					if($eworks_level && ($tabId>=3) )
 					{
-					  print '<button type="button" class="btn btn-dark rounded-pill" onclick="seltab(' . $tabId . '); "> ';
+					  print '<button type="button" class="btn btn-dark rounded-pill eworks-mobile-btn" onclick="seltab(' . $tabId . '); closeEworksSidebarOnClick();"> ';
 					  echo $label;
 					  print '<span class="badge badge-pill badge-dark" id="' . $badgeId . '"></span>';
 					}
 					else if (!$eworks_level)  // 일반결재 상신하는 그룹
 					{
-					  print '<button type="button" class="btn btn-dark rounded-pill" onclick="seltab(' . $tabId . '); "> ';
+					  print '<button type="button" class="btn btn-dark rounded-pill eworks-mobile-btn" onclick="seltab(' . $tabId . '); closeEworksSidebarOnClick();"> ';
 					  echo $label;
 					  print '<span class="badge badge-pill badge-dark" id="' . $badgeId . '"></span>';
 					}
@@ -467,6 +471,7 @@ $tablename = 'popupwindow';
     <?php
     }
     ?>
+    </div>
 </div>
 </div>
 
@@ -552,23 +557,197 @@ $tablename = 'popupwindow';
     .sideEworksBanner {
         display: none !important; /* 기본적으로 완전히 숨김 */
         position: fixed;
-        right: 0;
-        top: 0;
-        width: 260px;
-        height: 100vh;
-        background: white;
-        box-shadow: -4px 0 15px rgba(0, 0, 0, 0.2);
-        transition: transform 0.3s ease;
-        transform: translateX(100%); /* 화면 밖으로 이동 */
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.8); /* 중앙 위치, 초기 크기 작게 */
+        width: calc(100% - 24px); /* 좌우 여백 12px씩 */
+        max-width: 360px;
+        height: auto;
+        max-height: calc(100vh - 24px); /* 상하 여백 12px씩 */
+        background: #ffffff !important;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
         z-index: 1001;
-        overflow-y: auto;
-        padding: 20px 10px;
+        overflow: hidden; /* 외부 스크롤 방지 */
+        padding: 0; /* 내부 패딩 제거 (헤더/내용에서 개별 설정) */
+        opacity: 0;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        /* 화면 경계를 벗어나지 않도록 */
+        box-sizing: border-box;
+        /* 텍스트 기본 색상 설정 */
+        color: #212529;
     }
 
     .sideBanner.active,
     .sideEworksBanner.active {
-        display: block !important; /* 활성화 시에만 표시 */
-        transform: translateX(0); /* 화면 안으로 슬라이드 */
+        display: flex !important; /* flex로 변경하여 레이아웃 개선 */
+        flex-direction: column;
+        transform: translate(-50%, -50%) scale(1); /* 중앙 위치, 정상 크기 */
+        opacity: 1; /* 완전히 보이기 */
+        /* 화면 높이의 85%까지 사용 (여백 7.5%씩) - 더 넓게 */
+        max-height: 85vh;
+        height: auto;
+        min-height: 300px; /* 최소 높이 보장 */
+    }
+    
+    /* 모달 헤더 고정 */
+    .sideBanner.active .eworks-sidebar-header,
+    .sideEworksBanner.active .eworks-sidebar-header {
+        flex-shrink: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 18px 16px 18px;
+        background: #ffffff;
+        border-bottom: 2px solid #e9ecef;
+    }
+    
+    .sideBanner.active .eworks-sidebar-header > span,
+    .sideEworksBanner.active .eworks-sidebar-header > span {
+        flex: 1;
+        text-align: center;
+        font-size: 20px;
+        font-weight: 700;
+        color: #212529 !important;
+    }
+    
+    /* 모달 내용 스크롤 영역 - 모든 버튼이 보이도록 */
+    .sideBanner.active .eworks-sidebar-content,
+    .sideEworksBanner.active .eworks-sidebar-content {
+        flex: 1 1 auto;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        padding: 16px 18px 24px 18px;
+        min-height: 0; /* flex 아이템이 축소될 수 있도록 */
+        /* 스크롤바 스타일링 */
+        -webkit-overflow-scrolling: touch;
+        /* 스크롤바가 잘 보이도록 */
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0, 0, 0, 0.4) rgba(0, 0, 0, 0.1);
+        max-height: calc(85vh - 100px); /* 헤더 높이를 제외한 나머지 공간 */
+    }
+    
+    /* 웹킷 브라우저용 스크롤바 스타일 */
+    .sideBanner.active .eworks-sidebar-content::-webkit-scrollbar,
+    .sideEworksBanner.active .eworks-sidebar-content::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    .sideBanner.active .eworks-sidebar-content::-webkit-scrollbar-track,
+    .sideEworksBanner.active .eworks-sidebar-content::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 4px;
+    }
+    
+    .sideBanner.active .eworks-sidebar-content::-webkit-scrollbar-thumb,
+    .sideEworksBanner.active .eworks-sidebar-content::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 4px;
+    }
+    
+    .sideBanner.active .eworks-sidebar-content::-webkit-scrollbar-thumb:hover,
+    .sideEworksBanner.active .eworks-sidebar-content::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 0, 0, 0.5);
+    }
+    
+    /* 사이드바 내부 버튼 스타일 개선 */
+    .sideBanner .btn,
+    .sideEworksBanner .btn {
+        width: 100%;
+        margin: 8px 0;
+        padding: 16px 20px;
+        font-size: 16px;
+        font-weight: 600;
+        border-radius: 12px;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+        overflow: visible; /* 텍스트가 잘리지 않도록 */
+        text-overflow: ellipsis;
+        /* 명시적으로 색상 지정 */
+        background-color: #212529 !important;
+        border-color: #212529 !important;
+        color: #ffffff !important;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 52px; /* 최소 높이 보장 */
+        box-sizing: border-box;
+    }
+    
+    .sideBanner .btn:hover,
+    .sideEworksBanner .btn:hover,
+    .sideBanner .btn:active,
+    .sideEworksBanner .btn:active {
+        background-color: #0d6efd !important;
+        border-color: #0d6efd !important;
+        color: #ffffff !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* 버튼 내부 텍스트 및 배지 스타일 */
+    .sideBanner .btn span,
+    .sideEworksBanner .btn span {
+        color: #ffffff !important;
+        font-weight: 600;
+        margin-left: 8px;
+    }
+    
+    /* 배지 스타일 강화 */
+    .sideBanner .badge,
+    .sideEworksBanner .badge {
+        background-color: rgba(255, 255, 255, 0.3) !important;
+        color: #ffffff !important;
+        font-weight: 700;
+        padding: 4px 8px;
+        border-radius: 10px;
+    }
+    
+    /* 모바일에서 버튼 간격 조정 */
+    .sideBanner .mb-2,
+    .sideEworksBanner .mb-2 {
+        margin-bottom: 4px !important;
+    }
+    
+    /* 버튼 컨테이너 여백 최소화 */
+    .sideBanner .mb-2:last-child,
+    .sideEworksBanner .mb-2:last-child {
+        margin-bottom: 0 !important;
+    }
+    
+    /* 사이드바 닫기 버튼 스타일 */
+    .sideBanner .btn-close,
+    .sideEworksBanner .btn-close {
+        background: transparent !important;
+        border: none !important;
+        font-size: 1.5rem;
+        opacity: 0.8;
+        cursor: pointer;
+        padding: 4px 8px;
+        transition: all 0.2s ease;
+        color: #333 !important;
+        filter: brightness(0.5);
+    }
+    
+    .sideBanner .btn-close:hover,
+    .sideEworksBanner .btn-close:hover {
+        opacity: 1;
+        transform: scale(1.1);
+        filter: brightness(0);
+    }
+    
+    /* 제목 텍스트 스타일 강화 */
+    .sideBanner > div:first-child span,
+    .sideEworksBanner > div:first-child span {
+        color: #212529 !important;
+        font-weight: 700 !important;
+        font-size: 20px !important;
+    }
+    
+    /* 모바일 버튼 클릭 효과 */
+    .eworks-mobile-btn:active {
+        transform: scale(0.95);
     }
 
     /* 모바일에서 카드 너비 100%로 조정 */
@@ -591,6 +770,735 @@ $tablename = 'popupwindow';
     }
 }
 
+/* 부트스트랩 모달 모바일 fullscreen 스타일 */
+@media (max-width: 768px) {
+    /* 전자결재 부트스트랩 모달 fullscreen */
+    #eworks_form.modal {
+        padding: 0 !important;
+        margin: 0 !important;
+        z-index: 1055 !important;
+    }
+    
+    #eworks_form.modal.show {
+        padding: 0 !important;
+        margin: 0 !important;
+        display: block !important;
+        z-index: 1055 !important;
+    }
+    
+    #eworks_form .modal-backdrop {
+        background-color: rgba(0, 0, 0, 0.7) !important;
+        backdrop-filter: blur(8px);
+        z-index: 1050 !important;
+    }
+    
+    #eworks_form .modal-backdrop.show {
+        z-index: 1050 !important;
+    }
+    
+    #eworks_form .eworks-modal-dialog {
+        margin: 0 !important;
+        max-width: 100vw !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        min-height: 100vh !important;
+        padding: 0 !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        transform: none !important;
+        z-index: 1055 !important;
+    }
+    
+    /* 전자결재 상세 모달 (eworks_viewmodal) - 모바일에서 리스트 모달 위에 표시 */
+    #eworks_viewmodal.modal {
+        z-index: 1065 !important;
+    }
+    
+    #eworks_viewmodal.modal.show {
+        z-index: 1065 !important;
+        display: block !important;
+    }
+    
+    #eworks_viewmodal .modal-dialog {
+        z-index: 1065 !important;
+        margin: 0 !important;
+    }
+    
+    #eworks_viewmodal .modal-content {
+        z-index: 1065 !important;
+    }
+    
+    /* 전자결재 상세 모달 backdrop - 리스트 모달 위에 표시 */
+    #eworks_viewmodal + .modal-backdrop,
+    .modal-backdrop.show:last-of-type {
+        z-index: 1060 !important;
+        background-color: rgba(0, 0, 0, 0.8) !important;
+    }
+    
+    /* 전자결재 상세 모달이 열릴 때 리스트 모달 backdrop 숨기기 */
+    body.modal-open #eworks_viewmodal.modal ~ .modal-backdrop,
+    body.modal-open .modal-backdrop:not(:last-of-type) {
+        display: none !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+        z-index: 1040 !important;
+        opacity: 0 !important;
+    }
+    
+    /* 상세 모달이 열려있을 때 리스트 모달 backdrop 완전히 숨기기 */
+    #eworks_viewmodal.modal.show ~ .modal-backdrop:not(:last-of-type),
+    #eworks_viewmodal.modal.show + .modal-backdrop:not(:last-of-type) {
+        display: none !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+        opacity: 0 !important;
+    }
+    
+    /* 전자결재 상세 모달이 열릴 때 리스트 모달 backdrop 위에 표시 */
+    body.modal-open #eworks_viewmodal.modal {
+        z-index: 1065 !important;
+    }
+    
+    body.modal-open #eworks_viewmodal .modal-dialog {
+        z-index: 1065 !important;
+    }
+    
+    /* 리스트 모달의 backdrop이 상세 모달을 가리지 않도록 */
+    #eworks_form.modal.show ~ .modal-backdrop:not(:last-of-type),
+    .modal-backdrop.eworks-backdrop-hidden {
+        display: none !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+        opacity: 0 !important;
+        z-index: 1040 !important;
+    }
+    
+    #eworks_form .eworks-modal-content-custom {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        min-width: 100vw !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        min-height: 100vh !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
+        border: none !important;
+        display: flex !important;
+        flex-direction: column !important;
+        box-shadow: none !important;
+        position: relative !important;
+    }
+    
+    #eworks_form .modal-header {
+        flex-shrink: 0;
+        padding: 16px 20px;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        border-radius: 0 !important;
+    }
+    
+    #eworks_form .modal-title {
+        color: white !important;
+        font-weight: 700;
+        font-size: 20px;
+        margin: 0;
+    }
+    
+    #eworks_form .modal-header .btn,
+    #eworks_form .modal-header button {
+        color: white !important;
+        filter: brightness(0) invert(1);
+        opacity: 0.9;
+    }
+    
+    #eworks_form .modal-header .btn:hover,
+    #eworks_form .modal-header button:hover {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+    
+    #eworks_form .modal-body {
+        flex: 1 1 auto !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        padding: 12px !important;
+        margin: 0 !important;
+        -webkit-overflow-scrolling: touch;
+        background: #f8f9fa !important;
+        min-height: calc(100vh - 120px) !important; /* 헤더와 푸터 높이 제외 */
+        max-height: calc(100vh - 120px) !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        position: relative !important;
+        z-index: 1 !important;
+    }
+    
+    #eworks_form .modal-body .card {
+        margin: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+    
+    #eworks_form .modal-body .card-body {
+        padding: 12px !important;
+    }
+    
+    #eworks_form #eworks_list {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        height: auto !important;
+        min-height: 400px !important;
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    #eworks_form #eworks_list table {
+        display: table !important;
+        visibility: visible !important;
+        width: 100% !important;
+    }
+    
+    #eworks_form #eworks_list .table-responsive {
+        display: block !important;
+        visibility: visible !important;
+        overflow-x: auto !important;
+    }
+    
+    #eworks_form .modal-footer {
+        flex-shrink: 0;
+        padding: 12px 20px;
+        border-top: 1px solid #e9ecef;
+        background: #ffffff;
+        justify-content: center;
+    }
+    
+    #eworks_form .modal-footer .btn {
+        min-width: 100px;
+        min-height: 44px;
+        font-size: 15px;
+    }
+    
+    /* 전자결재 화면 내부 요소 모바일 최적화 */
+    #eworks_form .card,
+    #eworks_form .card-body {
+        padding: 12px !important;
+        margin-bottom: 12px !important;
+    }
+    
+    #eworks_form .table-responsive {
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    #eworks_form .table {
+        font-size: 13px !important;
+        min-width: 100% !important;
+        width: 100% !important;
+        table-layout: fixed !important;
+    }
+    
+    /* 모바일에서 테이블 헤더 두 줄 스타일 */
+    #eworks_form .table thead .d-md-none {
+        display: table-row !important;
+    }
+    
+    #eworks_form .table thead .d-md-none th {
+        padding: 10px 6px !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        line-height: 1.4 !important;
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        word-break: keep-all !important;
+        vertical-align: middle !important;
+        text-align: center !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    /* 모바일 헤더 첫 번째 행 */
+    #eworks_form .table thead .d-md-none:first-of-type th {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    /* 모바일 헤더 두 번째 행 */
+    #eworks_form .table thead .d-md-none:last-of-type th {
+        border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    /* 모바일에서 체크박스 셀 (rowspan) */
+    #eworks_form .table thead .d-md-none th[rowspan] {
+        vertical-align: middle !important;
+        padding: 15px 6px !important;
+    }
+    
+    /* 모바일 버튼 스타일 */
+    #eworks_form .table thead .d-md-none .btn-sm-mobile {
+        padding: 4px 8px !important;
+        font-size: 11px !important;
+        min-height: 32px !important;
+    }
+    
+    #eworks_form .table th,
+    #eworks_form .table td {
+        padding: 10px 6px !important;
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        font-size: 13px !important;
+        line-height: 1.5 !important;
+    }
+    
+    /* 모바일에서 테이블 데이터 행 스타일 */
+    /* 모바일에서 데이터 행 스타일 */
+    #eworks_form .table tbody .d-md-none {
+        display: table-row !important;
+    }
+    
+    #eworks_form .table tbody .d-md-none td {
+        padding: 10px 6px !important;
+        font-size: 12px !important;
+        vertical-align: middle !important;
+        border: 1px solid #dee2e6 !important;
+        word-wrap: break-word !important;
+        word-break: keep-all !important;
+        line-height: 1.5 !important;
+        cursor: pointer !important;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1) !important;
+        touch-action: manipulation !important;
+        user-select: none !important;
+        -webkit-user-select: none !important;
+    }
+    
+    /* 클릭 가능한 셀 스타일 (체크박스와 버튼 제외) */
+    #eworks_form .table tbody .d-md-none td[onclick] {
+        cursor: pointer !important;
+        position: relative !important;
+    }
+    
+    /* 클릭 가능한 셀에 호버 효과 (모바일에서도 터치 피드백) */
+    #eworks_form .table tbody .d-md-none td[onclick]:active {
+        background-color: #f0f0f0 !important;
+    }
+    
+    /* 모바일에서 첫 번째 컬럼 (체크박스, rowspan) */
+    #eworks_form .table tbody .d-md-none td[rowspan] {
+        width: 5% !important;
+        vertical-align: middle !important;
+        padding: 15px 6px !important;
+    }
+    
+    /* 모바일 첫 번째 행의 컬럼들 */
+    #eworks_form .table tbody .d-md-none:first-of-type td:nth-child(2) {
+        width: 18% !important;
+    }
+    
+    #eworks_form .table tbody .d-md-none:first-of-type td:nth-child(3) {
+        width: 22% !important;
+    }
+    
+    #eworks_form .table tbody .d-md-none:first-of-type td:nth-child(4) {
+        width: 18% !important;
+    }
+    
+    #eworks_form .table tbody .d-md-none:first-of-type td:nth-child(5) {
+        width: 18% !important;
+    }
+    
+    #eworks_form .table tbody .d-md-none:first-of-type td:nth-child(6) {
+        width: 19% !important;
+    }
+    
+    /* 모바일 두 번째 행의 컬럼들 */
+    #eworks_form .table tbody .d-md-none:last-of-type td:first-child {
+        width: 22% !important;
+    }
+    
+    #eworks_form .table tbody .d-md-none:last-of-type td[colspan] {
+        width: 45% !important;
+    }
+    
+    #eworks_form .table tbody .d-md-none:last-of-type td:last-child {
+        width: 33% !important;
+    }
+    
+    /* PC용 데이터 행 스타일 */
+    #eworks_form .table tbody .d-none.d-md-table-row td {
+        padding: 10px 6px !important;
+        font-size: 13px !important;
+        vertical-align: middle !important;
+    }
+    
+    #eworks_form .btn-sm {
+        padding: 6px 12px !important;
+        font-size: 13px !important;
+        min-height: 36px;
+    }
+    
+    #eworks_form .form-control,
+    #eworks_form .form-select {
+        font-size: 16px !important; /* iOS 줌 방지 */
+        min-height: 44px !important;
+    }
+    
+    #eworks_form .d-flex {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    /* 검색 영역 모바일 최적화 */
+    #eworks_form .eworks-search-bar {
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 6px !important;
+        align-items: center !important;
+        justify-content: center !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding: 4px 0 !important;
+        width: 100% !important;
+    }
+    
+    #eworks_form .eworks-search-bar > * {
+        flex: 0 0 auto !important;
+        margin: 0 !important;
+        white-space: nowrap !important;
+    }
+    
+    /* 전체 버튼 */
+    #eworks_form #E_searchAllBtn {
+        min-width: 50px !important;
+        max-width: 50px !important;
+        padding: 8px 12px !important;
+        font-size: 13px !important;
+        flex-shrink: 0 !important;
+    }
+    
+    /* 검색 입력 필드 */
+    #eworks_form #EworksSearch {
+        flex: 1 1 auto !important;
+        min-width: 100px !important;
+        max-width: none !important;
+        width: auto !important;
+        padding: 8px 12px !important;
+        font-size: 14px !important;
+    }
+    
+    /* 검색 버튼 */
+    #eworks_form .eworks-search-btn {
+        min-width: 44px !important;
+        max-width: 44px !important;
+        padding: 8px 10px !important;
+        flex-shrink: 0 !important;
+    }
+    
+    /* 작성 버튼 */
+    #eworks_form .eworks-write-btn {
+        min-width: 60px !important;
+        max-width: 70px !important;
+        padding: 8px 12px !important;
+        font-size: 13px !important;
+        flex-shrink: 0 !important;
+    }
+    
+    /* 모든 버튼 공통 스타일 */
+    #eworks_form .eworks-search-bar .btn {
+        min-height: 40px !important;
+        height: 40px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    /* 탭 네비게이션 모바일 최적화 */
+    #eworks_form #eworksNavContainer {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-bottom: 12px;
+    }
+    
+    /* 모바일 데이터 행 그룹 스타일 */
+    #eworks_form .table tbody tr.d-md-none {
+        border-bottom: 2px solid #e9ecef !important;
+    }
+    
+    #eworks_form .table tbody tr.d-md-none:last-of-type {
+        border-bottom: 2px solid #e9ecef !important;
+    }
+    
+    /* 모바일에서 데이터 행 첫 번째 행 */
+    #eworks_form .table tbody .d-md-none:first-of-type td {
+        border-bottom: 1px solid #e9ecef !important;
+    }
+    
+    /* 모바일에서 데이터 행 두 번째 행 */
+    #eworks_form .table tbody .d-md-none:last-of-type td {
+        border-top: 1px solid #e9ecef !important;
+    }
+    
+    /* 모바일 체크박스 동기화를 위한 스타일 */
+    #eworks_form .table tbody .d-md-none td[rowspan] .checkItem {
+        width: auto !important;
+    }
+}
+
+/* 모바일 전자결재 화면 모달 스타일 (커스텀 모달용) */
+.eworks-modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    max-width: 100vw;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    z-index: 1050;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0;
+    margin: 0;
+}
+
+.eworks-modal-overlay.active {
+    display: flex;
+    flex-direction: column;
+    opacity: 1;
+}
+
+.eworks-modal-container {
+    position: relative;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    min-width: 100vw !important;
+    min-height: 100vh;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    animation: slideUp 0.3s ease;
+    box-sizing: border-box;
+    left: 0 !important;
+    right: 0 !important;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+.eworks-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.eworks-modal-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+}
+
+.eworks-modal-close {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.eworks-modal-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+.eworks-modal-close:active {
+    transform: scale(0.95);
+}
+
+.eworks-modal-body {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding: 0;
+    margin: 0;
+    background: #f8f9fa;
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
+}
+
+.eworks-list-container {
+    width: 100%;
+    max-width: 100vw;
+    height: auto;
+    min-height: calc(100vh - 64px);
+    padding: 16px;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+/* 모바일에서 전자결재 테이블 및 컨텐츠 반응형 */
+@media (max-width: 768px) {
+    .eworks-list-container .table-responsive,
+    .eworks-list-container table {
+        width: 100% !important;
+        max-width: 100% !important;
+        font-size: 14px;
+    }
+    
+    .eworks-list-container .table th,
+    .eworks-list-container .table td {
+        padding: 8px 4px;
+        font-size: 13px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .eworks-list-container .btn-sm {
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+    
+    /* 전자결재 화면 내부 요소들 모바일 최적화 */
+    .eworks-list-container .card,
+    .eworks-list-container .card-body {
+        padding: 12px;
+        margin-bottom: 12px;
+    }
+    
+    .eworks-list-container .form-control,
+    .eworks-list-container .form-select {
+        font-size: 16px;
+        min-height: 44px;
+    }
+    
+    .eworks-list-container .d-flex {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+}
+
+/* PC에서는 모달 숨김 */
+@media (min-width: 769px) {
+    .eworks-modal-overlay {
+        display: none !important;
+    }
+    
+    /* PC에서는 원래 위치에 표시 */
+    .eworks-list-container {
+        width: 100%;
+        max-width: none;
+        padding: 20px;
+    }
+    
+    /* PC에서는 모달 컨테이너 초기화 */
+    .eworks-modal-container {
+        width: auto !important;
+        max-width: none !important;
+        min-width: auto !important;
+    }
+}
+
+ /* 모바일 전용 스타일 강제 적용 */
+@media (max-width: 768px) {
+    body.modal-open {
+        overflow: hidden !important;
+        position: fixed !important;
+        width: 100% !important;
+    }
+    
+    .eworks-modal-overlay.active {
+        position: fixed !important;
+        width: 100vw !important;
+        max-width: 100vw !important;
+        left: 0 !important;
+        right: 0 !important;
+        top: 0 !important;
+        bottom: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .eworks-modal-container {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        min-width: 100vw !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        border-radius: 0 !important;
+    }
+    
+    .eworks-modal-body {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .eworks-list-container {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        padding: 12px !important;
+        box-sizing: border-box !important;
+        margin: 0 !important;
+    }
+    
+    /* 전자결재 화면 내부 요소들 모바일 최적화 */
+    .eworks-list-container * {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    .eworks-list-container .container,
+    .eworks-list-container .container-fluid {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+}
+
 /* 사이드바 오버레이 */
 .eworks-sidebar-overlay {
     display: none;
@@ -599,12 +1507,25 @@ $tablename = 'popupwindow';
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px); /* 배경 블러 효과 */
     z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    cursor: pointer;
 }
 
 .eworks-sidebar-overlay.active {
     display: block;
+    opacity: 1;
+}
+
+/* 모바일에서 오버레이 애니메이션 개선 */
+@media (max-width: 768px) {
+    .eworks-sidebar-overlay {
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(8px);
+    }
 }
 </style>
 
@@ -706,11 +1627,11 @@ $tablename = 'popupwindow';
 			<!-- 슬라이드 토글 스위치: 경영표시 -->
 			<div class="form-check form-switch mx-2" style="display: flex; align-items: center;">
 				<input class="form-check-input" type="checkbox" id="toggleManagementInfo" style="width: 2.5em; height: 1.3em;">
-				<label class="form-check-label shop-header mx-2" for="toggleManagementInfo" style="font-size: 1rem; color:black;">
-					UI
+				<label class="form-check-label shop-header mx-2" for="toggleManagementInfo" style="font-size: 1rem; color:black;">					
 				</label>
 			</div>
 			<?php endif; ?>
+			<?php if($chkMobile == false): ?>
             <button type="button" class="modern-toolbar-btn modern-toolbar-btn-info"
                     onclick="popupCenter('<?= getBaseUrl() ?>/cost/calamount.php?menu=no', '', 1000, 800); return false;"
 					title="원자재 가격계산기">
@@ -731,7 +1652,8 @@ $tablename = 'popupwindow';
 					title="천장 카다로그">
 				<i class="bi bi-journal-check"></i>
 			</button>
-			<button type="button" class="modern-social-btn"
+			<?php endif; ?>
+			<!-- <button type="button" class="modern-social-btn"
 					onclick="popupCenter('https://blog.naver.com/mirae8440', '', 1800, 900); return false;"
 					title="미래기업 네이버 블로그">
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="27" height="27" style="vertical-align:middle;">
@@ -739,7 +1661,7 @@ $tablename = 'popupwindow';
 					<path d="M20 20 h60 a5 5 0 0 1 5 5 v30 a5 5 0 0 1 -5 5 h-20 l-10 10 -10-10 h-20 a5 5 0 0 1 -5 -5 v-30 a5 5 0 0 1 5-5z" fill="#ffffff"/>
 					<text x="50%" y="48%" text-anchor="middle" dy=".35em" font-family="Arial, sans-serif" font-weight="bold" font-size="20" fill="#f47920">N blog</text>
 				</svg>
-			</button>
+			</button> -->
 			<button type="button" class="modern-social-btn"
 					onclick="popupCenter('https://www.youtube.com/@miraecorp', '', 1920, 1080); return false;"
 					title="미래기업 유튜브">
@@ -2384,6 +3306,21 @@ $tablename = 'popupwindow';
 </div>
 </div>
 
+ <!-- 모바일 전자결재 화면 모달 -->
+<div class="eworks-modal-overlay" id="eworksModalOverlay">
+    <div class="eworks-modal-container" id="eworksModalContainer">
+        <div class="eworks-modal-header">
+            <h5 class="eworks-modal-title" id="eworksModalTitle">전자결재</h5>
+            <button type="button" class="eworks-modal-close" onclick="closeEworksModal(); return false;" aria-label="닫기">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="eworks-modal-body" id="eworksModalBody">
+            <div id="eworks_list" class="eworks-list-container"></div>
+        </div>
+    </div>
+</div>
+
  <?php if($chkMobile==false) { ?>
 	<div class="container">     
  <?php } else { ?>
@@ -3242,6 +4179,77 @@ $(document).ready(function() {
 		}
 	}	
 
+// 모바일 전자결재 모달 열기/닫기 함수
+function openEworksModal() {
+    if (isMobileDevice()) {
+        const overlay = document.getElementById('eworksModalOverlay');
+        const body = document.getElementById('eworksModalBody');
+        if (overlay && body) {
+            overlay.style.display = 'flex';
+            overlay.style.position = 'fixed';
+            overlay.style.width = '100vw';
+            overlay.style.height = '100vh';
+            overlay.style.left = '0';
+            overlay.style.right = '0';
+            overlay.style.top = '0';
+            overlay.style.bottom = '0';
+            
+            const container = document.getElementById('eworksModalContainer');
+            if (container) {
+                container.style.width = '100vw';
+                container.style.maxWidth = '100vw';
+                container.style.margin = '0';
+                container.style.padding = '0';
+            }
+            
+            setTimeout(() => {
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                document.documentElement.style.overflow = 'hidden';
+            }, 10);
+        }
+    }
+}
+
+// 전자결재 모달 닫기 함수 (부트스트랩 모달용)
+function closeEworksModal() {
+    // 부트스트랩 모달 닫기
+    $('#eworks_form').modal('hide');
+    
+    // 커스텀 모달도 닫기 (혹시 열려있다면)
+    if (isMobileDevice()) {
+        const overlay = document.getElementById('eworksModalOverlay');
+        if (overlay) {
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+            document.documentElement.style.overflow = '';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 300);
+        }
+    }
+}
+
+// 모바일에서 전자결재 버튼 클릭 시 모달 열기
+$(document).ready(function() {
+    // seltab 함수 래핑하여 모바일에서 모달 열기
+    if (typeof window.seltab !== 'undefined') {
+        const originalSeltab = window.seltab;
+        window.seltab = function(e_num) {
+            const result = originalSeltab.apply(this, arguments);
+            // 모바일에서는 모달 열기 (약간의 지연을 두어 데이터 로드 후 열기)
+            if (isMobileDevice()) {
+                setTimeout(function() {
+                    if (typeof openEworksModal === 'function') {
+                        openEworksModal();
+                    }
+                }, 100);
+            }
+            return result;
+        };
+    }
+});
+
 });
 
 
@@ -3325,6 +4333,39 @@ function isMobileDevice() {
     return window.innerWidth <= 768;
 }
 
+// 전자결재 사이드바 닫기 함수
+function closeEworksSidebar() {
+    const sidebar = document.getElementById('eworksSidebar');
+    const overlay = document.getElementById('eworksSidebarOverlay');
+
+    if (sidebar && overlay) {
+        // 닫기 애니메이션
+        sidebar.style.transition = 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        sidebar.classList.remove('active');
+        
+        // 오버레이 페이드 아웃
+        overlay.style.transition = 'opacity 0.3s ease';
+        overlay.classList.remove('active');
+        
+        // 배경 스크롤 복원
+        document.body.style.overflow = '';
+        
+        // 애니메이션 완료 후 오버레이 완전히 숨기기
+        setTimeout(() => {
+            overlay.style.display = 'none';
+        }, 300);
+    }
+}
+
+// 버튼 클릭 시 사이드바 닫기 함수
+function closeEworksSidebarOnClick() {
+    // 모바일에서만 작동
+    if (isMobileDevice()) {
+        // 약간의 지연을 두어 버튼 클릭 이벤트가 먼저 실행되도록
+        setTimeout(closeEworksSidebar, 100);
+    }
+}
+
 // 전자결재 사이드바 토글 함수
 function toggleEworksSidebar() {
     // 모바일에서만 작동
@@ -3338,14 +4379,61 @@ function toggleEworksSidebar() {
 
         if (isActive) {
             // 닫기
-            sidebar.classList.remove('active');
-            overlay.classList.remove('active');
-            document.body.style.overflow = '';
+            closeEworksSidebar();
         } else {
-            // 열기
-            sidebar.classList.add('active');
-            overlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
+            // 열기 애니메이션
+            overlay.style.display = 'block';
+            
+            // 스크롤 위치 초기화
+            if (sidebar) {
+                sidebar.scrollTop = 0;
+            }
+            
+            // 강제 리플로우
+            void overlay.offsetWidth;
+            
+            setTimeout(() => {
+                sidebar.classList.add('active');
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                document.documentElement.style.overflow = 'hidden';
+                
+                // 모달이 화면 밖으로 나가지 않도록 보정
+                requestAnimationFrame(() => {
+                    const rect = sidebar.getBoundingClientRect();
+                    const viewportHeight = window.innerHeight;
+                    const viewportWidth = window.innerWidth;
+                    const margin = 16; // 여백
+                    
+                    // 상단이 잘리는 경우
+                    if (rect.top < margin) {
+                        sidebar.style.top = margin + 'px';
+                        sidebar.style.transform = 'translate(-50%, 0) scale(1)';
+                        sidebar.style.maxHeight = (viewportHeight - (margin * 2)) + 'px';
+                    }
+                    // 하단이 잘리는 경우
+                    else if (rect.bottom > viewportHeight - margin) {
+                        sidebar.style.top = 'auto';
+                        sidebar.style.bottom = margin + 'px';
+                        sidebar.style.transform = 'translate(-50%, 0) scale(1)';
+                        sidebar.style.maxHeight = (viewportHeight - (margin * 2)) + 'px';
+                    }
+                    // 양쪽 모두 잘리는 경우 (모달이 화면보다 큰 경우)
+                    else if (rect.height > viewportHeight - (margin * 2)) {
+                        sidebar.style.top = margin + 'px';
+                        sidebar.style.bottom = 'auto';
+                        sidebar.style.transform = 'translate(-50%, 0) scale(1)';
+                        sidebar.style.maxHeight = (viewportHeight - (margin * 2)) + 'px';
+                    }
+                    // 좌우 중앙 정렬 확인
+                    if (rect.left < margin) {
+                        sidebar.style.left = '50%';
+                    }
+                    if (rect.right > viewportWidth - margin) {
+                        sidebar.style.left = '50%';
+                    }
+                });
+            }, 10);
         }
     }
 }

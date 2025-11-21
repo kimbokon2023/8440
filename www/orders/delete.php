@@ -78,7 +78,7 @@ try {
 try {
     // 발주서 존재 확인
     $placeholders = str_repeat('?,', count($ids) - 1) . '?';
-    $check_sql = "SELECT id, supplier_name FROM `order` WHERE id IN ($placeholders) AND is_deleted = 0";
+    $check_sql = "SELECT id, supplier_name FROM `orders` WHERE id IN ($placeholders) AND is_deleted = 0";
     $check_stmt = $pdo->prepare($check_sql);
     $check_stmt->execute($ids);
     $existing_orders = $check_stmt->fetchAll();
@@ -94,7 +94,7 @@ try {
     
     // Soft Delete 실행 (is_deleted = 1로 설정)
     $delete_placeholders = str_repeat('?,', count($existing_ids) - 1) . '?';
-    $delete_sql = "UPDATE `order` SET is_deleted = 1, updated_at = CURRENT_TIMESTAMP WHERE id IN ($delete_placeholders)";
+    $delete_sql = "UPDATE `orders` SET is_deleted = 1, updated_at = CURRENT_TIMESTAMP WHERE id IN ($delete_placeholders)";
     $delete_stmt = $pdo->prepare($delete_sql);
     
     if ($delete_stmt->execute($existing_ids)) {

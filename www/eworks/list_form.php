@@ -5,13 +5,13 @@ $EworksSearch = $_REQUEST["EworksSearch"] ?? '';
 
 <!-- 전자결재 리스트 모달 -->
 <div class="modal fade" id="eworks_form" tabindex="-90">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-full" role="document">
-        <div class="modal-content">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-full eworks-modal-dialog" role="document">
+        <div class="modal-content eworks-modal-content-custom">
             <div class="modal-header">
                 <h5 class="modal-title">
                     <i class="bi bi-briefcase"></i> 전자결재
                 </h5>
-                <button type="button" class="btn btn-light-secondary" id="closeModalxBtn">
+                <button type="button" class="btn btn-light-secondary" id="closeModalxBtn" onclick="$('#eworks_form').modal('hide'); return false;" aria-label="닫기">
                     <i class="bx bx-x d-block d-sm-none"></i>
                     <span class="d-none d-sm-block"><i class="bi bi-x"></i></span>
                 </button>
@@ -26,7 +26,7 @@ $EworksSearch = $_REQUEST["EworksSearch"] ?? '';
                         </div>
                         
                         <!-- 검색 및 작성 버튼 -->
-                        <div class="d-flex mt-2 mb-1 justify-content-center">
+                        <div class="d-flex mt-2 mb-1 justify-content-center eworks-search-bar">
                             <button class="btn btn-dark btn-sm me-2" type="button" id="E_searchAllBtn">
                                 전체
                             </button>
@@ -36,11 +36,11 @@ $EworksSearch = $_REQUEST["EworksSearch"] ?? '';
                                    value="<?= htmlspecialchars($EworksSearch) ?>" 
                                    onkeydown="if (event.keyCode === 13) enterkey()">
                             
-                            <button class="btn btn-dark btn-sm me-2" type="button" onclick="enterkey();">
+                            <button class="btn btn-dark btn-sm me-2 eworks-search-btn" type="button" onclick="enterkey();">
                                 <i class="bi bi-search"></i>
                             </button>
                             
-                            <button class="btn btn-dark btn-sm me-2" type="button" onclick="viewEworks_detail('',1);">
+                            <button class="btn btn-dark btn-sm me-2 eworks-write-btn" type="button" onclick="viewEworks_detail('',1);">
                                 <i class="bi bi-pencil-square"></i> 작성
                             </button>
                         </div>

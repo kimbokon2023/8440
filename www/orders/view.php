@@ -20,7 +20,7 @@ $WebSite = $base_url . '/';
 
 // 권한 체크
 if (!isset($_SESSION["level"]) || $level > 5) {
-    $_SESSION["url"] = "{$base_url}/order/view.php";
+    $_SESSION["url"] = "{$base_url}/orders/view.php";
     sleep(1);
     header("Location: {$WebSite}login/logout.php");
     exit;
@@ -48,7 +48,7 @@ try {
 }
 
 // 발주서 데이터 조회
-$stmt = $pdo->prepare("SELECT * FROM `order` WHERE id = :id AND is_deleted = 0");
+$stmt = $pdo->prepare("SELECT * FROM `orders` WHERE id = :id AND is_deleted = 0");
 $stmt->execute([':id' => $id]);
 $order = $stmt->fetch();
 

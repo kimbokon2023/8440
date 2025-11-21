@@ -397,16 +397,36 @@ $(document).ready(function(){
 
 /////////////////////////////////////////////// 전자 결재관련
 			
-	$("#closeModalxBtn, #closeEworksBtn").click(function() {
-		$('#eworks_form').modal('hide'); // 모달 숨김
-
+	// 전자결재 모달 닫기 함수 (전역 함수로 정의)
+	window.closeEworksModal = function() {
+		// 부트스트랩 모달 닫기
+		$('#eworks_form').modal('hide');
+		
 		// .sideEworksBanner 요소가 존재하면 해당 요소를 보이게 설정 (PC만)
 		if ($('.sideEworksBanner').length > 0 && window.innerWidth > 768) {
 			$('.sideEworksBanner').css('display', 'block');
 		}
+		
+		// 모바일에서 body 스크롤 복원
+		if (window.innerWidth <= 768) {
+			document.body.style.overflow = '';
+			document.documentElement.style.overflow = '';
+		}
+	};
+
+	$("#closeModalxBtn, #closeEworksBtn").click(function() {
+		closeEworksModal();
 	});
 
 	$("#closeModaldetailBtn, #closesecondModalBtn").click(function(){ 	    
+		// 모바일에서 상세 모달 닫을 때 리스트 모달 backdrop 복원
+		if (window.innerWidth <= 768) {
+			$('.modal-backdrop').not(':last').css({
+				'display': 'block',
+				'pointer-events': 'auto',
+				'z-index': '1050'
+			});
+		}
 		$('#eworks_viewmodal').modal('hide');					
 	});
 	
@@ -1302,16 +1322,115 @@ else if (eworks_item === '연구개발보고서') {
 
 					// show로 보여주고	
 					setTimeout(function(){ 
-						$("#eworks_viewmodal").modal("show");							
-					 }, 1000); //중복 방지를 위해 타임아웃 설정    
+					// 모바일에서 z-index 강제 설정
+					if (window.innerWidth <= 768) {
+						$("#eworks_viewmodal").css({
+							'z-index': '1065',
+							'display': 'block'
+						});
+						$("#eworks_viewmodal .modal-dialog").css({
+							'z-index': '1065'
+						});
+						$("#eworks_viewmodal .modal-content").css({
+							'z-index': '1065'
+						});
+					}
+					
+					$("#eworks_viewmodal").modal("show");
+					
+					// 모바일에서 모달이 열린 후 backdrop 처리
+					if (window.innerWidth <= 768) {
+						setTimeout(function() {
+							// 모든 backdrop을 확인하여 리스트 모달의 backdrop 숨기기
+							var backdrops = $('.modal-backdrop');
+							if (backdrops.length > 1) {
+								// 첫 번째 backdrop (리스트 모달) 숨기기
+								backdrops.first().css({
+									'display': 'none',
+									'visibility': 'hidden',
+									'pointer-events': 'none',
+									'z-index': '1040',
+									'opacity': '0'
+								}).addClass('eworks-backdrop-hidden');
+							}
+							// 마지막 backdrop (상세 모달)만 활성화
+							backdrops.last().css({
+								'z-index': '1060',
+								'pointer-events': 'auto',
+								'display': 'block',
+								'visibility': 'visible',
+								'opacity': '0.8'
+							});
+						}, 150);
+					}							
+				 }, 1000); //중복 방지를 위해 타임아웃 설정    
 
-					$("#eworks_viewmodal").on("shown.bs.modal", function () {
-						// 모달에 대해 shown.bs.modal 가동하고
-						isModalOpen = true; // 모달이 열리면 true로 설정
-						// PC에서만 숨김 (모바일은 토글로 제어)
-						if (window.innerWidth > 768) {
-							$('.sideEworksBanner').css('display', 'none'); // sideEworksBanner 숨김
-						}
+				// 상세 모달이 닫힐 때 리스트 모달 backdrop 복원
+				$("#eworks_viewmodal").on("hidden.bs.modal", function () {
+					if (window.innerWidth <= 768) {
+						// 리스트 모달의 backdrop 복원
+						setTimeout(function() {
+							$('.modal-backdrop.eworks-backdrop-hidden').css({
+								'display': 'block',
+								'visibility': 'visible',
+								'pointer-events': 'auto',
+								'z-index': '1050',
+								'opacity': '0.7'
+							}).removeClass('eworks-backdrop-hidden');
+							console.log('모바일 상세 모달 닫힘, 리스트 모달 backdrop 복원');
+						}, 100);
+					}
+				});
+				
+				$("#eworks_viewmodal").on("shown.bs.modal", function () {
+					// 모달에 대해 shown.bs.modal 가동하고
+					isModalOpen = true; // 모달이 열리면 true로 설정
+					
+					// 모바일에서 z-index 강제 설정 및 리스트 모달 backdrop 숨기기
+					if (window.innerWidth <= 768) {
+						// 리스트 모달의 backdrop 완전히 비활성화 (상세 모달이 열릴 때)
+						setTimeout(function() {
+							$('.modal-backdrop').each(function(index, element) {
+								var $backdrop = $(element);
+								// 마지막 backdrop이 아니면 (리스트 모달의 backdrop) 숨기기
+								if (!$backdrop.is(':last')) {
+									$backdrop.css({
+										'display': 'none',
+										'visibility': 'hidden',
+										'pointer-events': 'none',
+										'z-index': '1040',
+										'opacity': '0'
+									});
+								} else {
+									// 상세 모달의 backdrop만 활성화
+									$backdrop.css({
+										'z-index': '1060',
+										'pointer-events': 'auto',
+										'display': 'block',
+										'visibility': 'visible',
+										'opacity': '0.8'
+									});
+								}
+							});
+						}, 50);
+						
+						$("#eworks_viewmodal").css({
+							'z-index': '1065',
+							'display': 'block'
+						});
+						$("#eworks_viewmodal .modal-dialog").css({
+							'z-index': '1065'
+						});
+						$("#eworks_viewmodal .modal-content").css({
+							'z-index': '1065'
+						});
+						console.log('모바일 상세 모달 z-index 강제 설정 완료, 리스트 모달 backdrop 숨김');
+					}
+					
+					// PC에서만 숨김 (모바일은 토글로 제어)
+					if (window.innerWidth > 768) {
+						$('.sideEworksBanner').css('display', 'none'); // sideEworksBanner 숨김
+					}
 						
 						 
 						  // 모달창에서 
@@ -2663,9 +2782,14 @@ deleteSelectedEworks = function ()
 	if ($('#eworks_board_form').length > 0) {
 		console.log('전자결재 폼 발견, 데이터 로드 시작');
 		// 약간의 지연을 주어 DOM이 완전히 로드되도록 함
+		// 모바일/PC 모두에서 한 번만 호출
 		setTimeout(function() {
-			load_eworkslist();
-		}, 500);
+			if (!load_eworkslist_isLoading) {
+				load_eworkslist();
+			} else {
+				console.log('페이지 로드 시 load_eworkslist 이미 로딩 중: 호출 건너뜀');
+			}
+		}, 1000); // 1초 지연으로 다른 초기화 작업 완료 대기
 	} else {
 		console.warn('전자결재 폼(eworks_board_form)이 존재하지 않습니다');
 	}
@@ -2710,7 +2834,6 @@ function eworks_movetoPage(eworksPage)
 // 전자결재를 클릭하면 최초 실행되는 것	
 function eworksList()
 {	
-
 	 var URL =	"/eworks/load_list.php";	
 		   
 		if (ajaxRequest !== null) {
@@ -2801,73 +2924,122 @@ function eworksList()
 		})
 		})		  
 	  
-				
-	setTimeout(function(){ 
-		$("#eworks_form").modal("show");
-	 }, 800); //중복 방지를 위해 타임아웃 설정    
+	// 모바일에서는 모달을 열지 않음 (PC에서만 모달 열기)
+	if (window.innerWidth > 768) {
+		setTimeout(function(){ 
+			$("#eworks_form").modal("show");
+		}, 800); //중복 방지를 위해 타임아웃 설정    
 
-	$("#eworks_form").on("shown.bs.modal", function () {
-		isModalOpen = true; // 모달이 열리면 true로 설정
-		// PC에서만 숨김 (모바일은 토글로 제어)
-		if (window.innerWidth > 768) {
+		// 이벤트 핸들러 중복 방지를 위해 기존 핸들러 제거
+		$("#eworks_form").off("shown.bs.modal");
+		
+		$("#eworks_form").on("shown.bs.modal", function () {
+			isModalOpen = true; // 모달이 열리면 true로 설정
 			$('.sideEworksBanner').css('display', 'none'); // sideEworksBanner 숨김
-		}
-			  
-	  // 뒷배경 누를때 안닫히게
-		$('#eworks_form').modal( {
-			backdrop: 'static', keyboard : false });		
+			// PC에서는 뒷배경 누를때 안닫히게
+			$('#eworks_form').modal( {
+				backdrop: 'static', keyboard : false 
+			});
+		});
+	} else {
+		// 모바일에서는 모달을 열지 않고 바로 내용 표시
+		isModalOpen = false; // 모바일에서는 모달이 열려있지 않음
+		console.log('모바일: 모달 열기 건너뜀, 내용만 표시');
+		
+		// 모바일에서도 버튼 이벤트 처리
+		$('#E_searchBtn').off('click').on('click', function(e) {
+			e.preventDefault();
+		});
+		
+		$('.btnClear').off('click').on('click', function(e) {
+			e.preventDefault();
+		});
+		
+		enterkey = function() {
+			let url = '/eworks/list.php';
+			showEworksLoadingIndicator();
+			
+			if (ajaxRequest1 !== null) {
+				ajaxRequest1.abort();
+			}
+			
+			ajaxRequest1 = $.ajax({
+				url: url,
+				type: 'POST',
+				data: $("#eworks_board_form").serialize(),
+				success: function(response) {
+					$('#eworks_list').html(response);
+					hideEworksLoadingIndicator();
+				},
+				error: function(jqxhr, status, error) {
+					console.log(jqxhr, status, error);
+					hideEworksLoadingIndicator();
+				}
+			});
+		};
+		
+		$("#E_searchAllBtn").click(function() {
+			$('#search').val('');
+			enterkey();
+		});
+	}
 
-			  // 모달창에서 버튼 이벤트 막기 처리 행추가
-		  $('#E_searchBtn').on('click', function(e) {
-				e.preventDefault(); // 기본 이벤트 동작 막기
-			// 클릭 이벤트 처리 로직    
-		  });	  
-		  
-		  // 모달창에서 버튼 이벤트 막기 처리 행추가
-		  $('.btnClear').on('click', function(e) {
-				e.preventDefault(); // 기본 이벤트 동작 막기
-			// 클릭 이벤트 처리 로직    
-		  });				  
-			  
-		 enterkey = function() {
-			 
-			 let url = '/eworks/list.php';
-			 
-			 showEworksLoadingIndicator(); // 로딩 시작
+	// PC에서만 shown.bs.modal 이벤트 핸들러 등록
+	if (window.innerWidth > 768) {
+		$("#eworks_form").on("shown.bs.modal", function () {
+			// 모달창에서 버튼 이벤트 막기 처리 행추가 (중복 방지)
+			$('#E_searchBtn').off('click').on('click', function(e) {
+				e.preventDefault();
+			});
+			
+			$('.btnClear').off('click').on('click', function(e) {
+				e.preventDefault();
+			});
+			
+			enterkey = function() {
+				let url = '/eworks/list.php';
+				showEworksLoadingIndicator();
 			 
 				if (ajaxRequest1 !== null) {
 					ajaxRequest1.abort();
 				}
-
-					 // ajax 요청 생성
-				 ajaxRequest1 =$.ajax({
-					  url:  url ,
-					  type: 'POST',
-					  data: $("#eworks_board_form").serialize() ,
-					  success: function(response) {					  
-								$('#eworks_list').html(response);
-								hideEworksLoadingIndicator(); // 로딩 완료
+				
+				ajaxRequest1 = $.ajax({
+					url: url,
+					type: 'POST',
+					data: $("#eworks_board_form").serialize(),
+					success: function(response) {
+						$('#eworks_list').html(response);
+						hideEworksLoadingIndicator();
 					},
-				error : function( jqxhr , status , error ){
-					console.log( jqxhr , status , error );
-					hideEworksLoadingIndicator(); // 오류 시에도 로딩 완료
-							} 
-				 });					
-			}	
-
-			// search all
-			$("#E_searchAllBtn").click( function() {
-					
-				$('#search').val(''); 	
-					enterkey();
-					
-				});		
+					error: function(jqxhr, status, error) {
+						console.log(jqxhr, status, error);
+						hideEworksLoadingIndicator();
+					}
+				});
+			};
+			
+			$("#E_searchAllBtn").click(function() {
+				$('#search').val('');
+				enterkey();
+			});
+		});
+	}
 	
-	});	  // end of shown modal
+	// 이벤트 핸들러 중복 방지를 위해 기존 핸들러 제거
+	$("#eworks_form").off("hidden.bs.modal");
 	
 	$("#eworks_form").on("hidden.bs.modal", function () {
 		// 여기에 모달이 닫힐 때 실행할 함수를 작성하세요
 		isModalOpen = false; // 모달이 닫히면 false로 설정
+		
+		// 모바일에서는 페이지 새로고침하므로 load_eworkslist() 호출하지 않음
+		if (window.innerWidth <= 768) {
+			console.log('모바일: 모달 닫힘, 페이지 새로고침 예정 (load_eworkslist 호출 안 함)');
+			return;
+		}
+		
+		// PC에서만 badge 업데이트
 		load_eworkslist();
 	});	
 	
@@ -2919,13 +3091,39 @@ function setRef()
 }
 
 // 전자결재 각 항목별 해당 숫자 읽기
+var load_eworkslist_timer = null; // 디바운싱 타이머
+var load_eworkslist_isLoading = false; // 로딩 중 플래그
+var load_eworkslist_lastCall = 0; // 마지막 호출 시간
+var load_eworkslist_minInterval = 2000; // 최소 호출 간격 (2초)
+
 function load_eworkslist()
 {	
-	if ($('#eworks_board_form').length) {		
-		let url = '/eworks/load_eworks.php';
-		if (ajaxRequest4 !== null) {
-				ajaxRequest4.abort();
-		}
+	// 이미 로딩 중이면 호출하지 않음
+	if (load_eworkslist_isLoading) {
+		console.log('load_eworkslist 이미 로딩 중: 호출 건너뜀');
+		return;
+	}
+	
+	// 최소 호출 간격 체크 (너무 자주 호출되지 않도록)
+	var now = Date.now();
+	if (now - load_eworkslist_lastCall < load_eworkslist_minInterval) {
+		console.log('load_eworkslist 최소 호출 간격 미달: 호출 건너뜀', (now - load_eworkslist_lastCall) + 'ms');
+		return;
+	}
+	
+	// 디바운싱: 1000ms 이내에 여러 번 호출되면 마지막 호출만 실행
+	if (load_eworkslist_timer) {
+		clearTimeout(load_eworkslist_timer);
+	}
+	
+	load_eworkslist_timer = setTimeout(function() {
+		load_eworkslist_isLoading = true; // 로딩 시작
+		load_eworkslist_lastCall = Date.now(); // 호출 시간 기록
+		if ($('#eworks_board_form').length) {		
+			let url = '/eworks/load_eworks.php';
+			if (ajaxRequest4 !== null) {
+					ajaxRequest4.abort();
+			}
 
 		 // ajax 요청 생성
 		 ajaxRequest4 = $.ajax({
@@ -2934,7 +3132,7 @@ function load_eworkslist()
 				  data: $("#eworks_board_form").serialize() ,
 				  dataType:"json",	  
 				  success : function(data){
-
+					
 				             console.log('=== 전자결재 데이터 로드 성공 ===');
 				             console.log('받은 데이터:', data);
 							 console.log('데이터 타입:', typeof data);
@@ -3033,17 +3231,29 @@ function load_eworkslist()
 							
 							// $('#displaytmp').text(data["sql"]); // sql
 				 
-					},
+					// 성공 후 플래그 해제 (약간의 지연을 두어 중복 호출 방지)
+					setTimeout(function() {
+						load_eworkslist_isLoading = false;
+						console.log('load_eworkslist 로딩 완료, 플래그 해제');
+					}, 500);
+					}, 
 					error : function( jqxhr , status , error ){
 						console.error('=== 전자결재 데이터 로드 실패 ===');
 						console.error('Status:', status);
 						console.error('Error:', error);
 						console.error('Response:', jqxhr.responseText);
+						// 로딩 실패 시 플래그 해제 (약간의 지연을 두어 중복 호출 방지)
+						setTimeout(function() {
+							load_eworkslist_isLoading = false;
+							console.log('load_eworkslist 로딩 실패, 플래그 해제');
+						}, 500);
 				}
 			   });
-	} else {
-		console.warn('eworks_board_form이 페이지에 존재하지 않습니다');
-	}
+		} else {
+			console.warn('eworks_board_form이 페이지에 존재하지 않습니다');
+			load_eworkslist_isLoading = false; // 플래그 해제
+		}
+	}, 1000); // 1000ms 디바운싱 (1초)
 }
 
 function seltab(e_num) 
@@ -3122,10 +3332,28 @@ function refresheworks() {
 			console.log('목록 로드 완료, 길이:', response.length);
 			$('#eworks_list').html(response);
 			
-			// eworksList()로 JSON 데이터 로드
-			eworksList();
-			
-			// 로딩 인디케이터는 eworksList() 완료 후 숨김
+			// 모바일에서도 내용이 표시되도록 강제 적용
+			if (window.innerWidth <= 768) {
+				setTimeout(function() {
+					$('#eworks_list').css({
+						'display': 'block',
+						'visibility': 'visible',
+						'opacity': '1',
+						'height': 'auto',
+						'width': '100%'
+					});
+					console.log('모바일: 목록 내용 강제 표시');
+					
+					// 모바일에서 행 클릭 이벤트 바인딩
+					bindMobileRowClickEvents();
+					
+					hideEworksLoadingIndicator();
+				}, 100);
+			} else {
+				// PC에서는 eworksList()로 JSON 데이터 로드
+				eworksList();
+				// 로딩 인디케이터는 eworksList() 완료 후 숨김
+			}
 		},
 		error: function(jqxhr, status, error) {
 			console.log('목록 로드 오류:', jqxhr, status, error);
@@ -3368,4 +3596,30 @@ function loadAttachedFiles(tablename, num) {
             }
         }
     });
+}
+
+// 모바일에서 행 클릭 이벤트 바인딩 함수
+function bindMobileRowClickEvents() {
+    if (window.innerWidth <= 768) {
+        // 모바일에서 모든 클릭 가능한 셀에 터치 이벤트 바인딩
+        $(document).off('click touchstart', '#eworks_form .table tbody .d-md-none td[onclick]');
+        
+        $(document).on('click touchstart', '#eworks_form .table tbody .d-md-none td[onclick]', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            var onclickAttr = $(this).attr('onclick');
+            if (onclickAttr) {
+                var match = onclickAttr.match(/viewEworks_detail\(['"]([^'"]+)['"],\s*(\d+)\)/);
+                if (match) {
+                    var e_num = match[1];
+                    var eworksPage = parseInt(match[2]);
+                    console.log('모바일 행 클릭:', e_num, eworksPage);
+                    viewEworks_detail(e_num, eworksPage);
+                }
+            }
+            return false;
+        });
+        console.log('모바일 행 클릭 이벤트 바인딩 완료');
+    }
 }

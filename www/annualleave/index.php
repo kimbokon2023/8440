@@ -316,7 +316,7 @@ $title_message = '직원 연차';
 
 <script>
     function view(num) {
-        popupCenter('write_form_ask.php?num=' + num + '&viewoption=1', '데이터등록', 500, 800);
+        popupCenter('write_form_ask.php?num=' + num + '&viewoption=1', '데이터등록', 650, 800);
     }
 
     $(document).ready(function() {
@@ -325,11 +325,11 @@ $title_message = '직원 연차';
         });
 
         $("#writeBtn").click(function() {
-            popupCenter('write_form_ask.php', '등록/수정/삭제', 420, 720);
+            popupCenter('write_form_ask.php', '등록/수정/삭제', 650, 600);
         });
 
         $("#massBtn").click(function() {
-            popupCenter('write_form_mass.php', '대량등록', 420, 820);
+            popupCenter('write_form_mass.php', '대량등록', 650, 800);
         });
 
         $("#searchBtn").click(function() {

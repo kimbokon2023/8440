@@ -34,7 +34,7 @@ try {
     $pdo = db_connect();
     
     // 발주서 정보 조회
-    $sql = "SELECT * FROM `order` WHERE id = :id AND is_deleted = 0";
+    $sql = "SELECT * FROM `orders` WHERE id = :id AND is_deleted = 0";
     $stmt = $pdo->prepare($sql);
     $stmt->bindValue(':id', $id, PDO::PARAM_INT);
     $stmt->execute();

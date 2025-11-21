@@ -1,7 +1,7 @@
 <?php
 /**
  * 거래처 검색 API
- * order/write_form.php에서 사용
+ * orders/write_form.php에서 사용
  */
 
 require_once __DIR__ . '/../common/functions.php';

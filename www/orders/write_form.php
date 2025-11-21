@@ -19,7 +19,7 @@ $WebSite = $base_url . '/';
 
 // 권한 체크
 if (!isset($_SESSION["level"]) || $level > 5) {
-    $_SESSION["url"] = "{$base_url}/order/write_form.php";
+    $_SESSION["url"] = "{$base_url}/orders/write_form.php";
     sleep(1);
     header("Location: {$WebSite}login/logout.php");
     exit;
@@ -74,7 +74,7 @@ if (!empty($cart_items_param)) {
 // 수정 모드일 경우 기존 데이터 조회
 $order_data = null;
 if ($id > 0) {
-    $stmt = $pdo->prepare("SELECT * FROM `order` WHERE id = :id AND is_deleted = 0");
+    $stmt = $pdo->prepare("SELECT * FROM `orders` WHERE id = :id AND is_deleted = 0");
     $stmt->execute([':id' => $id]);
     $order_data = $stmt->fetch();
 
@@ -1152,8 +1152,9 @@ function collectFormData() {
     var basicFields = [
         'action', 'id', 'order_no', 'issue_date', 'supplier_code',
         'supplier_name', 'supplier_address', 'business_type', 'business_item',
-        'supplier_phone', 'supplier_fax', 'contact_name', 'phone', 'fax',
-        'delivery_date', 'delivery_location', 'payment_terms', 'note', 'status'
+        'supplier_phone', 'supplier_fax', 'contact_name', 'business_registration_number',
+        'phone', 'fax', 'project_site', 'delivery_date', 'delivery_location',
+        'payment_terms', 'note', 'status'
     ];
     
     basicFields.forEach(function(fieldName) {
@@ -1164,6 +1165,17 @@ function collectFormData() {
             console.log('📌 [DEBUG] ' + fieldName + ':', value);
         } else {
             console.warn('⚠️ [DEBUG] 필드를 찾을 수 없음: ' + fieldName);
+        }
+    });
+    
+    // Hidden input 필드들 수집 (cart_items 등)
+    var hiddenInputs = document.querySelectorAll('input[type="hidden"]');
+    hiddenInputs.forEach(function(input) {
+        var name = input.name;
+        var value = input.value;
+        if (name && !basicFields.includes(name)) {
+            formData.append(name, value);
+            console.log('📌 [DEBUG] Hidden field ' + name + ':', value);
         }
     });
     
@@ -1609,6 +1621,5 @@ window.onload = function() {
             customerSearchModal.hide();
         }
     </script>
-
 </body>
 </html>

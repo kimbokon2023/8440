@@ -93,9 +93,40 @@
 
 	// Menu Dropdown Toggle
 	if($('.menu-trigger').length){
-		$(".menu-trigger").on('click', function() {	
-			$(this).toggleClass('active');
-			$('.header-area .nav').slideToggle(200);
+		// 초기 로딩 시 모바일에서 메뉴가 닫혀있도록 보장
+		$(document).ready(function() {
+			var width = $(window).width();
+			if (width < 768) {
+				$('.menu-trigger').removeClass('active');
+				$('.header-area .nav').removeClass('nav-open');
+			}
+		});
+		
+		$(".menu-trigger").on('click', function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			
+			var $nav = $('.header-area .nav');
+			var $trigger = $(this);
+			var width = $(window).width();
+			
+			// 모바일에서만 동작
+			if (width < 768) {
+				if ($trigger.hasClass('active')) {
+					// 메뉴가 열려있으면 닫기
+					$trigger.removeClass('active');
+					$nav.stop(true, true).slideUp(200, function() {
+						$nav.removeClass('nav-open');
+					});
+				} else {
+					// 메뉴가 닫혀있으면 열기
+					$trigger.addClass('active');
+					$nav.addClass('nav-open');
+					// CSS !important를 우회하기 위해 먼저 display를 block으로 설정
+					$nav.css('display', 'block');
+					$nav.hide().stop(true, true).slideDown(200);
+				}
+			}
 		});
 	}
 
@@ -108,12 +139,29 @@
                 var width = $(window).width();
                 if (width < 767) {
                     $('.menu-trigger').removeClass('active');
-                    $('.header-area .nav').slideUp(200);
+                    $('.header-area .nav').removeClass('nav-open');
+                    $('.header-area .nav').stop(true, true).slideUp(200);
                 }
                 $('html,body').animate({
                     scrollTop: (target.offset().top) - 80
                 }, 700);
                 return false;
+            }
+        }
+    });
+    
+    // 모바일에서 모든 메뉴 링크 클릭 시 메뉴바 닫기
+    $(document).on('click', '.header-area .nav a', function() {
+        var width = $(window).width();
+        if (width < 768) {
+            // 드롭다운 토글 버튼이 아닌 경우에만 메뉴 닫기
+            if (!$(this).hasClass('dropdown-toggle')) {
+                $('.menu-trigger').removeClass('active');
+                $('.header-area .nav').removeClass('nav-open');
+                $('.header-area .nav').stop(true, true).slideUp(200);
+                // 드롭다운도 모두 닫기
+                $('.dropdown').removeClass('dropdown-open');
+                $('.dropdown-menu').stop(true, true).slideUp(200);
             }
         }
     });

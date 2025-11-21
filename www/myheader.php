@@ -288,7 +288,7 @@
                     구매/발주/자재
                 </a>								
 				<div class="dropdown-menu">
-					<a class="dropdown-item" href="<?=$root_dir?>/order/index.php">
+					<a class="dropdown-item" href="<?=$root_dir?>/orders/index.php">
 						<i class="bi bi-clipboard-check"></i> 발주 리스트
 					</a>    										
 					<a class="dropdown-item" href="<?=$root_dir?>/corp/index.php">
@@ -799,7 +799,7 @@
 				</h2>
 				<div id="collapsePurchase" class="accordion-collapse collapse" data-bs-parent="#mobileMenuAccordion">
 					<div class="accordion-body p-0">
-						<a href="<?=$root_dir?>/order/index.php" class="mobile-sub-link"><i class="bi bi-clipboard-check"></i> 발주 리스트</a>
+						<a href="<?=$root_dir?>/orders/index.php" class="mobile-sub-link"><i class="bi bi-clipboard-check"></i> 발주 리스트</a>
 						<a href="<?=$root_dir?>/corp/index.php" class="mobile-sub-link"><i class="bi bi-building"></i> 거래처 관리</a>
 						<a href="<?=$root_dir?>/askitem/list.php" class="mobile-sub-link"><i class="bi bi-basket3"></i> 품의서</a>
 						<a href="<?=$root_dir?>/request/list.php" class="mobile-sub-link"><i class="bi bi-cart-check"></i> 원자재 구매/입출고</a>

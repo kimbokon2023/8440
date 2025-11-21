@@ -1,7 +1,7 @@
 -- 구매발주서(Purchase Order) 테이블 생성 SQL
 -- 미래기업 ERP 시스템용
 
-CREATE TABLE `order` (
+CREATE TABLE `orders` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
     `order_no` VARCHAR(50) DEFAULT NULL COMMENT '발주서 번호',
     `issue_date` DATE NOT NULL COMMENT '발주일자',

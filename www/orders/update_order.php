@@ -94,7 +94,7 @@ try {
     }
 
     // SQL 실행
-    $sql = "UPDATE `order` SET " . implode(', ', $updateFields) . " WHERE id = :id AND is_deleted = 0";
+    $sql = "UPDATE `orders` SET " . implode(', ', $updateFields) . " WHERE id = :id AND is_deleted = 0";
     $stmt = $pdo->prepare($sql);
 
     foreach ($params as $key => $value) {

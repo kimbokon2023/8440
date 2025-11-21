@@ -1256,38 +1256,98 @@ function WrapdisplayPictureLoad() {
 
 
     // 도면폴더 클릭시 실행
-    $("#dwgclick").click(function() {
-        // Link = "file://nas2dual/%EC%9E%A0%EC%99%84%EB%A3%8C/";
-
+    $("#dwgclick").click(function(e) {
+        e.preventDefault();
+        
         var Urls = <?php echo json_encode($dwglocation); ?>;	
-					
-		Urls = "\\\\nas2dual\\천장완료\\" + Urls;	
-		
-	   $('#insertword').val(Urls)
-	   
-	 // var obj = document.getElementById('insertword'); 
-	 // obj.select();  //인풋 컨트롤의 내용 전체 선택  
-	 // document.execCommand("copy");  //복사    
-	 
-		tmp = "<br> 도면저장 폴더위치가 복사되었습니다. <br> 탐색기에 'Ctrl+v'로 붙여넣기 하세요! <br>";				
-		$('#alertmsg').html(tmp); 
-	   $('#myModal').modal('show');		   
-		  
-	   clipboardCopy('insertword');		
-		   
-		setTimeout(function() { 
-	  var obj = document.getElementById('insertword'); 
-	  obj.select();  //인풋 컨트롤의 내용 전체 선택  
-	  document.execCommand("copy");  //복사        
-		}, 500);	   	   
-		
-		setTimeout(function() { 
-			 $('#myModal').modal('hide');	      
-		}, 1500);	   
-	   
-	   // clipboardCopy('insertword');		
-	
-	});
+        Urls = "\\\\nas2dual\\천장완료\\" + Urls;	
+        
+        // insertword 요소에 값 설정 (hidden 상태로 유지)
+        var insertwordEl = document.getElementById('insertword');
+        if (insertwordEl) {
+            insertwordEl.value = Urls;
+        }
+        
+        // 최신 Clipboard API 사용 (권장 방법)
+        if (navigator.clipboard && window.isSecureContext) {
+            // HTTPS 환경이거나 localhost에서 작동
+            navigator.clipboard.writeText(Urls).then(function() {
+                var tmp = "<br> 도면저장 폴더위치가 복사되었습니다. <br> 탐색기에 'Ctrl+v'로 붙여넣기 하세요! <br>";				
+                $('#alertmsg').html(tmp); 
+                $('#myModal').modal('show');
+                
+                setTimeout(function() { 
+                    $('#myModal').modal('hide');
+                    $('#insertword').hide();
+                }, 2000);
+            }).catch(function(err) {
+                console.error('클립보드 복사 실패:', err);
+                // Fallback: 구형 방식 사용
+                fallbackCopy(Urls);
+            });
+        } else {
+            // Fallback: 구형 방식 사용
+            fallbackCopy(Urls);
+        }
+    });
+    
+    // Fallback 복사 함수 (구형 브라우저 지원)
+    function fallbackCopy(text) {
+        var insertwordEl = document.getElementById('insertword');
+        if (!insertwordEl) {
+            console.error('insertword 요소를 찾을 수 없습니다.');
+            alert('복사 기능을 사용할 수 없습니다. 폴더 경로를 수동으로 복사해주세요:\n' + text);
+            return;
+        }
+        
+        // insertword 요소를 임시로 보이게 만들어서 복사 (화면 밖에 위치)
+        var originalDisplay = insertwordEl.style.display || '';
+        var originalPosition = insertwordEl.style.position || '';
+        var originalLeft = insertwordEl.style.left || '';
+        
+        insertwordEl.style.display = 'block';
+        insertwordEl.style.position = 'absolute';
+        insertwordEl.style.left = '-9999px';
+        insertwordEl.style.top = '0';
+        
+        insertwordEl.value = text;
+        insertwordEl.focus();
+        insertwordEl.select();
+        insertwordEl.setSelectionRange(0, 99999); // 모바일 지원
+        
+        try {
+            var successful = document.execCommand("copy");
+            
+            // 원래 스타일로 복원
+            insertwordEl.style.display = originalDisplay;
+            insertwordEl.style.position = originalPosition;
+            insertwordEl.style.left = originalLeft;
+            insertwordEl.style.top = '';
+            insertwordEl.blur();
+            
+            if (successful) {
+                var tmp = "<br> 도면저장 폴더위치가 복사되었습니다. <br> 탐색기에 'Ctrl+v'로 붙여넣기 하세요! <br>";				
+                $('#alertmsg').html(tmp); 
+                $('#myModal').modal('show');
+                
+                setTimeout(function() { 
+                    $('#myModal').modal('hide');
+                }, 2000);
+            } else {
+                alert('복사에 실패했습니다. 폴더 경로를 수동으로 복사해주세요:\n' + text);
+            }
+        } catch (err) {
+            // 원래 스타일로 복원
+            insertwordEl.style.display = originalDisplay;
+            insertwordEl.style.position = originalPosition;
+            insertwordEl.style.left = originalLeft;
+            insertwordEl.style.top = '';
+            insertwordEl.blur();
+            
+            console.error('복사 실패:', err);
+            alert('복사 기능을 사용할 수 없습니다. 폴더 경로를 수동으로 복사해주세요:\n' + text);
+        }
+    }
 	
 
 	// rendering 사진 멀티업로드	

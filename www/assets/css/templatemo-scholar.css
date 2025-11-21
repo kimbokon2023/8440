@@ -373,6 +373,8 @@ Header Style
   flex-basis: 100%;
   margin-right: 0px;
   justify-content: right;
+  align-items: center;
+  display: flex;
   -webkit-transition: all 0.3s ease 0s;
   -moz-transition: all 0.3s ease 0s;
   -o-transition: all 0.3s ease 0s;
@@ -388,8 +390,9 @@ Header Style
 .header-area .main-nav .nav li {
   padding-left: 5px;
   padding-right: 5px;
-  height: 40px;
-  line-height: 40px;
+  height: auto;
+  display: flex;
+  align-items: center;
 }
 
 .header-area .main-nav .nav li a {
@@ -604,6 +607,13 @@ Header Style
     top: 15px;
     right: 70px;
   }
+  .header-area .main-nav .menu-trigger {
+    display: block !important;
+    position: fixed !important;
+    top: 15px !important;
+    right: 20px !important;
+    z-index: 1003 !important;
+  }
   .header-area.header-sticky .nav li a:hover,
   .header-area.header-sticky .nav li a.active {
     color: #7a6ad8!important;
@@ -632,15 +642,24 @@ Header Style
   .header-area .main-nav {
     overflow: hidden;
   }
-  .header-area .main-nav .nav {
+  .header-area .main-nav .nav:not(.nav-open) {
     float: none;
     width: 100%;
-    display: none;
+    display: none !important;
     -webkit-transition: all 0s ease 0s;
     -moz-transition: all 0s ease 0s;
     -o-transition: all 0s ease 0s;
     transition: all 0s ease 0s;
     margin-left: 0px;
+  }
+  .header-area .main-nav .nav {
+    float: none;
+    width: 100%;
+    margin-left: 0px;
+  }
+  .header-area .main-nav .menu-trigger.active ~ .nav.nav-open,
+  .header-area .main-nav .nav.nav-open {
+    display: block !important;
   }
   .header-area .main-nav .nav li:first-child {
     border-top: 1px solid #eee;
@@ -1904,5 +1923,53 @@ body {
   }
   .fun-facts:before {
     width: 95%;
+  }
+}
+
+/* 모바일 SNS 아이콘 스타일 */
+@media (max-width: 767px) {
+  .logo-sns-container {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 30px !important;
+    z-index: 1000 !important;
+    background: transparent !important;
+  }
+  .header-area .main-nav .logo {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+  }
+  .header-area .main-nav {
+    position: relative !important;
+  }
+  .header-area .main-nav .menu-trigger {
+    display: block !important;
+    position: fixed !important;
+    top: 15px !important;
+    right: 20px !important;
+    z-index: 1003 !important;
+  }
+  .mobile-sns-icons {
+    display: flex !important;
+  }
+  .desktop-sns-icons {
+    display: none !important;
+  }
+  .header-area .main-nav ul.nav {
+    margin-top: 60px !important;
+  }
+}
+
+/* PC SNS 아이콘 스타일 */
+@media (min-width: 768px) {
+  .mobile-sns-icons {
+    display: none !important;
+  }
+  .desktop-sns-icons {
+    display: flex !important;
   }
 }

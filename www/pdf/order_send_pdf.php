@@ -53,17 +53,16 @@ if (!isset($_SESSION["level"]) || $level > 5) {
 try {
     $pdo = db_connect();
     $DB = $_SESSION['DB'] ?? 'mirae8440';
-    
-    $sql = "SELECT * FROM `order` WHERE id = :id AND is_deleted = 0";
+
+    $sql = "SELECT * FROM `orders` WHERE id = :id AND is_deleted = 0";
     $stmt = $pdo->prepare($sql);
     $stmt->bindValue(':id', $id, PDO::PARAM_INT);
     $stmt->execute();
-    $order = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+    $order = $stmt->fetch(PDO::FETCH_ASSOC);    
     if (!$order) {
         http_response_code(404);
         exit('발주서를 찾을 수 없습니다.');
-    }
+    }    
 } catch (PDOException $e) {
     error_log("발주서 조회 오류: " . $e->getMessage());
     http_response_code(500);
@@ -89,12 +88,13 @@ $contact_name = $order['contact_name'] ?? '';
 $phone = $order['phone'] ?? '';
 $fax = $order['fax'] ?? '';
 $business_registration_number = $order['business_registration_number'] ?? '';
-$project_site = $order['project_site'] ?? '';
+
 $delivery_date = $order['delivery_date'] ?? '';
 $delivery_location = $order['delivery_location'] ?? '';
 $payment_terms = $order['payment_terms'] ?? '';
 $valid_date = $order['valid_date'] ?? '';
 $note = $order['note'] ?? '';
+$project_site = $order['project_site'] ?? '';
 
 // 합계 계산
 $total_supply = 0;
@@ -215,7 +215,7 @@ ob_start();
 <head>
 <meta charset="utf-8">
 <style>
-  @page { margin: 20mm 15mm 20mm 15mm; }
+  @page { margin: 10mm 8mm 10mm 8mm; }
 
   @font-face {
     font-family: 'NotoSansKR';
@@ -321,7 +321,7 @@ ob_start();
   .supplier-table th,
   .supplier-table td {
     border: 1px solid #000;
-    padding: 3pt 4pt;
+    padding: 2pt 3pt;
     vertical-align: middle;
     font-size: 7.2pt; /* 9pt의 80% */
   }
@@ -374,12 +374,12 @@ ob_start();
     width: 100%;
     border-collapse: collapse;
     font-size: 9pt;
-    margin-top: 10pt;
+    margin-top: 6pt;
   }
 
   table th, table td {
     border: 1px solid #000;
-    padding: 5pt 6pt;
+    padding: 3pt 4pt;
     vertical-align: middle;
   }
 
@@ -433,6 +433,13 @@ ob_start();
 </div>
 <?php endif; ?>
 
+<?php
+    // echo '<pre>';
+    // print_r($order);
+    // echo '</pre>';
+    // exit;
+?>
+
 <!-- 상단 레이아웃 -->
 <div class="top-layout">
   <!-- 좌측: 수신처 정보 -->
@@ -443,17 +450,15 @@ ob_start();
       </div>
       <div class="recipient-detail">
         <div><strong>발주일자:</strong> <?= $ymdKorean($issue_date) ?></div>
-        <?php if (!empty($phone) || !empty($fax)): ?>
         <div>
-          <?php if (!empty($phone)): ?>
-          <strong>전화번호:</strong> <?= $esc($formatPhone($phone)) ?>
-          <?php endif; ?>
-          <?php if (!empty($phone) && !empty($fax)): ?> | <?php endif; ?>
+          <strong style="display: inline-block; vertical-align: middle;">전화번호:</strong> <span style="display: inline-block; min-width: 100pt; vertical-align: middle; margin-left: 4pt;"><?= !empty($phone) ? $esc($formatPhone($phone)) : '&nbsp;' ?></span>
           <?php if (!empty($fax)): ?>
-          <strong>팩스번호:</strong> <?= $esc($formatPhone($fax)) ?>
+          <strong style="margin-left: 8pt; vertical-align: middle;">팩스번호:</strong> <span style="margin-left: 4pt; vertical-align: middle;"><?= $esc($formatPhone($fax)) ?></span>
           <?php endif; ?>
         </div>
-        <?php endif; ?>
+        <div style="font-size: 12pt; margin-top: 6pt; font-weight: 600;">
+          <strong>프로젝트/현장명: <?= $esc($order['project_site']) ?> </strong>
+        </div>
       </div>
     </div>
   </div>
@@ -467,12 +472,12 @@ ob_start();
           <div style="line-height: 1.2;">주</div>
           <div style="line-height: 1.2;">자</div>
         </th>
-        <th style="width: 20%;">등록번호</th>
-        <td style="width: 30%; white-space: nowrap; min-width: 80pt;"><?= $esc($business_registration_number ?: '722-88-00035') ?></td>
-        <th style="width: 10%;">상호</th>
-        <td class="fw700" style="width: 40%;"><?= $esc($supplier_name) ?></td>
+        <th>등록번호</th>
+        <td colspan="3" style="white-space: nowrap;"><?= $esc($business_registration_number ?: '722-88-00035') ?></td>
       </tr>
       <tr>
+        <th>상호</th>
+        <td class="fw700"><?= $esc($supplier_name) ?></td>
         <th>성명</th>
         <td style="position: relative;">
           소현철
@@ -504,8 +509,12 @@ ob_start();
           }
           ?>
         </td>
+      </tr>
+      <tr>
         <th>전화번호</th>
         <td><?= $esc($formatPhone($supplier_phone)) ?></td>
+        <th>팩스번호</th>
+        <td><?= $esc($formatPhone($supplier_fax)) ?></td>
       </tr>
       <tr>
         <th>주소</th>
@@ -516,10 +525,6 @@ ob_start();
         <td><?= $esc($business_type) ?></td>
         <th>종목</th>
         <td><?= $esc($business_item) ?></td>
-      </tr>
-      <tr>
-        <th>팩스번호</th>
-        <td colspan="3"><?= $esc($formatPhone($supplier_fax)) ?></td>
       </tr>
     </table>
   </div>
@@ -535,11 +540,6 @@ ob_start();
     <span class="total-amount-value">일금 <?= $nf($grand_total) ?>원정</span>
     <span style="font-size: 9pt; margin-left: 4pt;">(부가세포함)</span>
   </div>
-  <?php if (!empty($project_site)): ?>
-  <div style="margin-top: 6pt;">
-    <strong>프로젝트/현장:</strong> <?= $esc($project_site) ?>
-  </div>
-  <?php endif; ?>
 </div>
 
 <!-- 품목 내역 테이블 -->
@@ -547,13 +547,13 @@ ob_start();
 <table>
   <thead>
     <tr>
-      <th style="width: 6%;">순번</th>
-      <th style="width: 30%;">품목</th>
-      <th style="width: 12%;">규격</th>
-      <th style="width: 8%;">수량</th>
+      <th style="width: 5%;">순번</th>
+      <th style="width: 28%;">품목</th>
+      <th style="width: 18%;">규격</th>
+      <th style="width: 7%;">수량</th>
       <th style="width: 10%;">단가</th>
-      <th style="width: 12%;">공급가액</th>
-      <th style="width: 12%;">세액</th>
+      <th style="width: 11%;">공급가액</th>
+      <th style="width: 11%;">세액</th>
       <th style="width: 10%;">비고</th>
     </tr>
   </thead>
@@ -588,13 +588,6 @@ ob_start();
 </html>
 <?php
 $html = ob_get_clean();
-
-// 디버그 미리보기
-if ($debug) {
-    header('Content-Type: text/html; charset=UTF-8');
-    echo $html;
-    exit;
-}
 
 // PDF 렌더/출력
 try {

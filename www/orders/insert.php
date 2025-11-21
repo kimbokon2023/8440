@@ -90,6 +90,7 @@ try {
 $action = $_POST['action'] ?? '';
 $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
 $cart_items_param = $_POST['cart_items'] ?? ''; // 구매카트 항목 (저장 시 cart 컬럼 업데이트용)
+debug_log("구매카트 항목 파라미터: " . var_export($cart_items_param, true));
 
 // 새로운 발주서 번호 생성
 $order_no = $_POST['order_no'] ?? '';
@@ -130,6 +131,7 @@ $contact_name = trim($_POST['contact_name'] ?? '');
 $business_registration_number = trim($_POST['business_registration_number'] ?? '');
 $phone = trim($_POST['phone'] ?? '');
 $fax = trim($_POST['fax'] ?? '');
+$project_site = trim($_POST['project_site'] ?? '');
 $delivery_date = $_POST['delivery_date'] ?? null;
 $delivery_location = trim($_POST['delivery_location'] ?? '');
 $payment_terms = trim($_POST['payment_terms'] ?? '');
@@ -202,7 +204,7 @@ try {
     if ($action === 'update' && $id > 0) {
         // 수정 작업
         // 기존 데이터 존재 확인
-        $check_stmt = $pdo->prepare("SELECT id FROM `order` WHERE id = :id AND is_deleted = 0");
+        $check_stmt = $pdo->prepare("SELECT id FROM `orders` WHERE id = :id AND is_deleted = 0");
         $check_stmt->execute([':id' => $id]);
 
         if (!$check_stmt->fetch()) {
@@ -210,7 +212,7 @@ try {
             exit;
         }
 
-        $sql = "UPDATE `order` SET
+        $sql = "UPDATE `orders` SET
                 order_no = :order_no,
                 issue_date = :issue_date,
                 supplier_code = :supplier_code,
@@ -224,6 +226,7 @@ try {
                 business_registration_number = :business_registration_number,
                 phone = :phone,
                 fax = :fax,
+                project_site = :project_site,
                 order_items = :order_items,
                 subtotal = :subtotal,
                 delivery_date = :delivery_date,
@@ -249,6 +252,7 @@ try {
             ':business_registration_number' => $business_registration_number ?: null,
             ':phone' => $phone ?: null,
             ':fax' => $fax ?: null,
+            ':project_site' => $project_site ?: null,
             ':order_items' => $order_items_json,
             ':subtotal' => $subtotal,
             ':delivery_date' => $delivery_date,
@@ -283,15 +287,15 @@ try {
 
     } else {
         // 새로 추가 작업
-        $sql = "INSERT INTO `order` (
+        $sql = "INSERT INTO `orders` (
                 order_no, issue_date, supplier_code, supplier_name, supplier_address,
                 business_type, business_item, supplier_phone, supplier_fax, contact_name,
-                business_registration_number, phone, fax, order_items, subtotal, delivery_date, delivery_location,
+                business_registration_number, phone, fax, project_site, order_items, subtotal, delivery_date, delivery_location,
                 payment_terms, note, status, created_at, updated_at, is_deleted
                 ) VALUES (
                 :order_no, :issue_date, :supplier_code, :supplier_name, :supplier_address,
                 :business_type, :business_item, :supplier_phone, :supplier_fax, :contact_name,
-                :business_registration_number, :phone, :fax, :order_items, :subtotal, :delivery_date, :delivery_location,
+                :business_registration_number, :phone, :fax, :project_site, :order_items, :subtotal, :delivery_date, :delivery_location,
                 :payment_terms, :note, :status, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0
                 )";
 
@@ -310,6 +314,7 @@ try {
             ':business_registration_number' => $business_registration_number ?: null,
             ':phone' => $phone ?: null,
             ':fax' => $fax ?: null,
+            ':project_site' => $project_site ?: null,
             ':order_items' => $order_items_json,
             ':subtotal' => $subtotal,
             ':delivery_date' => $delivery_date,
@@ -324,10 +329,12 @@ try {
             debug_log("등록 완료 - 새 ID: " . $new_id);
             
             // 구매카트 항목이 있으면 eworks 테이블의 cart 컬럼을 1로 업데이트
+            debug_log("구매카트 업데이트 체크 - cart_items_param: " . var_export($cart_items_param, true));
             if (!empty($cart_items_param)) {
                 try {
                     $item_nums = explode(',', $cart_items_param);
                     $item_nums = array_filter(array_map('intval', $item_nums));
+                    debug_log("구매카트 항목 번호 배열: " . var_export($item_nums, true));
                     
                     if (!empty($item_nums)) {
                         $placeholders = implode(',', array_fill(0, count($item_nums), '?'));
@@ -337,16 +344,21 @@ try {
                                             AND is_deleted IS NULL 
                                             AND eworks_item = '원자재구매'";
                         
+                        debug_log("구매카트 업데이트 SQL: " . $update_cart_sql);
                         $update_cart_stmt = $pdo->prepare($update_cart_sql);
                         $update_cart_stmt->execute($item_nums);
                         $updated_rows = $update_cart_stmt->rowCount();
                         debug_log("구매카트 업데이트 완료 - 업데이트된 행 수: " . $updated_rows);
+                    } else {
+                        debug_log("구매카트 항목 번호 배열이 비어있음");
                     }
                 } catch (PDOException $e) {
                     debug_log("구매카트 업데이트 오류: " . $e->getMessage());
                     error_log("구매카트 업데이트 오류: " . $e->getMessage());
                     // 구매카트 업데이트 실패해도 발주서 저장은 성공으로 처리
                 }
+            } else {
+                debug_log("구매카트 항목 파라미터가 비어있음");
             }
             
             if ($is_ajax) {

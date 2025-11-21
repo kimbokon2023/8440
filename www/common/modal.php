@@ -8,6 +8,7 @@
           <h5 class="modal-title">알림</h5>
         </div>
         <div class="modal-body">		
+		   <input type="text" id="insertword" name="insertword" class="form-control mb-3" style="display:none;" value="">
 		   <div id="alertmsg" class="fs-4 mb-5 justify-content-center" >
 				결재가 진행중입니다. 
 			 <br> <br> 

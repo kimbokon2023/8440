@@ -1144,7 +1144,7 @@ $(document).ready(function() {
 
         // 체크된 항목의 num을 콤마로 구분하여 전달
         var cartItems = itemNums.join(',');
-        var iframeUrl = '../order/write_form.php?iframe=1&cart_items=' + encodeURIComponent(cartItems);
+        var iframeUrl = '../orders/write_form.php?iframe=1&cart_items=' + encodeURIComponent(cartItems);
 
         iframe.src = iframeUrl;
         

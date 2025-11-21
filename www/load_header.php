@@ -132,11 +132,37 @@ if($user_name=='소현철' || $user_name=='김보곤' || $user_name=='이경묵'
     window.baseUrl = '<?php echo $baseUrl; ?>';
     console.log('Base URL set to:', window.baseUrl);
 </script>
-<script src="<?= asset('js/common.js?version=' . $version) ?>"></script>
-<script src="<?= asset('js/typingscript.js') ?>"></script>  <!-- typingscript.js 포함  글자 움직이면서 써지는 루틴 -->
-<script src="<?= asset('js/calinseung.js?version=' . $version) ?>"></script>
-<script src="<?= asset('js/date.js?version=' . $version) ?>"></script>
-<script src="<?= asset('js/index.js?version=' . $version) ?>"></script>
-<script src="<?= asset('js/todolist.js?version=' . $version) ?>"></script>
-<script src="<?= asset('js/cookie.js?version=' . $version) ?>"></script>
-<script src="<?= asset('js/log.js?version=' . $version) ?>"></script>  <!-- 각 메뉴 방문기록 남김 -->
+<?php
+// 각 js 파일의 절대 경로 & 웹 경로
+$js_files = [
+    'js/common.js',
+    'js/typingscript.js',
+    'js/calinseung.js',
+    'js/date.js',
+    'js/index.js',
+    'js/todolist.js',
+    'js/cookie.js',
+    'js/log.js',
+];
+
+// 파일별 수정 시각을 쿼리 파라미터로 추가 (캐시 강제 갱신)
+foreach ($js_files as $file) {
+    // 서버 상의 실제 위치
+    $file_path = realpath(__DIR__ . '/' . $file);
+    if ($file_path && file_exists($file_path)) {
+        $ver = filemtime($file_path);
+    } else {
+        // 파일이 없으면 fallback to 전체 $version이나 1
+        $ver = isset($version) ? $version : 1;
+    }
+    $src = asset($file . '?version=' . $ver);
+    // typingscript.js는 별도 주석 삽입
+    if (strpos($file, 'typingscript.js') !== false) {
+        echo "<script src=\"{$src}\"></script>  <!-- typingscript.js 포함  글자 움직이면서 써지는 루틴 -->\n";
+    } else if (strpos($file, 'log.js') !== false) {
+        echo "<script src=\"{$src}\"></script>  <!-- 각 메뉴 방문기록 남김 -->\n";
+    } else {
+        echo "<script src=\"{$src}\"></script>\n";
+    }
+}
+?>

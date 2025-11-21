@@ -121,7 +121,7 @@ try {
         $order_items_json = json_encode($order_items, JSON_UNESCAPED_UNICODE);
 
         // order 테이블에 INSERT
-        $insert_sql = "INSERT INTO `order` (
+        $insert_sql = "INSERT INTO `orders` (
             order_no, issue_date, supplier_name, contact_name,
             order_items, subtotal, delivery_date, delivery_location,
             payment_terms, note, status, created_at, updated_at, is_deleted
