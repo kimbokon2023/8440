@@ -9,6 +9,227 @@ $title_message = '품질방침/품질목표';
 
 <title> <?=$title_message?> </title> 
 
+<style>
+/* 모바일 환경 최적화 */
+@media (max-width: 768px) {
+    /* 컨테이너 최적화 */
+    .container,
+    .container-fluid {
+        padding: 0.5rem !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 카드 최적화 */
+    .card {
+        margin: 0.5rem auto !important;
+        width: calc(100% - 1rem) !important;
+        max-width: calc(100% - 1rem) !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .card-body {
+        padding: 0.75rem 0.5rem !important;
+        overflow-x: hidden !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    /* 테이블을 카드 형식으로 변환 */
+    table.table {
+        width: 100% !important;
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+    }
+    
+    table.table thead {
+        display: none !important;
+    }
+    
+    table.table tbody {
+        display: block !important;
+        width: 100% !important;
+    }
+    
+    table.table tbody tr {
+        display: block !important;
+        width: calc(100% - 0.5rem) !important;
+        max-width: calc(100% - 0.5rem) !important;
+        margin: 0.5rem auto 0.75rem auto !important;
+        background: #fff !important;
+        border: 1px solid #ddd !important;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+        padding: 0.75rem !important;
+        box-sizing: border-box !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    table.table tbody tr td {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0.5rem 0.4rem !important;
+        text-align: left !important;
+        border: none !important;
+        border-bottom: 1px solid #f0f0f0 !important;
+        box-sizing: border-box !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+    }
+    
+    table.table tbody tr td:last-child {
+        border-bottom: none !important;
+    }
+    
+    /* 이미지 최적화 */
+    table.table img {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        object-fit: contain !important;
+    }
+    
+    /* 텍스트 오버플로우 방지 */
+    * {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 모든 텍스트 요소 강제 줄바꿈 */
+    p, div, h1, h2, h3, h4, h5, h6, label, strong, em, b, i, u, span, li, ul, ol {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* span 요소 줄바꿈 처리 */
+    span {
+        display: inline !important;
+        overflow: visible !important;
+    }
+    
+    /* 버튼 최적화 */
+    .btn {
+        font-size: 0.875rem !important;
+        padding: 0.5rem 0.75rem !important;
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 제목 최적화 */
+    h5, h4, h3, h2, h1 {
+        font-size: 1rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    /* 선택 박스 최적화 */
+    .form-select {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0.5rem 0 !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 행 최적화 */
+    .row {
+        margin: 0.5rem 0 !important;
+    }
+    
+    .col-sm-6,
+    .col-sm-12 {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0.5rem !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    /* d-flex 최적화 */
+    .d-flex {
+        flex-wrap: wrap !important;
+    }
+    
+    .d-flex.justify-content-center {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.5rem !important;
+    }
+    
+    /* 모달 최적화 */
+    .modal {
+        padding: 0 !important;
+    }
+    
+    .modal-dialog {
+        margin: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+    }
+    
+    .modal-content {
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        border-radius: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    
+    .modal-header {
+        padding: 0.75rem 0.5rem !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .modal-body {
+        padding: 0.75rem 0.5rem !important;
+        overflow-y: auto !important;
+        flex: 1 1 auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+    
+    .modal-footer {
+        padding: 0.75rem 0.5rem !important;
+        flex-shrink: 0 !important;
+    }
+    
+    /* '기간' 버튼 숨기기 */
+    #showdate {
+        display: none !important;
+    }
+    
+    /* jQuery DataTable 숨기기 */
+    .dataTables_length,
+    .dataTables_filter {
+        display: none !important;
+    }
+}
+
+/* PC 환경 버튼 간격 최적화 */
+@media (min-width: 769px) {
+    .d-flex.justify-content-center .btn,
+    .d-flex.justify-content-start .btn {
+        margin-left: 0.25rem !important;
+        margin-right: 0.25rem !important;
+    }
+}
+</style>
+
 </head> 
 
 <body>
@@ -66,15 +287,15 @@ if ($mode == "search") {
                 <!-- 부트스트랩 테이블로 이미지와 텍스트를 구성 -->
                 <table class="table table-bordered rounded">
                     <tr>
-                        <td style="width:50%;">
+                        <td style="width:50%;" data-label="품질방침 이미지">
                             <img src="../img/quality/quality01.jpg" style="width:120%; height:300px;" alt="품질 방침 및 목표" class="img-fluid">
                         </td>
-                        <td>
+                        <td data-label="품질목표 이미지">
                             <img src="../img/quality/quality02.jpg" style="width:120%; height:300px;"  alt="품질 목표" class="img-fluid">
                         </td>
                     </tr>
                     <tr>
-                        <td>
+                        <td data-label="품질방침">
                             <h5 class="fs-4 fw-bold"> 품질방침</h5>
                             <ul class="fs-5" >
                                 <li>고객중심 품질관리 경영</li>
@@ -84,7 +305,7 @@ if ($mode == "search") {
                                 <li>품질관리 유지 협의체 순환</li>
                             </ul>
                         </td>
-                        <td>
+                        <td data-label="품질목표">
                             <h5 class="fs-4 fw-bold"> 품질목표</h5>
 							<ul class="fs-5">
 								<li>고객만족 최우선 및 고객 불만 발생 최소화</li>
@@ -109,18 +330,18 @@ if ($mode == "search") {
             <div class="d-flex mt-3 mb-1 justify-content-center align-items-center">                  
                 <table class="table table-bordered rounded">
                     <tr>
-                        <td style="width:50%;">
+                        <td style="width:50%;" data-label="ISO 9001 인증서 이미지">
                             <img src="../img/quality/iso9001.jpg" style="width:120%; height:800px;" alt="ISO 9001" class="img-fluid">
                         </td>
-                        <td>
+                        <td data-label="ISO 14001 인증서 이미지">
                             <img src="../img/quality/iso14001.jpg" style="width:120%; height:800px;"  alt="ISO 14001" class="img-fluid">
                         </td>
                     </tr>
                     <tr>
-                        <td class="text-center">
+                        <td class="text-center" data-label="ISO 9001">
                             <h5 class="fs-4 fw-bold"> ISO 9001 인증서</h5>                            
                         </td>
-                        <td class="text-center">
+                        <td class="text-center" data-label="ISO 14001">
                             <h5 class="fs-4 fw-bold"> ISO 14001 인증서</h5>                            
                         </td>
                     </tr>
@@ -420,6 +641,34 @@ $(document).ready(function(){
    title = '품질방침 품질목표';
    // title = '절곡 ' + title ;
    saveMenuLog(title);
+   
+   // 모바일 환경에서 '기간' 버튼 숨기기
+   if (window.innerWidth <= 768) {
+       $('#showdate').hide();
+   }
+   
+   // 창 크기 변경 시 '기간' 버튼 표시/숨김 처리
+   $(window).resize(function() {
+       if (window.innerWidth <= 768) {
+           $('#showdate').hide();
+       } else {
+           $('#showdate').show();
+       }
+   });
+   
+   // 모바일 환경에서 jQuery DataTable 숨기기
+   if (window.innerWidth <= 768) {
+       $('.dataTables_length, .dataTables_filter').hide();
+   }
+   
+   // 창 크기 변경 시 DataTable 컨트롤 표시/숨김 처리
+   $(window).resize(function() {
+       if (window.innerWidth <= 768) {
+           $('.dataTables_length, .dataTables_filter').hide();
+       } else {
+           $('.dataTables_length, .dataTables_filter').show();
+       }
+   });
 });	
 	
 </script>

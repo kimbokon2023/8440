@@ -137,18 +137,255 @@ canvas {
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .card {
-        margin: 0.5rem 0;
-    }
+	/* body와 html의 width 제한 */
+	html, body {
+		max-width: 100vw !important;
+		overflow-x: hidden !important;
+		font-size: 16px !important;
+	}
 
-    .input-group {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
+	/* 컨테이너 모바일 최적화 */
+	.container {
+		max-width: 100vw !important;
+		padding: 10px !important;
+		overflow-x: hidden !important;
+	}
 
-    .input-group-text {
-        width: 100%;
-    }
+	/* 카드 모바일 최적화 */
+	.card,
+	.modern-management-card {
+		margin: 0.5rem 0 !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		overflow-x: hidden !important;
+		box-sizing: border-box !important;
+	}
+
+	.card-body {
+		padding: 0.75rem 0.5rem !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+	}
+
+	.card-header {
+		padding: 0.75rem 0.5rem !important;
+		font-size: 0.9rem !important;
+	}
+
+	.card-header h3 {
+		font-size: 1rem !important;
+		margin: 0 !important;
+	}
+
+	/* 기간 설정 영역 모바일 최적화 */
+	.row .d-flex.mt-1.mb-2 {
+		flex-wrap: nowrap !important;
+		gap: 0.2rem !important;
+		justify-content: flex-start !important;
+		align-items: center !important;
+		padding: 0.5rem 0.25rem !important;
+		margin: 0.5rem 0 !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: auto !important;
+		-webkit-overflow-scrolling: touch !important;
+		width: 100% !important;
+	}
+
+	/* setdate.php 내부 요소 모바일 최적화 */
+	.row .d-flex.mt-1.mb-2 > .card {
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+	}
+
+	.row .d-flex.mt-1.mb-2 #showdate {
+		font-size: 0.7rem !important;
+		padding: 0.3rem 0.5rem !important;
+		white-space: nowrap !important;
+		flex-shrink: 0 !important;
+		margin-right: 0.3rem !important;
+		box-sizing: border-box !important;
+		min-width: 50px !important;
+	}
+
+	.row .d-flex.mt-1.mb-2 #showframe {
+		position: absolute !important;
+		z-index: 1000 !important;
+		display: none !important;
+	}
+
+	.row .d-flex.mt-1.mb-2 #fromdate,
+	.row .d-flex.mt-1.mb-2 #todate {
+		width: auto !important;
+		min-width: 95px !important;
+		max-width: 105px !important;
+		font-size: 0.7rem !important;
+		padding: 0.3rem 0.35rem !important;
+		flex: 0 0 auto !important;
+		margin: 0 0.15rem !important;
+		box-sizing: border-box !important;
+	}
+
+	.row .d-flex.mt-1.mb-2 span {
+		font-size: 0.7rem !important;
+		margin: 0 0.1rem !important;
+		flex-shrink: 0 !important;
+		white-space: nowrap !important;
+	}
+
+	.row .d-flex.mt-1.mb-2 .inputWrap {
+		flex: 1 1 auto !important;
+		min-width: 0 !important;
+		max-width: 150px !important;
+		margin-right: 0.3rem !important;
+		box-sizing: border-box !important;
+	}
+
+	.row .d-flex.mt-1.mb-2 #search {
+		width: 100% !important;
+		min-width: 0 !important;
+		max-width: 100% !important;
+		font-size: 0.7rem !important;
+		padding: 0.3rem 0.35rem !important;
+		box-sizing: border-box !important;
+	}
+
+	.row .d-flex.mt-1.mb-2 #searchBtn {
+		font-size: 0.7rem !important;
+		padding: 0.3rem 0.5rem !important;
+		white-space: nowrap !important;
+		flex-shrink: 0 !important;
+		box-sizing: border-box !important;
+		min-width: 50px !important;
+	}
+
+	/* 라디오 버튼 영역 모바일 최적화 */
+	.d-flex.p-1.m-1.mt-1.mb-1 {
+		flex-wrap: wrap !important;
+		gap: 0.4rem !important;
+		justify-content: center !important;
+		align-items: center !important;
+		padding: 0.5rem 0.25rem !important;
+		margin: 0.5rem 0 !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+		width: 100% !important;
+	}
+
+	.input-group {
+		flex-direction: column !important;
+		gap: 0.5rem !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+	}
+
+	.input-group-text {
+		width: 100% !important;
+		font-size: 0.75rem !important;
+		padding: 0.5rem 0.4rem !important;
+		flex-wrap: wrap !important;
+		gap: 0.3rem !important;
+		justify-content: center !important;
+		align-items: center !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+	}
+
+	.input-group-text input[type="radio"] {
+		width: 14px !important;
+		height: 14px !important;
+		margin: 0 0.2rem !important;
+		flex-shrink: 0 !important;
+	}
+
+	.input-group-text span {
+		font-size: 0.7rem !important;
+		white-space: nowrap !important;
+		margin: 0 0.1rem !important;
+	}
+
+	/* 컬럼 모바일 최적화 */
+	.col-sm-7,
+	.col-sm-5,
+	.col-lg-6,
+	.col-lg-5 {
+		flex: 0 0 100% !important;
+		max-width: 100% !important;
+		padding-left: 5px !important;
+		padding-right: 5px !important;
+		margin-bottom: 1rem !important;
+	}
+
+	/* 차트 컨테이너 모바일 최적화 */
+	canvas {
+		max-width: 100% !important;
+		height: auto !important;
+	}
+
+	#myChart,
+	#myChart_model {
+		max-width: 100% !important;
+		height: 250px !important;
+	}
+
+	/* 테이블 모바일 최적화 */
+	.table {
+		font-size: 0.8rem !important;
+		width: 100% !important;
+	}
+
+	.table th {
+		font-size: 0.75rem !important;
+		padding: 0.5rem 0.4rem !important;
+		white-space: nowrap !important;
+	}
+
+	.table td {
+		font-size: 0.75rem !important;
+		padding: 0.5rem 0.4rem !important;
+		word-wrap: break-word !important;
+	}
+
+	.table-responsive {
+		overflow-x: auto !important;
+		-webkit-overflow-scrolling: touch !important;
+		width: 100% !important;
+		margin-bottom: 1rem !important;
+	}
+
+	/* 행 레이아웃 모바일 최적화 */
+	.row {
+		margin-left: -5px !important;
+		margin-right: -5px !important;
+	}
+
+	.row > [class*="col-"] {
+		padding-left: 5px !important;
+		padding-right: 5px !important;
+	}
+
+	/* 모든 버튼과 텍스트가 카드 내부에 머물도록 */
+	.card *,
+	.modern-management-card * {
+		box-sizing: border-box !important;
+	}
+
+	.card button,
+	.card .btn,
+	.card span,
+	.card .badge,
+	.modern-management-card button,
+	.modern-management-card .btn,
+	.modern-management-card span,
+	.modern-management-card .badge {
+		max-width: 100% !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+	}
 }
 </style>
 

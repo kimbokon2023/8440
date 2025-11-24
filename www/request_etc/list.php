@@ -96,6 +96,460 @@ $title_message = '부자재 구매';
 .autocomplete-item:hover {
 	background-color: #e9e9e9;
 }
+
+/* 모바일 반응형 스타일 */
+@media (max-width: 768px) {
+	/* body와 html의 width 제한 */
+	html, body {
+		max-width: 100vw !important;
+		overflow-x: hidden !important;
+		font-size: 16px !important;
+	}
+
+	/* 컨테이너 패딩 조정 및 width 제한 */
+	.container-fluid {
+		max-width: 100vw !important;
+		padding-left: 10px !important;
+		padding-right: 10px !important;
+		overflow-x: hidden !important;
+	}
+
+	/* 모든 row의 width 제한 */
+	.row {
+		max-width: 100vw !important;
+		margin-left: 0 !important;
+		margin-right: 0 !important;
+		overflow-x: hidden !important;
+	}
+
+	/* card의 width 제한 */
+	.card {
+		max-width: 100% !important;
+		overflow-x: hidden !important;
+	}
+
+	/* 제목 영역 모바일 최적화 */
+	.d-flex h4 {
+		font-size: 1.1rem !important;
+		white-space: nowrap !important;
+	}
+
+	/* 버튼 그룹 모바일 최적화 */
+	.btn-sm {
+		font-size: 0.85rem !important;
+		padding: 0.4rem 0.6rem !important;
+		white-space: nowrap !important;
+	}
+
+	/* 날짜 행: 총 개수와 날짜 입력 필드를 한 행에 표시 */
+	.date-row {
+		display: flex !important;
+		flex-direction: row !important;
+		flex-wrap: nowrap !important;
+		gap: 2px !important;
+		overflow-x: auto !important;
+		-webkit-overflow-scrolling: touch !important;
+		justify-content: center !important;
+		align-items: center !important;
+		padding: 0.25rem 0.15rem !important;
+		margin: 0.2rem 0 !important;
+		width: 100% !important;
+		box-sizing: border-box !important;
+		min-height: 34px !important;
+		max-height: 40px !important;
+	}
+	
+	/* 날짜 행 내부 모든 요소 공백 제거 */
+	.date-row > * {
+		margin: 0 !important;
+		flex-shrink: 0 !important;
+		white-space: nowrap !important;
+	}
+	
+	/* 기간 설정 카드 모바일에서 숨기기 */
+	#showframe {
+		display: none !important;
+	}
+	
+	/* 기간 버튼 모바일에서 숨기기 */
+	#showdate {
+		display: none !important;
+	}
+	
+	/* dateRange 드롭다운 모바일에서 숨기기 */
+	.date-row #dateRange {
+		display: none !important;
+	}
+	
+	/* 총 개수 텍스트 크기 조정 */
+	.date-row > span:first-child {
+		font-size: 0.8rem !important;
+		font-weight: 600 !important;
+		color: #495057 !important;
+		margin-right: 2px !important;
+		padding: 0 !important;
+	}
+	
+	/* 날짜 입력 필드 크기 조정 */
+	.date-row #fromdate, 
+	.date-row #todate {
+		width: auto !important;
+		min-width: 90px !important;
+		max-width: 110px !important;
+		font-size: 0.7rem !important;
+		padding: 0.2rem 0.3rem !important;
+		height: 30px !important;
+		flex: 0 0 auto !important;
+		box-sizing: border-box !important;
+	}
+	
+	/* 날짜 입력 필드 내부 텍스트 크기 조정 */
+	.date-row #fromdate::-webkit-datetime-edit,
+	.date-row #todate::-webkit-datetime-edit {
+		font-size: 0.7rem !important;
+		padding: 0 !important;
+	}
+	
+	/* 날짜 입력 필드 달력 아이콘 크기 조정 */
+	.date-row #fromdate::-webkit-calendar-picker-indicator,
+	.date-row #todate::-webkit-calendar-picker-indicator {
+		width: 16px !important;
+		height: 16px !important;
+		padding: 0 !important;
+	}
+	
+	/* 날짜 사이 ~ 기호 */
+	.date-row .date-separator {
+		font-size: 0.7rem !important;
+		white-space: nowrap !important;
+		margin: 0 1px !important;
+		color: #6c757d !important;
+	}
+
+	/* 검색 행: find, search, searchBtn을 한 행에 표시 */
+	.search-row {
+		display: flex !important;
+		flex-direction: row !important;
+		flex-wrap: nowrap !important;
+		gap: 2px !important;
+		overflow-x: auto !important;
+		-webkit-overflow-scrolling: touch !important;
+		justify-content: flex-start !important;
+		align-items: center !important;
+		padding: 0.25rem 0.15rem !important;
+		margin: 0.2rem 0 !important;
+		width: 100% !important;
+		box-sizing: border-box !important;
+		min-height: 34px !important;
+		max-height: 40px !important;
+	}
+	
+	/* 검색 행 내부 모든 요소 공백 제거 */
+	.search-row > * {
+		margin: 0 !important;
+		flex-shrink: 0 !important;
+		white-space: nowrap !important;
+	}
+
+	/* 드롭다운 필드 */
+	.search-row .form-select,
+	.search-row #find {
+		width: auto !important;
+		min-width: 80px !important;
+		max-width: 100px !important;
+		font-size: 0.75rem !important;
+		height: 30px !important;
+		padding: 0.2rem 0.4rem !important;
+		flex: 0 0 auto !important;
+	}
+	
+	/* inputWrap 크기 조정 */
+	.search-row .inputWrap {
+		flex: 1 1 auto !important;
+		min-width: 100px !important;
+		max-width: none !important;
+		margin: 0 2px !important;
+		position: relative !important;
+		display: flex !important;
+		align-items: center !important;
+	}
+	
+	/* 검색어 입력 필드 */
+	.search-row #search {
+		width: 100% !important;
+		font-size: 0.75rem !important;
+		padding: 0.2rem 0.4rem !important;
+		height: 30px !important;
+		box-sizing: border-box !important;
+	}
+	
+	/* 검색 버튼 */
+	.search-row #searchBtn {
+		display: inline-block !important;
+		visibility: visible !important;
+		opacity: 1 !important;
+		flex-shrink: 0 !important;
+		white-space: nowrap !important;
+		font-size: 0.75rem !important;
+		padding: 0.3rem 0.6rem !important;
+		height: 30px !important;
+		margin-left: auto !important;
+		order: 999 !important;
+		min-width: 50px !important;
+	}
+	
+	/* autocomplete-list 숨기기 (필요시) */
+	.search-row #autocomplete-list {
+		position: absolute;
+		z-index: 1000;
+	}
+
+	/* 팝업 프레임 모바일 최적화 */
+	#showextractframe,
+	#showframe {
+		position: fixed !important;
+		left: 50% !important;
+		top: 50% !important;
+		transform: translate(-50%, -50%) !important;
+		width: 95% !important;
+		max-width: 400px !important;
+		z-index: 9999 !important;
+		max-height: 80vh !important;
+		overflow-y: auto !important;
+	}
+
+	/* 테이블 헤더 숨기기 */
+	#myTable thead {
+		display: none;
+	}
+
+	/* 테이블을 카드 레이아웃으로 변경 */
+	#myTable,
+	#myTable tbody,
+	#myTable tr,
+	#myTable td {
+		display: block;
+		width: 100%;
+	}
+
+	#myTable tr {
+		margin-bottom: 10px;
+		border: 1px solid #dee2e6;
+		border-radius: 8px;
+		background: white;
+		box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+		padding: 5px;
+		overflow: hidden;
+	}
+
+	/* 모바일에서 불필요한 필드 숨기기 */
+	#myTable td:nth-child(1),  /* 번호 */
+	#myTable td:nth-child(3),  /* 납기 */
+	#myTable td:nth-child(4),  /* 완료 */
+	#myTable td:nth-child(5),  /* 진행상태 */
+	#myTable td:nth-child(6),  /* 요청인 */
+	#myTable td:nth-child(8),  /* 규격 */
+	#myTable td:nth-child(10), /* 공급처 */
+	#myTable td:nth-child(11)  /* 구매방법 */
+	{
+		display: none !important;
+	}
+
+	#myTable td {
+		text-align: left !important;
+		padding: 4px !important;
+		border: none !important;
+		position: relative;
+		padding-left: 35% !important;
+		white-space: normal !important;
+		word-wrap: break-word;
+		min-height: 30px;
+		font-size: 0.95rem !important;
+		line-height: 1.5 !important;
+	}
+
+	/* 모바일에서 라벨 표시 */
+	#myTable td:before {
+		content: attr(data-label);
+		position: absolute;
+		left: 4px;
+		width: 30%;
+		padding-right: 3px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		font-weight: 600;
+		color: #6b7280;
+		font-size: 0.8rem;
+	}
+
+	/* 콜론 제거 - 모든 셀에서 콜론 숨김 */
+	#myTable td:after {
+		display: none !important;
+	}
+
+	/* 첫 번째 셀 숨김 처리 */
+	#myTable td:first-child {
+		display: none !important;
+	}
+
+	#myTable td:first-child:before {
+		display: none;
+	}
+
+	/* 접수일 (2번째) */
+	#myTable td:nth-child(2) {
+		font-weight: 600;
+		color: #495057;
+		border-bottom: 1px solid #e9ecef;
+		padding-bottom: 4px !important;
+		margin-bottom: 3px;
+	}
+
+	/* 구매 물품명 (7번째) - 현장명 역할, 가장 중요 */
+	#myTable td:nth-child(7),
+	#myTable td[data-label="구매 물품명"] {
+		display: block !important;
+		visibility: visible !important;
+		opacity: 1 !important;
+		background: #e7f3ff !important;
+		font-weight: 700 !important;
+		font-size: 1rem !important;
+		color: #0056b3 !important;
+		padding: 5px 4px !important;
+		padding-left: 4px !important;
+		margin: 3px 0 !important;
+		border-radius: 4px !important;
+		border-left: 4px solid #0056b3 !important;
+		width: 100% !important;
+		position: relative !important;
+		text-align: left !important;
+		white-space: normal !important;
+		word-wrap: break-word !important;
+		min-height: auto !important;
+		line-height: 1.5 !important;
+	}
+
+	/* 구매 물품명에 일반 td 스타일이 적용되지 않도록 */
+	#myTable td:nth-child(7),
+	#myTable td[data-label="구매 물품명"] {
+		padding-left: 4px !important;
+	}
+
+	/* 구매 물품명 라벨 스타일 */
+	#myTable td:nth-child(7):before,
+	#myTable td[data-label="구매 물품명"]:before {
+		position: static !important;
+		display: block !important;
+		width: 100% !important;
+		margin-bottom: 2px !important;
+		font-size: 0.8rem !important;
+		color: #6b7280 !important;
+		font-weight: 600 !important;
+		left: auto !important;
+		width: 100% !important;
+		padding-right: 0 !important;
+		overflow: visible !important;
+		text-overflow: clip !important;
+	}
+
+	/* 수량 (9번째) */
+	#myTable td:nth-child(9) {
+		font-weight: 600;
+		color: #dc2626;
+		font-size: 1rem !important;
+	}
+
+	/* DataTables 컨트롤 모바일에서 숨기기 */
+	.dataTables_wrapper .dataTables_length,
+	.dataTables_wrapper .dataTables_filter {
+		display: none !important;
+	}
+
+	/* DataTables 페이지네이션 최적화 */
+	.dataTables_wrapper .dataTables_paginate {
+		font-size: 0.9rem !important;
+		margin-top: 15px !important;
+	}
+
+	.dataTables_wrapper .dataTables_paginate .paginate_button {
+		padding: 0.5rem 0.7rem !important;
+		margin: 0 2px !important;
+	}
+
+	/* DataTables 정보 표시 최적화 */
+	.dataTables_wrapper .dataTables_info {
+		font-size: 0.9rem !important;
+		text-align: center !important;
+		margin-top: 10px !important;
+		margin-bottom: 10px !important;
+	}
+
+	/* 버튼 영역 줄바꿈 허용 */
+	.d-flex.justify-content-center {
+		flex-wrap: wrap !important;
+		overflow-x: visible !important;
+		gap: 0.4rem !important;
+		justify-content: flex-start !important;
+	}
+
+	/* 버튼 영역 가운데 정렬 유지 */
+	.d-flex.justify-content-center.align-items-center {
+		justify-content: center !important;
+	}
+
+	/* 배지 크기 조정 */
+	.badge {
+		font-size: 0.85rem !important;
+		padding: 0.3rem 0.6rem !important;
+	}
+
+	/* 카드 패딩 조정 */
+	.card {
+		margin-bottom: 10px !important;
+	}
+
+	.card-body {
+		padding: 4px !important;
+	}
+
+	/* 상단 검색 영역 정리 */
+	.card-body > .d-flex.mb-1.mt-1 {
+		flex-direction: column !important;
+		align-items: stretch !important;
+		gap: 10px !important;
+	}
+
+	/* 제목과 총 개수 영역 */
+	.card-body > .d-flex.mb-3.mt-2 {
+		flex-direction: row !important;
+		justify-content: space-between !important;
+		align-items: center !important;
+		margin-bottom: 5px !important;
+		padding-bottom: 4px !important;
+		border-bottom: 2px solid #e9ecef !important;
+	}
+
+	/* 모바일에서 불필요한 버튼 숨기기 */
+	.checktask,             /* 입고완료 제외/포함 버튼 */
+	.date-row #dateRange,   /* 날짜 범위 드롭다운 */
+	#rawmaterialBtn         /* 재고 버튼 */
+	{
+		display: none !important;
+	}
+
+	/* 모바일에서 신규 버튼은 표시 (직접 등록 가능) */
+	#writeBtn {
+		display: inline-block !important;
+		visibility: visible !important;
+		opacity: 1 !important;
+	}
+
+	/* 검색 버튼 표시 */
+	#searchBtn {
+		display: inline-block !important;
+	}
+}
 </style>   
 </head>		 
 <body>
@@ -315,20 +769,16 @@ $dateCon =" AND between date('$fromdate') and date('$Transtodate') " ;
 				<div class="d-flex mb-3 mt-2 justify-content-center align-items-center">  
 					<h4> <?=$title_message?> </h4>  
 				</div>	
-			<div class="d-flex mb-1 mt-1 justify-content-center align-items-center">  		
-				<!-- Replace the checkbox code with the Bootstrap-styled button -->					
-					<?php
-							
-						if($done_check_val==='0')   
-							   print '<button class="btn btn-dark  btn-sm  checktask " type="button"   > 입고완료 제외 </button>  &nbsp;&nbsp;';
-							else
-								print '<button class="btn btn-outline-dark  btn-sm  checktask " type="button"   > 입고완료 포함 </button>  &nbsp;&nbsp;';	
-						print '<span > ▷ ' .  $total_row . '&nbsp;&nbsp; </span> ' ;
-							
-					?>
-											   
-			<!-- 기간부터 검색까지 연결 묶음 start -->
-			<span id="showdate" class="btn btn-dark btn-sm " > 기간 </span>	&nbsp; 
+			<!-- 날짜 행 -->
+			<div class="d-flex p-1 m-1 mt-1 mb-1 justify-content-center align-items-center date-row">
+				<?php
+					if($done_check_val==='0')   
+						print '<button class="btn btn-dark  btn-sm  checktask " type="button"   > 입고완료 제외 </button>  &nbsp;&nbsp;';
+					else
+						print '<button class="btn btn-outline-dark  btn-sm  checktask " type="button"   > 입고완료 포함 </button>  &nbsp;&nbsp;';	
+					print '<span > ▷ ' .  $total_row . '&nbsp;&nbsp; </span> ' ;
+				?>
+				<span id="showdate" class="btn btn-dark btn-sm " > 기간 </span>	&nbsp; 
 				<select name="dateRange" id="dateRange" class="form-select w-auto mx-1" style="font-size: 0.8rem; height: 32px;">
 					<?php
 					$dateRangeArray = array('최근3개월','최근6개월', '최근1년', '최근2년','직접설정','전체');
@@ -340,55 +790,54 @@ $dateCon =" AND between date('$fromdate') and date('$Transtodate') " ;
 					}
 					?>
 				</select>			
-			<div id="showframe" class="card">
-				<div class="card-header " style="padding:2px;">
-					<div class="d-flex justify-content-center align-items-center">  
-						기간 설정
-					</div>
-				</div>
-				<div class="card-body">
-					<div class="d-flex justify-content-center align-items-center">  	
-						<button type="button" class="btn btn-outline-success btn-sm me-1 change_dateRange"   onclick='alldatesearch()' > 전체 </button>  
-						<button type="button" id="preyear" class="btn btn-outline-primary btn-sm me-1 change_dateRange"   onclick='pre_year()' > 전년도 </button>  
-						<button type="button" id="three_month" class="btn btn-dark btn-sm me-1 change_dateRange "  onclick='three_month_ago()' > M-3월 </button>
-						<button type="button" id="prepremonth" class="btn btn-dark btn-sm me-1 change_dateRange "  onclick='prepre_month()' > 전전월 </button>	
-						<button type="button" id="premonth" class="btn btn-dark btn-sm me-1 change_dateRange "  onclick='pre_month()' > 전월 </button> 						
-						<button type="button" class="btn btn-outline-danger btn-sm me-1 change_dateRange "  onclick='this_today()' > 오늘 </button>
-						<button type="button" id="thismonth" class="btn btn-dark btn-sm me-1 change_dateRange "  onclick='this_month()' > 당월 </button>
-						<button type="button" id="thisyear" class="btn btn-dark btn-sm me-1 change_dateRange "  onclick='this_year()' > 당해년도 </button> 
-					</div>
-				</div>
-			</div>		
-			   <input type="date" id="fromdate" name="fromdate" size="12"  class="form-control"   style="width:100px;" value="<?=$fromdate?>" placeholder="기간 시작일">  &nbsp;   ~ &nbsp;  
-			   <input type="date" id="todate" name="todate" size="12"   class="form-control"   style="width:100px;" value="<?=$todate?>" placeholder="기간 끝">  &nbsp;     </span> 
-			   &nbsp;				   
-				<?php if($chkMobile) { ?>
+				<div id="showframe" class="card">
+					<div class="card-header " style="padding:2px;">
+						<div class="d-flex justify-content-center align-items-center">  
+							기간 설정
 						</div>
-				<div class="d-flex justify-content-center align-items-center">  	
-			<?php } ?>
-			<select id="find" name="find" class="form-select w-auto mx-1" style="font-size: 0.8rem; height: 32px;">
-				<?php	
-				$findarr=array('전체','입고','출고','공급처');
-
-				   for($i=0;$i<count($findarr);$i++) {
-						 if($find==$findarr[$i]) 
-									print "<option selected value='" . $findarr[$i] . "'> " . $findarr[$i] .   "</option>";
-							 else   
-					   print "<option value='" . $findarr[$i] . "'> " . $findarr[$i] .   "</option>";
-				   } 		   
-		      	?>				   
-				</select>				
-			<div class="inputWrap">
-				<input type="text" id="search" name="search" value="<?=$search?>" autocomplete="off"  class="form-control" style="width:150px;" > &nbsp;			
-				<button class="btnClear"></button>
-			</div>				
-			<div id="autocomplete-list">
+					</div>
+					<div class="card-body">
+						<div class="d-flex justify-content-center align-items-center">  	
+							<button type="button" class="btn btn-outline-success btn-sm me-1 change_dateRange"   onclick='alldatesearch()' > 전체 </button>  
+							<button type="button" id="preyear" class="btn btn-outline-primary btn-sm me-1 change_dateRange"   onclick='pre_year()' > 전년도 </button>  
+							<button type="button" id="three_month" class="btn btn-dark btn-sm me-1 change_dateRange "  onclick='three_month_ago()' > M-3월 </button>
+							<button type="button" id="prepremonth" class="btn btn-dark btn-sm me-1 change_dateRange "  onclick='prepre_month()' > 전전월 </button>	
+							<button type="button" id="premonth" class="btn btn-dark btn-sm me-1 change_dateRange "  onclick='pre_month()' > 전월 </button> 						
+							<button type="button" class="btn btn-outline-danger btn-sm me-1 change_dateRange "  onclick='this_today()' > 오늘 </button>
+							<button type="button" id="thismonth" class="btn btn-dark btn-sm me-1 change_dateRange "  onclick='this_month()' > 당월 </button>
+							<button type="button" id="thisyear" class="btn btn-dark btn-sm me-1 change_dateRange "  onclick='this_year()' > 당해년도 </button> 
+						</div>
+					</div>
+				</div>		
+				<input type="date" id="fromdate" name="fromdate" size="12"  class="form-control"   style="width:100px;" value="<?=$fromdate?>" placeholder="기간 시작일">
+				<span class="date-separator">~</span>
+				<input type="date" id="todate" name="todate" size="12"   class="form-control"   style="width:100px;" value="<?=$todate?>" placeholder="기간 끝">
 			</div>
-			 &nbsp;			 
-				<button type="button" id="searchBtn" class="btn btn-dark  btn-sm "  > <i class="bi bi-search"></i>  </button>	&nbsp;&nbsp;
-			    <button type="button" class="btn btn-dark  btn-sm me-1" id="writeBtn"> <i class="bi bi-pencil-fill"></i> 신규  </button> 	     
-				<button  type="button" id="rawmaterialBtn"  class="btn btn-dark btn-sm" > <i class="bi bi-list"></i> 재고 </button> &nbsp;				 
-		</div>
+			
+			<!-- 검색 행 -->
+			<div class="d-flex p-1 m-1 mt-1 mb-1 justify-content-center align-items-center search-row">
+				<select id="find" name="find" class="form-select w-auto mx-1" style="font-size: 0.8rem; height: 32px;">
+					<?php	
+					$findarr=array('전체','입고','출고','공급처');
+
+					for($i=0;$i<count($findarr);$i++) {
+						if($find==$findarr[$i]) 
+							print "<option selected value='" . $findarr[$i] . "'> " . $findarr[$i] .   "</option>";
+						else   
+							print "<option value='" . $findarr[$i] . "'> " . $findarr[$i] .   "</option>";
+					} 		   
+					?>				   
+				</select>				
+				<div class="inputWrap">
+					<input type="text" id="search" name="search" value="<?=$search?>" autocomplete="off"  class="form-control" style="width:150px;" >
+					<button class="btnClear"></button>
+				</div>				
+				<div id="autocomplete-list">
+				</div>
+				<button type="button" id="searchBtn" class="btn btn-dark  btn-sm mx-1 "  > <i class="bi bi-search"></i>  </button>
+				<button type="button" class="btn btn-dark  btn-sm mx-1" id="writeBtn"> <i class="bi bi-pencil-fill"></i> 신규  </button> 	     
+				<button  type="button" id="rawmaterialBtn"  class="btn btn-dark btn-sm mx-1" > <i class="bi bi-list"></i> 재고 </button>
+			</div>
 		</div>
       </div>	
 	<style>
@@ -436,7 +885,7 @@ $dateCon =" AND between date('$fromdate') and date('$Transtodate') " ;
 		
 		echo '<tr style="cursor:pointer;" data-id="'.  $num . '" onclick="redirectToView(' . $num . ')">';
       ?>
-		  <td class="text-center"><?= $start_num ?></td>
+		  <td class="text-center" data-label="번호"><?= $start_num ?></td>
             <?php				
 				// DateTime 객체 생성
 				$dateTime1 = new DateTime($registdate);
@@ -459,15 +908,15 @@ $dateCon =" AND between date('$fromdate') and date('$Transtodate') " ;
 				}
 		  ?>
 
-		<td class="text-center" data-order="<?= $registdate ?>">
+		<td class="text-center" data-order="<?= $registdate ?>" data-label="접수">
 			<?=$formattedDate?>
 		</td>
 
-		<td class="text-center" data-order="<?= $outdate ?>">
+		<td class="text-center" data-order="<?= $outdate ?>" data-label="납기">
 		<?= $formattedDate_outdate ?>
 		</td>          
 
-		<td class="text-center" data-order="<?= $indate ?>">
+		<td class="text-center" data-order="<?= $indate ?>" data-label="완료">
 		<?= $formattedDate_indate ?>
 		</td>
 			<?php
@@ -490,9 +939,9 @@ $dateCon =" AND between date('$fromdate') and date('$Transtodate') " ;
 			}			
 			?>
 			
-		  <td class="text-center <?= $font_state ?>"><?= $tmp_word ?></td>
+		  <td class="text-center <?= $font_state ?>" data-label="진행상태"><?= $tmp_word ?></td>
 		  
-          <td class="text-center">
+          <td class="text-center" data-label="요청인">
 		   <?php
 				$pattern = "/^[가-힣]+/";
 				
@@ -500,12 +949,12 @@ $dateCon =" AND between date('$fromdate') and date('$Transtodate') " ;
 				$tmpStr = $matches[0]; // '이미래' 출력
 		    ?>			
           <?= $tmpStr ?> </td>
-          <td class="text-center color-brown"><?= $outworkplace ?></td>
-          <td class="text-center color-brown"><?= $spec ?></td>
+          <td class="text-center color-brown" data-label="구매 물품명"><?= $outworkplace ?></td>
+          <td class="text-center color-brown" data-label="규격"><?= $spec ?></td>
 		  <!-- <td class="text-center thumbnail-cell"></td> <!--  이미지 썸네일 -->
-          <td class="text-center color-red"><?= $steelnum ?></td>
-          <td class="text-center"><?= $supplier ?></td>
-		<td class="text-center">
+          <td class="text-center color-red" data-label="수량"><?= $steelnum ?></td>
+          <td class="text-center" data-label="공급처"><?= $supplier ?></td>
+		<td class="text-center" data-label="구매방법">
 		<?php
 			if ($payment == '법인카드') {
 			echo '<span class="text-primary">법인카드</span>';
@@ -514,7 +963,7 @@ $dateCon =" AND between date('$fromdate') and date('$Transtodate') " ;
 			}
 			?>
 		</td>
-          <td><?= $request_comment ?></td>
+          <td data-label="비고"><?= $request_comment ?></td>
         </tr>
 			<?php
 			$start_num--;  

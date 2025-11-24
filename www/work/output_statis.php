@@ -333,28 +333,358 @@ body {
 
 /* Mobile Responsive */
 @media (max-width: 768px) {
-  .container {
-    margin: 0.5rem;
-    padding: 1rem;
-  }
+	/* body와 html의 width 제한 */
+	html, body {
+		max-width: 100vw !important;
+		overflow-x: hidden !important;
+		font-size: 16px !important;
+	}
 
-  .output-output-form-control {
-    font-size: 1rem;
-    padding: 0.5rem;
-  }
+	/* 컨테이너 패딩 조정 */
+	.container {
+		max-width: 100vw !important;
+		padding-left: 10px !important;
+		padding-right: 10px !important;
+		overflow-x: hidden !important;
+		margin: 0.5rem 0 !important;
+	}
 
-  .output-form-label {
-    font-size: 1rem;
-  }
+	/* 필터 컨테이너 모바일 최적화 */
+	.output-filter-container {
+		padding: 0.75rem !important;
+		margin-bottom: 1rem !important;
+	}
 
-  .custom-radio {
-    margin-right: 0.8rem;
-  }
+	.output-page-title {
+		font-size: 0.95rem !important;
+		margin-bottom: 0.75rem !important;
+		padding: 0.5rem !important;
+	}
 
-  .custom-radio .radio-label {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.9rem;
-  }
+	/* 기간 설정 영역 모바일 최적화 */
+	.row .d-flex.mt-1.mb-2 {
+		flex-wrap: wrap !important;
+		gap: 3px !important;
+		justify-content: center !important;
+		align-items: center !important;
+		padding: 0.5rem 0.25rem !important;
+		overflow-x: auto !important;
+		-webkit-overflow-scrolling: touch !important;
+	}
+
+	/* setdate.php 내부 카드 모바일 최적화 */
+	.row .d-flex.mt-1.mb-2 .card {
+		margin-bottom: 0.5rem !important;
+		width: 100% !important;
+	}
+
+	.row .d-flex.mt-1.mb-2 .card-body {
+		padding: 0.75rem !important;
+	}
+
+	/* 기간 버튼 모바일 최적화 */
+	.row .d-flex.mt-1.mb-2 #showdate {
+		font-size: 0.75rem !important;
+		padding: 0.4rem 0.6rem !important;
+		white-space: nowrap !important;
+		margin-right: 0.3rem !important;
+		flex-shrink: 0 !important;
+	}
+
+	/* 기간 설정 프레임 모바일 최적화 */
+	.row .d-flex.mt-1.mb-2 #showframe {
+		position: absolute !important;
+		z-index: 1000 !important;
+		width: auto !important;
+		min-width: 200px !important;
+		max-width: 90vw !important;
+		font-size: 0.8rem !important;
+		margin-top: 0.5rem !important;
+	}
+
+	.row .d-flex.mt-1.mb-2 #showframe .card-header {
+		padding: 0.5rem !important;
+		font-size: 0.8rem !important;
+	}
+
+	.row .d-flex.mt-1.mb-2 #showframe .card-body {
+		padding: 0.5rem !important;
+	}
+
+	.row .d-flex.mt-1.mb-2 #showframe .btn-sm {
+		font-size: 0.7rem !important;
+		padding: 0.3rem 0.5rem !important;
+		margin: 0.2rem 0.1rem !important;
+		white-space: nowrap !important;
+	}
+
+	.row .d-flex.mt-1.mb-2 #showframe .d-flex {
+		flex-wrap: wrap !important;
+		gap: 0.3rem !important;
+		justify-content: center !important;
+	}
+
+	/* 날짜 입력 필드 모바일 최적화 - 한 줄로 표시 */
+	.row .d-flex.mt-1.mb-2 > span,
+	.row .d-flex.mt-1.mb-2 .card {
+		flex-shrink: 0 !important;
+	}
+
+	.row .d-flex.mt-1.mb-2 input[type="date"]#fromdate,
+	.row .d-flex.mt-1.mb-2 input[type="date"]#todate {
+		width: auto !important;
+		min-width: 110px !important;
+		max-width: 130px !important;
+		font-size: 0.75rem !important;
+		padding: 0.35rem 0.4rem !important;
+		flex: 0 0 auto !important;
+		margin: 0 0.2rem !important;
+	}
+
+	.row .d-flex.mt-1.mb-2 input[type="date"]::-webkit-datetime-edit {
+		font-size: 0.75rem !important;
+		padding: 0 !important;
+	}
+
+	.row .d-flex.mt-1.mb-2 input[type="date"]::-webkit-calendar-picker-indicator {
+		width: 16px !important;
+		height: 16px !important;
+		padding: 0 !important;
+	}
+
+	.row .d-flex.mt-1.mb-2 > span:has(~ input[type="date"]) {
+		font-size: 0.75rem !important;
+		margin: 0 0.2rem !important;
+		white-space: nowrap !important;
+	}
+
+	/* 검색 입력 필드 모바일 최적화 */
+	.row .d-flex.mt-1.mb-2 .inputWrap {
+		flex: 1 1 auto !important;
+		min-width: 150px !important;
+		max-width: none !important;
+		margin: 0 0.3rem !important;
+		position: relative !important;
+	}
+
+	.row .d-flex.mt-1.mb-2 .inputWrap input[type="text"]#search {
+		width: 100% !important;
+		font-size: 0.8rem !important;
+		padding: 0.4rem 0.5rem !important;
+		padding-right: 50px !important;
+		box-sizing: border-box !important;
+	}
+
+	.row .d-flex.mt-1.mb-2 .inputWrap .btnClear {
+		position: absolute !important;
+		right: 2px !important;
+		top: 50% !important;
+		transform: translateY(-50%) !important;
+		width: 20px !important;
+		height: 20px !important;
+		z-index: 6 !important;
+	}
+
+	/* 검색 버튼 모바일 최적화 */
+	.row .d-flex.mt-1.mb-2 #searchBtn {
+		font-size: 0.75rem !important;
+		padding: 0.4rem 0.6rem !important;
+		white-space: nowrap !important;
+		margin-left: 0.3rem !important;
+		flex-shrink: 0 !important;
+	}
+
+	/* 기간 설정 영역을 날짜 행과 검색 행으로 분리 - 더 명확한 구조 */
+	.row .d-flex.mt-1.mb-2 {
+		flex-direction: row !important;
+		flex-wrap: nowrap !important;
+		justify-content: center !important;
+		align-items: center !important;
+		gap: 3px !important;
+		overflow-x: auto !important;
+		-webkit-overflow-scrolling: touch !important;
+		padding: 0.5rem 0.25rem !important;
+	}
+
+	/* 날짜 입력 필드들을 한 줄로 강제 */
+	.row .d-flex.mt-1.mb-2 > span:not(.inputWrap),
+	.row .d-flex.mt-1.mb-2 > input[type="date"],
+	.row .d-flex.mt-1.mb-2 > .card:first-child,
+	.row .d-flex.mt-1.mb-2 > #showdate {
+		flex-shrink: 0 !important;
+		white-space: nowrap !important;
+	}
+
+	/* 검색 영역을 별도 행으로 이동 (필요시) */
+	.row .d-flex.mt-1.mb-2 .inputWrap {
+		margin-left: auto !important;
+		order: 999 !important;
+	}
+
+	.row .d-flex.mt-1.mb-2 #searchBtn {
+		order: 1000 !important;
+		margin-left: 0.3rem !important;
+	}
+
+	/* 라디오 버튼 영역 모바일 최적화 */
+	.row .d-flex.justify-content-center.align-items-center.mt-2.mb-2 {
+		flex-wrap: wrap !important;
+		justify-content: center !important;
+		gap: 0.5rem !important;
+		padding: 0.5rem !important;
+	}
+
+	.custom-radio {
+		margin-right: 0.5rem !important;
+		margin-bottom: 0.5rem !important;
+		flex-shrink: 0 !important;
+	}
+
+	.custom-radio .radio-label {
+		padding: 0.4rem 0.8rem !important;
+		font-size: 0.75rem !important;
+		white-space: nowrap !important;
+	}
+
+	/* 카드 모바일 최적화 */
+	.modern-management-card {
+		margin-bottom: 1rem !important;
+	}
+
+	.modern-dashboard-header {
+		padding: 0.75rem !important;
+	}
+
+	.modern-dashboard-header h3 {
+		font-size: 0.85rem !important;
+	}
+
+	.card-body {
+		padding: 1rem !important;
+	}
+
+	/* 차트 컨테이너 모바일 최적화 */
+	.output-chart-container {
+		padding: 0.75rem !important;
+		margin-bottom: 1rem !important;
+	}
+
+	.chart-container {
+		height: 250px !important;
+	}
+
+	#myChart {
+		width: 100% !important;
+		height: 250px !important;
+	}
+
+	/* 테이블 모바일 최적화 */
+	.output-table {
+		font-size: 0.75rem !important;
+		width: 100% !important;
+	}
+
+	.output-table th {
+		font-size: 0.7rem !important;
+		padding: 0.4rem 0.3rem !important;
+		white-space: nowrap !important;
+	}
+
+	.output-table td {
+		font-size: 0.75rem !important;
+		padding: 0.4rem 0.3rem !important;
+		word-wrap: break-word !important;
+	}
+
+	.output-table.table-sm th {
+		font-size: 0.7rem !important;
+		padding: 0.35rem 0.25rem !important;
+	}
+
+	.output-table.table-sm td {
+		font-size: 0.7rem !important;
+		padding: 0.35rem 0.25rem !important;
+	}
+
+	/* 테이블 반응형 컨테이너 모바일 최적화 */
+	.table-responsive {
+		overflow-x: auto !important;
+		-webkit-overflow-scrolling: touch !important;
+		width: 100% !important;
+		margin-bottom: 1rem !important;
+	}
+
+	/* 섹션 제목 모바일 최적화 */
+	.output-section-title {
+		font-size: 0.85rem !important;
+		margin-bottom: 0.5rem !important;
+	}
+
+	.output-chart-container h5.output-section-title {
+		font-size: 0.85rem !important;
+	}
+
+	.output-chart-container h6.text-muted {
+		font-size: 0.8rem !important;
+		margin-bottom: 0.75rem !important;
+	}
+
+	/* 컬럼 모바일 최적화 */
+	.col-sm-8,
+	.col-sm-4,
+	.col-md-5,
+	.col-md-7 {
+		flex: 0 0 100% !important;
+		max-width: 100% !important;
+		margin-bottom: 1rem !important;
+		padding-left: 5px !important;
+		padding-right: 5px !important;
+	}
+
+	/* 행 레이아웃 모바일 최적화 */
+	.row {
+		margin-left: -5px !important;
+		margin-right: -5px !important;
+	}
+
+	.row > [class*="col-"] {
+		padding-left: 5px !important;
+		padding-right: 5px !important;
+	}
+
+	/* 버튼 모바일 최적화 */
+	.btn-primary,
+	.btn-sm {
+		font-size: 0.75rem !important;
+		padding: 0.4rem 0.6rem !important;
+		white-space: nowrap !important;
+	}
+
+	/* 폼 컨트롤 모바일 최적화 */
+	.output-form-control {
+		font-size: 0.85rem !important;
+		padding: 0.5rem !important;
+	}
+
+	.output-form-label {
+		font-size: 0.85rem !important;
+	}
+
+	/* 제품별 단가 및 매출 현황 섹션 모바일 최적화 */
+	.output-chart-container .d-flex.justify-content-between {
+		flex-wrap: wrap !important;
+		gap: 0.5rem !important;
+		margin-bottom: 1rem !important;
+	}
+
+	.output-chart-container .d-flex.justify-content-between h5 {
+		font-size: 0.85rem !important;
+		margin-bottom: 0 !important;
+	}
+
+	.output-chart-container .d-flex.justify-content-between .btn {
+		flex-shrink: 0 !important;
+	}
 }
 </style> 
 </head>		 

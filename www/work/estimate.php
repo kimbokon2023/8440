@@ -259,28 +259,139 @@ body {
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .sideBanner {
-        position: relative;
-        bottom: 20px;
-        right: 20px;
-        left: 20px;
-        width: auto;
-        flex-direction: row;
-        justify-content: center;
-        gap: 1rem;
-    }
+	/* body와 html의 width 제한 */
+	html, body {
+		max-width: 100vw !important;
+		overflow-x: hidden !important;
+		font-size: 16px !important;
+	}
 
-    .container-fluid {
-        padding: 1rem 0.5rem;
-    }
+	/* 컨테이너 패딩 조정 */
+	.container-fluid {
+		max-width: 100vw !important;
+		padding: 10px !important;
+		overflow-x: hidden !important;
+	}
 
-    .modern-management-card {
-        margin: 0.5rem 0;
-    }
+	/* 카드 모바일 최적화 */
+	.modern-management-card {
+		margin: 0.5rem 0 !important;
+		width: 100% !important;
+	}
 
-    .table-responsive {
-        font-size: 0.8rem;
-    }
+	.modern-dashboard-header {
+		padding: 0.75rem !important;
+	}
+
+	.modern-dashboard-header h3 {
+		font-size: 0.95rem !important;
+		margin: 0 !important;
+		padding: 0.5rem !important;
+	}
+
+	.card-body {
+		padding: 0.75rem !important;
+	}
+
+	/* 컬럼 모바일 최적화 */
+	.col-sm-6 {
+		flex: 0 0 100% !important;
+		max-width: 100% !important;
+		padding-left: 5px !important;
+		padding-right: 5px !important;
+	}
+
+	/* 테이블 모바일 최적화 */
+	.table-responsive {
+		font-size: 0.85rem !important;
+		overflow-x: auto !important;
+		-webkit-overflow-scrolling: touch !important;
+		width: 100% !important;
+		margin-bottom: 1rem !important;
+	}
+
+	.table {
+		font-size: 0.85rem !important;
+		width: 100% !important;
+		min-width: 100% !important;
+	}
+
+	.table th {
+		font-size: 0.8rem !important;
+		padding: 0.6rem 0.4rem !important;
+		white-space: nowrap !important;
+		text-align: center !important;
+	}
+
+	.table td {
+		font-size: 0.85rem !important;
+		padding: 0.6rem 0.4rem !important;
+		text-align: center !important;
+		word-wrap: break-word !important;
+	}
+
+	/* 입력 필드 모바일 최적화 */
+	.form-control {
+		font-size: 0.85rem !important;
+		padding: 0.5rem 0.6rem !important;
+		width: 100% !important;
+		box-sizing: border-box !important;
+	}
+
+	.form-control.text-end {
+		text-align: right !important;
+		padding-right: 0.6rem !important;
+	}
+
+	/* 버튼 모바일 최적화 */
+	.btn-dark,
+	.btn-secondary {
+		font-size: 0.85rem !important;
+		padding: 0.5rem 1rem !important;
+		white-space: nowrap !important;
+	}
+
+	.btn.rounded-pill {
+		border-radius: 25px !important;
+		padding: 0.5rem 1.2rem !important;
+	}
+
+	/* 사이드 배너 모바일 최적화 */
+	.sideBanner {
+		position: fixed !important;
+		bottom: 20px !important;
+		right: 20px !important;
+		left: auto !important;
+		width: auto !important;
+		flex-direction: column !important;
+		justify-content: center !important;
+		gap: 0.75rem !important;
+		z-index: 1000 !important;
+		top: auto !important;
+	}
+
+	.sideBanner .btn {
+		min-width: 80px !important;
+		font-size: 0.85rem !important;
+		padding: 0.5rem 1rem !important;
+	}
+
+	/* 행 레이아웃 모바일 최적화 */
+	.row {
+		margin-left: -5px !important;
+		margin-right: -5px !important;
+	}
+
+	.row > [class*="col-"] {
+		padding-left: 5px !important;
+		padding-right: 5px !important;
+	}
+
+	/* vh-60 클래스 모바일 최적화 */
+	.vh-60 {
+		min-height: auto !important;
+		padding: 1rem 0 !important;
+	}
 }
 </style>
 </head>

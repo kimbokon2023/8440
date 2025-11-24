@@ -1,11 +1,14 @@
 <?php
+require_once __DIR__ . '/../common/functions.php';
+
 // Environment detection
 $isLocal = strpos($_SERVER['HTTP_HOST'], 'localhost') !== false ||
            strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false ||
            strpos($_SERVER['HTTP_HOST'], '::1') !== false;
 $baseUrl = $isLocal ? 'http://localhost' : 'http://8440.co.kr';
 
-session_start();
+if(session_status() !== PHP_SESSION_ACTIVE) 
+   session_start();
 
 // Initialize session variables with null safety
 $level = $_SESSION["level"] ?? null;
@@ -24,6 +27,522 @@ $titlemessage = '원자재 기간별 수불보고서';
  <?php include getDocumentRoot() . '/load_header.php' ?>
   
 <title>  <?=$titlemessage?> </title> 
+
+<style>
+/* 모바일 최적화 스타일 */
+@media (max-width: 768px) {
+    /* 컨테이너 및 카드 최적화 */
+    .container {
+        padding: 0.75rem 0.5rem !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    .card {
+        margin: 0.5rem auto !important;
+        border-radius: 0.5rem !important;
+        width: calc(100% - 1rem) !important;
+        max-width: calc(100% - 1rem) !important;
+        box-sizing: border-box !important;
+    }
+    
+    .card-header {
+        padding: 0.75rem 0.5rem !important;
+    }
+    
+    .card-body {
+        padding: 0.75rem 0.5rem !important;
+    }
+    
+    /* 제목 최적화 */
+    h5 {
+        font-size: 1.1rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        text-align: center !important;
+        margin-bottom: 0.75rem !important;
+        padding: 0 0.5rem !important;
+    }
+    
+    H5 {
+        font-size: 1.1rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        text-align: center !important;
+        margin-bottom: 0.75rem !important;
+        padding: 0 0.5rem !important;
+    }
+    
+    /* 버튼 최적화 */
+    .btn {
+        font-size: 0.875rem !important;
+        padding: 0.5rem 0.75rem !important;
+        white-space: nowrap !important;
+        min-height: 40px !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    
+    /* d-flex 컨테이너 안의 버튼은 자동 크기 */
+    .d-flex .btn,
+    .d-flex.justify-content-center .btn,
+    .d-flex.align-items-center .btn,
+    .flex-wrap .btn {
+        width: auto !important;
+        max-width: none !important;
+        margin: 0.25rem !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .btn-sm {
+        font-size: 0.8rem !important;
+        padding: 0.4rem 0.6rem !important;
+        min-height: 36px !important;
+    }
+    
+    /* flex-wrap이 있는 버튼 그룹 */
+    .flex-wrap .btn {
+        white-space: normal !important;
+        word-wrap: break-word !important;
+    }
+    
+    /* 기간 설정 UI 최적화 */
+    .d-flex.justify-content-center {
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }
+    
+    .d-flex.justify-content-center > * {
+        flex: 0 0 auto !important;
+        width: auto !important;
+        max-width: none !important;
+    }
+    
+    /* setdate.php 기간 설정 최적화 */
+    #showdate {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-bottom: 0.5rem !important;
+        box-sizing: border-box !important;
+    }
+    
+    #showframe {
+        width: calc(100% - 1rem) !important;
+        max-width: calc(100% - 1rem) !important;
+        margin: 0.5rem auto !important;
+        box-sizing: border-box !important;
+    }
+    
+    #showframe .card {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    #showframe .card-body {
+        padding: 0.5rem !important;
+    }
+    
+    #showframe .card-body .d-flex {
+        flex-wrap: wrap !important;
+        gap: 0.25rem !important;
+        justify-content: center !important;
+    }
+    
+    #showframe .btn-sm {
+        font-size: 0.75rem !important;
+        padding: 0.35rem 0.5rem !important;
+        flex: 1 1 auto !important;
+        min-width: calc(50% - 0.125rem) !important;
+        max-width: calc(50% - 0.125rem) !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 날짜 입력 필드 최적화 */
+    input[type="date"] {
+        width: 100% !important;
+        max-width: 100% !important;
+        font-size: 0.875rem !important;
+        padding: 0.5rem !important;
+        margin-bottom: 0.5rem !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 검색 입력 필드 최적화 */
+    input[type="text"][id="search"],
+    input[type="text"][name="search"] {
+        width: 100% !important;
+        max-width: 100% !important;
+        font-size: 0.875rem !important;
+        padding: 0.5rem !important;
+        margin-bottom: 0.5rem !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 기간 설정 컨테이너 최적화 */
+    .inputWrap {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 날짜 구분자 최적화 */
+    .date-separator,
+    span:contains("~") {
+        display: block !important;
+        text-align: center !important;
+        margin: 0.25rem 0 !important;
+        font-size: 0.875rem !important;
+    }
+    
+    /* 통계 정보 최적화 */
+    .input-group-text {
+        font-size: 0.8rem !important;
+        padding: 0.4rem 0.5rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        line-height: 1.4 !important;
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* Grid 숨기기 및 카드 컨테이너 표시 */
+    #grid {
+        display: none !important;
+    }
+    
+    #mobile-grid-cards {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 0 0.25rem !important;
+    }
+    
+    .mobile-grid-card {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin: 0.5rem auto 0.75rem auto !important;
+        padding: 0.75rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        width: calc(100% - 0.5rem) !important;
+        max-width: calc(100% - 0.5rem) !important;
+        overflow-x: hidden !important;
+        overflow-y: visible !important;
+        box-sizing: border-box !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .mobile-grid-card-item {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 0.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #f0f0f0;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .mobile-grid-card-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    
+    .mobile-grid-card-label {
+        font-weight: bold;
+        font-size: 0.75rem;
+        color: #666;
+        margin-bottom: 0.25rem;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    .mobile-grid-card-value {
+        font-size: 0.9rem;
+        color: #333;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        padding-left: 0 !important;
+        overflow: hidden !important;
+    }
+    
+    /* 모바일 테이블 카드 스타일 */
+    .mobile-table-cards {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 0 0.25rem !important;
+    }
+    
+    .mobile-table-cards .mobile-grid-card {
+        margin: 0.5rem auto 0.75rem auto !important;
+        width: calc(100% - 0.5rem) !important;
+        max-width: calc(100% - 0.5rem) !important;
+    }
+    
+    /* 텍스트 오버플로우 방지 */
+    * {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 카드 내부 모든 텍스트 요소 줄바꿈 강제 */
+    .card *,
+    .mobile-grid-card *,
+    .mobile-table-cards * {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        max-width: 100% !important;
+    }
+    
+    /* span 요소 줄바꿈 처리 */
+    span {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        display: inline-block !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 카드 내부 span 특별 처리 */
+    .card span,
+    .mobile-grid-card span,
+    .mobile-table-cards span {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 테이블 셀 내부 텍스트 줄바꿈 */
+    table.table tbody tr td {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+    }
+    
+    /* 통계 텍스트 최적화 */
+    h5 span.input-group-text {
+        font-size: 0.8rem !important;
+        padding: 0.75rem 0.5rem !important;
+        line-height: 1.6 !important;
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        margin-bottom: 0.5rem !important;
+        background-color: #f8f9fa !important;
+        border-radius: 0.375rem !important;
+        word-break: break-word !important;
+    }
+    
+    h5 span.input-group-text.text-primary {
+        background-color: #e7f3ff !important;
+    }
+    
+    /* 통계 정보 컨테이너 최적화 */
+    .d-flex.mt-1.mb-2.justify-content-center {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        padding: 0.5rem !important;
+    }
+    
+    /* CSV 다운로드 버튼 최적화 */
+    #downloadcsvBtn {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0.5rem 0 !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 버튼이 있는 컨테이너 최적화 */
+    .d-flex.justify-content-center:has(#downloadcsvBtn),
+    .d-flex.justify-content-center:has(button) {
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+    }
+    
+    /* jQuery DataTable 숨기기 */
+    .dataTables_length,
+    .dataTables_filter {
+        display: none !important;
+    }
+    
+    /* Tabulator 숨기기 */
+    .tabulator {
+        display: none !important;
+    }
+    
+    /* 일반 HTML 테이블을 카드 형식으로 변환 */
+    table.dataTable,
+    table.table {
+        width: 100% !important;
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+    }
+    
+    table.dataTable tbody,
+    table.table tbody {
+        display: block !important;
+        width: 100% !important;
+    }
+    
+    table.dataTable tbody tr,
+    table.table tbody tr {
+        display: block !important;
+        width: calc(100% - 0.5rem) !important;
+        max-width: calc(100% - 0.5rem) !important;
+        margin: 0.5rem auto 0.75rem auto !important;
+        background: #fff !important;
+        border: 1px solid #ddd !important;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+        padding: 0.75rem !important;
+        box-sizing: border-box !important;
+    }
+    
+    table.dataTable tbody tr td,
+    table.table tbody tr td {
+        display: flex !important;
+        width: 100% !important;
+        padding: 0.5rem 0.4rem !important;
+        text-align: left !important;
+        border: none !important;
+        border-bottom: 1px solid #f0f0f0 !important;
+        box-sizing: border-box !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+    }
+    
+    table.dataTable tbody tr td:last-child,
+    table.table tbody tr td:last-child {
+        border-bottom: none !important;
+    }
+    
+    table.dataTable thead,
+    table.table thead {
+        display: none !important;
+    }
+    
+    table.dataTable tbody tr td::before,
+    table.table tbody tr td::before {
+        content: attr(data-label) !important;
+        font-weight: bold !important;
+        font-size: 0.75rem !important;
+        color: #666 !important;
+        margin-right: 0.5rem !important;
+        min-width: 80px !important;
+        flex-shrink: 0 !important;
+    }
+}
+
+/* PC 화면 */
+@media (min-width: 769px) {
+    #mobile-grid-cards {
+        display: none !important;
+    }
+    
+    #grid {
+        display: block !important;
+    }
+}
+
+/* 모달 최적화 */
+@media (max-width: 768px) {
+    .modal-dialog {
+        margin: 0.5rem !important;
+        max-width: calc(100% - 1rem) !important;
+    }
+    
+    .modal-dialog.modal-lg {
+        margin: 0 !important;
+        max-width: 100% !important;
+    }
+    
+    .modal-content {
+        border-radius: 0.5rem !important;
+    }
+    
+    .modal-header {
+        padding: 0.75rem 0.5rem !important;
+        min-height: 50px !important;
+        flex-wrap: wrap !important;
+        gap: 0.25rem !important;
+    }
+    
+    .modal-title {
+        font-size: 1rem !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        word-wrap: break-word !important;
+    }
+    
+    .modal-header .btn-close {
+        margin: 0 !important;
+        padding: 0.5rem !important;
+    }
+    
+    .modal-body {
+        padding: 0.75rem 0.5rem !important;
+        font-size: 0.9rem !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .modal-body .fs-3 {
+        font-size: 1rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .modal-footer {
+        padding: 0.75rem 0.5rem !important;
+        flex-wrap: wrap !important;
+        gap: 0.25rem !important;
+    }
+    
+    .modal-footer .btn {
+        padding: 0.5rem 0.75rem !important;
+        font-size: 0.875rem !important;
+        min-height: 40px !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        margin-bottom: 0.25rem !important;
+    }
+}
+</style>
+
  </head>
 <?php
 // Initialize request variables with null safety
@@ -233,10 +752,14 @@ $output_sum=array();
 	</div>	
     
 	<div class="row"> 		  
-		<div class="d-flex mt-1 mb-2 justify-content-center align-items-center "> 		
+		<div class="d-flex mt-1 mb-2 justify-content-center align-items-center flex-wrap"> 		
 		<!-- 기간설정 칸 -->
+		 <div class="w-100 mb-2 mb-md-0" style="flex: 1 1 auto; min-width: 0;">
 		 <?php include getDocumentRoot() . '/setdate.php' ?>
-		  &nbsp;&nbsp; <button  type="button" class="btn btn-danger btn-sm" id="downloadcsvBtn"> CSV파일 다운로드 </button>
+		 </div>
+		 <div class="w-100 w-md-auto">
+		 <button  type="button" class="btn btn-danger btn-sm w-100" id="downloadcsvBtn"> CSV파일 다운로드 </button>
+		 </div>
 		</div>
 	</div>	  
 					  
@@ -433,7 +956,8 @@ $output_sum=array();
 		 </style>    
 		 <div class="d-flex mt-1 mb-2 justify-content-center align-items-center "> 	
 			<div id="grid" > 	
-			</div>	
+			</div>
+			<div id="mobile-grid-cards" style="display: none; width: 100%;"></div>
 		</div>	
 	</div>	
 	</div>	
@@ -502,10 +1026,15 @@ $(document).ready(function(){
 				data.push(row);
 			}		 
 		  
-		      const grid = new tui.Grid({
+		      // 모바일 여부 확인
+		      var isMobile = window.innerWidth <= 768;
+		      var bodyHeight = isMobile ? 400 : 450;
+		      
+		      // grid를 전역 변수로 선언
+		      window.grid = new tui.Grid({
 			  el: document.getElementById('grid'),
 			  data: data,
-			  bodyHeight: 450,
+			  bodyHeight: bodyHeight,
 			   columns: [ 				   
 				{
 				  header: '재질구분',
@@ -635,13 +1164,299 @@ $(document).ready(function(){
 				}
 			  }	
 	});
-
+	
+	// 모바일 카드 렌더링 함수
+	function renderMobileGridCards() {
+		if (!window.grid) return;
+		
+		var isMobile = window.innerWidth <= 768;
+		var cardsContainer = document.getElementById('mobile-grid-cards');
+		var gridContainer = document.getElementById('grid');
+		
+		if (!isMobile) {
+			// PC 화면: Grid 표시, 카드 숨김
+			if (gridContainer) {
+				gridContainer.style.display = '';
+			}
+			if (cardsContainer) {
+				cardsContainer.style.display = 'none';
+			}
+			return;
+		}
+		
+		// 모바일 화면: Grid 숨김, 카드 표시
+		if (gridContainer) {
+			gridContainer.style.display = 'none';
+		}
+		if (!cardsContainer) return;
+		
+		cardsContainer.style.display = 'block';
+		cardsContainer.innerHTML = '';
+		
+		try {
+			var gridData = window.grid.getData();
+			
+			if (!gridData || gridData.length === 0) {
+				cardsContainer.innerHTML = '<div class="text-center py-4 text-muted">데이터가 없습니다.</div>';
+				return;
+			}
+			
+			// 컬럼 매핑
+			var columnMap = [
+				{ name: 'material', label: '재질구분' },
+				{ name: 'grid_item', label: '규격' },
+				{ name: 'input_num', label: '입고수량' },
+				{ name: 'output_num', label: '출고수량' },
+				{ name: 'sum', label: '수불합계(잔량파악)' }
+			];
+			
+			gridData.forEach(function(rowData, index) {
+				var card = document.createElement('div');
+				card.className = 'mobile-grid-card';
+				
+				var cardHtml = '';
+				
+				columnMap.forEach(function(colInfo) {
+					var value = rowData[colInfo.name];
+					if (value === null || value === undefined || value === '') {
+						value = '0';
+					}
+					
+					var displayValue = value;
+					
+					cardHtml += '<div class="mobile-grid-card-item">';
+					cardHtml += '<div class="mobile-grid-card-label">' + colInfo.label + '</div>';
+					cardHtml += '<div class="mobile-grid-card-value">' + displayValue + '</div>';
+					cardHtml += '</div>';
+				});
+				
+				if (cardHtml === '') {
+					cardHtml = '<div class="text-muted">데이터 없음</div>';
+				}
+				
+				card.innerHTML = cardHtml;
+				cardsContainer.appendChild(card);
+			});
+		} catch (error) {
+			console.error('모바일 카드 렌더링 오류:', error);
+			cardsContainer.innerHTML = '<div class="text-center py-4 text-danger">데이터를 불러오는 중 오류가 발생했습니다.</div>';
+		}
+	}
+	
+	// 화면 크기 변경 시 카드/그리드 전환
+	function updateGridDisplay() {
+		renderMobileGridCards();
+	}
+	
+	// Grid 렌더링 완료 후 모바일 카드 렌더링
+	setTimeout(function() {
+		updateGridDisplay();
+	}, 300);
+	
+	// 리사이즈 이벤트
+	window.addEventListener('resize', function() {
+		updateGridDisplay();
+	});
+	
+	// 페이지 로드 완료 후에도 한 번 더 확인
+	window.addEventListener('load', function() {
+		setTimeout(function() {
+			updateGridDisplay();
+		}, 500);
+	});
+	
+	// jQuery DataTable이 있는 경우 모바일에서 숨기기 및 카드 변환
+	function handleDataTables() {
+		if (window.innerWidth <= 768) {
+			// Show entries와 Live Search 숨기기
+			$('.dataTables_length, .dataTables_filter').hide();
+			
+			// DataTable이 있는 경우 카드 형식으로 변환
+			if ($.fn.DataTable && $('.dataTable').length > 0) {
+				$('.dataTable').each(function() {
+					var table = $(this);
+					var tableId = table.attr('id') || 'datatable-' + Math.random().toString(36).substr(2, 9);
+					var cardsContainerId = 'mobile-cards-' + tableId;
+					
+					// 이미 카드 컨테이너가 있으면 스킵
+					if ($('#' + cardsContainerId).length > 0) return;
+					
+					// 테이블 숨기기
+					table.hide();
+					
+					// 카드 컨테이너 생성
+					var cardsContainer = $('<div id="' + cardsContainerId + '" class="mobile-table-cards"></div>');
+					table.after(cardsContainer);
+					
+					// 테이블 데이터를 카드로 변환
+					table.find('tbody tr').each(function() {
+						var row = $(this);
+						var card = $('<div class="mobile-grid-card"></div>');
+						
+						row.find('td').each(function(index) {
+							var cell = $(this);
+							var header = table.find('thead th').eq(index).text() || '항목 ' + (index + 1);
+							var value = cell.text().trim();
+							
+							if (value) {
+								var cardItem = $('<div class="mobile-grid-card-item"></div>');
+								cardItem.append('<div class="mobile-grid-card-label">' + header + '</div>');
+								cardItem.append('<div class="mobile-grid-card-value">' + value + '</div>');
+								card.append(cardItem);
+							}
+						});
+						
+						if (card.children().length > 0) {
+							cardsContainer.append(card);
+						}
+					});
+				});
+			}
+		} else {
+			// PC 화면: Show entries와 Live Search 표시
+			$('.dataTables_length, .dataTables_filter').show();
+			$('.mobile-table-cards').remove();
+			$('.dataTable').show();
+		}
+	}
+	
+	// Tabulator가 있는 경우 모바일에서 카드 변환
+	function handleTabulator() {
+		if (window.innerWidth <= 768) {
+			$('.tabulator').each(function() {
+				var tabulatorEl = $(this);
+				var tabulatorId = tabulatorEl.attr('id') || 'tabulator-' + Math.random().toString(36).substr(2, 9);
+				var cardsContainerId = 'mobile-cards-' + tabulatorId;
+				
+				// 이미 카드 컨테이너가 있으면 스킵
+				if ($('#' + cardsContainerId).length > 0) return;
+				
+				// Tabulator 숨기기
+				tabulatorEl.hide();
+				
+				// 카드 컨테이너 생성
+				var cardsContainer = $('<div id="' + cardsContainerId + '" class="mobile-table-cards"></div>');
+				tabulatorEl.after(cardsContainer);
+				
+				// Tabulator 데이터 가져오기
+				try {
+					var table = tabulatorEl[0].tabulator;
+					if (table) {
+						var data = table.getData();
+						var columns = table.getColumns();
+						
+						data.forEach(function(rowData) {
+							var card = $('<div class="mobile-grid-card"></div>');
+							
+							columns.forEach(function(column) {
+								var field = column.getField();
+								var title = column.getDefinition().title || field;
+								var value = rowData[field];
+								
+								if (value !== null && value !== undefined && value !== '') {
+									var cardItem = $('<div class="mobile-grid-card-item"></div>');
+									cardItem.append('<div class="mobile-grid-card-label">' + title + '</div>');
+									cardItem.append('<div class="mobile-grid-card-value">' + value + '</div>');
+									card.append(cardItem);
+								}
+							});
+							
+							if (card.children().length > 0) {
+								cardsContainer.append(card);
+							}
+						});
+					}
+				} catch (error) {
+					console.error('Tabulator 카드 변환 오류:', error);
+				}
+			});
+		} else {
+			// PC 화면: Tabulator 표시
+			$('.tabulator').show();
+			$('.mobile-table-cards').remove();
+		}
+	}
+	
+	// 일반 HTML 테이블을 카드 형식으로 변환
+	function handleHtmlTables() {
+		if (window.innerWidth <= 768) {
+			$('table:not(.dataTable):not(.tabulator-table)').each(function() {
+				var table = $(this);
+				var tableId = table.attr('id') || 'table-' + Math.random().toString(36).substr(2, 9);
+				var cardsContainerId = 'mobile-cards-' + tableId;
+				
+				// 이미 카드 컨테이너가 있으면 스킵
+				if ($('#' + cardsContainerId).length > 0) return;
+				
+				// 테이블 숨기기
+				table.hide();
+				
+				// 카드 컨테이너 생성
+				var cardsContainer = $('<div id="' + cardsContainerId + '" class="mobile-table-cards"></div>');
+				table.after(cardsContainer);
+				
+				// 헤더 정보 수집
+				var headers = [];
+				table.find('thead th, thead td').each(function() {
+					headers.push($(this).text().trim());
+				});
+				
+				// 테이블 데이터를 카드로 변환
+				table.find('tbody tr').each(function() {
+					var row = $(this);
+					var card = $('<div class="mobile-grid-card"></div>');
+					
+					row.find('td').each(function(index) {
+						var cell = $(this);
+						var header = headers[index] || '항목 ' + (index + 1);
+						var value = cell.text().trim();
+						
+						if (value) {
+							var cardItem = $('<div class="mobile-grid-card-item"></div>');
+							cardItem.append('<div class="mobile-grid-card-label">' + header + '</div>');
+							cardItem.append('<div class="mobile-grid-card-value">' + value + '</div>');
+							card.append(cardItem);
+						}
+					});
+					
+					if (card.children().length > 0) {
+						cardsContainer.append(card);
+					}
+				});
+			});
+		} else {
+			// PC 화면: 테이블 표시
+			$('table:not(.dataTable):not(.tabulator-table)').show();
+			$('.mobile-table-cards').remove();
+		}
+	}
+	
+	// 모든 테이블 처리 함수 통합
+	function handleAllTables() {
+		handleDataTables();
+		handleTabulator();
+		handleHtmlTables();
+	}
+	
+	// 초기 로드 및 리사이즈 이벤트
+	$(document).ready(function() {
+		setTimeout(function() {
+			handleAllTables();
+		}, 500);
+	});
+	
+	$(window).on('resize', function() {
+		setTimeout(function() {
+			handleAllTables();
+		}, 100);
+	});
+		
 		
 		
 		
 		function Do_gridexport() { 	
 		
-		    const data = grid.getData();
+		    const data = window.grid ? window.grid.getData() : [];
 				console.log(data);			
 				console.log(data.length);
 
@@ -652,11 +1467,11 @@ $(document).ready(function(){
 			
 			for (let i = 0; i < row_count; i += 1) {
 			  let row = "";			  
-			   row += grid.getValue(i, 'material') + ',' ;
-			   row += grid.getValue(i, 'grid_item') + ',' ;
-			   row += grid.getValue(i, 'input_num') + ',' ;
-			   row += grid.getValue(i, 'output_num') + ',' ;
-			   row += grid.getValue(i, 'sum') + ',' ;
+			   row += (window.grid ? window.grid.getValue(i, 'material') : material[i] || '') + ',' ;
+			   row += (window.grid ? window.grid.getValue(i, 'grid_item') : grid_item[i] || '') + ',' ;
+			   row += (window.grid ? window.grid.getValue(i, 'input_num') : input_num[i] || '') + ',' ;
+			   row += (window.grid ? window.grid.getValue(i, 'output_num') : output_num[i] || '') + ',' ;
+			   row += (window.grid ? window.grid.getValue(i, 'sum') : sum[i] || '') + ',' ;
 			   
 			   csvContent += row + "\r\n";
 			}		 		  

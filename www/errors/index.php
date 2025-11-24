@@ -114,6 +114,401 @@ include getDocumentRoot() . '/load_header.php';
 ?>
 
 <title>부적합 품질경영</title> 
+
+<style>
+/* 모바일 반응형 스타일 */
+@media (max-width: 768px) {
+	/* body와 html의 width 제한 */
+	html, body {
+		max-width: 100vw !important;
+		overflow-x: hidden !important;
+		font-size: 16px !important;
+	}
+
+	/* 컨테이너 패딩 조정 */
+	.container-fluid {
+		max-width: 100vw !important;
+		padding-left: 10px !important;
+		padding-right: 10px !important;
+		overflow-x: hidden !important;
+	}
+
+	/* 카드 패딩 조정 */
+	.card {
+		margin-bottom: 10px !important;
+	}
+
+	.card-body {
+		padding: 10px !important;
+	}
+
+	/* 제목 영역 모바일 최적화 */
+	.d-flex h4, h4, h5 {
+		font-size: 1.1rem !important;
+		white-space: normal !important;
+		margin-bottom: 10px !important;
+	}
+
+	/* 버튼 그룹 모바일 최적화 */
+	.btn-sm {
+		font-size: 0.85rem !important;
+		padding: 0.4rem 0.6rem !important;
+		white-space: nowrap !important;
+		margin-bottom: 5px !important;
+		margin-right: 3px !important;
+	}
+
+	/* 버튼 영역 줄바꿈 허용 */
+	.d-flex.justify-content-center {
+		flex-wrap: wrap !important;
+		gap: 5px !important;
+	}
+
+	/* 검색 영역 모바일 최적화 */
+	.d-flex.mb-2.px-5 {
+		flex-wrap: nowrap !important;
+		gap: 4px !important;
+		padding: 0.5rem 0.25rem !important;
+		margin: 0.5rem 0 !important;
+		justify-content: center !important;
+		align-items: center !important;
+	}
+
+	.d-flex.mb-2.px-5 > * {
+		margin: 0 !important;
+		flex-shrink: 0 !important;
+	}
+
+	.d-flex.mb-2.px-5 > span:first-child {
+		font-size: 0.85rem !important;
+		font-weight: 600 !important;
+		white-space: nowrap !important;
+	}
+
+	.d-flex.mb-2.px-5 #search {
+		width: auto !important;
+		min-width: 120px !important;
+		max-width: 200px !important;
+		font-size: 0.85rem !important;
+		padding: 0.35rem 0.5rem !important;
+		height: 32px !important;
+		flex: 1 1 auto !important;
+	}
+
+	.d-flex.mb-2.px-5 #searchBtn,
+	.d-flex.mb-2.px-5 #writeBtn {
+		font-size: 0.85rem !important;
+		padding: 0.35rem 0.6rem !important;
+		height: 32px !important;
+		white-space: nowrap !important;
+		flex-shrink: 0 !important;
+	}
+
+	/* 테이블 모바일에서 카드 형태로 변환 */
+	#myTable thead {
+		display: none !important;
+	}
+
+	#myTable tbody tr {
+		display: block !important;
+		width: 100% !important;
+		margin-bottom: 10px !important;
+		border: 1px solid #dee2e6 !important;
+		border-radius: 8px !important;
+		background: white !important;
+		box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+		padding: 8px !important;
+		overflow: hidden !important;
+		cursor: pointer !important;
+	}
+
+	#myTable tbody tr td {
+		display: block !important;
+		width: 100% !important;
+		text-align: left !important;
+		padding: 6px 4px !important;
+		border: none !important;
+		position: relative !important;
+		padding-left: 35% !important;
+		white-space: normal !important;
+		word-wrap: break-word !important;
+		min-height: 30px !important;
+		font-size: 0.9rem !important;
+		line-height: 1.4 !important;
+	}
+
+	#myTable tbody tr td:before {
+		content: attr(data-label);
+		position: absolute !important;
+		left: 4px !important;
+		width: 30% !important;
+		padding-right: 3px !important;
+		white-space: nowrap !important;
+		overflow: hidden !important;
+		text-overflow: ellipsis !important;
+		font-weight: 600 !important;
+		color: #6b7280 !important;
+		font-size: 0.8rem !important;
+	}
+
+	#myTable tbody tr td:after {
+		display: none !important;
+	}
+
+	/* 첫 번째 셀 (번호) 스타일 */
+	#myTable tbody tr td:first-child {
+		font-weight: 600 !important;
+		color: #495057 !important;
+		border-bottom: 1px solid #e9ecef !important;
+		padding-bottom: 6px !important;
+		margin-bottom: 4px !important;
+	}
+
+	/* 확인일 스타일 */
+	#myTable tbody tr td:nth-child(2) {
+		font-weight: 600 !important;
+		color: #495057 !important;
+	}
+
+	/* 승인상태 강조 */
+	#myTable tbody tr td:nth-child(3) {
+		font-weight: 700 !important;
+		color: #dc2626 !important;
+	}
+
+	/* 현장명 강조 */
+	#myTable tbody tr td:nth-child(5) {
+		background: #e7f3ff !important;
+		font-weight: 700 !important;
+		font-size: 1rem !important;
+		color: #0056b3 !important;
+		padding: 6px 4px !important;
+		padding-left: 4px !important;
+		margin: 4px 0 !important;
+		border-radius: 4px !important;
+		border-left: 4px solid #0056b3 !important;
+		display: block !important;
+	}
+
+	#myTable tbody tr td:nth-child(5):before {
+		position: static !important;
+		display: block !important;
+		width: 100% !important;
+		margin-bottom: 2px !important;
+		font-size: 0.8rem !important;
+		color: #6b7280 !important;
+		font-weight: 600 !important;
+		overflow: visible !important;
+		text-overflow: clip !important;
+	}
+
+	/* 비용 관련 셀 강조 */
+	#myTable tbody tr td.text-end {
+		font-weight: 600 !important;
+		color: #dc2626 !important;
+	}
+
+	/* 테이블 반응형 컨테이너 */
+	.table-responsive {
+		overflow-x: visible !important;
+		-webkit-overflow-scrolling: touch !important;
+		width: 100% !important;
+		margin-bottom: 15px !important;
+	}
+
+	/* 이미지 모바일 최적화 */
+	img {
+		max-width: 100% !important;
+		height: auto !important;
+	}
+
+	/* 텍스트 영역 모바일 최적화 */
+	.typing-txt {
+		font-size: 0.85rem !important;
+		white-space: normal !important;
+	}
+
+	/* col-sm-12 모바일에서 전체 너비 */
+	.col-sm-12 {
+		width: 100% !important;
+		flex: 0 0 100% !important;
+		max-width: 100% !important;
+		margin-bottom: 10px !important;
+	}
+	
+	/* 카드 최적화 */
+	.card {
+		width: calc(100% - 1rem) !important;
+		max-width: calc(100% - 1rem) !important;
+		margin: 0.5rem auto !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+	}
+	
+	/* jQuery DataTable 컨트롤 숨기기 */
+	.dataTables_length,
+	.dataTables_filter {
+		display: none !important;
+	}
+	
+	/* 검색 UI 최적화 */
+	.d-flex.mb-2.px-5 {
+		flex-direction: column !important;
+		align-items: stretch !important;
+		gap: 0.5rem !important;
+		padding: 0.5rem 0.25rem !important;
+	}
+	
+	.d-flex.mb-2.px-5 > * {
+		width: 100% !important;
+		max-width: 100% !important;
+		margin: 0.25rem 0 !important;
+	}
+	
+	.d-flex.mb-2.px-5 #search {
+		width: 100% !important;
+		max-width: 100% !important;
+		min-width: auto !important;
+		flex: 1 1 auto !important;
+	}
+	
+	.d-flex.mb-2.px-5 #searchBtn,
+	.d-flex.mb-2.px-5 #writeBtn {
+		width: 100% !important;
+		max-width: 100% !important;
+		flex: 1 1 auto !important;
+	}
+	
+	/* 텍스트 오버플로우 방지 강화 */
+	* {
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		box-sizing: border-box !important;
+	}
+	
+	/* 모든 텍스트 요소 강제 줄바꿈 */
+	p, div, h1, h2, h3, h4, h5, h6, label, strong, em, b, i, u, span {
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		word-break: break-word !important;
+		white-space: normal !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+	}
+	
+	/* span 요소 줄바꿈 처리 */
+	span {
+		display: inline !important;
+		overflow: visible !important;
+	}
+	
+	/* 모달 최적화 */
+	.modal {
+		padding: 0 !important;
+	}
+	
+	.modal-dialog {
+		margin: 0 !important;
+		max-width: 100% !important;
+		width: 100% !important;
+		height: 100vh !important;
+		max-height: 100vh !important;
+	}
+	
+	.modal-content {
+		margin: 0 !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		height: 100vh !important;
+		max-height: 100vh !important;
+		border-radius: 0 !important;
+		display: flex !important;
+		flex-direction: column !important;
+	}
+	
+	.modal-header {
+		padding: 0.75rem 0.5rem !important;
+		flex-shrink: 0 !important;
+	}
+	
+	.modal-body {
+		padding: 0.75rem 0.5rem !important;
+		overflow-y: auto !important;
+		flex: 1 1 auto !important;
+		-webkit-overflow-scrolling: touch !important;
+	}
+	
+	.modal-footer {
+		padding: 0.75rem 0.5rem !important;
+		flex-shrink: 0 !important;
+	}
+	
+	/* SweetAlert2 모달 최적화 */
+	.swal2-popup {
+		width: 90% !important;
+		max-width: 90% !important;
+		padding: 1rem !important;
+		font-size: 0.875rem !important;
+	}
+	
+	.swal2-title {
+		font-size: 1.125rem !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+	}
+	
+	.swal2-content {
+		font-size: 0.875rem !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+	}
+	
+	.swal2-actions {
+		flex-direction: column !important;
+		gap: 0.5rem !important;
+	}
+	
+	.swal2-confirm,
+	.swal2-cancel {
+		width: 100% !important;
+		margin: 0 !important;
+	}
+	
+	/* '기간' 버튼 숨기기 */
+	#showdate {
+		display: none !important;
+	}
+	
+	/* 테이블 셀 텍스트 줄바꿈 강화 */
+	#myTable tbody tr td {
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		word-break: break-word !important;
+		white-space: normal !important;
+		overflow: visible !important;
+	}
+	
+	/* 이미지 최적화 */
+	img {
+		width: 100% !important;
+		max-width: 100% !important;
+		height: auto !important;
+		object-fit: contain !important;
+	}
+}
+
+/* PC 환경 버튼 간격 최적화 */
+@media (min-width: 769px) {
+	.d-flex.justify-content-center .btn,
+	.d-flex.justify-content-start .btn,
+	.d-flex.mb-2.px-5 .btn {
+		margin-left: 0.25rem !important;
+		margin-right: 0.25rem !important;
+	}
+}
+</style>
 </head>
 
 <body>
@@ -283,20 +678,20 @@ include getDocumentRoot() . '/load_header.php';
                             include "_row.php";
                     ?>
                             <tr style="cursor: pointer;" onclick="popupCenter('write_form.php?num=<?= $num ?>', '부적합 보고서', 1000, 920); return false;">
-                                <td class="text-center"><?= $start_num ?></td>
-                                <td class="text-center"><?= htmlspecialchars($occurconfirm) ?></td>
-                                <td class="text-center"><?= htmlspecialchars($approve) ?></td>
-                                <td class="text-center"><?= htmlspecialchars($errortype) ?></td>
-                                <td><?= htmlspecialchars($place) ?></td>
-                                <td class="text-center"><?= htmlspecialchars($reporter) ?></td>
-                                <td><?= htmlspecialchars($content) ?></td>
-                                <td><?= htmlspecialchars($method) ?></td>
-                                <td class="text-center"><?= htmlspecialchars($involved) ?></td>
-                                <td class="text-end"><?= is_numeric($materialFee) ? number_format($materialFee) : '' ?></td>
-                                <td class="text-end"><?= is_numeric($deliveryFee) ? number_format($deliveryFee) : '' ?></td>
-                                <td class="text-end"><?= is_numeric($workFee) ? number_format($workFee) : '' ?></td>
-                                <td class="text-end"><?= is_numeric($etcFee) ? number_format($etcFee) : '' ?></td>
-                                <td class="text-end"><?= is_numeric($totalFee) ? number_format($totalFee) : '' ?></td>
+                                <td class="text-center" data-label="번호"><?= $start_num ?></td>
+                                <td class="text-center" data-label="확인일"><?= htmlspecialchars($occurconfirm) ?></td>
+                                <td class="text-center" data-label="승인상태"><?= htmlspecialchars($approve) ?></td>
+                                <td class="text-center" data-label="불량유형"><?= htmlspecialchars($errortype) ?></td>
+                                <td data-label="현장명(품명)"><?= htmlspecialchars($place) ?></td>
+                                <td class="text-center" data-label="보고자"><?= htmlspecialchars($reporter) ?></td>
+                                <td data-label="발생원인(분석)"><?= htmlspecialchars($content) ?></td>
+                                <td data-label="처리방안(개선사항)"><?= htmlspecialchars($method) ?></td>
+                                <td class="text-center" data-label="관련 직원"><?= htmlspecialchars($involved) ?></td>
+                                <td class="text-end" data-label="자재비"><?= is_numeric($materialFee) ? number_format($materialFee) : '' ?></td>
+                                <td class="text-end" data-label="운송비"><?= is_numeric($deliveryFee) ? number_format($deliveryFee) : '' ?></td>
+                                <td class="text-end" data-label="시공비"><?= is_numeric($workFee) ? number_format($workFee) : '' ?></td>
+                                <td class="text-end" data-label="기타비용"><?= is_numeric($etcFee) ? number_format($etcFee) : '' ?></td>
+                                <td class="text-end" data-label="비용합계"><?= is_numeric($totalFee) ? number_format($totalFee) : '' ?></td>
                             </tr>
                     <?php
                             $start_num--;
@@ -328,6 +723,34 @@ var dataTable; // DataTables 인스턴스 전역 변수
 var errorpageNumber; // 현재 페이지 번호 저장을 위한 전역 변수
 
 $(document).ready(function() {
+    // 모바일 환경에서 '기간' 버튼 숨기기
+    if (window.innerWidth <= 768) {
+        $('#showdate').hide();
+    }
+    
+    // 창 크기 변경 시 '기간' 버튼 표시/숨김 처리
+    $(window).resize(function() {
+        if (window.innerWidth <= 768) {
+            $('#showdate').hide();
+        } else {
+            $('#showdate').show();
+        }
+    });
+    
+    // 모바일 환경에서 jQuery DataTable 컨트롤 숨기기
+    if (window.innerWidth <= 768) {
+        $('.dataTables_length, .dataTables_filter').hide();
+    }
+    
+    // 창 크기 변경 시 DataTable 컨트롤 표시/숨김 처리
+    $(window).resize(function() {
+        if (window.innerWidth <= 768) {
+            $('.dataTables_length, .dataTables_filter').hide();
+        } else {
+            $('.dataTables_length, .dataTables_filter').show();
+        }
+    });
+    
     // DataTables 초기 설정
     dataTable = $('#myTable').DataTable({
         "paging": true,

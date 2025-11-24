@@ -41,6 +41,222 @@ include "load_DB.php";
 <?php include getDocumentRoot() . '/load_header.php' ?>
 
 <title> 직원 연차 </title>
+<style>
+    /* 모바일 최적화 */
+    @media (max-width: 768px) {
+        /* body와 html의 width 제한 */
+        html, body {
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+            font-size: 16px !important;
+        }
+
+        /* 컨테이너 모바일 최적화 */
+        .container {
+            max-width: 100vw !important;
+            padding: 5px !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+            height: auto !important;
+        }
+
+        .row {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+        }
+
+        .row > [class*="col-"] {
+            padding-left: 5px !important;
+            padding-right: 5px !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        /* 카드 모바일 최적화 */
+        .card {
+            margin: 0.25rem 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+            border-radius: 0.5rem !important;
+        }
+
+        .card.align-middle {
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+
+        .card-body {
+            padding: 0.4rem 0.3rem !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow-x: hidden !important;
+        }
+
+        /* 제목 영역 모바일 최적화 */
+        h3.card-title {
+            font-size: 0.9rem !important;
+            margin: 0.25rem 0 !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+
+        h5.form-signin-heading {
+            font-size: 0.8rem !important;
+            margin: 0.5rem 0 0.25rem 0 !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+
+        /* 입력 필드 모바일 최적화 */
+        .form-control {
+            font-size: 0.8rem !important;
+            padding: 0.3rem 0.4rem !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            width: 100% !important;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        input[type="number"],
+        select {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            font-size: 0.8rem !important;
+            padding: 0.3rem 0.4rem !important;
+        }
+
+        /* 버튼 모바일 최적화 */
+        .btn {
+            font-size: 0.75rem !important;
+            padding: 0.25rem 0.4rem !important;
+            white-space: nowrap !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            margin: 0.2rem 0.1rem !important;
+        }
+
+        .btn-lg {
+            font-size: 0.8rem !important;
+            padding: 0.3rem 0.5rem !important;
+        }
+
+        .btn-sm {
+            font-size: 0.7rem !important;
+            padding: 0.25rem 0.35rem !important;
+        }
+
+        /* 버튼 그룹 모바일 최적화 */
+        .card-body form {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 0.3rem !important;
+        }
+
+        .card-body form .btn {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0.2rem 0 !important;
+        }
+
+        /* 모든 요소가 카드 내부에 머물도록 */
+        .card *,
+        .container * {
+            box-sizing: border-box !important;
+            max-width: 100% !important;
+        }
+
+        .card button,
+        .card .btn,
+        .card span,
+        .card input,
+        .card select,
+        .container button,
+        .container .btn,
+        .container span,
+        .container input,
+        .card-body * {
+            max-width: 100% !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            box-sizing: border-box !important;
+        }
+
+        /* 카드 내부 모든 요소가 넘치지 않도록 */
+        .card {
+            overflow-x: hidden !important;
+            overflow-y: visible !important;
+        }
+
+        .card-body {
+            overflow-x: hidden !important;
+            overflow-y: visible !important;
+        }
+
+        /* 폼 요소 모바일 최적화 */
+        form {
+            max-width: 100% !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+        }
+
+        form * {
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        /* 간격 최적화 */
+        .mb-2 {
+            margin-bottom: 0.3rem !important;
+        }
+
+        .mt-2 {
+            margin-top: 0.3rem !important;
+        }
+
+        .mx-4 {
+            margin-left: 0.5rem !important;
+            margin-right: 0.5rem !important;
+        }
+    }
+
+    /* PC 화면 텍스트 크기 1.5배 */
+    @media (min-width: 769px) {
+        .card-title,
+        h3.card-title {
+            font-size: 1.5em !important;
+        }
+
+        .form-signin-heading,
+        h5.form-signin-heading {
+            font-size: 1.5em !important;
+        }
+
+        .form-control,
+        input[type="text"],
+        input[type="date"],
+        input[type="number"],
+        select {
+            font-size: 1.5em !important;
+        }
+
+        .btn {
+            font-size: 1.5em !important;
+        }
+
+        .btn-sm {
+            font-size: 1.35em !important;
+        }
+
+        .btn-lg {
+            font-size: 1.65em !important;
+        }
+    }
+</style>
 
 <body>
 

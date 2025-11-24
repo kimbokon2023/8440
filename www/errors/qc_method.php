@@ -89,6 +89,251 @@ include getDocumentRoot() . '/load_header.php';
 <title>품질불량 관리기법/교육</title>
 <div id="cookiedisplay"></div>
 
+<style>
+/* 모바일 환경 최적화 */
+@media (max-width: 768px) {
+    /* 컨테이너 최적화 */
+    .container,
+    .container-fluid {
+        padding: 0.5rem !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 카드 최적화 */
+    .card {
+        margin: 0.5rem auto !important;
+        width: calc(100% - 1rem) !important;
+        max-width: calc(100% - 1rem) !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .card-body {
+        padding: 0.75rem 0.5rem !important;
+        overflow-x: hidden !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    /* 행 최적화 */
+    .row {
+        margin: 0.5rem 0 !important;
+        flex-direction: column !important;
+    }
+    
+    .col-sm-9,
+    .col-sm-3 {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0.5rem !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    /* 이미지 최적화 */
+    img {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        object-fit: contain !important;
+    }
+    
+    /* YouTube 영상 최적화 */
+    .embed-responsive {
+        width: 100% !important;
+        max-width: 100% !important;
+        position: relative !important;
+        padding-bottom: 56.25% !important; /* 16:9 비율 */
+        height: 0 !important;
+        overflow: hidden !important;
+    }
+    
+    .embed-responsive iframe {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        border: 0 !important;
+    }
+    
+    /* 텍스트 오버플로우 방지 */
+    * {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 모든 텍스트 요소 강제 줄바꿈 */
+    p, div, h1, h2, h3, h4, h5, h6, label, strong, em, b, i, u, span {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* span 요소 줄바꿈 처리 */
+    span {
+        display: inline !important;
+        overflow: visible !important;
+    }
+    
+    /* 버튼 최적화 */
+    .btn {
+        font-size: 0.875rem !important;
+        padding: 0.5rem 0.75rem !important;
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 제목 최적화 */
+    h3, h4, h5 {
+        font-size: 1rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    /* d-flex 최적화 */
+    .d-flex {
+        flex-wrap: wrap !important;
+    }
+    
+    .d-flex.justify-content-center {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.5rem !important;
+    }
+    
+    /* 모달 최적화 */
+    .modal {
+        padding: 0 !important;
+    }
+    
+    .modal-dialog {
+        margin: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+    }
+    
+    .modal-content {
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        border-radius: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    
+    .modal-header {
+        padding: 0.75rem 0.5rem !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .modal-body {
+        padding: 0.75rem 0.5rem !important;
+        overflow-y: auto !important;
+        flex: 1 1 auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+    
+    .modal-footer {
+        padding: 0.75rem 0.5rem !important;
+        flex-shrink: 0 !important;
+    }
+    
+    /* '기간' 버튼 숨기기 */
+    #showdate {
+        display: none !important;
+    }
+    
+    /* jQuery DataTable 숨기기 */
+    .dataTables_length,
+    .dataTables_filter {
+        display: none !important;
+    }
+    
+    /* 테이블을 카드 형식으로 변환 (혹시 있을 경우를 대비) */
+    table.table {
+        width: 100% !important;
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+    }
+    
+    table.table thead {
+        display: none !important;
+    }
+    
+    table.table tbody {
+        display: block !important;
+        width: 100% !important;
+    }
+    
+    table.table tbody tr {
+        display: block !important;
+        width: calc(100% - 0.5rem) !important;
+        max-width: calc(100% - 0.5rem) !important;
+        margin: 0.5rem auto 0.75rem auto !important;
+        background: #fff !important;
+        border: 1px solid #ddd !important;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+        padding: 0.75rem !important;
+        box-sizing: border-box !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    table.table tbody tr td {
+        display: flex !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0.5rem 0.4rem !important;
+        text-align: left !important;
+        border: none !important;
+        border-bottom: 1px solid #f0f0f0 !important;
+        box-sizing: border-box !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+    }
+    
+    table.table tbody tr td:last-child {
+        border-bottom: none !important;
+    }
+    
+    table.table tbody tr td::before {
+        content: attr(data-label) !important;
+        font-weight: bold !important;
+        font-size: 0.75rem !important;
+        color: #666 !important;
+        margin-right: 0.5rem !important;
+        min-width: 80px !important;
+        flex-shrink: 0 !important;
+    }
+}
+
+/* PC 환경 버튼 간격 최적화 */
+@media (min-width: 769px) {
+    .d-flex.justify-content-center .btn,
+    .d-flex.justify-content-start .btn {
+        margin-left: 0.25rem !important;
+        margin-right: 0.25rem !important;
+    }
+}
+</style>
+
 </head>
 
 <body>
@@ -177,6 +422,34 @@ var errorpageNumber; // 현재 페이지 번호 저장을 위한 전역 변수
 $(document).ready(function() {
     // 서버에 작업 기록
     saveLogData('품질불량 관리기법');
+    
+    // 모바일 환경에서 '기간' 버튼 숨기기
+    if (window.innerWidth <= 768) {
+        $('#showdate').hide();
+    }
+    
+    // 창 크기 변경 시 '기간' 버튼 표시/숨김 처리
+    $(window).resize(function() {
+        if (window.innerWidth <= 768) {
+            $('#showdate').hide();
+        } else {
+            $('#showdate').show();
+        }
+    });
+    
+    // 모바일 환경에서 jQuery DataTable 컨트롤 숨기기
+    if (window.innerWidth <= 768) {
+        $('.dataTables_length, .dataTables_filter').hide();
+    }
+    
+    // 창 크기 변경 시 DataTable 컨트롤 표시/숨김 처리
+    $(window).resize(function() {
+        if (window.innerWidth <= 768) {
+            $('.dataTables_length, .dataTables_filter').hide();
+        } else {
+            $('.dataTables_length, .dataTables_filter').show();
+        }
+    });
 });
 </script>
 

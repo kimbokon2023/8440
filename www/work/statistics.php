@@ -206,20 +206,175 @@ body {
 
 /* Mobile Responsive */
 @media (max-width: 768px) {
-    .col-md-8, .col-md-4 {
-        flex: 0 0 100%;
-        max-width: 100%;
-        margin-bottom: 1rem;
-    }
+	/* body와 html의 width 제한 */
+	html, body {
+		max-width: 100vw !important;
+		overflow-x: hidden !important;
+		font-size: 16px !important;
+	}
 
-    .stats-table-container {
-        margin-left: 0;
-        margin-top: 1rem;
-    }
+	/* 컨테이너 패딩 조정 */
+	.container,
+	.container-fluid {
+		max-width: 100vw !important;
+		padding-left: 10px !important;
+		padding-right: 10px !important;
+		overflow-x: hidden !important;
+	}
 
-    .stats-radio-container {
-        padding: 0.6rem 1rem;
-    }
+	/* 카드 패딩 조정 */
+	.modern-management-card {
+		margin-bottom: 10px !important;
+		padding: 0 !important;
+	}
+
+	.modern-dashboard-header {
+		padding: 0.75rem !important;
+	}
+
+	div[style*="padding: 1.5rem"] {
+		padding: 0.75rem !important;
+	}
+
+	/* 제목 영역 모바일 최적화 */
+	.stats-chart-title,
+	h3.stats-chart-title {
+		font-size: 0.95rem !important;
+		line-height: 1.4 !important;
+		margin-bottom: 0.75rem !important;
+		padding: 0.5rem !important;
+		word-wrap: break-word !important;
+	}
+
+	h5.stats-chart-title {
+		font-size: 0.85rem !important;
+		margin-top: 0.5rem !important;
+		margin-bottom: 0.5rem !important;
+	}
+
+	/* 컬럼 모바일 최적화 */
+	.col-md-8, .col-md-4 {
+		flex: 0 0 100% !important;
+		max-width: 100% !important;
+		margin-bottom: 1rem !important;
+		padding-left: 5px !important;
+		padding-right: 5px !important;
+	}
+
+	/* 차트 컨테이너 모바일 최적화 */
+	.stats-chart-container {
+		height: 250px !important;
+		padding: 0.75rem !important;
+		margin-bottom: 1rem !important;
+	}
+
+	.chart-container {
+		height: 250px !important;
+		padding: 0.75rem !important;
+	}
+
+	/* 테이블 컨테이너 모바일 최적화 */
+	.stats-table-container {
+		margin-left: 0 !important;
+		margin-top: 1rem !important;
+		padding: 0.75rem !important;
+	}
+
+	.table-container {
+		margin-left: 0 !important;
+		padding: 0.75rem !important;
+	}
+
+	/* 테이블 모바일 최적화 */
+	.stats-table {
+		font-size: 0.8rem !important;
+		width: 100% !important;
+	}
+
+	.stats-table th {
+		font-size: 0.75rem !important;
+		padding: 0.5rem 0.3rem !important;
+		white-space: nowrap !important;
+	}
+
+	.stats-table td {
+		font-size: 0.8rem !important;
+		padding: 0.5rem 0.3rem !important;
+		word-wrap: break-word !important;
+	}
+
+	.table th {
+		font-size: 0.75rem !important;
+		padding: 0.5rem 0.3rem !important;
+	}
+
+	.table td {
+		font-size: 0.8rem !important;
+		padding: 0.5rem 0.3rem !important;
+	}
+
+	/* 라디오 버튼 컨테이너 모바일 최적화 */
+	.stats-radio-container {
+		padding: 0.5rem 0.75rem !important;
+		display: flex !important;
+		flex-wrap: wrap !important;
+		justify-content: center !important;
+		gap: 0.5rem !important;
+		margin-bottom: 1rem !important;
+	}
+
+	.stats-form-check-label {
+		font-size: 0.75rem !important;
+		margin-right: 0.2rem !important;
+		white-space: nowrap !important;
+	}
+
+	.stats-form-check-input {
+		width: 1rem !important;
+		height: 1rem !important;
+		margin-right: 0.5rem !important;
+	}
+
+	/* 기간 설정 영역 모바일 최적화 */
+	.d-flex.mt-1.mb-2 {
+		flex-wrap: wrap !important;
+		gap: 5px !important;
+		padding: 0.5rem !important;
+		justify-content: center !important;
+	}
+
+	.d-flex.p-1.m-1.mt-1.mb-1 {
+		flex-wrap: wrap !important;
+		gap: 5px !important;
+		padding: 0.5rem !important;
+		justify-content: center !important;
+	}
+
+	/* 안내 텍스트 모바일 최적화 */
+	.stats-info-text {
+		font-size: 0.7rem !important;
+		line-height: 1.4 !important;
+		margin-top: 0.5rem !important;
+		margin-bottom: 0.5rem !important;
+		text-align: center !important;
+	}
+
+	/* Highcharts 차트 모바일 최적화 */
+	#chartMain {
+		width: 100% !important;
+		height: 250px !important;
+	}
+
+	/* 행 레이아웃 모바일 최적화 */
+	.row {
+		margin-left: -5px !important;
+		margin-right: -5px !important;
+	}
+
+	.row > [class*="col-"] {
+		padding-left: 5px !important;
+		padding-right: 5px !important;
+	}
 }
 </style>
 

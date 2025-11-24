@@ -37,6 +37,309 @@ if (in_array($user_name, $admin_names)) {
 
 <title>부적합 개선을 위한 품질분임조</title>
 
+<style>
+.table td,
+.table th {
+    vertical-align: middle !important;
+}
+
+/* 모바일 환경 최적화 */
+@media (max-width: 768px) {
+    /* 컨테이너 최적화 */
+    .container,
+    .container-fluid {
+        padding: 0.5rem !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 카드 최적화 */
+    .card {
+        margin: 0.5rem auto !important;
+        width: calc(100% - 1rem) !important;
+        max-width: calc(100% - 1rem) !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        border-radius: 10px !important;
+    }
+    
+    .card-body {
+        padding: 0.75rem 0.5rem !important;
+        overflow-x: hidden !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    /* 테이블을 카드 형식으로 변환 */
+    table.table {
+        width: 100% !important;
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+        display: block !important;
+    }
+    
+    table.table tbody {
+        display: block !important;
+        width: 100% !important;
+    }
+    
+    table.table tbody tr {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0.5rem 0 !important;
+        background: #fff !important;
+        border: 1px solid #ddd !important;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+        padding: 0.75rem !important;
+        box-sizing: border-box !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    table.table tbody tr th {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0.5rem 0.4rem !important;
+        text-align: left !important;
+        border: none !important;
+        border-bottom: 1px solid #f0f0f0 !important;
+        box-sizing: border-box !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        font-weight: bold !important;
+        font-size: 0.875rem !important;
+        color: #333 !important;
+        background-color: #f8f9fa !important;
+        margin-bottom: 0.25rem !important;
+    }
+    
+    table.table tbody tr td {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0.5rem 0.4rem !important;
+        text-align: left !important;
+        border: none !important;
+        border-bottom: 1px solid #f0f0f0 !important;
+        box-sizing: border-box !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        padding-left: 1rem !important;
+    }
+    
+    table.table tbody tr td:last-child {
+        border-bottom: 2px solid #ddd !important;
+        margin-bottom: 0.5rem !important;
+    }
+    
+    /* 입력 필드 최적화 */
+    input[type="text"],
+    input[type="datetime-local"],
+    textarea,
+    select.form-control {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        font-size: 1rem !important;
+        padding: 0.5rem !important;
+        margin: 0.25rem 0 !important;
+    }
+    
+    /* d-flex 요소 최적화 */
+    .d-flex {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.5rem !important;
+        flex-wrap: wrap !important;
+    }
+    
+    .d-flex.align-items-center {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+    
+    /* 버튼 최적화 */
+    .btn {
+        font-size: 0.875rem !important;
+        padding: 0.5rem 0.75rem !important;
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0.25rem 0 !important;
+    }
+    
+    /* 텍스트 오버플로우 방지 */
+    * {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 모든 텍스트 요소 강제 줄바꿈 */
+    p, div, h1, h2, h3, h4, h5, h6, label, strong, em, b, i, u, span {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* span 요소 줄바꿈 처리 */
+    span {
+        display: inline !important;
+        overflow: visible !important;
+    }
+    
+    /* 제목 최적화 */
+    .card-title,
+    h4, h5 {
+        font-size: 1.125rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        text-align: center !important;
+    }
+    
+    /* 이미지 최적화 */
+    img {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        object-fit: contain !important;
+    }
+    
+    .imagediv {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+    }
+    
+    /* 파일 입력 최적화 */
+    input[type="file"] {
+        width: 100% !important;
+        max-width: 100% !important;
+        font-size: 0.875rem !important;
+        padding: 0.5rem !important;
+    }
+    
+    /* select 최적화 */
+    select.form-control {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    /* 모달 최적화 */
+    .modal {
+        padding: 0 !important;
+    }
+    
+    .modal-dialog {
+        margin: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+    }
+    
+    .modal-content {
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        border-radius: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    
+    .modal-header {
+        padding: 0.75rem 0.5rem !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .modal-body {
+        padding: 0.75rem 0.5rem !important;
+        overflow-y: auto !important;
+        flex: 1 1 auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+    
+    .modal-footer {
+        padding: 0.75rem 0.5rem !important;
+        flex-shrink: 0 !important;
+    }
+    
+    /* SweetAlert2 모달 최적화 */
+    .swal2-popup {
+        width: 90% !important;
+        max-width: 90% !important;
+        padding: 1rem !important;
+        font-size: 0.875rem !important;
+    }
+    
+    .swal2-title {
+        font-size: 1.125rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .swal2-content {
+        font-size: 0.875rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .swal2-actions {
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+    }
+    
+    .swal2-confirm,
+    .swal2-cancel {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+    
+    /* '기간' 버튼 숨기기 */
+    #showdate {
+        display: none !important;
+    }
+    
+    /* textarea 최적화 */
+    textarea {
+        min-height: 100px !important;
+        resize: vertical !important;
+    }
+    
+    /* label 최적화 */
+    label {
+        display: block !important;
+        margin-bottom: 0.25rem !important;
+        width: 100% !important;
+    }
+}
+
+/* PC 환경 버튼 간격 최적화 */
+@media (min-width: 769px) {
+    .d-flex.justify-content-center .btn,
+    .d-flex.justify-content-start .btn {
+        margin-left: 0.25rem !important;
+        margin-right: 0.25rem !important;
+    }
+}
+</style>
+
 </head>
 
 <body>
@@ -109,7 +412,7 @@ if ($num != '') {
     <div class="container h-30">
         <div class="row d-flex justify-content-center align-items-center h-30">
             <div class="col-12 text-center">
-                <div class="card align-middle" style="width:58rem; border-radius:20px;">
+                <div class="card align-middle" style="border-radius:20px;">
                     <div class="card" style="padding:6px; margin:7px;">
                         <h4 class="card-title text-center" style="color:#113366;">개선을 위한 품질분임조 활동기록</h4>
                     </div>

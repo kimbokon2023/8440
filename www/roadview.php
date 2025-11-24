@@ -32,6 +32,232 @@ $APIKEY = "2ddb841648d38606331320046099cf67";
     .btn_resetMap {background-position:-69px 0;}
     .btn_linkRoadview {background-position:0 0;}
     .btn_resetRoadview {background-position:-69px 0;}
+    
+    /* 모바일 환경 최적화 */
+    @media (max-width: 768px) {
+        /* body와 html 오버플로우 방지 */
+        html, body {
+            overflow-x: hidden !important;
+            max-width: 100vw !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        * {
+            max-width: 100vw !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 컨테이너 최적화 */
+        .container,
+        .container-fluid {
+            padding: 0.5rem !important;
+            max-width: 100vw !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+            margin: 0 auto !important;
+            overflow-x: hidden !important;
+        }
+        
+        /* 카드 최적화 */
+        .card {
+            margin: 0.5rem auto !important;
+            width: calc(100vw - 1rem) !important;
+            max-width: calc(100vw - 1rem) !important;
+            box-sizing: border-box !important;
+            overflow-x: hidden !important;
+        }
+        
+        .card-body {
+            padding: 0.75rem !important;
+            overflow-x: hidden !important;
+        }
+        
+        /* 제목 영역 최적화 */
+        .d-flex.mb-1.mt-2.justify-content-center.align-items-center {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 0.5rem !important;
+            padding: 0.5rem !important;
+        }
+        
+        .d-flex.mb-1.mt-2.justify-content-center.align-items-center .fs-5 {
+            font-size: 1.25rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            text-align: center !important;
+            margin: 0.5rem 0 !important;
+        }
+        
+        /* 테이블 최적화 */
+        .table-responsive {
+            width: 100% !important;
+            max-width: 100% !important;
+            overflow-x: auto !important;
+        }
+        
+        .table-bordered {
+            font-size: 0.875rem !important;
+        }
+        
+        .table-bordered th,
+        .table-bordered td {
+            padding: 0.5rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        /* 링크 영역 최적화 */
+        .d-flex.fs-3.mb-3.mt-2.justify-content-center {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 0.5rem !important;
+            padding: 0.5rem !important;
+        }
+        
+        .d-flex.fs-3.mb-3.mt-2.justify-content-center a {
+            width: 100% !important;
+            max-width: 100% !important;
+            text-align: center !important;
+            padding: 0.5rem !important;
+            font-size: 1rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            display: block !important;
+            margin: 0.25rem 0 !important;
+        }
+        
+        /* 지도/로드뷰 영역 최적화 */
+        .wrap_content {
+            height: auto !important;
+            overflow: visible !important;
+        }
+        
+        .wrap_map,
+        .wrap_roadview {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 300px !important;
+            float: none !important;
+            position: relative !important;
+            margin: 0.5rem 0 !important;
+        }
+        
+        .wrap_button {
+            position: absolute !important;
+            left: 10px !important;
+            top: 10px !important;
+            z-index: 2 !important;
+        }
+        
+        .btn_comm {
+            width: 60px !important;
+            height: 24px !important;
+            font-size: 0.75rem !important;
+            margin: 0.25rem !important;
+        }
+        
+        /* 텍스트 오버플로우 방지 */
+        * {
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 모든 텍스트 요소 강제 줄바꿈 */
+        p, div, h1, h2, h3, h4, h5, h6, label, strong, em, b, i, u, span, td, th {
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            word-break: break-word !important;
+            white-space: normal !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* span 요소 줄바꿈 처리 */
+        span {
+            display: inline-block !important;
+            overflow: visible !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 모든 div 요소 오버플로우 방지 */
+        div {
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* '기간' 버튼 숨기기 */
+        #showdate {
+            display: none !important;
+        }
+        
+        /* 모달 최적화 */
+        .modal {
+            padding: 0 !important;
+            overflow: hidden !important;
+        }
+        
+        .modal-dialog {
+            margin: 0 !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            height: 100vh !important;
+            max-height: 100vh !important;
+        }
+        
+        .modal-content {
+            margin: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 100vh !important;
+            max-height: 100vh !important;
+            border-radius: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            box-sizing: border-box !important;
+        }
+        
+        .modal-header {
+            padding: 0.75rem 0.5rem !important;
+            flex-shrink: 0 !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .modal-title {
+            font-size: 1rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .modal-body {
+            flex: 1 !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            padding: 0.75rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            -webkit-overflow-scrolling: touch !important;
+        }
+        
+        .modal-footer {
+            padding: 0.75rem 0.5rem !important;
+            flex-shrink: 0 !important;
+            flex-direction: column !important;
+            gap: 0.5rem !important;
+        }
+        
+        .modal-footer button {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0.5rem !important;
+            font-size: 1rem !important;
+        }
+    }
 </style>
 
 </head>

@@ -92,6 +92,424 @@ $search = $_REQUEST["search"] ?? '';
 .autocomplete-item:hover {
 	background-color: #e9e9e9;
 }
+
+/* 모바일 환경 최적화 */
+@media (max-width: 768px) {
+	/* body와 html 오버플로우 방지 */
+	html, body {
+		overflow-x: hidden !important;
+		max-width: 100% !important;
+		width: 100% !important;
+		box-sizing: border-box !important;
+		margin: 0 !important;
+		padding: 0 !important;
+	}
+	
+	* {
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+	}
+	
+	/* 컨테이너 최적화 */
+	.container,
+	.container-fluid {
+		padding: 0.5rem !important;
+		max-width: 100% !important;
+		width: 100% !important;
+		box-sizing: border-box !important;
+		margin: 0 auto !important;
+		overflow-x: hidden !important;
+	}
+	
+	/* 카드 영역 최적화 */
+	.card {
+		margin: 0.5rem auto !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+	}
+	
+	.card-body {
+		padding: 0.75rem !important;
+		overflow-x: hidden !important;
+	}
+	
+	/* 제목 영역 최적화 */
+	.d-flex.mb-3.mt-2.justify-content-center.align-items-center {
+		flex-direction: column !important;
+		align-items: stretch !important;
+		gap: 0.5rem !important;
+		padding: 0.5rem !important;
+	}
+	
+	.d-flex.mb-3.mt-2.justify-content-center.align-items-center h4 {
+		width: 100% !important;
+		text-align: center !important;
+		font-size: 1.5rem !important;
+		margin-bottom: 0.5rem !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+	}
+	
+	.d-flex.mb-3.mt-2.justify-content-center.align-items-center button {
+		width: 100% !important;
+		max-width: 100% !important;
+		margin: 0.25rem 0 !important;
+		padding: 0.5rem !important;
+		font-size: 1rem !important;
+	}
+	
+	/* 알림 영역 최적화 */
+	.alert {
+		width: 100% !important;
+		max-width: 100% !important;
+		padding: 0.75rem !important;
+		font-size: 0.9rem !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+	}
+	
+	/* 검색 영역 최적화 */
+	.d-flex.justify-content-center.align-items-center {
+		flex-direction: column !important;
+		align-items: stretch !important;
+		gap: 0.5rem !important;
+		padding: 0.5rem !important;
+	}
+	
+	/* 기간 설정 영역 최적화 */
+	#showframe {
+		width: 100% !important;
+		max-width: 100% !important;
+		left: 0 !important;
+		transform: none !important;
+		position: fixed !important;
+		top: 50% !important;
+		z-index: 9999 !important;
+	}
+	
+	#showframe .card-body {
+		padding: 0.75rem !important;
+	}
+	
+	#showframe .d-flex.justify-content-center.align-items-center {
+		flex-wrap: wrap !important;
+		gap: 0.5rem !important;
+	}
+	
+	#showframe button {
+		width: calc(50% - 0.25rem) !important;
+		margin: 0.25rem 0 !important;
+		padding: 0.5rem !important;
+		font-size: 0.9rem !important;
+	}
+	
+	/* 날짜 입력 최적화 */
+	input[type="date"] {
+		width: 100% !important;
+		max-width: 100% !important;
+		padding: 0.5rem !important;
+		font-size: 1rem !important;
+		margin: 0.25rem 0 !important;
+	}
+	
+	/* 검색 입력 최적화 */
+	.inputWrap {
+		width: 100% !important;
+		max-width: 100% !important;
+		position: relative !important;
+		display: block !important;
+	}
+	
+	.inputWrap input {
+		width: 100% !important;
+		max-width: 100% !important;
+		padding: 0.5rem 35px 0.5rem 0.5rem !important;
+		font-size: 1rem !important;
+		margin: 0.25rem 0 !important;
+		box-sizing: border-box !important;
+	}
+	
+	.btnClear {
+		position: absolute !important;
+		right: 8px !important;
+		top: 50% !important;
+		transform: translateY(-50%) !important;
+		width: 24px !important;
+		height: 24px !important;
+		background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/></svg>') no-repeat center !important;
+		background-size: 16px 16px !important;
+		border: none !important;
+		cursor: pointer !important;
+		z-index: 10 !important;
+	}
+	
+	/* 버튼 최적화 */
+	button {
+		width: 100% !important;
+		max-width: 100% !important;
+		margin: 0.25rem 0 !important;
+		padding: 0.5rem !important;
+		font-size: 1rem !important;
+	}
+	
+	/* DataTables 숨기기 */
+	.dataTables_length,
+	.dataTables_filter {
+		display: none !important;
+	}
+	
+	/* 테이블을 카드 형식으로 변환 */
+	.table-responsive {
+		overflow-x: visible !important;
+	}
+	
+	.table {
+		display: none !important;
+	}
+	
+	.table thead {
+		display: none !important;
+	}
+	
+	.table tbody {
+		display: block !important;
+		width: 100% !important;
+		max-width: 100% !important;
+	}
+	
+	.table tbody tr {
+		display: block !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		margin-bottom: 0.75rem !important;
+		border: 1px solid #ddd !important;
+		border-radius: 0.5rem !important;
+		padding: 0.75rem !important;
+		background: #f8f9fa !important;
+		box-sizing: border-box !important;
+		cursor: pointer !important;
+	}
+	
+	.table tbody td {
+		display: block !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		padding: 0.5rem 0 !important;
+		text-align: left !important;
+		border: none !important;
+		font-size: 0.9rem !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		box-sizing: border-box !important;
+	}
+	
+	.table tbody td:before {
+		content: attr(data-label) ": ";
+		font-weight: bold !important;
+		color: #007bff !important;
+		margin-right: 0.5rem !important;
+		display: inline-block !important;
+	}
+	
+	.table tbody td:first-child:before {
+		content: "번호: " !important;
+	}
+	
+	.table tbody td:nth-child(2):before {
+		content: "견적일자: " !important;
+	}
+	
+	.table tbody td:nth-child(3):before {
+		content: "수신: " !important;
+	}
+	
+	.table tbody td:nth-child(4):before {
+		content: "구분: " !important;
+	}
+	
+	.table tbody td:nth-child(5):before {
+		content: "현장명: " !important;
+	}
+	
+	.table tbody td:nth-child(6):before {
+		content: "작성자: " !important;
+	}
+	
+	.table tbody td:nth-child(7):before {
+		content: "합계(VAT별도): " !important;
+	}
+	
+	.table tbody td:nth-child(8):before {
+		content: "합계(VAT포함): " !important;
+	}
+	
+	/* tfoot 최적화 */
+	.table tfoot {
+		display: block !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		margin-top: 1rem !important;
+	}
+	
+	.table tfoot tr {
+		display: block !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		border: 2px solid #0dcaf0 !important;
+		border-radius: 0.5rem !important;
+		padding: 0.75rem !important;
+		background: #d1ecf1 !important;
+		box-sizing: border-box !important;
+	}
+	
+	.table tfoot td {
+		display: block !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		padding: 0.5rem 0 !important;
+		text-align: left !important;
+		border: none !important;
+		font-size: 0.9rem !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		box-sizing: border-box !important;
+	}
+	
+	.table tfoot td:before {
+		content: attr(data-label) ": ";
+		font-weight: bold !important;
+		color: #0dcaf0 !important;
+		margin-right: 0.5rem !important;
+		display: inline-block !important;
+	}
+	
+	/* 텍스트 오버플로우 방지 */
+	* {
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		box-sizing: border-box !important;
+	}
+	
+	/* 모든 텍스트 요소 강제 줄바꿈 */
+	p, div, h1, h2, h3, h4, h5, h6, label, strong, em, b, i, u, span, td, th {
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		word-break: break-word !important;
+		white-space: normal !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+	}
+	
+	/* span 요소 줄바꿈 처리 */
+	span {
+		display: inline-block !important;
+		overflow: visible !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+	}
+	
+	/* 모든 div 요소 오버플로우 방지 */
+	div {
+		max-width: 100% !important;
+		overflow-x: hidden !important;
+		box-sizing: border-box !important;
+	}
+	
+	/* '기간' 버튼 숨기기 */
+	#showdate {
+		display: none !important;
+	}
+	
+	/* 모달 최적화 */
+	.modal {
+		padding: 0 !important;
+		overflow: hidden !important;
+	}
+	
+	.modal-dialog {
+		margin: 0 !important;
+		max-width: 100% !important;
+		width: 100% !important;
+		height: 100vh !important;
+		max-height: 100vh !important;
+	}
+	
+	.modal-content {
+		margin: 0 !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		height: 100vh !important;
+		max-height: 100vh !important;
+		border-radius: 0 !important;
+		display: flex !important;
+		flex-direction: column !important;
+		box-sizing: border-box !important;
+	}
+	
+	.modal-header {
+		padding: 0.75rem 0.5rem !important;
+		flex-shrink: 0 !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+	}
+	
+	.modal-title {
+		font-size: 1rem !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+	}
+	
+	.modal-body {
+		flex: 1 !important;
+		overflow-y: auto !important;
+		overflow-x: hidden !important;
+		padding: 0.75rem !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		-webkit-overflow-scrolling: touch !important;
+	}
+	
+	.modal-footer {
+		padding: 0.75rem 0.5rem !important;
+		flex-shrink: 0 !important;
+		flex-direction: column !important;
+		gap: 0.5rem !important;
+	}
+	
+	.modal-footer button {
+		width: 100% !important;
+		max-width: 100% !important;
+		margin: 0 !important;
+		padding: 0.5rem !important;
+		font-size: 1rem !important;
+	}
+	
+	/* 자동완성 리스트 최적화 */
+	#autocomplete-list {
+		width: 100% !important;
+		max-width: 100% !important;
+		left: 0 !important;
+		right: 0 !important;
+		top: 100% !important;
+		position: absolute !important;
+		z-index: 99 !important;
+	}
+	
+	/* 모바일 카드 컨테이너 */
+	.mobile-cards-container {
+		width: 100% !important;
+		max-width: 100% !important;
+		padding: 0.5rem 0 !important;
+	}
+	
+	.mobile-card {
+		width: 100% !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+	}
+}
 </style>   
 </head>		 
 <body>
@@ -128,7 +546,7 @@ $todate = $_REQUEST['todate'] ?? '';
 
 // fromdate 또는 todate가 빈 문자열이거나 null인 경우
 if ($fromdate === "" || $fromdate === null || $todate === "" || $todate === null) {
-    $fromdate = date("Y-m-d", strtotime("-3 months", strtotime($currentDate))); // 3개월 이전 날짜
+    $fromdate = '2025-01-01'; // 최초 견적일자
     $todate = $currentDate; // 현재 날짜
 	$Transtodate = $todate;
 } else {
@@ -274,9 +692,9 @@ th {
     </thead>
     <tfoot>
       <tr class="table-info fw-bold">	
-        <td colspan="6" class="text-end fw-medium">소계</td>
-        <td class="text-end fw-medium" id="total-ex-vat">0</td>
-        <td class="text-end fw-medium" id="total-inc-vat">0</td>
+        <td colspan="6" class="text-end fw-medium" data-label="소계">소계</td>
+        <td class="text-end fw-medium" id="total-ex-vat" data-label="합계(VAT별도)">0</td>
+        <td class="text-end fw-medium" id="total-inc-vat" data-label="합계(VAT포함)">0</td>
       </tr>
     </tfoot>
     <tbody>
@@ -319,21 +737,23 @@ th {
 					
 				echo '<tr style="cursor:pointer;" data-id="'.  $num . '" onclick="redirectToView(' . $num . ')">';
 				?>
-					<td class="text-center"><?= $start_num ?></td>
+					<td class="text-center" data-label="번호"><?= $start_num ?></td>
 					
-					<td class="text-start" data-order="<?= $quote_date ?>"> <?=$quote_date?> </td>	  
+					<td class="text-start" data-order="<?= $quote_date ?>" data-label="견적일자"> <?=$quote_date?> </td>	  
 					<td class="text-start"
-						data-order="<?= $recipient ?>">
+						data-order="<?= $recipient ?>"
+						data-label="수신">
 						<?= $recipient ?>
 					</td>  <!-- 수신 -->
 					<td class="text-center"
-						data-order="<?= $division ?>">
+						data-order="<?= $division ?>"
+						data-label="구분">
 						<?= $division ?>
 					</td>  <!-- 구분 -->
-					<td class="text-start"> <?= $site_name ?> </td>          
-					<td class="text-center text-primary"><?= $author ?></td>
-					<td class="text-end"><?= $total_ex_vat ?></td>
-					<td class="text-end"><?= $total_inc_vat ?></td>
+					<td class="text-start" data-label="현장명"> <?= $site_name ?> </td>          
+					<td class="text-center text-primary" data-label="작성자"><?= $author ?></td>
+					<td class="text-end" data-label="합계(VAT별도)"><?= $total_ex_vat ?></td>
+					<td class="text-end" data-label="합계(VAT포함)"><?= $total_inc_vat ?></td>
 					</tr>
 		<?php
 			$start_num--;  
@@ -380,6 +800,112 @@ $(document).ready(function(){
 		loader.style.display = 'none';
 });
 
+// 모바일에서 테이블을 카드 형식으로 변환하는 함수
+function renderMobileCards() {
+	if (window.innerWidth > 768) {
+		return; // 데스크톱에서는 실행하지 않음
+	}
+	
+	var table = document.getElementById('myTable');
+	if (!table) return;
+	
+	var tbody = table.querySelector('tbody');
+	if (!tbody) return;
+	
+	var rows = tbody.querySelectorAll('tr');
+	var cardsContainer = document.getElementById('mobileCardsContainer');
+	
+	// 카드 컨테이너가 없으면 생성
+	if (!cardsContainer) {
+		cardsContainer = document.createElement('div');
+		cardsContainer.id = 'mobileCardsContainer';
+		cardsContainer.className = 'mobile-cards-container';
+		table.parentElement.appendChild(cardsContainer);
+	}
+	
+	cardsContainer.innerHTML = '';
+	
+	rows.forEach(function(row) {
+		var cells = row.querySelectorAll('td');
+		if (cells.length === 0) return;
+		
+		var card = document.createElement('div');
+		card.className = 'mobile-card';
+		card.style.cssText = 'border: 1px solid #ddd; border-radius: 0.5rem; padding: 0.75rem; margin-bottom: 0.75rem; background: #f8f9fa; cursor: pointer;';
+		card.onclick = row.onclick || function() {
+			var dataId = row.getAttribute('data-id');
+			if (dataId) {
+				redirectToView(dataId);
+			}
+		};
+		
+		var labels = ['번호', '견적일자', '수신', '구분', '현장명', '작성자', '합계(VAT별도)', '합계(VAT포함)'];
+		
+		cells.forEach(function(cell, index) {
+			if (index < labels.length) {
+				var cardItem = document.createElement('div');
+				cardItem.style.cssText = 'padding: 0.5rem 0; border-bottom: 1px solid #eee;';
+				if (index === cells.length - 1) {
+					cardItem.style.borderBottom = 'none';
+				}
+				
+				var label = document.createElement('strong');
+				label.textContent = labels[index] + ': ';
+				label.style.cssText = 'color: #007bff; margin-right: 0.5rem;';
+				
+				var value = document.createElement('span');
+				value.textContent = cell.textContent.trim();
+				value.style.cssText = 'word-wrap: break-word; overflow-wrap: break-word;';
+				
+				cardItem.appendChild(label);
+				cardItem.appendChild(value);
+				card.appendChild(cardItem);
+			}
+		});
+		
+		cardsContainer.appendChild(card);
+	});
+	
+	// tfoot 처리
+	var tfoot = table.querySelector('tfoot');
+	if (tfoot) {
+		var tfootRow = tfoot.querySelector('tr');
+		if (tfootRow) {
+			var tfootCells = tfootRow.querySelectorAll('td');
+			if (tfootCells.length > 0) {
+				var summaryCard = document.createElement('div');
+				summaryCard.className = 'mobile-card-summary';
+				summaryCard.style.cssText = 'border: 2px solid #0dcaf0; border-radius: 0.5rem; padding: 0.75rem; margin-top: 1rem; background: #d1ecf1; font-weight: bold;';
+				
+				tfootCells.forEach(function(cell, index) {
+					var summaryItem = document.createElement('div');
+					summaryItem.style.cssText = 'padding: 0.5rem 0;';
+					
+					var label = document.createElement('strong');
+					label.style.cssText = 'color: #0dcaf0; margin-right: 0.5rem;';
+					
+					if (index === 0) {
+						label.textContent = '소계: ';
+					} else if (index === 1) {
+						label.textContent = '합계(VAT별도): ';
+					} else if (index === 2) {
+						label.textContent = '합계(VAT포함): ';
+					}
+					
+					var value = document.createElement('span');
+					value.textContent = cell.textContent.trim();
+					
+					summaryItem.appendChild(label);
+					summaryItem.appendChild(value);
+					summaryCard.appendChild(summaryItem);
+				});
+				
+				cardsContainer.appendChild(summaryCard);
+			}
+		}
+	}
+}
+
 $(document).ready(function() {			
     // DataTables 초기 설정
     dataTable = $('#myTable').DataTable({
@@ -392,7 +918,23 @@ $(document).ready(function() {
             "lengthMenu": "Show _MENU_ entries",
             "search": "Live Search:"
         },
-        "order": [[0, 'desc']]
+        "order": [[0, 'desc']],
+        "initComplete": function() {
+			// 모바일에서 카드 형식으로 변환
+			if (window.innerWidth <= 768) {
+				setTimeout(function() {
+					renderMobileCards();
+				}, 100);
+			}
+		},
+		"drawCallback": function() {
+			// 페이지 변경 시 모바일 카드 다시 렌더링
+			if (window.innerWidth <= 768) {
+				setTimeout(function() {
+					renderMobileCards();
+				}, 100);
+			}
+		}
     });
 
     // 페이지 번호 복원 (초기 로드 시)
@@ -418,6 +960,28 @@ $(document).ready(function() {
             dataTable.page(parseInt(savedPageNumber) - 1).draw(false);
         }
     });
+	
+	// 창 크기 변경 시 모바일 카드 다시 렌더링
+	$(window).on('resize', function() {
+		if (window.innerWidth <= 768) {
+			setTimeout(function() {
+				renderMobileCards();
+			}, 100);
+		} else {
+			// 데스크톱으로 돌아가면 카드 컨테이너 제거
+			var cardsContainer = document.getElementById('mobileCardsContainer');
+			if (cardsContainer) {
+				cardsContainer.remove();
+			}
+		}
+	});
+	
+	// 초기 로드 시 모바일 카드 렌더링
+	if (window.innerWidth <= 768) {
+		setTimeout(function() {
+			renderMobileCards();
+		}, 300);
+	}
 });
 
 function restorePageNumber() {
@@ -460,6 +1024,13 @@ $(document).ready(function() {
 		// Set dateRange to '전체' and trigger the change event
 		$('#dateRange').val('전체').change();
 		document.getElementById('board_form').submit();
+		
+		// 모바일에서 카드 다시 렌더링
+		if (window.innerWidth <= 768) {
+			setTimeout(function() {
+				renderMobileCards();
+			}, 500);
+		}
 	});
 }); 
 

@@ -66,6 +66,264 @@ $pdo = db_connect();
 ?>
  
  <title> <?=$title_message ?>  </title> 
+ <style>
+    /* 모바일 환경 최적화 */
+    @media (max-width: 768px) {
+        /* body와 html 오버플로우 방지 */
+        html, body {
+            overflow-x: hidden !important;
+            max-width: 100vw !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        * {
+            max-width: 100vw !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 컨테이너 최적화 */
+        .container,
+        .container-fluid {
+            padding: 0.5rem !important;
+            max-width: 100vw !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+            margin: 0 auto !important;
+            overflow-x: hidden !important;
+        }
+        
+        /* 카드 최적화 */
+        .card {
+            margin: 0.5rem auto !important;
+            width: calc(100vw - 1rem) !important;
+            max-width: calc(100vw - 1rem) !important;
+            box-sizing: border-box !important;
+            overflow-x: hidden !important;
+        }
+        
+        .card-body {
+            padding: 0.75rem !important;
+            overflow-x: hidden !important;
+        }
+        
+        .card-header {
+            padding: 0.75rem !important;
+        }
+        
+        .card-header span {
+            font-size: 1.25rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            text-align: center !important;
+        }
+        
+        /* 버튼 그룹 최적화 */
+        .d-flex.mb-1.mt-3.justify-content-start {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 0.5rem !important;
+            padding: 0.5rem !important;
+        }
+        
+        .d-flex.mb-1.mt-3.justify-content-start button {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0.25rem 0 !important;
+            padding: 0.5rem !important;
+            font-size: 1rem !important;
+        }
+        
+        /* 테이블 최적화 - 카드 형식으로 변환 */
+        .table {
+            display: block !important;
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+        
+        .table thead {
+            display: none !important;
+        }
+        
+        .table tbody {
+            display: block !important;
+            width: 100% !important;
+        }
+        
+        .table tr {
+            display: block !important;
+            width: 100% !important;
+            margin-bottom: 0.5rem !important;
+            border: 1px solid #dee2e6 !important;
+            border-radius: 0.375rem !important;
+            padding: 0.75rem !important;
+            background: #fff !important;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+            box-sizing: border-box !important;
+        }
+        
+        .table td {
+            display: flex !important;
+            flex-direction: column !important;
+            width: 100% !important;
+            padding: 0.5rem !important;
+            border: none !important;
+            text-align: left !important;
+            box-sizing: border-box !important;
+        }
+        
+        .table td::before {
+            content: attr(data-label) !important;
+            font-weight: bold !important;
+            font-size: 0.875rem !important;
+            color: #495057 !important;
+            margin-bottom: 0.25rem !important;
+        }
+        
+        .table td:first-child::before {
+            content: attr(data-label) !important;
+        }
+        
+        /* 입력 필드 최적화 */
+        .form-control {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0.25rem 0 !important;
+            padding: 0.5rem !important;
+            font-size: 1rem !important;
+            box-sizing: border-box !important;
+        }
+        
+        input[type="date"],
+        input[type="text"],
+        input[type="radio"] {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 라디오 버튼 그룹 최적화 */
+        h6 {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 0.5rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        h6 span {
+            display: inline-block !important;
+            margin-right: 0.5rem !important;
+        }
+        
+        h6 input[type="radio"] {
+            width: auto !important;
+            margin-right: 0.5rem !important;
+        }
+        
+        /* 텍스트 오버플로우 방지 */
+        * {
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 모든 텍스트 요소 강제 줄바꿈 */
+        p, div, h1, h2, h3, h4, h5, h6, label, strong, em, b, i, u, span, td, th {
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            word-break: break-word !important;
+            white-space: normal !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* span 요소 줄바꿈 처리 */
+        span {
+            display: inline-block !important;
+            overflow: visible !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 모든 div 요소 오버플로우 방지 */
+        div {
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* '기간' 버튼 숨기기 */
+        #showdate {
+            display: none !important;
+        }
+        
+        /* 모달 최적화 */
+        .modal {
+            padding: 0 !important;
+            overflow: hidden !important;
+        }
+        
+        .modal-dialog {
+            margin: 0 !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            height: 100vh !important;
+            max-height: 100vh !important;
+        }
+        
+        .modal-content {
+            margin: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 100vh !important;
+            max-height: 100vh !important;
+            border-radius: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            box-sizing: border-box !important;
+        }
+        
+        .modal-header {
+            padding: 0.75rem 0.5rem !important;
+            flex-shrink: 0 !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .modal-title {
+            font-size: 1rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .modal-body {
+            flex: 1 !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            padding: 0.75rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            -webkit-overflow-scrolling: touch !important;
+        }
+        
+        .modal-footer {
+            padding: 0.75rem 0.5rem !important;
+            flex-shrink: 0 !important;
+            flex-direction: column !important;
+            gap: 0.5rem !important;
+        }
+        
+        .modal-footer button {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0.5rem !important;
+            font-size: 1rem !important;
+        }
+    }
+</style>
  </head>
    
 <body>
@@ -92,9 +350,9 @@ $pdo = db_connect();
    if(isset($_SESSION["userid"]) &&  ( $user_name==='소현철' ||  $user_name==='소민지' ||  $user_name==='김보곤')   )
    {
   ?>	
-	<button type="button"   class="btn btn-dark btn-sm me-1" onclick="location.href='write_form.php?tablename=<?=$tablename?>&mode=modify&num=<?=$num?>&page=<?=$page?>&search=<?=$search?>&Bigsearch=<?=$Bigsearch?>&find=<?=$find?>&year=<?=$year?>&search=<?=$search?>&process=<?=$process?>&asprocess=<?=$asprocess?>&fromdate=<?=$fromdate?>&todate=<?=$todate?>&separate_date=<?=$separate_date?>'" >  <i class="bi bi-pencil-square"></i>  수정  </button>			
-	<button type="button"   class="btn btn-dark btn-sm me-1" onclick="location.href='write_form.php?tablename=<?=$tablename?>'" >  <i class="bi bi-pencil"></i>  신규 </button>			
-	<button type="button"   class="btn btn-danger btn-sm me-1" onclick="javascript:del('delete.php?tablename=<?=$tablename?>&num=<?=$num?>&page=<?=$page?>')" > <i class="bi bi-trash"></i>  삭제   </button>								
+	<button type="button" class="btn btn-dark btn-sm me-1" onclick="location.href='write_form.php?tablename=<?= htmlspecialchars($tablename, ENT_QUOTES, 'UTF-8') ?>&mode=modify&num=<?= htmlspecialchars($num, ENT_QUOTES, 'UTF-8') ?>&page=<?= htmlspecialchars($page ?? '', ENT_QUOTES, 'UTF-8') ?>&search=<?= htmlspecialchars($search ?? '', ENT_QUOTES, 'UTF-8') ?>&Bigsearch=<?= htmlspecialchars($Bigsearch ?? '', ENT_QUOTES, 'UTF-8') ?>&find=<?= htmlspecialchars($find ?? '', ENT_QUOTES, 'UTF-8') ?>&year=<?= htmlspecialchars($year ?? '', ENT_QUOTES, 'UTF-8') ?>&process=<?= htmlspecialchars($process ?? '', ENT_QUOTES, 'UTF-8') ?>&asprocess=<?= htmlspecialchars($asprocess ?? '', ENT_QUOTES, 'UTF-8') ?>&fromdate=<?= htmlspecialchars($fromdate ?? '', ENT_QUOTES, 'UTF-8') ?>&todate=<?= htmlspecialchars($todate ?? '', ENT_QUOTES, 'UTF-8') ?>&separate_date=<?= htmlspecialchars($separate_date ?? '', ENT_QUOTES, 'UTF-8') ?>'" >  <i class="bi bi-pencil-square"></i>  수정  </button>			
+	<button type="button" class="btn btn-dark btn-sm me-1" onclick="location.href='write_form.php?tablename=<?= htmlspecialchars($tablename, ENT_QUOTES, 'UTF-8') ?>'" >  <i class="bi bi-pencil"></i>  신규 </button>			
+	<button type="button" class="btn btn-danger btn-sm me-1" onclick="javascript:del('delete.php?tablename=<?= htmlspecialchars($tablename, ENT_QUOTES, 'UTF-8') ?>&num=<?= htmlspecialchars($num, ENT_QUOTES, 'UTF-8') ?>&page=<?= htmlspecialchars($page ?? '', ENT_QUOTES, 'UTF-8') ?>')" > <i class="bi bi-trash"></i>  삭제   </button>								
   <?php
    }
   ?> 	
@@ -117,61 +375,61 @@ $pdo = db_connect();
 					default: break;
 				}
 	   ?>
-	<td colspan="4" class="text-center mt-3">	
+	<td colspan="4" class="text-center mt-3" data-label="구분">	
     <h6>	
 	   구분 :       <span class="text-primary"> 수입   </span>    	   
-	   <input  type="radio" <?=$aryreg[0]?> name=which value="1">     
+	   <input  type="radio" <?= htmlspecialchars($aryreg[0], ENT_QUOTES, 'UTF-8') ?> name="which" value="1">     
 		   <span class="text-danger"> 지출   </span>     
-		<input  type="radio" <?=$aryreg[1]?>  name=which value="2">  	 
+		<input  type="radio" <?= htmlspecialchars($aryreg[1], ENT_QUOTES, 'UTF-8') ?>  name="which" value="2">  	 
 		</h6>
 	</td>
   </tr>
 
   <tr>
-   <td class="text-center">
+   <td class="text-center" data-label="기록일">
 	 기록일   
 	 </td>
-	 <td>
-	 <input type="date" id="proDate" name="proDate" class="form-control text-end" style="width:100px;"  value="<?=$proDate?>" size="14" >  
+	 <td data-label="기록일">
+	 <input type="date" id="proDate" name="proDate" class="form-control text-end" style="width:100px;" value="<?= htmlspecialchars($proDate, ENT_QUOTES, 'UTF-8') ?>" size="14" >  
 	 </td>
-	 <td class="text-center">	 
+	 <td class="text-center" data-label="작성자">	 
 	작성자  
 	 </td>
-	 <td>	
-	 <input type="text" id="writer" name="writer" value="<?=$writer?>" class="form-control text-center" style="width:100px;"  >  
+	 <td data-label="작성자">	
+	 <input type="text" id="writer" name="writer" value="<?= htmlspecialchars($writer, ENT_QUOTES, 'UTF-8') ?>" class="form-control text-center" style="width:100px;"  >  
     	 </td>
 	 </tr>	 
   <tr>
-   <td class="text-center">
+   <td class="text-center" data-label="품목">
 	품 목  	 
 	 </td>
-	 <td colspan="3">		  
-	 <input type="text"  id="item" name="item" value="<?=$item?>" class="form-control" placeholder="품목"> 	 
+	 <td colspan="3" data-label="품목">		  
+	 <input type="text" id="item" name="item" value="<?= htmlspecialchars($item, ENT_QUOTES, 'UTF-8') ?>" class="form-control" placeholder="품목"> 	 
     	 </td>
  </tr> 
    <tr>
-   <td class="text-center">
+   <td class="text-center" data-label="내역">
 	내 역  	 
 	 </td>
-	 <td colspan="3">		  
-	 <input type="text"  id="memo" name="memo" value="<?=$memo?>" class="form-control" placeholder="내역"> 	 
+	 <td colspan="3" data-label="내역">		  
+	 <input type="text" id="memo" name="memo" value="<?= htmlspecialchars($memo, ENT_QUOTES, 'UTF-8') ?>" class="form-control" placeholder="내역"> 	 
     	 </td>
  </tr>	 
   <tr>
-   <td class="text-center">
+   <td class="text-center" data-label="금액">
 	금 액
 	 </td>
-	 <td colspan="3">		  
-		<input type="text" name="amount" id="amount" value="<?=$amount?>"  onkeyup="inputNumberFormat(this)" class="form-control text-end" style="width:100px;" placeholder="금액" />	 	 </div>
+	 <td colspan="3" data-label="금액">		  
+		<input type="text" name="amount" id="amount" value="<?= htmlspecialchars($amount, ENT_QUOTES, 'UTF-8') ?>" onkeyup="inputNumberFormat(this)" class="form-control text-end" style="width:100px;" placeholder="금액" />
 	 </td>
 	    	 
    </tr>	 
   <tr>
-   <td class="text-center">
+   <td class="text-center" data-label="비고">
 	비 고
 	 </td>
-	 <td colspan="3">		  
-		<input type="text" name="comment" id="comment" value="<?=$comment?>"  class="form-control"  placeholder="비고" />	 	 </div>
+	 <td colspan="3" data-label="비고">		  
+		<input type="text" name="comment" id="comment" value="<?= htmlspecialchars($comment, ENT_QUOTES, 'UTF-8') ?>" class="form-control" placeholder="비고" />
 	 </td>
 	    	 
    </tr>

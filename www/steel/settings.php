@@ -29,6 +29,307 @@ include getDocumentRoot() . '/load_header.php';
 
 <title> <?=$title_message?>  </title>
 
+<style>
+/* 모바일 최적화 스타일 */
+@media (max-width: 768px) {
+    /* 컨테이너 및 카드 최적화 */
+    .container-fluid {
+        padding: 0.75rem 0.5rem !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    .card {
+        margin: 0.5rem auto !important;
+        border-radius: 0.5rem !important;
+        width: calc(100% - 1rem) !important;
+        max-width: calc(100% - 1rem) !important;
+        box-sizing: border-box !important;
+    }
+    
+    .card-header {
+        padding: 0.75rem 0.5rem !important;
+    }
+    
+    .card-header h5 {
+        font-size: 1.5rem !important;
+    }
+    
+    .card-body {
+        padding: 0.75rem 0.5rem !important;
+    }
+    
+    /* 내부 카드 최적화 */
+    .card.border-0.bg-light {
+        margin: 0.5rem auto !important;
+        width: calc(100% - 0.5rem) !important;
+        max-width: calc(100% - 0.5rem) !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 버튼 최적화 */
+    .btn {
+        font-size: 1.3125rem !important;
+        padding: 0.5rem 0.75rem !important;
+        white-space: nowrap !important;
+        min-height: 40px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        margin-bottom: 0.5rem !important;
+    }
+    
+    .btn-sm {
+        font-size: 1.2rem !important;
+        padding: 0.4rem 0.6rem !important;
+    }
+    
+    .row.mb-3:first-of-type {
+        flex-direction: column !important;
+    }
+    
+    .row.mb-3:first-of-type .col-md-6 {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0.25rem !important;
+    }
+    
+    .row.mb-3:first-of-type .col-md-6.text-end {
+        text-align: left !important;
+    }
+    
+    /* 입력 필드 최적화 */
+    .form-label {
+        font-size: 1.3125rem !important;
+        margin-bottom: 0.25rem !important;
+    }
+    
+    .form-control,
+    .form-control-lg {
+        font-size: 1.3125rem !important;
+        padding: 0.5rem 0.5rem !important;
+        height: auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 입력 그룹 최적화 */
+    .input-group {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex-wrap: nowrap !important;
+        box-sizing: border-box !important;
+    }
+    
+    .input-group-text {
+        font-size: 1.125rem !important;
+        padding: 0.5rem 0.4rem !important;
+        min-width: 40px !important;
+        flex-shrink: 0 !important;
+        box-sizing: border-box !important;
+    }
+    
+    .input-group .form-control {
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    
+    /* 행 레이아웃 최적화 */
+    .row {
+        margin-left: -0.25rem !important;
+        margin-right: -0.25rem !important;
+    }
+    
+    .row > [class*="col-"] {
+        padding-left: 0.25rem !important;
+        padding-right: 0.25rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+    
+    /* 첫 번째 행 (PO, CR, EGI) */
+    .row.mb-3:nth-of-type(2) .col-md-4 {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 0 0 100% !important;
+    }
+    
+    /* 두 번째 행 (201 HL, 201 MR, 304 HL, 304 MR) */
+    .row.mb-3:nth-of-type(3) .col-md-3 {
+        width: 50% !important;
+        max-width: 50% !important;
+        flex: 0 0 50% !important;
+    }
+    
+    /* 세 번째 행 (i3 304 HL, i3 304 MR, 304 VB, 304 BEAD, 특수소재평균) */
+    .row.mb-3:nth-of-type(4) .col-md-3 {
+        width: 50% !important;
+        max-width: 50% !important;
+        flex: 0 0 50% !important;
+    }
+    
+    /* 카드 내부 최적화 */
+    .card.border-0.bg-light {
+        margin: 0 !important;
+        border-radius: 0.5rem !important;
+    }
+    
+    .card.border-0.bg-light .card-body {
+        padding: 0.75rem 0.5rem !important;
+    }
+    
+    .card-title {
+        font-size: 1.35rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+    
+    /* 텍스트 오버플로우 방지 */
+    * {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 폼 그룹 최적화 */
+    .form-group {
+        margin-bottom: 0.75rem !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    /* 숫자 입력 필드 텍스트 정렬 유지 */
+    .text-end {
+        text-align: right !important;
+    }
+    
+    /* 아이콘 크기 조정 */
+    .bi {
+        font-size: 1.3125rem !important;
+    }
+}
+
+/* 모달 최적화 */
+@media (max-width: 768px) {
+    .modal-dialog {
+        margin: 0.5rem !important;
+        max-width: calc(100% - 1rem) !important;
+    }
+    
+    .modal-dialog.modal-xl,
+    .modal-dialog.modal-fullscreen {
+        margin: 0 !important;
+        max-width: 100% !important;
+        height: 100% !important;
+    }
+    
+    .modal-content {
+        height: 100% !important;
+        border-radius: 0.5rem !important;
+    }
+    
+    .modal-header {
+        padding: 0.75rem 0.5rem !important;
+        min-height: 50px !important;
+        flex-wrap: wrap !important;
+        gap: 0.25rem !important;
+    }
+    
+    .modal-title {
+        font-size: 1.5rem !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        word-wrap: break-word !important;
+    }
+    
+    .modal-header .btn-close {
+        margin: 0 !important;
+        padding: 0.5rem !important;
+    }
+    
+    .modal-header .btn-sm {
+        padding: 0.3rem 0.5rem !important;
+        font-size: 1.125rem !important;
+        min-height: 36px !important;
+        min-width: 36px !important;
+        margin: 0.125rem !important;
+        flex: 1 1 auto !important;
+    }
+    
+    .modal-body {
+        padding: 0.75rem 0.5rem !important;
+        font-size: 1.35rem !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .modal-footer {
+        padding: 0.75rem 0.5rem !important;
+        flex-wrap: wrap !important;
+        gap: 0.25rem !important;
+    }
+    
+    .modal-footer .btn {
+        padding: 0.5rem 0.75rem !important;
+        font-size: 1.3125rem !important;
+        min-height: 40px !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        margin-bottom: 0.25rem !important;
+    }
+    
+    /* SweetAlert2 모달 최적화 */
+    .swal2-popup {
+        width: 90% !important;
+        max-width: 90% !important;
+        padding: 1rem !important;
+        font-size: 1.35rem !important;
+    }
+    
+    .swal2-title {
+        font-size: 1.65rem !important;
+        word-wrap: break-word !important;
+    }
+    
+    .swal2-content {
+        font-size: 1.3125rem !important;
+        word-wrap: break-word !important;
+    }
+    
+    .swal2-actions {
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+    }
+    
+    .swal2-confirm,
+    .swal2-cancel {
+        font-size: 1.3125rem !important;
+        padding: 0.5rem 1rem !important;
+        min-height: 40px !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+    }
+}
+
+/* PC 화면 최적화 */
+@media (min-width: 769px) {
+    .btn {
+        white-space: nowrap !important;
+    }
+    
+    .input-group-text {
+        min-width: 45px !important;
+    }
+}
+</style>
+
 </head>
 
 <body>
@@ -93,20 +394,20 @@ $sql="select * from ".$DB.".steelsource";
 
 	<div class="container-fluid py-4">	
 		<div class="card shadow-sm border-0">	
-			<div class="card-header bg-primary text-white">	
+			<div class="card-header">	
 				<h5 class="text-center mb-0">
 					<i class="bi bi-gear-fill me-2"></i><?=$title_message?>
 				</h5>
 			</div>
 			<div class="card-body">						 
 				<div class="row mb-3">
-					<div class="col-md-6">
-						<button id="SavesettingsBtn" type="button" class="btn btn-success btn-sm">
+					<div class="col-md-6 col-12 mb-2 mb-md-0">
+						<button id="SavesettingsBtn" type="button" class="btn btn-success btn-sm w-100">
 							<i class="bi bi-floppy-fill me-2"></i>설정 저장
 						</button>		
 					</div>
-					<div class="col-md-6 text-end">
-						<button class="btn btn-secondary btn-sm" onclick="self.close();">
+					<div class="col-md-6 col-12 text-md-end">
+						<button class="btn btn-secondary btn-sm w-100 w-md-auto" onclick="self.close();">
 							<i class="bi bi-x-lg me-2"></i>창 닫기
 						</button>	
 					</div>

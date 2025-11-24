@@ -22,6 +22,238 @@ ini_set('display_errors', '1');
 <?php include getDocumentRoot() . '/load_header.php' ?>
 
 <title> 조명천장 부자재 </title>
+
+<style>
+/* 모바일 최적화 스타일 */
+@media (max-width: 768px) {
+    /* 컨테이너 및 카드 최적화 */
+    .container-fluid {
+        padding: 0.75rem 0.5rem !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    .card {
+        margin: 0.5rem auto !important;
+        border-radius: 0.5rem !important;
+        width: calc(100% - 1rem) !important;
+        max-width: calc(100% - 1rem) !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+        overflow-y: visible !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .card-header {
+        padding: 0.75rem 0.5rem !important;
+        overflow-x: hidden !important;
+        overflow-y: visible !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    .card-body {
+        padding: 0.75rem 0.5rem !important;
+        overflow-x: hidden !important;
+        overflow-y: visible !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 제목 최적화 */
+    h4, h5, h6 {
+        font-size: 1rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        text-align: center !important;
+        margin-bottom: 0.75rem !important;
+        padding: 0 0.5rem !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 버튼 최적화 */
+    .btn {
+        font-size: 0.875rem !important;
+        padding: 0.5rem 0.75rem !important;
+        white-space: nowrap !important;
+        min-height: 40px !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    
+    /* d-flex 컨테이너 안의 버튼은 자동 크기 */
+    .d-flex .btn,
+    .d-flex.justify-content-center .btn,
+    .d-flex.align-items-center .btn {
+        width: auto !important;
+        max-width: none !important;
+        margin: 0.25rem !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .btn-sm {
+        font-size: 0.8rem !important;
+        padding: 0.4rem 0.6rem !important;
+        min-height: 36px !important;
+    }
+    
+    /* 입력 필드 최적화 */
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    .form-control {
+        font-size: 0.875rem !important;
+        padding: 0.5rem !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        margin-bottom: 0.5rem !important;
+    }
+    
+    /* 입력 그룹 최적화 */
+    .input-group {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex-wrap: wrap !important;
+        box-sizing: border-box !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.5rem !important;
+    }
+    
+    .input-group > * {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    /* sero2 클래스 최적화 */
+    .sero2 {
+        width: 100% !important;
+        max-width: 100% !important;
+        text-align: left !important;
+        margin-bottom: 0.5rem !important;
+        box-sizing: border-box !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .sero2 input {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-top: 0.25rem !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 텍스트 오버플로우 방지 */
+    * {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 카드 내부 모든 텍스트 요소 줄바꿈 강제 */
+    .card,
+    .card *,
+    .card-body,
+    .card-body *,
+    .card-header,
+    .card-header * {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* span 요소 줄바꿈 처리 */
+    span {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        display: inline !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        overflow: visible !important;
+    }
+    
+    /* 모든 텍스트 요소 강제 줄바꿈 */
+    p, div, h1, h2, h3, h4, h5, h6, label, strong, em, b, i, u {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 버튼 그룹 최적화 */
+    .d-flex.justify-content-start {
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+        align-items: center !important;
+    }
+    
+    .d-flex.justify-content-start > * {
+        flex: 0 0 auto !important;
+    }
+    
+    /* 날짜 입력 필드 최적화 */
+    input[type="date"] {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0.5rem 0 !important;
+    }
+}
+
+/* 모달 최적화 (SweetAlert2) */
+@media (max-width: 768px) {
+    .swal2-popup {
+        width: 90% !important;
+        max-width: 90% !important;
+        padding: 1rem !important;
+        font-size: 0.9rem !important;
+    }
+    
+    .swal2-title {
+        font-size: 1.1rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .swal2-content {
+        font-size: 0.875rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .swal2-actions {
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+    }
+    
+    .swal2-confirm,
+    .swal2-cancel {
+        font-size: 0.875rem !important;
+        padding: 0.5rem 1rem !important;
+        min-height: 40px !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+    }
+}
+</style>
+
 </head>
 
 <body>

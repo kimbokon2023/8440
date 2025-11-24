@@ -267,19 +267,229 @@ $pdo = db_connect();
     /* Responsive Optimizations */
     /* ========================================= */
     @media (max-width: 768px) {
-      .container-fluid {
-        margin: 0.5rem;
-        padding: 1rem;
-      }
+	/* body와 html의 width 제한 */
+	html, body {
+		max-width: 100vw !important;
+		overflow-x: hidden !important;
+		font-size: 16px !important;
+	}
 
-      .table-container {
-        margin-left: 0;
-        margin-top: 1rem;
-      }
- 
-      .chart-canvas {
-        height: 200px !important;
-      }
+	/* 컨테이너 패딩 조정 */
+	.container,
+	.container-fluid {
+		max-width: 100vw !important;
+		padding-left: 10px !important;
+		padding-right: 10px !important;
+		overflow-x: hidden !important;
+		margin: 0.5rem 0 !important;
+	}
+
+	/* 제목 영역 모바일 최적화 */
+	h4.text-center {
+		font-size: 1rem !important;
+		margin-bottom: 1rem !important;
+		padding: 0.5rem !important;
+	}
+
+	/* 필터 컨테이너 모바일 최적화 */
+	.filter-container {
+		margin-bottom: 1rem !important;
+	}
+
+	.filter-container .row {
+		margin-left: -5px !important;
+		margin-right: -5px !important;
+	}
+
+	.filter-container .col-md-6 {
+		flex: 0 0 100% !important;
+		max-width: 100% !important;
+		margin-bottom: 1rem !important;
+		padding-left: 5px !important;
+		padding-right: 5px !important;
+	}
+
+	/* 기간 설정 영역 모바일 최적화 - 한 줄로 표시 */
+	.col-md-6.d-flex.align-items-center {
+		flex-wrap: nowrap !important;
+		gap: 3px !important;
+		justify-content: center !important;
+		align-items: center !important;
+		padding: 0.5rem 0.25rem !important;
+		overflow-x: auto !important;
+		-webkit-overflow-scrolling: touch !important;
+	}
+
+	.col-md-6.d-flex.align-items-center > label {
+		font-size: 0.75rem !important;
+		margin-right: 0.3rem !important;
+		margin-left: 0.3rem !important;
+		white-space: nowrap !important;
+		flex-shrink: 0 !important;
+	}
+
+	.col-md-6.d-flex.align-items-center .jamb-form-control {
+		width: auto !important;
+		min-width: 130px !important;
+		max-width: 150px !important;
+		font-size: 0.8rem !important;
+		padding: 0.4rem 0.5rem !important;
+		flex: 0 0 auto !important;
+		margin-right: 0.3rem !important;
+	}
+
+	.col-md-6.d-flex.align-items-center .jamb-form-control::-webkit-datetime-edit {
+		font-size: 0.8rem !important;
+		padding: 0 !important;
+	}
+
+	.col-md-6.d-flex.align-items-center .jamb-form-control::-webkit-calendar-picker-indicator {
+		width: 16px !important;
+		height: 16px !important;
+		padding: 0 !important;
+	}
+
+	/* 보기 모드 라디오 버튼 영역 모바일 최적화 */
+	.col-md-6.d-flex.align-items-center:last-child {
+		flex-wrap: wrap !important;
+		justify-content: center !important;
+		gap: 0.5rem !important;
+	}
+
+	.form-check,
+	.form-check-inline {
+		margin-right: 0.5rem !important;
+		margin-bottom: 0.5rem !important;
+		flex-shrink: 0 !important;
+	}
+
+	.jamb-form-check-label {
+		font-size: 0.75rem !important;
+		margin-left: 0.3rem !important;
+		white-space: nowrap !important;
+	}
+
+	.jamb-form-check-input {
+		width: 1rem !important;
+		height: 1rem !important;
+		margin-right: 0.2rem !important;
+	}
+
+	/* 차트 컨테이너 모바일 최적화 */
+	.compact-chart-container {
+		margin-bottom: 1rem !important;
+		padding: 0.75rem !important;
+	}
+
+	.jamb-chart-container {
+		padding: 0.75rem !important;
+		height: 250px !important;
+	}
+
+	#chartMain,
+	[id^="chartV"] {
+		width: 100% !important;
+		height: 250px !important;
+	}
+
+	.highcharts-container {
+		height: 250px !important;
+	}
+
+	.compact-chart-title {
+		font-size: 0.85rem !important;
+		margin-bottom: 0.5rem !important;
+	}
+
+	/* 테이블 컨테이너 모바일 최적화 */
+	.table-container {
+		margin-left: 0 !important;
+		margin-top: 1rem !important;
+		padding: 0.5rem !important;
+	}
+
+	.jamb-table {
+		font-size: 0.8rem !important;
+		width: 100% !important;
+	}
+
+	.jamb-table th {
+		font-size: 0.75rem !important;
+		padding: 0.4rem 0.3rem !important;
+		white-space: nowrap !important;
+	}
+
+	.jamb-table td {
+		font-size: 0.75rem !important;
+		padding: 0.4rem 0.3rem !important;
+		word-wrap: break-word !important;
+	}
+
+	/* 카드 모바일 최적화 */
+	.jamb-card {
+		margin-bottom: 1rem !important;
+	}
+
+	.jamb-card-header {
+		padding: 0.75rem !important;
+		font-size: 0.85rem !important;
+		flex-wrap: wrap !important;
+	}
+
+	.jamb-card-header .d-flex {
+		flex-wrap: wrap !important;
+		gap: 0.5rem !important;
+	}
+
+	.compact-badge {
+		font-size: 0.7rem !important;
+		padding: 0.25rem 0.6rem !important;
+	}
+
+	.card-body {
+		padding: 1rem !important;
+	}
+
+	.card-body .row {
+		margin-left: -5px !important;
+		margin-right: -5px !important;
+	}
+
+	.card-body .col-md-8,
+	.card-body .col-md-4 {
+		flex: 0 0 100% !important;
+		max-width: 100% !important;
+		margin-bottom: 1rem !important;
+		padding-left: 5px !important;
+		padding-right: 5px !important;
+	}
+
+	/* 차트 영역 모바일 최적화 */
+	.col-md-8,
+	.col-md-4 {
+		flex: 0 0 100% !important;
+		max-width: 100% !important;
+		margin-bottom: 1rem !important;
+		padding-left: 5px !important;
+		padding-right: 5px !important;
+	}
+
+	/* 행 레이아웃 모바일 최적화 */
+	.row {
+		margin-left: -5px !important;
+		margin-right: -5px !important;
+	}
+
+	.row > [class*="col-"] {
+		padding-left: 5px !important;
+		padding-right: 5px !important;
+	}
+
+	/* 로딩 오버레이 모바일 최적화 */
+	#loadingOverlay .spinner {
+		padding: 1.5rem !important;
+		font-size: 0.9rem !important;
+	}
     } 
   </style>
 </head>

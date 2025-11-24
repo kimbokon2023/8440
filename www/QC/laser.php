@@ -12,7 +12,7 @@ $user_id = $_SESSION["userid"] ?? null;
 $mcno = $_REQUEST["mcno"] ?? $_REQUEST["mcname"] ?? null;
 $selnum = $_REQUEST["selnum"] ?? 1;
 
-$WebSite = "http://8440.co.kr/";
+$WebSite = "https://8440.co.kr/";
 
 if(!isset($level) || $level > 8) {
     // 세션에 이동할 URL 저장
@@ -28,7 +28,329 @@ if(!isset($level) || $level > 8) {
    
 <?php include includePath('load_header.php') ?>
  
-<title> <?=$title_message?> </title>   
+<title> <?=$title_message?> </title>
+
+<style>
+    /* 모바일 환경 최적화 */
+    @media (max-width: 768px) {
+        /* body와 html 오버플로우 방지 */
+        html, body {
+            overflow-x: hidden !important;
+            max-width: 100vw !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        * {
+            max-width: 100vw !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 컨테이너 최적화 */
+        .container,
+        .container-fluid {
+            padding: 0.5rem !important;
+            max-width: 100vw !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+            margin: 0 auto !important;
+            overflow-x: hidden !important;
+        }
+        
+        /* 카드 최적화 */
+        .card {
+            margin: 0.5rem auto !important;
+            width: calc(100vw - 1rem) !important;
+            max-width: calc(100vw - 1rem) !important;
+            box-sizing: border-box !important;
+            overflow-x: hidden !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .card-body {
+            padding: 0.75rem 0.5rem !important;
+            overflow-x: hidden !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 제목 최적화 */
+        h3.spantitle {
+            font-size: 1.25rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            text-align: center !important;
+            width: 100% !important;
+        }
+        
+        /* d-flex 요소 최적화 */
+        .d-flex {
+            flex-wrap: wrap !important;
+            flex-direction: column !important;
+            align-items: stretch !important;
+        }
+        
+        .d-flex.justify-content-start,
+        .d-flex.justify-content-end,
+        .d-flex.align-items-center {
+            flex-direction: column !important;
+            align-items: stretch !important;
+        }
+        
+        /* 선택 박스 및 버튼 최적화 */
+        select.form-control,
+        .form-control {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0.25rem 0 !important;
+            font-size: 1rem !important;
+            box-sizing: border-box !important;
+        }
+        
+        .badge {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0.25rem 0 !important;
+            padding: 0.5rem !important;
+            font-size: 0.875rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 버튼 최적화 */
+        .btn {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0.25rem 0 !important;
+            font-size: 0.875rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            box-sizing: border-box !important;
+        }
+        
+        .btn-sm {
+            font-size: 0.875rem !important;
+            padding: 0.5rem !important;
+        }
+        
+        /* 테이블을 카드 형식으로 변환 */
+        #myTable_wrapper {
+            display: none !important;
+        }
+        
+        #myTable {
+            display: none !important;
+        }
+        
+        /* 모바일 카드 컨테이너 */
+        #mobile-cards-container {
+            display: block !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        .mobile-card {
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            margin: 0.5rem 0;
+            padding: 0.75rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            width: calc(100% - 1rem) !important;
+            max-width: calc(100% - 1rem) !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            box-sizing: border-box !important;
+            overflow-x: hidden !important;
+        }
+        
+        .mobile-card-item {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .mobile-card-item:last-child {
+            border-bottom: none;
+        }
+        
+        .mobile-card-label {
+            font-weight: bold;
+            font-size: 0.875rem;
+            color: #495057;
+            margin-bottom: 0.25rem;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .mobile-card-value {
+            font-size: 0.875rem;
+            color: #212529;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            word-break: break-word !important;
+            white-space: normal !important;
+        }
+        
+        /* jQuery DataTables 컨트롤 숨기기 */
+        .dataTables_length,
+        .dataTables_filter {
+            display: none !important;
+        }
+        
+        /* 텍스트 오버플로우 방지 */
+        * {
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 모든 텍스트 요소 강제 줄바꿈 */
+        p, div, h1, h2, h3, h4, h5, h6, label, strong, em, b, i, u, span {
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            word-break: break-word !important;
+            white-space: normal !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* span 요소 줄바꿈 처리 */
+        span {
+            display: block !important;
+            overflow: visible !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 모든 div 요소 오버플로우 방지 */
+        div {
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 모달 최적화 */
+        .modal {
+            padding: 0 !important;
+            overflow: hidden !important;
+        }
+        
+        .modal-dialog {
+            margin: 0 !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            height: 100vh !important;
+            max-height: 100vh !important;
+        }
+        
+        .modal-content {
+            margin: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 100vh !important;
+            max-height: 100vh !important;
+            border-radius: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            box-sizing: border-box !important;
+        }
+        
+        .modal-header {
+            padding: 0.75rem 0.5rem !important;
+            flex-shrink: 0 !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .modal-body {
+            padding: 0.75rem 0.5rem !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            flex: 1 1 auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .modal-footer {
+            padding: 0.75rem 0.5rem !important;
+            flex-shrink: 0 !important;
+        }
+        
+        .modal-footer .btn {
+            width: 100% !important;
+            margin: 0.25rem 0 !important;
+        }
+        
+        /* SweetAlert2 모달 최적화 */
+        .swal2-popup {
+            width: 90% !important;
+            max-width: 90% !important;
+            padding: 1rem !important;
+            font-size: 0.875rem !important;
+        }
+        
+        .swal2-title {
+            font-size: 1.125rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .swal2-content {
+            font-size: 0.875rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .swal2-actions {
+            flex-direction: column !important;
+            gap: 0.5rem !important;
+        }
+        
+        .swal2-confirm,
+        .swal2-cancel {
+            width: 100% !important;
+            margin: 0 !important;
+        }
+        
+        /* '기간' 버튼 숨기기 */
+        #showdate {
+            display: none !important;
+        }
+        
+        /* 정보 텍스트 최적화 */
+        .d-flex.align-items-center.mt-3.mb-1 {
+            font-size: 0.875rem !important;
+            line-height: 1.5 !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+    }
+    
+    /* PC 환경 최적화 */
+    @media (min-width: 769px) {
+        .d-flex.justify-content-start .btn,
+        .d-flex.justify-content-end .btn,
+        .d-flex.align-items-center .btn {
+            margin-left: 0.25rem !important;
+            margin-right: 0.25rem !important;
+        }
+        
+        #mobile-cards-container {
+            display: none !important;
+        }
+    }
+</style>
 
  </head> 
  
@@ -37,26 +359,8 @@ if(!isset($level) || $level > 8) {
 <?php include includePath("common/modal.php"); ?>
 
 <?php
- // 모바일이면 특정 CSS 적용
-if ($chkMobile) {
-    echo '<style>
-        body, table th, table td, .form-control, span {
-            font-size: 32px;
-        }
-         h4 {
-            font-size: 40px; 
-        }
-		
-		.btn-sm {
-        font-size: 26px;
-		}
-		
-		.spantitle {
-			font-size: 40px;
-		}
-		
-    </style>';
-}
+ // 모바일이면 특정 CSS 적용 (기존 스타일은 위의 미디어 쿼리로 대체)
+// 기존 폰트 크기는 너무 커서 제거하고 미디어 쿼리에서 적절한 크기로 설정
 
 require_once(includePath('lib/mydb.php'));
 $pdo = db_connect(); 
@@ -334,14 +638,17 @@ try{
     </div> 
 
 	<div class="row d-flex"  >
+		<!-- 모바일 카드 컨테이너 -->
+		<div id="mobile-cards-container"></div>
+		
 		<table class="table table-hover" id="myTable">
 			<thead class="table-primary" >
 				<tr>
-					 <th class="text-center" > 점검일   </td>
-					 <th class="text-center" > 주간점검  </td>
-					 <th class="text-center" > 1개월점검 </td>
-					 <th class="text-center" > 2개월점검 </td>   
-					 <th class="text-center" > 6개월점검 </td>   
+					 <th class="text-center" data-label="점검일"> 점검일   </th>
+					 <th class="text-center" data-label="주간점검"> 주간점검  </th>
+					 <th class="text-center" data-label="1개월점검"> 1개월점검 </th>
+					 <th class="text-center" data-label="2개월점검"> 2개월점검 </th>   
+					 <th class="text-center" data-label="6개월점검"> 6개월점검 </th>   
 				</tr>
 			</thead>
 			<tbody> 
@@ -410,32 +717,32 @@ for($j=0;$j<count($mcno_arr);$j++)
 			 
 			 ?>
 			 
-	<tr onclick="redirectToView('<?=$num?>')">   			 	
-    <td class="text-center"> 
-        <span class="  text-center" >            <?=$checkdate?>  </span> 
+	<tr onclick="redirectToView('<?=$num?>')" data-num="<?= htmlspecialchars($num) ?>">   			 	
+    <td class="text-center" data-label="점검일"> 
+        <span class="  text-center" >            <?= htmlspecialchars($checkdate) ?>  </span> 
     </td>
 
-    <td class="text-center"> 
+    <td class="text-center" data-label="주간점검"> 
         <span class="  text-center" >            
-                <?php if($term=='주간') echo $weektermstr; ?>            
+                <?php if($term=='주간') echo htmlspecialchars($weektermstr); ?>            
         </span>
     </td>
     
-    <td class="text-center"> 
+    <td class="text-center" data-label="1개월점검"> 
         <span class="  text-center" >            
-                <?php if($term=='1개월') echo $monthtermstr; ?>              
+                <?php if($term=='1개월') echo htmlspecialchars($monthtermstr); ?>              
         </span>
     </td>
 
-    <td class="text-center"> 
+    <td class="text-center" data-label="2개월점검"> 
         <span class="  text-center" >            
-                <?php if($term=='2개월') echo $twomonthtermstr; ?>              
+                <?php if($term=='2개월') echo htmlspecialchars($twomonthtermstr); ?>              
         </span>
     </td>
 
-    <td class="text-center"> 
+    <td class="text-center" data-label="6개월점검"> 
         <span class="  text-center" >             
-                <?php if($term=='6개월') echo $sixmonthtermstr; ?>              
+                <?php if($term=='6개월') echo htmlspecialchars($sixmonthtermstr); ?>              
         </span>
     </td>			  
 </tr>
@@ -467,6 +774,90 @@ for($j=0;$j<count($mcno_arr);$j++)
 var dataTable; // DataTables 인스턴스 전역 변수
 var mcpageNumber; // 현재 페이지 번호 저장을 위한 전역 변수
 
+// 모바일 카드 렌더링 함수
+function renderMobileCards() {
+    if (window.innerWidth > 768) {
+        $('#mobile-cards-container').empty();
+        return;
+    }
+    
+    var container = $('#mobile-cards-container');
+    container.empty();
+    
+    if (typeof dataTable !== 'undefined' && dataTable) {
+        // DataTables에서 현재 페이지의 데이터 가져오기
+        var rows = dataTable.rows({page: 'current'}).nodes();
+        
+        $(rows).each(function() {
+            var $row = $(this);
+            var num = $row.data('num') || $row.find('td:first').text().trim();
+            var card = $('<div class="mobile-card"></div>');
+            
+            // 각 셀을 카드 아이템으로 변환
+            $row.find('td').each(function() {
+                var $cell = $(this);
+                var label = $cell.data('label') || $cell.closest('table').find('th').eq($cell.index()).data('label') || '';
+                var value = $cell.text().trim();
+                
+                if (value) {
+                    var item = $('<div class="mobile-card-item"></div>');
+                    item.append($('<div class="mobile-card-label">' + htmlspecialchars(label) + '</div>'));
+                    item.append($('<div class="mobile-card-value">' + htmlspecialchars(value) + '</div>'));
+                    card.append(item);
+                }
+            });
+            
+            // 클릭 이벤트 추가
+            card.css('cursor', 'pointer');
+            card.on('click', function() {
+                redirectToView(num);
+            });
+            
+            container.append(card);
+        });
+    } else {
+        // DataTables가 없을 경우 일반 테이블에서 데이터 추출
+        $('#myTable tbody tr').each(function() {
+            var $row = $(this);
+            var num = $row.data('num') || '';
+            var card = $('<div class="mobile-card"></div>');
+            
+            $row.find('td').each(function() {
+                var $cell = $(this);
+                var label = $cell.data('label') || $('#myTable thead th').eq($cell.index()).data('label') || '';
+                var value = $cell.text().trim();
+                
+                if (value) {
+                    var item = $('<div class="mobile-card-item"></div>');
+                    item.append($('<div class="mobile-card-label">' + htmlspecialchars(label) + '</div>'));
+                    item.append($('<div class="mobile-card-value">' + htmlspecialchars(value) + '</div>'));
+                    card.append(item);
+                }
+            });
+            
+            card.css('cursor', 'pointer');
+            card.on('click', function() {
+                redirectToView(num);
+            });
+            
+            container.append(card);
+        });
+    }
+}
+
+// HTML 특수문자 이스케이프 함수
+function htmlspecialchars(str) {
+    if (typeof str !== 'string') return '';
+    var map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return str.replace(/[&<>"']/g, function(m) { return map[m]; });
+}
+
 $(document).ready(function() {			
     // DataTables 초기 설정
     dataTable = $('#myTable').DataTable({
@@ -492,6 +883,17 @@ $(document).ready(function() {
     dataTable.on('page.dt', function() {
         var mcpageNumber = dataTable.page.info().page + 1;
         setCookie('mcpageNumber', mcpageNumber, 10); // 쿠키에 페이지 번호 저장
+        renderMobileCards(); // 모바일 카드 다시 렌더링
+    });
+    
+    // 검색 이벤트 리스너
+    dataTable.on('search.dt', function() {
+        renderMobileCards(); // 모바일 카드 다시 렌더링
+    });
+    
+    // 그리기 이벤트 리스너
+    dataTable.on('draw.dt', function() {
+        renderMobileCards(); // 모바일 카드 다시 렌더링
     });
 
     // 페이지 길이 셀렉트 박스 변경 이벤트 처리
@@ -504,6 +906,28 @@ $(document).ready(function() {
         if (savedPageNumber) {
             dataTable.page(parseInt(savedPageNumber) - 1).draw(false);
         }
+    });
+    
+    // 초기 모바일 카드 렌더링
+    renderMobileCards();
+    
+    // 리사이즈 이벤트
+    $(window).on('resize', function() {
+        renderMobileCards();
+    });
+    
+    // jQuery DataTables 컨트롤 숨기기/보이기
+    function toggleDataTablesControls() {
+        if (window.innerWidth <= 768) {
+            $('.dataTables_length, .dataTables_filter').hide();
+        } else {
+            $('.dataTables_length, .dataTables_filter').show();
+        }
+    }
+    
+    toggleDataTablesControls();
+    $(window).on('resize', function() {
+        toggleDataTablesControls();
     });
 });
 

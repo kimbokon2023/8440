@@ -91,6 +91,310 @@ include getDocumentRoot() . '/load_header.php';
 .table th {
     vertical-align: middle !important;
 }
+
+/* 모바일 환경 최적화 */
+@media (max-width: 768px) {
+    /* 컨테이너 최적화 */
+    .container,
+    .container-fluid {
+        padding: 0.5rem !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 카드 최적화 */
+    .card {
+        margin: 0.5rem auto !important;
+        width: calc(100% - 1rem) !important;
+        max-width: calc(100% - 1rem) !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        border-radius: 10px !important;
+    }
+    
+    .card-body {
+        padding: 0.75rem 0.5rem !important;
+        overflow-x: hidden !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    /* 테이블을 카드 형식으로 변환 */
+    table.table {
+        width: 100% !important;
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+        display: block !important;
+    }
+    
+    table.table tbody {
+        display: block !important;
+        width: 100% !important;
+    }
+    
+    table.table tbody tr {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0.5rem 0 !important;
+        background: #fff !important;
+        border: 1px solid #ddd !important;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+        padding: 0.75rem !important;
+        box-sizing: border-box !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    table.table tbody tr td {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0.5rem 0.4rem !important;
+        text-align: left !important;
+        border: none !important;
+        border-bottom: 1px solid #f0f0f0 !important;
+        box-sizing: border-box !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+    }
+    
+    table.table tbody tr td:first-child {
+        font-weight: bold !important;
+        font-size: 0.875rem !important;
+        color: #333 !important;
+        background-color: #f8f9fa !important;
+        margin-bottom: 0.25rem !important;
+    }
+    
+    table.table tbody tr td:not(:first-child) {
+        padding-left: 1rem !important;
+    }
+    
+    table.table tbody tr td:last-child {
+        border-bottom: 2px solid #ddd !important;
+        margin-bottom: 0.5rem !important;
+    }
+    
+    /* data-label이 있는 경우 레이블 표시 */
+    table.table tbody tr td[data-label]:not(:first-child)::before {
+        content: attr(data-label) ": " !important;
+        font-weight: bold !important;
+        font-size: 0.875rem !important;
+        color: #666 !important;
+        display: block !important;
+        margin-bottom: 0.25rem !important;
+    }
+    
+    /* 입력 필드 최적화 */
+    input[type="text"],
+    input[type="date"],
+    textarea,
+    select.form-control {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        font-size: 1rem !important;
+        padding: 0.5rem !important;
+        margin: 0.25rem 0 !important;
+    }
+    
+    /* 체크박스 그룹 최적화 */
+    .checkbox-inline {
+        display: block !important;
+        margin: 0.5rem 0 !important;
+        width: 100% !important;
+    }
+    
+    .checkbox-inline input[type="checkbox"] {
+        margin-right: 0.5rem !important;
+    }
+    
+    /* 텍스트 오버플로우 방지 */
+    * {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 모든 텍스트 요소 강제 줄바꿈 */
+    p, div, h1, h2, h3, h4, h5, h6, label, strong, em, b, i, u, span {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* span 요소 줄바꿈 처리 */
+    span {
+        display: inline !important;
+        overflow: visible !important;
+    }
+    
+    /* 버튼 최적화 */
+    .btn {
+        font-size: 0.875rem !important;
+        padding: 0.5rem 0.75rem !important;
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0.25rem 0 !important;
+    }
+    
+    .d-flex.justify-content-center {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.5rem !important;
+    }
+    
+    /* 제목 최적화 */
+    .card-title,
+    h4, h5 {
+        font-size: 1.125rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        text-align: center !important;
+    }
+    
+    /* 이미지 최적화 */
+    img {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        object-fit: contain !important;
+    }
+    
+    .imagediv {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+    }
+    
+    /* 파일 입력 최적화 */
+    input[type="file"] {
+        width: 100% !important;
+        max-width: 100% !important;
+        font-size: 0.875rem !important;
+        padding: 0.5rem !important;
+    }
+    
+    /* d-flex 요소 최적화 */
+    .d-flex {
+        flex-wrap: wrap !important;
+    }
+    
+    .d-flex.align-items-center {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+    
+    /* 모달 최적화 */
+    .modal {
+        padding: 0 !important;
+    }
+    
+    .modal-dialog {
+        margin: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+    }
+    
+    .modal-content {
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        border-radius: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    
+    .modal-header {
+        padding: 0.75rem 0.5rem !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .modal-body {
+        padding: 0.75rem 0.5rem !important;
+        overflow-y: auto !important;
+        flex: 1 1 auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+    
+    .modal-footer {
+        padding: 0.75rem 0.5rem !important;
+        flex-shrink: 0 !important;
+    }
+    
+    /* SweetAlert2 모달 최적화 */
+    .swal2-popup {
+        width: 90% !important;
+        max-width: 90% !important;
+        padding: 1rem !important;
+        font-size: 0.875rem !important;
+    }
+    
+    .swal2-title {
+        font-size: 1.125rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .swal2-content {
+        font-size: 0.875rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .swal2-actions {
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+    }
+    
+    .swal2-confirm,
+    .swal2-cancel {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+    
+    /* '기간' 버튼 숨기기 */
+    #showdate {
+        display: none !important;
+    }
+    
+    /* textarea 최적화 */
+    textarea {
+        min-height: 100px !important;
+        resize: vertical !important;
+    }
+    
+    /* select 최적화 */
+    select.form-control {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
+
+/* PC 환경 버튼 간격 최적화 */
+@media (min-width: 769px) {
+    .d-flex.justify-content-center .btn,
+    .d-flex.justify-content-start .btn {
+        margin-left: 0.25rem !important;
+        margin-right: 0.25rem !important;
+    }
+}
 </style>
 </head>
 <body>
@@ -117,12 +421,12 @@ include getDocumentRoot() . '/load_header.php';
                         <table class="table table-bordered">
                             <tbody>
                                 <tr>
-                                    <td class="text-center">제안 일시</td>
-                                    <td class="text-center w120px">
+                                    <td class="text-center" data-label="제안 일시">제안 일시</td>
+                                    <td class="text-center w120px" data-label="제안 일시">
                                         <input type="date" id="occur" name="occur" value="<?php echo htmlspecialchars($occur, ENT_QUOTES, 'UTF-8'); ?>" class="form-control w-auto">
                                     </td>
-                                    <td class="text-center text-primary fw-bold w100px">제안 유형</td>
-                                    <td class="text-center align-middle" colspan="5">
+                                    <td class="text-center text-primary fw-bold w100px" data-label="제안 유형">제안 유형</td>
+                                    <td class="text-center align-middle" colspan="5" data-label="제안 유형">
                                         <?php
                                         $idea_type_arr = array('비용절감', '작업시간 단축', '안전활동', '업무효율화', '수익증대');
                                         
@@ -147,37 +451,37 @@ include getDocumentRoot() . '/load_header.php';
                                 </tr>
                                 
                                 <tr>
-                                    <td class="text-center fw-bold">제안명</td>
-                                    <td class="text-start w500px" colspan="3">
+                                    <td class="text-center fw-bold" data-label="제안명">제안명</td>
+                                    <td class="text-start w500px" colspan="3" data-label="제안명">
                                         <input type="text" name="place" id="place" class="form-control" value="<?php echo htmlspecialchars($place, ENT_QUOTES, 'UTF-8'); ?>" autofocus>
                                     </td>
-                                    <td class="text-center">최초 제안자</td>
-                                    <td class="text-center w80px">
+                                    <td class="text-center" data-label="최초 제안자">최초 제안자</td>
+                                    <td class="text-center w80px" data-label="최초 제안자">
                                         <input type="text" id="firstone" name="firstone" class="form-control" value="<?php echo htmlspecialchars($firstone, ENT_QUOTES, 'UTF-8'); ?>" placeholder="최초 제안자">
                                     </td>
-                                    <td class="text-center">참여자</td>
-                                    <td>
+                                    <td class="text-center" data-label="참여자">참여자</td>
+                                    <td data-label="참여자">
                                         <input type="text" id="emember" name="emember" class="form-control" value="<?php echo htmlspecialchars($emember, ENT_QUOTES, 'UTF-8'); ?>" placeholder="제안 참여자">
                                     </td>
                                 </tr>
                                 
                                 <tr>
-                                    <td class="text-center text-primary fw-bold align-middle">제안 내용<br>(기존 상태)</td>
-                                    <td colspan="8">
+                                    <td class="text-center text-primary fw-bold align-middle" data-label="제안 내용 (기존 상태)">제안 내용<br>(기존 상태)</td>
+                                    <td colspan="8" data-label="제안 내용 (기존 상태)">
                                         <textarea id="content" name="content" class="form-control" rows="3"><?php echo htmlspecialchars($content, ENT_QUOTES, 'UTF-8'); ?></textarea>
                                     </td>
                                 </tr>
                                 
                                 <tr>
-                                    <td class="text-center align-middle text-danger fw-bold">개선 효과<br>(비용절감,<br>수익증대,<br>작업시간 단축 등)</td>
-                                    <td colspan="8">
+                                    <td class="text-center align-middle text-danger fw-bold" data-label="개선 효과">개선 효과<br>(비용절감,<br>수익증대,<br>작업시간 단축 등)</td>
+                                    <td colspan="8" data-label="개선 효과">
                                         <textarea id="method" name="method" class="form-control" rows="7"><?php echo htmlspecialchars($method, ENT_QUOTES, 'UTF-8'); ?></textarea>
                                     </td>
                                 </tr>
                                 
                                 <tr>
-                                    <td class="text-center align-middle">첨부 이미지</td>
-                                    <td colspan="8">
+                                    <td class="text-center align-middle" data-label="첨부 이미지">첨부 이미지</td>
+                                    <td colspan="8" data-label="첨부 이미지">
                                         <div class="d-flex align-items-center">
                                             <span class="text-success w300px"><?php echo $filename ? htmlspecialchars($filename, ENT_QUOTES, 'UTF-8') : '이미지 없음'; ?></span>
                                             <input id="mainbefore" name="mainBefore" type="file" class="form-control ms-3" accept="image/*">

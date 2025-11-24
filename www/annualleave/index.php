@@ -22,6 +22,281 @@ $title_message = '직원 연차';
 ?>
 <?php include getDocumentRoot() . '/load_header.php' ?>
 <title> <?= $title_message ?> </title>
+<style>
+    /* 모바일 최적화 */
+    @media (max-width: 768px) {
+        /* body와 html의 width 제한 */
+        html, body {
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+            font-size: 16px !important;
+        }
+
+        /* 컨테이너 모바일 최적화 */
+        .container,
+        .container-fluid {
+            max-width: 100vw !important;
+            padding: 5px !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+        }
+
+        /* 카드 모바일 최적화 */
+        .card {
+            margin: 0.25rem 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+        }
+
+        .card-body {
+            padding: 0.4rem 0.3rem !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow-x: hidden !important;
+        }
+
+        /* 제목 영역 모바일 최적화 */
+        .fs-5 {
+            font-size: 0.9rem !important;
+            margin: 0 !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+
+        h6 {
+            font-size: 0.8rem !important;
+            margin: 0.25rem 0 !important;
+        }
+
+        /* 버튼 영역 모바일 최적화 */
+        .d-flex.justify-content-center,
+        .d-flex.justify-content-end,
+        .d-flex.justify-content-start {
+            flex-wrap: wrap !important;
+            gap: 0.2rem !important;
+            padding: 0.3rem 0.25rem !important;
+            margin: 0.25rem 0 !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        .btn {
+            font-size: 0.75rem !important;
+            padding: 0.25rem 0.4rem !important;
+            white-space: nowrap !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            flex: 0 0 auto !important;
+            margin: 0.1rem !important;
+        }
+
+        .btn-sm {
+            font-size: 0.7rem !important;
+            padding: 0.25rem 0.35rem !important;
+        }
+
+        /* 검색 영역 모바일 최적화 */
+        #search {
+            width: 100% !important;
+            min-width: 120px !important;
+            max-width: calc(100% - 100px) !important;
+            font-size: 0.7rem !important;
+            padding: 0.3rem 0.35rem !important;
+            box-sizing: border-box !important;
+            margin-right: 0.3rem !important;
+        }
+
+        #searchBtn,
+        #writeBtn,
+        #massBtn {
+            font-size: 0.7rem !important;
+            padding: 0.3rem 0.5rem !important;
+            white-space: nowrap !important;
+            flex-shrink: 0 !important;
+            box-sizing: border-box !important;
+            min-width: 50px !important;
+            max-width: 100% !important;
+        }
+
+        /* 연차 정보 테이블 모바일 최적화 */
+        .table.table-bordered.text-center {
+            font-size: 0.7rem !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        .table.table-bordered.text-center td {
+            padding: 0.3rem 0.4rem !important;
+            font-size: 0.7rem !important;
+        }
+
+        .badge {
+            font-size: 0.65rem !important;
+            padding: 0.2rem 0.4rem !important;
+        }
+
+        /* 연도 선택 모바일 최적화 */
+        #yearSelect {
+            font-size: 0.7rem !important;
+            padding: 0.3rem 0.4rem !important;
+            max-width: 100px !important;
+            box-sizing: border-box !important;
+        }
+
+        /* 알림 배지 모바일 최적화 */
+        .badge.bg-secondary,
+        .text-secondary {
+            font-size: 0.65rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+
+        /* 테이블 모바일 최적화 - 카드 형식으로 변환 */
+        .table.table-bordered.table-hover {
+            width: 100% !important;
+            border-collapse: separate !important;
+            border-spacing: 0 !important;
+        }
+
+        .table.table-bordered.table-hover tbody {
+            display: block !important;
+            width: 100% !important;
+        }
+
+        .table.table-bordered.table-hover tbody tr {
+            display: block !important;
+            width: 100% !important;
+            margin-bottom: 0.4rem !important;
+            background: #fff !important;
+            border: 1px solid #dee2e6 !important;
+            border-radius: 0.25rem !important;
+            box-shadow: 0 0.1rem 0.2rem rgba(0, 0, 0, 0.075) !important;
+            padding: 0.4rem !important;
+            box-sizing: border-box !important;
+            cursor: pointer !important;
+        }
+
+        .table.table-bordered.table-hover tbody tr:hover {
+            background: #f8f9fa !important;
+            box-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .table.table-bordered.table-hover tbody tr td {
+            display: flex !important;
+            width: 100% !important;
+            padding: 0.3rem 0.4rem !important;
+            text-align: left !important;
+            border: none !important;
+            border-bottom: 1px solid #f0f0f0 !important;
+            box-sizing: border-box !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            flex-wrap: wrap !important;
+        }
+
+        .table.table-bordered.table-hover tbody tr td:last-child {
+            border-bottom: none !important;
+        }
+
+        .table.table-bordered.table-hover tbody tr td {
+            position: relative !important;
+        }
+
+        .table.table-bordered.table-hover tbody tr td::before {
+            content: attr(data-label) ': ' !important;
+            font-weight: bold !important;
+            display: inline-block !important;
+            min-width: 30% !important;
+            margin-right: 0.5rem !important;
+            color: #495057 !important;
+            font-size: 0.75rem !important;
+            flex-shrink: 0 !important;
+        }
+
+        /* 테이블 헤더 숨기기 (모바일) */
+        .table.table-bordered.table-hover thead {
+            display: none !important;
+        }
+
+        /* 페이지네이션 모바일 최적화 */
+        .input-group {
+            flex-wrap: wrap !important;
+            justify-content: center !important;
+            gap: 0.25rem !important;
+            font-size: 0.7rem !important;
+        }
+
+        .input-group a {
+            font-size: 0.7rem !important;
+            padding: 0.3rem 0.5rem !important;
+            margin: 0.1rem !important;
+            box-sizing: border-box !important;
+        }
+
+        /* 모든 요소가 카드 내부에 머물도록 */
+        .card *,
+        .container *,
+        .container-fluid * {
+            box-sizing: border-box !important;
+            max-width: 100% !important;
+        }
+
+        .card button,
+        .card .btn,
+        .card span,
+        .card input,
+        .container button,
+        .container .btn,
+        .container span,
+        .container input,
+        .card-body *,
+        .card-header * {
+            max-width: 100% !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            box-sizing: border-box !important;
+        }
+
+        /* 카드 내부 모든 요소가 넘치지 않도록 */
+        .card {
+            overflow-x: hidden !important;
+            overflow-y: visible !important;
+        }
+
+        .card-body {
+            overflow-x: hidden !important;
+            overflow-y: visible !important;
+        }
+
+        /* 폼 요소 모바일 최적화 */
+        form {
+            max-width: 100% !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+        }
+
+        form * {
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        /* 행 레이아웃 모바일 최적화 */
+        .row {
+            margin-left: -5px !important;
+            margin-right: -5px !important;
+        }
+
+        .row > [class*="col-"] {
+            padding-left: 5px !important;
+            padding-right: 5px !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+    }
+</style>
 </head>
 
 <body>
@@ -255,15 +530,15 @@ $title_message = '직원 연차';
                                             }
                                         ?>
                                             <tr onclick="view('<?= $num ?>');">
-                                                <td class="text-center"><?= $start_num ?></td>
-                                                <td class="text-center"><?= substr($registdate, 0, 10) ?></td>
-                                                <td class="text-center"><?= $al_askdatefrom ?></td>
-                                                <td class="text-center"><?= $al_askdateto ?></td>
-                                                <td class="text-center"><?= $al_item ?></td>
-                                                <td class="text-center"><?= $al_usedday ?></td>
-                                                <td class="text-center"><?= $author ?></td>
-                                                <td class="text-center"><?= $al_content ?></td>
-                                                <td class="text-center"><?= $statusstr ?></td>
+                                                <td class="text-center" data-label="번호"><?= $start_num ?></td>
+                                                <td class="text-center" data-label="접수일"><?= substr($registdate, 0, 10) ?></td>
+                                                <td class="text-center" data-label="시작일"><?= $al_askdatefrom ?></td>
+                                                <td class="text-center" data-label="종료일"><?= $al_askdateto ?></td>
+                                                <td class="text-center" data-label="구분"><?= $al_item ?></td>
+                                                <td class="text-center" data-label="사용일수"><?= $al_usedday ?></td>
+                                                <td class="text-center" data-label="성명"><?= $author ?></td>
+                                                <td class="text-center" data-label="사유"><?= $al_content ?></td>
+                                                <td class="text-center" data-label="결재상태"><?= $statusstr ?></td>
                                             </tr>
 
                                         <?php

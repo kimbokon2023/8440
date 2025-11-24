@@ -64,7 +64,17 @@ include includePath('load_header.php');
 // 모바일 접속일 때만 viewport meta 태그 출력
 function isMobile() {
     $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
-    return preg_match('/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i', $userAgent);
+    // 모바일 디바이스 감지
+    $mobilePattern = '/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i';
+    $isMobileDevice = preg_match($mobilePattern, $userAgent);
+    
+    // 화면 너비도 확인 (JavaScript로 설정된 경우)
+    if (isset($_COOKIE['screen_width'])) {
+        $screenWidth = (int)$_COOKIE['screen_width'];
+        return $isMobileDevice || $screenWidth < 768;
+    }
+    
+    return $isMobileDevice;
 }
 // if (isMobile()) {
 //     echo '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">';
@@ -643,16 +653,30 @@ try{
         </div>
     </div>
 
-    <div class="d-flex p-1 m-1 mt-1 mb-1 justify-content-center align-items-center">
-        총 <?php echo $total_row; ?> 건 &nbsp;&nbsp;
+    <!-- 날짜 행 -->
+    <!-- PC용 날짜 행 - 항상 렌더링하고 CSS로 모바일에서 숨김 -->
+    <div class="d-flex p-1 m-1 mt-1 mb-1 justify-content-center align-items-center date-row">
+        <span class="mx-1">총 <?php echo $total_row; ?> 건</span>
         <!-- 기간부터 검색까지 연결 묶음 start -->
-        <span id="showdate" class="btn btn-dark btn-sm">기간</span>&nbsp;
         <input type="checkbox" id="receptionDateFilter" class="form-check-input me-1" <?php echo ((isset($_GET['reception_filter']) && $_GET['reception_filter'] == '1') || (isset($_POST['reception_filter']) && $_POST['reception_filter'] == '1')) ? 'checked' : ''; ?>>
         <label for="receptionDateFilter" class="mx-2 text-muted" style="cursor: pointer;">접수일 기준</label>
-        <input type="date" id="fromdate" name="fromdate" class="form-control p-1" style="width:100px;" value="<?php echo htmlspecialchars($fromdate, ENT_QUOTES, 'UTF-8'); ?>">&nbsp;~&nbsp;
-        <input type="date" id="todate" name="todate" class="form-control p-1" style="width:100px;" value="<?php echo htmlspecialchars($todate, ENT_QUOTES, 'UTF-8'); ?>">&nbsp;
-        &nbsp;&nbsp;		 
-				
+        <input type="date" id="fromdate" name="fromdate" class="form-control p-1" style="width:120px;" value="<?php echo htmlspecialchars($fromdate, ENT_QUOTES, 'UTF-8'); ?>">
+        <span class="date-separator">~</span>
+        <input type="date" id="todate" name="todate" class="form-control p-1" style="width:120px;" value="<?php echo htmlspecialchars($todate, ENT_QUOTES, 'UTF-8'); ?>">
+    </div>
+    <!-- 모바일용 날짜 행 - 모바일에서만 표시 (한 줄로) -->
+    <?php if($chkMobile===true) : ?>
+        <div class="mobile-date-row-compact">
+            <span class="mobile-total-count">총 <?php echo $total_row; ?> 건</span>
+            <input type="checkbox" id="receptionDateFilter_mobile" class="form-check-input mobile-checkbox" <?php echo ((isset($_GET['reception_filter']) && $_GET['reception_filter'] == '1') || (isset($_POST['reception_filter']) && $_POST['reception_filter'] == '1')) ? 'checked' : ''; ?>>
+            <label for="receptionDateFilter_mobile" class="mobile-checkbox-label">접수일 기준</label>
+            <input type="date" id="fromdate_mobile" name="fromdate" class="form-control mobile-date-input" value="<?php echo htmlspecialchars($fromdate, ENT_QUOTES, 'UTF-8'); ?>">
+            <span class="mobile-date-separator">~</span>
+            <input type="date" id="todate_mobile" name="todate" class="form-control mobile-date-input" value="<?php echo htmlspecialchars($todate, ENT_QUOTES, 'UTF-8'); ?>">
+        </div>
+    <?php endif; ?>
+    <!-- 검색 행 -->
+    <div class="d-flex p-1 m-1 mt-1 mb-1 justify-content-center align-items-center search-row">
         <select id="find" name="find" class="form-select w-auto mx-1" style="font-size:1em; height:30px;">
             <?php
             $options = array(
@@ -669,21 +693,21 @@ try{
             ?>
         </select>
         <div class="inputWrap">
-            <input type="text" id="search" name="search" value="<?php echo htmlspecialchars($search, ENT_QUOTES, 'UTF-8'); ?>" onkeydown="JavaScript:SearchEnter();" autocomplete="off" class="form-control" style="width:150px;">&nbsp;
+            <input type="text" id="search" name="search" value="<?php echo htmlspecialchars($search, ENT_QUOTES, 'UTF-8'); ?>" onkeydown="JavaScript:SearchEnter();" autocomplete="off" class="form-control">
             <button class="btnClear"></button>
+            <button type="button" class="btnSearchIcon mobile-search-icon" onclick="saveSearch(); return false;" title="검색">
+                <i class="bi bi-search"></i>
+            </button>
         </div>				
 		<div id="autocomplete-list">				
 		</div>	
-		  &nbsp;
-		  <button id="searchBtn" type="button" class="btn btn-dark  btn-sm" > <i class="bi bi-search"></i> 검색 </button> 		  
-		  &nbsp;&nbsp;&nbsp;		    
-
-				 <button type="button" class="btn btn-dark  btn-sm me-1" id="writeBtn"> <i class="bi bi-pencil-fill"></i> 신규  </button>
-				 <button  type="button" id="rawmaterialBtn"  class="btn btn-dark btn-sm" > <i class="bi bi-list"></i> 재고 </button> &nbsp;
-				 <button type="button" class="btn btn-outline-primary btn-sm me-2" onclick="openColumnSettings()" style="border-radius: 25px; padding: 0.5rem 1rem;">
-					<i class="bi bi-gear"></i> 컬럼 설정
-				 </button>
-         </div>
+		<button id="searchBtn" type="button" class="btn btn-dark btn-sm"> <i class="bi bi-search"></i> 검색 </button>
+		<button type="button" class="btn btn-dark btn-sm me-1" id="writeBtn"> <i class="bi bi-pencil-fill"></i> 신규  </button>
+		<button type="button" id="rawmaterialBtn" class="btn btn-dark btn-sm"> <i class="bi bi-list"></i> 재고 </button>
+		<button type="button" class="btn btn-outline-primary btn-sm me-2" onclick="openColumnSettings()" style="border-radius: 25px; padding: 0.5rem 1rem;">
+			<i class="bi bi-gear"></i> 컬럼 설정
+		</button>
+    </div>
    </div> <!--card-body-->
    </div> <!--card -->
 </div> <!--card -->
@@ -845,7 +869,7 @@ try{
 <!-- 모바일/데스크톱 뷰 전환 버튼 -->
 <div class="d-flex justify-content-center mb-3 d-md-none">
     <div class="btn-group" role="group">
-        <button type="button" class="btn btn-outline-primary btn-sm" id="tableViewBtn">
+        <button type="button" class="btn btn-outline-primary btn-sm" disabled id="tableViewBtn">
             <i class="bi bi-table"></i> 테이블
         </button>
         <button type="button" class="btn btn-primary btn-sm" id="cardViewBtn">

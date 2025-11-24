@@ -23,8 +23,193 @@ include includePath('load_header.php');
 ?>
   
 <title> 현장소장 Voc </title> 
- 
- </head>
+
+<style>
+/* 모바일 반응형 스타일 */
+@media (max-width: 768px) {
+	/* body와 html의 width 제한 */
+	html, body {
+		max-width: 100vw !important;
+		overflow-x: hidden !important;
+		font-size: 16px !important;
+	}
+
+	/* 컨테이너 패딩 조정 */
+	.container, .container-fluid {
+		max-width: 100vw !important;
+		padding-left: 10px !important;
+		padding-right: 10px !important;
+		overflow-x: hidden !important;
+	}
+
+	/* 카드 패딩 조정 */
+	.card {
+		margin-bottom: 10px !important;
+	}
+
+	.card-body {
+		padding: 10px !important;
+	}
+
+	/* 제목 영역 모바일 최적화 */
+	h3, h4, h5, h6 {
+		font-size: 1.1rem !important;
+		white-space: normal !important;
+		margin-bottom: 10px !important;
+		line-height: 1.4 !important;
+	}
+
+	/* 버튼 그룹 모바일 최적화 */
+	.btn-sm {
+		font-size: 0.85rem !important;
+		padding: 0.4rem 0.6rem !important;
+		white-space: nowrap !important;
+		margin-bottom: 5px !important;
+		margin-right: 3px !important;
+	}
+
+	/* 버튼 영역 줄바꿈 허용 */
+	.d-flex.justify-content-left,
+	.d-flex.justify-content-center,
+	.d-flex.justify-content-end {
+		flex-wrap: wrap !important;
+		gap: 5px !important;
+		justify-content: center !important;
+	}
+
+	/* col 클래스 모바일에서 전체 너비 */
+	.col-7, .col-5, .col-12 {
+		width: 100% !important;
+		flex: 0 0 100% !important;
+		max-width: 100% !important;
+		margin-bottom: 10px !important;
+	}
+
+	/* 행 레이아웃 모바일 최적화 */
+	.row {
+		margin-left: -5px !important;
+		margin-right: -5px !important;
+	}
+
+	.row > [class*="col-"] {
+		padding-left: 5px !important;
+		padding-right: 5px !important;
+	}
+
+	/* 제목/상태 정보 영역 모바일 최적화 */
+	.bg-secondary {
+		font-size: 0.85rem !important;
+		padding: 0.5rem !important;
+		line-height: 1.5 !important;
+	}
+
+	/* 내용 영역 모바일 최적화 */
+	.row.d-flex.p-2.m-2 {
+		font-size: 0.9rem !important;
+		line-height: 1.6 !important;
+		padding: 0.75rem !important;
+		margin: 0.5rem 0 !important;
+		word-wrap: break-word !important;
+	}
+
+	/* 댓글 영역 모바일 최적화 */
+	.d-flex.p-1.m-1 {
+		font-size: 0.85rem !important;
+		line-height: 1.5 !important;
+		padding: 0.5rem !important;
+		margin: 0.5rem 0 !important;
+	}
+
+	/* 댓글 입력 폼 모바일 최적화 */
+	.card[style*="width:80%"] {
+		width: 100% !important;
+		max-width: 100% !important;
+	}
+
+	.row.d-flex.mt-3.mb-1 .d-flex {
+		flex-wrap: wrap !important;
+		gap: 5px !important;
+		align-items: stretch !important;
+	}
+
+	.row.d-flex.mt-3.mb-1 .badge {
+		font-size: 0.8rem !important;
+		padding: 0.4rem 0.6rem !important;
+		width: 100% !important;
+		min-width: auto !important;
+		flex: 0 0 100% !important;
+		text-align: center !important;
+	}
+
+	.row.d-flex.mt-3.mb-1 textarea {
+		font-size: 0.9rem !important;
+		padding: 0.5rem 0.75rem !important;
+		min-height: 80px !important;
+		resize: vertical !important;
+		width: 100% !important;
+		flex: 0 0 100% !important;
+		margin: 5px 0 !important;
+	}
+
+	.row.d-flex.mt-3.mb-1 .btn {
+		font-size: 0.85rem !important;
+		padding: 0.5rem 0.75rem !important;
+		width: 100% !important;
+		min-width: auto !important;
+		flex: 0 0 100% !important;
+		white-space: nowrap !important;
+	}
+
+	/* 이미지 표시 영역 모바일 최적화 */
+	#displayimage img {
+		max-width: 100% !important;
+		height: auto !important;
+		display: block !important;
+		margin: 0.5rem auto !important;
+	}
+
+	#displayfile {
+		font-size: 0.85rem !important;
+		word-wrap: break-word !important;
+	}
+
+	#displayfile a {
+		font-size: 0.85rem !important;
+		word-break: break-all !important;
+	}
+
+	/* 입력 필드 모바일 최적화 */
+	input[type="text"],
+	textarea {
+		font-size: 0.9rem !important;
+		padding: 0.5rem 0.75rem !important;
+		width: 100% !important;
+		box-sizing: border-box !important;
+		max-width: 100% !important;
+	}
+
+	/* 텍스트 영역 모바일 최적화 */
+	textarea.form-control {
+		font-size: 0.9rem !important;
+		padding: 0.5rem 0.75rem !important;
+		min-height: 80px !important;
+		resize: vertical !important;
+	}
+
+	/* 경고 메시지 모바일 최적화 */
+	.text-danger {
+		font-size: 0.85rem !important;
+		line-height: 1.4 !important;
+	}
+
+	/* 링크 모바일 최적화 */
+	a {
+		font-size: 0.85rem !important;
+		word-break: break-all !important;
+	}
+}
+</style>
+</head> 
  
 <body>
 
@@ -123,7 +308,7 @@ if($_SESSION["userid"]==$item_id || $_SESSION["userid"]=="admin" || $_SESSION["n
 	   $_SESSION["level"]==1 )
 	{
 ?>		
-		<button type="button"   class="btn btn-danger btn-sm me-1" onclick="javascript:del('delete.php?num=<?=$num?>&page=<?=$page?>')"> <i class="bi bi-pencil"></i>  신규  </button>	 &nbsp;
+		<button type="button"   class="btn btn-danger btn-sm me-1" onclick="javascript:del('delete.php?num=<?=$num?>&page=<?=$page?>')"> <i class="bi bi-pencil"></i>  삭제  </button>	 &nbsp;
 <?php  	}    ?>		
 		<button type="button"   class="btn btn-outline-success btn-sm me-1" onclick="location.href='regist.php?num=<?=$num?>&page=<?=$page?>'" > '접수중' 상태 변경 </button>	
 		<button type="button"   class="btn btn-primary btn-sm" onclick="location.href='check_done.php?num=<?=$num?>&page=<?=$page?>'" > 확인완료 </button>		&nbsp;											

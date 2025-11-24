@@ -31,6 +31,329 @@ $title_message = '연구개발보고서';
     td, th, tr, span, input {
         vertical-align: middle;
     }
+    
+    /* 모바일 환경 최적화 */
+    @media (max-width: 768px) {
+        /* body와 html 오버플로우 방지 */
+        html, body {
+            overflow-x: hidden !important;
+            max-width: 100vw !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        * {
+            max-width: 100vw !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 컨테이너 최적화 */
+        .container-fluid {
+            padding: 0.5rem !important;
+            max-width: 100vw !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+            margin: 0 auto !important;
+            overflow-x: hidden !important;
+        }
+        
+        /* 카드 최적화 */
+        .card {
+            margin: 0.5rem auto !important;
+            width: calc(100vw - 1rem) !important;
+            max-width: calc(100vw - 1rem) !important;
+            box-sizing: border-box !important;
+            overflow-x: hidden !important;
+        }
+        
+        .card-body {
+            padding: 0.75rem !important;
+            overflow-x: hidden !important;
+        }
+        
+        /* 제목 영역 최적화 */
+        .d-flex.mb-5.mt-5.justify-content-center h4 {
+            font-size: 1.25rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            text-align: center !important;
+        }
+        
+        /* 버튼 그룹 최적화 */
+        .d-flex.mb-1.justify-content-start,
+        .d-flex.mb-1.justify-content-end,
+        .d-flex.justify-content-start {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 0.5rem !important;
+            padding: 0.5rem !important;
+        }
+        
+        .d-flex.mb-1.justify-content-start button,
+        .d-flex.mb-1.justify-content-end button,
+        .d-flex.justify-content-start button {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0.25rem 0 !important;
+            padding: 0.5rem !important;
+            font-size: 1rem !important;
+        }
+        
+        /* 테이블 최적화 - 카드 형식으로 변환 */
+        .table {
+            display: block !important;
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+        
+        .table thead {
+            display: none !important;
+        }
+        
+        .table tbody {
+            display: block !important;
+            width: 100% !important;
+        }
+        
+        .table tr {
+            display: block !important;
+            width: 100% !important;
+            margin-bottom: 0.5rem !important;
+            border: 1px solid #dee2e6 !important;
+            border-radius: 0.375rem !important;
+            padding: 0.75rem !important;
+            background: #fff !important;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+            box-sizing: border-box !important;
+        }
+        
+        .table td {
+            display: flex !important;
+            flex-direction: column !important;
+            width: 100% !important;
+            padding: 0.5rem !important;
+            border: none !important;
+            text-align: left !important;
+            box-sizing: border-box !important;
+        }
+        
+        .table td::before {
+            content: attr(data-label) !important;
+            font-weight: bold !important;
+            font-size: 0.875rem !important;
+            color: #495057 !important;
+            margin-bottom: 0.25rem !important;
+        }
+        
+        .table td:first-child::before {
+            content: attr(data-label) !important;
+        }
+        
+        /* 입력 필드 최적화 */
+        .form-control {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0.25rem 0 !important;
+            padding: 0.5rem !important;
+            font-size: 1rem !important;
+            box-sizing: border-box !important;
+        }
+        
+        input[type="date"],
+        input[type="text"],
+        textarea {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* Summernote 에디터 최적화 */
+        .note-editor {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        .note-editable {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .note-toolbar {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* Summernote 툴바 버튼 최적화 */
+        .note-toolbar .note-btn-group {
+            flex-wrap: wrap !important;
+        }
+        
+        .note-toolbar .note-btn {
+            font-size: 0.875rem !important;
+            padding: 0.25rem 0.5rem !important;
+        }
+        
+        /* 파일 업로드 버튼 최적화 */
+        .d-flex.mb-3.justify-content-center label.btn {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0.5rem 0 !important;
+            padding: 0.5rem !important;
+            font-size: 1rem !important;
+            text-align: center !important;
+        }
+        
+        /* 파일 표시 영역 최적화 */
+        #displayFile {
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 0.5rem !important;
+            margin: 0.5rem 0 !important;
+            box-sizing: border-box !important;
+        }
+        
+        #displayFile .row {
+            margin: 0.5rem 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+        
+        #displayFile .d-flex {
+            flex-direction: column !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+        }
+        
+        #displayFile a {
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            max-width: 100% !important;
+            display: inline-block !important;
+            text-align: center !important;
+        }
+        
+        #displayFile button {
+            width: auto !important;
+            min-width: 80px !important;
+        }
+        
+        /* 결재 테이블 최적화 */
+        .table.table-bordered {
+            font-size: 0.875rem !important;
+        }
+        
+        .table.table-bordered th,
+        .table.table-bordered td {
+            padding: 0.5rem !important;
+            font-size: 0.875rem !important;
+        }
+        
+        /* 텍스트 오버플로우 방지 */
+        * {
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 모든 텍스트 요소 강제 줄바꿈 */
+        p, div, h1, h2, h3, h4, h5, h6, label, strong, em, b, i, u, span, td, th {
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            word-break: break-word !important;
+            white-space: normal !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* span 요소 줄바꿈 처리 */
+        span {
+            display: inline-block !important;
+            overflow: visible !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 모든 div 요소 오버플로우 방지 */
+        div {
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* '기간' 버튼 숨기기 */
+        #showdate {
+            display: none !important;
+        }
+        
+        /* 모달 최적화 */
+        .modal {
+            padding: 0 !important;
+            overflow: hidden !important;
+        }
+        
+        .modal-dialog {
+            margin: 0 !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            height: 100vh !important;
+            max-height: 100vh !important;
+        }
+        
+        .modal-content {
+            margin: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 100vh !important;
+            max-height: 100vh !important;
+            border-radius: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            box-sizing: border-box !important;
+        }
+        
+        .modal-header {
+            padding: 0.75rem 0.5rem !important;
+            flex-shrink: 0 !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .modal-title {
+            font-size: 1rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .modal-body {
+            flex: 1 !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            padding: 0.75rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            -webkit-overflow-scrolling: touch !important;
+        }
+        
+        .modal-footer {
+            padding: 0.75rem 0.5rem !important;
+            flex-shrink: 0 !important;
+            flex-direction: column !important;
+            gap: 0.5rem !important;
+        }
+        
+        .modal-footer button {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0.5rem !important;
+            font-size: 1rem !important;
+        }
+    }
 </style>
 
 <body>
@@ -370,17 +693,17 @@ $title_message = '연구개발보고서';
 <div class="row mt-2">  
   <table class="table table-bordered">
     <tr>
-      <td class="text-center w-10 fw-bold"><label for="indate">작성일</label></td>          			
-      <td class="w-10">
-        <input type="date" class="form-control w-100 viewNoBtn" id="indate" name="indate" value="<?=$indate?>" >				
+      <td class="text-center w-10 fw-bold" data-label="작성일"><label for="indate">작성일</label></td>          			
+      <td class="w-10" data-label="작성일">
+        <input type="date" class="form-control w-100 viewNoBtn" id="indate" name="indate" value="<?= htmlspecialchars($indate, ENT_QUOTES, 'UTF-8') ?>" >				
       </td>	
-      <td class="text-center w-10 fw-bold"><label for="author">작성자</label></td>          			
-      <td class="w-10">
-        <input type="text" class="form-control text-center w-100 viewNoBtn" id="author" name="author" value="<?=$author?>" >				
+      <td class="text-center w-10 fw-bold" data-label="작성자"><label for="author">작성자</label></td>          			
+      <td class="w-10" data-label="작성자">
+        <input type="text" class="form-control text-center w-100 viewNoBtn" id="author" name="author" value="<?= htmlspecialchars($author, ENT_QUOTES, 'UTF-8') ?>" >				
       </td>
-      <td class="text-center w-10 fw-bold"><label for="mytitle">제목</label></td>
-      <td class="w-30">
-        <input type="text" class="form-control viewNoBtn" id="mytitle" name="mytitle" value="<?=$mytitle?>" placeholder="제목" >
+      <td class="text-center w-10 fw-bold" data-label="제목"><label for="mytitle">제목</label></td>
+      <td class="w-30" data-label="제목">
+        <input type="text" class="form-control viewNoBtn" id="mytitle" name="mytitle" value="<?= htmlspecialchars($mytitle, ENT_QUOTES, 'UTF-8') ?>" placeholder="제목" >
       </td>
     </tr>
   </table>
@@ -405,14 +728,22 @@ $title_message = '연구개발보고서';
     <script>
         // ES5 호환 코드 (PHP 7.3 환경에서 권장)
         $(document).ready(function() {
+            // 모바일 환경 감지
+            var isMobile = window.innerWidth <= 768;
+            
             // Summernote 초기화
             $('#summernote').summernote({
                 placeholder: '내용',
                 maximumImageFileSize: 1920 * 5000,
                 tabsize: 2,
-                height: 450,
-                width: 1300,
-                toolbar: [
+                height: isMobile ? 300 : 450,
+                width: isMobile ? '100%' : 1300,
+                toolbar: isMobile ? [
+                    ['font', ['bold', 'underline', 'clear']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['insert', ['link', 'picture']],
+                    ['view', ['fullscreen', 'help']]
+                ] : [
                     ['style', ['style']],
                     ['font', ['bold', 'underline', 'clear']],
                     ['color', ['color']],
@@ -474,6 +805,76 @@ $title_message = '연구개발보고서';
                     };
                 };
                 reader.readAsDataURL(file);
+            }
+        });
+        
+        // 화면 크기 변경 시 Summernote 재조정
+        $(window).on('resize', function() {
+            if (window.innerWidth <= 768) {
+                $('#summernote').summernote('destroy');
+                $('#summernote').summernote({
+                    placeholder: '내용',
+                    maximumImageFileSize: 1920 * 5000,
+                    tabsize: 2,
+                    height: 300,
+                    width: '100%',
+                    toolbar: [
+                        ['font', ['bold', 'underline', 'clear']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['insert', ['link', 'picture']],
+                        ['view', ['fullscreen', 'help']]
+                    ],
+                    callbacks: {
+                        onImageUpload: function(files) {
+                            if (files.length > 0) {
+                                var file = files[0];
+                                resizeImage(file, function(resizedImage) {
+                                    $('#summernote').summernote('insertImage', resizedImage);
+                                });
+                            }
+                        }
+                    }
+                });
+                
+                // 뷰 모드일 경우 비활성화
+                var mode = '<?php echo $mode; ?>';
+                if (mode === 'view') {
+                    $('#summernote').summernote('disable');
+                }
+            } else {
+                $('#summernote').summernote('destroy');
+                $('#summernote').summernote({
+                    placeholder: '내용',
+                    maximumImageFileSize: 1920 * 5000,
+                    tabsize: 2,
+                    height: 450,
+                    width: 1300,
+                    toolbar: [
+                        ['style', ['style']],
+                        ['font', ['bold', 'underline', 'clear']],
+                        ['color', ['color']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['table', ['table']],
+                        ['insert', ['link', 'picture', 'video']],
+                        ['view', ['fullscreen', 'codeview', 'help']]
+                    ],
+                    callbacks: {
+                        onImageUpload: function(files) {
+                            if (files.length > 0) {
+                                var file = files[0];
+                                resizeImage(file, function(resizedImage) {
+                                    $('#summernote').summernote('insertImage', resizedImage);
+                                });
+                            }
+                        }
+                    }
+                });
+                
+                // 뷰 모드일 경우 비활성화
+                var mode = '<?php echo $mode; ?>';
+                if (mode === 'view') {
+                    $('#summernote').summernote('disable');
+                }
             }
         });
     </script>
@@ -758,11 +1159,17 @@ function captureReturnKey(e) {
                             continue;
                         }
 
+                        // HTTPS 변환 (Mixed Content 방지)
+                        var safeLink = link;
+                        if (window.location.protocol === 'https:' && link.startsWith('http:')) {
+                            safeLink = link.replace('http:', 'https:');
+                        }
+                        
                         $("#displayFile").append(
                             "<div class='row mt-1 mb-2'>" +
                             "<div class='d-flex align-items-center justify-content-center'>" +
                             "<span id='file" + index + "'>" +
-                            "<a href='#' onclick=\"popupCenter('" + link + "', 'filePopup', 800, 600); return false;\">" + realName + "</a>" +
+                            "<a href='#' onclick=\"popupCenter('" + safeLink + "', 'filePopup', 800, 600); return false;\" style='word-wrap:break-word;overflow-wrap:break-word;max-width:100%;'>" + realName + "</a>" +
                             "</span> &nbsp;&nbsp;" +
                             "<button type='button' class='btn btn-danger btn-sm' id='delFile" + index + "' onclick=\"delFileFn('" + index + "', '" + fileId + "')\">" +
                             "<i class='bi bi-trash'></i>" +
@@ -806,11 +1213,17 @@ function captureReturnKey(e) {
                         continue;
                     }
 
+                    // HTTPS 변환 (Mixed Content 방지)
+                    var safeLink = link;
+                    if (window.location.protocol === 'https:' && link.startsWith('http:')) {
+                        safeLink = link.replace('http:', 'https:');
+                    }
+                    
                     $("#displayFile").append(
                         "<div class='row mb-3'>" +
                         "<div class='d-flex mb-3 align-items-center justify-content-center'>" +
                         "<span id='file" + i + "'>" +
-                        "<a href='#' onclick=\"popupCenter('" + link + "', 'filePopup', 800, 600); return false;\">" + realName + "</a>" +
+                        "<a href='#' onclick=\"popupCenter('" + safeLink + "', 'filePopup', 800, 600); return false;\" style='word-wrap:break-word;overflow-wrap:break-word;max-width:100%;'>" + realName + "</a>" +
                         "</span> &nbsp;&nbsp;" +
                         "<button type='button' class='btn btn-danger btn-sm' id='delFile" + i + "' onclick=\"delFileFn('" + i + "', '" + fileId + "')\">" +
                         "<i class='bi bi-trash'></i>" +

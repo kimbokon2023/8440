@@ -15,6 +15,288 @@ $title_message = 'QC 공정표';
 
 <title> <?=$title_message?> </title>
 
+<style>
+/* 모바일 환경 최적화 */
+@media (max-width: 768px) {
+    /* 컨테이너 최적화 */
+    .container,
+    .container-fluid {
+        padding: 0.5rem !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 카드 최적화 */
+    .card {
+        margin: 0.5rem auto !important;
+        width: calc(100% - 1rem) !important;
+        max-width: calc(100% - 1rem) !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    /* 인라인 스타일이 있는 카드도 모바일에서 덮어쓰기 */
+    .card[style*="width"] {
+        width: calc(100% - 1rem) !important;
+        max-width: calc(100% - 1rem) !important;
+    }
+    
+    .card-body {
+        padding: 0.75rem 0.5rem !important;
+        overflow-x: hidden !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    /* 제목 최적화 */
+    .fs-5 {
+        font-size: 1.125rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        text-align: center !important;
+    }
+    
+    /* 입력 필드 최적화 */
+    .form-control {
+        width: 100% !important;
+        max-width: 100% !important;
+        font-size: 1rem !important;
+        padding: 0.5rem !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 제목 입력 영역 최적화 */
+    .d-flex.justify-content-center.align-items-center {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.5rem !important;
+    }
+    
+    .d-flex.mt-2.justify-content-center.align-items-center {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.5rem !important;
+    }
+    
+    .d-flex.mt-2.justify-content-center.align-items-center span.form-control {
+        width: 100% !important;
+        max-width: 100% !important;
+        text-align: left !important;
+    }
+    
+    #subject {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    /* 버튼 최적화 */
+    .btn {
+        font-size: 0.875rem !important;
+        padding: 0.5rem 0.75rem !important;
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0.25rem 0 !important;
+    }
+    
+    .d-flex.justify-content-start,
+    .d-flex.justify-content-center {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.5rem !important;
+    }
+    
+    /* Summernote 에디터 최적화 */
+    .note-editor {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    .note-editable {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+    }
+    
+    /* 파일/이미지 업로드 버튼 최적화 */
+    .input-group-text {
+        width: 100% !important;
+        max-width: 100% !important;
+        justify-content: center !important;
+    }
+    
+    label.input-group-text {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0.25rem 0 !important;
+    }
+    
+    /* 텍스트 오버플로우 방지 */
+    * {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 모든 텍스트 요소 강제 줄바꿈 */
+    p, div, h1, h2, h3, h4, h5, h6, label, strong, em, b, i, u, span {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* span 요소 줄바꿈 처리 */
+    span {
+        display: inline !important;
+        overflow: visible !important;
+    }
+    
+    /* 이미지 최적화 */
+    img {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        object-fit: contain !important;
+    }
+    
+    #displayImage img {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+    }
+    
+    /* 파일/이미지 표시 영역 최적화 */
+    #displayFile,
+    #displayImage {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    #displayFile .row,
+    #displayImage .row {
+        margin: 0.5rem 0 !important;
+    }
+    
+    #displayFile .d-flex,
+    #displayImage .d-flex {
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 0.5rem !important;
+    }
+    
+    #displayFile a,
+    #displayImage a {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        display: block !important;
+        padding: 0.5rem !important;
+        text-align: center !important;
+    }
+    
+    /* 모달 최적화 */
+    .modal {
+        padding: 0 !important;
+    }
+    
+    .modal-dialog {
+        margin: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+    }
+    
+    .modal-content {
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        border-radius: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    
+    .modal-header {
+        padding: 0.75rem 0.5rem !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .modal-body {
+        padding: 0.75rem 0.5rem !important;
+        overflow-y: auto !important;
+        flex: 1 1 auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+    
+    .modal-body img {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+    }
+    
+    .modal-footer {
+        padding: 0.75rem 0.5rem !important;
+        flex-shrink: 0 !important;
+    }
+    
+    /* SweetAlert2 모달 최적화 */
+    .swal2-popup {
+        width: 90% !important;
+        max-width: 90% !important;
+        padding: 1rem !important;
+        font-size: 0.875rem !important;
+    }
+    
+    .swal2-title {
+        font-size: 1.125rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .swal2-content {
+        font-size: 0.875rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .swal2-actions {
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+    }
+    
+    .swal2-confirm,
+    .swal2-cancel {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+    
+    /* '기간' 버튼 숨기기 */
+    #showdate {
+        display: none !important;
+    }
+}
+
+/* PC 환경 버튼 간격 최적화 */
+@media (min-width: 769px) {
+    .d-flex.justify-content-start .btn,
+    .d-flex.justify-content-center .btn {
+        margin-left: 0.25rem !important;
+        margin-right: 0.25rem !important;
+    }
+}
+</style>
+
  </head>
 
 <body>
@@ -143,14 +425,22 @@ require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, ima
 
 $(document).ready(function(){
 
+      var isMobile = window.innerWidth <= 768;
       $('#summernote').summernote({
         placeholder: '내용 작성',
 		// maximumImageFileSize: 500*1024, // 500 KB
 		maximumImageFileSize: 1920*5000,
         tabsize: 2,
-        height: 500,
-        width: 1200,
-        toolbar: [
+        height: isMobile ? 300 : 500,
+        width: isMobile ? '100%' : 1200,
+        toolbar: isMobile ? [
+          ['style', ['style']],
+          ['font', ['bold', 'underline', 'clear']],
+          ['color', ['color']],
+          ['para', ['ul', 'ol', 'paragraph']],
+          ['insert', ['link', 'picture']],
+          ['view', ['fullscreen', 'codeview', 'help']]
+        ] : [
           ['style', ['style']],
           ['font', ['bold', 'underline', 'clear']],
           ['color', ['color']],
@@ -169,8 +459,47 @@ $(document).ready(function(){
                     $('#summernote').summernote('insertImage', resizedImage);
                         });
                     }
-                }
+		}
             }
+      });
+      
+      // 창 크기 변경 시 Summernote 크기 조정
+      $(window).on('resize', function() {
+          var isMobile = window.innerWidth <= 768;
+          $('#summernote').summernote('destroy');
+          $('#summernote').summernote({
+            placeholder: '내용 작성',
+            maximumImageFileSize: 1920*5000,
+            tabsize: 2,
+            height: isMobile ? 300 : 500,
+            width: isMobile ? '100%' : 1200,
+            toolbar: isMobile ? [
+              ['style', ['style']],
+              ['font', ['bold', 'underline', 'clear']],
+              ['color', ['color']],
+              ['para', ['ul', 'ol', 'paragraph']],
+              ['insert', ['link', 'picture']],
+              ['view', ['fullscreen', 'codeview', 'help']]
+            ] : [
+              ['style', ['style']],
+              ['font', ['bold', 'underline', 'clear']],
+              ['color', ['color']],
+              ['para', ['ul', 'ol', 'paragraph']],
+              ['table', ['table']],
+              ['insert', ['link', 'picture', 'video']],
+              ['view', ['fullscreen', 'codeview', 'help']]
+            ],
+            callbacks: {
+              onImageUpload: function(files) {
+                  if (files.length > 0) {
+                      var file = files[0];
+                      resizeImage(file, function(resizedImage) {
+                          $('#summernote').summernote('insertImage', resizedImage);
+                      });
+                  }
+              }
+            }
+          });
       });
 
 
@@ -663,7 +992,7 @@ function displayImage() {
 					"<div class='row mb-3'>" +
 						"<div class='col d-flex align-items-center justify-content-center'>" +
 							"<a href='#' onclick=\"popupCenter('" + link + "', 'imagePopup', 800, 600); return false;\">" +
-								"<img id='image" + index + "' src='" + thumbnail + "' style='width:150px; height:auto;'>" +
+								"<img id='image" + index + "' src='" + thumbnail + "' style='width:100%; max-width:100%; height:auto;'>" +
 							"</a> &nbsp;&nbsp;" +
 							"<button type='button' class='btn btn-danger btn-sm' id='delImage" + index + "' onclick=\"delImageFn('" + index + "', '" + fileId + "')\">" +
 								"<ion-icon name='trash-outline'></ion-icon>" +
@@ -712,7 +1041,7 @@ function displayImageLoad() {
 				"<div class='row mb-3'>" +
 					"<div class='col d-flex align-items-center justify-content-center'>" +
 						"<a href='#' onclick=\"popupCenter('" + link + "', 'imagePopup', 800, 600); return false;\">" +
-							"<img id='image" + i + "' src='" + thumbnail + "' style='width:150px; height:auto;'>" +
+							"<img id='image" + i + "' src='" + thumbnail + "' style='width:100%; max-width:100%; height:auto;'>" +
 						"</a> &nbsp;&nbsp;" +
 						"<button type='button' class='btn btn-danger btn-sm' id='delImage" + i + "' onclick=\"delImageFn('" + i + "', '" + fileId + "')\">" +
 							"<ion-icon name='trash-outline'></ion-icon>" +

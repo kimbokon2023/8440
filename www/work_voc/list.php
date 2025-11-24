@@ -264,14 +264,91 @@ body {
 }
 
 @media (max-width: 768px) {
+	/* body와 html의 width 제한 */
+	html, body {
+		max-width: 100vw !important;
+		overflow-x: hidden !important;
+		font-size: 16px !important;
+	}
+
+	/* 컨테이너 패딩 조정 */
+	.container, .container-fluid {
+		max-width: 100vw !important;
+		padding-left: 10px !important;
+		padding-right: 10px !important;
+		overflow-x: hidden !important;
+	}
+
     .glass-container {
-        padding: 1rem;
+        padding: 1rem !important;
+		margin-bottom: 10px !important;
     }
 
     .section-header {
-        padding: 0.5rem;
-        font-size: 0.8rem;
+        padding: 0.5rem !important;
+        font-size: 0.85rem !important;
+		margin: -1rem -1rem 1rem -1rem !important;
     }
+
+	.section-title {
+		font-size: 1rem !important;
+	}
+
+	/* 검색 영역 모바일 최적화 */
+	.d-flex.mt-2.mb-2 {
+		flex-wrap: nowrap !important;
+		gap: 4px !important;
+		padding: 0.5rem 0.25rem !important;
+		margin: 0.5rem 0 !important;
+		justify-content: center !important;
+		align-items: center !important;
+		overflow-x: auto !important;
+		-webkit-overflow-scrolling: touch !important;
+	}
+
+	.d-flex.mt-2.mb-2 > * {
+		margin: 0 !important;
+		flex-shrink: 0 !important;
+		white-space: nowrap !important;
+	}
+
+	.d-flex.mt-2.mb-2 > span:first-child {
+		font-size: 0.85rem !important;
+		font-weight: 600 !important;
+	}
+
+	.d-flex.mt-2.mb-2 .btn-sm {
+		font-size: 0.75rem !important;
+		padding: 0.3rem 0.5rem !important;
+		white-space: nowrap !important;
+	}
+
+	.d-flex.mt-2.mb-2 .inputWrap {
+		flex-shrink: 0 !important;
+	}
+
+	.d-flex.mt-2.mb-2 #search {
+		width: auto !important;
+		min-width: 120px !important;
+		max-width: 180px !important;
+		font-size: 0.85rem !important;
+		padding: 0.35rem 0.5rem !important;
+		height: 32px !important;
+	}
+
+	.d-flex.mt-2.mb-2 .btnClear {
+		width: 24px !important;
+		height: 24px !important;
+		padding: 0 !important;
+		font-size: 0.75rem !important;
+	}
+
+	.d-flex.mt-2.mb-2 #searchBtn {
+		font-size: 0.75rem !important;
+		padding: 0.3rem 0.6rem !important;
+		height: 32px !important;
+		white-space: nowrap !important;
+	}
 
     .btn-custom {
         display: block;
@@ -281,11 +358,121 @@ body {
         font-size: 0.8rem;
     }
 
-    .table th,
-    .table td {
-        padding: 0.3rem;
-        font-size: 0.75rem;
-    }
+	/* 테이블 모바일에서 카드 형태로 변환 */
+	.table thead {
+		display: none !important;
+	}
+
+	.table tbody tr {
+		display: block !important;
+		width: 100% !important;
+		margin-bottom: 10px !important;
+		border: 1px solid #dee2e6 !important;
+		border-radius: 8px !important;
+		background: white !important;
+		box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+		padding: 8px !important;
+		overflow: hidden !important;
+		cursor: pointer !important;
+	}
+
+	.table tbody tr td {
+		display: block !important;
+		width: 100% !important;
+		text-align: left !important;
+		padding: 6px 4px !important;
+		border: none !important;
+		position: relative !important;
+		padding-left: 35% !important;
+		white-space: normal !important;
+		word-wrap: break-word !important;
+		min-height: 30px !important;
+		font-size: 0.9rem !important;
+		line-height: 1.4 !important;
+	}
+
+	.table tbody tr td:before {
+		content: attr(data-label);
+		position: absolute !important;
+		left: 4px !important;
+		width: 30% !important;
+		padding-right: 3px !important;
+		white-space: nowrap !important;
+		overflow: hidden !important;
+		text-overflow: ellipsis !important;
+		font-weight: 600 !important;
+		color: #6b7280 !important;
+		font-size: 0.8rem !important;
+	}
+
+	.table tbody tr td:after {
+		display: none !important;
+	}
+
+	/* 첫 번째 셀 (번호) 스타일 */
+	.table tbody tr td:first-child {
+		font-weight: 600 !important;
+		color: #495057 !important;
+		border-bottom: 1px solid #e9ecef !important;
+		padding-bottom: 6px !important;
+		margin-bottom: 4px !important;
+	}
+
+	/* 현장명 강조 */
+	.table tbody tr td:nth-child(2) {
+		background: #e7f3ff !important;
+		font-weight: 700 !important;
+		font-size: 1rem !important;
+		color: #0056b3 !important;
+		padding: 6px 4px !important;
+		padding-left: 4px !important;
+		margin: 4px 0 !important;
+		border-radius: 4px !important;
+		border-left: 4px solid #0056b3 !important;
+		display: block !important;
+	}
+
+	.table tbody tr td:nth-child(2):before {
+		position: static !important;
+		display: block !important;
+		width: 100% !important;
+		margin-bottom: 2px !important;
+		font-size: 0.8rem !important;
+		color: #6b7280 !important;
+		font-weight: 600 !important;
+		overflow: visible !important;
+		text-overflow: clip !important;
+	}
+
+	/* 처리상황 강조 */
+	.table tbody tr td:nth-child(6) {
+		font-weight: 700 !important;
+	}
+
+	.table tbody tr td:nth-child(6) .blinking {
+		font-size: 0.85rem !important;
+		padding: 0.2rem 0.4rem !important;
+	}
+
+	/* 페이지네이션 모바일 최적화 */
+	.pagination-container {
+		padding: 0.75rem !important;
+		overflow-x: auto !important;
+		-webkit-overflow-scrolling: touch !important;
+	}
+
+	.pagination-container .btn {
+		font-size: 0.75rem !important;
+		padding: 0.3rem 0.5rem !important;
+		min-width: 2rem !important;
+		margin: 0.1rem !important;
+	}
+
+	.pagination-container .text-secondary {
+		font-size: 0.75rem !important;
+		padding: 0.3rem 0.5rem !important;
+		min-width: 2rem !important;
+	}
 }
 </style>
 
@@ -431,12 +618,12 @@ try {
 ?>
 
                 <tr onclick="redirectToView('<?= $item_num ?>', '<?= $page ?>')" class="clickable-row">
-                    <td class="text-center"><?= $start_num ?></td>
-                    <td class="text-center"><?= $item_subject ?></td>
-                    <td><?= $item_content ?></td>
-                    <td class="text-center"><?= $item_name ?></td>
-                    <td class="text-center"><?= $item_date ?></td>
-                    <td class="text-center">
+                    <td class="text-center" data-label="번호"><?= $start_num ?></td>
+                    <td class="text-center" data-label="현장명"><?= $item_subject ?></td>
+                    <td data-label="협의 내용"><?= $item_content ?></td>
+                    <td class="text-center" data-label="작성자"><?= $item_name ?></td>
+                    <td class="text-center" data-label="등록일"><?= $item_date ?></td>
+                    <td class="text-center" data-label="처리상황">
                         <?php
                         if ($is_html == '1') {
                             print '<span class="blinking" style="color:red">접수 중</span>';

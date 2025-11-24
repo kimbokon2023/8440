@@ -18,6 +18,325 @@ ini_set('display_errors', '1');
 <?php include getDocumentRoot() . '/load_header.php' ?>
 
 <title> 조명천장 부자재 </title>
+
+<style>
+/* 모바일 최적화 스타일 */
+@media (max-width: 768px) {
+    /* 컨테이너 및 카드 최적화 */
+    .container {
+        padding: 0.75rem 0.5rem !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    .card {
+        margin: 0.5rem auto !important;
+        border-radius: 0.5rem !important;
+        width: calc(100% - 1rem) !important;
+        max-width: calc(100% - 1rem) !important;
+        box-sizing: border-box !important;
+    }
+    
+    .card-header {
+        padding: 0.75rem 0.5rem !important;
+    }
+    
+    .card-body {
+        padding: 0.75rem 0.5rem !important;
+    }
+    
+    /* 제목 최적화 */
+    .fs-6, h4, h5, h6 {
+        font-size: 1rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        text-align: center !important;
+        margin-bottom: 0.75rem !important;
+        padding: 0 0.5rem !important;
+    }
+    
+    /* 버튼 최적화 */
+    .btn {
+        font-size: 0.875rem !important;
+        padding: 0.5rem 0.75rem !important;
+        white-space: nowrap !important;
+        min-height: 40px !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    
+    /* d-flex 컨테이너 안의 버튼은 자동 크기 */
+    .d-flex .btn,
+    .d-flex.justify-content-center .btn,
+    .d-flex.align-items-center .btn {
+        width: auto !important;
+        max-width: none !important;
+        margin: 0.25rem !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .btn-sm {
+        font-size: 0.8rem !important;
+        padding: 0.4rem 0.6rem !important;
+        min-height: 36px !important;
+    }
+    
+    /* 입력 그룹 안의 버튼 */
+    .input-group .btn {
+        width: auto !important;
+        max-width: none !important;
+        margin: 0.25rem !important;
+    }
+    
+    /* 카드 헤더/바디 안의 버튼 */
+    .card-header .btn,
+    .card-body .btn {
+        width: auto !important;
+        max-width: none !important;
+    }
+    
+    /* Grid 숨기기 및 카드 컨테이너 표시 */
+    #grid {
+        display: none !important;
+    }
+    
+    #mobile-grid-cards {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 0 0.25rem !important;
+    }
+    
+    .mobile-grid-card {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin: 0.5rem auto 0.75rem auto !important;
+        padding: 0.75rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        width: calc(100% - 0.5rem) !important;
+        max-width: calc(100% - 0.5rem) !important;
+        overflow-x: hidden;
+        box-sizing: border-box;
+        cursor: pointer;
+    }
+    
+    .mobile-grid-card-item {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 0.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #f0f0f0;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .mobile-grid-card-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    
+    .mobile-grid-card-label {
+        font-weight: bold;
+        font-size: 0.75rem;
+        color: #666;
+        margin-bottom: 0.25rem;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+    
+    .mobile-grid-card-value {
+        font-size: 0.9rem;
+        color: #333;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    
+    /* jQuery DataTable 숨기기 */
+    .dataTables_length,
+    .dataTables_filter {
+        display: none !important;
+    }
+    
+    /* HTML 테이블을 카드 형식으로 변환 */
+    table.table {
+        width: 100% !important;
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+    }
+    
+    table.table tbody {
+        display: block !important;
+        width: 100% !important;
+    }
+    
+    table.table tbody tr {
+        display: block !important;
+        width: calc(100% - 0.5rem) !important;
+        max-width: calc(100% - 0.5rem) !important;
+        margin: 0.5rem auto 0.75rem auto !important;
+        background: #fff !important;
+        border: 1px solid #ddd !important;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+        padding: 0.75rem !important;
+        box-sizing: border-box !important;
+        cursor: pointer;
+    }
+    
+    table.table tbody tr td {
+        display: flex !important;
+        width: 100% !important;
+        padding: 0.5rem 0.4rem !important;
+        text-align: left !important;
+        border: none !important;
+        border-bottom: 1px solid #f0f0f0 !important;
+        box-sizing: border-box !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+    }
+    
+    table.table tbody tr td:last-child {
+        border-bottom: none !important;
+    }
+    
+    table.table thead {
+        display: none !important;
+    }
+    
+    table.table tbody tr td::before {
+        content: attr(data-label) !important;
+        font-weight: bold !important;
+        font-size: 0.75rem !important;
+        color: #666 !important;
+        margin-right: 0.5rem !important;
+        min-width: 80px !important;
+        flex-shrink: 0 !important;
+    }
+    
+    /* 입력 그룹 최적화 */
+    .input-group {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex-wrap: wrap !important;
+        box-sizing: border-box !important;
+        gap: 0.5rem !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }
+    
+    .input-group > * {
+        flex: 0 0 auto !important;
+        width: auto !important;
+        max-width: none !important;
+    }
+    
+    /* d-flex justify-content-center 최적화 */
+    .d-flex.justify-content-center {
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+    }
+    
+    .d-flex.justify-content-center .btn {
+        width: auto !important;
+        max-width: none !important;
+        margin: 0.25rem !important;
+    }
+    
+    /* 텍스트 오버플로우 방지 */
+    * {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        box-sizing: border-box !important;
+    }
+}
+
+/* PC 화면 */
+@media (min-width: 769px) {
+    #mobile-grid-cards {
+        display: none !important;
+    }
+    
+    #grid {
+        display: block !important;
+    }
+}
+
+/* 모달 최적화 */
+@media (max-width: 768px) {
+    .modal-dialog {
+        margin: 0.5rem !important;
+        max-width: calc(100% - 1rem) !important;
+    }
+    
+    .modal-dialog.modal-lg {
+        margin: 0 !important;
+        max-width: 100% !important;
+    }
+    
+    .modal-content {
+        border-radius: 0.5rem !important;
+    }
+    
+    .modal-header {
+        padding: 0.75rem 0.5rem !important;
+        min-height: 50px !important;
+        flex-wrap: wrap !important;
+        gap: 0.25rem !important;
+    }
+    
+    .modal-title {
+        font-size: 1rem !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        word-wrap: break-word !important;
+    }
+    
+    .modal-header .btn-close {
+        margin: 0 !important;
+        padding: 0.5rem !important;
+    }
+    
+    .modal-body {
+        padding: 0.75rem 0.5rem !important;
+        font-size: 0.9rem !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .modal-body .fs-3 {
+        font-size: 1rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .modal-footer {
+        padding: 0.75rem 0.5rem !important;
+        flex-wrap: wrap !important;
+        gap: 0.25rem !important;
+    }
+    
+    .modal-footer .btn {
+        padding: 0.5rem 0.75rem !important;
+        font-size: 0.875rem !important;
+        min-height: 40px !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        margin-bottom: 0.25rem !important;
+    }
+}
+</style>
+
 </head>
 
 <body>
@@ -209,19 +528,21 @@ $sql = "select * from mirae8440.part order by inputdate desc";
     
     <div class="container mt-2 mb-5">
         <div class="card">
-            <div class="card-body">
+            <div class="card-header">
                 <div class="d-flex mb-1 mt-2 justify-content-center align-items-center">
                     <span class="fs-6">조명/천장 주요 부품 리스트 &nbsp;</span>
                     <button type="button" class="btn btn-dark btn-sm mx-2" onclick="location.reload();">
                         <i class="bi bi-arrow-clockwise"></i>
                     </button>
                 </div>
-                
+            </div>
+            <div class="card-body">                
                 <div class="d-flex mb-1 mt-2 justify-content-center align-items-center">
                     <?php
                     if ($chkMobile === false) { // PC 접속일 때
                     ?>
                         <div id="grid" class="board"></div>
+                        <div id="mobile-grid-cards" style="display: none; width: 100%;"></div>
                     <?php
                     } else { // 모바일인 경우
                     ?>
@@ -248,11 +569,11 @@ $sql = "select * from mirae8440.part order by inputdate desc";
                                     }
                                 ?>
                                     <tr onclick="popupCenter('part_view.php?num=<?=($i+1)?>','부품 이력조회', 800, 500);">
-                                        <td class="text-center"><?=$i+1?></td>
-                                        <td class="text-center"><?=$title_arr[$i]?></td>
-                                        <td class="text-center"><?=$partin_arr[$i]?></td>
-                                        <td class="text-center"><?=$partout_arr[$i]?></td>
-                                        <td class="text-center"><?=$partremain_arr[$i]?></td>
+                                        <td class="text-center" data-label="번호"><?=$i+1?></td>
+                                        <td class="text-center" data-label="부품명"><?=$title_arr[$i]?></td>
+                                        <td class="text-center" data-label="입고"><?=$partin_arr[$i]?></td>
+                                        <td class="text-center" data-label="출고"><?=$partout_arr[$i]?></td>
+                                        <td class="text-center" data-label="재고"><?=$partremain_arr[$i]?></td>
                                     </tr>
                                 <?php
                                 }
@@ -263,8 +584,11 @@ $sql = "select * from mirae8440.part order by inputdate desc";
                     }
                     ?>
                 </div>
-
-                
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+            
                 <?php
                 // 부품 입고 내역 조회
                 try {
@@ -272,17 +596,15 @@ $sql = "select * from mirae8440.part order by inputdate desc";
                     $total_row = $stmh->rowCount();
                 ?>
                     
-                    <div class="d-flex justify-content-center align-items-center mt-5">
-                        <div class="input-group p-1 mb-1 justify-content-center align-items-center">
-                            ▷ 총 <?= $total_row ?>건 &nbsp; &nbsp;
-                            
-                            <button type="button" class="btn btn-dark btn-sm" onclick="popupCenter('part_write_form.php?mode=search&search=<?=$search?>&find=<?=$find?>&year=<?=$year?>&search=<?=$search?>&process=<?=$process?>&asprocess=<?=$asprocess?>&fromdate=<?=$fromdate?>&todate=<?=$todate?>&check=<?=$check?>','주요부품 입력',900,500);">
-                                <i class="bi bi-pencil"></i> 입고등록
-                            </button>
-                        </div>
+                    <div class="d-flex justify-content-center align-items-center mt-5 flex-wrap">
+                        <span class="me-2 mb-2">▷ 총 <?= $total_row ?>건</span>
+                        <button type="button" class="btn btn-dark btn-sm mb-2" onclick="popupCenter('part_write_form.php?mode=search&search=<?=$search?>&find=<?=$find?>&year=<?=$year?>&search=<?=$search?>&process=<?=$process?>&asprocess=<?=$asprocess?>&fromdate=<?=$fromdate?>&todate=<?=$todate?>&check=<?=$check?>','주요부품 입력',900,500);">
+                            <i class="bi bi-pencil"></i> 입고등록
+                        </button>
                     </div>
             </div>
-            
+            </div>
+            <div class="card-body">            
             <div class="d-flex mb-1 mt-2 justify-content-center align-items-center">
                 <table class="table table-hover" id="myTable">
                     <thead class="table-primary">
@@ -323,9 +645,9 @@ $sql = "select * from mirae8440.part order by inputdate desc";
                             }
                         ?>
                             <tr class="table-hover" onclick="handleRowClick('<?=$num?>')">
-                                <td class="text-center" style="cursor:pointer;"><?=$start_num?></td>
-                                <td class="text-center" style="cursor:pointer;"><?=$inputdate?></td>
-                                <td style="cursor:pointer;"><?=$inputlist?></td>
+                                <td class="text-center" style="cursor:pointer;" data-label="번호"><?=$start_num?></td>
+                                <td class="text-center" style="cursor:pointer;" data-label="입고일"><?=$inputdate?></td>
+                                <td style="cursor:pointer;" data-label="입고 부품 리스트"><?=$inputlist?></td>
                             </tr>
                         <?php
                             $start_num--;
@@ -354,18 +676,37 @@ var ceilingpartpageNumber; // 현재 페이지 번호 저장
 
 // DataTables 초기화
 $(document).ready(function() {
+    // 모바일 여부 확인
+    var isMobile = window.innerWidth <= 768;
+    
     // DataTables 초기 설정
     dataTable = $('#myTable').DataTable({
         "paging": true,
         "ordering": true,
-        "searching": true,
-        "pageLength": 50,
-        "lengthMenu": [25, 50, 100, 200, 500, 1000],
+        "searching": !isMobile, // 모바일에서는 검색 숨김
+        "pageLength": isMobile ? 10 : 50,
+        "lengthMenu": isMobile ? [10, 25, 50] : [25, 50, 100, 200, 500, 1000],
         "language": {
             "lengthMenu": "Show _MENU_ entries",
             "search": "Live Search:"
         },
-        "order": [[0, 'desc']]
+        "order": [[0, 'desc']],
+        "responsive": true
+    });
+    
+    // 모바일에서 Show entries와 Live Search 숨기기
+    function handleDataTablesMobile() {
+        if (window.innerWidth <= 768) {
+            $('.dataTables_length, .dataTables_filter').hide();
+        } else {
+            $('.dataTables_length, .dataTables_filter').show();
+        }
+    }
+    
+    // 초기 실행 및 리사이즈 이벤트
+    handleDataTablesMobile();
+    $(window).on('resize', function() {
+        handleDataTablesMobile();
     });
     
     // 페이지 번호 복원 (초기 로드 시)
@@ -462,11 +803,15 @@ $(document).ready(function() {
         }
     }
     
-    // TUI Grid 생성
-    const grid = new tui.Grid({
+    // 모바일 여부 확인
+    var isMobile = window.innerWidth <= 768;
+    var bodyHeight = isMobile ? 400 : 330;
+    
+    // grid를 전역 변수로 선언
+    window.grid = new tui.Grid({
         el: document.getElementById('grid'),
         data: data,
-        bodyHeight: 330,
+        bodyHeight: bodyHeight,
         columns: [
             {
                 header: '부품명',
@@ -552,12 +897,122 @@ $(document).ready(function() {
     });
     
     // 더블클릭 이벤트
-    grid.on('dblclick', (e) => {
+    window.grid.on('dblclick', (e) => {
         var link = 'https://8440.co.kr/ceiling/part_view.php?num=' + numcopy[e.rowKey];
         if (numcopy[e.rowKey] > 0) {
             popupCenter(link, '주요 부품 추적', 800, 900);
         }
         console.log(e.rowKey);
+    });
+    
+    // 모바일 카드 렌더링 함수
+    function renderMobileGridCards() {
+        if (!window.grid) return;
+        
+        var isMobile = window.innerWidth <= 768;
+        var cardsContainer = document.getElementById('mobile-grid-cards');
+        var gridContainer = document.getElementById('grid');
+        
+        if (!isMobile) {
+            // PC 화면: Grid 표시, 카드 숨김
+            if (gridContainer) {
+                gridContainer.style.display = '';
+            }
+            if (cardsContainer) {
+                cardsContainer.style.display = 'none';
+            }
+            return;
+        }
+        
+        // 모바일 화면: Grid 숨김, 카드 표시
+        if (gridContainer) {
+            gridContainer.style.display = 'none';
+        }
+        if (!cardsContainer) return;
+        
+        cardsContainer.style.display = 'block';
+        cardsContainer.innerHTML = '';
+        
+        try {
+            var gridData = window.grid.getData();
+            
+            if (!gridData || gridData.length === 0) {
+                cardsContainer.innerHTML = '<div class="text-center py-4 text-muted">데이터가 없습니다.</div>';
+                return;
+            }
+            
+            // 컬럼 매핑
+            var columnMap = [
+                { name: 'col1', label: '부품명' },
+                { name: 'col2', label: '입고' },
+                { name: 'col3', label: '출고' },
+                { name: 'col4', label: '재고' }
+            ];
+            
+            gridData.forEach(function(rowData, index) {
+                var card = document.createElement('div');
+                card.className = 'mobile-grid-card';
+                
+                // 클릭 이벤트 추가 (PC의 더블클릭과 동일한 기능)
+                var rowKey = index;
+                var partNum = numcopy[rowKey];
+                if (partNum > 0) {
+                    card.style.cursor = 'pointer';
+                    card.addEventListener('click', function() {
+                        var link = 'https://8440.co.kr/ceiling/part_view.php?num=' + partNum;
+                        popupCenter(link, '주요 부품 추적', 800, 900);
+                    });
+                }
+                
+                var cardHtml = '';
+                
+                columnMap.forEach(function(colInfo) {
+                    var value = rowData[colInfo.name];
+                    if (value === null || value === undefined || value === '') {
+                        value = '0';
+                    }
+                    
+                    var displayValue = value;
+                    
+                    cardHtml += '<div class="mobile-grid-card-item">';
+                    cardHtml += '<div class="mobile-grid-card-label">' + colInfo.label + '</div>';
+                    cardHtml += '<div class="mobile-grid-card-value">' + displayValue + '</div>';
+                    cardHtml += '</div>';
+                });
+                
+                if (cardHtml === '') {
+                    cardHtml = '<div class="text-muted">데이터 없음</div>';
+                }
+                
+                card.innerHTML = cardHtml;
+                cardsContainer.appendChild(card);
+            });
+        } catch (error) {
+            console.error('모바일 카드 렌더링 오류:', error);
+            cardsContainer.innerHTML = '<div class="text-center py-4 text-danger">데이터를 불러오는 중 오류가 발생했습니다.</div>';
+        }
+    }
+    
+    // 화면 크기 변경 시 카드/그리드 전환
+    function updateGridDisplay() {
+        renderMobileGridCards();
+    }
+    
+    // Grid 렌더링 완료 후 모바일 카드 렌더링
+    setTimeout(function() {
+        updateGridDisplay();
+    }, 300);
+    
+    // 리사이즈 이벤트
+    window.addEventListener('resize', function() {
+        updateGridDisplay();
+    });
+    
+    // 페이지 로드 완료 후에도 한 번 더 확인
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            updateGridDisplay();
+        }, 500);
     });
 });
 

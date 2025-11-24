@@ -42,6 +42,427 @@ $title_message = '원자재 입출고';
     top: 110px; /* Y축은 절대 좌표에 따라 설정 */
     transform: translateX(-50%); /* 자신의 너비의 반만큼 왼쪽으로 이동 */
 }
+
+/* 모바일 반응형 스타일 */
+@media (max-width: 768px) {
+	/* 미가공 현황 섹션 숨기기 */
+	#display_list {
+		display: none !important;
+	}
+	
+	/* body와 html의 width 제한 */
+	html, body {
+		max-width: 100vw !important;
+		overflow-x: hidden !important;
+		font-size: 16px !important;
+	}
+
+	/* 컨테이너 패딩 조정 및 width 제한 */
+	.container-fluid {
+		max-width: 100vw !important;
+		padding-left: 10px !important;
+		padding-right: 10px !important;
+		overflow-x: hidden !important;
+	}
+
+	/* 모든 row의 width 제한 */
+	.row {
+		max-width: 100vw !important;
+		margin-left: 0 !important;
+		margin-right: 0 !important;
+		overflow-x: hidden !important;
+	}
+
+	/* card의 width 제한 */
+	.card {
+		max-width: 100% !important;
+		overflow-x: hidden !important;
+	}
+
+	/* 제목 영역 모바일 최적화 */
+	.d-flex h5 {
+		font-size: 1.1rem !important;
+		white-space: nowrap !important;
+	}
+
+	/* 버튼 그룹 모바일 최적화 */
+	.btn-sm {
+		font-size: 0.85rem !important;
+		padding: 0.4rem 0.6rem !important;
+		white-space: nowrap !important;
+	}
+
+	/* 총 개수와 날짜 입력 필드를 한 행에 표시 */
+	.d-flex.mb-2.justify-content-center.align-items-center {
+		flex-wrap: wrap !important;
+		gap: 4px !important;
+		overflow-x: hidden !important;
+		justify-content: center !important;
+	}
+	
+	/* 기간 설정 카드 모바일에서 숨기기 */
+	#showframe {
+		display: none !important;
+	}
+	
+	/* 검색 영역 모바일 최적화 */
+	#fromdate, #todate {
+		width: auto !important;
+		min-width: auto !important;
+		max-width: 120px !important;
+		font-size: 0.85rem !important;
+		padding: 0.35rem 0.4rem !important;
+		flex: 0 0 auto;
+	}
+
+	#search {
+		width: 110px !important;
+		font-size: 0.9rem !important;
+		padding: 0.4rem !important;
+	}
+
+	.form-select {
+		font-size: 0.9rem !important;
+		height: 32px !important;
+		padding: 0.4rem 0.6rem !important;
+	}
+	
+	/* 불량유형과 드롭다운 필드를 한 행에 표시 */
+	.d-flex.justify-content-center.align-items-center:has(#bad_choice) {
+		flex-wrap: nowrap !important;
+		gap: 4px !important;
+		overflow-x: hidden !important;
+		justify-content: center !important;
+	}
+	
+	/* 불량유형 레이블 */
+	.d-flex.justify-content-center.align-items-center:has(#bad_choice) .text-danger {
+		white-space: nowrap !important;
+		flex-shrink: 0;
+	}
+	
+	/* 드롭다운 필드 크기 조정 */
+	#bad_choice,
+	#find,
+	#Bigsearch {
+		width: auto !important;
+		min-width: auto !important;
+		max-width: 100px !important;
+		font-size: 0.8rem !important;
+		flex: 0 0 auto;
+	}
+	
+	/* Bigsearch는 조금 더 크게 */
+	#Bigsearch {
+		max-width: 120px !important;
+	}
+	
+	/* 모바일에서 불필요한 버튼 숨기기 */
+	#showextract,
+	#writeBtn,
+	#rawmaterialBtn {
+		display: none !important;
+	}
+	
+	/* 검색어 입력과 검색 버튼 행 스타일 */
+	.d-flex.justify-content-center.align-items-center.mb-2:has(#search) {
+		flex-wrap: nowrap !important;
+		gap: 8px !important;
+		justify-content: center !important;
+		margin-top: 8px !important;
+		margin-bottom: 8px !important;
+	}
+	
+	/* 검색어 입력 필드 */
+	#search {
+		width: auto !important;
+		min-width: 150px !important;
+		max-width: 250px !important;
+		flex: 1 1 auto;
+	}
+	
+	/* 검색 버튼 */
+	#searchBtn {
+		flex-shrink: 0;
+		white-space: nowrap !important;
+	}
+
+	/* 팝업 프레임 모바일 최적화 */
+	#showextractframe,
+	#showframe {
+		position: fixed !important;
+		left: 50% !important;
+		top: 50% !important;
+		transform: translate(-50%, -50%) !important;
+		width: 95% !important;
+		max-width: 400px !important;
+		z-index: 9999 !important;
+		max-height: 80vh !important;
+		overflow-y: auto !important;
+	}
+
+	/* 테이블 헤더 숨기기 */
+	#myTable thead {
+		display: none;
+	}
+
+	/* 테이블을 카드 레이아웃으로 변경 */
+	#myTable,
+	#myTable tbody,
+	#myTable tr,
+	#myTable td {
+		display: block;
+		width: 100%;
+	}
+
+	#myTable tr {
+		margin-bottom: 8px;
+		border: 1px solid #dee2e6;
+		border-radius: 6px;
+		background: white;
+		box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+		padding: 2.5px;
+		overflow: hidden;
+	}
+
+	/* 모바일에서 불필요한 필드 숨기기 */
+	#myTable td:nth-child(1),  /* 번호 */
+	#myTable td:nth-child(9),  /* 잔재(Kg) */
+	#myTable td:nth-child(10), /* 절감(원) */
+	#myTable td:nth-child(11), /* 사급사 */
+	#myTable td:nth-child(12), /* 공급사 */
+	#myTable td:nth-child(13)  /* 샤링여부 */
+	{
+		display: none !important;
+	}
+
+	#myTable td {
+		text-align: left !important;
+		padding: 2.5px !important;
+		border: none !important;
+		position: relative;
+		padding-left: 35% !important;
+		white-space: normal !important;
+		word-wrap: break-word;
+		min-height: 25px;
+		font-size: 0.9rem !important;
+		line-height: 1.4 !important;
+	}
+
+	/* 모바일에서 라벨 표시 */
+	#myTable td:before {
+		content: attr(data-label);
+		position: absolute;
+		left: 12px;
+		width: 30%;
+		padding-right: 8px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		font-weight: 600;
+		color: #6b7280;
+		font-size: 0.85rem;
+	}
+
+	/* 라벨과 값 사이 구분선 */
+	#myTable td:after {
+		content: ':';
+		position: absolute;
+		left: 32%;
+		font-weight: bold;
+		color: #9ca3af;
+	}
+
+	/* 첫 번째 셀은 구분선 없음 */
+	#myTable td:first-child:after {
+		display: none;
+	}
+
+	/* 첫 번째 셀 숨김 처리 */
+	#myTable td:first-child {
+		display: none !important;
+	}
+
+	#myTable td:first-child:before {
+		display: none;
+	}
+
+	/* 일자 (2번째) */
+	#myTable td:nth-child(2) {
+		font-weight: 600;
+		color: #495057;
+		border-bottom: 1px solid #e9ecef;
+		padding-bottom: 2.5px !important;
+		margin-bottom: 2.5px;
+	}
+
+	/* 현장명 (4번째) - 가장 중요 */
+	#myTable td:nth-child(4) {
+		background: #e7f3ff;
+		font-weight: 700;
+		font-size: 1rem !important;
+		color: #0056b3;
+		padding: 2.5px !important;
+		padding-left: 2.5px !important;
+		margin: 2.5px 0;
+		border-radius: 4px;
+		border-left: 4px solid #0056b3;
+		display: block !important;
+	}
+
+	/* 현장명 라벨 스타일 */
+	#myTable td:nth-child(4):before {
+		position: static !important;
+		display: block !important;
+		width: 100% !important;
+		margin-bottom: 6px;
+		font-size: 0.85rem !important;
+		color: #6b7280 !important;
+		font-weight: 600 !important;
+	}
+
+	/* 현장명 콜론 제거 */
+	#myTable td:nth-child(4):after {
+		display: none !important;
+	}
+
+	/* 입출고 (3번째) */
+	#myTable td:nth-child(3) {
+		font-weight: 600;
+	}
+
+	/* 철판종류 (6번째) */
+	#myTable td:nth-child(6) {
+		font-weight: 600;
+		color: #667eea;
+	}
+
+	/* 수량 (8번째) */
+	#myTable td:nth-child(8) {
+		font-weight: 600;
+		color: #dc2626;
+		font-size: 1rem !important;
+	}
+
+
+	/* DataTables 컨트롤 모바일에서 숨기기 */
+	.dataTables_wrapper .dataTables_length,
+	.dataTables_wrapper .dataTables_filter {
+		display: none !important;
+	}
+
+	/* DataTables 페이지네이션 최적화 */
+	.dataTables_wrapper .dataTables_paginate {
+		font-size: 0.9rem !important;
+		margin-top: 15px !important;
+	}
+
+	.dataTables_wrapper .dataTables_paginate .paginate_button {
+		padding: 0.5rem 0.7rem !important;
+		margin: 0 2px !important;
+	}
+
+	/* DataTables 정보 표시 최적화 */
+	.dataTables_wrapper .dataTables_info {
+		font-size: 0.9rem !important;
+		text-align: center !important;
+		margin-top: 10px !important;
+		margin-bottom: 10px !important;
+	}
+
+	/* 버튼 영역 줄바꿈 허용 */
+	.d-flex.justify-content-center {
+		flex-wrap: wrap !important;
+		overflow-x: visible !important;
+		gap: 0.4rem !important;
+		justify-content: flex-start !important;
+	}
+
+	/* 버튼 영역 가운데 정렬 유지 */
+	.d-flex.justify-content-center.align-items-center {
+		justify-content: center !important;
+	}
+
+	/* 검색 도구 영역 */
+	.inputWrap {
+		min-width: 110px !important;
+	}
+
+	/* 배지 크기 조정 */
+	.badge {
+		font-size: 0.85rem !important;
+		padding: 0.3rem 0.6rem !important;
+	}
+
+	/* 카드 패딩 조정 */
+	.card {
+		margin-bottom: 10px !important;
+	}
+
+	.card-body {
+		padding: 12px !important;
+	}
+
+	/* 상단 검색 영역 정리 */
+	.card-body .d-flex {
+		flex-direction: column !important;
+		align-items: stretch !important;
+		gap: 10px !important;
+	}
+
+	/* 제목과 총 개수 영역 */
+	.card-body > .d-flex:first-of-type {
+		flex-direction: row !important;
+		justify-content: space-between !important;
+		align-items: center !important;
+		margin-bottom: 15px !important;
+		padding-bottom: 12px !important;
+		border-bottom: 2px solid #e9ecef !important;
+	}
+
+	/* 버튼 그룹들을 세로로 배치 */
+	.card-body > .d-flex {
+		margin-bottom: 10px !important;
+	}
+
+	/* 날짜 입력 영역 */
+	.card-body .d-flex:has(#fromdate) {
+		display: grid !important;
+		grid-template-columns: 1fr auto 1fr !important;
+		gap: 8px !important;
+		align-items: center !important;
+	}
+
+	#fromdate, #todate {
+		width: 100% !important;
+	}
+
+	/* 검색 영역 */
+	.card-body .d-flex:has(#search) {
+		display: grid !important;
+		grid-template-columns: auto 1fr auto !important;
+		gap: 8px !important;
+		align-items: center !important;
+	}
+
+	#find {
+		width: auto !important;
+		min-width: 80px !important;
+	}
+
+	#search {
+		width: 100% !important;
+	}
+
+	#searchBtn {
+		white-space: nowrap !important;
+	}
+
+	/* 테이블 래퍼 */
+	.table-responsive {
+		overflow-x: visible !important;
+	}
+}
 </style> 
 	
 <body>   
@@ -479,10 +900,6 @@ $findarr=array('전체','입고','출고');
                 ?>
             </select>
             &nbsp;
-
-            <input type="text" id="search" name="search" class="form-control" style="width:150px; height:32px;" value="<?=$search?>" autocomplete="off" onkeydown="JavaScript:SearchEnter();" placeholder="일반 검색시">
-            &nbsp;
-            <button type="button" id="searchBtn" class="btn btn-dark btn-sm ms-1 me-3"><i class="bi bi-search"></i> 검색</button>
             <span id="showextract" class="btn btn-primary btn-sm me-4"><i class="bi bi-tools"></i></span> &nbsp;
 				<div id="showextractframe" class="card">
 					<div class="card-header text-center " style="padding:2px;">
@@ -547,6 +964,13 @@ $findarr=array('전체','입고','출고');
                 <button type="button" class="btn btn-dark btn-sm me-1" id="writeBtn"><i class="bi bi-pencil-fill"></i> 신규</button>
                 <button type="button" id="rawmaterialBtn" class="btn btn-dark btn-sm"><i class="bi bi-list"></i> 재고</button> &nbsp;
             </div>
+        </div>
+        
+        <!-- 검색어 입력과 검색 버튼 행 -->
+        <div class="d-flex justify-content-center align-items-center mb-2">
+            <input type="text" id="search" name="search" class="form-control" style="width:150px; height:32px;" value="<?=$search?>" autocomplete="off" onkeydown="JavaScript:SearchEnter();" placeholder="일반 검색시">
+            &nbsp;
+            <button type="button" id="searchBtn" class="btn btn-dark btn-sm ms-1 me-3"><i class="bi bi-search"></i> 검색</button>
         </div>
 
         <div class="row mt-3 mb-1 p-1 m-1">
@@ -644,16 +1068,16 @@ $findarr=array('전체','입고','출고');
 				?>
 		    <tr onclick="redirectToView('<?=$num?>')">
 
-            <td class="text-center" > <?=$start_num?>				</td>
-            <td class="text-center" >	 <?=$outdate?>		</td>			
+            <td class="text-center" data-label="번호"> <?=$start_num?>				</td>
+            <td class="text-center" data-label="일자">	 <?=$outdate?>		</td>			
 			   <?php
 			      if($tmp_word=='입고') 
-                        print '<td class="text-center text-primary" >' .  $tmp_word . '	</td>';
+                        print '<td class="text-center text-primary" data-label="입출고">' .  $tmp_word . '	</td>';
 					else
-                         print '<td class="text-center text-danger" >' .  $tmp_word . '	</td>';
+                         print '<td class="text-center text-danger" data-label="입출고">' .  $tmp_word . '	</td>';
 					?>
-            <td                     > <?=$outworkplace?> 			</td>
-            <td class="text-center" > <?=$model?>			</td>
+            <td data-label="현장명"> <?=$outworkplace?> 			</td>
+            <td class="text-center" data-label="모델"> <?=$model?>			</td>
 			<?php
 			// 날짜 값이 '0000-00-00'인 경우 공백으로, 값이 있으면 'm-d' 형식으로 변환
 			$bonDone = ($bonDone === '0000-00-00' || empty($bonDone)) ? '' : (new DateTime($bonDone))->format('m-d');
@@ -664,16 +1088,16 @@ $findarr=array('전체','입고','출고');
 
 			
 
-            <td class="text-center text-primary" > <?=$item?> </td>
-            <td class="text-center" > <?=$spec?>			</td>
-            <td class="text-center" > <?=$steelnum?>		</td>
-            <td class="text-center text-success" > <?=$saved_weight ==0 ? '' : $saved_weight  ?>			</td>						
-            <td class="text-center text-danger" > <?=$saved_fee ==0 ? '' : number_format($saved_fee)  ?>			</td>						
-            <td class="text-center" >  <?=$company?>			</td>						
-            <td class="text-center" >  <?=$supplier?>			</td>						
-            <td class="text-center" >  <?=$method?>			</td>
-            <td class="text-center" >  <?=$bad_choice?>			</td>
-            <td class="text-center"><?= mb_substr($comment, 0, 12) ?></td>					
+            <td class="text-center text-primary" data-label="철판종류"> <?=$item?> </td>
+            <td class="text-center" data-label="규격"> <?=$spec?>			</td>
+            <td class="text-center" data-label="수량"> <?=$steelnum?>		</td>
+            <td class="text-center text-success" data-label="잔재(Kg)"> <?=$saved_weight ==0 ? '' : $saved_weight  ?>			</td>						
+            <td class="text-center text-danger" data-label="절감(원)"> <?=$saved_fee ==0 ? '' : number_format($saved_fee)  ?>			</td>						
+            <td class="text-center" data-label="사급사">  <?=$company?>			</td>						
+            <td class="text-center" data-label="공급사">  <?=$supplier?>			</td>						
+            <td class="text-center" data-label="샤링여부">  <?=$method?>			</td>
+            <td class="text-center" data-label="불량유형">  <?=$bad_choice?>			</td>
+            <td class="text-center" data-label="비고"><?= mb_substr($comment, 0, 12) ?></td>					
           </tr>			
 			    
 				

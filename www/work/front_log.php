@@ -261,11 +261,289 @@ body {
 }
 
 @media (max-width: 768px) {
-    .col-sm-5, .col-sm-7 {
-        flex: 0 0 100%;
-        max-width: 100%;
-        margin-bottom: 1rem;
-    }
+	/* body와 html의 width 제한 */
+	html, body {
+		max-width: 100vw !important;
+		overflow-x: hidden !important;
+		font-size: 16px !important;
+	}
+
+	/* 컨테이너 패딩 조정 */
+	.container-fluid {
+		max-width: 100vw !important;
+		padding: 10px !important;
+		overflow-x: hidden !important;
+	}
+
+	/* 카드 모바일 최적화 */
+	.output-chart-container {
+		padding: 0.75rem !important;
+		margin-bottom: 1rem !important;
+		width: 100% !important;
+		max-width: 100% !important;
+	}
+
+	.output-chart-container .d-flex.justify-content-between {
+		flex-wrap: wrap !important;
+		gap: 0.5rem !important;
+		align-items: center !important;
+		margin-bottom: 0.75rem !important;
+	}
+
+	.output-chart-container .d-flex.justify-content-between h5.output-section-title {
+		font-size: 0.85rem !important;
+		margin: 0 !important;
+		flex: 1 1 auto !important;
+		min-width: 200px !important;
+	}
+
+	.output-chart-container .d-flex.justify-content-between #writeBtn {
+		font-size: 0.75rem !important;
+		padding: 0.4rem 0.6rem !important;
+		white-space: nowrap !important;
+		flex-shrink: 0 !important;
+	}
+
+	.output-chart-container h5.output-section-title {
+		font-size: 0.9rem !important;
+		margin-bottom: 0.75rem !important;
+	}
+
+	.output-chart-container h6.text-muted {
+		font-size: 0.8rem !important;
+		margin-bottom: 0.75rem !important;
+	}
+
+	/* 제목 영역 모바일 최적화 */
+	.card .d-flex.p-1.m-1.mt-1.mb-1:first-of-type {
+		flex-wrap: wrap !important;
+		gap: 3px !important;
+		justify-content: center !important;
+		align-items: center !important;
+		padding: 0.5rem 0.25rem !important;
+		margin: 0.5rem 0 !important;
+		overflow-x: auto !important;
+		-webkit-overflow-scrolling: touch !important;
+	}
+
+	.card .d-flex.p-1.m-1.mt-1.mb-1:first-of-type h5.compact-title {
+		font-size: 0.85rem !important;
+		margin: 0 !important;
+		padding: 0.3rem 0 !important;
+		width: 100% !important;
+		text-align: center !important;
+		margin-bottom: 0.3rem !important;
+		flex: 0 0 100% !important;
+	}
+
+	.card .d-flex.p-1.m-1.mt-1.mb-1:first-of-type #dis_text {
+		font-size: 0.75rem !important;
+		padding: 0.3rem 0.5rem !important;
+		width: 100% !important;
+		text-align: center !important;
+		margin-bottom: 0.3rem !important;
+		flex: 0 0 100% !important;
+	}
+
+	/* 필터 드롭다운 영역 모바일 최적화 - 한 줄로 표시 */
+	.card .d-flex.p-1.m-1.mt-1.mb-1:first-of-type > span:not(.text-decoration-none),
+	.card .d-flex.p-1.m-1.mt-1.mb-1:first-of-type > select {
+		font-size: 0.75rem !important;
+		margin: 0.1rem 0.05rem !important;
+		flex-shrink: 0 !important;
+		white-space: nowrap !important;
+	}
+
+	.card .d-flex.p-1.m-1.mt-1.mb-1:first-of-type span[style*="color:grey"] {
+		font-size: 0.7rem !important;
+		white-space: nowrap !important;
+		margin: 0.1rem 0.05rem !important;
+	}
+
+	.card .d-flex.p-1.m-1.mt-1.mb-1:first-of-type select {
+		width: auto !important;
+		min-width: 70px !important;
+		max-width: 90px !important;
+		font-size: 0.7rem !important;
+		height: 28px !important;
+		padding: 0.2rem 0.3rem !important;
+		flex: 0 0 auto !important;
+	}
+
+	/* 검색 영역 모바일 최적화 - 한 줄로 표시 */
+	.card .d-flex.p-1.m-1.mt-1.mb-1:nth-of-type(2) {
+		flex-wrap: nowrap !important;
+		gap: 2px !important;
+		justify-content: flex-start !important;
+		align-items: center !important;
+		padding: 0.5rem 0.25rem !important;
+		margin: 0.5rem 0 !important;
+		overflow-x: auto !important;
+		-webkit-overflow-scrolling: touch !important;
+	}
+
+	.card .d-flex.p-1.m-1.mt-1.mb-1:nth-of-type(2) select#find {
+		width: auto !important;
+		min-width: 70px !important;
+		max-width: 90px !important;
+		font-size: 0.7rem !important;
+		height: 30px !important;
+		padding: 0.2rem 0.3rem !important;
+		flex: 0 0 auto !important;
+		margin-right: 0.2rem !important;
+	}
+
+	.card .d-flex.p-1.m-1.mt-1.mb-1:nth-of-type(2) input[type="text"]#search {
+		width: auto !important;
+		min-width: 120px !important;
+		max-width: 180px !important;
+		font-size: 0.75rem !important;
+		padding: 0.35rem 0.4rem !important;
+		flex: 1 1 auto !important;
+		margin-right: 0.2rem !important;
+	}
+
+	.card .d-flex.p-1.m-1.mt-1.mb-1:nth-of-type(2) #searchBtn {
+		font-size: 0.7rem !important;
+		padding: 0.35rem 0.5rem !important;
+		white-space: nowrap !important;
+		flex-shrink: 0 !important;
+		margin-right: 0.2rem !important;
+		order: 998 !important;
+	}
+
+	.card .d-flex.p-1.m-1.mt-1.mb-1:nth-of-type(2) #clearBtn {
+		font-size: 0.7rem !important;
+		padding: 0.35rem 0.5rem !important;
+		white-space: nowrap !important;
+		flex-shrink: 0 !important;
+		margin-right: 0.2rem !important;
+		order: 999 !important;
+	}
+
+	.card .d-flex.p-1.m-1.mt-1.mb-1:nth-of-type(2) #searchInfo {
+		font-size: 0.65rem !important;
+		margin-left: 0.2rem !important;
+		white-space: nowrap !important;
+		flex-shrink: 0 !important;
+		order: 1000 !important;
+	}
+
+	/* 테이블 컨테이너 영역 모바일 최적화 */
+	.card .d-flex.p-1.m-1.mt-1.mb-1:nth-of-type(3) {
+		padding: 0.5rem 0.25rem !important;
+		margin: 0.5rem 0 !important;
+		width: 100% !important;
+		overflow-x: auto !important;
+		-webkit-overflow-scrolling: touch !important;
+	}
+
+	/* 테이블 모바일 최적화 */
+	.output-table {
+		font-size: 0.75rem !important;
+		width: 100% !important;
+	}
+
+	.output-table th {
+		font-size: 0.7rem !important;
+		padding: 0.4rem 0.3rem !important;
+		white-space: nowrap !important;
+	}
+
+	.output-table td {
+		font-size: 0.75rem !important;
+		padding: 0.4rem 0.3rem !important;
+		word-wrap: break-word !important;
+	}
+
+	.output-table.table-sm th {
+		font-size: 0.7rem !important;
+		padding: 0.35rem 0.25rem !important;
+	}
+
+	.output-table.table-sm td {
+		font-size: 0.7rem !important;
+		padding: 0.35rem 0.25rem !important;
+	}
+
+	/* 테이블 반응형 컨테이너 모바일 최적화 */
+	.table-responsive {
+		overflow-x: auto !important;
+		-webkit-overflow-scrolling: touch !important;
+		width: 100% !important;
+		margin-bottom: 1rem !important;
+	}
+
+	/* Tabulator 모바일 최적화 */
+	.tabulator {
+		font-size: 0.8rem !important;
+		width: 100% !important;
+	}
+
+	.tabulator .tabulator-header {
+		font-size: 0.75rem !important;
+	}
+
+	.tabulator .tabulator-header .tabulator-col {
+		font-size: 0.75rem !important;
+		padding: 0.5rem 0.3rem !important;
+	}
+
+	.tabulator .tabulator-cell {
+		font-size: 0.75rem !important;
+		padding: 0.5rem 0.3rem !important;
+		word-wrap: break-word !important;
+	}
+
+	.tabulator .tabulator-row {
+		min-height: 40px !important;
+	}
+
+	/* 컬럼 모바일 최적화 */
+	.col-sm-5, .col-sm-7,
+	.col-md-5, .col-md-7 {
+		flex: 0 0 100% !important;
+		max-width: 100% !important;
+		margin-bottom: 1rem !important;
+		padding-left: 5px !important;
+		padding-right: 5px !important;
+	}
+
+	/* 행 레이아웃 모바일 최적화 */
+	.row {
+		margin-left: -5px !important;
+		margin-right: -5px !important;
+	}
+
+	.row > [class*="col-"] {
+		padding-left: 5px !important;
+		padding-right: 5px !important;
+	}
+
+	/* 버튼 모바일 최적화 */
+	.btn-primary,
+	.btn-dark,
+	.btn-secondary {
+		font-size: 0.75rem !important;
+		padding: 0.4rem 0.6rem !important;
+		white-space: nowrap !important;
+	}
+
+	.btn-sm {
+		font-size: 0.7rem !important;
+		padding: 0.3rem 0.5rem !important;
+	}
+
+	/* 카드 body 모바일 최적화 */
+	.card-body {
+		padding: 0.75rem !important;
+	}
+
+	/* w-75 클래스 모바일에서 전체 너비 */
+	.w-75 {
+		width: 100% !important;
+		max-width: 100% !important;
+	}
 }
 </style>
 </head>

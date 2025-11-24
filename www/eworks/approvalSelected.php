@@ -107,36 +107,58 @@ try {
         $e_confirm_id = $confirmValues['e_confirm_id'] ?? '';
         $e_line_id = $confirmValues['e_line_id'] ?? '';
         
+        // 이미 결재했는지 확인 (중복 결재 방지)
+        $e_confirm_id_array = explode("!", $e_confirm_id);
+        if (in_array($user_id, $e_confirm_id_array)) {
+            // 이미 결재한 경우 건너뛰기
+            error_log("이미 결재한 문서 건너뛰기: e_num={$e_num}, user_id={$user_id}");
+            continue;
+        }
+        
         // 결재자 정보 생성
         $position = getPosition($user_id, $pdo);
         $approver_info = $user_name . " " . $position . " " . $date;
         
-        // 결재자 정보 누적
+        // 결재자 정보 누적 (process.php와 동일한 로직)
         if ($e_confirm === '' || $e_confirm === null) {
             $e_confirm_value = $approver_info;
         } else {
             $e_confirm_value = $e_confirm . '!' . $approver_info;
         }
         
-        // 결재자 ID 누적
+        // 결재자 ID 누적 (process.php와 동일한 로직)
         if ($e_confirm_id === '' || $e_confirm_id === null) {
             $e_confirm_id_value = $user_id;
         } else {
             $e_confirm_id_value = $e_confirm_id . '!' . $user_id;
         }
         
-        // 결재 완료 여부 확인
-        $e_line_id_count = count(explode("!", $e_line_id));
-        $e_confirm_count = count(explode("!", $e_confirm_id_value));
+        // e_confirm과 e_confirm_id 먼저 업데이트 (process.php와 동일한 순서)
+        $sql_confirm = "UPDATE {$DB}.eworks SET e_confirm=?, e_confirm_id=? WHERE num=?";
+        $stmh_confirm = $pdo->prepare($sql_confirm);
+        $stmh_confirm->execute(array($e_confirm_value, $e_confirm_id_value, $e_num));
+        
+        // 결재 완료 여부 확인 (process.php와 동일한 로직)
+        $arr = explode("!", $e_line_id);
+        $approval_time = explode("!", $e_confirm_id_value); // 최신 e_confirm_id 사용
+        $e_line_count = count($arr);
+        $e_confirm_count = count($approval_time);
         
         $status = 'ing';
         $done = null;
         
-        if ($e_line_id_count == $e_confirm_count) {
+        if ($e_line_count > $e_confirm_count) {
+            $status = 'ing';
+        } else if ($e_line_count <= $e_confirm_count) {
             $status = 'end';
             $done = 'done';
+            
+            // done 업데이트
+            $sql_done = "UPDATE {$DB}.eworks SET done=? WHERE num=?";
+            $stmh_done = $pdo->prepare($sql_done);
+            $stmh_done->execute(array($done, $e_num));
 
-            // 연장근무 자동 입력 처리
+            // 최종 결재 완료 시 연장근무인 경우 absent/absent_office 테이블에 자동 입력
             $eworksDetails = getEworksDetails($e_num, $pdo);
             if (($eworksDetails['eworks_item'] ?? '') === '연장근무') {
                 try {
@@ -202,10 +224,10 @@ try {
             }
         }
         
-        // 데이터베이스 업데이트
-        $sql = "UPDATE {$DB}.eworks SET e_confirm = ?, e_confirm_id = ?, done = ?, status = ? WHERE num = ?";
-        $stmh = $pdo->prepare($sql);
-        $stmh->execute(array($e_confirm_value, $e_confirm_id_value, $done, $status, $e_num));
+        // status 업데이트 (process.php와 동일한 순서)
+        $sql_status = "UPDATE {$DB}.eworks SET status=? WHERE num=?";
+        $stmh_status = $pdo->prepare($sql_status);
+        $stmh_status->execute(array($status, $e_num));
     }
     
     // 성공 응답

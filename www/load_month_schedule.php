@@ -115,53 +115,287 @@
 <style>
 /* 모바일에서 월간상세일정 가로 스크롤 */
 @media (max-width: 768px) {
-    /* 월간상세일정 카드 */
-    .schedule_card {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch; /* iOS 부드러운 스크롤 */
-    }
+	/* body와 html의 width 제한 */
+	html, body {
+		max-width: 100vw !important;
+		overflow-x: hidden !important;
+	}
 
-    /* 달력 컨테이너 */
-    #todo-calendar-container {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        min-width: 100%;
-    }
+	/* 월간상세일정 카드 */
+	.schedule_card {
+		padding: 5px !important;
+		overflow-x: hidden !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+	}
 
-    /* 달력 테이블 */
-    #todo-calendar-container table {
-        min-width: 600px; /* 최소 너비 설정 */
-        width: auto;
-    }
+	.modern-management-card {
+		margin: 0.5rem 0 !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		overflow-x: hidden !important;
+		box-sizing: border-box !important;
+	}
 
-    /* todosMain-list도 스크롤 가능하게 */
-    #todosMain-list {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
+	.modern-dashboard-header {
+		padding: 0.75rem 0.5rem !important;
+		font-size: 0.9rem !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+	}
 
-    #todosMain-list table {
-        min-width: 600px;
-        width: auto;
-    }
+	.modern-dashboard-header span {
+		font-size: 0.85rem !important;
+		flex-shrink: 1 !important;
+		min-width: 0 !important;
+	}
 
-    /* scheduleContentWrapper 전체 컨테이너 */
-    #scheduleContentWrapper {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
+	.modern-dashboard-header #schedule_toggle {
+		font-size: 0.75rem !important;
+		padding: 0.3rem 0.5rem !important;
+		flex-shrink: 0 !important;
+		margin-left: 0.5rem !important;
+	}
 
-    /* 필터 옵션 모바일 대응 */
-    #todo-board .d-flex {
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
+	.modern-dashboard-body {
+		padding: 0.5rem !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+	}
 
-    /* 검색 입력창 모바일 크기 조정 */
-    #searchTodo {
-        width: 120px !important;
-        min-width: 120px;
-    }
+	/* 컬럼 모바일 최적화 */
+	.col-sm-4,
+	.col-sm-5,
+	.col-sm-7,
+	.col-sm-12 {
+		flex: 0 0 100% !important;
+		max-width: 100% !important;
+		padding-left: 5px !important;
+		padding-right: 5px !important;
+		margin-bottom: 0.75rem !important;
+	}
+
+	/* 일정 관리 섹션 모바일 최적화 */
+	.col-sm-4:first-of-type .d-flex {
+		flex-wrap: wrap !important;
+		gap: 0.3rem !important;
+		justify-content: center !important;
+		align-items: center !important;
+		padding: 0.5rem 0 !important;
+	}
+
+	.col-sm-4:first-of-type h6 {
+		font-size: 0.8rem !important;
+		margin: 0 !important;
+		width: 100% !important;
+		text-align: center !important;
+		margin-bottom: 0.3rem !important;
+	}
+
+	.col-sm-4:first-of-type .modern-data-value {
+		font-size: 0.7rem !important;
+		padding: 0.2rem 0.4rem !important;
+	}
+
+	/* 기간 설정 영역 모바일 최적화 - 한 줄로 표시 */
+	.col-sm-4:nth-of-type(2) {
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+	}
+
+	.col-sm-4:nth-of-type(2) .d-flex {
+		flex-wrap: nowrap !important;
+		gap: 0.2rem !important;
+		justify-content: center !important;
+		align-items: center !important;
+		padding: 0.5rem 0.25rem !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+	}
+
+	.col-sm-4:nth-of-type(2) #todo-prev-month,
+	.col-sm-4:nth-of-type(2) #todo-next-month {
+		font-size: 0.75rem !important;
+		padding: 0.3rem 0.4rem !important;
+		flex-shrink: 0 !important;
+		min-width: 32px !important;
+		height: 30px !important;
+	}
+
+	.col-sm-4:nth-of-type(2) #todo-current-period {
+		font-size: 0.8rem !important;
+		font-weight: 600 !important;
+		white-space: nowrap !important;
+		margin: 0 0.3rem !important;
+		flex-shrink: 0 !important;
+	}
+
+	.col-sm-4:nth-of-type(2) #todo-current-month {
+		font-size: 0.75rem !important;
+		padding: 0.3rem 0.5rem !important;
+		white-space: nowrap !important;
+		flex-shrink: 0 !important;
+		margin-left: 0.3rem !important;
+	}
+
+	/* 검색 영역 모바일 최적화 - 한 줄로 표시 */
+	.col-sm-4:last-of-type {
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+	}
+
+	.col-sm-4:last-of-type .d-flex {
+		flex-wrap: nowrap !important;
+		gap: 0.2rem !important;
+		justify-content: flex-start !important;
+		align-items: center !important;
+		padding: 0.5rem 0.25rem !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+	}
+
+	.col-sm-4:last-of-type .inputWrap {
+		flex: 1 1 auto !important;
+		min-width: 0 !important;
+		max-width: calc(100% - 50px) !important;
+		margin-right: 0.3rem !important;
+		box-sizing: border-box !important;
+	}
+
+	.col-sm-4:last-of-type #searchTodo {
+		width: 100% !important;
+		min-width: 0 !important;
+		max-width: 100% !important;
+		font-size: 0.75rem !important;
+		height: 30px !important;
+		padding: 0.3rem 0.4rem !important;
+		box-sizing: border-box !important;
+	}
+
+	.col-sm-4:last-of-type .btnClear {
+		width: 20px !important;
+		height: 20px !important;
+		flex-shrink: 0 !important;
+	}
+
+	.col-sm-4:last-of-type #searchTodoBtn {
+		font-size: 0.75rem !important;
+		padding: 0.3rem 0.5rem !important;
+		white-space: nowrap !important;
+		flex-shrink: 0 !important;
+		min-width: 36px !important;
+		height: 30px !important;
+	}
+
+	/* 필터 옵션 모바일 최적화 */
+	#todo-board {
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+	}
+
+	#todo-board .d-flex {
+		flex-wrap: wrap !important;
+		gap: 0.4rem !important;
+		justify-content: center !important;
+		align-items: center !important;
+		padding: 0.5rem 0.25rem !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+	}
+
+	#todo-board .radio-label {
+		flex-shrink: 0 !important;
+		margin: 0.1rem !important;
+	}
+
+	#todo-board .radio-label .modern-data-value {
+		font-size: 0.7rem !important;
+		padding: 0.2rem 0.5rem !important;
+		white-space: nowrap !important;
+	}
+
+	#todo-board .radio-label input[type="radio"] {
+		width: 14px !important;
+		height: 14px !important;
+		margin-right: 0.3rem !important;
+	}
+
+	/* 달력 컨테이너 */
+	#todo-calendar-container {
+		overflow-x: auto !important;
+		-webkit-overflow-scrolling: touch !important;
+		min-width: 100% !important;
+		padding: 0.5rem 0.25rem !important;
+	}
+
+	/* 달력 테이블 */
+	#todo-calendar-container table {
+		min-width: 600px !important;
+		width: auto !important;
+		font-size: 0.75rem !important;
+	}
+
+	#todo-calendar-container table th,
+	#todo-calendar-container table td {
+		padding: 0.4rem 0.3rem !important;
+		font-size: 0.7rem !important;
+	}
+
+	/* todosMain-list도 스크롤 가능하게 */
+	#todosMain-list {
+		overflow-x: auto !important;
+		-webkit-overflow-scrolling: touch !important;
+		margin-top: 0.75rem !important;
+		padding: 0.5rem 0.25rem !important;
+	}
+
+	#todosMain-list table {
+		min-width: 600px !important;
+		width: auto !important;
+		font-size: 0.75rem !important;
+	}
+
+	#todosMain-list table th,
+	#todosMain-list table td {
+		padding: 0.4rem 0.3rem !important;
+		font-size: 0.7rem !important;
+	}
+
+	/* scheduleContentWrapper 전체 컨테이너 */
+	#scheduleContentWrapper {
+		overflow-x: hidden !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+	}
+
+	/* 모든 버튼이 카드 내부에 머물도록 */
+	.modern-management-card * {
+		box-sizing: border-box !important;
+	}
+
+	.modern-management-card button {
+		max-width: 100% !important;
+		word-wrap: break-word !important;
+	}
+
+	/* 행 레이아웃 모바일 최적화 */
+	.row {
+		margin-left: -5px !important;
+		margin-right: -5px !important;
+	}
+
+	.row > [class*="col-"] {
+		padding-left: 5px !important;
+		padding-right: 5px !important;
+	}
 }
 </style>

@@ -83,6 +83,282 @@ try {
 <?php include getDocumentRoot() . '/load_header.php' ?>
 
 <title><?=htmlspecialchars($title_message, ENT_QUOTES, 'UTF-8')?></title>
+<style>
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+	/* body와 html의 width 제한 */
+	html, body {
+		max-width: 100vw !important;
+		overflow-x: hidden !important;
+		font-size: 16px !important;
+	}
+
+	/* 컨테이너 모바일 최적화 */
+	.container,
+	.container-fluid {
+		max-width: 100vw !important;
+		padding: 5px !important;
+		overflow-x: hidden !important;
+		box-sizing: border-box !important;
+	}
+
+	/* 카드 모바일 최적화 */
+	.card {
+		margin: 0.25rem 0 !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		overflow-x: hidden !important;
+		box-sizing: border-box !important;
+	}
+
+	.card-body {
+		padding: 0.4rem 0.3rem !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+	}
+
+	.card-header {
+		padding: 0.4rem 0.3rem !important;
+		font-size: 0.9rem !important;
+	}
+
+	.card-header h4,
+	.card-header h5 {
+		font-size: 0.9rem !important;
+		margin: 0 !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+	}
+
+	/* 날짜/입력 필드 영역 모바일 최적화 */
+	.d-flex.justify-content-center {
+		flex-wrap: wrap !important;
+		gap: 0.25rem !important;
+		justify-content: flex-start !important;
+		align-items: center !important;
+		padding: 0.3rem 0.25rem !important;
+		margin: 0.25rem 0 !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+	}
+
+	.d-flex.justify-content-center span {
+		font-size: 0.8rem !important;
+		margin-right: 0.3rem !important;
+		flex-shrink: 0 !important;
+		white-space: nowrap !important;
+	}
+
+	.d-flex.justify-content-center input[type="date"],
+	.d-flex.justify-content-center input[type="text"] {
+		width: auto !important;
+		min-width: 120px !important;
+		max-width: calc(50% - 0.25rem) !important;
+		font-size: 0.8rem !important;
+		padding: 0.3rem 0.4rem !important;
+		flex: 0 0 auto !important;
+		margin: 0 0.15rem !important;
+		box-sizing: border-box !important;
+	}
+
+	/* 버튼 영역 모바일 최적화 */
+	.d-flex.justify-content-start {
+		flex-wrap: wrap !important;
+		gap: 0.2rem !important;
+		justify-content: flex-start !important;
+		align-items: center !important;
+		padding: 0.3rem 0.25rem !important;
+		margin: 0.25rem 0 !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+	}
+
+	.btn {
+		font-size: 0.75rem !important;
+		padding: 0.25rem 0.4rem !important;
+		white-space: nowrap !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		flex: 0 0 auto !important;
+		margin: 0.1rem !important;
+	}
+
+	.btn-sm {
+		font-size: 0.7rem !important;
+		padding: 0.25rem 0.35rem !important;
+	}
+
+	/* 배지 모바일 최적화 */
+	.badge {
+		font-size: 0.7rem !important;
+		padding: 0.3rem 0.5rem !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		display: block !important;
+		text-align: center !important;
+		margin: 0.25rem 0 !important;
+	}
+
+	/* TUI Grid 모바일 최적화 - 카드 형식 */
+	#grid {
+		display: none !important;
+	}
+
+	/* 모바일 카드 형식 컨테이너 */
+	#mobile-grid-cards {
+		width: 100% !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		padding: 0.3rem !important;
+		display: block !important;
+	}
+
+	/* 모바일 카드 형식 개별 카드 */
+	.mobile-grid-card {
+		background: #fff !important;
+		border: 1px solid #dee2e6 !important;
+		border-radius: 0.25rem !important;
+		box-shadow: 0 0.1rem 0.2rem rgba(0, 0, 0, 0.075) !important;
+		padding: 0.4rem !important;
+		margin-bottom: 0.4rem !important;
+		box-sizing: border-box !important;
+		width: 100% !important;
+		max-width: 100% !important;
+	}
+
+	.mobile-grid-card:hover {
+		background: #f8f9fa !important;
+		box-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.1) !important;
+	}
+
+	.mobile-grid-card-item {
+		display: flex !important;
+		width: 100% !important;
+		padding: 0.3rem 0.4rem !important;
+		border-bottom: 1px solid #f0f0f0 !important;
+		box-sizing: border-box !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		flex-wrap: wrap !important;
+	}
+
+	.mobile-grid-card-item:last-child {
+		border-bottom: none !important;
+	}
+
+	.mobile-grid-card-label {
+		font-weight: bold !important;
+		display: inline-block !important;
+		min-width: 30% !important;
+		margin-right: 0.5rem !important;
+		color: #495057 !important;
+		font-size: 0.75rem !important;
+		flex-shrink: 0 !important;
+	}
+
+	.mobile-grid-card-value {
+		flex: 1 1 auto !important;
+		min-width: 0 !important;
+		font-size: 0.75rem !important;
+		color: #212529 !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+	}
+
+	/* TUI Grid 컨테이너 모바일 최적화 */
+	.d-flex.justify-content-center {
+		width: 100% !important;
+		max-width: 100% !important;
+		overflow-x: hidden !important;
+		padding: 0.3rem !important;
+		box-sizing: border-box !important;
+		flex-direction: column !important;
+	}
+
+	/* 제목 영역 모바일 최적화 */
+	.d-flex.justify-content-center.mt-2.mb-3 {
+		margin-top: 0.5rem !important;
+		margin-bottom: 0.5rem !important;
+		padding: 0.3rem !important;
+	}
+
+	.d-flex.justify-content-center.mt-2 {
+		margin-top: 0.5rem !important;
+		padding: 0.3rem !important;
+	}
+
+	.d-flex.justify-content-center.mt-3.mb-2 {
+		margin-top: 0.5rem !important;
+		margin-bottom: 0.5rem !important;
+		padding: 0.3rem !important;
+	}
+
+	.d-flex.justify-content-start.mt-3 {
+		margin-top: 0.5rem !important;
+	}
+
+	/* 모든 요소가 카드 내부에 머물도록 */
+	.card *,
+	.container *,
+	.container-fluid * {
+		box-sizing: border-box !important;
+		max-width: 100% !important;
+	}
+
+	.card button,
+	.card .btn,
+	.card span,
+	.card input,
+	.container button,
+	.container .btn,
+	.container span,
+	.container input,
+	.card-body *,
+	.card-header * {
+		max-width: 100% !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		box-sizing: border-box !important;
+	}
+
+	/* 카드 내부 모든 요소가 넘치지 않도록 */
+	.card {
+		overflow-x: hidden !important;
+		overflow-y: visible !important;
+	}
+
+	.card-body {
+		overflow-x: hidden !important;
+		overflow-y: visible !important;
+	}
+
+	/* 폼 요소 모바일 최적화 */
+	form {
+		max-width: 100% !important;
+		overflow-x: hidden !important;
+		box-sizing: border-box !important;
+	}
+
+	form * {
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+	}
+}
+
+/* PC에서 모바일 카드 컨테이너 숨기기 */
+@media (min-width: 769px) {
+	#mobile-grid-cards {
+		display: none !important;
+	}
+	
+	#grid {
+		display: block !important;
+	}
+}
+</style>
 
 </head>
 <body>
@@ -191,6 +467,7 @@ function callit() {
                 
                 <div class="d-flex justify-content-center">
                     <div id="grid" style="width:1300px;"></div>
+                    <div id="mobile-grid-cards"></div>
                 </div>
                 
                 <input type="hidden" id="num" name="num" value="<?=htmlspecialchars($num, ENT_QUOTES, 'UTF-8')?>">
@@ -250,57 +527,122 @@ $(document).ready(function() {
     }
 
 
+    // 모바일 감지
+    var isMobile = window.innerWidth <= 768;
+    
+    // 모바일에서 컬럼 너비 조정
+    var columns = [
+        {
+            header: '구분',
+            name: 'col1',
+            sortingType: 'desc',
+            sortable: true,
+            width: isMobile ? 40 : 50,
+            align: 'center'
+        },
+        {
+            header: '현장명',
+            name: 'col2',
+            width: isMobile ? 200 : 400,
+            align: 'center'
+        },
+        {
+            header: '품목',
+            name: 'col3',
+            width: isMobile ? 120 : 200,
+            align: 'center'
+        },
+        {
+            header: '수량',
+            name: 'col4',
+            width: isMobile ? 60 : 70,
+            align: 'center'
+        },
+        {
+            header: '단위',
+            name: 'col5',
+            width: isMobile ? 60 : 70,
+            align: 'center'
+        },
+        {
+            header: '단가',
+            name: 'col6',
+            width: isMobile ? 80 : 100,
+            align: 'center'
+        },
+        {
+            header: '색상',
+            name: 'col7',
+            width: isMobile ? 150 : 300,
+            align: 'center'
+        }
+    ];
+    
+    // 모바일에서 카드 형식으로 표시하는 함수
+    function renderMobileCards() {
+        var cardsContainer = document.getElementById('mobile-grid-cards');
+        var gridElement = document.getElementById('grid');
+        
+        if (isMobile) {
+            // 모바일: 그리드 숨기고 카드 표시
+            if (gridElement) {
+                gridElement.style.display = 'none';
+            }
+            
+            if (cardsContainer) {
+                cardsContainer.innerHTML = '';
+                
+                // 컬럼 헤더 정의 (col1 제외)
+                var columnLabels = {
+                    'col2': '현장명',
+                    'col3': '품목',
+                    'col4': '수량',
+                    'col5': '단위',
+                    'col6': '단가',
+                    'col7': '색상'
+                };
+                
+                // 각 행을 카드로 변환
+                data.forEach(function(row, index) {
+                    var card = document.createElement('div');
+                    card.className = 'mobile-grid-card';
+                    
+                    var cardContent = '';
+                    
+                    // 각 컬럼을 카드 아이템으로 추가 (col1 제외)
+                    Object.keys(columnLabels).forEach(function(colName) {
+                        var value = row[colName] || '';
+                        if (value !== '') {
+                            cardContent += '<div class="mobile-grid-card-item">';
+                            cardContent += '<span class="mobile-grid-card-label">' + columnLabels[colName] + '</span>';
+                            cardContent += '<span class="mobile-grid-card-value">' + value + '</span>';
+                            cardContent += '</div>';
+                        }
+                    });
+                    
+                    card.innerHTML = cardContent;
+                    cardsContainer.appendChild(card);
+                });
+                
+                cardsContainer.style.display = 'block';
+            }
+        } else {
+            // PC: 카드 숨기고 그리드 표시
+            if (cardsContainer) {
+                cardsContainer.style.display = 'none';
+            }
+            if (gridElement) {
+                gridElement.style.display = 'block';
+            }
+        }
+    }
+    
     // TUI Grid 초기화
     const grid = new tui.Grid({
         el: document.getElementById('grid'),
         data: data,
-        bodyHeight: 620,
-        columns: [
-            {
-                header: '구분',
-                name: 'col1',
-                sortingType: 'desc',
-                sortable: true,
-                width: 50,
-                align: 'center'
-            },
-            {
-                header: '현장명',
-                name: 'col2',
-                width: 400,
-                align: 'center'
-            },
-            {
-                header: '품목',
-                name: 'col3',
-                width: 200,
-                align: 'center'
-            },
-            {
-                header: '수량',
-                name: 'col4',
-                width: 70,
-                align: 'center'
-            },
-            {
-                header: '단위',
-                name: 'col5',
-                width: 70,
-                align: 'center'
-            },
-            {
-                header: '단가',
-                name: 'col6',
-                width: 100,
-                align: 'center'
-            },
-            {
-                header: '색상',
-                name: 'col7',
-                width: 300,
-                align: 'center'
-            }
-        ],
+        bodyHeight: isMobile ? 400 : 620,
+        columns: columns,
         columnOptions: {
             resizable: true
         },
@@ -356,6 +698,19 @@ $(document).ready(function() {
     
     // col1 컬럼 숨기기
     grid.hideColumn('col1');
+    
+    // 초기 로드 시 모바일 카드 형식 적용
+    renderMobileCards();
+    
+    // 윈도우 리사이즈 이벤트 처리
+    var resizeTimer;
+    $(window).on('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+            isMobile = window.innerWidth <= 768;
+            renderMobileCards();
+        }, 250);
+    });
 });
 
 

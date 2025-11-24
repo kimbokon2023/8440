@@ -22,6 +22,210 @@ $tablename = 'eworks';
 <?php include getDocumentRoot() . '/load_header.php' ?>
 
 <title> 연차 사용 리스트 </title>
+<style>
+    /* 모바일 최적화 */
+    @media (max-width: 768px) {
+        /* body와 html의 width 제한 */
+        html, body {
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+            font-size: 16px !important;
+        }
+
+        /* 컨테이너 모바일 최적화 */
+        .container,
+        .container-fluid {
+            max-width: 100vw !important;
+            padding: 5px !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+        }
+
+        /* 카드 모바일 최적화 */
+        .card {
+            margin: 0.25rem 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+        }
+
+        .card-body {
+            padding: 0.4rem 0.3rem !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow-x: hidden !important;
+        }
+
+        .card-header {
+            padding: 0.4rem 0.3rem !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow-x: hidden !important;
+        }
+
+        /* 제목 영역 모바일 최적화 */
+        .badge.bg-primary {
+            font-size: 0.8rem !important;
+            padding: 0.3rem 0.5rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+
+        /* 기간 설정 영역 모바일 최적화 */
+        .d-flex.justify-content-center {
+            flex-wrap: wrap !important;
+            gap: 0.25rem !important;
+            justify-content: flex-start !important;
+            align-items: center !important;
+            padding: 0.3rem 0.25rem !important;
+            margin: 0.25rem 0 !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        /* 버튼 모바일 최적화 */
+        .btn {
+            font-size: 0.75rem !important;
+            padding: 0.25rem 0.4rem !important;
+            white-space: nowrap !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            flex: 0 0 auto !important;
+            margin: 0.1rem !important;
+        }
+
+        .btn-sm {
+            font-size: 0.7rem !important;
+            padding: 0.25rem 0.35rem !important;
+        }
+
+        /* TUI Grid 모바일 최적화 - 카드 형식으로 변환 */
+        #grid {
+            display: none !important;
+        }
+
+        /* 모바일 카드 형식 컨테이너 */
+        #mobile-grid-cards {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            padding: 0.3rem !important;
+        }
+
+        /* 모바일 카드 형식 개별 카드 */
+        .mobile-grid-card {
+            background: #fff !important;
+            border: 1px solid #dee2e6 !important;
+            border-radius: 0.25rem !important;
+            box-shadow: 0 0.1rem 0.2rem rgba(0, 0, 0, 0.075) !important;
+            padding: 0.4rem !important;
+            margin-bottom: 0.4rem !important;
+            box-sizing: border-box !important;
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+
+        .mobile-grid-card-item {
+            display: flex !important;
+            width: 100% !important;
+            padding: 0.3rem 0.4rem !important;
+            border-bottom: 1px solid #f0f0f0 !important;
+            box-sizing: border-box !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            flex-wrap: wrap !important;
+        }
+
+        .mobile-grid-card-item:last-child {
+            border-bottom: none !important;
+        }
+
+        .mobile-grid-card-label {
+            font-weight: bold !important;
+            display: inline-block !important;
+            min-width: 30% !important;
+            margin-right: 0.5rem !important;
+            color: #495057 !important;
+            font-size: 0.75rem !important;
+            flex-shrink: 0 !important;
+        }
+
+        .mobile-grid-card-value {
+            flex: 1 1 auto !important;
+            min-width: 0 !important;
+            font-size: 0.75rem !important;
+            color: #212529 !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+
+        /* 모든 요소가 카드 내부에 머물도록 */
+        .card *,
+        .container *,
+        .container-fluid * {
+            box-sizing: border-box !important;
+            max-width: 100% !important;
+        }
+
+        .card button,
+        .card .btn,
+        .card span,
+        .card input,
+        .container button,
+        .container .btn,
+        .container span,
+        .container input,
+        .card-body *,
+        .card-header * {
+            max-width: 100% !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            box-sizing: border-box !important;
+        }
+
+        /* 카드 내부 모든 요소가 넘치지 않도록 */
+        .card {
+            overflow-x: hidden !important;
+            overflow-y: visible !important;
+        }
+
+        .card-body {
+            overflow-x: hidden !important;
+            overflow-y: visible !important;
+        }
+
+        .card-header {
+            overflow-x: hidden !important;
+            overflow-y: visible !important;
+        }
+
+        /* 폼 요소 모바일 최적화 */
+        form {
+            max-width: 100% !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+        }
+
+        form * {
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        /* 행 레이아웃 모바일 최적화 */
+        .row {
+            margin-left: -5px !important;
+            margin-right: -5px !important;
+        }
+
+        .row > [class*="col-"] {
+            padding-left: 5px !important;
+            padding-right: 5px !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+    }
+</style>
 </head>
 <?php
 // 요청 파라미터 초기화
@@ -197,9 +401,11 @@ $all_sum = $sum1 + $sum2 + $sum3;
     <div class="container-fluid">
         <div class="card">
             <div class="card-header">
-
-                <div class="d-flex mb-1 mt-2 justify-content-center align-items-center">
-                    <span class="badge bg-primary fs-6">	직원 연차 list  </span> &nbsp;&nbsp;
+                <div class="d-flex mb-1 mt-2 justify-content-between align-items-center">
+                    <span class="badge bg-primary fs-6">	직원 연차 list  </span>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="window.close();" title="닫기">
+                        <i class="bi bi-x-lg"></i> 닫기
+                    </button>
                 </div>
 
                 <div class="row">
@@ -214,6 +420,7 @@ $all_sum = $sum1 + $sum2 + $sum3;
 
             <div class="card-body">
                 <div id="grid" style="width:1250px;"></div>
+                <div id="mobile-grid-cards" style="display: none;"></div>
             </div>
         </div>
     </div>
@@ -296,10 +503,70 @@ $all_sum = $sum1 + $sum2 + $sum3;
                 }
             }
 
+            // 모바일 감지
+            var isMobile = window.innerWidth <= 768;
+            
+            // 모바일에서 카드 형식으로 표시하는 함수
+            function renderMobileGridCards() {
+                var cardsContainer = document.getElementById('mobile-grid-cards');
+                var gridElement = document.getElementById('grid');
+                
+                if (isMobile) {
+                    // 모바일: 그리드 숨기고 카드 표시
+                    if (gridElement) {
+                        gridElement.style.display = 'none';
+                    }
+                    
+                    if (cardsContainer) {
+                        cardsContainer.innerHTML = '';
+                        cardsContainer.style.display = 'block';
+                        
+                        // 컬럼 헤더 정의
+                        var columnLabels = {
+                            'col1': '번호',
+                            'col2': '접수일',
+                            'col3': '시작일',
+                            'col4': '종료일',
+                            'col5': '사용일수',
+                            'col6': '성명',
+                            'col7': '결재상태'
+                        };
+                        
+                        // 각 행을 카드로 변환
+                        data.forEach(function(row, index) {
+                            var card = document.createElement('div');
+                            card.className = 'mobile-grid-card';
+                            
+                            var cardContent = '';
+                            
+                            // 각 컬럼을 카드 아이템으로 추가
+                            Object.keys(columnLabels).forEach(function(colName) {
+                                var value = row[colName] || '';
+                                cardContent += '<div class="mobile-grid-card-item">';
+                                cardContent += '<span class="mobile-grid-card-label">' + columnLabels[colName] + '</span>';
+                                cardContent += '<span class="mobile-grid-card-value">' + (value || '-') + '</span>';
+                                cardContent += '</div>';
+                            });
+                            
+                            card.innerHTML = cardContent;
+                            cardsContainer.appendChild(card);
+                        });
+                    }
+                } else {
+                    // PC: 카드 숨기고 그리드 표시
+                    if (cardsContainer) {
+                        cardsContainer.style.display = 'none';
+                    }
+                    if (gridElement) {
+                        gridElement.style.display = 'block';
+                    }
+                }
+            }
+            
             var grid = new tui.Grid({
                 el: document.getElementById('grid'),
                 data: data,
-                bodyHeight: 650,
+                bodyHeight: isMobile ? 400 : 650,
                 columns: [{
                         header: '번호',
                         name: 'col1',
@@ -393,6 +660,19 @@ $all_sum = $sum1 + $sum2 + $sum3;
                         text: '#b0b0b0'
                     }
                 }
+            });
+            
+            // 초기 로드 시 모바일 카드 형식 적용
+            renderMobileGridCards();
+            
+            // 윈도우 리사이즈 이벤트 처리
+            var resizeTimer;
+            $(window).on('resize', function() {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(function() {
+                    isMobile = window.innerWidth <= 768;
+                    renderMobileGridCards();
+                }, 250);
             });
         });
     </script>

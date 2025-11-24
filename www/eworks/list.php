@@ -434,24 +434,27 @@ try {
                 <?php } ?>
             </tr>
             
-            <!-- 모바일용 헤더 (두 줄) -->
+            <!-- 모바일용 헤더 (세 줄) -->
             <tr class="d-md-none">
                 <!-- 첫 번째 행 -->
-                <th class="text-center" rowspan="2" style="width:5%; vertical-align: middle; padding: 12px 4px;">
+                <th class="text-center" rowspan="3" style="width:5%; vertical-align: middle; padding: 8px 4px;">
                     <input type="checkbox" id="checkAllMobile" class="master-checkbox" />
                     <label for="checkAllMobile" class="checkbox-numbered-label"></label>
                 </th>
-                <th class="text-center" style="width:18%;">구분</th>
-                <th class="text-center" style="width:22%;">작성일시</th>
-                <th class="text-center" style="width:18%;">작성자</th>
-                <th class="text-center" style="width:18%;">현재상태</th>
-                <th class="text-center" style="width:19%;">결재진행</th>
+                <th class="text-center" style="width:30%; padding: 8px 4px;">구분</th>
+                <th class="text-center" style="width:32%; padding: 8px 4px;">작성일시</th>
+                <th class="text-center" style="width:33%; padding: 8px 4px;">작성자</th>
             </tr>
             <tr class="d-md-none">
                 <!-- 두 번째 행 -->
-                <th class="text-center" style="width:22%;">참조자</th>
-                <th class="text-center" colspan="3" style="width:45%;">제목</th>
-                <th class="text-center" style="width:33%;">
+                <th class="text-center" style="width:30%; padding: 8px 4px;">현재상태</th>
+                <th class="text-center" style="width:32%; padding: 8px 4px;">참조자</th>
+                <th class="text-center" style="width:33%; padding: 8px 4px;">결재진행</th>
+            </tr>
+            <tr class="d-md-none">
+                <!-- 세 번째 행 -->
+                <th class="text-center" colspan="2" style="width:62%; padding: 8px 4px;">제목</th>
+                <th class="text-center" style="width:33%; padding: 8px 4px;">
                     <?php if ($e_viewexcept_exist) { ?>
                         <i class="bi bi-skip-backward"></i> 복구
                     <?php } elseif ($status === 'end') { ?>
@@ -548,10 +551,10 @@ try {
                 <?php } ?>
             </tr>
             
-            <!-- 모바일용 데이터 행 (두 줄) -->
+            <!-- 모바일용 데이터 행 (세 줄) -->
             <tr class="d-md-none">
                 <!-- 첫 번째 행 -->
-                <td class="text-center" rowspan="2" style="width:5%; vertical-align: middle; padding: 12px 4px;">
+                <td class="text-center" rowspan="3" style="width:5%; vertical-align: middle; padding: 8px 4px;">
                     <input type="checkbox" class="checkItem" 
                            id="checkItemMobile<?= $Eworks_record_num + 1 ?>" 
                            data-id="<?= htmlspecialchars($e_num) ?>" />
@@ -560,49 +563,51 @@ try {
                     </label>
                 </td>
                 
-                <td class="text-center" style="width:18%;" 
+                <td class="text-center" style="width:30%; padding: 8px 4px; font-size: 13px;" 
                     onclick="viewEworks_detail('<?= htmlspecialchars($e_num, ENT_QUOTES) ?>','<?= $eworksPage ?>');">
                     <?= htmlspecialchars($eworks_item) ?>
                 </td>
                 
-                <td class="text-center" style="width:22%;" 
+                <td class="text-center" style="width:32%; padding: 8px 4px; font-size: 12px;" 
                     onclick="viewEworks_detail('<?= htmlspecialchars($e_num, ENT_QUOTES) ?>','<?= $eworksPage ?>');">
                     <?= htmlspecialchars($registdate) ?>
                 </td>
                 
-                <td class="text-center" style="width:18%;" 
+                <td class="text-center" style="width:33%; padding: 8px 4px; font-size: 13px;" 
                     onclick="viewEworks_detail('<?= htmlspecialchars($e_num, ENT_QUOTES) ?>','<?= $eworksPage ?>');">
                     <?= htmlspecialchars($author) ?>
-                </td>
-                
-                <td class="text-center" style="width:18%;" 
-                    onclick="viewEworks_detail('<?= htmlspecialchars($e_num, ENT_QUOTES) ?>','<?= $eworksPage ?>');">
-                    <?= htmlspecialchars($statusStr) ?>
-                </td>
-                
-                <td class="text-center" style="width:19%;" 
-                    onclick="viewEworks_detail('<?= htmlspecialchars($e_num, ENT_QUOTES) ?>','<?= $eworksPage ?>');">
-                    <?= $prograssStr ?>
                 </td>
             </tr>
             <tr class="d-md-none">
                 <!-- 두 번째 행 -->
+                <td class="text-center" style="width:30%; padding: 8px 4px; font-size: 13px;" 
+                    onclick="viewEworks_detail('<?= htmlspecialchars($e_num, ENT_QUOTES) ?>','<?= $eworksPage ?>');">
+                    <?= htmlspecialchars($statusStr) ?>
+                </td>
+                
                 <?php
                 // 참조자 문자열 길이 제한
-                $display_text = mb_strlen($r_line) > 10 ? mb_substr($r_line, 0, 8) . '...' : $r_line;
+                $display_text = mb_strlen($r_line) > 15 ? mb_substr($r_line, 0, 13) . '...' : $r_line;
                 ?>
-                <td class="text-start" style="width:22%;" 
+                <td class="text-start" style="width:32%; padding: 8px 4px; font-size: 12px;" 
                     onclick="viewEworks_detail('<?= htmlspecialchars($e_num, ENT_QUOTES) ?>','<?= $eworksPage ?>');" 
                     title="<?= htmlspecialchars($r_line, ENT_QUOTES, 'UTF-8') ?>">
                     <?= htmlspecialchars($display_text, ENT_QUOTES, 'UTF-8') ?>
                 </td>
                 
-                <td class="text-start" colspan="3" style="width:45%;" 
+                <td class="text-center" style="width:33%; padding: 8px 4px; font-size: 12px;" 
                     onclick="viewEworks_detail('<?= htmlspecialchars($e_num, ENT_QUOTES) ?>','<?= $eworksPage ?>');">
-                    <?= htmlspecialchars(iconv_substr($e_title, 0, 30, "utf-8")) ?>
+                    <?= $prograssStr ?>
+                </td>
+            </tr>
+            <tr class="d-md-none">
+                <!-- 세 번째 행 -->
+                <td class="text-start" colspan="2" style="width:62%; padding: 8px 4px; font-size: 13px; word-break: break-word;" 
+                    onclick="viewEworks_detail('<?= htmlspecialchars($e_num, ENT_QUOTES) ?>','<?= $eworksPage ?>');">
+                    <?= htmlspecialchars(iconv_substr($e_title, 0, 50, "utf-8")) ?>
                 </td>
                 
-                <td class="text-center" style="width:33%;">
+                <td class="text-center" style="width:33%; padding: 8px 4px;">
                     <?php if ($e_viewexcept_exist) { ?>
                         <button type="button" class="btn btn-outline-dark btn-sm btn-sm-mobile" 
                                 onclick="restore('<?= htmlspecialchars($e_num, ENT_QUOTES) ?>','<?= $eworksPage ?>');">

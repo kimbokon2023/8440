@@ -115,6 +115,372 @@ try {
 <?php include getDocumentRoot() . '/load_header.php' ?>
 
 <title><?=htmlspecialchars($title_message, ENT_QUOTES, 'UTF-8')?></title>
+<style>
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+	/* body와 html의 width 제한 */
+	html, body {
+		max-width: 100vw !important;
+		overflow-x: hidden !important;
+		font-size: 16px !important;
+	}
+
+	/* 컨테이너 모바일 최적화 */
+	.container,
+	.container-fluid {
+		max-width: 100vw !important;
+		padding: 10px !important;
+		overflow-x: hidden !important;
+		box-sizing: border-box !important;
+	}
+
+	/* 카드 모바일 최적화 */
+	.card {
+		margin: 0.5rem 0 !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		overflow-x: hidden !important;
+		box-sizing: border-box !important;
+	}
+
+	.card-body {
+		padding: 0.75rem 0.5rem !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+	}
+
+	.card-header {
+		padding: 0.75rem 0.5rem !important;
+		font-size: 0.9rem !important;
+	}
+
+	.card-header h4 {
+		font-size: 1rem !important;
+		margin: 0 !important;
+		margin-right: 0.5rem !important;
+	}
+
+	.card-header .btn {
+		font-size: 0.7rem !important;
+		padding: 0.3rem 0.5rem !important;
+		white-space: nowrap !important;
+	}
+
+	/* 기간 설정 영역 모바일 최적화 */
+	.row .d-flex.mt-1.mb-2 {
+		display: flex !important;
+		flex-wrap: wrap !important;
+		gap: 0.3rem !important;
+		justify-content: flex-start !important;
+		align-items: center !important;
+		padding: 0.5rem !important;
+		margin: 0.5rem 0 !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+		width: 100% !important;
+	}
+
+	/* setdate.php 내부 요소 모바일 최적화 */
+	.row .d-flex.mt-1.mb-2 > .card {
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+		width: 100% !important;
+		flex: 1 1 100% !important;
+		margin-bottom: 0.5rem !important;
+	}
+
+	.row .d-flex.mt-1.mb-2 > .card .card-body {
+		padding: 0.5rem !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+	}
+
+	.row .d-flex.mt-1.mb-2 > .card .card-body > .d-flex {
+		flex-wrap: wrap !important;
+		gap: 0.25rem !important;
+		justify-content: center !important;
+	}
+
+	.row .d-flex.mt-1.mb-2 > .card .card-body .btn {
+		font-size: 0.65rem !important;
+		padding: 0.25rem 0.4rem !important;
+		white-space: nowrap !important;
+		flex-shrink: 0 !important;
+		box-sizing: border-box !important;
+		max-width: 100% !important;
+	}
+
+	.row .d-flex.mt-1.mb-2 #showdate {
+		font-size: 0.7rem !important;
+		padding: 0.3rem 0.5rem !important;
+		white-space: nowrap !important;
+		flex-shrink: 0 !important;
+		margin-right: 0.3rem !important;
+		box-sizing: border-box !important;
+		min-width: 50px !important;
+		max-width: 100% !important;
+	}
+
+	.row .d-flex.mt-1.mb-2 #showframe {
+		position: absolute !important;
+		z-index: 1000 !important;
+		display: none !important;
+	}
+
+	.row .d-flex.mt-1.mb-2 #fromdate,
+	.row .d-flex.mt-1.mb-2 #todate {
+		width: auto !important;
+		min-width: 90px !important;
+		max-width: calc(50% - 0.5rem) !important;
+		font-size: 0.7rem !important;
+		padding: 0.3rem 0.35rem !important;
+		flex: 0 0 auto !important;
+		margin: 0 0.15rem !important;
+		box-sizing: border-box !important;
+	}
+
+	.row .d-flex.mt-1.mb-2 span {
+		font-size: 0.7rem !important;
+		margin: 0 0.1rem !important;
+		flex-shrink: 0 !important;
+		white-space: nowrap !important;
+		max-width: 100% !important;
+	}
+
+	.row .d-flex.mt-1.mb-2 .inputWrap {
+		flex: 1 1 auto !important;
+		min-width: 120px !important;
+		max-width: calc(100% - 100px) !important;
+		margin-right: 0.3rem !important;
+		box-sizing: border-box !important;
+	}
+
+	.row .d-flex.mt-1.mb-2 #search {
+		width: 100% !important;
+		min-width: 0 !important;
+		max-width: 100% !important;
+		font-size: 0.7rem !important;
+		padding: 0.3rem 0.35rem !important;
+		box-sizing: border-box !important;
+	}
+
+	.row .d-flex.mt-1.mb-2 #searchBtn {
+		font-size: 0.7rem !important;
+		padding: 0.3rem 0.5rem !important;
+		white-space: nowrap !important;
+		flex-shrink: 0 !important;
+		box-sizing: border-box !important;
+		min-width: 50px !important;
+		max-width: 100% !important;
+	}
+
+	.row .d-flex.mt-1.mb-2 #writeBtn {
+		font-size: 0.7rem !important;
+		padding: 0.3rem 0.5rem !important;
+		white-space: nowrap !important;
+		flex-shrink: 0 !important;
+		box-sizing: border-box !important;
+		min-width: 50px !important;
+		max-width: 100% !important;
+		margin-left: 0.3rem !important;
+	}
+
+	/* 테이블 모바일 최적화 - 카드 형식으로 변환 */
+	.table-responsive {
+		overflow-x: hidden !important;
+		width: 100% !important;
+		margin: 0 !important;
+		padding: 0 !important;
+	}
+
+	/* DataTables 모바일 최적화 - 카드 형식 */
+	.dataTables_wrapper {
+		font-size: 0.75rem !important;
+		max-width: 100% !important;
+		overflow-x: hidden !important;
+		box-sizing: border-box !important;
+	}
+
+	/* 테이블 헤더 숨기기 (모바일) */
+	.dataTables_wrapper thead {
+		display: none !important;
+	}
+
+	/* 모바일에서 DataTables 행을 카드로 표시 */
+	.dataTables_wrapper tbody tr {
+		display: block !important;
+		width: 100% !important;
+		margin-bottom: 0.75rem !important;
+		background: #fff !important;
+		border: 1px solid #dee2e6 !important;
+		border-radius: 0.375rem !important;
+		box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+		padding: 0.75rem !important;
+		box-sizing: border-box !important;
+		cursor: pointer !important;
+	}
+
+	.dataTables_wrapper tbody tr:hover {
+		background: #f8f9fa !important;
+		box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1) !important;
+	}
+
+	.dataTables_wrapper tbody tr td {
+		display: flex !important;
+		width: 100% !important;
+		padding: 0.5rem 0.75rem !important;
+		text-align: left !important;
+		border: none !important;
+		border-bottom: 1px solid #f0f0f0 !important;
+		box-sizing: border-box !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		flex-wrap: wrap !important;
+	}
+
+	.dataTables_wrapper tbody tr td:last-child {
+		border-bottom: none !important;
+	}
+
+	.dataTables_wrapper tbody tr td .mobile-label {
+		font-weight: bold !important;
+		display: inline-block !important;
+		min-width: 30% !important;
+		margin-right: 1rem !important;
+		color: #495057 !important;
+		font-size: 0.75rem !important;
+		flex-shrink: 0 !important;
+	}
+
+	.dataTables_wrapper tbody tr td .mobile-value {
+		flex: 1 1 auto !important;
+		min-width: 0 !important;
+		font-size: 0.75rem !important;
+		color: #212529 !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+	}
+
+	/* 모바일에서 테이블 자체는 숨기되 DataTables는 작동하도록 */
+	.dataTables_wrapper table {
+		width: 100% !important;
+		border-collapse: separate !important;
+		border-spacing: 0 !important;
+	}
+
+	.dataTables_wrapper table thead {
+		display: none !important;
+	}
+
+	.dataTables_wrapper table tbody {
+		display: block !important;
+		width: 100% !important;
+	}
+
+	.dataTables_wrapper table tbody tr {
+		display: block !important;
+		width: 100% !important;
+	}
+
+	.dataTables_wrapper .dataTables_length,
+	.dataTables_wrapper .dataTables_filter,
+	.dataTables_wrapper .dataTables_info,
+	.dataTables_wrapper .dataTables_paginate {
+		font-size: 0.7rem !important;
+		margin-bottom: 0.5rem !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+	}
+
+	.dataTables_wrapper .dataTables_length select,
+	.dataTables_wrapper .dataTables_filter input {
+		font-size: 0.7rem !important;
+		padding: 0.3rem 0.4rem !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+	}
+
+	.dataTables_wrapper .dataTables_paginate {
+		display: flex !important;
+		flex-wrap: wrap !important;
+		justify-content: center !important;
+		gap: 0.25rem !important;
+	}
+
+	.dataTables_wrapper .dataTables_paginate .paginate_button {
+		font-size: 0.7rem !important;
+		padding: 0.3rem 0.5rem !important;
+		margin: 0 0.1rem !important;
+		box-sizing: border-box !important;
+		max-width: 100% !important;
+	}
+
+	/* 버튼 모바일 최적화 */
+	.btn {
+		font-size: 0.75rem !important;
+		padding: 0.35rem 0.5rem !important;
+		white-space: nowrap !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+	}
+
+	.btn-sm {
+		font-size: 0.7rem !important;
+		padding: 0.3rem 0.45rem !important;
+	}
+
+	/* 행 레이아웃 모바일 최적화 */
+	.row {
+		margin-left: -5px !important;
+		margin-right: -5px !important;
+	}
+
+	.row > [class*="col-"] {
+		padding-left: 5px !important;
+		padding-right: 5px !important;
+	}
+
+	/* 모든 버튼과 텍스트가 카드 내부에 머물도록 */
+	.card *,
+	.container *,
+	.container-fluid * {
+		box-sizing: border-box !important;
+		max-width: 100% !important;
+	}
+
+	.card button,
+	.card .btn,
+	.card span,
+	.card input,
+	.card table,
+	.container button,
+	.container .btn,
+	.container span,
+	.container input,
+	.card-body *,
+	.card-header * {
+		max-width: 100% !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		box-sizing: border-box !important;
+	}
+
+	/* 카드 내부 모든 요소가 넘치지 않도록 */
+	.card {
+		overflow-x: hidden !important;
+		overflow-y: visible !important;
+	}
+
+	.card-body {
+		overflow-x: hidden !important;
+		overflow-y: visible !important;
+	}
+}
+</style>
 
 </head>
 <body>
@@ -312,7 +678,46 @@ $(document).ready(function() {
             "lengthMenu": "Show _MENU_ entries",
             "search": "Live Search:"
         },
-        "order": [[0, 'desc']]
+        "order": [[1, 'desc']],
+        "drawCallback": function(settings) {
+            // 모바일에서 카드 형식으로 표시하기 위해 라벨과 값 분리
+            var isMobile = window.innerWidth <= 768;
+            var api = this.api();
+            var columns = ['번호', '접수', '발주', '발주처', '(현장명 등) 발주내용'];
+            
+            api.rows().every(function() {
+                var row = this.node();
+                var cells = $(row).find('td');
+                cells.each(function(index) {
+                    var $cell = $(this);
+                    
+                    if (isMobile) {
+                        // 모바일: 라벨과 값으로 분리
+                        if (columns[index]) {
+                            var cellText = $cell.text().trim();
+                            
+                            // 이미 변환된 경우 스킵 (라벨이 있는지 확인)
+                            if ($cell.find('.mobile-label').length === 0) {
+                                // 원본 텍스트 저장
+                                var originalText = cellText;
+                                
+                                // 라벨과 값으로 분리
+                                $cell.html(
+                                    '<span class="mobile-label">' + columns[index] + '</span>' +
+                                    '<span class="mobile-value">' + originalText + '</span>'
+                                );
+                            }
+                        }
+                    } else {
+                        // PC: 원래 형식 유지 (라벨 제거)
+                        if ($cell.find('.mobile-label').length > 0) {
+                            var originalText = $cell.find('.mobile-value').text();
+                            $cell.html(originalText);
+                        }
+                    }
+                });
+            });
+        }
     });
 
     // 페이지 번호 복원 (초기 로드 시)
@@ -337,6 +742,22 @@ $(document).ready(function() {
         if (savedPageNumber) {
             dataTable.page(parseInt(savedPageNumber) - 1).draw(false);
         }
+    });
+
+    // 초기 로드 시 모바일 카드 형식 적용
+    if (window.innerWidth <= 768) {
+        dataTable.draw(false);
+    }
+
+    // 윈도우 리사이즈 이벤트 처리 (모바일/PC 전환 시)
+    var resizeTimer;
+    $(window).on('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+            if (dataTable) {
+                dataTable.draw(false);
+            }
+        }, 250);
     });
 	
 	$("#writeBtn").click(function(){ 

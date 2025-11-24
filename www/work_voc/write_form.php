@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../common/functions.php';
 ?>
-﻿<?php
+<?php
 if(!isset($_SESSION))      
 		session_start(); 
 if(isset($_SESSION["DB"]))
@@ -13,7 +13,7 @@ if(isset($_SESSION["DB"]))
  if(!isset($_SESSION["level"]) || $level>5) {
           /*   alert("관리자 승인이 필요합니다."); */
 		 sleep(2);
-	          header("Location:http://8440.co.kr/login/login_form.php"); 
+	          header("Location:https://8440.co.kr/login/login_form.php"); 
          exit;
    }
 

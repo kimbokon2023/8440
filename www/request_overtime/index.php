@@ -22,7 +22,397 @@ if (!isset($_SESSION["name"])) {
 $title_message = '연장근무(잔업/특근) 사전승인 신청';
 ?>
 <?php include getDocumentRoot() . '/load_header.php' ?>
-<title> <?= $title_message ?> </title>
+<title> <?= htmlspecialchars($title_message, ENT_QUOTES, 'UTF-8') ?> </title>
+
+<style>
+    /* 모바일 환경 최적화 */
+    @media (max-width: 768px) {
+        /* body와 html 오버플로우 방지 */
+        html, body {
+            overflow-x: hidden !important;
+            max-width: 100vw !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        * {
+            max-width: 100vw !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 컨테이너 최적화 */
+        .container,
+        .container-fluid {
+            padding: 0.5rem !important;
+            max-width: 100vw !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+            margin: 0 auto !important;
+            overflow-x: hidden !important;
+        }
+        
+        /* 카드 최적화 */
+        .card {
+            margin: 0.5rem auto !important;
+            width: calc(100vw - 1rem) !important;
+            max-width: calc(100vw - 1rem) !important;
+            box-sizing: border-box !important;
+            overflow-x: hidden !important;
+        }
+        
+        .card-body {
+            padding: 0.75rem !important;
+            overflow-x: hidden !important;
+        }
+        
+        /* 제목 영역 최적화 */
+        .d-flex.justify-content-center.align-items-center.mt-3.mb-2 {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 0.5rem !important;
+            padding: 0.5rem !important;
+        }
+        
+        .d-flex.justify-content-center.align-items-center.mt-3.mb-2 span {
+            font-size: 1.25rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            text-align: center !important;
+        }
+        
+        .d-flex.justify-content-center.align-items-center.mt-3.mb-2 button {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0.25rem 0 !important;
+            padding: 0.5rem !important;
+            font-size: 1rem !important;
+        }
+        
+        /* 안내 문구 최적화 */
+        .d-flex.justify-content-center.mt-1.mb-3 {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 0.5rem !important;
+            padding: 0.5rem !important;
+        }
+        
+        .d-flex.justify-content-center.mt-1.mb-3 span {
+            width: 100% !important;
+            max-width: 100% !important;
+            text-align: center !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            font-size: 0.9rem !important;
+        }
+        
+        /* 검색 UI 최적화 */
+        .d-flex.justify-content-between.align-items-center.mt-2.mb-2 {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 0.75rem !important;
+            padding: 0.5rem !important;
+        }
+        
+        .d-flex.justify-content-between.align-items-center.mt-2.mb-2 > div {
+            width: 100% !important;
+            max-width: 100% !important;
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 0.5rem !important;
+        }
+        
+        .d-flex.justify-content-between.align-items-center.mt-2.mb-2 .d-flex.align-items-center {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 0.5rem !important;
+        }
+        
+        .d-flex.justify-content-between.align-items-center.mt-2.mb-2 select,
+        .d-flex.justify-content-between.align-items-center.mt-2.mb-2 input {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0.25rem 0 !important;
+            padding: 0.5rem !important;
+            font-size: 1rem !important;
+        }
+        
+        .d-flex.justify-content-between.align-items-center.mt-2.mb-2 button {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0.25rem 0 !important;
+            padding: 0.5rem !important;
+            font-size: 1rem !important;
+        }
+        
+        /* 테이블 숨기기 (모바일에서는 카드로 표시) - visibility로 변경하여 데이터 읽기 가능 */
+        .table {
+            visibility: hidden !important;
+            position: absolute !important;
+            left: -9999px !important;
+            width: 1px !important;
+            height: 1px !important;
+            overflow: hidden !important;
+        }
+        
+        /* 모바일 카드 컨테이너 */
+        #mobile-cards-container {
+            display: block !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 0.5rem !important;
+        }
+        
+        .mobile-card {
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow-x: hidden !important;
+        }
+        
+        .mobile-card-item {
+            margin-bottom: 0.5rem;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .mobile-card-label {
+            font-weight: bold;
+            color: #495057;
+            margin-right: 0.5rem;
+            display: inline-block;
+            min-width: 80px;
+        }
+        
+        .mobile-card-value {
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            word-break: break-word !important;
+            white-space: normal !important;
+        }
+        
+        /* 페이지네이션 최적화 */
+        .d-flex.justify-content-center.mt-5.mb-5 {
+            padding: 0.5rem !important;
+            flex-wrap: wrap !important;
+        }
+        
+        .input-group.p-1.mb-2.mt-2 {
+            width: 100% !important;
+            max-width: 100% !important;
+            justify-content: center !important;
+            flex-wrap: wrap !important;
+        }
+        
+        /* 텍스트 오버플로우 방지 */
+        * {
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 모든 텍스트 요소 강제 줄바꿈 */
+        p, div, h1, h2, h3, h4, h5, h6, label, strong, em, b, i, u, span, td, th {
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            word-break: break-word !important;
+            white-space: normal !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* span 요소 줄바꿈 처리 */
+        span {
+            display: inline-block !important;
+            overflow: visible !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 모든 div 요소 오버플로우 방지 */
+        div {
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* '기간' 버튼 숨기기 */
+        #showdate {
+            display: none !important;
+        }
+        
+        /* 모달 최적화 */
+        .modal {
+            padding: 0 !important;
+            overflow: hidden !important;
+        }
+        
+        .modal-dialog {
+            margin: 0 !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            height: 100vh !important;
+            max-height: 100vh !important;
+        }
+        
+        .modal-content {
+            margin: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 100vh !important;
+            max-height: 100vh !important;
+            border-radius: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            box-sizing: border-box !important;
+        }
+        
+        .modal-header {
+            padding: 0.75rem 0.5rem !important;
+            flex-shrink: 0 !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .modal-title {
+            font-size: 1rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .modal-body {
+            flex: 1 !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            padding: 0.75rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            -webkit-overflow-scrolling: touch !important;
+        }
+        
+        .modal-body .row {
+            margin: 0.5rem 0 !important;
+        }
+        
+        .modal-body .col-md-3,
+        .modal-body .col-md-6 {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0.5rem 0 !important;
+        }
+        
+        .modal-body label {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin-bottom: 0.25rem !important;
+        }
+        
+        .modal-body select,
+        .modal-body input,
+        .modal-body textarea {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0.25rem 0 !important;
+            padding: 0.5rem !important;
+            font-size: 1rem !important;
+        }
+        
+        /* 모달창 select 요소 height 조정 (글자 잘림 방지) */
+        .modal-body select.form-select {
+            min-height: 40px !important;
+            height: auto !important;
+            line-height: 1.5 !important;
+            padding-top: 0.5rem !important;
+            padding-bottom: 0.5rem !important;
+        }
+        
+        /* PC 환경에서도 모달창 select height 조정 */
+        .modal-body select[style*="height: 32px"],
+        .modal-body select[style*="height:32px"],
+        .modal-body select#author,
+        .modal-body select#ot_type {
+            min-height: 40px !important;
+            height: auto !important;
+            line-height: 1.5 !important;
+            padding-top: 0.5rem !important;
+            padding-bottom: 0.5rem !important;
+        }
+        
+        /* 모달창 input 요소 height 조정 */
+        .modal-body input[style*="height: 32px"],
+        .modal-body input[style*="height:32px"],
+        .modal-body input#al_part,
+        .modal-body input#al_askdatefrom {
+            min-height: 40px !important;
+            height: auto !important;
+            line-height: 1.5 !important;
+            padding-top: 0.5rem !important;
+            padding-bottom: 0.5rem !important;
+        }
+    }
+    
+    /* PC 환경에서도 모달창 select height 조정 */
+    @media (min-width: 769px) {
+        .modal-body select.form-select,
+        .modal-body select#author,
+        .modal-body select#ot_type {
+            min-height: 38px !important;
+            height: auto !important;
+            line-height: 1.4 !important;
+            padding-top: 0.375rem !important;
+            padding-bottom: 0.375rem !important;
+        }
+        
+        .modal-body input#al_part,
+        .modal-body input#al_askdatefrom {
+            min-height: 38px !important;
+            height: auto !important;
+            line-height: 1.4 !important;
+            padding-top: 0.375rem !important;
+            padding-bottom: 0.375rem !important;
+        }
+        
+        .modal-footer {
+            padding: 0.75rem 0.5rem !important;
+            flex-shrink: 0 !important;
+            flex-direction: column !important;
+            gap: 0.5rem !important;
+        }
+        
+        .modal-footer button {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0.5rem !important;
+            font-size: 1rem !important;
+        }
+        
+        /* 빠른 시간 선택 버튼 최적화 */
+        #time_button_container {
+            flex-direction: column !important;
+            align-items: stretch !important;
+        }
+        
+        #time_button_container button {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0.25rem 0 !important;
+        }
+    }
+    
+    /* PC 환경에서는 모바일 카드 숨기기 */
+    @media (min-width: 769px) {
+        #mobile-cards-container {
+            display: none !important;
+        }
+    }
+</style>
+
 </head>
 
 <body>
@@ -279,17 +669,27 @@ $title_message = '연장근무(잔업/특근) 사전승인 신청';
                                                     break;
                                             }
                                         ?>
-                                            <tr style="cursor:pointer;" data-num="<?= $num ?>">
-                                                <td class="text-center"><?= $start_num ?></td>
-                                                <td class="text-center"><?= substr($registdate, 0, 10) ?></td>
-                                                <td class="text-center"><?= $al_askdatefrom ?></td>
-                                                <td class="text-center"><?= $ot_type ?></td>
-                                                <td class="text-center"><?= $ot_start_time ?></td>
-                                                <td class="text-center"><?= $ot_end_time ?></td>
-                                                <td class="text-center"><?= $al_usedday ?>시간</td>
-                                                <td class="text-center"><?= $author ?></td>
-                                                <td class="text-center"><?= $al_content ?></td>
-                                                <td class="text-center"><?= $statusstr ?></td>
+                                            <tr style="cursor:pointer;" 
+                                                data-num="<?= htmlspecialchars($num, ENT_QUOTES, 'UTF-8') ?>"
+                                                data-registdate="<?= htmlspecialchars(substr($registdate, 0, 10), ENT_QUOTES, 'UTF-8') ?>"
+                                                data-askdatefrom="<?= htmlspecialchars($al_askdatefrom, ENT_QUOTES, 'UTF-8') ?>"
+                                                data-ot-type="<?= htmlspecialchars($ot_type, ENT_QUOTES, 'UTF-8') ?>"
+                                                data-start-time="<?= htmlspecialchars($ot_start_time, ENT_QUOTES, 'UTF-8') ?>"
+                                                data-end-time="<?= htmlspecialchars($ot_end_time, ENT_QUOTES, 'UTF-8') ?>"
+                                                data-usedday="<?= htmlspecialchars($al_usedday, ENT_QUOTES, 'UTF-8') ?>"
+                                                data-author="<?= htmlspecialchars($author, ENT_QUOTES, 'UTF-8') ?>"
+                                                data-content="<?= htmlspecialchars($al_content, ENT_QUOTES, 'UTF-8') ?>"
+                                                data-status="<?= htmlspecialchars($statusstr, ENT_QUOTES, 'UTF-8') ?>">
+                                                <td class="text-center" data-label="번호"><?= $start_num ?></td>
+                                                <td class="text-center" data-label="신청일"><?= substr($registdate, 0, 10) ?></td>
+                                                <td class="text-center" data-label="작업일자"><?= htmlspecialchars($al_askdatefrom, ENT_QUOTES, 'UTF-8') ?></td>
+                                                <td class="text-center" data-label="근무유형"><?= htmlspecialchars($ot_type, ENT_QUOTES, 'UTF-8') ?></td>
+                                                <td class="text-center" data-label="시작시간"><?= htmlspecialchars($ot_start_time, ENT_QUOTES, 'UTF-8') ?></td>
+                                                <td class="text-center" data-label="종료시간"><?= htmlspecialchars($ot_end_time, ENT_QUOTES, 'UTF-8') ?></td>
+                                                <td class="text-center" data-label="연장시간"><?= htmlspecialchars($al_usedday, ENT_QUOTES, 'UTF-8') ?>시간</td>
+                                                <td class="text-center" data-label="성명"><?= htmlspecialchars($author, ENT_QUOTES, 'UTF-8') ?></td>
+                                                <td class="text-center" data-label="사유"><?= htmlspecialchars($al_content, ENT_QUOTES, 'UTF-8') ?></td>
+                                                <td class="text-center" data-label="결재상태"><?= htmlspecialchars($statusstr, ENT_QUOTES, 'UTF-8') ?></td>
                                             </tr>
                                         <?php
                                             $start_num--;
@@ -304,6 +704,9 @@ $title_message = '연장근무(잔업/특근) 사전승인 신청';
                                     </tbody>
                                 </table>
                             </div>
+                            
+                            <!-- 모바일 카드 컨테이너 -->
+                            <div id="mobile-cards-container"></div>
 
                             <div class="d-flex justify-content-center mt-5 mb-5">
                                 <div class="input-group p-1 mb-2 mt-2 justify-content-center">
@@ -572,6 +975,251 @@ function updatePartAndId(selectedName) {
     console.log('--- updatePartAndId() 함수 실행 종료 ---');
 }
 
+// 모바일 카드 렌더링 함수
+function renderMobileCards() {
+    if (window.innerWidth > 768) {
+        $('#mobile-cards-container').html('');
+        return; // PC 환경에서는 실행하지 않음
+    }
+    
+    var $container = $('#mobile-cards-container');
+    $container.html(''); // 기존 내용 초기화
+    
+    try {
+        // 실제 연장근무 리스트 테이블만 선택
+        // 여러 선택자 시도
+        var $targetTable = $('.d-flex.justify-content-center table.table').first();
+        
+        if ($targetTable.length === 0) {
+            $targetTable = $('.card-body table.table').first();
+        }
+        
+        if ($targetTable.length === 0) {
+            $targetTable = $('table.table-bordered.table-hover').first();
+        }
+        
+        console.log('Target table found:', $targetTable.length);
+        console.log('Target table selector:', $targetTable.length > 0 ? 'Found' : 'Not found');
+        
+        var rows;
+        if ($targetTable.length === 0) {
+            // 대체: 모든 테이블에서 data-num 속성이 있는 행 찾기
+            rows = $('tbody tr[data-num]');
+            console.log('Using fallback selector: rows with data-num attribute, count:', rows.length);
+            
+            // data-num이 없으면 모든 tbody tr에서 첫 번째 td가 숫자인 행 찾기
+            if (rows.length === 0) {
+                rows = $('tbody tr').filter(function() {
+                    var $row = $(this);
+                    var firstTd = $row.find('td:first').text().trim();
+                    return /^\d+/.test(firstTd);
+                });
+                console.log('Using fallback selector 2: rows with numeric first td, count:', rows.length);
+            }
+        } else {
+            rows = $targetTable.find('tbody tr');
+            console.log('Using specific table selector, initial rows:', rows.length);
+            
+            // 각 행의 td 개수 확인 (디버깅)
+            if (rows.length > 0) {
+                console.log('First row td count:', rows.first().find('td').length);
+                console.log('First row data-num:', rows.first().attr('data-num'));
+                console.log('First row first td text:', rows.first().find('td:first').text().trim());
+            }
+        }
+        
+        // 초기 필터링: td가 5개 이상인 행만 포함 (너무 엄격하지 않게)
+        // td 개수 필터 제거 - 모든 행 포함하고 나중에 유효성 검사로 제외
+        var allRows = rows;
+        var rowsBeforeFilter = rows.length;
+        
+        console.log('Rows before filter:', rowsBeforeFilter);
+        console.log('Using all rows without td count filter');
+        
+        if (rows.length > 0) {
+            console.log('Sample row td count:', rows.first().find('td').length);
+            console.log('Sample row first td:', rows.first().find('td:first').text().trim());
+            console.log('Sample row data-num:', rows.first().attr('data-num'));
+            console.log('Sample row html (first 200 chars):', rows.first().html().substring(0, 200));
+        }
+        
+        console.log('Total rows found:', rows.length);
+        console.log('Table element:', $('table.table').length);
+        
+        if (!rows || rows.length === 0) {
+            console.log('No valid rows found in table');
+            console.log('All tables:', $('table').length);
+            console.log('All tbody:', $('tbody').length);
+            console.log('All tbody tr:', $('tbody tr').length);
+            $container.append('<div class="text-center text-muted p-3">표시할 데이터가 없습니다.</div>');
+            return;
+        }
+        
+        var validCardCount = 0;
+        var skippedCount = 0;
+        
+        rows.each(function(index) {
+            var $row = $(this);
+            
+            // td 요소가 없는 경우 제외 (빈 행)
+            var $tds = $row.find('td');
+            var tdCount = $tds.length;
+            if (tdCount === 0) {
+                skippedCount++;
+                if (index < 3) {
+                    console.log('Row ' + index + ': Skipping - no td elements');
+                }
+                return;
+            }
+            
+            // td에서 직접 데이터 읽기 (텍스트 노드 직접 접근)
+            var num = '';
+            var registdate = '';
+            var askdatefrom = '';
+            var otType = '';
+            var startTime = '';
+            var endTime = '';
+            var usedday = '';
+            var author = '';
+            var content = '';
+            var status = '';
+            
+            // 각 td에서 텍스트 추출 (더 안전한 방법)
+            if ($tds.length > 0) num = $tds.eq(0).text().trim() || $tds.eq(0).html().trim();
+            if ($tds.length > 1) registdate = $tds.eq(1).text().trim() || $tds.eq(1).html().trim();
+            if ($tds.length > 2) askdatefrom = $tds.eq(2).text().trim() || $tds.eq(2).html().trim();
+            if ($tds.length > 3) otType = $tds.eq(3).text().trim() || $tds.eq(3).html().trim();
+            if ($tds.length > 4) startTime = $tds.eq(4).text().trim() || $tds.eq(4).html().trim();
+            if ($tds.length > 5) endTime = $tds.eq(5).text().trim() || $tds.eq(5).html().trim();
+            if ($tds.length > 6) usedday = $tds.eq(6).text().trim() || $tds.eq(6).html().trim();
+            if ($tds.length > 7) author = $tds.eq(7).text().trim() || $tds.eq(7).html().trim();
+            if ($tds.length > 8) content = $tds.eq(8).text().trim() || $tds.eq(8).html().trim();
+            if ($tds.length > 9) status = $tds.eq(9).text().trim() || $tds.eq(9).html().trim();
+            
+            // data 속성도 확인 (우선순위 높음)
+            var dataNum = $row.attr('data-num') || $row.data('num');
+            if (dataNum) {
+                num = dataNum;
+            }
+            
+            // 디버깅: 첫 3개 행만 상세 로그
+            if (index < 3) {
+                console.log('Processing row ' + index + ':', {
+                    num: num,
+                    registdate: registdate,
+                    askdatefrom: askdatefrom,
+                    author: author,
+                    tdCount: tdCount,
+                    dataNum: dataNum,
+                    firstTdText: $tds.eq(0).text().trim()
+                });
+            }
+            
+            // 유효성 검사: 잘못된 텍스트 값만 제외
+            var invalidValues = ['no data available in table', '구분', '결재진행', '작성일시', '작성자', '결재라인', '참조', '번호'];
+            var numLower = (num || '').toString().toLowerCase().trim();
+            
+            // 잘못된 텍스트 값인 경우 제외
+            if (invalidValues.indexOf(numLower) !== -1) {
+                skippedCount++;
+                if (index < 3) {
+                    console.log('Row ' + index + ': Skipping - num is invalid text', num);
+                }
+                return;
+            }
+            
+            // num이 완전히 비어있는 경우만 제외 (숫자가 아니어도 허용)
+            if (!num || num === '' || num === 'undefined' || num === 'null') {
+                skippedCount++;
+                if (index < 3) {
+                    console.log('Row ' + index + ': Skipping - num is empty', num);
+                }
+                return;
+            }
+            
+            // 추가 검증: author나 askdatefrom이 있는 행만 포함 (실제 데이터 행)
+            if (!author && !askdatefrom) {
+                skippedCount++;
+                if (index < 3) {
+                    console.log('Row ' + index + ': Skipping - no author or askdatefrom', {author: author, askdatefrom: askdatefrom});
+                }
+                return;
+            }
+            
+            // HTML 이스케이프 처리
+            var escapeHtml = function(text) {
+                if (!text) return '';
+                var map = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                };
+                return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
+            };
+            
+            var cardHtml = '<div class="mobile-card" data-num="' + escapeHtml(num) + '" style="cursor:pointer;">' +
+                '<div class="mobile-card-item">' +
+                '<span class="mobile-card-label">번호:</span>' +
+                '<span class="mobile-card-value">' + escapeHtml(num) + '</span>' +
+                '</div>' +
+                '<div class="mobile-card-item">' +
+                '<span class="mobile-card-label">신청일:</span>' +
+                '<span class="mobile-card-value">' + escapeHtml(registdate) + '</span>' +
+                '</div>' +
+                '<div class="mobile-card-item">' +
+                '<span class="mobile-card-label">작업일자:</span>' +
+                '<span class="mobile-card-value">' + escapeHtml(askdatefrom) + '</span>' +
+                '</div>' +
+                '<div class="mobile-card-item">' +
+                '<span class="mobile-card-label">근무유형:</span>' +
+                '<span class="mobile-card-value">' + escapeHtml(otType) + '</span>' +
+                '</div>' +
+                '<div class="mobile-card-item">' +
+                '<span class="mobile-card-label">시작시간:</span>' +
+                '<span class="mobile-card-value">' + escapeHtml(startTime) + '</span>' +
+                '</div>' +
+                '<div class="mobile-card-item">' +
+                '<span class="mobile-card-label">종료시간:</span>' +
+                '<span class="mobile-card-value">' + escapeHtml(endTime) + '</span>' +
+                '</div>' +
+                '<div class="mobile-card-item">' +
+                '<span class="mobile-card-label">연장시간:</span>' +
+                '<span class="mobile-card-value">' + escapeHtml(usedday) + '</span>' +
+                '</div>' +
+                '<div class="mobile-card-item">' +
+                '<span class="mobile-card-label">성명:</span>' +
+                '<span class="mobile-card-value">' + escapeHtml(author) + '</span>' +
+                '</div>' +
+                '<div class="mobile-card-item">' +
+                '<span class="mobile-card-label">사유:</span>' +
+                '<span class="mobile-card-value">' + escapeHtml(content) + '</span>' +
+                '</div>' +
+                '<div class="mobile-card-item">' +
+                '<span class="mobile-card-label">결재상태:</span>' +
+                '<span class="mobile-card-value">' + escapeHtml(status) + '</span>' +
+                '</div>' +
+                '</div>';
+            
+            $container.append(cardHtml);
+            validCardCount++;
+        });
+        
+        console.log('Mobile cards rendered: ' + validCardCount + ' valid cards');
+        console.log('Skipped rows: ' + skippedCount);
+        console.log('Total rows processed: ' + rows.length);
+        
+        // 유효한 카드가 없으면 메시지 표시
+        if (validCardCount === 0) {
+            console.warn('No valid cards rendered. Check console for details.');
+            $container.append('<div class="text-center text-muted p-3">표시할 데이터가 없습니다.</div>');
+        }
+    } catch (error) {
+        console.error('Error rendering mobile cards:', error);
+    }
+}
+
 $(document).ready(function() {
     console.log('=== 직원 정보 로드 완료 ===');
     console.log('이름 배열:', employeeNameArray);
@@ -579,6 +1227,43 @@ $(document).ready(function() {
     console.log('ID 배열:', employeeIdArray);
     console.log('관리자 여부:', isAdmin);
     console.log('현재 사용자:', currentUserId, currentUserName);
+
+    // 모바일 카드 렌더링 (테이블이 완전히 로드된 후)
+    if (window.innerWidth <= 768) {
+        // 여러 번 시도하여 테이블이 완전히 로드될 때까지 대기
+        var renderAttempts = 0;
+        var maxAttempts = 10;
+        
+        var tryRender = function() {
+            renderAttempts++;
+            var rows = $('tbody tr');
+            console.log('Render attempt ' + renderAttempts + ': Found ' + rows.length + ' rows');
+            
+            if (rows.length > 0) {
+                renderMobileCards();
+            } else if (renderAttempts < maxAttempts) {
+                setTimeout(tryRender, 300);
+            } else {
+                console.warn('Table not loaded after ' + maxAttempts + ' attempts');
+                $('#mobile-cards-container').append('<div class="text-center text-muted p-3">데이터를 불러오는 중...</div>');
+            }
+        };
+        
+        setTimeout(tryRender, 200);
+    }
+    
+    // 화면 크기 변경 시 카드 재렌더링
+    var resizeTimer;
+    $(window).on('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+            if (window.innerWidth <= 768) {
+                renderMobileCards();
+            } else {
+                $('#mobile-cards-container').html('');
+            }
+        }, 250);
+    });
 
     // 폼 submit 완전 차단 (AJAX로만 전송)
     $('#overtimeForm').on('submit', function(e) {
@@ -658,6 +1343,14 @@ $(document).ready(function() {
     // 테이블 행 클릭 (수정)
     $("tbody tr").click(function() {
         const num = $(this).data('num');
+        if (num) {
+            loadOvertimeData(num);
+        }
+    });
+    
+    // 모바일 카드 클릭 (수정)
+    $(document).on('click', '.mobile-card', function() {
+        const num = $(this).attr('data-num') || $(this).data('num');
         if (num) {
             loadOvertimeData(num);
         }

@@ -130,7 +130,7 @@ if($user_name=='소현철' || $user_name=='김보곤' || $user_name=='이경묵'
     }
     ?>
     window.baseUrl = '<?php echo $baseUrl; ?>';
-    console.log('Base URL set to:', window.baseUrl);
+    // console.log('Base URL set to:', window.baseUrl);
 </script>
 <?php
 // 각 js 파일의 절대 경로 & 웹 경로

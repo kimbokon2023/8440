@@ -89,6 +89,386 @@ try {
 
 <link href="css/style.css" rel="stylesheet">
 <title><?= htmlspecialchars($title_message) ?></title>
+
+<style>
+/* 모바일 최적화 스타일 */
+@media (max-width: 768px) {
+    /* 컨테이너 최적화 */
+    .container-fluid,
+    .container {
+        padding: 0.75rem 0.5rem !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 제목 최적화 */
+    h1, h2, h3, h4, h5, h6 {
+        font-size: 1rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        text-align: center !important;
+        margin-bottom: 0.75rem !important;
+        padding: 0 0.5rem !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 버튼 최적화 */
+    .btn {
+        font-size: 0.875rem !important;
+        padding: 0.5rem 0.75rem !important;
+        white-space: nowrap !important;
+        min-height: 40px !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    
+    .btn-sm {
+        font-size: 0.8rem !important;
+        padding: 0.4rem 0.6rem !important;
+        min-height: 36px !important;
+    }
+    
+    /* d-flex 컨테이너 최적화 */
+    .d-flex {
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+    }
+    
+    .d-flex.mt-2.mb-3.align-items-center.justify-content-center {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+    
+    .d-flex.mt-2.mb-3.align-items-center.justify-content-center > * {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-bottom: 0.5rem !important;
+    }
+    
+    /* 기간 버튼 숨기기 */
+    #showdate {
+        display: none !important;
+    }
+    
+    /* 기간 설정 카드 최적화 */
+    #showframe {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0.5rem 0 !important;
+    }
+    
+    #showframe .card-body {
+        padding: 0.5rem 0.4rem !important;
+    }
+    
+    #showframe .d-flex.justify-content-center.align-items-center {
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+        justify-content: flex-start !important;
+    }
+    
+    #showframe .btn {
+        flex: 1 1 auto !important;
+        min-width: calc(50% - 0.25rem) !important;
+        max-width: calc(50% - 0.25rem) !important;
+        margin: 0.125rem !important;
+    }
+    
+    /* 날짜 입력 필드 최적화 */
+    input[type="date"] {
+        width: 100% !important;
+        max-width: 100% !important;
+        font-size: 0.875rem !important;
+        padding: 0.5rem !important;
+        margin-bottom: 0.5rem !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 날짜 입력 필드 그룹 최적화 */
+    .d-flex.mt-2.mb-3.align-items-center.justify-content-center input[type="date"] {
+        margin-bottom: 0.5rem !important;
+    }
+    
+    /* 날짜 구분자 숨기기 - 모바일에서는 날짜 필드가 세로로 배치되므로 구분자 불필요 */
+    .d-flex.mt-2.mb-3.align-items-center.justify-content-center > span {
+        display: none !important;
+    }
+    
+    /* 검색 입력 필드 최적화 */
+    .inputWrap30 {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-bottom: 0.5rem !important;
+        position: relative !important;
+    }
+    
+    .inputWrap30 #search {
+        width: 100% !important;
+        max-width: 100% !important;
+        font-size: 0.875rem !important;
+        padding: 0.5rem !important;
+        padding-right: 2.5rem !important;
+        box-sizing: border-box !important;
+        margin: 0 !important;
+    }
+    
+    .btnClear {
+        position: absolute !important;
+        right: 0.5rem !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        width: 1.5rem !important;
+        height: 1.5rem !important;
+        background: transparent !important;
+        border: none !important;
+        cursor: pointer !important;
+    }
+    
+    /* jQuery DataTable 숨기기 */
+    .dataTables_length,
+    .dataTables_filter {
+        display: none !important;
+    }
+    
+    /* 테이블을 카드 형식으로 변환 */
+    table.table {
+        width: 100% !important;
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+    }
+    
+    table.table tbody {
+        display: block !important;
+        width: 100% !important;
+    }
+    
+    table.table tbody tr {
+        display: block !important;
+        width: calc(100% - 0.5rem) !important;
+        max-width: calc(100% - 0.5rem) !important;
+        margin: 0.5rem auto 0.75rem auto !important;
+        background: #fff !important;
+        border: 1px solid #ddd !important;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+        padding: 0.75rem !important;
+        box-sizing: border-box !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    table.table tbody tr td {
+        display: flex !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0.5rem 0.4rem !important;
+        text-align: left !important;
+        border: none !important;
+        border-bottom: 1px solid #f0f0f0 !important;
+        box-sizing: border-box !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+    }
+    
+    table.table tbody tr td:last-child {
+        border-bottom: none !important;
+    }
+    
+    table.table thead {
+        display: none !important;
+    }
+    
+    table.table tbody tr td::before {
+        content: attr(data-label) !important;
+        font-weight: bold !important;
+        font-size: 0.75rem !important;
+        color: #666 !important;
+        margin-right: 0.5rem !important;
+        min-width: 80px !important;
+        flex-shrink: 0 !important;
+    }
+    
+    /* 텍스트 오버플로우 방지 */
+    * {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 모든 텍스트 요소 강제 줄바꿈 */
+    p, div, h1, h2, h3, h4, h5, h6, label, strong, em, b, i, u, span {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* span 요소 줄바꿈 처리 */
+    span {
+        display: inline !important;
+        overflow: visible !important;
+    }
+}
+
+/* 모달 최적화 */
+@media (max-width: 768px) {
+    .modal {
+        padding: 0 !important;
+    }
+    
+    .modal-header {
+        padding: 0.75rem 0.5rem !important;
+        min-height: 50px !important;
+        flex-wrap: wrap !important;
+        gap: 0.25rem !important;
+    }
+    
+    .modal-title {
+        font-size: 1rem !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        word-wrap: break-word !important;
+    }
+    
+    .modal-header .close {
+        margin: 0 !important;
+        padding: 0.5rem !important;
+        font-size: 1.5rem !important;
+    }
+    
+    .modal-body {
+        padding: 0.75rem 0.5rem !important;
+        font-size: 0.9rem !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        flex: 1 1 auto !important;
+        box-sizing: border-box !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        -webkit-overflow-scrolling: touch !important; /* iOS 부드러운 스크롤 */
+    }
+    
+    /* 모달이 열릴 때 body 스크롤 방지 */
+    body.modal-open {
+        overflow: hidden !important;
+        position: fixed !important;
+        width: 100% !important;
+        height: 100% !important;
+    }
+    
+    /* 모달 배경 터치 방지 */
+    .modal {
+        position: fixed !important;
+        z-index: 1050 !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        overflow: hidden !important;
+        background-color: rgba(0,0,0,0.4) !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+    
+    /* 모달 컨텐츠 최적화 - 화면 전체 너비 */
+    .modal-content {
+        position: relative !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        touch-action: pan-y !important; /* 세로 스크롤만 허용 */
+        display: flex !important;
+        flex-direction: column !important;
+        border-radius: 0 !important;
+    }
+    
+    /* SweetAlert2 모달 최적화 */
+    .swal2-popup {
+        width: 90% !important;
+        max-width: 90% !important;
+        padding: 1rem !important;
+        font-size: 0.9rem !important;
+    }
+    
+    .swal2-title {
+        font-size: 1.1rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .swal2-content {
+        font-size: 0.875rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .swal2-actions {
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+    }
+    
+    .swal2-confirm,
+    .swal2-cancel {
+        font-size: 0.875rem !important;
+        padding: 0.5rem 1rem !important;
+        min-height: 40px !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+    }
+}
+
+/* PC 환경 버튼 간격 최적화 */
+@media (min-width: 769px) {
+    .d-flex.justify-content-center .btn,
+    .d-flex.justify-content-start .btn {
+        margin-left: 0.25rem !important;
+        margin-right: 0.25rem !important;
+    }
+    
+    /* PC 환경 모달 최적화 - 이전 크기 유지 */
+    .modal {
+        padding: 0.5rem !important;
+    }
+    
+    .modal-content {
+        margin: 0.5rem auto !important;
+        width: auto !important;
+        max-width: 800px !important;
+        height: auto !important;
+        max-height: 90vh !important;
+        border-radius: 0.5rem !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    
+    .modal-header {
+        padding: 1rem !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .modal-body {
+        padding: 1rem !important;
+        flex: 1 1 auto !important;
+        overflow-y: auto !important;
+        max-height: calc(90vh - 100px) !important;
+    }
+}
+</style>
 </head>
 
 <body>
@@ -220,21 +600,21 @@ try {
                             $goods_price = $row['goods_price'] ?? '';
                     ?>
                         <tr onclick="loadForm('update', <?= $num ?>)" style="cursor: pointer;">
-                            <td class="text-center" onclick="event.stopPropagation();">
+                            <td class="text-center" onclick="event.stopPropagation();" data-label="선택">
                                 <input type="checkbox" class="rowCheckbox">
                             </td>
-                            <td class="text-center"><?= $rowNumber ?></td>
-                            <td class="text-center"><?= htmlspecialchars($registedate) ?></td>
-                            <td class="text-start fw-bold text-primary"><?= htmlspecialchars($receiver) ?></td>
-                            <td class="text-center"><?= htmlspecialchars($receiver_tel) ?></td>
-                            <td class="text-start"><?= htmlspecialchars($address) ?></td>
-                            <td class="text-start"><?= htmlspecialchars($sender) ?></td>
-                            <td class="text-start"><?= htmlspecialchars($item_name) ?></td>
-                            <td class="text-center"><?= htmlspecialchars($unit) ?></td>
-                            <td class="text-end"><?= is_numeric($surang) ? number_format($surang) : htmlspecialchars($surang) ?></td>
-                            <td class="text-end"><?= is_numeric($fee) ? number_format($fee) : htmlspecialchars($fee) ?></td>
-                            <td class="text-center"><?= htmlspecialchars($fee_type) ?></td>
-                            <td class="text-end"><?= is_numeric($goods_price) ? number_format($goods_price) : htmlspecialchars($goods_price) ?></td>
+                            <td class="text-center" data-label="번호"><?= $rowNumber ?></td>
+                            <td class="text-center" data-label="등록일자"><?= htmlspecialchars($registedate) ?></td>
+                            <td class="text-start fw-bold text-primary" data-label="받을 분"><?= htmlspecialchars($receiver) ?></td>
+                            <td class="text-center" data-label="연락처"><?= htmlspecialchars($receiver_tel) ?></td>
+                            <td class="text-start" data-label="도착지 주소"><?= htmlspecialchars($address) ?></td>
+                            <td class="text-start" data-label="보내는 사람"><?= htmlspecialchars($sender) ?></td>
+                            <td class="text-start" data-label="품명/현장명"><?= htmlspecialchars($item_name) ?></td>
+                            <td class="text-center" data-label="포장"><?= htmlspecialchars($unit) ?></td>
+                            <td class="text-end" data-label="수량"><?= is_numeric($surang) ? number_format($surang) : htmlspecialchars($surang) ?></td>
+                            <td class="text-end" data-label="운임"><?= is_numeric($fee) ? number_format($fee) : htmlspecialchars($fee) ?></td>
+                            <td class="text-center" data-label="운임구분"><?= htmlspecialchars($fee_type) ?></td>
+                            <td class="text-end" data-label="물품가액"><?= is_numeric($goods_price) ? number_format($goods_price) : htmlspecialchars($goods_price) ?></td>
                         </tr>
                     <?php
                             $rowNumber++;
@@ -257,6 +637,19 @@ var ajaxRequest_write = null;
 var dataTable; // DataTables 인스턴스 전역 변수
 var material_regpageNumber; // 현재 페이지 번호 저장을 위한 전역 변수
 
+// 모달 닫기 함수 (전역 스코프)
+function closeModal() {
+    $("#myModal").hide();
+    
+    // body 스크롤 복원
+    var scrollTop = $('body').css('top');
+    $('body').removeClass('modal-open');
+    $('body').css('top', '');
+    if (scrollTop) {
+        $(window).scrollTop(parseInt(scrollTop.replace('-', '').replace('px', '')));
+    }
+}
+
 function loadForm(mode, num) {
     num = num || null;
     
@@ -277,10 +670,19 @@ function loadForm(mode, num) {
         dataType: "html",
         success: function(response) {
             document.querySelector(".modal-body .custom-card").innerHTML = response;
+            
+            // 모달 열기 전 body 스크롤 방지
+            $('body').addClass('modal-open');
+            var scrollTop = $(window).scrollTop();
+            $('body').css('top', '-' + scrollTop + 'px');
+            
             $("#myModal").show();
             
-            $("#closeBtn").off("click").on("click", function() {
-                $("#myModal").hide();
+            // 닫기 버튼 이벤트 바인딩 (동적으로 로드된 요소이므로 이벤트 위임 사용)
+            $(document).off("click", "#closeBtn").on("click", "#closeBtn", function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeModal();
             });
             
             // 기존 이벤트 제거 후 재등록
@@ -329,7 +731,7 @@ function loadForm(mode, num) {
                         }).showToast();
 
                         setTimeout(function() {
-                            $("#myModal").hide();
+                            closeModal();
                             
                             // // 등록일자가 현재 검색 범위 밖이면 날짜 범위를 조정
                             // var fromdate = $("#fromdate").val();
@@ -361,7 +763,7 @@ function loadForm(mode, num) {
             // 복사 버튼 (기존 이벤트 제거 후 재등록)
             $("#copyBtn").off("click").on("click", function() {
                 var num = $('#num').val(); // num을 비워 새로 삽입할 수 있도록 초기화
-				$("#myModal").hide();
+				closeModal();
 				setTimeout(function() {
 					copyForm('copy', num); // 복사 모드로 폼 다시 로드						
 				}, 500);				
@@ -412,7 +814,7 @@ function loadForm(mode, num) {
                                     },
                                 }).showToast();
 
-                                $("#myModal").hide();
+                                closeModal();
                                 location.reload();
                             },
                             error: function(jqxhr, status, error) {
@@ -449,10 +851,19 @@ function copyForm(mode, num) {
         dataType: "html",
         success: function(response) {
             document.querySelector(".modal-body .custom-card").innerHTML = response;
+            
+            // 모달 열기 전 body 스크롤 방지
+            $('body').addClass('modal-open');
+            var scrollTop = $(window).scrollTop();
+            $('body').css('top', '-' + scrollTop + 'px');
+            
             $("#myModal").show();
             
-            $("#closeBtn").off("click").on("click", function() {
-                $("#myModal").hide();
+            // 닫기 버튼 이벤트 바인딩 (동적으로 로드된 요소이므로 즉시 바인딩)
+            $(document).off("click", "#closeBtn").on("click", "#closeBtn", function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeModal();
             });
             
             // 기존 이벤트 제거 후 재등록
@@ -489,7 +900,7 @@ function copyForm(mode, num) {
                         }).showToast();
 
                         setTimeout(function() {
-                            $("#myModal").hide();
+                            closeModal();
                             
                             // 등록일자가 현재 검색 범위 밖이면 날짜 범위를 조정
                             var fromdate = $("#fromdate").val();
@@ -540,7 +951,22 @@ $(document).ready(function() {
             "search": "Live Search:"
         },
         "order": [[1, 'desc']],
-        "dom": 't<"bottom"ip>' // search 창과 lengthMenu 숨기기		
+        "dom": 't<"bottom"ip>', // search 창과 lengthMenu 숨기기
+        "responsive": true // 반응형 옵션 추가
+    });
+    
+    // 모바일에서 DataTables 컨트롤 숨기기
+    if (window.innerWidth <= 768) {
+        $('.dataTables_length, .dataTables_filter').hide();
+    }
+    
+    // 리사이즈 이벤트
+    $(window).on('resize', function() {
+        if (window.innerWidth <= 768) {
+            $('.dataTables_length, .dataTables_filter').hide();
+        } else {
+            $('.dataTables_length, .dataTables_filter').show();
+        }
     });
 
     // 페이지 번호 복원 (초기 로드 시)
@@ -586,16 +1012,23 @@ $(document).ready(function(){
     var loader = document.getElementById('loadingOverlay');
     if(loader)
 		loader.style.display = 'none';
-
+    
     var modal = document.getElementById("myModal");
     var span = document.getElementsByClassName("close")[0];
 
     span.onclick = function() {
-        modal.style.display = "none";
+        closeModal();
     }
 
     $(".close").on("click", function() {		
-        $("#myModal").hide();
+        closeModal();
+    });
+    
+    // 모달 배경 클릭 시 닫기 (모바일에서도 동작)
+    $(window).on('click', function(e) {
+        if ($(e.target).hasClass('modal')) {
+            closeModal();
+        }
     });
 	
     $("#newBtn").on("click", function() {		
@@ -606,9 +1039,11 @@ $(document).ready(function(){
         $("#board_form").submit();
     });
 	
-    $("#closeBtn").on("click", function() {
-         var modal = document.getElementById("myModal");
-		 modal.style.display = "none";
+    // 닫기 버튼 이벤트 위임 (동적으로 로드되는 요소에 대응)
+    $(document).on("click", "#closeBtn", function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        closeModal();
     });
 });
 

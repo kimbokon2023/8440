@@ -48,6 +48,316 @@ if($navibar!='1' && $menu !== "no") include getDocumentRoot() . '/myheader.php';
     transform: translateX(-50%); /* 자신의 너비의 반만큼 왼쪽으로 이동 */
 }
 
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+    .container {
+        padding: 5px !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+    }
+
+    .card {
+        margin-bottom: 0.25rem !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+    }
+
+    .card-body {
+        padding: 0.4rem 0.3rem !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+    }
+
+    .card-header {
+        padding: 0.4rem 0.3rem !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+    }
+
+    /* 제목 영역 최적화 */
+    .d-flex.mb-1.mt-2,
+    .d-flex.mb-2.mt-3,
+    .d-flex.mb-3.mt-2 {
+        flex-wrap: wrap !important;
+        gap: 0.25rem !important;
+        padding: 0.25rem 0 !important;
+        margin-bottom: 0.25rem !important;
+        margin-top: 0.25rem !important;
+    }
+
+    .fs-6 {
+        font-size: 0.9rem !important;
+    }
+
+    .badge {
+        font-size: 0.75rem !important;
+        padding: 0.3rem 0.5rem !important;
+    }
+
+    /* 검색 영역 최적화 */
+    .form-control {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0.4rem 0.5rem !important;
+        font-size: 0.85rem !important;
+        min-height: 40px !important;
+        box-sizing: border-box !important;
+        margin: 0.25rem 0 !important;
+    }
+
+    .w150px {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* 버튼 최적화 */
+    .btn {
+        padding: 0.4rem 0.6rem !important;
+        font-size: 0.8rem !important;
+        min-height: 36px !important;
+        margin: 0.25rem 0.125rem !important;
+        max-width: 100% !important;
+        flex-shrink: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    .btn-sm {
+        padding: 0.3rem 0.5rem !important;
+        font-size: 0.75rem !important;
+        min-height: 36px !important;
+    }
+
+    /* 버튼 그룹 최적화 */
+    .d-flex.justify-content-center {
+        flex-wrap: wrap !important;
+        gap: 0.25rem !important;
+    }
+
+    /* 자주사용하는 사이즈 프레임 최적화 */
+    #showextractframe {
+        width: calc(100% - 1rem) !important;
+        left: 0.5rem !important;
+        right: 0.5rem !important;
+        transform: none !important;
+        top: 50px !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    #showextractframe .card-body {
+        padding: 0.5rem 0.4rem !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+    }
+
+    #showextractframe .btn {
+        margin: 0.25rem 0.125rem !important;
+        font-size: 0.7rem !important;
+        padding: 0.3rem 0.4rem !important;
+    }
+
+    /* 가격 정보 카드 최적화 */
+    .row {
+        margin-left: -5px !important;
+        margin-right: -5px !important;
+    }
+
+    .row > [class*="col-"] {
+        padding-left: 5px !important;
+        padding-right: 5px !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .card.border-0.bg-light {
+        margin-bottom: 0.25rem !important;
+    }
+
+    .card-body.text-center {
+        padding: 0.5rem 0.4rem !important;
+    }
+
+    /* TUI Grid 모바일 카드 형식 */
+    #grid {
+        display: none !important;
+    }
+
+    #mobile-grid-cards {
+        display: block !important;
+        padding: 0.5rem 0.4rem !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .mobile-grid-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.5rem 0.4rem !important;
+        margin-bottom: 0.5rem !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .mobile-grid-card:hover {
+        background: #f8f9fa;
+        border-color: #2196f3;
+        box-shadow: 0 2px 6px rgba(33, 150, 243, 0.2);
+        transform: translateY(-1px);
+    }
+
+    .mobile-grid-card:active {
+        transform: translateY(0);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .mobile-grid-card-item {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 0.4rem !important;
+        padding-bottom: 0.4rem !important;
+        border-bottom: 1px solid #f1f5f9;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+    }
+
+    .mobile-grid-card-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
+    }
+
+    .mobile-grid-card-label {
+        font-size: 0.7rem !important;
+        color: #6b7280;
+        font-weight: 600;
+        margin-bottom: 0.25rem !important;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .mobile-grid-card-value {
+        font-size: 0.85rem !important;
+        color: #1f2937;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        max-width: 100% !important;
+    }
+
+    /* 텍스트/버튼이 카드 영역을 벗어나지 않도록 */
+    * {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+
+    /* 모달 모바일 최적화 */
+    .modal-dialog {
+        margin: 0.25rem !important;
+        max-width: calc(100% - 0.5rem) !important;
+    }
+
+    .modal-dialog.modal-xl {
+        max-width: calc(100% - 0.5rem) !important;
+        margin: 0.25rem !important;
+    }
+
+    .modal-dialog.modal-fullscreen {
+        margin: 0 !important;
+        max-width: 100% !important;
+        height: 100vh !important;
+    }
+
+    .modal-content {
+        border-radius: 8px !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+    }
+
+    .modal-header {
+        padding: 0.5rem 0.4rem !important;
+        border-bottom: 1px solid rgba(255,255,255,0.2) !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+        flex-wrap: wrap !important;
+    }
+
+    .modal-header .modal-title {
+        font-size: 1rem !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+
+    .modal-header .btn-close {
+        padding: 0.25rem !important;
+        margin: 0 !important;
+        font-size: 0.8rem !important;
+        flex-shrink: 0 !important;
+    }
+
+    .modal-header .btn {
+        padding: 0.3rem 0.5rem !important;
+        font-size: 0.75rem !important;
+        min-height: 36px !important;
+        margin: 0.125rem !important;
+        flex-shrink: 0 !important;
+    }
+
+    .modal-body {
+        padding: 0.5rem 0.4rem !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+        font-size: 0.9rem !important;
+    }
+
+    .modal-footer {
+        padding: 0.5rem 0.4rem !important;
+        border-top: 1px solid #dee2e6 !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+        flex-wrap: wrap !important;
+        gap: 0.25rem !important;
+    }
+
+    .modal-footer .btn {
+        padding: 0.4rem 0.6rem !important;
+        font-size: 0.8rem !important;
+        min-height: 36px !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+}
+
+/* PC에서는 모바일 카드 숨김 */
+@media (min-width: 769px) {
+    #mobile-grid-cards {
+        display: none !important;
+    }
+}
+
 </style>
 
  <?php
@@ -626,6 +936,8 @@ $spec_counter = count($spec_arr);
 	<div class="d-flex mb-1 mt-2 justify-content-center align-items-center">   
 		 <div id="grid" style="width:1050px;">		  		  
 		  </div>
+		 <!-- 모바일 카드 형식 -->
+		 <div id="mobile-grid-cards" style="display: none; width: 100%;"></div>
 	</div>	
 </div>
 </div>
@@ -850,23 +1162,28 @@ for (var i = 0; i < arr1.length; i++) {
 						}
 					}  
 
-			const grid = new tui.Grid({
+			// 모바일 여부 확인
+			var isMobile = window.innerWidth <= 768;
+			var bodyHeight = isMobile ? 400 : 600;
+			
+			// grid를 전역 변수로 선언
+			window.grid = new tui.Grid({
 				  el: document.getElementById('grid'),
 				  data: data,
-				  bodyHeight: 600,					  					
+				  bodyHeight: bodyHeight,					  					
 				  columns: [ 				   
 					{
 					  header: '철판종류 구분',
 					  name: 'col1',
 					  sortingType: 'desc',
 					  sortable: true,
-					  width:200,		
+					  width: isMobile ? 150 : 200,		
 					  align: 'center'
 					},			
 					{
 					  header: '규격 (두께 x W x H)',
 					  name: 'col2',
-					  width:140,	
+					  width: isMobile ? 120 : 140,	
 					  align: 'center'
 					},
 					{
@@ -874,37 +1191,37 @@ for (var i = 0; i < arr1.length; i++) {
 					  name: 'col3',
 					  sortingType: 'desc',
 					  sortable: true,					  
-					  width:180,	
+					  width: isMobile ? 150 : 180,	
 					  align: 'center'
 					},
 					{
 					  header: '수량',
 					  name: 'col4',
-					  width:70,
+					  width: isMobile ? 60 : 70,
 					  align: 'center'
 					},
 					{
 					  header: '중량(kg)',
 					  name: 'col5',
-					  width:70,	
+					  width: isMobile ? 60 : 70,	
 					  align: 'center'
 					},
 					{
 					  header: 'kg당 단가',
 					  name: 'col6',
-					  width:100,		
+					  width: isMobile ? 80 : 100,		
 					  align: 'center'
 					},
 					{
 					  header: '금액',
 					  name: 'col7',
-					  width:150,
+					  width: isMobile ? 120 : 150,
 					  align: 'center'
 					},
 					{
 					  header: '기록건수',
 					  name: 'col8',
-					  width:80,
+					  width: isMobile ? 70 : 80,
 					  align: 'center'
 					}				
 				  ],
@@ -912,7 +1229,125 @@ for (var i = 0; i < arr1.length; i++) {
 						resizable: true
 					  },
 				  rowHeaders: ['rowNum'],
-				});	
+				});
+				
+			// 모바일 카드 렌더링 함수
+			function renderMobileGridCards() {
+				if (!window.grid) return;
+				
+				var isMobile = window.innerWidth <= 768;
+				var cardsContainer = document.getElementById('mobile-grid-cards');
+				var gridContainer = document.getElementById('grid');
+				
+				if (!isMobile) {
+					// PC 화면: Grid 표시, 카드 숨김
+					if (gridContainer) {
+						gridContainer.style.display = '';
+					}
+					if (cardsContainer) {
+						cardsContainer.style.display = 'none';
+					}
+					return;
+				}
+				
+				// 모바일 화면: Grid 숨김, 카드 표시
+				if (gridContainer) {
+					gridContainer.style.display = 'none';
+				}
+				if (!cardsContainer) return;
+				
+				cardsContainer.style.display = 'block';
+				cardsContainer.innerHTML = '';
+				
+				try {
+					var gridData = window.grid.getData();
+					var columns = window.grid.getColumns();
+					
+					if (!gridData || gridData.length === 0) {
+						cardsContainer.innerHTML = '<div class="text-center py-4 text-muted">데이터가 없습니다.</div>';
+						return;
+					}
+					
+					// 컬럼 매핑
+					var columnMap = [
+						{ name: 'col1', label: '철판종류 구분' },
+						{ name: 'col2', label: '규격 (두께 x W x H)' },
+						{ name: 'col3', label: '사급자재 여부' },
+						{ name: 'col4', label: '수량' },
+						{ name: 'col5', label: '중량(kg)' },
+						{ name: 'col6', label: 'kg당 단가' },
+						{ name: 'col7', label: '금액' },
+						{ name: 'col8', label: '기록건수' }
+					];
+					
+					gridData.forEach(function(rowData, index) {
+						var card = document.createElement('div');
+						card.className = 'mobile-grid-card';
+						
+						// 클릭 이벤트를 위한 데이터 저장
+						var col1 = rowData['col1'] || '';
+						var col2 = rowData['col2'] || '';
+						var col3 = rowData['col3'] || '';
+						
+						// 카드 클릭 이벤트: part_view.php로 연결
+						card.addEventListener('click', function(e) {
+							// + 기호를 @로 치환
+							var col1Encoded = (col1 + '').replace(/\+/g, '@');
+							var col2Encoded = (col2 + '').replace(/\+/g, '@');
+							var col3Encoded = (col3 + '').replace(/\+/g, '@');
+							
+							const sendvar = col1Encoded + "|" + col2Encoded + "|" + col3Encoded;
+							var link = 'https://8440.co.kr/steel/part_view.php?arr=' + encodeURIComponent(sendvar);
+							
+							// 모바일에서는 새 창으로 열기 (팝업 대신)
+							if (window.innerWidth <= 768) {
+								window.open(link, '_blank');
+							} else {
+								popupCenter(link, '원자재 입출고 상세내역', 1000, 900);
+							}
+						});
+						
+						var cardHtml = '';
+						
+						columnMap.forEach(function(colInfo) {
+							var value = rowData[colInfo.name];
+							if (value === null || value === undefined || value === '') {
+								return; // 빈 값은 표시하지 않음
+							}
+							
+							var displayValue = value;
+							
+							cardHtml += '<div class="mobile-grid-card-item">';
+							cardHtml += '<div class="mobile-grid-card-label">' + colInfo.label + '</div>';
+							cardHtml += '<div class="mobile-grid-card-value">' + displayValue + '</div>';
+							cardHtml += '</div>';
+						});
+						
+						if (cardHtml === '') {
+							cardHtml = '<div class="text-muted">데이터 없음</div>';
+						}
+						
+						card.innerHTML = cardHtml;
+						cardsContainer.appendChild(card);
+					});
+				} catch (error) {
+					console.error('모바일 카드 렌더링 오류:', error);
+					cardsContainer.innerHTML = '<div class="text-center py-4 text-danger">데이터를 불러오는 중 오류가 발생했습니다.</div>';
+				}
+			}
+			
+			// 화면 크기 변경 시 카드/그리드 전환
+			function updateGridDisplay() {
+				renderMobileGridCards();
+			}
+			
+			// 초기 로드 및 리사이즈 이벤트
+			setTimeout(function() {
+				updateGridDisplay();
+				window.addEventListener('resize', function() {
+					updateGridDisplay();
+				});
+			}, 500);	
 
 			// grid 색상등 꾸미기
 			var Grid = tui.Grid; // or require('tui-grid')
@@ -963,10 +1398,10 @@ for (var i = 0; i < arr1.length; i++) {
 				
 
 	// 더블클릭 이벤트	
-	grid.on('dblclick', (e) => {	
-		let col1 = grid.getValue(e.rowKey, 'col1');
-		let col2 = grid.getValue(e.rowKey, 'col2');
-		let col3 = grid.getValue(e.rowKey, 'col3');
+	window.grid.on('dblclick', (e) => {	
+		let col1 = window.grid.getValue(e.rowKey, 'col1');
+		let col2 = window.grid.getValue(e.rowKey, 'col2');
+		let col3 = window.grid.getValue(e.rowKey, 'col3');
 		
 		// + 기호를 @로 치환
 		col1 = (col1 + '').replace(/\+/g, '@');
@@ -982,10 +1417,10 @@ for (var i = 0; i < arr1.length; i++) {
 	
 document.getElementById("csvDownload").addEventListener("click", function () {
   // tui.Grid 인스턴스 가져오기
-  const gridData = grid.getData(); // grid는 tui.Grid 인스턴스
+  const gridData = window.grid.getData(); // grid는 tui.Grid 인스턴스
 
   // 헤더 생성
-  const columns = grid.getColumns();
+  const columns = window.grid.getColumns();
   const csvRows = [];
   const headerData = columns.map(col => col.header || col.name); // 컬럼 헤더 가져오기
   csvRows.push(headerData.join(","));

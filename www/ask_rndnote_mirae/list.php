@@ -95,6 +95,340 @@ $title_message = '개발프로젝트 연구노트';
     th {
         white-space: nowrap;
     }
+
+    /* 모바일 최적화 */
+    @media (max-width: 768px) {
+        /* body와 html의 width 제한 */
+        html, body {
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+            font-size: 16px !important;
+        }
+
+        /* 컨테이너 모바일 최적화 */
+        .container,
+        .container-fluid {
+            max-width: 100vw !important;
+            padding: 5px !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+        }
+
+        /* 카드 모바일 최적화 */
+        .card {
+            margin: 0.25rem 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+        }
+
+        .card-body {
+            padding: 0.4rem 0.3rem !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow-x: hidden !important;
+        }
+
+        .card-header {
+            padding: 0.4rem 0.3rem !important;
+            font-size: 0.9rem !important;
+        }
+
+        .card-header h4,
+        .card-header h5 {
+            font-size: 0.9rem !important;
+            margin: 0 !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+
+        /* 알림 영역 모바일 최적화 */
+        .alert {
+            font-size: 0.7rem !important;
+            padding: 0.4rem 0.5rem !important;
+            margin: 0.25rem 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+
+        /* 기간 설정 영역 모바일 최적화 */
+        .d-flex.justify-content-center {
+            flex-wrap: wrap !important;
+            gap: 0.25rem !important;
+            justify-content: flex-start !important;
+            align-items: center !important;
+            padding: 0.3rem 0.25rem !important;
+            margin: 0.25rem 0 !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        /* 기간 설정 버튼 */
+        #showdate {
+            font-size: 0.7rem !important;
+            padding: 0.3rem 0.5rem !important;
+            white-space: nowrap !important;
+            flex-shrink: 0 !important;
+            margin-right: 0.3rem !important;
+            box-sizing: border-box !important;
+            min-width: 50px !important;
+            max-width: 100% !important;
+        }
+
+        /* 기간 설정 프레임 */
+        #showframe {
+            position: absolute !important;
+            z-index: 1000 !important;
+            display: none !important;
+        }
+
+        /* 기간 설정 카드 내부 버튼 */
+        #showframe .card-body .d-flex {
+            flex-wrap: wrap !important;
+            gap: 0.25rem !important;
+            justify-content: center !important;
+        }
+
+        #showframe .card-body .btn {
+            font-size: 0.65rem !important;
+            padding: 0.25rem 0.4rem !important;
+            white-space: nowrap !important;
+            flex-shrink: 0 !important;
+            box-sizing: border-box !important;
+            max-width: 100% !important;
+        }
+
+        /* 날짜 입력 필드 */
+        #fromdate,
+        #todate {
+            width: auto !important;
+            min-width: 90px !important;
+            max-width: calc(50% - 0.5rem) !important;
+            font-size: 0.7rem !important;
+            padding: 0.3rem 0.35rem !important;
+            flex: 0 0 auto !important;
+            margin: 0 0.15rem !important;
+            box-sizing: border-box !important;
+        }
+
+        /* 검색 영역 */
+        .inputWrap {
+            flex: 1 1 auto !important;
+            min-width: 120px !important;
+            max-width: calc(100% - 100px) !important;
+            margin-right: 0.3rem !important;
+            box-sizing: border-box !important;
+        }
+
+        #search {
+            width: 100% !important;
+            min-width: 0 !important;
+            max-width: 100% !important;
+            font-size: 0.7rem !important;
+            padding: 0.3rem 0.35rem !important;
+            box-sizing: border-box !important;
+        }
+
+        /* 버튼 모바일 최적화 */
+        .btn {
+            font-size: 0.75rem !important;
+            padding: 0.25rem 0.4rem !important;
+            white-space: nowrap !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            flex: 0 0 auto !important;
+            margin: 0.1rem !important;
+        }
+
+        .btn-sm {
+            font-size: 0.7rem !important;
+            padding: 0.25rem 0.35rem !important;
+        }
+
+        #searchBtn,
+        #writeBtn {
+            font-size: 0.7rem !important;
+            padding: 0.3rem 0.5rem !important;
+            white-space: nowrap !important;
+            flex-shrink: 0 !important;
+            box-sizing: border-box !important;
+            min-width: 50px !important;
+            max-width: 100% !important;
+        }
+
+        /* 테이블 모바일 최적화 - 카드 형식으로 변환 */
+        .table-responsive {
+            overflow-x: hidden !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* DataTables 모바일 최적화 - 카드 형식 */
+        .dataTables_wrapper {
+            font-size: 0.75rem !important;
+            max-width: 100% !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+        }
+
+        /* DataTables 상단 컨트롤 숨기기 (모바일) */
+        .dataTables_wrapper .dataTables_length,
+        .dataTables_wrapper .dataTables_filter {
+            display: none !important;
+        }
+
+        /* 테이블 헤더 숨기기 (모바일) */
+        .dataTables_wrapper thead {
+            display: none !important;
+        }
+
+        /* 모바일에서 DataTables 행을 카드로 표시 */
+        .dataTables_wrapper tbody tr {
+            display: block !important;
+            width: 100% !important;
+            margin-bottom: 0.4rem !important;
+            background: #fff !important;
+            border: 1px solid #dee2e6 !important;
+            border-radius: 0.25rem !important;
+            box-shadow: 0 0.1rem 0.2rem rgba(0, 0, 0, 0.075) !important;
+            padding: 0.4rem !important;
+            box-sizing: border-box !important;
+            cursor: pointer !important;
+        }
+
+        .dataTables_wrapper tbody tr:hover {
+            background: #f8f9fa !important;
+            box-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .dataTables_wrapper tbody tr td {
+            display: flex !important;
+            width: 100% !important;
+            padding: 0.3rem 0.4rem !important;
+            text-align: left !important;
+            border: none !important;
+            border-bottom: 1px solid #f0f0f0 !important;
+            box-sizing: border-box !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            flex-wrap: wrap !important;
+        }
+
+        .dataTables_wrapper tbody tr td:last-child {
+            border-bottom: none !important;
+        }
+
+        .dataTables_wrapper tbody tr td .mobile-label {
+            font-weight: bold !important;
+            display: inline-block !important;
+            min-width: 30% !important;
+            margin-right: 0.5rem !important;
+            color: #495057 !important;
+            font-size: 0.75rem !important;
+            flex-shrink: 0 !important;
+        }
+
+        .dataTables_wrapper tbody tr td .mobile-value {
+            flex: 1 1 auto !important;
+            min-width: 0 !important;
+            font-size: 0.75rem !important;
+            color: #212529 !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+
+        .dataTables_wrapper .dataTables_info,
+        .dataTables_wrapper .dataTables_paginate {
+            font-size: 0.7rem !important;
+            margin-bottom: 0.5rem !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            justify-content: center !important;
+            gap: 0.25rem !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            font-size: 0.7rem !important;
+            padding: 0.3rem 0.5rem !important;
+            margin: 0 0.1rem !important;
+            box-sizing: border-box !important;
+            max-width: 100% !important;
+        }
+
+        /* 모든 요소가 카드 내부에 머물도록 */
+        .card *,
+        .container *,
+        .container-fluid * {
+            box-sizing: border-box !important;
+            max-width: 100% !important;
+        }
+
+        .card button,
+        .card .btn,
+        .card span,
+        .card input,
+        .container button,
+        .container .btn,
+        .container span,
+        .container input,
+        .card-body *,
+        .card-header * {
+            max-width: 100% !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            box-sizing: border-box !important;
+        }
+
+        /* 카드 내부 모든 요소가 넘치지 않도록 */
+        .card {
+            overflow-x: hidden !important;
+            overflow-y: visible !important;
+        }
+
+        .card-body {
+            overflow-x: hidden !important;
+            overflow-y: visible !important;
+        }
+
+        /* 폼 요소 모바일 최적화 */
+        form {
+            max-width: 100% !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+        }
+
+        form * {
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        /* 제목 영역 모바일 최적화 */
+        h4 {
+            font-size: 0.9rem !important;
+            margin: 0 !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+
+        /* 자동완성 리스트 모바일 최적화 */
+        #autocomplete-list {
+            width: 100% !important;
+            max-width: 100% !important;
+            left: 0 !important;
+            right: 0 !important;
+            box-sizing: border-box !important;
+        }
+    }
 </style>
 </head>
 <body>
@@ -102,9 +436,7 @@ $title_message = '개발프로젝트 연구노트';
     <?php
     $tablename = 'eworks';
 
-    if (!$chkMobile) {
-        require_once(includePath('myheader.php'));
-    }
+    require_once(includePath('myheader.php'));    
 
     // 모바일이면 특정 CSS 적용
     if ($chkMobile) {
@@ -327,7 +659,42 @@ $title_message = '개발프로젝트 연구노트';
                     "lengthMenu": "Show _MENU_ entries",
                     "search": "Live Search:"
                 },
-                "order": [[0, 'desc']]
+                "order": [[0, 'desc']],
+                "drawCallback": function(settings) {
+                    // 모바일에서 카드 형식으로 표시하기 위해 라벨과 값 분리
+                    var isMobile = window.innerWidth <= 768;
+                    var api = this.api();
+                    var columns = ['번호', '작성일', '작성자', '제목', '검토', '결재라인', '결재내역'];
+                    
+                    api.rows().every(function() {
+                        var row = this.node();
+                        var cells = $(row).find('td');
+                        cells.each(function(index) {
+                            if (columns[index]) {
+                                var $cell = $(this);
+                                
+                                if (isMobile) {
+                                    // 모바일: 라벨과 값으로 분리
+                                    var cellText = $cell.text().trim();
+                                    
+                                    // 이미 변환된 경우 스킵
+                                    if ($cell.find('.mobile-label').length === 0) {
+                                        // 라벨과 값으로 분리
+                                        $cell.html(
+                                            '<span class="mobile-label">' + columns[index] + '</span>' +
+                                            '<span class="mobile-value">' + cellText + '</span>'
+                                        );
+                                    }
+                                } else {
+                                    // PC: 원래 형식 유지 (라벨 제거)
+                                    if ($cell.find('.mobile-label').length > 0) {
+                                        $cell.html($cell.find('.mobile-value').text());
+                                    }
+                                }
+                            }
+                        });
+                    });
+                }
             });
 
             // 페이지 번호 복원 (초기 로드 시)
@@ -352,6 +719,22 @@ $title_message = '개발프로젝트 연구노트';
                 if (savedPageNumber) {
                     dataTable.page(parseInt(savedPageNumber) - 1).draw(false);
                 }
+            });
+
+            // 초기 로드 시 모바일 카드 형식 적용
+            if (window.innerWidth <= 768) {
+                dataTable.draw(false);
+            }
+
+            // 윈도우 리사이즈 이벤트 처리 (모바일/PC 전환 시)
+            var resizeTimer;
+            $(window).on('resize', function() {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(function() {
+                    if (dataTable) {
+                        dataTable.draw(false);
+                    }
+                }, 250);
             });
         });
 

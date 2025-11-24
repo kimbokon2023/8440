@@ -13,30 +13,370 @@ $title_message = '장비 점검';
    
 <?php include getDocumentRoot() . '/load_header.php' ?>
  
-<title> <?=$title_message?> </title>   
+<title> <?=$title_message?> </title>
+
+<style>
+    /* 모바일 환경 최적화 */
+    @media (max-width: 768px) {
+        /* body와 html 오버플로우 방지 */
+        html, body {
+            overflow-x: hidden !important;
+            max-width: 100vw !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        * {
+            max-width: 100vw !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 컨테이너 최적화 */
+        .container,
+        .container-fluid {
+            padding: 0.5rem !important;
+            max-width: 100vw !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+            margin: 0 auto !important;
+            overflow-x: hidden !important;
+        }
+        
+        /* 카드 최적화 */
+        .card {
+            margin: 0.5rem auto !important;
+            width: calc(100vw - 1rem) !important;
+            max-width: calc(100vw - 1rem) !important;
+            box-sizing: border-box !important;
+            overflow-x: hidden !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .card-body {
+            padding: 0.75rem 0.5rem !important;
+            overflow-x: hidden !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        .card-header {
+            padding: 0.75rem 0.5rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .card-footer {
+            padding: 0.75rem 0.5rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        /* 제목 최적화 */
+        h2, h3 {
+            font-size: 1.125rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            text-align: center !important;
+        }
+        
+        /* d-flex 요소 최적화 */
+        .d-flex {
+            flex-wrap: wrap !important;
+        }
+        
+        .d-flex.justify-content-between,
+        .d-flex.justify-content-center,
+        .d-flex.justify-content-start,
+        .d-flex.align-items-center {
+            flex-direction: column !important;
+            align-items: stretch !important;
+        }
+        
+        /* 버튼 최적화 */
+        .btn {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0.25rem 0 !important;
+            font-size: 0.875rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            box-sizing: border-box !important;
+        }
+        
+        .btn-sm {
+            font-size: 0.875rem !important;
+            padding: 0.5rem !important;
+        }
+        
+        /* 텍스트 요소 최적화 */
+        .lead,
+        .fw-normal,
+        p {
+            font-size: 0.875rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            word-break: break-word !important;
+            white-space: normal !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 텍스트 영역 최적화 */
+        textarea.form-control {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0.25rem 0 !important;
+            font-size: 0.875rem !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 라벨 최적화 */
+        label {
+            font-size: 0.875rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            display: block !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 이미지 최적화 */
+        img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            object-fit: contain !important;
+            margin: 0.25rem 0 !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* jQuery DataTables 컨트롤 숨기기 */
+        .dataTables_length,
+        .dataTables_filter {
+            display: none !important;
+        }
+        
+        /* 텍스트 오버플로우 방지 */
+        * {
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 모든 텍스트 요소 강제 줄바꿈 */
+        p, div, h1, h2, h3, h4, h5, h6, label, strong, em, b, i, u, span {
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            word-break: break-word !important;
+            white-space: normal !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* span 요소 줄바꿈 처리 */
+        span {
+            display: inline-block !important; /* block에서 inline-block으로 변경하여 흐름 유지하되 줄바꿈 가능하게 */
+            overflow: visible !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 모든 div 요소 오버플로우 방지 */
+        div {
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* row와 col 최적화 */
+        .row {
+            margin: 0 !important;
+            padding: 0 !important;
+            max-width: 100vw !important;
+            box-sizing: border-box !important;
+        }
+        
+        .col,
+        [class*="col-"] {
+            padding: 0.5rem !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 모달 최적화 */
+        .modal {
+            padding: 0 !important;
+            overflow: hidden !important;
+        }
+        
+        .modal-dialog {
+            margin: 0 !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            height: 100vh !important;
+            max-height: 100vh !important;
+        }
+        
+        .modal-content {
+            margin: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 100vh !important;
+            max-height: 100vh !important;
+            border-radius: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            box-sizing: border-box !important;
+        }
+        
+        .modal-header {
+            padding: 0.75rem 0.5rem !important;
+            flex-shrink: 0 !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .modal-body {
+            padding: 0.75rem 0.5rem !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            flex: 1 1 auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .modal-footer {
+            padding: 0.75rem 0.5rem !important;
+            flex-shrink: 0 !important;
+        }
+        
+        .modal-footer .btn {
+            width: 100% !important;
+            margin: 0.25rem 0 !important;
+        }
+        
+        /* SweetAlert2 모달 최적화 */
+        .swal2-popup {
+            width: 90% !important;
+            max-width: 90% !important;
+            padding: 1rem !important;
+            font-size: 0.875rem !important;
+        }
+        
+        .swal2-title {
+            font-size: 1.125rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .swal2-content {
+            font-size: 0.875rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .swal2-actions {
+            flex-direction: column !important;
+            gap: 0.5rem !important;
+        }
+        
+        .swal2-confirm,
+        .swal2-cancel {
+            width: 100% !important;
+            margin: 0 !important;
+        }
+        
+        /* '기간' 버튼 숨기기 */
+        #showdate {
+            display: none !important;
+        }
+        
+        /* 체크리스트 항목 최적화 */
+        .card-body.p-4 {
+            padding: 0.75rem 0.5rem !important;
+        }
+        
+        /* 섹션 최적화 */
+        section {
+            padding: 0.5rem 0 !important;
+        }
+        
+        /* 컨테이너 플루이드 최적화 */
+        .container-fluid.py-5 {
+            padding: 0.5rem 0 !important;
+        }
+
+        /* 테이블 카드화 (jQuery DataTables, Tabulator, Tui Grid 등) */
+        table, 
+        .tabulator, 
+        .tui-grid-container {
+            width: 100% !important;
+        }
+
+        /* jQuery DataTables 모바일 카드 뷰 변환 */
+        table.dataTable,
+        table.dataTable tbody,
+        table.dataTable tr,
+        table.dataTable td {
+            display: block !important;
+            width: 100% !important;
+        }
+
+        table.dataTable thead {
+            display: none !important; /* 헤더 숨김 */
+        }
+
+        table.dataTable tr {
+            margin-bottom: 1rem !important;
+            border: 1px solid #ddd !important;
+            border-radius: 5px !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+            background: #fff !important;
+            padding: 0.5rem !important;
+        }
+
+        table.dataTable td {
+            text-align: right !important;
+            padding-left: 50% !important;
+            position: relative !important;
+            border-bottom: 1px solid #eee !important;
+        }
+
+        table.dataTable td:last-child {
+            border-bottom: none !important;
+        }
+
+        table.dataTable td::before {
+            content: attr(data-label); /* data-label 속성이 있다면 사용 */
+            position: absolute !important;
+            left: 10px !important;
+            width: 45% !important;
+            padding-right: 10px !important;
+            white-space: nowrap !important;
+            text-align: left !important;
+            font-weight: bold !important;
+        }
+    }
+    
+    /* PC 환경 최적화 */
+    @media (min-width: 769px) {
+        .d-flex.justify-content-start .btn,
+        .d-flex.justify-content-end .btn,
+        .d-flex.align-items-center .btn {
+            margin-left: 0.25rem !important;
+            margin-right: 0.25rem !important;
+        }
+    }
+</style>
 
 <?php
-
- // 모바일이면 특정 CSS 적용
-if ($chkMobile) {
-    echo '<style>
-        body, table th, table td, .form-control, span {
-            font-size: 25px;
-        }
-         h4 {
-            font-size: 40px; 
-        }
-		
-		.btn-sm {
-        font-size: 26px;
-		}
-		
-		.spantitle {
-			font-size: 40px;
-		}
-		
-    </style>';
-}
 
 
 
@@ -409,9 +749,9 @@ if ($index !== false) {
 		<div class="row gx-1 gx-lg-1 align-items-center">                      
 				<div class="fs-4 mb-1" id="leftchar">
 					  <label class="form-check-label text-primary" for="leftchar">
-							 &nbsp;&nbsp; ' <?=$itemstr?> ' &nbsp;
+							 &nbsp;&nbsp; ' <?= htmlspecialchars($itemstr) ?> ' &nbsp;
 					  </label>		
-							 담당 (정) <?=$writer?> , (부) <?=$writer2?> &nbsp;&nbsp; 	&nbsp;&nbsp; 	
+							 담당 (정) <?= htmlspecialchars($writer) ?> , (부) <?= htmlspecialchars($writer2) ?> &nbsp;&nbsp; 	&nbsp;&nbsp; 	
 					  <button type="button" id="closeBtn" class="btn btn-dark btn-sm"> <ion-icon name="close-outline"> </ion-icon> 창닫기 </button>
 						<?php 
 							if($user_name=='김보곤' || $user_name=='이경묵')
@@ -488,9 +828,14 @@ if ($index !== false) {
 							];
 
 					foreach ($img_rows as $row) {
-						print '<div class="d-flex justify-content-between align-items-center mb-4">';
+						print '<div class="d-flex justify-content-between align-items-center mb-4" style="flex-wrap: wrap;">';
 						foreach ($row as $img) {
-							printf("<img style='width:25%%;height:auto' src='%s%s'>", $img_base, $img);
+							// HTTPS 페이지에서는 HTTP를 HTTPS로 변환
+							$img_url = $img_base . $img;
+							if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+								$img_url = str_replace('http://', 'https://', $img_url);
+							}
+							printf("<img style='width:100%%;max-width:100%%;height:auto;margin:0.25rem 0;' src='%s' alt='%s'>", htmlspecialchars($img_url), htmlspecialchars($img));
 						}
 						print '</div>';
 					}

@@ -33,6 +33,282 @@ include includePath('load_header.php');
 .today {
     background-color: #ffe5e5 !important;
 }
+
+/* PC 및 공통 - 달력 셀 텍스트 겹침 방지 */
+#jamb_table .calendar-day {
+    padding: 0.5rem 0.4rem !important;
+    vertical-align: top !important;
+    min-height: 100px !important;
+    height: auto !important;
+    overflow: visible !important;
+}
+
+#jamb_table .calendar-day .date {
+    font-size: 0.9rem !important;
+    margin-bottom: 0.4rem !important;
+    display: block !important;
+    font-weight: 600 !important;
+    line-height: 1.5 !important;
+}
+
+#jamb_table .calendar-day .event {
+    font-size: 0.75rem !important;
+    padding: 0.35rem 0.5rem !important;
+    margin: 0.3rem 0 !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    line-height: 1.6 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    display: block !important;
+    width: 100% !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: ellipsis !important;
+    border-left: 3px solid transparent !important;
+    background-color: rgba(0, 0, 0, 0.02) !important;
+    border-radius: 3px !important;
+}
+
+/* 이벤트 항목 간격 확보 */
+#jamb_table .calendar-day .event + .event {
+    margin-top: 0.4rem !important;
+}
+
+/* clear 클래스가 있는 빈 이벤트도 간격 확보 */
+#jamb_table .calendar-day .clear.event {
+    height: 0.4rem !important;
+    margin: 0.2rem 0 !important;
+    display: block !important;
+}
+
+/* text-primary 클래스가 있는 이벤트 스타일 */
+#jamb_table .calendar-day .event.text-primary {
+    border-left-color: #0d6efd !important;
+    background-color: rgba(13, 110, 253, 0.05) !important;
+}
+
+/* text-danger 클래스가 있는 이벤트 스타일 */
+#jamb_table .calendar-day .event.text-danger {
+    border-left-color: #dc3545 !important;
+    background-color: rgba(220, 53, 69, 0.05) !important;
+}
+
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+	/* body와 html의 width 제한 */
+	html, body {
+		max-width: 100vw !important;
+		overflow-x: hidden !important;
+		font-size: 16px !important;
+	}
+
+	/* 카드 모바일 최적화 */
+	.card {
+		margin: 0.5rem 0 !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		overflow-x: hidden !important;
+		box-sizing: border-box !important;
+	}
+
+	.card-body {
+		padding: 0.75rem 0.5rem !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+	}
+
+	/* 제목 영역 모바일 최적화 */
+	.card .d-flex.p-2.mt-3.mb-1 {
+		flex-wrap: wrap !important;
+		gap: 0.5rem !important;
+		justify-content: center !important;
+		align-items: center !important;
+		padding: 0.75rem 0.5rem !important;
+		margin: 0.5rem 0 !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+	}
+
+	.card .d-flex.p-2.mt-3.mb-1 h4 {
+		font-size: 1rem !important;
+		margin: 0 !important;
+		flex: 1 1 auto !important;
+		min-width: 0 !important;
+		text-align: center !important;
+	}
+
+	.card .d-flex.p-2.mt-3.mb-1 .btn {
+		font-size: 0.75rem !important;
+		padding: 0.4rem 0.6rem !important;
+		flex-shrink: 0 !important;
+		margin: 0 !important;
+	}
+
+	/* holder 영역 모바일 최적화 */
+	#holder {
+		padding: 0.5rem !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+		width: 100% !important;
+	}
+
+	#holder .card {
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+		width: 100% !important;
+	}
+
+	#holder .card-body {
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+		width: 100% !important;
+		padding: 0.5rem !important;
+	}
+
+	/* 달력 네비게이션 영역 모바일 최적화 - 기간 설정 */
+	#jamb_table {
+		width: 100% !important;
+		max-width: 100% !important;
+		table-layout: auto !important;
+		font-size: 0.8rem !important;
+	}
+
+	#jamb_table thead td {
+		padding: 0.5rem 0.25rem !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+	}
+
+	#jamb_table thead td table {
+		width: 100% !important;
+		max-width: 100% !important;
+		white-space: normal !important;
+	}
+
+	#jamb_table thead td table td {
+		padding: 0.5rem 0.25rem !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+	}
+
+	/* 달력 네비게이션 버튼 영역 모바일 최적화 */
+	#jamb_table .d-flex.justify-content-center {
+		flex-wrap: wrap !important;
+		gap: 0.3rem !important;
+		justify-content: center !important;
+		align-items: center !important;
+		padding: 0.5rem 0.25rem !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+		width: 100% !important;
+	}
+
+	#jamb_table .btn-group {
+		display: flex !important;
+		flex-shrink: 0 !important;
+		gap: 0.2rem !important;
+		margin: 0 !important;
+	}
+
+	#jamb_table .js-cal-prev,
+	#jamb_table .js-cal-next {
+		font-size: 0.75rem !important;
+		padding: 0.3rem 0.4rem !important;
+		min-width: 32px !important;
+		max-width: 40px !important;
+		height: 30px !important;
+		flex-shrink: 0 !important;
+		margin: 0 !important;
+		box-sizing: border-box !important;
+	}
+
+	#jamb_table .js-cal-option {
+		font-size: 0.7rem !important;
+		padding: 0.3rem 0.5rem !important;
+		white-space: nowrap !important;
+		flex-shrink: 0 !important;
+		margin: 0 0.2rem !important;
+		max-width: 80px !important;
+		box-sizing: border-box !important;
+	}
+
+	#jamb_table .badge {
+		font-size: 0.65rem !important;
+		padding: 0.25rem 0.4rem !important;
+		white-space: normal !important;
+		flex: 1 1 auto !important;
+		min-width: 0 !important;
+		margin: 0.2rem 0.1rem !important;
+		max-width: calc(50% - 10px) !important;
+		word-wrap: break-word !important;
+		text-align: center !important;
+		line-height: 1.3 !important;
+	}
+
+	/* 달력 테이블 헤더 모바일 최적화 */
+	#jamb_table thead.table-primary th {
+		font-size: 0.75rem !important;
+		padding: 0.5rem 0.3rem !important;
+		white-space: nowrap !important;
+	}
+
+	/* 달력 날짜 셀 모바일 최적화 */
+	#jamb_table .calendar-day {
+		font-size: 0.7rem !important;
+		padding: 0.3rem 0.2rem !important;
+		vertical-align: top !important;
+		min-height: 60px !important;
+	}
+
+	#jamb_table .calendar-day .date {
+		font-size: 0.75rem !important;
+		margin-bottom: 0.2rem !important;
+	}
+
+	#jamb_table .calendar-day .event {
+		font-size: 0.65rem !important;
+		padding: 0.2rem 0.3rem !important;
+		margin: 0.1rem 0 !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		line-height: 1.2 !important;
+	}
+
+	/* 모든 버튼이 카드 내부에 머물도록 */
+	.card * {
+		box-sizing: border-box !important;
+	}
+
+	.card button,
+	.card .btn {
+		max-width: 100% !important;
+		word-wrap: break-word !important;
+	}
+
+	/* 테이블 반응형 처리 */
+	#jamb_table {
+		display: block !important;
+		overflow-x: auto !important;
+		-webkit-overflow-scrolling: touch !important;
+		width: 100% !important;
+	}
+
+	#jamb_table thead,
+	#jamb_table tbody {
+		display: table !important;
+		width: 100% !important;
+		min-width: 600px !important;
+	}
+}
 </style>
 
 <body>

@@ -74,6 +74,272 @@ include getDocumentRoot() . '/load_header.php';
 <script src="<?php echo getBaseUrl(); ?>/jamb/jamb.js"></script>
 
 <title><?php echo htmlspecialchars($title_message, ENT_QUOTES, 'UTF-8'); ?></title>
+
+<style>
+    /* 모바일 환경 최적화 */
+    @media (max-width: 768px) {
+        /* body와 html 오버플로우 방지 */
+        html, body {
+            overflow-x: hidden !important;
+            max-width: 100vw !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        * {
+            max-width: 100vw !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 컨테이너 최적화 */
+        .container,
+        .container-fluid {
+            padding: 0.5rem !important;
+            max-width: 100vw !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+            margin: 0 auto !important;
+            overflow-x: hidden !important;
+        }
+        
+        /* 선택 영역 최적화 */
+        .d-flex.mt-3.mb-3.justify-content-center {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 0.5rem !important;
+            padding: 0.5rem !important;
+        }
+        
+        .d-flex.mt-3.mb-3.justify-content-center select,
+        .d-flex.mt-3.mb-3.justify-content-center input[type="checkbox"] {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0.25rem 0 !important;
+            padding: 0.5rem !important;
+            font-size: 1rem !important;
+        }
+        
+        .d-flex.mt-3.mb-3.justify-content-center span {
+            width: 100% !important;
+            max-width: 100% !important;
+            text-align: center !important;
+            margin: 0.25rem 0 !important;
+        }
+        
+        /* Jexcel 스프레드시트 최적화 */
+        #spreadsheet,
+        #spreadsheet2 {
+            width: 100% !important;
+            max-width: 100% !important;
+            overflow-x: auto !important;
+        }
+        
+        /* Canvas 영역 최적화 */
+        #canvas_outline,
+        #canvas_sideoutline {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            overflow-x: auto !important;
+            overflow-y: auto !important;
+            border: 2px solid black !important;
+        }
+        
+        #canvas,
+        #canvas_side {
+            max-width: 100% !important;
+            height: auto !important;
+        }
+        
+        #title,
+        #title2 {
+            width: 100% !important;
+            max-width: 100% !important;
+            float: none !important;
+            margin: 0.5rem 0 !important;
+            text-align: center !important;
+            font-size: 1.25rem !important;
+        }
+        
+        /* 제어 영역 최적화 */
+        #display_control {
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 0.5rem !important;
+        }
+        
+        #goods_list table {
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+        
+        #goods_list table td {
+            padding: 0.5rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        #goods_list input,
+        #goods_list select,
+        #goods_list button {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0.25rem 0 !important;
+            padding: 0.5rem !important;
+            font-size: 0.875rem !important;
+        }
+        
+        #goods_list img {
+            width: 30px !important;
+            height: 30px !important;
+            margin: 0.25rem !important;
+        }
+        
+        /* 제목 영역 최적화 */
+        h1 {
+            font-size: 1.25rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            padding: 0.5rem !important;
+        }
+        
+        h1 table {
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+        
+        h1 table td {
+            padding: 0.5rem !important;
+        }
+        
+        h1 input,
+        h1 img {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0.25rem 0 !important;
+        }
+        
+        h4 {
+            font-size: 1.1rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            padding: 0.5rem !important;
+        }
+        
+        /* 버튼 최적화 */
+        #maketable,
+        #drawline,
+        #alertangle {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0.25rem 0 !important;
+            padding: 0.5rem !important;
+            font-size: 1rem !important;
+        }
+        
+        /* 텍스트 오버플로우 방지 */
+        * {
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 모든 텍스트 요소 강제 줄바꿈 */
+        p, div, h1, h2, h3, h4, h5, h6, label, strong, em, b, i, u, span, td, th {
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            word-break: break-word !important;
+            white-space: normal !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* span 요소 줄바꿈 처리 */
+        span {
+            display: inline-block !important;
+            overflow: visible !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 모든 div 요소 오버플로우 방지 */
+        div {
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* '기간' 버튼 숨기기 */
+        #showdate {
+            display: none !important;
+        }
+        
+        /* 모달 최적화 */
+        .modal {
+            padding: 0 !important;
+            overflow: hidden !important;
+        }
+        
+        .modal-dialog {
+            margin: 0 !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            height: 100vh !important;
+            max-height: 100vh !important;
+        }
+        
+        .modal-content {
+            margin: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 100vh !important;
+            max-height: 100vh !important;
+            border-radius: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            box-sizing: border-box !important;
+        }
+        
+        .modal-header {
+            padding: 0.75rem 0.5rem !important;
+            flex-shrink: 0 !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .modal-title {
+            font-size: 1rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .modal-body {
+            flex: 1 !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            padding: 0.75rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            -webkit-overflow-scrolling: touch !important;
+        }
+        
+        .modal-footer {
+            padding: 0.75rem 0.5rem !important;
+            flex-shrink: 0 !important;
+            flex-direction: column !important;
+            gap: 0.5rem !important;
+        }
+        
+        .modal-footer button {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0.5rem !important;
+            font-size: 1rem !important;
+        }
+    }
+</style>
+
 </head>
 
 <body>

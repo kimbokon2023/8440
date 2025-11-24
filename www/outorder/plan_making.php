@@ -1,10 +1,10 @@
-
- <?php
-	  
-require_once("../lib/mydb.php");
-$pdo = db_connect();	
+<?php
+require_once __DIR__ . '/../bootstrap.php';
    
  // 기간을 정하는 구간
+
+ 
+include getDocumentRoot() . '/load_header.php';
  
 $todate=date("Y-m-d");   // 현재일자 변수지정   
 
@@ -15,29 +15,243 @@ $sql = "select * from mirae8440.outorder " . $common;
 $nowday=date("Y-m-d");   // 현재일자 변수지정   
 $counter=1;
 
- function trans_date($tdate) {
-		      if($tdate!="0000-00-00" and $tdate!="1900-01-01" and $tdate!="")  $tdate = date("Y-m-d", strtotime( $tdate) );
-					else $tdate="";							
-				return $tdate;	
+
+?>
+
+ <title> 덴크리 외주발주 출고리스트 (더블클릭하면 세부내역조회) </title>   
+ 
+ <style>
+/* 모바일 최적화 스타일 */
+@media (max-width: 768px) {
+    /* 컨테이너 및 카드 최적화 */
+    #wrap {
+        padding: 0.75rem 0.5rem !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 제목 최적화 */
+    h1 {
+        font-size: 1rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        text-align: center !important;
+        margin-bottom: 0.75rem !important;
+        padding: 0 0.5rem !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* TUI Grid 숨기기 */
+    #grid {
+        display: none !important;
+    }
+    
+    /* 모바일 카드 컨테이너 */
+    #mobile-grid-cards {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 0 0.25rem !important;
+    }
+    
+    .mobile-grid-card {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin: 0.5rem auto 0.75rem auto !important;
+        padding: 0.75rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        width: calc(100% - 0.5rem) !important;
+        max-width: calc(100% - 0.5rem) !important;
+        overflow-x: hidden;
+        overflow-y: visible !important;
+        box-sizing: border-box;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .mobile-grid-card-item {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 0.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #f0f0f0;
+        width: 100%;
+        max-width: 100% !important;
+        box-sizing: border-box;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .mobile-grid-card-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    
+    .mobile-grid-card-label {
+        font-weight: bold;
+        font-size: 0.75rem;
+        color: #666;
+        margin-bottom: 0.25rem;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    .mobile-grid-card-value {
+        font-size: 0.9rem;
+        color: #333;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        padding-left: 0 !important;
+        overflow: visible !important;
+    }
+    
+    /* 텍스트 오버플로우 방지 */
+    * {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 모든 텍스트 요소 강제 줄바꿈 */
+    p, div, h1, h2, h3, h4, h5, h6, label, strong, em, b, i, u, span {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* span 요소 줄바꿈 처리 */
+    span {
+        display: inline !important;
+        overflow: visible !important;
+    }
 }
 
-   ?>
+/* PC 환경에서 모바일 카드 숨기기 */
+@media (min-width: 769px) {
+    #mobile-grid-cards {
+        display: none !important;
+    }
+    #grid {
+        display: block !important;
+    }
+}
 
- <!DOCTYPE HTML>
- <html>
- <head>
- <meta charset="UTF-8">
- <link rel="stylesheet" type="text/css" href="../css/common.css">
- <link rel="stylesheet" type="text/css" href="../css/steel.css">
- <link rel="stylesheet" type="text/css" href="../css/jexcel.css"> 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-<link rel="stylesheet" href="https://uicdn.toast.com/tui.pagination/latest/tui-pagination.css" />
-<script src="https://uicdn.toast.com/tui.pagination/latest/tui-pagination.js"></script>
-<link rel="stylesheet" href="https://uicdn.toast.com/tui-grid/latest/tui-grid.css"/>
-<script src="https://uicdn.toast.com/tui-grid/latest/tui-grid.js"></script>	
-
- <title> 덴크리 외.주.발.주 출고 리스트 (더블클릭하면 세부내역조회) </title> 
- </head>
+/* 모달 최적화 */
+@media (max-width: 768px) {
+    .modal-dialog {
+        margin: 0.5rem !important;
+        max-width: calc(100% - 1rem) !important;
+    }
+    
+    .modal-dialog.modal-lg {
+        margin: 0 !important;
+        max-width: 100% !important;
+    }
+    
+    .modal-content {
+        border-radius: 0.5rem !important;
+    }
+    
+    .modal-header {
+        padding: 0.75rem 0.5rem !important;
+        min-height: 50px !important;
+        flex-wrap: wrap !important;
+        gap: 0.25rem !important;
+    }
+    
+    .modal-title {
+        font-size: 1rem !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        word-wrap: break-word !important;
+    }
+    
+    .modal-header .btn-close {
+        margin: 0 !important;
+        padding: 0.5rem !important;
+    }
+    
+    .modal-body {
+        padding: 0.75rem 0.5rem !important;
+        font-size: 0.9rem !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .modal-footer {
+        padding: 0.75rem 0.5rem !important;
+        flex-wrap: wrap !important;
+        gap: 0.25rem !important;
+    }
+    
+    .modal-footer .btn {
+        padding: 0.5rem 0.75rem !important;
+        font-size: 0.875rem !important;
+        min-height: 40px !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        margin-bottom: 0.25rem !important;
+    }
+    
+    /* SweetAlert2 모달 최적화 */
+    .swal2-popup {
+        width: 90% !important;
+        max-width: 90% !important;
+        padding: 1rem !important;
+        font-size: 0.9rem !important;
+    }
+    
+    .swal2-title {
+        font-size: 1.1rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .swal2-content {
+        font-size: 0.875rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .swal2-actions {
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+    }
+    
+    .swal2-confirm,
+    .swal2-cancel {
+        font-size: 0.875rem !important;
+        padding: 0.5rem 1rem !important;
+        min-height: 40px !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+    }
+}
+</style>
+</head>
 
 
  <?php 
@@ -343,11 +557,13 @@ if($todate=="")
 
  <div id="wrap">
  
- <h1> &nbsp; 덴크리 외주발주 납품예정 리스트 (더블클릭하면 세부내역조회)</h1>
+ <h3> &nbsp; 덴크리 외주발주 납품예정 리스트 </h3>
   <br>
 	 <div id="grid" >
   
   </div>
+  <!-- 모바일 카드 컨테이너 -->
+  <div id="mobile-grid-cards" style="display: none;"></div>
      <div class="clear"></div> 		 
 
 	 </div>
@@ -615,6 +831,94 @@ grid.on('dblclick', (e) => {
    console.log(e.rowKey);
 });		
  	
+	// 모바일 카드 렌더링 함수
+	function renderMobileCards() {
+		var isMobile = window.innerWidth <= 768;
+		var gridEl = document.getElementById('grid');
+		var cardsContainer = document.getElementById('mobile-grid-cards');
+		
+		if (!cardsContainer) return;
+		
+		if (isMobile) {
+			// 모바일: 그리드 숨기고 카드 표시
+			if (gridEl) gridEl.style.display = 'none';
+			cardsContainer.style.display = 'block';
+			
+			// 기존 카드 제거
+			cardsContainer.innerHTML = '';
+			
+			// 컬럼 정보
+			var columnConfig = {
+				'col1': { label: '납품예정일', width: 120 },
+				'col2': { label: '현장명', width: 450 },
+				'col3': { label: '발주처', width: 120 },
+				'col4': { label: '타입', width: 300 },
+				'col5': { label: 'Car Inside', width: 300 },
+				'col6': { label: '납품내역', width: 300 }
+			};
+			
+			// 각 행을 카드로 변환
+			data.forEach(function(row, index) {
+				// 빈 행이나 소계 행은 건너뛰기
+				if (numcopy[index] === 0 && row.col1 === '' && row.col2 === '' && row.col3 === '' && row.col4 === '' && row.col5 === '') {
+					return;
+				}
+				
+				var card = document.createElement('div');
+				card.className = 'mobile-grid-card';
+				card.setAttribute('data-row-index', index);
+				
+				var cardContent = '';
+				
+				// 각 컬럼을 카드 아이템으로 추가
+				Object.keys(columnConfig).forEach(function(colName) {
+					var config = columnConfig[colName];
+					var value = row[colName] || '';
+					
+					if (value !== '' && value !== null && value !== undefined) {
+						cardContent += '<div class="mobile-grid-card-item">';
+						cardContent += '<span class="mobile-grid-card-label">' + config.label + '</span>';
+						cardContent += '<span class="mobile-grid-card-value">' + (value || '') + '</span>';
+						cardContent += '</div>';
+					}
+				});
+				
+				if (cardContent) {
+					card.innerHTML = cardContent;
+					cardsContainer.appendChild(card);
+				}
+			});
+			
+			// 카드 클릭 이벤트 (더블클릭 대신)
+			cardsContainer.addEventListener('click', function(e) {
+				var targetCard = e.target.closest('.mobile-grid-card');
+				if (targetCard) {
+					var rowIndex = parseInt(targetCard.getAttribute('data-row-index'));
+					if (numcopy[rowIndex] > 0) {
+						var link = 'http://8440.co.kr/outorder/view.php?num=' + numcopy[rowIndex];
+						window.open(link, "_blank");
+					}
+				}
+			});
+		} else {
+			// PC: 카드 숨기고 그리드 표시
+			if (gridEl) gridEl.style.display = 'block';
+			cardsContainer.style.display = 'none';
+		}
+	}
+	
+	// 초기 렌더링 및 리사이즈 이벤트
+	renderMobileCards();
+	$(window).on('resize', function() {
+		setTimeout(renderMobileCards, 100);
+	});
+	
+	// 그리드 데이터 변경 시 카드 업데이트
+	grid.on('afterChange', function() {
+		if (window.innerWidth <= 768) {
+			renderMobileCards();
+		}
+	});
 	
 });	
 	

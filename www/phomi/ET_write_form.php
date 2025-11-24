@@ -21,6 +21,996 @@ $subTitle = '포미스톤 제품';
 <!-- Select2 JS -->
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>  
 <link rel="stylesheet" href="css/style.css">
+
+<style>
+/* PC 화면 기본 스타일 - 작성자 영역 한 줄 표시 */
+.title-author-wrapper {
+	display: flex !important;
+	flex-direction: row !important;
+	align-items: center !important;
+	flex-wrap: nowrap !important;
+	gap: 0.5rem !important;
+}
+
+.title-author-wrapper .title-text {
+	display: inline !important;
+	width: auto !important;
+	font-size: 1.5rem !important;
+	font-weight: bold !important;
+	margin: 0 !important;
+}
+
+.title-author-wrapper .author-info {
+	display: flex !important;
+	flex-direction: row !important;
+	align-items: center !important;
+	flex-wrap: nowrap !important;
+	gap: 0.25rem !important;
+	margin-left: 1rem !important;
+}
+
+.title-author-wrapper h4 {
+	display: flex !important;
+	flex-direction: row !important;
+	align-items: center !important;
+	flex-wrap: nowrap !important;
+	gap: 0.5rem !important;
+}
+
+.title-author-wrapper h4 .title-text {
+	display: inline !important;
+	width: auto !important;
+}
+
+.title-author-wrapper h4 .author-info {
+	display: flex !important;
+	flex-direction: row !important;
+	align-items: center !important;
+	flex-wrap: nowrap !important;
+	margin-left: 1rem !important;
+}
+
+	/* 모바일 환경 최적화 */
+@media (max-width: 768px) {
+	/* 공급자 정보 숨기기 */
+	.supplier-info {
+		display: none !important;
+	}
+	
+	/* body와 html 오버플로우 방지 */
+	html, body {
+		overflow-x: hidden !important;
+		max-width: 100% !important;
+		width: 100% !important;
+		box-sizing: border-box !important;
+		margin: 0 !important;
+		padding: 0 !important;
+	}
+	
+	* {
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+	}
+	
+	/* 컨테이너 최적화 */
+	.container,
+	.container-fluid {
+		padding: 0.5rem !important;
+		max-width: 100% !important;
+		width: 100% !important;
+		box-sizing: border-box !important;
+		margin: 0 auto !important;
+		overflow-x: hidden !important;
+	}
+	
+	/* 카드 영역 최적화 */
+	.card {
+		margin: 0.5rem auto !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+	}
+	
+	.card-body {
+		padding: 0.75rem !important;
+		overflow-x: hidden !important;
+	}
+	
+	/* 제목 영역 최적화 */
+	.d-flex.justify-content-between.align-items-center {
+		flex-direction: column !important;
+		align-items: stretch !important;
+		gap: 0.5rem !important;
+		padding: 0.5rem !important;
+	}
+	
+	.d-flex.justify-content-between.align-items-center > div {
+		width: 100% !important;
+		max-width: 100% !important;
+	}
+	
+	.d-flex.justify-content-between.align-items-center h4 {
+		width: 100% !important;
+		text-align: center !important;
+		font-size: 1.25rem !important;
+		margin-bottom: 0.5rem !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+	}
+	
+	.d-flex.justify-content-between.align-items-center button {
+		width: 100% !important;
+		max-width: 100% !important;
+		margin: 0.25rem 0 !important;
+		padding: 0.5rem !important;
+		font-size: 1rem !important;
+	}
+	
+	/* 입력 필드 최적화 */
+	.form-control,
+	.form-select,
+	input[type="text"],
+	input[type="date"],
+	input[type="number"],
+	textarea,
+	select {
+		width: 100% !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+	}
+	
+	/* 카드 내부 select 요소 최적화 */
+	.mobile-card select,
+	.mobile-card .form-select,
+	.mobile-card .product-select {
+		width: 100% !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow: hidden !important;
+		text-overflow: ellipsis !important;
+		white-space: nowrap !important;
+	}
+	
+	/* Select2 컨테이너 최적화 */
+	.mobile-card .select2-container {
+		width: 100% !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+	}
+	
+	.mobile-card .select2-selection {
+		width: 100% !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow: hidden !important;
+	}
+	
+	.mobile-card .select2-selection__rendered {
+		width: 100% !important;
+		max-width: 100% !important;
+		overflow: hidden !important;
+		text-overflow: ellipsis !important;
+		white-space: nowrap !important;
+	}
+	
+	.mobile-card .select2-dropdown {
+		width: 100% !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		padding: 0.5rem !important;
+		font-size: 1rem !important;
+		margin: 0.25rem 0 !important;
+		box-sizing: border-box !important;
+	}
+	
+	/* 버튼 그룹 최적화 */
+	.btn-group {
+		display: flex !important;
+		flex-direction: column !important;
+		width: 100% !important;
+	}
+	
+	.btn-group button {
+		width: 100% !important;
+		margin: 0.25rem 0 !important;
+	}
+	
+	/* 테이블을 카드 형식으로 변환 */
+	.table-responsive {
+		overflow-x: visible !important;
+	}
+	
+	.table {
+		display: none !important;
+	}
+	
+	.table thead {
+		display: none !important;
+	}
+	
+	.table tbody {
+		display: block !important;
+		width: 100% !important;
+		max-width: 100% !important;
+	}
+	
+	.table tbody tr {
+		display: block !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		margin-bottom: 0.75rem !important;
+		border: 1px solid #ddd !important;
+		border-radius: 0.5rem !important;
+		padding: 0.75rem !important;
+		background: #f8f9fa !important;
+		box-sizing: border-box !important;
+	}
+	
+	.table tbody td {
+		display: block !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		padding: 0.5rem 0 !important;
+		text-align: left !important;
+		border: none !important;
+		font-size: 0.9rem !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		box-sizing: border-box !important;
+	}
+	
+	.table tbody td:before {
+		content: attr(data-label) ": ";
+		font-weight: bold !important;
+		color: #007bff !important;
+		margin-right: 0.5rem !important;
+		display: inline-block !important;
+	}
+	
+	/* tfoot 최적화 */
+	.table tfoot {
+		display: block !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		margin-top: 1rem !important;
+	}
+	
+	.table tfoot tr {
+		display: block !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		border: 2px solid #0dcaf0 !important;
+		border-radius: 0.5rem !important;
+		padding: 0.75rem !important;
+		background: #d1ecf1 !important;
+		box-sizing: border-box !important;
+	}
+	
+	.table tfoot td {
+		display: block !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		padding: 0.5rem 0 !important;
+		text-align: left !important;
+		border: none !important;
+		font-size: 0.9rem !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		box-sizing: border-box !important;
+	}
+	
+	/* 텍스트 오버플로우 방지 */
+	* {
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		box-sizing: border-box !important;
+	}
+	
+	/* 모든 텍스트 요소 강제 줄바꿈 */
+	p, div, h1, h2, h3, h4, h5, h6, label, strong, em, b, i, u, span, td, th {
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		word-break: break-word !important;
+		white-space: normal !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+	}
+	
+	/* span 요소 줄바꿈 처리 */
+	span {
+		display: inline-block !important;
+		overflow: visible !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+	}
+	
+	/* 모든 div 요소 오버플로우 방지 */
+	div {
+		max-width: 100% !important;
+		overflow-x: hidden !important;
+		box-sizing: border-box !important;
+	}
+	
+	/* '기간' 버튼 숨기기 */
+	#showdate {
+		display: none !important;
+	}
+	
+	/* 모달 최적화 */
+	.modal {
+		padding: 0 !important;
+		overflow: hidden !important;
+	}
+	
+	.modal-dialog {
+		margin: 0 !important;
+		max-width: 100% !important;
+		width: 100% !important;
+		height: 100vh !important;
+		max-height: 100vh !important;
+	}
+	
+	.modal-content {
+		margin: 0 !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		height: 100vh !important;
+		max-height: 100vh !important;
+		border-radius: 0 !important;
+		display: flex !important;
+		flex-direction: column !important;
+		box-sizing: border-box !important;
+	}
+	
+	.modal-header {
+		padding: 0.75rem 0.5rem !important;
+		flex-shrink: 0 !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+	}
+	
+	.modal-title {
+		font-size: 1rem !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+	}
+	
+	.modal-body {
+		flex: 1 !important;
+		overflow-y: auto !important;
+		overflow-x: hidden !important;
+		padding: 0.75rem !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		-webkit-overflow-scrolling: touch !important;
+	}
+	
+	.modal-footer {
+		padding: 0.75rem 0.5rem !important;
+		flex-shrink: 0 !important;
+		flex-direction: column !important;
+		gap: 0.5rem !important;
+	}
+	
+	.modal-footer button {
+		width: 100% !important;
+		max-width: 100% !important;
+		margin: 0 !important;
+		padding: 0.5rem !important;
+		font-size: 1rem !important;
+	}
+	
+	/* Select2 최적화 */
+	.select2-container {
+		width: 100% !important;
+		max-width: 100% !important;
+	}
+	
+	.select2-selection {
+		width: 100% !important;
+		max-width: 100% !important;
+	}
+	
+	/* d-flex 최적화 */
+	.d-flex {
+		flex-wrap: wrap !important;
+	}
+	
+	.d-flex.align-items-center {
+		align-items: flex-start !important;
+	}
+	
+	/* 작은 화면에서 세로 배치 (카드 내부 제외) */
+	.d-flex.justify-content-center:not(.item-row .d-flex):not(.cost-row .d-flex):not(.row-number-wrapper),
+	.d-flex.justify-content-between:not(.item-row .d-flex):not(.cost-row .d-flex):not(.row-number-wrapper),
+	.d-flex.justify-content-start:not(.item-row .d-flex):not(.cost-row .d-flex):not(.row-number-wrapper),
+	.d-flex.justify-content-end:not(.item-row .d-flex):not(.cost-row .d-flex):not(.row-number-wrapper) {
+		flex-direction: column !important;
+		align-items: stretch !important;
+		gap: 0.5rem !important;
+	}
+	
+	/* 카드 내부의 번호 영역은 무조건 가로 배치 */
+	.item-row .d-flex.justify-content-center,
+	.cost-row .d-flex.justify-content-center,
+	.item-row .row-number-wrapper,
+	.cost-row .row-number-wrapper {
+		flex-direction: row !important;
+		flex-wrap: nowrap !important;
+	}
+	
+	/* 작성자/작성자ID 영역 최적화 */
+	.d-flex.justify-content-between.align-items-center.mb-3 {
+		flex-direction: column !important;
+		align-items: stretch !important;
+		gap: 0.5rem !important;
+	}
+	
+	/* 작성자 영역 (제목 + 작성자 정보) - 모바일에서 제목 아래로 작성자 정보 이동 */
+	.title-author-wrapper {
+		width: 100% !important;
+		flex-wrap: wrap !important;
+		flex-direction: column !important;
+		align-items: flex-start !important;
+		gap: 0.5rem !important;
+		margin-bottom: 0.5rem !important;
+	}
+	
+	/* 제목 텍스트는 전체 너비로 표시 (첫 번째 줄) - 모바일에서만 */
+	.title-author-wrapper .title-text {
+		width: 100% !important;
+		font-size: 1.25rem !important;
+		font-weight: bold !important;
+		display: block !important;
+		line-height: 1.5 !important;
+		margin-bottom: 0 !important;
+	}
+	
+	/* 작성자 정보 영역 (제목 아래 새 줄) */
+	.author-info {
+		width: 100% !important;
+		display: flex !important;
+		flex-direction: row !important;
+		flex-wrap: wrap !important;
+		align-items: center !important;
+		gap: 0.25rem !important;
+	}
+	
+	/* 작성자 라벨과 입력 필드 - 한 행에 표시 */
+	.author-info > span {
+		white-space: nowrap !important;
+		font-size: 0.9rem !important;
+		margin: 0 !important;
+		flex-shrink: 0 !important;
+	}
+	
+	/* 작성자 입력 필드 최적화 */
+	.author-info > #author {
+		flex: 0 1 auto !important;
+		min-width: 40px !important;
+		max-width: 75px !important;
+		margin: 0 !important;
+		padding: 0.375rem 0.5rem !important;
+		font-size: 0.9rem !important;
+		height: auto !important;
+	}
+	
+	.author-info > #author_id {
+		flex: 0 1 auto !important;
+		min-width: 80px !important;
+		max-width: 100px !important;
+		margin: 0 !important;
+		padding: 0.375rem 0.5rem !important;
+		font-size: 0.9rem !important;
+		height: auto !important;
+	}
+	
+	/* view 모드 - h4 내부의 작성자 정보는 제목 아래로 이동 - 모바일에서만 */
+	.title-author-wrapper h4 {
+		width: 100% !important;
+		margin-bottom: 0.5rem !important;
+		font-size: 1.25rem !important;
+		line-height: 1.5 !important;
+		display: flex !important;
+		flex-direction: column !important;
+		gap: 0.5rem !important;
+	}
+	
+	.title-author-wrapper h4 .title-text {
+		font-size: 1.25rem !important;
+		font-weight: bold !important;
+		display: block !important;
+	}
+	
+	h4 .author-info {
+		display: flex !important;
+		flex-direction: row !important;
+		flex-wrap: wrap !important;
+		align-items: center !important;
+		gap: 0.25rem !important;
+		margin-left: 0 !important;
+	}
+	
+	h4 .author-info > span {
+		white-space: nowrap !important;
+		font-size: 0.9rem !important;
+		margin: 0 0.25rem !important;
+	}
+	
+	/* 버튼 최적화 */
+	button,
+	.btn {
+		width: 100% !important;
+		max-width: 100% !important;
+		margin: 0.25rem 0 !important;
+		padding: 0.5rem !important;
+		font-size: 1rem !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		min-height: 44px !important;
+	}
+	
+	/* 상단 버튼 그룹 (저장, PDF 저장, 닫기) - 모바일에서 한 행에 표시 */
+	.d-flex.justify-content-between.align-items-center.mb-3 > .d-flex.align-items-center:last-child,
+	.d-flex.justify-content-between.align-items-center.mb-3 > div:last-child {
+		width: 100% !important;
+		display: flex !important;
+		flex-direction: row !important;
+		flex-wrap: nowrap !important;
+		gap: 0.5rem !important;
+		justify-content: flex-start !important;
+		align-items: center !important;
+		margin-top: 0.5rem !important;
+	}
+	
+	.d-flex.justify-content-between.align-items-center.mb-3 > .d-flex.align-items-center:last-child > button,
+	.d-flex.justify-content-between.align-items-center.mb-3 > div:last-child > button {
+		width: auto !important;
+		flex: 1 1 0 !important;
+		min-width: 0 !important;
+		max-width: none !important;
+		margin: 0 !important;
+		padding: 0.5rem 0.5rem !important;
+		font-size: 0.85rem !important;
+		white-space: nowrap !important;
+		text-overflow: ellipsis !important;
+		overflow: hidden !important;
+	}
+	
+	/* 버튼 그룹 최적화 (행 추가/복사/삭제 버튼) - 카드 내부에서만 가로 배치 */
+	.item-row .btn-group,
+	.cost-row .btn-group,
+	.item-row td .btn-group,
+	.cost-row td .btn-group,
+	.item-row td[data-label="No."] .btn-group,
+	.cost-row td[data-label="기능"] .btn-group {
+		display: flex !important;
+		flex-direction: row !important;
+		flex-wrap: nowrap !important;
+		width: auto !important;
+		min-width: auto !important;
+		max-width: none !important;
+		gap: 0.25rem !important;
+		margin: 0 !important;
+		overflow: visible !important;
+	}
+	
+	.item-row .btn-group button,
+	.cost-row .btn-group button,
+	.item-row td .btn-group button,
+	.cost-row td .btn-group button,
+	.item-row td[data-label="No."] .btn-group button,
+	.cost-row td[data-label="기능"] .btn-group button {
+		width: 36px !important;
+		min-width: 36px !important;
+		max-width: 36px !important;
+		height: 36px !important;
+		min-height: 36px !important;
+		padding: 0.375rem !important;
+		font-size: 0.875rem !important;
+		margin: 0 !important;
+		border-radius: 0.25rem !important;
+		display: flex !important;
+		align-items: center !important;
+		justify-content: center !important;
+		flex: 0 0 36px !important;
+		flex-shrink: 0 !important;
+		flex-grow: 0 !important;
+		box-sizing: border-box !important;
+		overflow: visible !important;
+	}
+	
+	.item-row .btn-group button i,
+	.cost-row .btn-group button i,
+	.item-row td .btn-group button i,
+	.cost-row td .btn-group button i,
+	.item-row td[data-label="No."] .btn-group button i,
+	.cost-row td[data-label="기능"] .btn-group button i {
+		font-size: 0.625rem !important;
+		margin: 0 !important;
+		line-height: 1 !important;
+		display: inline-block !important;
+	}
+	
+	/* 행 번호와 버튼 그룹 영역 최적화 - 한 행에 표시 (최우선 적용) */
+	.item-row td.row-number-cell,
+	.cost-row td.row-number-cell,
+	.cost-row td.row-function-cell {
+		display: block !important;
+	}
+	
+	/* 기타비용 기능 버튼 영역 최적화 */
+	.cost-row td.row-function-cell .row-function-wrapper,
+	.cost-row td[data-label="기능"] .btn-group,
+	.cost-row td[data-label="기능"] .row-function-wrapper {
+		display: flex !important;
+		flex-direction: row !important;
+		flex-wrap: nowrap !important;
+		width: auto !important;
+		min-width: auto !important;
+		max-width: none !important;
+		gap: 0.25rem !important;
+		margin: 0 !important;
+		justify-content: flex-start !important;
+	}
+	
+	.cost-row td.row-function-cell .row-function-wrapper button,
+	.cost-row td[data-label="기능"] .btn-group button {
+		width: 36px !important;
+		min-width: 36px !important;
+		max-width: 36px !important;
+		height: 36px !important;
+		flex: 0 0 36px !important;
+		flex-shrink: 0 !important;
+		flex-grow: 0 !important;
+	}
+	
+	.item-row td.row-number-cell .row-number-wrapper,
+	.cost-row td.row-number-cell .row-number-wrapper,
+	.item-row td[data-label="No."] .d-flex,
+	.cost-row td[data-label="No."] .d-flex {
+		display: flex !important;
+		flex-direction: row !important;
+		flex-wrap: nowrap !important;
+		align-items: center !important;
+		gap: 0.5rem !important;
+		padding: 0.5rem !important;
+		width: 100% !important;
+		justify-content: flex-start !important;
+	}
+	
+	.item-row td.row-number-cell .row-number-wrapper > span,
+	.cost-row td.row-number-cell .row-number-wrapper > span,
+	.item-row td[data-label="No."] .d-flex > span,
+	.cost-row td[data-label="No."] .d-flex > span {
+		width: auto !important;
+		text-align: left !important;
+		font-size: 0.9rem !important;
+		font-weight: bold !important;
+		padding: 0.375rem 0.75rem !important;
+		background: #e3f2fd !important;
+		border-radius: 0.25rem !important;
+		flex: 0 0 auto !important;
+		white-space: nowrap !important;
+		margin: 0 !important;
+	}
+	
+	.item-row td.row-number-cell .row-number-wrapper > .btn-group,
+	.cost-row td.row-number-cell .row-number-wrapper > .btn-group,
+	.item-row td[data-label="No."] .d-flex > .btn-group,
+	.cost-row td[data-label="No."] .d-flex > .btn-group {
+		width: auto !important;
+		flex: 0 0 auto !important;
+		margin-left: auto !important;
+		display: flex !important;
+		flex-direction: row !important;
+		flex-wrap: nowrap !important;
+	}
+	
+	/* 기존 선택자도 유지 (하위 호환성) */
+	.item-row td .d-flex.align-items-center.justify-content-center,
+	.cost-row td .d-flex.align-items-center.justify-content-center {
+		display: flex !important;
+		flex-direction: row !important;
+		flex-wrap: nowrap !important;
+		align-items: center !important;
+		gap: 0.5rem !important;
+		padding: 0.5rem !important;
+		width: 100% !important;
+		justify-content: flex-start !important;
+	}
+	
+	.item-row td .d-flex.align-items-center.justify-content-center > span,
+	.cost-row td .d-flex.align-items-center.justify-content-center > span {
+		width: auto !important;
+		text-align: left !important;
+		font-size: 0.9rem !important;
+		font-weight: bold !important;
+		padding: 0.375rem 0.75rem !important;
+		background: #e3f2fd !important;
+		border-radius: 0.25rem !important;
+		flex: 0 0 auto !important;
+		white-space: nowrap !important;
+	}
+	
+	.item-row td .d-flex.align-items-center.justify-content-center > .btn-group,
+	.cost-row td .d-flex.align-items-center.justify-content-center > .btn-group {
+		width: auto !important;
+		flex: 0 0 auto !important;
+		margin-left: auto !important;
+		display: flex !important;
+		flex-direction: row !important;
+	}
+	
+	/* 입력 그룹 최적화 */
+	.input-group {
+		flex-direction: column !important;
+		width: 100% !important;
+	}
+	
+	.input-group > * {
+		width: 100% !important;
+		margin: 0.25rem 0 !important;
+	}
+	
+	/* 테이블 헤더 숨기기 */
+	#mainTable thead,
+	#otherCostsTable thead {
+		display: none !important;
+	}
+	
+	/* 테이블 행을 카드 형식으로 표시 */
+	.item-row,
+	.cost-row {
+		display: block !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		margin-bottom: 1rem !important;
+		padding: 1rem !important;
+		border: 1px solid #ddd !important;
+		border-radius: 0.5rem !important;
+		background: #f8f9fa !important;
+		box-sizing: border-box !important;
+	}
+	
+	.item-row td,
+	.cost-row td {
+		display: grid !important;
+		grid-template-columns: 35% 65% !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		padding: 0.75rem 0 !important;
+		text-align: left !important;
+		border: none !important;
+		border-bottom: 1px solid #e0e0e0 !important;
+		box-sizing: border-box !important;
+		gap: 0.5rem !important;
+		align-items: center !important;
+	}
+	
+	.item-row td:last-child,
+	.cost-row td:last-child {
+		border-bottom: none !important;
+	}
+	
+	.item-row td:before,
+	.cost-row td:before {
+		content: attr(data-label) ": ";
+		font-weight: bold !important;
+		color: #007bff !important;
+		display: block !important;
+		grid-column: 1 !important;
+		padding-right: 0.5rem !important;
+	}
+	
+	/* 카드 내부 값 영역 */
+	.item-row td > *:not(:before),
+	.cost-row td > *:not(:before) {
+		grid-column: 2 !important;
+		width: 100% !important;
+	}
+	
+	/* 입력 필드와 select 최적화 */
+	.item-row td input,
+	.item-row td select,
+	.cost-row td input,
+	.cost-row td select {
+		width: 100% !important;
+		max-width: 100% !important;
+	}
+	
+	/* 합계 테이블 모바일 최적화 - 하나의 카드로 합치기 */
+	.total-summary-table {
+		display: block !important;
+		width: 100% !important;
+		border: 2px solid #007bff !important;
+		border-radius: 0.5rem !important;
+		background: #f0f8ff !important;
+		padding: 1rem !important;
+		margin-bottom: 1rem !important;
+		box-sizing: border-box !important;
+	}
+	
+	.total-summary-table tbody,
+	.total-summary-table tr {
+		display: flex !important;
+		flex-direction: column !important;
+		width: 100% !important;
+		gap: 0.75rem !important;
+	}
+	
+	/* 모든 td를 하나의 카드 안에 배치 */
+	.total-summary-table td {
+		display: flex !important;
+		justify-content: space-between !important;
+		align-items: center !important;
+		width: 100% !important;
+		padding: 0.75rem !important;
+		border: none !important;
+		border-bottom: 1px solid #cce5ff !important;
+		text-align: left !important;
+		box-sizing: border-box !important;
+		background: white !important;
+		border-radius: 0.25rem !important;
+		margin: 0 !important;
+	}
+	
+	.total-summary-table td:last-child {
+		border-bottom: none !important;
+	}
+	
+	/* 합계 테이블 라벨 제거 및 간단한 표시 */
+	.total-summary-table td:before {
+		content: "" !important;
+		display: none !important;
+	}
+	
+	/* 부가세 별도 - 첫 번째와 두 번째 td를 하나로 합치기 */
+	.total-summary-table td:nth-child(1) {
+		display: none !important;
+	}
+	
+	.total-summary-table td:nth-child(2) {
+		display: flex !important;
+		order: 1 !important;
+		justify-content: space-between !important;
+		align-items: center !important;
+	}
+	
+	.total-summary-table td:nth-child(2) .fw-semibold {
+		display: none !important;
+	}
+	
+	.total-summary-table td:nth-child(2) .d-flex {
+		display: flex !important;
+		justify-content: flex-end !important;
+		align-items: center !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		flex: 0 0 40% !important;
+		min-width: 0 !important;
+	}
+	
+	.total-summary-table td:nth-child(2):before {
+		content: "부가세 별도" !important;
+		display: inline-block !important;
+		font-size: 0.9rem !important;
+		font-weight: 600 !important;
+		color: #333 !important;
+		flex: 0 0 60% !important;
+		white-space: nowrap !important;
+		overflow: hidden !important;
+		text-overflow: ellipsis !important;
+	}
+	
+	.total-summary-table td:nth-child(2) .total-ex-vat {
+		display: inline-block !important;
+		font-size: 1.1rem !important;
+		font-weight: bold !important;
+		color: #000 !important;
+		margin-left: 0.5rem !important;
+	}
+	
+	/* 부가세 포함 - 세 번째와 네 번째 td를 하나로 합치기 */
+	.total-summary-table td:nth-child(3) {
+		display: none !important;
+	}
+	
+	.total-summary-table td:nth-child(4) {
+		display: flex !important;
+		order: 2 !important;
+		border-bottom: none !important;
+		justify-content: space-between !important;
+		align-items: center !important;
+	}
+	
+	.total-summary-table td:nth-child(4) .fw-semibold {
+		display: none !important;
+	}
+	
+	.total-summary-table td:nth-child(4) .d-flex {
+		display: flex !important;
+		justify-content: flex-end !important;
+		align-items: center !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		flex: 0 0 40% !important;
+		min-width: 0 !important;
+	}
+	
+	.total-summary-table td:nth-child(4):before {
+		content: "부가세 포함" !important;
+		display: inline-block !important;
+		font-size: 0.9rem !important;
+		font-weight: 600 !important;
+		color: #007bff !important;
+		flex: 0 0 60% !important;
+		white-space: nowrap !important;
+		overflow: hidden !important;
+		text-overflow: ellipsis !important;
+	}
+	
+	.total-summary-table td:nth-child(4) .total-inc-vat {
+		display: inline-block !important;
+		font-size: 1.1rem !important;
+		font-weight: bold !important;
+		color: #007bff !important;
+		margin-left: 0.5rem !important;
+	}
+	
+	/* 입력 필드 최적화 */
+	.item-row input,
+	.item-row select,
+	.cost-row input,
+	.cost-row select {
+		width: 100% !important;
+		max-width: 100% !important;
+		min-height: 44px !important;
+		font-size: 1rem !important;
+		padding: 0.5rem !important;
+		box-sizing: border-box !important;
+	}
+	
+	/* Select2 최적화 (상품 선택) */
+	.select2-container {
+		width: 100% !important;
+		max-width: 100% !important;
+	}
+	
+	.select2-selection {
+		width: 100% !important;
+		max-width: 100% !important;
+		min-height: 44px !important;
+		padding: 0.5rem !important;
+		font-size: 1rem !important;
+	}
+	
+	.select2-selection__rendered {
+		width: 100% !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+	}
+	
+	.select2-dropdown {
+		width: 100% !important;
+		max-width: 100vw !important;
+	}
+	
+	/* 행 최적화 */
+	.row {
+		margin: 0 !important;
+		flex-direction: column !important;
+	}
+	
+	.row > [class*="col-"] {
+		width: 100% !important;
+		max-width: 100% !important;
+		padding: 0.5rem !important;
+		margin-bottom: 0.5rem !important;
+	}
+}
+</style>
 </head>		 
 <body>
 
@@ -166,16 +1156,20 @@ if($mode == 'view') {
         <div class="card-body p-4">
             <?php if($mode == 'insert' || $mode == 'modify' || $mode == 'copy'): ?>
             <div class="d-flex justify-content-between align-items-center mb-3 fs-4">
-                <div class="d-flex align-items-center">
-                    <?php 
-                    if($mode == 'insert') echo '포미스톤 견적서 작성';
-                    elseif($mode == 'modify') echo '포미스톤 견적서 수정';
-                    elseif($mode == 'copy') echo '포미스톤 견적서 복사';
-                    ?>                
-                    <span class="ms-5 fs-6">작성자 : </span>
-                    <input class="form-control form-control-sm ms-2 me-2 w100px fs-6 fw-bold" id="author" name="author"  type="text" value="<?= htmlspecialchars($author) ?>" >                    
-                    <span class="ms-1 fs-6">작성자ID :</span>
-                    <input class="form-control form-control-sm ms-2 me-2 w150px fs-6 fw-bold" id="author_id" name="author_id"   type="text" value="<?= htmlspecialchars($author_id) ?>" >                    
+                <div class="d-flex align-items-center title-author-wrapper">
+                    <span class="title-text">
+                        <?php 
+                        if($mode == 'insert') echo '포미스톤 견적서 작성';
+                        elseif($mode == 'modify') echo '포미스톤 견적서 수정';
+                        elseif($mode == 'copy') echo '포미스톤 견적서 복사';
+                        ?>
+                    </span>
+                    <div class="author-info">
+                        <span class="ms-5 fs-6">작성자 : </span>
+                        <input class="form-control form-control-sm ms-2 me-2 w100px fs-6 fw-bold" id="author" name="author"  type="text" value="<?= htmlspecialchars($author) ?>" >                    
+                        <span class="ms-1 fs-6">작성자ID :</span>
+                        <input class="form-control form-control-sm ms-2 me-2 w150px fs-6 fw-bold" id="author_id" name="author_id"   type="text" value="<?= htmlspecialchars($author_id) ?>" >                    
+                    </div>
                 </div>
                 <div class="d-flex align-items-center">
                     <button type="button" id="saveBtn" class="btn btn-primary btn-sm me-2">저장</button>
@@ -189,10 +1183,13 @@ if($mode == 'view') {
                 <input type="hidden" id="author_id" name="author_id" value="<?= $author_id ?>">
                 <input type="hidden" id="author" name="author" value="<?= $author ?>">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <div class="d-flex align-items-center">
-                <h4>포미스톤 견적서 보기  
-                <span class="ms-5 fs-6">작성자 : <?= htmlspecialchars($author) ?></span> 
-                <span class="ms-1 fs-6">작성자ID : <?= htmlspecialchars($author_id) ?></span>                                    
+                <div class="d-flex align-items-center title-author-wrapper">
+                <h4>
+                    <span class="title-text">포미스톤 견적서 보기</span>
+                    <div class="author-info">
+                        <span class="ms-5 fs-6">작성자 : <?= htmlspecialchars($author) ?></span> 
+                        <span class="ms-1 fs-6">작성자ID : <?= htmlspecialchars($author_id) ?></span>
+                    </div>
                 </h4>                
                 </div>
                 <div>
@@ -253,7 +1250,7 @@ if($mode == 'view') {
                         <?php endif; ?>
                     </div>
                 </div>
-                <div class="col-md-8 mb-3">
+                <div class="col-md-8 mb-3 supplier-info">
                     <div class="table-responsive">
                         <table class="table mb-0" style="font-size: 12px; border-collapse: collapse;">
                             <tr>
@@ -299,20 +1296,20 @@ if($mode == 'view') {
  
             <!-- 합계 테이블 -->
             <div class="table-responsive mb-4">
-                <table class="table table-bordered mb-0 align-middle" style="font-size: 12px; border-collapse: collapse;">
+                <table class="table table-bordered mb-0 align-middle total-summary-table" style="font-size: 12px; border-collapse: collapse;">
                     <tr>
-                        <td class="text-center bg-light" style="width: 50%; border: 1px solid #000;">
+                        <td class="text-center bg-light" style="width: 50%; border: 1px solid #000;" data-label="합계금액(부가세별도)">
                             <div class="fw-semibold">합계금액(부가세별도)</div>
                         </td>
-                        <td class="text-center bg-light" style="border: 1px solid #000;">                            
+                        <td class="text-center bg-light" style="border: 1px solid #000;" data-label="금액">                            
                             <div class="d-flex justify-content-center align-items-center mt-1 fw-semibold">
                                 <span class="total-ex-vat">(<?= number_format($total_ex_vat ?? 0) ?>)</span>
                             </div>
                         </td>
-                        <td class="text-center bg-light" style="width: 50%; border: 1px solid #000;">
+                        <td class="text-center bg-light" style="width: 50%; border: 1px solid #000;" data-label="합계금액(부가세포함)">
                             <div class="fw-semibold text-primary">합계금액(부가세포함)</div>
                         </td>
-                        <td class="text-center bg-light" style="border: 1px solid #000;">                            
+                        <td class="text-center bg-light" style="border: 1px solid #000;" data-label="금액">                            
                             <div class="d-flex justify-content-center align-items-center mt-1 fw-semibold">
                                 <span class="total-inc-vat text-primary">(<?= number_format($total_inc_vat ?? 0) ?>)</span>
                             </div>
@@ -349,8 +1346,8 @@ if($mode == 'view') {
                             $item_count = max(1, count($items));
                             for($i = 0; $i < $item_count; $i++): ?>
                             <tr class="item-row" data-row="<?= $i ?>">
-                                <td>
-                                    <div class="d-flex align-items-center justify-content-center">
+                                <td data-label="No." class="row-number-cell">
+                                    <div class="d-flex align-items-center justify-content-center row-number-wrapper">
                                         <span class="me-2"><?= $i + 1 ?></span>
                                         <div class="btn-group btn-group-sm" role="group" style="gap: 1px;">
                                             <button type="button" class="btn btn-outline-primary btn-sm p-0" style="width: 20px; height: 20px; font-size: 12px;" onclick="addRowAfter(<?= $i ?>)" title="아래에 행 추가">
@@ -365,19 +1362,19 @@ if($mode == 'view') {
                                         </div>
                                     </div>
                                 </td>
-                                <td style="text-align: left;">
+                                <td style="text-align: left;" data-label="상품명">
                                     <select name="items[<?= $i ?>][product_code]" class="form-select form-select-sm product-select" data-row="<?= $i ?>" style="text-align: left;" data-initial-value="<?= htmlspecialchars($items[$i]['product_code'] ?? '') ?>">
                                         <option value="">상품을 선택하세요</option>
                                     </select>
                                 </td>
-                                <td><input type="text" name="items[<?= $i ?>][specification]" class="form-control form-control-sm specification-input" placeholder="규격(Size)" value="<?= htmlspecialchars($items[$i]['specification'] ?? '') ?>" readonly></td>
-                                <td><input type="text" name="items[<?= $i ?>][size]" class="form-control form-control-sm text-center size-input" placeholder="분류" value="<?= htmlspecialchars($items[$i]['size'] ?? '') ?>" readonly></td>
-                                <td><input type="number" name="items[<?= $i ?>][quantity]" class="form-control form-control-sm text-end quantity-input" placeholder="수량" step="1" value="<?= $items[$i]['quantity'] ?? '1' ?>"></td>
-                                <td><input type="text" name="items[<?= $i ?>][area]" class="form-control form-control-sm text-end area-input" placeholder="m²" value="<?= $items[$i]['area'] ?? '' ?>" readonly></td>
-                                <td><input type="text" name="items[<?= $i ?>][unit_price]" class="form-control form-control-sm text-end unit-price-input" placeholder="단가" value="<?= number_format($items[$i]['unit_price'] ?? 0) ?>" ></td>
-                                <td class="text-end supply-amount">0</td>
-                                <td class="text-end tax-amount">0</td>
-                                <td><input type="text" name="items[<?= $i ?>][remarks]" class="form-control form-control-sm" placeholder="비고" value="<?= htmlspecialchars($items[$i]['remarks'] ?? '') ?>"></td>
+                                <td data-label="규격(Size)"><input type="text" name="items[<?= $i ?>][specification]" class="form-control form-control-sm specification-input" placeholder="규격(Size)" value="<?= htmlspecialchars($items[$i]['specification'] ?? '') ?>" readonly></td>
+                                <td data-label="분류"><input type="text" name="items[<?= $i ?>][size]" class="form-control form-control-sm text-center size-input" placeholder="분류" value="<?= htmlspecialchars($items[$i]['size'] ?? '') ?>" readonly></td>
+                                <td data-label="수량(EA)"><input type="number" name="items[<?= $i ?>][quantity]" class="form-control form-control-sm text-end quantity-input" placeholder="수량" step="1" value="<?= $items[$i]['quantity'] ?? '1' ?>"></td>
+                                <td data-label="m²"><input type="text" name="items[<?= $i ?>][area]" class="form-control form-control-sm text-end area-input" placeholder="m²" value="<?= $items[$i]['area'] ?? '' ?>" readonly></td>
+                                <td data-label="단가"><input type="text" name="items[<?= $i ?>][unit_price]" class="form-control form-control-sm text-end unit-price-input" placeholder="단가" value="<?= number_format($items[$i]['unit_price'] ?? 0) ?>" ></td>
+                                <td class="text-end supply-amount" data-label="공급가액">0</td>
+                                <td class="text-end tax-amount" data-label="세액">0</td>
+                                <td data-label="비고"><input type="text" name="items[<?= $i ?>][remarks]" class="form-control form-control-sm" placeholder="비고" value="<?= htmlspecialchars($items[$i]['remarks'] ?? '') ?>"></td>
                                 <?php
                                 $supply_amount = floatval(str_replace(',', '', $items[$i]['area'])) * floatval(str_replace(',', '', $items[$i]['unit_price']));
                                 $tax_amount = $supply_amount * 0.1;
@@ -518,8 +1515,8 @@ if($mode == 'view') {
                                     $cost_data = $other_costs[$c] ?? $default_costs[$c] ?? $default_costs[0];
                                 ?>
                                 <tr class="cost-row" data-row="<?= $c ?>">
-                                    <td>
-                                        <div class="btn-group btn-group-sm ms-1" role="group" style="gap: 1px;">
+                                    <td data-label="기능" class="row-function-cell">
+                                        <div class="btn-group btn-group-sm ms-1 row-function-wrapper" role="group" style="gap: 1px;">
                                             <button type="button" class="btn btn-outline-primary btn-sm p-0" style="width: 20px; height: 20px; font-size: 12px;" onclick="addCostRowAfter(<?= $c ?>)" title="아래에 행 추가">
                                                 <i class="bi bi-plus"></i>
                                             </button>
@@ -531,16 +1528,16 @@ if($mode == 'view') {
                                             </button>
                                         </div>
                                     </td>
-                                    <td>
+                                    <td data-label="구분">
                                         <input type="text" name="other_costs[<?= $c ?>][category]" class="form-control form-control-sm ms-1" placeholder="구분" value="<?= htmlspecialchars($cost_data['category'] ?? '') ?>">                                        
                                     </td>
-                                    <td><input type="text" name="other_costs[<?= $c ?>][item]" class="form-control form-control-sm text-start" placeholder="항목" value="<?= htmlspecialchars($other_costs[$c]['item'] ?? '') ?>"></td>
-                                    <td><input type="text" name="other_costs[<?= $c ?>][unit]" class="form-control form-control-sm text-center" placeholder="단위" value="<?= htmlspecialchars($other_costs[$c]['unit'] ?? '') ?>"></td>
-                                    <td><input type="number" name="other_costs[<?= $c ?>][quantity]" class="form-control form-control-sm text-end cost-quantity-input" placeholder="수량" step="1" value="<?= $other_costs[$c]['quantity'] ?? '' ?>"></td>
-                                    <td><input type="text" name="other_costs[<?= $c ?>][unit_price]" class="form-control form-control-sm text-end cost-unit-price-input" placeholder="단가" value="<?= number_format($other_costs[$c]['unit_price'] ?? 0) ?>"></td>
-                                    <td><input type="text" name="other_costs[<?= $c ?>][supply_amount]" class="form-control form-control-sm text-end cost-supply-amount" value="<?= number_format(($other_costs[$c]['quantity'] ?? 0) * ($other_costs[$c]['unit_price'] ?? 0)) ?>" readonly></td>
-                                    <td><input type="text" name="other_costs[<?= $c ?>][tax_amount]" class="form-control form-control-sm text-end cost-tax-amount" value="<?= number_format(($other_costs[$c]['quantity'] ?? 0) * ($other_costs[$c]['unit_price'] ?? 0) * 0.1) ?>" readonly></td>
-                                    <td><input type="text" name="other_costs[<?= $c ?>][remarks]" class="form-control form-control-sm" placeholder="비고" value="<?= htmlspecialchars($other_costs[$c]['remarks'] ?? '') ?>"></td>
+                                    <td data-label="항목"><input type="text" name="other_costs[<?= $c ?>][item]" class="form-control form-control-sm text-start" placeholder="항목" value="<?= htmlspecialchars($other_costs[$c]['item'] ?? '') ?>"></td>
+                                    <td data-label="단위"><input type="text" name="other_costs[<?= $c ?>][unit]" class="form-control form-control-sm text-center" placeholder="단위" value="<?= htmlspecialchars($other_costs[$c]['unit'] ?? '') ?>"></td>
+                                    <td data-label="수량"><input type="number" name="other_costs[<?= $c ?>][quantity]" class="form-control form-control-sm text-end cost-quantity-input" placeholder="수량" step="1" value="<?= $other_costs[$c]['quantity'] ?? '' ?>"></td>
+                                    <td data-label="단가"><input type="text" name="other_costs[<?= $c ?>][unit_price]" class="form-control form-control-sm text-end cost-unit-price-input" placeholder="단가" value="<?= number_format($other_costs[$c]['unit_price'] ?? 0) ?>"></td>
+                                    <td data-label="공급가액"><input type="text" name="other_costs[<?= $c ?>][supply_amount]" class="form-control form-control-sm text-end cost-supply-amount" value="<?= number_format(($other_costs[$c]['quantity'] ?? 0) * ($other_costs[$c]['unit_price'] ?? 0)) ?>" readonly></td>
+                                    <td data-label="세액"><input type="text" name="other_costs[<?= $c ?>][tax_amount]" class="form-control form-control-sm text-end cost-tax-amount" value="<?= number_format(($other_costs[$c]['quantity'] ?? 0) * ($other_costs[$c]['unit_price'] ?? 0) * 0.1) ?>" readonly></td>
+                                    <td data-label="비고"><input type="text" name="other_costs[<?= $c ?>][remarks]" class="form-control form-control-sm" placeholder="비고" value="<?= htmlspecialchars($other_costs[$c]['remarks'] ?? '') ?>"></td>
                                 </tr>
                                 <?php endfor; ?>
                             <?php else:
@@ -668,8 +1665,616 @@ if($mode == 'view') {
 </form>
 
 <script>
+// 중복 호출 방지를 위한 플래그
+var isRenderingCards = false;
+var renderCardsTimeout = null;
+
+// 모바일에서 테이블을 카드 형식으로 변환하는 함수
+function renderMobileCards() {
+	// 이미 렌더링 중이면 무시
+	if (isRenderingCards) {
+		return;
+	}
+	
+	// 데스크톱에서는 모든 카드 컨테이너 제거
+	if (window.innerWidth > 768) {
+		var containers = document.querySelectorAll('.mobile-cards-container');
+		containers.forEach(function(container) {
+			container.remove();
+		});
+		return;
+	}
+	
+	// 렌더링 시작 플래그 설정
+	isRenderingCards = true;
+	
+	// 기존 카드 컨테이너는 유지하되, 내용만 업데이트
+	// (완전 제거 후 재생성하면 깜빡임이 발생할 수 있음)
+	
+	// 모든 테이블에 대해 카드 변환
+	var tables = document.querySelectorAll('table:not(.mobile-cards-container table)');
+	var processedTables = new Set(); // 처리된 테이블 추적
+	
+	tables.forEach(function(table) {
+		// 테이블이 이미 숨겨져 있거나 카드 컨테이너 내부에 있는 경우 건너뛰기
+		if (table.style.display === 'none' || table.closest('.mobile-cards-container')) {
+			return;
+		}
+		
+		// 합계 테이블은 카드로 변환하지 않음 (CSS로 직접 표시)
+		if (table.classList.contains('total-summary-table')) {
+			return;
+		}
+		
+		// 테이블 ID 또는 고유 식별자 생성
+		var tableId = table.id;
+		if (!tableId) {
+			// 테이블의 위치나 부모 요소를 기반으로 고유 ID 생성
+			var parent = table.parentElement;
+			var tableIndex = Array.from(parent.querySelectorAll('table:not(.mobile-cards-container table)')).indexOf(table);
+			var parentId = parent.id || parent.className || 'container';
+			tableId = 'table-' + parentId.replace(/\s+/g, '-') + '-' + tableIndex;
+		}
+		
+		// 이미 처리된 테이블인지 확인
+		if (processedTables.has(tableId)) {
+			return;
+		}
+		
+		// 처리된 테이블로 표시 (먼저 추가하여 중복 방지)
+		processedTables.add(tableId);
+		
+		// 이미 해당 테이블에 대한 카드 컨테이너가 있는지 확인
+		var cardsContainer = document.querySelector('#mobileCardsContainer-' + tableId);
+		if (!cardsContainer) {
+			// 카드 컨테이너 생성
+			cardsContainer = document.createElement('div');
+			cardsContainer.id = 'mobileCardsContainer-' + tableId;
+			cardsContainer.className = 'mobile-cards-container';
+			cardsContainer.setAttribute('data-table-id', tableId);
+			cardsContainer.style.cssText = 'width: 100%; max-width: 100%; padding: 0.5rem 0;';
+			
+			// 테이블 다음에 카드 컨테이너 삽입
+			if (table.nextSibling) {
+				table.parentElement.insertBefore(cardsContainer, table.nextSibling);
+			} else {
+				table.parentElement.appendChild(cardsContainer);
+			}
+		}
+		
+		// 기존 내용 제거 (중복 방지)
+		cardsContainer.innerHTML = '';
+		
+		// tbody 처리
+		var tbody = table.querySelector('tbody');
+		if (tbody) {
+			var rows = tbody.querySelectorAll('tr');
+			rows.forEach(function(row) {
+				var cells = row.querySelectorAll('td');
+				if (cells.length === 0) return;
+				
+				var card = document.createElement('div');
+				card.className = 'mobile-card';
+				card.style.cssText = 'border: 1px solid #ddd; border-radius: 0.5rem; padding: 0.75rem; margin-bottom: 0.75rem; background: #f8f9fa;';
+				
+				// 클릭 이벤트 복사
+				if (row.onclick) {
+					card.onclick = row.onclick;
+				} else if (row.getAttribute('onclick')) {
+					card.setAttribute('onclick', row.getAttribute('onclick'));
+				}
+				
+				// 테이블 헤더에서 라벨 가져오기
+				var thead = table.querySelector('thead');
+				var headers = [];
+				if (thead) {
+					var headerRow = thead.querySelector('tr');
+					if (headerRow) {
+						var headerCells = headerRow.querySelectorAll('th');
+						headerCells.forEach(function(headerCell) {
+							headers.push(headerCell.textContent.trim());
+						});
+					}
+				}
+				
+				cells.forEach(function(cell, index) {
+					var label = cell.getAttribute('data-label') || headers[index] || '항목 ' + (index + 1);
+					
+					var cardItem = document.createElement('div');
+					cardItem.style.cssText = 'padding: 0.5rem 0; border-bottom: 1px solid #eee;';
+					if (index === cells.length - 1) {
+						cardItem.style.borderBottom = 'none';
+					}
+					
+					var labelSpan = document.createElement('strong');
+					labelSpan.textContent = label + ': ';
+					labelSpan.style.cssText = 'color: #007bff; margin-right: 0.5rem;';
+					
+				var valueSpan = document.createElement('span');
+				
+				// select 요소가 있는 경우 특별 처리
+				var selectElement = cell.querySelector('select');
+				if (selectElement) {
+					// 원본 select의 현재 값 저장
+					var originalValue = $(selectElement).val() || '';
+					var originalRowIndex = selectElement.getAttribute('data-row') || '';
+					
+					// 원본 select 요소를 복제
+					var clonedSelect = selectElement.cloneNode(true);
+					clonedSelect.style.cssText = 'width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; display: block !important; visibility: visible !important; opacity: 1 !important;';
+					clonedSelect.className = selectElement.className;
+					// 고유 ID 생성 (중복 방지)
+					clonedSelect.id = (selectElement.id || '') + '-mobile-' + originalRowIndex;
+					clonedSelect.name = selectElement.name;
+					clonedSelect.setAttribute('data-row', originalRowIndex);
+					clonedSelect.setAttribute('data-original-select-id', selectElement.id || '');
+					
+					// valueSpan에 select 추가
+					valueSpan.appendChild(clonedSelect);
+					valueSpan.style.cssText = 'width: 100% !important; display: block !important;';
+					
+					// select 요소가 즉시 보이도록 처리
+					clonedSelect.style.display = 'block';
+					clonedSelect.style.visibility = 'visible';
+					clonedSelect.style.opacity = '1';
+					
+					// 모바일에서는 Select2 없이 일반 select로 처리
+					setTimeout(function() {
+						if (typeof $ !== 'undefined') {
+							var $clonedSelect = $(clonedSelect);
+							var $originalSelect = $(selectElement);
+							
+							// select 요소가 보이도록 보장
+							$clonedSelect.css({
+								'display': 'block',
+								'visibility': 'visible',
+								'opacity': '1',
+								'width': '100%',
+								'max-width': '100%',
+								'box-sizing': 'border-box',
+								'padding': '0.375rem 0.75rem',
+								'font-size': '1rem',
+								'line-height': '1.5',
+								'border': '1px solid #ced4da',
+								'border-radius': '0.25rem',
+								'background-color': '#fff'
+							});
+							
+							// populateProductOptions를 호출하여 옵션 로드
+							if (typeof populateProductOptions === 'function') {
+								populateProductOptions($clonedSelect, function() {
+									// 옵션 로드 완료 후 원본 select의 값 복사
+									if (originalValue) {
+										$clonedSelect.val(originalValue);
+									}
+									
+									// change 이벤트 동기화 (일반 select의 change 이벤트 사용)
+									$clonedSelect.off('change.mobile-sync');
+									$clonedSelect.on('change.mobile-sync', function(e) {
+										var selectedValue = $clonedSelect.val();
+										// 원본 select에 값 설정
+										$originalSelect.val(selectedValue);
+										// 원본 select의 change 이벤트 트리거
+										$originalSelect.trigger('change');
+										// 원본 테이블의 계산 함수 호출
+										if (typeof updateTotals === 'function') {
+											updateTotals();
+										}
+										// 카드 다시 렌더링하여 선택된 값이 표시되도록
+										if (window.innerWidth <= 768) {
+											setTimeout(function() {
+												renderMobileCards();
+											}, 300);
+										}
+									});
+									
+									// 원본 select의 change 이벤트에서 카드 내부 select 업데이트 (중복 방지)
+									$originalSelect.off('change.mobile-sync');
+									$originalSelect.on('change.mobile-sync', function() {
+										var currentValue = $originalSelect.val();
+										if ($clonedSelect.val() !== currentValue) {
+											$clonedSelect.val(currentValue);
+										}
+									});
+								});
+							} else {
+								// populateProductOptions가 없는 경우 원본 select의 옵션 복사
+								var originalOptions = $originalSelect.find('option');
+								$clonedSelect.empty();
+								originalOptions.each(function() {
+									var optionValue = $(this).val();
+									var optionText = $(this).text();
+									var isSelected = $(this).prop('selected');
+									var newOption = $('<option></option>').attr('value', optionValue).text(optionText);
+									if (isSelected) {
+										newOption.prop('selected', true);
+									}
+									$clonedSelect.append(newOption);
+								});
+								
+								if (originalValue) {
+									$clonedSelect.val(originalValue);
+								}
+								
+								// change 이벤트 동기화
+								$clonedSelect.off('change.mobile-sync');
+								$clonedSelect.on('change.mobile-sync', function(e) {
+									var selectedValue = $clonedSelect.val();
+									$originalSelect.val(selectedValue).trigger('change');
+									if (typeof updateTotals === 'function') {
+										updateTotals();
+									}
+									if (window.innerWidth <= 768) {
+										setTimeout(function() {
+											renderMobileCards();
+										}, 300);
+									}
+								});
+								
+								$originalSelect.off('change.mobile-sync');
+								$originalSelect.on('change.mobile-sync', function() {
+									var currentValue = $originalSelect.val();
+									if ($clonedSelect.val() !== currentValue) {
+										$clonedSelect.val(currentValue);
+									}
+								});
+							}
+						}
+					}, 200);
+				} else {
+					// select가 아닌 경우 기존 방식대로 처리
+					valueSpan.innerHTML = cell.innerHTML;
+					valueSpan.style.cssText = 'word-wrap: break-word; overflow-wrap: break-word; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important;';
+				}
+				
+				// 버튼 클릭 이벤트 재바인딩 (카드 내부 버튼이 원본 테이블 행을 찾아서 작업하도록)
+				if (cell.querySelector('.btn-group')) {
+					var btnGroup = valueSpan.querySelector('.btn-group');
+					if (btnGroup) {
+						// 버튼 그룹을 가로로 배치
+						var currentStyle = btnGroup.getAttribute('style') || '';
+						btnGroup.setAttribute('style', currentStyle + '; display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; width: auto !important; gap: 0.25rem !important; margin: 0 !important;');
+					}
+					
+					var buttons = valueSpan.querySelectorAll('button');
+					buttons.forEach(function(button) {
+						// 버튼 크기 고정
+						var btnStyle = button.getAttribute('style') || '';
+						button.setAttribute('style', btnStyle + '; width: 36px !important; min-width: 36px !important; max-width: 36px !important; height: 36px !important; flex: 0 0 36px !important; flex-shrink: 0 !important;');
+						
+						var originalOnclick = button.getAttribute('onclick');
+						if (originalOnclick) {
+							// 원본 행 참조를 저장
+							var rowIndex = row.getAttribute('data-row') || '';
+							var rowClass = row.className;
+							button.setAttribute('data-original-row', rowIndex);
+							button.setAttribute('data-row-class', rowClass);
+							
+							// 기존 onclick 제거하고 새 이벤트 바인딩
+							button.removeAttribute('onclick');
+							
+							// 클릭 이벤트를 재바인딩하여 카드 렌더링 후에도 작동하도록
+							button.addEventListener('click', function(e) {
+								e.stopPropagation();
+								e.preventDefault();
+								
+								// 원본 onclick 함수 실행
+								if (originalOnclick) {
+									try {
+										// 함수 문자열에서 함수명과 인자 추출
+										var match = originalOnclick.match(/(\w+)\(([^)]*)\)/);
+										if (match) {
+											var funcName = match[1];
+											var args = match[2];
+											if (window[funcName]) {
+												if (args) {
+													window[funcName](parseInt(args));
+												} else {
+													window[funcName]();
+												}
+											}
+										}
+									} catch (err) {
+										console.error('Error executing button click:', err);
+									}
+								}
+								
+								// 작업 완료 후 카드 다시 렌더링 (각 함수에서도 처리하지만 안전장치)
+								setTimeout(function() {
+									if (window.innerWidth <= 768) {
+										renderMobileCards();
+										setTimeout(function() {
+											fixRowNumberLayout();
+										}, 300);
+									}
+								}, 300);
+							});
+						}
+					});
+				}
+				
+				cardItem.appendChild(labelSpan);
+				cardItem.appendChild(valueSpan);
+				card.appendChild(cardItem);
+				});
+				
+				cardsContainer.appendChild(card);
+			});
+		}
+		
+		// tfoot 처리
+		var tfoot = table.querySelector('tfoot');
+		if (tfoot) {
+			var tfootRow = tfoot.querySelector('tr');
+			if (tfootRow) {
+				var tfootCells = tfootRow.querySelectorAll('td');
+				if (tfootCells.length > 0) {
+					var summaryCard = document.createElement('div');
+					summaryCard.className = 'mobile-card-summary';
+					summaryCard.style.cssText = 'border: 2px solid #0dcaf0; border-radius: 0.5rem; padding: 0.75rem; margin-top: 1rem; background: #d1ecf1; font-weight: bold;';
+					
+					tfootCells.forEach(function(cell, index) {
+						var summaryItem = document.createElement('div');
+						summaryItem.style.cssText = 'padding: 0.5rem 0;';
+						
+						var label = document.createElement('strong');
+						label.style.cssText = 'color: #0dcaf0; margin-right: 0.5rem;';
+						label.textContent = (index === 0 ? '소계' : '합계') + ': ';
+						
+						var value = document.createElement('span');
+						value.innerHTML = cell.innerHTML;
+						
+						summaryItem.appendChild(label);
+						summaryItem.appendChild(value);
+						summaryCard.appendChild(summaryItem);
+					});
+					
+					cardsContainer.appendChild(summaryCard);
+				}
+			}
+		}
+	});
+	
+	// 렌더링 완료 플래그 해제 및 레이아웃 수정
+	setTimeout(function() {
+		isRenderingCards = false;
+		if (window.innerWidth <= 768 && typeof fixRowNumberLayout === 'function') {
+			// 카드 렌더링이 완전히 완료된 후 레이아웃 수정
+			setTimeout(function() {
+				fixRowNumberLayout();
+			}, 50);
+		}
+	}, 100);
+}
+
+// debounce 함수
+function debounce(func, wait) {
+	return function() {
+		var context = this;
+		var args = arguments;
+		clearTimeout(renderCardsTimeout);
+		renderCardsTimeout = setTimeout(function() {
+			func.apply(context, args);
+		}, wait);
+	};
+}
+
+// debounce된 카드 렌더링 함수
+var debouncedRenderMobileCards = debounce(renderMobileCards, 300);
+
+// 모바일에서 부가세 별도 금액의 괄호 제거
+function removeVATParentheses() {
+	if (window.innerWidth <= 768) {
+		$('.total-ex-vat').each(function() {
+			var text = $(this).text();
+			// 괄호 제거
+			text = text.replace(/[()]/g, '');
+			$(this).text(text);
+		});
+	} else {
+		// PC에서는 원래대로 복원 (괄호 포함)
+		$('.total-ex-vat').each(function() {
+			var text = $(this).text();
+			// 괄호가 없으면 추가
+			if (!text.match(/^\(/)) {
+				text = '(' + text + ')';
+				$(this).text(text);
+			}
+		});
+	}
+}
+
+// 창 크기 변경 시 모바일 카드 다시 렌더링 및 괄호 처리
+$(window).on('resize', function() {
+	debouncedRenderMobileCards();
+	removeVATParentheses();
+	if (window.innerWidth <= 768) {
+		setTimeout(function() {
+			if (typeof fixRowNumberLayout === 'function') {
+				fixRowNumberLayout();
+			}
+		}, 350);
+	}
+});
+
 $(document).ready(function() {
     let mode = $("#mode").val();
+	
+	// 초기 로드 시 모바일 카드 렌더링 및 괄호 제거
+	if (window.innerWidth <= 768) {
+		setTimeout(function() {
+			renderMobileCards();
+			removeVATParentheses();
+			fixRowNumberLayout();
+		}, 500);
+	} else {
+		removeVATParentheses();
+	}
+	
+	// 행 번호와 버튼 레이아웃 수정 함수
+	function fixRowNumberLayout() {
+		if (window.innerWidth <= 768) {
+			// 상품 테이블 - 번호와 버튼
+			$('.item-row td[data-label="No."] .d-flex, .cost-row td[data-label="No."] .d-flex').each(function() {
+				var $this = $(this);
+				var currentStyle = $this.attr('style') || '';
+				$this.attr('style', currentStyle + '; display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; align-items: center !important; justify-content: flex-start !important; gap: 0.5rem !important; width: 100% !important;');
+			});
+			
+			$('.item-row td[data-label="No."] .d-flex > span, .cost-row td[data-label="No."] .d-flex > span').each(function() {
+				var $this = $(this);
+				var currentStyle = $this.attr('style') || '';
+				$this.attr('style', currentStyle + '; width: auto !important; flex: 0 0 auto !important; margin: 0 !important; white-space: nowrap !important;');
+			});
+			
+			$('.item-row td[data-label="No."] .d-flex > .btn-group, .cost-row td[data-label="No."] .d-flex > .btn-group').each(function() {
+				var $this = $(this);
+				var currentStyle = $this.attr('style') || '';
+				$this.attr('style', currentStyle + '; display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; width: auto !important; min-width: auto !important; max-width: none !important; flex: 0 0 auto !important; flex-shrink: 0 !important; flex-grow: 0 !important; margin-left: auto !important; gap: 0.25rem !important;');
+				
+				// 버튼들도 직접 수정
+				$this.find('button').each(function() {
+					var $btn = $(this);
+					var btnStyle = $btn.attr('style') || '';
+					$btn.attr('style', btnStyle + '; width: 36px !important; min-width: 36px !important; max-width: 36px !important; height: 36px !important; flex: 0 0 36px !important; flex-shrink: 0 !important; flex-grow: 0 !important; display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important;');
+				});
+			});
+			
+			// 기타비용 테이블 - 기능 버튼만 (원본 테이블)
+			$('.cost-row td[data-label="기능"] .btn-group, .cost-row td.row-function-cell .btn-group').each(function() {
+				var $this = $(this);
+				var currentStyle = $this.attr('style') || '';
+				$this.attr('style', currentStyle + '; display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; width: auto !important; min-width: auto !important; max-width: none !important; gap: 0.25rem !important; margin: 0 !important;');
+				
+				// 버튼들도 직접 수정
+				$this.find('button').each(function() {
+					var $btn = $(this);
+					var btnStyle = $btn.attr('style') || '';
+					$btn.attr('style', btnStyle + '; width: 36px !important; min-width: 36px !important; max-width: 36px !important; height: 36px !important; flex: 0 0 36px !important; flex-shrink: 0 !important; flex-grow: 0 !important; display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important;');
+				});
+			});
+			
+			// 카드 내부 버튼 그룹 처리 (모바일 카드)
+			$('.mobile-card').each(function() {
+				var $card = $(this);
+				// "기능:" 라벨이 있는 카드 항목 찾기
+				$card.find('div').each(function() {
+					var $item = $(this);
+					var labelText = $item.find('strong').text();
+					if (labelText && labelText.includes('기능')) {
+						var $btnGroup = $item.find('.btn-group');
+						if ($btnGroup.length > 0) {
+							var currentStyle = $btnGroup.attr('style') || '';
+							$btnGroup.attr('style', currentStyle + '; display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; width: auto !important; min-width: auto !important; max-width: none !important; gap: 0.25rem !important; margin: 0 !important;');
+							
+							// 버튼들도 직접 수정
+							$btnGroup.find('button').each(function() {
+								var $btn = $(this);
+								var btnStyle = $btn.attr('style') || '';
+								$btn.attr('style', btnStyle + '; width: 36px !important; min-width: 36px !important; max-width: 36px !important; height: 36px !important; flex: 0 0 36px !important; flex-shrink: 0 !important; flex-grow: 0 !important; display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important;');
+							});
+						}
+					}
+				});
+			});
+		}
+	}
+	
+	// 창 크기 변경 시 레이아웃 수정
+	$(window).on('resize', function() {
+		if (window.innerWidth <= 768) {
+			setTimeout(function() {
+				fixRowNumberLayout();
+			}, 100);
+		}
+	});
+	
+	// 테이블 변경 시 레이아웃 수정
+	if (window.innerWidth <= 768) {
+		var layoutObserver = new MutationObserver(function() {
+			setTimeout(function() {
+				fixRowNumberLayout();
+			}, 100);
+		});
+		
+		document.querySelectorAll('.item-row, .cost-row').forEach(function(row) {
+			layoutObserver.observe(row, {
+				childList: true,
+				subtree: true
+			});
+		});
+	}
+	
+	// 테이블 변경 감지 (MutationObserver 사용) - debounce 처리
+	var observer = null;
+	var lastTableCount = 0;
+	
+	function checkTableChanges() {
+		if (window.innerWidth > 768) {
+			return;
+		}
+		
+		var currentTableCount = document.querySelectorAll('table:not(.mobile-cards-container table)').length;
+		if (currentTableCount !== lastTableCount) {
+			lastTableCount = currentTableCount;
+			debouncedRenderMobileCards();
+		}
+	}
+	
+	// MutationObserver 설정 (더 제한적으로)
+	if (window.innerWidth <= 768) {
+		observer = new MutationObserver(function(mutations) {
+			// 실제로 테이블 행이 추가/삭제되었는지 확인
+			var hasRowChange = false;
+			mutations.forEach(function(mutation) {
+				if (mutation.type === 'childList') {
+					mutation.addedNodes.forEach(function(node) {
+						if (node.nodeType === 1) {
+							// TR, TBODY, TABLE 추가 감지
+							if (node.tagName === 'TR' || node.tagName === 'TBODY' || node.tagName === 'TABLE') {
+								hasRowChange = true;
+							}
+							// 테이블을 포함하는 요소 추가 감지
+							if (node.querySelector && node.querySelector('table')) {
+								hasRowChange = true;
+							}
+						}
+					});
+					mutation.removedNodes.forEach(function(node) {
+						if (node.nodeType === 1) {
+							// TR, TBODY, TABLE 삭제 감지
+							if (node.tagName === 'TR' || node.tagName === 'TBODY' || node.tagName === 'TABLE') {
+								hasRowChange = true;
+							}
+						}
+					});
+				}
+			});
+			
+			if (hasRowChange) {
+				checkTableChanges();
+			}
+		});
+		
+		// 테이블 컨테이너와 tbody 관찰
+		var containersToObserve = document.querySelectorAll('.table-responsive, .card-body, tbody');
+		containersToObserve.forEach(function(container) {
+			observer.observe(container, {
+				childList: true,
+				subtree: false
+			});
+		});
+		
+		// 초기 테이블 개수 저장
+		lastTableCount = document.querySelectorAll('table:not(.mobile-cards-container table)').length;
+		
+		// 주기적으로 테이블 개수 확인 (안전장치)
+		setInterval(function() {
+			if (window.innerWidth <= 768) {
+				checkTableChanges();
+			}
+		}, 2000); // 2초마다 확인
+	}
     // Select2 초기화
     function initializeSelect2() {
         $('.product-select').select2({
@@ -1490,7 +3095,12 @@ function updateTotals() {
     $('input[name="total_inc_vat"]').val(grandTotalSupply + grandTotalTax);
     
     // 합계 테이블 업데이트
-    $('.total-ex-vat').text('(' + grandTotalSupply.toLocaleString() + ')');
+    // 모바일에서는 괄호 제거, PC에서는 괄호 포함
+    if (window.innerWidth <= 768) {
+        $('.total-ex-vat').text(grandTotalSupply.toLocaleString());
+    } else {
+        $('.total-ex-vat').text('(' + grandTotalSupply.toLocaleString() + ')');
+    }
     $('.total-inc-vat').text('(' + (grandTotalSupply + grandTotalTax).toLocaleString() + ')');
     
     // 플래그 해제
@@ -1639,8 +3249,8 @@ function calculateOtherCostsFromProducts(forceRecalculate = false) {
     for (let i = 0; i < rowCount; i++) {
         const newRow = `
             <tr class="cost-row" data-row="${i}">
-                <td>
-                    <div class="btn-group btn-group-sm ms-1" role="group" style="gap: 1px;">
+                <td data-label="기능" class="row-function-cell">
+                    <div class="btn-group btn-group-sm ms-1 row-function-wrapper" role="group" style="gap: 1px;">
                         <button type="button" class="btn btn-outline-primary btn-sm p-0" style="width: 20px; height: 20px; font-size: 12px;" onclick="addCostRowAfter(${i})" title="아래에 행 추가">
                             <i class="bi bi-plus"></i>
                         </button>
@@ -1649,9 +3259,9 @@ function calculateOtherCostsFromProducts(forceRecalculate = false) {
                         </button>                                                
                         <button type="button" class="btn btn-outline-danger btn-sm p-0" style="width: 20px; height: 20px; font-size: 12px;" onclick="deleteCostRow(${i})" title="행 삭제">
                             <i class="bi bi-dash"></i>
-                        </button>                                                
-                    </div>      
-                </td>          
+                        </button>
+                    </div>
+                </td>
                 <td><input type="text" name="other_costs[${i}][category]" class="form-control"></td>
                 <td><input type="text" name="other_costs[${i}][item]" class="form-control"></td>
                 <td><input type="text" name="other_costs[${i}][unit]" class="form-control"></td>
@@ -1918,8 +3528,8 @@ function addRowAfter(rowIndex) {
     const newRowIndex = itemRowCount;
     const newRow = `
         <tr class="item-row" data-row="${newRowIndex}">
-            <td>
-                <div class="d-flex align-items-center justify-content-center">
+            <td data-label="No." class="row-number-cell">
+                <div class="d-flex align-items-center justify-content-center row-number-wrapper">
                     <span class="me-2">${newRowIndex + 1}</span>
                     <div class="btn-group btn-group-sm" role="group" style="gap: 1px;">
                         <button type="button" class="btn btn-outline-primary btn-sm p-0" style="width: 20px; height: 20px; font-size: 12px;" onclick="addRowAfter(${newRowIndex})" title="아래에 행 추가">
@@ -1934,19 +3544,19 @@ function addRowAfter(rowIndex) {
                     </div>
                 </div>
             </td>
-            <td style="text-align: left;">
+            <td style="text-align: left;" data-label="상품명">
                 <select name="items[${newRowIndex}][product_code]" class="form-select form-select-sm product-select" data-row="${newRowIndex}" style="text-align: left;">
                     <option value="">상품을 선택하세요</option>
                 </select>
             </td>
-            <td><input type="text" name="items[${newRowIndex}][specification]" class="form-control form-control-sm specification-input" placeholder="규격(Size)"></td>
-            <td><input type="text" name="items[${newRowIndex}][size]" class="form-control form-control-sm text-center size-input" placeholder="분류" ></td>
-            <td><input type="number" name="items[${newRowIndex}][quantity]" class="form-control form-control-sm text-end quantity-input" placeholder="수량" step="1" value="1"></td>
-            <td><input type="text" name="items[${newRowIndex}][area]" class="form-control form-control-sm text-end area-input" placeholder="m²" value="0.00" ></td>
-            <td><input type="text" name="items[${newRowIndex}][unit_price]" class="form-control form-control-sm text-end unit-price-input" placeholder="단가" value="${Number(0).toLocaleString()}"></td>
-            <td class="text-end supply-amount">0</td>
-            <td class="text-end tax-amount">0</td>
-            <td><input type="text" name="items[${newRowIndex}][remarks]" class="form-control form-control-sm" placeholder="비고"></td>
+            <td data-label="규격(Size)"><input type="text" name="items[${newRowIndex}][specification]" class="form-control form-control-sm specification-input" placeholder="규격(Size)"></td>
+            <td data-label="분류"><input type="text" name="items[${newRowIndex}][size]" class="form-control form-control-sm text-center size-input" placeholder="분류" ></td>
+            <td data-label="수량(EA)"><input type="number" name="items[${newRowIndex}][quantity]" class="form-control form-control-sm text-end quantity-input" placeholder="수량" step="1" value="1"></td>
+            <td data-label="m²"><input type="text" name="items[${newRowIndex}][area]" class="form-control form-control-sm text-end area-input" placeholder="m²" value="0.00" ></td>
+            <td data-label="단가"><input type="text" name="items[${newRowIndex}][unit_price]" class="form-control form-control-sm text-end unit-price-input" placeholder="단가" value="${Number(0).toLocaleString()}"></td>
+            <td class="text-end supply-amount" data-label="공급가액">0</td>
+            <td class="text-end tax-amount" data-label="세액">0</td>
+            <td data-label="비고"><input type="text" name="items[${newRowIndex}][remarks]" class="form-control form-control-sm" placeholder="비고"></td>
         </tr>
     `;
     
@@ -1966,6 +3576,17 @@ function addRowAfter(rowIndex) {
     itemRowCount++;
     updateRowNumbers();
     updateTotals();
+    
+    // 모바일 카드 다시 렌더링
+    if (window.innerWidth <= 768) {
+        setTimeout(function() {
+            renderMobileCards();
+            // 카드 렌더링 완료 후 레이아웃 수정
+            setTimeout(function() {
+                fixRowNumberLayout();
+            }, 300);
+        }, 200);
+    }
 }
 
 // 상품테이블 행 복사 함수
@@ -1984,8 +3605,8 @@ function copyRow(rowIndex) {
     
     const newRow = `
         <tr class="item-row" data-row="${newRowIndex}">
-            <td>
-                <div class="d-flex align-items-center justify-content-center">
+            <td data-label="No." class="row-number-cell">
+                <div class="d-flex align-items-center justify-content-center row-number-wrapper">
                     <span class="me-2">${newRowIndex + 1}</span>
                     <div class="btn-group btn-group-sm" role="group" style="gap: 1px;">
                         <button type="button" class="btn btn-outline-primary btn-sm p-0" style="width: 20px; height: 20px; font-size: 12px;" onclick="addRowAfter(${newRowIndex})" title="아래에 행 추가">
@@ -2000,19 +3621,19 @@ function copyRow(rowIndex) {
                     </div>
                 </div>
             </td>
-            <td style="text-align: left;">
+            <td style="text-align: left;" data-label="상품명">
                 <select name="items[${newRowIndex}][product_code]" class="form-select form-select-sm product-select" data-row="${newRowIndex}" style="text-align: left;">
                     <option value="">상품을 선택하세요</option>
                 </select>
             </td>
-            <td><input type="text" name="items[${newRowIndex}][specification]" class="form-control form-control-sm specification-input" placeholder="규격(Size)" value="${specification}" readonly></td>
-            <td><input type="text" name="items[${newRowIndex}][size]" class="form-control form-control-sm text-center size-input" placeholder="분류" value="${size}" readonly></td>
-            <td><input type="number" name="items[${newRowIndex}][quantity]" class="form-control form-control-sm text-end quantity-input" placeholder="수량" step="1" value="${quantity}"></td>
-            <td><input type="text" name="items[${newRowIndex}][area]" class="form-control form-control-sm text-end area-input" placeholder="m²" value="${area}" readonly></td>
-            <td><input type="text" name="items[${newRowIndex}][unit_price]" class="form-control form-control-sm text-end unit-price-input text-end" placeholder="단가" value="${unitPrice && unitPrice !== '' ? Number(unitPrice).toLocaleString() : ''}" ></td>
-            <td class="text-end supply-amount">0</td>
-            <td class="text-end tax-amount">0</td>
-            <td><input type="text" name="items[${newRowIndex}][remarks]" class="form-control form-control-sm" placeholder="비고" value="${remarks}"></td>
+            <td data-label="규격(Size)"><input type="text" name="items[${newRowIndex}][specification]" class="form-control form-control-sm specification-input" placeholder="규격(Size)" value="${specification}" readonly></td>
+            <td data-label="분류"><input type="text" name="items[${newRowIndex}][size]" class="form-control form-control-sm text-center size-input" placeholder="분류" value="${size}" readonly></td>
+            <td data-label="수량(EA)"><input type="number" name="items[${newRowIndex}][quantity]" class="form-control form-control-sm text-end quantity-input" placeholder="수량" step="1" value="${quantity}"></td>
+            <td data-label="m²"><input type="text" name="items[${newRowIndex}][area]" class="form-control form-control-sm text-end area-input" placeholder="m²" value="${area}" readonly></td>
+            <td data-label="단가"><input type="text" name="items[${newRowIndex}][unit_price]" class="form-control form-control-sm text-end unit-price-input text-end" placeholder="단가" value="${unitPrice && unitPrice !== '' ? Number(unitPrice).toLocaleString() : ''}" ></td>
+            <td class="text-end supply-amount" data-label="공급가액">0</td>
+            <td class="text-end tax-amount" data-label="세액">0</td>
+            <td data-label="비고"><input type="text" name="items[${newRowIndex}][remarks]" class="form-control form-control-sm" placeholder="비고" value="${remarks}"></td>
         </tr>
     `;
     
@@ -2089,6 +3710,17 @@ function copyRow(rowIndex) {
     // setTimeout(function() {
     //     initializeOtherCostsTable();
     // }, 100);
+    
+    // 모바일 카드 다시 렌더링
+    if (window.innerWidth <= 768) {
+        setTimeout(function() {
+            renderMobileCards();
+            // 카드 렌더링 완료 후 레이아웃 수정
+            setTimeout(function() {
+                fixRowNumberLayout();
+            }, 300);
+        }, 200);
+    }
 }
 
 // 상품테이블 행 삭제 함수
@@ -2107,6 +3739,17 @@ function deleteRow(rowIndex) {
         alert('최소 1개의 행은 유지해야 합니다.');
     }
     alertToast('행 삭제');
+    
+    // 모바일 카드 다시 렌더링
+    if (window.innerWidth <= 768) {
+        setTimeout(function() {
+            renderMobileCards();
+            // 카드 렌더링 완료 후 레이아웃 수정
+            setTimeout(function() {
+                fixRowNumberLayout();
+            }, 300);
+        }, 200);
+    }
 }
 
 // 행 번호 업데이트 함수
@@ -2128,29 +3771,27 @@ function addCostRowAfter(rowIndex) {
     const newRowIndex = costRowCount;
     const newRow = `
         <tr class="cost-row" data-row="${newRowIndex}">
-            <td>
-                <div class="d-flex align-items-center justify-content-center">                   
-                    <div class="btn-group btn-group-sm ms-1" role="group" style="gap: 1px;">
-                        <button type="button" class="btn btn-outline-primary btn-sm p-0" style="width: 20px; height: 20px; font-size: 12px;" onclick="addCostRowAfter(${newRowIndex})" title="아래에 행 추가">
-                            <i class="bi bi-plus"></i>
-                        </button>
-                        <button type="button" class="btn btn-outline-success btn-sm p-0" style="width: 20px; height: 20px; font-size: 12px;" onclick="copyCostRow(${newRowIndex})" title="행 복사">
-                            <i class="bi bi-files"></i>
-                        </button>           
-                        <button type="button" class="btn btn-outline-danger btn-sm p-0" style="width: 20px; height: 20px; font-size: 12px;" onclick="deleteCostRow(${newRowIndex})" title="행 삭제">
-                            <i class="bi bi-dash"></i>
-                        </button>                                             
-                    </div>
+            <td data-label="기능" class="row-function-cell">
+                <div class="btn-group btn-group-sm ms-1 row-function-wrapper" role="group" style="gap: 1px;">
+                    <button type="button" class="btn btn-outline-primary btn-sm p-0" style="width: 20px; height: 20px; font-size: 12px;" onclick="addCostRowAfter(${newRowIndex})" title="아래에 행 추가">
+                        <i class="bi bi-plus"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-success btn-sm p-0" style="width: 20px; height: 20px; font-size: 12px;" onclick="copyCostRow(${newRowIndex})" title="행 복사">
+                        <i class="bi bi-files"></i>
+                    </button>           
+                    <button type="button" class="btn btn-outline-danger btn-sm p-0" style="width: 20px; height: 20px; font-size: 12px;" onclick="deleteCostRow(${newRowIndex})" title="행 삭제">
+                        <i class="bi bi-dash"></i>
+                    </button>                                             
                 </div>
             </td>
-            <td><input type="text" name="other_costs[${newRowIndex}][category]" class="form-control form-control-sm" placeholder="구분"></td>
-            <td><input type="text" name="other_costs[${newRowIndex}][item]" class="form-control form-control-sm text-start" placeholder="항목"></td>
-            <td><input type="text" name="other_costs[${newRowIndex}][unit]" class="form-control form-control-sm text-center" placeholder="단위"></td>
-            <td><input type="number" name="other_costs[${newRowIndex}][quantity]" class="form-control form-control-sm text-end cost-quantity-input" placeholder="수량" step="1"></td>
-            <td><input type="text" name="other_costs[${newRowIndex}][unit_price]" class="form-control form-control-sm text-end cost-unit-price-input" placeholder="단가" ></td>
-            <td><input type="text" name="other_costs[${newRowIndex}][supply_amount]" class="form-control form-control-sm text-end cost-supply-amount" value="0" readonly></td>
-            <td><input type="text" name="other_costs[${newRowIndex}][tax_amount]" class="form-control form-control-sm text-end cost-tax-amount" value="0" readonly></td>
-            <td><input type="text" name="other_costs[${newRowIndex}][remarks]" class="form-control form-control-sm" placeholder="비고"></td>
+            <td data-label="구분"><input type="text" name="other_costs[${newRowIndex}][category]" class="form-control form-control-sm" placeholder="구분"></td>
+            <td data-label="항목"><input type="text" name="other_costs[${newRowIndex}][item]" class="form-control form-control-sm text-start" placeholder="항목"></td>
+            <td data-label="단위"><input type="text" name="other_costs[${newRowIndex}][unit]" class="form-control form-control-sm text-center" placeholder="단위"></td>
+            <td data-label="수량"><input type="number" name="other_costs[${newRowIndex}][quantity]" class="form-control form-control-sm text-end cost-quantity-input" placeholder="수량" step="1"></td>
+            <td data-label="단가"><input type="text" name="other_costs[${newRowIndex}][unit_price]" class="form-control form-control-sm text-end cost-unit-price-input" placeholder="단가" ></td>
+            <td data-label="공급가액"><input type="text" name="other_costs[${newRowIndex}][supply_amount]" class="form-control form-control-sm text-end cost-supply-amount" value="0" readonly></td>
+            <td data-label="세액"><input type="text" name="other_costs[${newRowIndex}][tax_amount]" class="form-control form-control-sm text-end cost-tax-amount" value="0" readonly></td>
+            <td data-label="비고"><input type="text" name="other_costs[${newRowIndex}][remarks]" class="form-control form-control-sm" placeholder="비고"></td>
         </tr>
     `;
     
@@ -2162,6 +3803,17 @@ function addCostRowAfter(rowIndex) {
     updateCostRowNumbers();
     updateOtherCostsSubtotal(); // 기타비용 소계 업데이트
     updateTotals();
+    
+    // 모바일 카드 다시 렌더링
+    if (window.innerWidth <= 768) {
+        setTimeout(function() {
+            renderMobileCards();
+            // 카드 렌더링 완료 후 레이아웃 수정
+            setTimeout(function() {
+                fixRowNumberLayout();
+            }, 300);
+        }, 200);
+    }
 }
 
 // 기타비용 행 복사 함수
@@ -2181,29 +3833,27 @@ function copyCostRow(rowIndex) {
     
     const newRow = `
         <tr class="cost-row" data-row="${newRowIndex}">
-            <td>
-                <div class="d-flex align-items-center justify-content-center">                    
-                    <div class="btn-group btn-group-sm ms-1" role="group" style="gap: 1px;">
-                        <button type="button" class="btn btn-outline-primary btn-sm p-0" style="width: 20px; height: 20px; font-size: 12px;" onclick="addCostRowAfter(${newRowIndex})" title="아래에 행 추가">
-                            <i class="bi bi-plus"></i>
-                        </button>
-                        <button type="button" class="btn btn-outline-success btn-sm p-0" style="width: 20px; height: 20px; font-size: 12px;" onclick="copyCostRow(${newRowIndex})" title="행 복사">
-                            <i class="bi bi-files"></i>
-                        </button>
-                        <button type="button" class="btn btn-outline-danger btn-sm p-0" style="width: 20px; height: 20px; font-size: 12px;" onclick="deleteCostRow(${newRowIndex})" title="행 삭제">
-                            <i class="bi bi-dash"></i>
-                        </button>
-                    </div>
+            <td data-label="기능" class="row-function-cell">
+                <div class="btn-group btn-group-sm ms-1 row-function-wrapper" role="group" style="gap: 1px;">
+                    <button type="button" class="btn btn-outline-primary btn-sm p-0" style="width: 20px; height: 20px; font-size: 12px;" onclick="addCostRowAfter(${newRowIndex})" title="아래에 행 추가">
+                        <i class="bi bi-plus"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-success btn-sm p-0" style="width: 20px; height: 20px; font-size: 12px;" onclick="copyCostRow(${newRowIndex})" title="행 복사">
+                        <i class="bi bi-files"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-danger btn-sm p-0" style="width: 20px; height: 20px; font-size: 12px;" onclick="deleteCostRow(${newRowIndex})" title="행 삭제">
+                        <i class="bi bi-dash"></i>
+                    </button>
                 </div>
             </td>
-            <td><input type="text" name="other_costs[${newRowIndex}][category]" class="form-control form-control-sm" placeholder="구분" value="${category}"></td>
-            <td><input type="text" name="other_costs[${newRowIndex}][item]" class="form-control form-control-sm" placeholder="항목" value="${item}"></td>
-            <td><input type="text" name="other_costs[${newRowIndex}][unit]" class="form-control form-control-sm text-center" placeholder="단위" value="${unit}"></td>
-            <td><input type="number" name="other_costs[${newRowIndex}][quantity]" class="form-control form-control-sm cost-quantity-input text-end" placeholder="수량" step="0.01" value="${quantity}"></td>
-            <td><input type="text" name="other_costs[${newRowIndex}][unit_price]" class="form-control form-control-sm cost-unit-price-input text-end" placeholder="단가" step="0.01" value="${unitPrice}"></td>
-            <td><input type="text" name="other_costs[${newRowIndex}][supply_amount]" class="form-control form-control-sm cost-supply-amount text-end" readonly value="${supplyAmount}"></td>
-            <td><input type="text" name="other_costs[${newRowIndex}][tax_amount]" class="form-control form-control-sm cost-tax-amount text-end" readonly value="${taxAmount}"></td> 
-            <td><input type="text" name="other_costs[${newRowIndex}][remarks]" class="form-control form-control-sm text-start" placeholder="비고" value="${remarks}"></td>
+            <td data-label="구분"><input type="text" name="other_costs[${newRowIndex}][category]" class="form-control form-control-sm" placeholder="구분" value="${category}"></td>
+            <td data-label="항목"><input type="text" name="other_costs[${newRowIndex}][item]" class="form-control form-control-sm" placeholder="항목" value="${item}"></td>
+            <td data-label="단위"><input type="text" name="other_costs[${newRowIndex}][unit]" class="form-control form-control-sm text-center" placeholder="단위" value="${unit}"></td>
+            <td data-label="수량"><input type="number" name="other_costs[${newRowIndex}][quantity]" class="form-control form-control-sm cost-quantity-input text-end" placeholder="수량" step="0.01" value="${quantity}"></td>
+            <td data-label="단가"><input type="text" name="other_costs[${newRowIndex}][unit_price]" class="form-control form-control-sm cost-unit-price-input text-end" placeholder="단가" step="0.01" value="${unitPrice}"></td>
+            <td data-label="공급가액"><input type="text" name="other_costs[${newRowIndex}][supply_amount]" class="form-control form-control-sm cost-supply-amount text-end" readonly value="${supplyAmount}"></td>
+            <td data-label="세액"><input type="text" name="other_costs[${newRowIndex}][tax_amount]" class="form-control form-control-sm cost-tax-amount text-end" readonly value="${taxAmount}"></td> 
+            <td data-label="비고"><input type="text" name="other_costs[${newRowIndex}][remarks]" class="form-control form-control-sm text-start" placeholder="비고" value="${remarks}"></td>
         </tr>
     `;        
     // 소스 행 뒤에 새 행 삽입
@@ -2223,6 +3873,17 @@ function copyCostRow(rowIndex) {
     updateCostRowNumbers();
     updateOtherCostsSubtotal(); // 기타비용 소계 업데이트
     updateTotals();
+    
+    // 모바일 카드 다시 렌더링
+    if (window.innerWidth <= 768) {
+        setTimeout(function() {
+            renderMobileCards();
+            // 카드 렌더링 완료 후 레이아웃 수정
+            setTimeout(function() {
+                fixRowNumberLayout();
+            }, 300);
+        }, 200);
+    }
 }
 
 // 기타비용 행 삭제 함수
@@ -2243,6 +3904,17 @@ function deleteCostRow(rowIndex) {
         alert('최소 1개의 행은 유지해야 합니다.');
     }
     alertToast('기타비용 행 삭제');
+    
+    // 모바일 카드 다시 렌더링
+    if (window.innerWidth <= 768) {
+        setTimeout(function() {
+            renderMobileCards();
+            // 카드 렌더링 완료 후 레이아웃 수정
+            setTimeout(function() {
+                fixRowNumberLayout();
+            }, 300);
+        }, 200);
+    }
 }
 
 // 기타비용 행 번호 업데이트 함수

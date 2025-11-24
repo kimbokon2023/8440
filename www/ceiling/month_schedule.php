@@ -31,6 +31,314 @@ echo "<script>var today = '$today';</script>";
 .today {
     background-color: #ffe5e5 !important;
 }
+
+/* PC 및 공통 - 달력 셀 텍스트 겹침 방지 */
+#table .calendar-day,
+.calendar-table .calendar-day {
+    padding: 0.5rem 0.4rem !important;
+    vertical-align: top !important;
+    min-height: 100px !important;
+    height: auto !important;
+    overflow: visible !important;
+}
+
+#table .calendar-day .date,
+.calendar-table .calendar-day .date {
+    font-size: 0.9rem !important;
+    margin-bottom: 0.4rem !important;
+    display: block !important;
+    font-weight: 600 !important;
+    line-height: 1.5 !important;
+}
+
+#table .calendar-day .event_ceiling,
+.calendar-table .calendar-day .event_ceiling {
+    font-size: 0.75rem !important;
+    padding: 0.35rem 0.5rem !important;
+    margin: 0.3rem 0 !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    line-height: 1.6 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    display: block !important;
+    width: 100% !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: ellipsis !important;
+    border-left: 3px solid transparent !important;
+    background-color: rgba(0, 0, 0, 0.02) !important;
+    border-radius: 3px !important;
+}
+
+/* 이벤트 항목 간격 확보 */
+#table .calendar-day .event_ceiling + .event_ceiling,
+.calendar-table .calendar-day .event_ceiling + .event_ceiling {
+    margin-top: 0.4rem !important;
+}
+
+/* clear 클래스가 있는 빈 이벤트도 간격 확보 */
+#table .calendar-day .clear.event,
+.calendar-table .calendar-day .clear.event {
+    height: 0.4rem !important;
+    margin: 0.2rem 0 !important;
+    display: block !important;
+}
+
+/* text-primary 클래스가 있는 이벤트 스타일 */
+#table .calendar-day .event_ceiling.text-primary,
+.calendar-table .calendar-day .event_ceiling.text-primary {
+    border-left-color: #0d6efd !important;
+    background-color: rgba(13, 110, 253, 0.05) !important;
+}
+
+/* text-danger 클래스가 있는 이벤트 스타일 */
+#table .calendar-day .event_ceiling.text-danger,
+.calendar-table .calendar-day .event_ceiling.text-danger {
+    border-left-color: #dc3545 !important;
+    background-color: rgba(220, 53, 69, 0.05) !important;
+}
+
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+	/* body와 html의 width 제한 */
+	html, body {
+		max-width: 100vw !important;
+		overflow-x: hidden !important;
+		font-size: 16px !important;
+	}
+
+	/* 카드 모바일 최적화 */
+	.card {
+		margin: 0.5rem 0 !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		overflow-x: hidden !important;
+		box-sizing: border-box !important;
+	}
+
+	.card-body {
+		padding: 0.75rem 0.5rem !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+	}
+
+	/* 제목 영역 모바일 최적화 */
+	.card .d-flex.p-2.mt-3.mb-1 {
+		flex-wrap: wrap !important;
+		gap: 0.5rem !important;
+		justify-content: center !important;
+		align-items: center !important;
+		padding: 0.75rem 0.5rem !important;
+		margin: 0.5rem 0 !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+		width: 100% !important;
+	}
+
+	.card .d-flex.p-2.mt-3.mb-1 h3 {
+		font-size: 1rem !important;
+		margin: 0 !important;
+		flex: 1 1 auto !important;
+		min-width: 0 !important;
+		text-align: center !important;
+		word-wrap: break-word !important;
+	}
+
+	.card .d-flex.p-2.mt-3.mb-1 .btn {
+		font-size: 0.75rem !important;
+		padding: 0.4rem 0.6rem !important;
+		flex-shrink: 0 !important;
+		margin: 0 !important;
+		box-sizing: border-box !important;
+	}
+
+	/* holder 영역 모바일 최적화 */
+	#holder_ceiling {
+		padding: 0.5rem !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+		width: 100% !important;
+	}
+
+	#holder_ceiling .card {
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+		width: 100% !important;
+	}
+
+	#holder_ceiling .card-body {
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+		width: 100% !important;
+		padding: 0.5rem !important;
+	}
+
+	/* 달력 네비게이션 영역 모바일 최적화 - 기간 설정 */
+	#table,
+	.calendar-table {
+		width: 100% !important;
+		max-width: 100% !important;
+		table-layout: auto !important;
+		font-size: 0.8rem !important;
+	}
+
+	#table thead td,
+	.calendar-table thead td {
+		padding: 0.5rem 0.25rem !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+	}
+
+	#table thead td table,
+	.calendar-table thead td table {
+		width: 100% !important;
+		max-width: 100% !important;
+		white-space: normal !important;
+	}
+
+	#table thead td table td,
+	.calendar-table thead td table td {
+		padding: 0.5rem 0.25rem !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+	}
+
+	/* 달력 네비게이션 버튼 영역 모바일 최적화 */
+	#table .d-flex.justify-content-center,
+	.calendar-table .d-flex.justify-content-center {
+		flex-wrap: wrap !important;
+		gap: 0.3rem !important;
+		justify-content: center !important;
+		align-items: center !important;
+		padding: 0.5rem 0.25rem !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+		width: 100% !important;
+	}
+
+	#table .btn-group,
+	.calendar-table .btn-group {
+		display: flex !important;
+		flex-shrink: 0 !important;
+		gap: 0.2rem !important;
+		margin: 0 !important;
+	}
+
+	#table .js-cal-prev,
+	#table .js-cal-next,
+	.calendar-table .js-cal-prev,
+	.calendar-table .js-cal-next {
+		font-size: 0.75rem !important;
+		padding: 0.3rem 0.4rem !important;
+		min-width: 32px !important;
+		max-width: 40px !important;
+		height: 30px !important;
+		flex-shrink: 0 !important;
+		margin: 0 !important;
+		box-sizing: border-box !important;
+	}
+
+	#table .js-cal-option,
+	.calendar-table .js-cal-option {
+		font-size: 0.7rem !important;
+		padding: 0.3rem 0.5rem !important;
+		white-space: nowrap !important;
+		flex-shrink: 0 !important;
+		margin: 0 0.2rem !important;
+		max-width: 80px !important;
+		box-sizing: border-box !important;
+	}
+
+	/* 배지 모바일 최적화 - 3개 배지가 카드를 벗어나지 않도록 */
+	#table .badge,
+	.calendar-table .badge {
+		font-size: 0.65rem !important;
+		padding: 0.25rem 0.4rem !important;
+		white-space: normal !important;
+		flex: 1 1 auto !important;
+		min-width: 0 !important;
+		margin: 0.2rem 0.1rem !important;
+		max-width: calc(33.333% - 10px) !important;
+		word-wrap: break-word !important;
+		text-align: center !important;
+		line-height: 1.3 !important;
+		box-sizing: border-box !important;
+	}
+
+	/* 달력 테이블 헤더 모바일 최적화 */
+	#table thead.table-primary th,
+	.calendar-table thead.table-primary th {
+		font-size: 0.75rem !important;
+		padding: 0.5rem 0.3rem !important;
+		white-space: nowrap !important;
+	}
+
+	/* 달력 날짜 셀 모바일 최적화 */
+	#table .calendar-day,
+	.calendar-table .calendar-day {
+		font-size: 0.7rem !important;
+		padding: 0.3rem 0.2rem !important;
+		vertical-align: top !important;
+		min-height: 60px !important;
+	}
+
+	#table .calendar-day .date,
+	.calendar-table .calendar-day .date {
+		font-size: 0.75rem !important;
+		margin-bottom: 0.2rem !important;
+	}
+
+	#table .calendar-day .event_ceiling,
+	.calendar-table .calendar-day .event_ceiling {
+		font-size: 0.65rem !important;
+		padding: 0.2rem 0.3rem !important;
+		margin: 0.1rem 0 !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		line-height: 1.2 !important;
+	}
+
+	/* 모든 버튼과 텍스트가 카드 내부에 머물도록 */
+	.card * {
+		box-sizing: border-box !important;
+	}
+
+	.card button,
+	.card .btn,
+	.card span,
+	.card .badge {
+		max-width: 100% !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+	}
+
+	/* 테이블 반응형 처리 */
+	#table,
+	.calendar-table {
+		display: block !important;
+		overflow-x: auto !important;
+		-webkit-overflow-scrolling: touch !important;
+		width: 100% !important;
+	}
+
+	#table thead,
+	#table tbody,
+	.calendar-table thead,
+	.calendar-table tbody {
+		display: table !important;
+		width: 100% !important;
+		min-width: 600px !important;
+	}
+}
 </style>
 
 <div class="card mt-2 mb-2">

@@ -68,6 +68,479 @@ $scale = $_REQUEST["scale"] ?? '';
 th {
     white-space: nowrap;
 }
+
+/* 모바일 반응형 스타일 */
+@media (max-width: 768px) {
+	/* body와 html의 width 제한 */
+	html, body {
+		max-width: 100vw !important;
+		overflow-x: hidden !important;
+		font-size: 16px !important;
+	}
+
+	/* 컨테이너 패딩 조정 및 width 제한 */
+	.container-fluid {
+		max-width: 100vw !important;
+		padding-left: 10px !important;
+		padding-right: 10px !important;
+		overflow-x: hidden !important;
+	}
+
+	/* 모든 row의 width 제한 */
+	.row {
+		max-width: 100vw !important;
+		margin-left: 0 !important;
+		margin-right: 0 !important;
+		overflow-x: hidden !important;
+	}
+
+	/* card의 width 제한 */
+	.card {
+		max-width: 100% !important;
+		overflow-x: hidden !important;
+	}
+
+	/* 제목 영역 모바일 최적화 */
+	.d-flex h5 {
+		font-size: 1.1rem !important;
+		white-space: nowrap !important;
+	}
+
+	/* 버튼 그룹 모바일 최적화 */
+	.btn-sm {
+		font-size: 0.85rem !important;
+		padding: 0.4rem 0.6rem !important;
+		white-space: nowrap !important;
+	}
+
+	/* 날짜 행: 총 개수와 날짜 입력 필드를 한 행에 표시 */
+	.date-row {
+		display: flex !important;
+		flex-direction: row !important;
+		flex-wrap: nowrap !important;
+		gap: 2px !important;
+		overflow-x: auto !important;
+		-webkit-overflow-scrolling: touch !important;
+		justify-content: center !important;
+		align-items: center !important;
+		padding: 0.25rem 0.15rem !important;
+		margin: 0.2rem 0 !important;
+		width: 100% !important;
+		box-sizing: border-box !important;
+		min-height: 34px !important;
+		max-height: 40px !important;
+	}
+	
+	/* 날짜 행 내부 모든 요소 공백 제거 */
+	.date-row > * {
+		margin: 0 !important;
+		flex-shrink: 0 !important;
+		white-space: nowrap !important;
+	}
+	
+	/* 기간 설정 카드 모바일에서 숨기기 */
+	#showframe {
+		display: none !important;
+	}
+	
+	/* 기간 버튼 모바일에서 숨기기 */
+	#showdate {
+		display: none !important;
+	}
+	
+	/* dateRange 드롭다운 모바일에서 숨기기 */
+	.date-row #dateRange {
+		display: none !important;
+	}
+	
+	/* 총 개수 텍스트 크기 조정 */
+	.date-row > span:first-child {
+		font-size: 0.8rem !important;
+		font-weight: 600 !important;
+		color: #495057 !important;
+		margin-right: 2px !important;
+		padding: 0 !important;
+	}
+	
+	/* 날짜 입력 필드 크기 조정 */
+	.date-row #fromdate, 
+	.date-row #todate {
+		width: auto !important;
+		min-width: 90px !important;
+		max-width: 110px !important;
+		font-size: 0.7rem !important;
+		padding: 0.2rem 0.3rem !important;
+		height: 30px !important;
+		flex: 0 0 auto !important;
+		box-sizing: border-box !important;
+	}
+	
+	/* 날짜 입력 필드 내부 텍스트 크기 조정 */
+	.date-row #fromdate::-webkit-datetime-edit,
+	.date-row #todate::-webkit-datetime-edit {
+		font-size: 0.7rem !important;
+		padding: 0 !important;
+	}
+	
+	/* 날짜 입력 필드 달력 아이콘 크기 조정 */
+	.date-row #fromdate::-webkit-calendar-picker-indicator,
+	.date-row #todate::-webkit-calendar-picker-indicator {
+		width: 16px !important;
+		height: 16px !important;
+		padding: 0 !important;
+	}
+	
+	/* 날짜 사이 ~ 기호 */
+	.date-row .date-separator {
+		font-size: 0.7rem !important;
+		white-space: nowrap !important;
+		margin: 0 1px !important;
+		color: #6c757d !important;
+	}
+
+	/* 검색 행: find, search, searchBtn을 한 행에 표시 */
+	.search-row {
+		display: flex !important;
+		flex-direction: row !important;
+		flex-wrap: nowrap !important;
+		gap: 2px !important;
+		overflow-x: auto !important;
+		-webkit-overflow-scrolling: touch !important;
+		justify-content: flex-start !important;
+		align-items: center !important;
+		padding: 0.25rem 0.15rem !important;
+		margin: 0.2rem 0 !important;
+		width: 100% !important;
+		box-sizing: border-box !important;
+		min-height: 34px !important;
+		max-height: 40px !important;
+	}
+	
+	/* 검색 행 내부 모든 요소 공백 제거 */
+	.search-row > * {
+		margin: 0 !important;
+		flex-shrink: 0 !important;
+		white-space: nowrap !important;
+	}
+
+	/* Bigsearch 드롭다운 모바일에서 숨기기 */
+	.search-row #Bigsearch {
+		display: none !important;
+	}
+
+	/* 드롭다운 필드 */
+	.search-row .form-select,
+	.search-row #find {
+		width: auto !important;
+		min-width: 80px !important;
+		max-width: 100px !important;
+		font-size: 0.75rem !important;
+		height: 30px !important;
+		padding: 0.2rem 0.4rem !important;
+		flex: 0 0 auto !important;
+	}
+	
+	/* inputWrap 크기 조정 */
+	.search-row .inputWrap {
+		flex: 1 1 auto !important;
+		min-width: 100px !important;
+		max-width: none !important;
+		margin: 0 2px !important;
+		position: relative !important;
+		display: flex !important;
+		align-items: center !important;
+	}
+	
+	/* 검색어 입력 필드 */
+	.search-row #search {
+		width: 100% !important;
+		font-size: 0.75rem !important;
+		padding: 0.2rem 0.4rem !important;
+		height: 30px !important;
+		box-sizing: border-box !important;
+	}
+	
+	/* 검색 버튼 */
+	.search-row #searchBtn {
+		display: inline-block !important;
+		visibility: visible !important;
+		opacity: 1 !important;
+		flex-shrink: 0 !important;
+		white-space: nowrap !important;
+		font-size: 0.75rem !important;
+		padding: 0.3rem 0.6rem !important;
+		height: 30px !important;
+		margin-left: auto !important;
+		order: 999 !important;
+		min-width: 50px !important;
+	}
+	
+	/* autocomplete-list 숨기기 (필요시) */
+	.search-row #autocomplete-list {
+		position: absolute;
+		z-index: 1000;
+	}
+
+	/* 팝업 프레임 모바일 최적화 */
+	#showextractframe,
+	#showframe {
+		position: fixed !important;
+		left: 50% !important;
+		top: 50% !important;
+		transform: translate(-50%, -50%) !important;
+		width: 95% !important;
+		max-width: 400px !important;
+		z-index: 9999 !important;
+		max-height: 80vh !important;
+		overflow-y: auto !important;
+	}
+
+	/* 테이블 헤더 숨기기 */
+	#myTable thead {
+		display: none;
+	}
+
+	/* 테이블을 카드 레이아웃으로 변경 */
+	#myTable,
+	#myTable tbody,
+	#myTable tr,
+	#myTable td {
+		display: block;
+		width: 100%;
+	}
+
+	#myTable tr {
+		margin-bottom: 10px;
+		border: 1px solid #dee2e6;
+		border-radius: 8px;
+		background: white;
+		box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+		padding: 5px;
+		overflow: hidden;
+	}
+
+	/* 모바일에서 불필요한 필드 숨기기 */
+	#myTable td:nth-child(1),  /* 체크박스 */
+	#myTable td:nth-child(2),  /* 번호 */
+	#myTable td:nth-child(4),  /* 납기 */
+	#myTable td:nth-child(6),  /* 구매카트 */
+	#myTable td:nth-child(7),  /* 완료일 */
+	#myTable td:nth-child(9),  /* 진행상태 */
+	#myTable td:nth-child(10), /* 이관 */
+	#myTable td:nth-child(12), /* 모델명 */
+	#myTable td:nth-child(14), /* 규격 */
+	#myTable td:nth-child(16), /* 사급여부 */
+	#myTable td:nth-child(18)  /* 공급가액 */
+	{
+		display: none !important;
+	}
+
+	#myTable td {
+		text-align: left !important;
+		padding: 4px !important;
+		border: none !important;
+		position: relative;
+		padding-left: 35% !important;
+		white-space: normal !important;
+		word-wrap: break-word;
+		min-height: 30px;
+		font-size: 0.95rem !important;
+		line-height: 1.5 !important;
+	}
+
+	/* 모바일에서 라벨 표시 */
+	#myTable td:before {
+		content: attr(data-label);
+		position: absolute;
+		left: 4px;
+		width: 30%;
+		padding-right: 3px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		font-weight: 600;
+		color: #6b7280;
+		font-size: 0.8rem;
+	}
+
+	/* 콜론 제거 - 모든 셀에서 콜론 숨김 */
+	#myTable td:after {
+		display: none !important;
+	}
+
+	/* 첫 번째 셀 숨김 처리 */
+	#myTable td:first-child {
+		display: none !important;
+	}
+
+	#myTable td:first-child:before {
+		display: none;
+	}
+
+	/* 접수일 (3번째) */
+	#myTable td:nth-child(3) {
+		font-weight: 600;
+		color: #495057;
+		border-bottom: 1px solid #e9ecef;
+		padding-bottom: 4px !important;
+		margin-bottom: 3px;
+	}
+
+	/* 현장명 (11번째) - 가장 중요, 반드시 표시 */
+	#myTable td:nth-child(11),
+	#myTable td[data-label="현장명"] {
+		display: block !important;
+		visibility: visible !important;
+		opacity: 1 !important;
+		background: #e7f3ff !important;
+		font-weight: 700 !important;
+		font-size: 1rem !important;
+		color: #0056b3 !important;
+		padding: 5px 4px !important;
+		padding-left: 4px !important;
+		margin: 3px 0 !important;
+		border-radius: 4px !important;
+		border-left: 4px solid #0056b3 !important;
+		width: 100% !important;
+		position: relative !important;
+		text-align: left !important;
+		white-space: normal !important;
+		word-wrap: break-word !important;
+		min-height: auto !important;
+		line-height: 1.5 !important;
+	}
+
+	/* 현장명에 일반 td 스타일이 적용되지 않도록 */
+	#myTable td:nth-child(11),
+	#myTable td[data-label="현장명"] {
+		padding-left: 4px !important;
+	}
+
+	/* 현장명 라벨 스타일 */
+	#myTable td:nth-child(11):before,
+	#myTable td[data-label="현장명"]:before {
+		position: static !important;
+		display: block !important;
+		width: 100% !important;
+		margin-bottom: 2px !important;
+		font-size: 0.8rem !important;
+		color: #6b7280 !important;
+		font-weight: 600 !important;
+		left: auto !important;
+		width: 100% !important;
+		padding-right: 0 !important;
+		overflow: visible !important;
+		text-overflow: clip !important;
+	}
+
+	/* 철판종류 (13번째) */
+	#myTable td:nth-child(13) {
+		font-weight: 600;
+		color: #764ba2;
+	}
+
+	/* 수량 (15번째) */
+	#myTable td:nth-child(15) {
+		font-weight: 600;
+		color: #dc2626;
+		font-size: 1rem !important;
+	}
+
+	/* 공급처 (17번째) */
+	#myTable td:nth-child(17) {
+		font-weight: 600;
+		color: #059669;
+	}
+
+	/* DataTables 컨트롤 모바일에서 숨기기 */
+	.dataTables_wrapper .dataTables_length,
+	.dataTables_wrapper .dataTables_filter {
+		display: none !important;
+	}
+
+	/* DataTables 페이지네이션 최적화 */
+	.dataTables_wrapper .dataTables_paginate {
+		font-size: 0.9rem !important;
+		margin-top: 15px !important;
+	}
+
+	.dataTables_wrapper .dataTables_paginate .paginate_button {
+		padding: 0.5rem 0.7rem !important;
+		margin: 0 2px !important;
+	}
+
+	/* DataTables 정보 표시 최적화 */
+	.dataTables_wrapper .dataTables_info {
+		font-size: 0.9rem !important;
+		text-align: center !important;
+		margin-top: 10px !important;
+		margin-bottom: 10px !important;
+	}
+
+	/* 버튼 영역 줄바꿈 허용 */
+	.d-flex.justify-content-center {
+		flex-wrap: wrap !important;
+		overflow-x: visible !important;
+		gap: 0.4rem !important;
+		justify-content: flex-start !important;
+	}
+
+	/* 버튼 영역 가운데 정렬 유지 */
+	.d-flex.justify-content-center.align-items-center {
+		justify-content: center !important;
+	}
+
+	/* 배지 크기 조정 */
+	.badge {
+		font-size: 0.85rem !important;
+		padding: 0.3rem 0.6rem !important;
+	}
+
+	/* 카드 패딩 조정 */
+	.card {
+		margin-bottom: 10px !important;
+	}
+
+	.card-body {
+		padding: 4px !important;
+	}
+
+	/* 상단 검색 영역 정리 */
+	.card-body > .d-flex.mb-1.mt-1 {
+		flex-direction: column !important;
+		align-items: stretch !important;
+		gap: 10px !important;
+	}
+
+	/* 제목과 총 개수 영역 */
+	.card-body > .d-flex.mb-3.mt-2 {
+		flex-direction: row !important;
+		justify-content: space-between !important;
+		align-items: center !important;
+		margin-bottom: 5px !important;
+		padding-bottom: 4px !important;
+		border-bottom: 2px solid #e9ecef !important;
+	}
+
+	/* 모바일에서 불필요한 버튼 숨기기 */
+	#showextract,           /* 부가기능 버튼 */
+	#showdate,              /* 기간 버튼 */
+	#mywriteBtn,            /* 내글 버튼 */
+	#writeBtn,              /* 신규 버튼 */
+	#showCost,              /* 단가 추적 버튼 */
+	#addToCartBtn,          /* 구매카트 담기 버튼 */
+	.checktask,             /* 입고 제외/포함 버튼 */
+	.date-row #dateRange,   /* 날짜 범위 드롭다운 */
+	.search-row #Bigsearch  /* 철판종류 드롭다운 */
+	{
+		display: none !important;
+	}
+
+	/* 검색 버튼만 표시 */
+	#searchBtn {
+		display: inline-block !important;
+	}
+}
 </style> 
 </head>
 <body>		 
@@ -413,159 +886,153 @@ $BigsearchTag = $_REQUEST["BigsearchTag"] ?? '';
 		<button type="button" class="btn btn-dark btn-sm mx-3"  onclick='location.reload();' title="새로고침"> <i class="bi bi-arrow-clockwise"></i> </button>
 		<button type="button" class="btn btn-primary btn-sm mx-2" id="addToCartBtn" title="구매카트에 담기"> <i class="bi bi-cart-plus"></i> 구매카트 담기 </button>
 	</div>
-	<div class="d-flex mb-1 mt-1 justify-content-center align-items-center">  		
-		<!-- Replace the checkbox code with the Bootstrap-styled button -->					
+	<!-- 날짜 행 -->
+	<div class="d-flex p-1 m-1 mt-1 mb-1 justify-content-center align-items-center date-row">
+		<?php
+			print '▷ ' .  $total_row . '&nbsp;&nbsp; ' ;					
+			if($done_check_val==='0')   
+				print '<button class="btn btn-dark  btn-sm  checktask " type="button"> <i class="bi bi-search"></i> 입고 제외 </button>  &nbsp;&nbsp;';
+			else
+				print '<button class="btn btn-outline-dark  btn-sm  checktask " type="button"   >  <i class="bi bi-search"></i> 입고 포함 </button>  &nbsp;&nbsp;';								  
+		?>
+		<span id="showdate" class="btn btn-dark btn-sm " > 기간 </span>	&nbsp; 
+		<select name="dateRange" id="dateRange" class="form-select w-auto mx-1" style="font-size: 0.8rem; height: 32px;">
 			<?php
-				print '▷ ' .  $total_row . '&nbsp;&nbsp; ' ;					
-					if($done_check_val==='0')   
-						   print '<button class="btn btn-dark  btn-sm  checktask " type="button"> <i class="bi bi-search"></i> 입고 제외 </button>  &nbsp;&nbsp;';
-						else
-							print '<button class="btn btn-outline-dark  btn-sm  checktask " type="button"   >  <i class="bi bi-search"></i> 입고 포함 </button>  &nbsp;&nbsp;';								  
+			$dateRangeArray = array('최근3개월','최근6개월', '최근1년', '최근2년','직접설정','전체');
+			$savedDateRange = $_COOKIE['dateRange'] ?? ''; // 쿠키에서 dateRange 값 읽기
 
-					
-			?>		   
-				<!-- 기간부터 검색까지 연결 묶음 start -->
-				<span id="showdate" class="btn btn-dark btn-sm " > 기간 </span>	&nbsp; 
-
-				<select name="dateRange" id="dateRange" class="form-select w-auto mx-1" style="font-size: 0.8rem; height: 32px;">
-					<?php
-					$dateRangeArray = array('최근3개월','최근6개월', '최근1년', '최근2년','직접설정','전체');
-					$savedDateRange = $_COOKIE['dateRange'] ?? ''; // 쿠키에서 dateRange 값 읽기
-
-					foreach ($dateRangeArray as $range) {
-						$selected = ($savedDateRange == $range) ? 'selected' : '';
-						echo "<option $selected value='$range'>$range</option>";
-					}
-					?>
-				</select>			
-				
-				<div id="showframe" class="card">
-					<div class="card-header " style="padding:2px;">
-						<div class="d-flex justify-content-center align-items-center">  
-							기간 설정
-						</div>
-					</div>
-					<div class="card-body">
-						<div class="d-flex justify-content-center align-items-center">  	
-							<button type="button" class="btn btn-outline-success btn-sm me-1 change_dateRange"   onclick='alldatesearch()' > 전체 </button>  
-							<button type="button" id="preyear" class="btn btn-outline-primary btn-sm me-1 change_dateRange"   onclick='pre_year()' > 전년도 </button>  
-							<button type="button" id="three_month" class="btn btn-dark btn-sm me-1  change_dateRange"  onclick='three_month_ago()' > M-3월 </button>
-							<button type="button" id="prepremonth" class="btn btn-dark btn-sm me-1  change_dateRange"  onclick='prepre_month()' > 전전월 </button>	
-							<button type="button" id="premonth" class="btn btn-dark btn-sm me-1  change_dateRange"  onclick='pre_month()' > 전월 </button> 						
-							<button type="button" class="btn btn-outline-danger btn-sm me-1  change_dateRange"  onclick='this_today()' > 오늘 </button>
-							<button type="button" id="thismonth" class="btn btn-dark btn-sm me-1  change_dateRange"  onclick='this_month()' > 당월 </button>
-							<button type="button" id="thisyear" class="btn btn-dark btn-sm me-1  change_dateRange"  onclick='this_year()' > 당해년도 </button> 
-						</div>
-					</div>
-				</div>		
-
-			   <input type="date" id="fromdate" name="fromdate" class="form-control"   style="width:100px;" value="<?=$fromdate?>" >  &nbsp;   ~ &nbsp;  
-			   <input type="date" id="todate" name="todate"  class="form-control"   style="width:100px;" value="<?=$todate?>" >  &nbsp;     </span> 
-			   &nbsp;&nbsp;
-			   <button type="button" id="mywriteBtn" class="btn btn-dark  btn-sm" > 내글 </button>	
-				<select id="find" name="find" class="form-select w-auto mx-1" style="font-size: 0.8rem; height: 32px;">
-				   <?php	
-
-				$findarr=array('전체','입고','출고','공급처');
-
-				   for($i=0;$i<count($findarr);$i++) {
-						 if($find==$findarr[$i]) 
-									print "<option selected value='" . $findarr[$i] . "'> " . $findarr[$i] .   "</option>";
-							 else   
-					   print "<option value='" . $findarr[$i] . "'> " . $findarr[$i] .   "</option>";
-				   } 		   
-		      	?>				   
-				</select>
-		   <select name="Bigsearch" id="Bigsearch" class="form-select w-auto mx-1" style="font-size: 0.8rem; height: 32px;">
-				<?php
-				for($i=0;$i<count($steelsource_item_yes);$i++) {
-					if($Bigsearch==$steelsource_item_yes[$i])
-						print "<option selected value='" . $steelsource_item_yes[$i] . "'> " . $steelsource_item_yes[$i] .   "</option>";
-					else
-						print "<option value='" . $steelsource_item_yes[$i] . "'> " . $steelsource_item_yes[$i] .   "</option>";
-				}
-				?>
-			</select>		   			
-			<div class="inputWrap">
-				<input type="text" id="search" name="search" value="<?=$search?>" onkeydown="JavaScript:SearchEnter();" autocomplete="off"  class="form-control" style="width:150px;" > &nbsp;			
-				<button class="btnClear"></button>
-			</div>				
-				<button type="button" id="searchBtn" class="btn btn-dark  btn-sm mx-2 "> <i class="bi bi-search"></i> 검색  </button>	&nbsp;&nbsp;
-			<div id="autocomplete-list">
+			foreach ($dateRangeArray as $range) {
+				$selected = ($savedDateRange == $range) ? 'selected' : '';
+				echo "<option $selected value='$range'>$range</option>";
+			}
+			?>
+		</select>			
+		
+		<div id="showframe" class="card">
+			<div class="card-header " style="padding:2px;">
+				<div class="d-flex justify-content-center align-items-center">  
+					기간 설정
+				</div>
 			</div>
-					<span id="showextract" class="btn btn-primary btn-sm" > <i class="bi bi-tools"></i>  </span>	
-					<div id="showextractframe" class="card">
-						<div class="card-header text-center " style="padding:2px;">
-							자주사용하는 사이즈
-						</div>					
-							<div class="card-body">
-									<div class="p-1 m-1" >
-									 <button type="button" class="btn btn-primary btn-sm" onclick="HL304_list_click();" > 304 HL </button>	&nbsp;   
-									 <button type="button" class="btn btn-success btn-sm" onclick="MR304_list_click();" > 304 MR </button>	&nbsp;    			 
-									 <button type="button" class="btn btn-secondary btn-sm" onclick="VB_list_click();" > VB </button>	&nbsp;    
-									 <button type="button" class="btn btn-warning btn-sm" onclick="EGI_list_click();" > EGI </button>	&nbsp;    
-									 <button type="button" class="btn btn-danger btn-sm" onclick="PO_list_click();" > PO </button>	&nbsp;    
-									 <button type="button" class="btn btn-dark btn-sm" onclick="CR_list_click();" > CR </button>	&nbsp;  
-									 <button type="button" class="btn btn-success btn-sm" onclick="MR201_list_click();" > 201 2B MR </button>	&nbsp;  
-								     </div>	
-									  <div class="p-1 m-1" >
-									  <span class="text-success "> <strong> 쟘 1.2T &nbsp; </strong> </span>	
-										<button type="button" class="btn btn-outline-success btn-sm" onclick="size1000_1950_list_click();"> 1000x1950  </button> &nbsp;
-										<button type="button" class="btn btn-outline-success btn-sm" onclick="size1000_2150_list_click();"> 1000x2150  </button> &nbsp;				   
-										<button type="button"  class="btn btn-outline-success btn-sm"   onclick="size42150_list_click();">  4'X2150 </button> &nbsp;
-										<button type="button"  class="btn btn-outline-success btn-sm"   onclick="size1000_8_list_click();"> 1000x8' </button> &nbsp; 
-									  </div>	
-									  <div class="p-1 m-1" >
-									 &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-									  <button type="button"   class="btn btn-outline-success btn-sm"  onclick="size4_8_list_click();"> 4'x8' </button> &nbsp;
-									  <button type="button"  class="btn btn-outline-success btn-sm"  onclick="size1000_2700_list_click();"> 1000x2700 </button> &nbsp;
-									   <button type="button" class="btn btn-outline-success btn-sm"  onclick="size4_2700_list_click();"> 4'x2700 </button> &nbsp;
-									   <button type="button" class="btn btn-outline-success btn-sm"  onclick="size4_3200_list_click();"> 4'x3200  </button> &nbsp;
-									   <button type="button" class="btn btn-outline-success btn-sm"   onclick="size4_4000_list_click();"> 4'x4000 </button> &nbsp;	   			  
-									  </div>			  
-									  <div class="p-1 m-1" >
-									  <span class="text-success "> <strong> 신규쟘 1.5T(HL) &nbsp; </strong> </span>	
-									   <button type="button" class="btn btn-outline-success btn-sm" onclick="size15_4_2150_list_click();"> 4'x2150 </button> &nbsp;				
-									   <button type="button" class="btn btn-outline-success btn-sm" onclick="size15_4_8_list_click();"> 4'x8' </button> &nbsp;								  
-									  <span class="text-success "> <strong> 신규쟘 2.0T(EGI) &nbsp; </strong> </span>	
-									   <button type="button" class="btn btn-outline-success btn-sm" onclick="size20_4_8_list_click();"> 4'x8'  </button> &nbsp;
-									  </div>			
-									<div class=" p-1 m-1" >	   
-									   천장 1.2T(CR)  </button> &nbsp; 
-									  <button type="button"  class="btn btn-outline-danger btn-sm" onclick="size12_4_1680_list_click();"> 4'x1680 </button> &nbsp;
-									  <button type="button"  class="btn btn-outline-danger btn-sm" onclick="size12_4_1950_list_click();"> 4'x1950 </button> &nbsp;
-									  <button type="button"  class="btn btn-outline-danger btn-sm"  onclick="size12_4_8_list_click();"> 4'x8' </button> &nbsp;
-									  </div>			  
-								    <div class=" p-1 m-1" >			  				   
-									  천장 1.6T(CR)   &nbsp; 	  
-									  <button type="button"  class="btn btn-outline-primary btn-sm" onclick="size16_4_1680_list_click();"> 4'x1680 </button> &nbsp;
-									  <button type="button"  class="btn btn-outline-primary btn-sm"  onclick="size16_4_1950_list_click();"> 4'x1950 </button> &nbsp;
-									  <button type="button"  class="btn btn-outline-primary btn-sm"  onclick="size16_4_8_list_click();"> 4'x8' </button> &nbsp;		   		   
-								    </div>
-								    <div class=" p-1 m-1" >	
-									   천장 2.3T(PO)  &nbsp; 	  
-									   <button type="button" class="btn btn-outline-secondary btn-sm" onclick="size23_4_1680_list_click();"> 4'x1680 </button> &nbsp;
-									   <button type="button" class="btn btn-outline-secondary btn-sm"  onclick="size23_4_1950_list_click();"> 4'x1950 </button> &nbsp;
-									   <button type="button" class="btn btn-outline-secondary btn-sm"  onclick="size23_4_8_list_click();"> 4'x8'  </button> &nbsp;					  
-									   천장 3.2T(PO)  &nbsp; 	  
-									   <button type="button" class="btn btn-outline-secondary btn-sm" onclick="size32_4_1680_list_click();"> 4'x1680 </button> &nbsp;									   
-								    </div>
-								   
-							</div>					
-					</div>			
-				
-			   
+			<div class="card-body">
+				<div class="d-flex justify-content-center align-items-center">  	
+					<button type="button" class="btn btn-outline-success btn-sm me-1 change_dateRange"   onclick='alldatesearch()' > 전체 </button>  
+					<button type="button" id="preyear" class="btn btn-outline-primary btn-sm me-1 change_dateRange"   onclick='pre_year()' > 전년도 </button>  
+					<button type="button" id="three_month" class="btn btn-dark btn-sm me-1  change_dateRange"  onclick='three_month_ago()' > M-3월 </button>
+					<button type="button" id="prepremonth" class="btn btn-dark btn-sm me-1  change_dateRange"  onclick='prepre_month()' > 전전월 </button>	
+					<button type="button" id="premonth" class="btn btn-dark btn-sm me-1  change_dateRange"  onclick='pre_month()' > 전월 </button> 						
+					<button type="button" class="btn btn-outline-danger btn-sm me-1  change_dateRange"  onclick='this_today()' > 오늘 </button>
+					<button type="button" id="thismonth" class="btn btn-dark btn-sm me-1  change_dateRange"  onclick='this_month()' > 당월 </button>
+					<button type="button" id="thisyear" class="btn btn-dark btn-sm me-1  change_dateRange"  onclick='this_year()' > 당해년도 </button> 
+				</div>
+			</div>
+		</div>		
+
+		<input type="date" id="fromdate" name="fromdate" class="form-control" style="width:100px;" value="<?=$fromdate?>">
+		<span class="date-separator">~</span>
+		<input type="date" id="todate" name="todate" class="form-control" style="width:100px;" value="<?=$todate?>">
+		<button type="button" id="mywriteBtn" class="btn btn-dark  btn-sm" > 내글 </button>	
+	</div>
+
+	<!-- 검색 행 -->
+	<div class="d-flex p-1 m-1 mt-1 mb-1 justify-content-center align-items-center search-row">
+		<select id="find" name="find" class="form-select w-auto mx-1" style="font-size: 0.8rem; height: 32px;">
 			<?php
-		   if(isset($_SESSION["userid"]))
-		   {
-		  ?>			
-		    <button type="button" class="btn btn-dark  btn-sm mx-2" id="writeBtn"> <i class="bi bi-pencil"></i>  신규  </button> 			     
-		    <!-- <button type="button" class="btn btn-dark  btn-sm" onclick="window.open('extract_db.php','자재미입고 추출','left=100,top=100, scrollbars=yes, toolbars=no,width=1500,height=800');">  자재 미입고 </button>		&nbsp;		   			 -->
-		    <button type="button" class="btn btn-dark  btn-sm" id="showCost" >  단가 추적 </button>		&nbsp;		   			
-		  <?php
-		   }
-		  ?>
-			 
+			$findarr=array('전체','입고','출고','공급처');
+			for($i=0;$i<count($findarr);$i++) {
+				if($find==$findarr[$i]) 
+					print "<option selected value='" . $findarr[$i] . "'> " . $findarr[$i] .   "</option>";
+				else   
+					print "<option value='" . $findarr[$i] . "'> " . $findarr[$i] .   "</option>";
+			} 		   
+			?>				   
+		</select>
+		<select name="Bigsearch" id="Bigsearch" class="form-select w-auto mx-1" style="font-size: 0.8rem; height: 32px;">
+			<?php
+			for($i=0;$i<count($steelsource_item_yes);$i++) {
+				if($Bigsearch==$steelsource_item_yes[$i])
+					print "<option selected value='" . $steelsource_item_yes[$i] . "'> " . $steelsource_item_yes[$i] .   "</option>";
+				else
+					print "<option value='" . $steelsource_item_yes[$i] . "'> " . $steelsource_item_yes[$i] .   "</option>";
+			}
+			?>
+		</select>		   			
+		<div class="inputWrap">
+			<input type="text" id="search" name="search" value="<?=$search?>" onkeydown="JavaScript:SearchEnter();" autocomplete="off" class="form-control" style="width:150px;">
+			<button class="btnClear"></button>
+		</div>				
+		<button type="button" id="searchBtn" class="btn btn-dark  btn-sm mx-2 "> <i class="bi bi-search"></i> 검색  </button>
+		<div id="autocomplete-list">
+		</div>
+		<span id="showextract" class="btn btn-primary btn-sm" > <i class="bi bi-tools"></i>  </span>	
+		<div id="showextractframe" class="card">
+			<div class="card-header text-center " style="padding:2px;">
+				자주사용하는 사이즈
+			</div>					
+			<div class="card-body">
+				<div class="p-1 m-1" >
+					<button type="button" class="btn btn-primary btn-sm" onclick="HL304_list_click();" > 304 HL </button>	&nbsp;   
+					<button type="button" class="btn btn-success btn-sm" onclick="MR304_list_click();" > 304 MR </button>	&nbsp;    			 
+					<button type="button" class="btn btn-secondary btn-sm" onclick="VB_list_click();" > VB </button>	&nbsp;    
+					<button type="button" class="btn btn-warning btn-sm" onclick="EGI_list_click();" > EGI </button>	&nbsp;    
+					<button type="button" class="btn btn-danger btn-sm" onclick="PO_list_click();" > PO </button>	&nbsp;    
+					<button type="button" class="btn btn-dark btn-sm" onclick="CR_list_click();" > CR </button>	&nbsp;  
+					<button type="button" class="btn btn-success btn-sm" onclick="MR201_list_click();" > 201 2B MR </button>	&nbsp;  
+				</div>	
+				<div class="p-1 m-1" >
+					<span class="text-success "> <strong> 쟘 1.2T &nbsp; </strong> </span>	
+					<button type="button" class="btn btn-outline-success btn-sm" onclick="size1000_1950_list_click();"> 1000x1950  </button> &nbsp;
+					<button type="button" class="btn btn-outline-success btn-sm" onclick="size1000_2150_list_click();"> 1000x2150  </button> &nbsp;				   
+					<button type="button"  class="btn btn-outline-success btn-sm"   onclick="size42150_list_click();">  4'X2150 </button> &nbsp;
+					<button type="button"  class="btn btn-outline-success btn-sm"   onclick="size1000_8_list_click();"> 1000x8' </button> &nbsp; 
+				</div>	
+				<div class="p-1 m-1" >
+					&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					<button type="button"   class="btn btn-outline-success btn-sm"  onclick="size4_8_list_click();"> 4'x8' </button> &nbsp;
+					<button type="button"  class="btn btn-outline-success btn-sm"  onclick="size1000_2700_list_click();"> 1000x2700 </button> &nbsp;
+					<button type="button" class="btn btn-outline-success btn-sm"  onclick="size4_2700_list_click();"> 4'x2700 </button> &nbsp;
+					<button type="button" class="btn btn-outline-success btn-sm"  onclick="size4_3200_list_click();"> 4'x3200  </button> &nbsp;
+					<button type="button" class="btn btn-outline-success btn-sm"   onclick="size4_4000_list_click();"> 4'x4000 </button> &nbsp;	   			  
+				</div>			  
+				<div class="p-1 m-1" >
+					<span class="text-success "> <strong> 신규쟘 1.5T(HL) &nbsp; </strong> </span>	
+					<button type="button" class="btn btn-outline-success btn-sm" onclick="size15_4_2150_list_click();"> 4'x2150 </button> &nbsp;				
+					<button type="button" class="btn btn-outline-success btn-sm" onclick="size15_4_8_list_click();"> 4'x8' </button> &nbsp;								  
+					<span class="text-success "> <strong> 신규쟘 2.0T(EGI) &nbsp; </strong> </span>	
+					<button type="button" class="btn btn-outline-success btn-sm" onclick="size20_4_8_list_click();"> 4'x8'  </button> &nbsp;
+				</div>			
+				<div class=" p-1 m-1" >	   
+					천장 1.2T(CR)  </button> &nbsp; 
+					<button type="button"  class="btn btn-outline-danger btn-sm" onclick="size12_4_1680_list_click();"> 4'x1680 </button> &nbsp;
+					<button type="button"  class="btn btn-outline-danger btn-sm" onclick="size12_4_1950_list_click();"> 4'x1950 </button> &nbsp;
+					<button type="button"  class="btn btn-outline-danger btn-sm"  onclick="size12_4_8_list_click();"> 4'x8' </button> &nbsp;
+				</div>			  
+				<div class=" p-1 m-1" >			  				   
+					천장 1.6T(CR)   &nbsp; 	  
+					<button type="button"  class="btn btn-outline-primary btn-sm" onclick="size16_4_1680_list_click();"> 4'x1680 </button> &nbsp;
+					<button type="button"  class="btn btn-outline-primary btn-sm"  onclick="size16_4_1950_list_click();"> 4'x1950 </button> &nbsp;
+					<button type="button"  class="btn btn-outline-primary btn-sm"  onclick="size16_4_8_list_click();"> 4'x8' </button> &nbsp;		   		   
+				</div>
+				<div class=" p-1 m-1" >	
+					천장 2.3T(PO)  &nbsp; 	  
+					<button type="button" class="btn btn-outline-secondary btn-sm" onclick="size23_4_1680_list_click();"> 4'x1680 </button> &nbsp;
+					<button type="button" class="btn btn-outline-secondary btn-sm"  onclick="size23_4_1950_list_click();"> 4'x1950 </button> &nbsp;
+					<button type="button" class="btn btn-outline-secondary btn-sm"  onclick="size23_4_8_list_click();"> 4'x8'  </button> &nbsp;					  
+					천장 3.2T(PO)  &nbsp; 	  
+					<button type="button" class="btn btn-outline-secondary btn-sm" onclick="size32_4_1680_list_click();"> 4'x1680 </button> &nbsp;									   
+				</div>
+			</div>					
+		</div>			
+		<?php
+		if(isset($_SESSION["userid"]))
+		{
+		?>			
+		<button type="button" class="btn btn-dark  btn-sm mx-2" id="writeBtn"> <i class="bi bi-pencil"></i>  신규  </button> 			     
+		<button type="button" class="btn btn-dark  btn-sm" id="showCost" >  단가 추적 </button>
+		<?php
+		}
+		?>
+	</div>
       </div>
       </div>
       </div>
@@ -674,13 +1141,13 @@ try {
 ?>
 
 <tr onclick="redirectToView('<?= $num ?>', '<?= $find ?>', '<?= $search ?>', '<?= $Bigsearch ?>', '<?= $yearcheckbox ?>', '<?= $year ?>', '<?= $fromdate ?>', '<?= $todate ?>', '<?= $separate_date ?>', '<?= $scale ?>','<?= $mywrite ?>')">
-    <td class="text-center" onclick="event.stopPropagation();">
+    <td class="text-center" onclick="event.stopPropagation();" data-label="">
 		<input type="checkbox" class="row-checkbox" name="selected_items[]" value="<?= $num ?>" data-num="<?= $num ?>">
 	</td>
-    <td class="text-center"><?= $start_num ?></td>
-    <td class="<?= $date_font ?> text-center" data-order="<?= $outdate ?>"><?= iconv_substr($outdate, 0, 15, "utf-8") ?></td>
-    <td class="<?= $date_font ?> text-center" data-order="<?= $requestdate ?>"><?= iconv_substr($requestdate, 5, 9, "utf-8") ?></td>
-    <td class="text-center<?php if ($status === 'ing') echo ' text-primary blink'; ?>"><?= $statusstr ?> &nbsp;</td>
+    <td class="text-center" data-label="번호"><?= $start_num ?></td>
+    <td class="<?= $date_font ?> text-center" data-label="접수" data-order="<?= $outdate ?>"><?= iconv_substr($outdate, 0, 15, "utf-8") ?></td>
+    <td class="<?= $date_font ?> text-center" data-label="납기" data-order="<?= $requestdate ?>"><?= iconv_substr($requestdate, 5, 9, "utf-8") ?></td>
+    <td class="text-center<?php if ($status === 'ing') echo ' text-primary blink'; ?>" data-label="결재"><?= $statusstr ?> &nbsp;</td>
     <style>
     @keyframes blink {
         0%   { opacity: 1; }
@@ -691,7 +1158,7 @@ try {
         animation: blink 1s linear infinite;
     }
     </style>
-    <td class="text-center">
+    <td class="text-center" data-label="구매카트">
         <?php
         $cart_value = $cart ?? 0;
         if ($cart_value == 1) {
@@ -701,18 +1168,18 @@ try {
         }
         ?>
     </td>
-    <td class="text-center" data-order="<?= $indate ?>"><?= iconv_substr($indate, 5, 9, "utf-8") ?></td>
-    <td class="text-center"><?= $tmpStr ?></td>
-    <td class="<?= $font_state ?> text-center"><?= $tmp_word ?></td>
-    <td class="text-center"><?= $inventory ?> &nbsp;</td>
-    <td class=""><?= $outworkplace ?></td>
-    <td class="text-center"><?= iconv_substr($model, 0, 8, "utf-8") ?></td>
-    <td class="color-blue text-center"><?= $steel_item ?></td>
-    <td class="color-brown text-center"><?= $spec ?></td>
-    <td class="color-red text-center"><?= $steelnum ?></td>
-    <td class="color-green text-center"><?= $company ?></td>
-    <td class="text-center"><?= $supplier ?></td>
-    <td class="text-center">
+    <td class="text-center" data-label="완료일" data-order="<?= $indate ?>"><?= iconv_substr($indate, 5, 9, "utf-8") ?></td>
+    <td class="text-center" data-label="요청인"><?= $tmpStr ?></td>
+    <td class="<?= $font_state ?> text-center" data-label="진행상태"><?= $tmp_word ?></td>
+    <td class="text-center" data-label="이관"><?= $inventory ?> &nbsp;</td>
+    <td class="" data-label="현장명"><?= $outworkplace ?></td>
+    <td class="text-center" data-label="모델명"><?= iconv_substr($model, 0, 8, "utf-8") ?></td>
+    <td class="color-blue text-center" data-label="철판종류"><?= $steel_item ?></td>
+    <td class="color-brown text-center" data-label="규격"><?= $spec ?></td>
+    <td class="color-red text-center" data-label="수량"><?= $steelnum ?></td>
+    <td class="color-green text-center" data-label="사급여부"><?= $company ?></td>
+    <td class="text-center" data-label="공급처"><?= $supplier ?></td>
+    <td class="text-center" data-label="공급가액">
         <?php
         $suppliercost = $suppliercost ?? '';
         $number = (int)str_replace(',', '', $suppliercost);
@@ -724,7 +1191,7 @@ try {
         }
         ?>
     </td>
-    <td class=""><?= htmlspecialchars($request_comment, ENT_QUOTES, 'UTF-8') ?></td>
+    <td class="" data-label="비고"><?= htmlspecialchars($request_comment, ENT_QUOTES, 'UTF-8') ?></td>
 </tr>
 
 <?php
@@ -824,7 +1291,6 @@ function restorePageNumber() {
         dataTable.page(parseInt(savedPageNumber) - 1).draw('page');
     }
 }
-
 
 function saveSearch() {
     let searchInput = document.getElementById('search');

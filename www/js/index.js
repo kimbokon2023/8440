@@ -78,7 +78,7 @@ function initDataTable() {
             }
         });
     } catch (error) {
-        console.error('DataTable 초기화 중 오류가 발생했습니다:', error);
+        // console.error('DataTable 초기화 중 오류가 발생했습니다:', error);
     }
 }
 
@@ -113,7 +113,7 @@ function Eworks_restorePageNumber() {
     try {
         // DataTable이 정의되어 있는지 확인
         if (!isDataTableInitialized()) {
-            console.warn('DataTable이 초기화되지 않았습니다.');
+            // console.warn('DataTable이 초기화되지 않았습니다.');
             return;
         }
         
@@ -122,7 +122,7 @@ function Eworks_restorePageNumber() {
             Eworks_dataTable.page(parseInt(savedPageNumber) - 1).draw('page');
         }
     } catch (error) {
-        console.error('페이지 번호 복원 중 오류가 발생했습니다:', error);
+        // console.error('페이지 번호 복원 중 오류가 발생했습니다:', error);
     }
 }	
 
@@ -398,21 +398,34 @@ $(document).ready(function(){
 /////////////////////////////////////////////// 전자 결재관련
 			
 	// 전자결재 모달 닫기 함수 (전역 함수로 정의)
-	window.closeEworksModal = function() {
-		// 부트스트랩 모달 닫기
-		$('#eworks_form').modal('hide');
-		
-		// .sideEworksBanner 요소가 존재하면 해당 요소를 보이게 설정 (PC만)
-		if ($('.sideEworksBanner').length > 0 && window.innerWidth > 768) {
-			$('.sideEworksBanner').css('display', 'block');
-		}
-		
-		// 모바일에서 body 스크롤 복원
-		if (window.innerWidth <= 768) {
-			document.body.style.overflow = '';
-			document.documentElement.style.overflow = '';
-		}
-	};
+	// index2.php의 closeEworksModal 함수가 있으면 그것을 사용, 없으면 여기서 정의
+	if (typeof window.closeEworksModal === 'undefined') {
+		window.closeEworksModal = function() {
+			// 부트스트랩 모달 닫기
+			$('#eworks_form').modal('hide');
+			
+			// .sideEworksBanner 요소가 존재하면 해당 요소를 보이게 설정 (PC만)
+			if ($('.sideEworksBanner').length > 0 && window.innerWidth > 768) {
+				$('.sideEworksBanner').css('display', 'block');
+			}
+			
+			// 모바일에서 커스텀 모달 닫기
+			if (window.innerWidth <= 768) {
+				const overlay = document.getElementById('eworksModalOverlay');
+				if (overlay) {
+					overlay.classList.remove('active');
+					document.body.style.overflow = '';
+					document.documentElement.style.overflow = '';
+					setTimeout(() => {
+						overlay.style.display = 'none';
+					}, 300);
+				} else {
+					document.body.style.overflow = '';
+					document.documentElement.style.overflow = '';
+				}
+			}
+		};
+	}
 
 	$("#closeModalxBtn, #closeEworksBtn").click(function() {
 		closeEworksModal();
@@ -453,7 +466,7 @@ viewEworks_detail = function(e_num, eworksPage)
        $('#e_num').val('');		  
 	}
 	
-	console.log(e_num);
+	// console.log(e_num);
 	id= e_num;
 		
 	// 뒷배경 누를때 안닫히게
@@ -513,13 +526,13 @@ viewEworks_detail = function(e_num, eworksPage)
 			  done= data["done"];	
 
 			  // 디버깅: 받은 데이터 확인
-			  console.log('=== load_listone.php 응답 데이터 ===');
-			  console.log('eworks_item:', eworks_item);
-			  console.log('author:', author);
-			  console.log('author_id:', author_id);
-			  console.log('e_line:', e_line);
-			  console.log('e_line_id:', e_line_id);
-			  console.log('registdate:', registdate);
+			  // console.log('=== load_listone.php 응답 데이터 ===');
+			  // console.log('eworks_item:', eworks_item);
+			  // console.log('author:', author);
+			  // console.log('author_id:', author_id);
+			  // console.log('e_line:', e_line);
+			  // console.log('e_line_id:', e_line_id);
+			  // console.log('registdate:', registdate);
 
 		// 결재 테이블 생성 및 추가
         createApprovalTable(data.e_line, data.e_confirm);				
@@ -564,7 +577,7 @@ viewEworks_detail = function(e_num, eworksPage)
 				// 결재라인은 1차결재를 한사람은 결재권한을 잃고 버튼이 나오지 않게 만든다.
 				
 				var searchresult = 0;
-				console.log('e_line_id' , e_line_id);
+				// console.log('e_line_id' , e_line_id);
 				if (e_line_id !== null && e_line_id !== '') {
 				var searchname = e_line_id.split("!");  // 결재인
 
@@ -578,7 +591,7 @@ viewEworks_detail = function(e_num, eworksPage)
 						}
 					} else {
 						// 'searchname' 배열이 비어 있거나 유효한 데이터가 없는 경우
-						console.log('No valid data in searchname array');
+						// console.log('No valid data in searchname array');
 					}
 				}
 		
@@ -1204,7 +1217,7 @@ else if (eworks_item === '연구개발보고서') {
 			if(isNull(eworks_item))
 				eworks_item = '일반';
 			
-				console.log('=== 폼 필드에 값 설정 시작 ===');
+				// console.log('=== 폼 필드에 값 설정 시작 ===');
 				
 				// myheader.php의 hidden 필드 (전송용)
 				$('#eworks_board_form #eworks_item').val(eworks_item);
@@ -1234,11 +1247,11 @@ else if (eworks_item === '연구개발보고서') {
 				$('#numdisplay').text(e_num); // 자료번호 화면에 출력
 				
 				// 디버깅: 설정 후 필드 값 확인
-				console.log('설정 후 모달 #author 값:', $('#eworks_viewmodal #author').val());
-				console.log('설정 후 모달 #e_line 값:', $('#eworks_viewmodal #e_line').val());
-				console.log('설정 후 모달 #registdate 값:', $('#eworks_viewmodal #registdate').val());
-				console.log('설정 후 hidden #e_line_id 값:', $('#eworks_board_form #e_line_id').val());
-				console.log('=== 폼 필드 설정 완료 ===');			  
+				// console.log('설정 후 모달 #author 값:', $('#eworks_viewmodal #author').val());
+				// console.log('설정 후 모달 #e_line 값:', $('#eworks_viewmodal #e_line').val());
+				// console.log('설정 후 모달 #registdate 값:', $('#eworks_viewmodal #registdate').val());
+				// console.log('설정 후 hidden #e_line_id 값:', $('#eworks_board_form #e_line_id').val());
+				// console.log('=== 폼 필드 설정 완료 ===');			  
 				
 				// console.log(" 조회창 버튼 readonly 속성 부여");
 				// console.log("status", status);
@@ -1285,8 +1298,8 @@ else if (eworks_item === '연구개발보고서') {
 					$('#eworks_board_form #status').val('draft'); 	
 					status = 'draft';
 					
-					console.log('신규 작성 - author 설정:', userName);
-					console.log('신규 작성 - registdate 설정:', currentDateTime);
+					// console.log('신규 작성 - author 설정:', userName);
+					// console.log('신규 작성 - registdate 설정:', currentDateTime);
 				   }	
 			
 				// 상태에 따라 함수 호출
@@ -1296,8 +1309,8 @@ else if (eworks_item === '연구개발보고서') {
 					setModalElementsReadonly(false);
 				}
 
-			 console.log('status');
-			 console.log(status);			
+			 // console.log('status');
+			 // console.log(status);			
 								
 			// 결재권자이면 버튼을 다르게 부여한다. 승인/거절/보류   
 			// 결재권자에 해당되면 버튼을 다르게 띄워준다.
@@ -1377,7 +1390,7 @@ else if (eworks_item === '연구개발보고서') {
 								'z-index': '1050',
 								'opacity': '0.7'
 							}).removeClass('eworks-backdrop-hidden');
-							console.log('모바일 상세 모달 닫힘, 리스트 모달 backdrop 복원');
+							// console.log('모바일 상세 모달 닫힘, 리스트 모달 backdrop 복원');
 						}, 100);
 					}
 				});
@@ -1424,7 +1437,7 @@ else if (eworks_item === '연구개발보고서') {
 						$("#eworks_viewmodal .modal-content").css({
 							'z-index': '1065'
 						});
-						console.log('모바일 상세 모달 z-index 강제 설정 완료, 리스트 모달 backdrop 숨김');
+						// console.log('모바일 상세 모달 z-index 강제 설정 완료, 리스트 모달 backdrop 숨김');
 					}
 					
 					// PC에서만 숨김 (모바일은 토글로 제어)
@@ -1591,7 +1604,7 @@ else if (eworks_item === '연구개발보고서') {
 
 								}  ,
 								error : function( jqxhr , status , error ){
-									console.log( jqxhr , status , error );
+									// console.log( jqxhr , status , error );
 											} 			      		
 							   });		
 
@@ -1688,7 +1701,7 @@ else if (eworks_item === '연구개발보고서') {
 																	
 													},
 													error : function( jqxhr , status , error ){
-														console.log( jqxhr , status , error );
+														// console.log( jqxhr , status , error );
 												} 			      		
 											   });												
 								   } });	
@@ -1822,13 +1835,13 @@ else if (eworks_item === '연구개발보고서') {
 															
 											},
 											error : function( jqxhr , status , error ){
-												console.log( jqxhr , status , error );
+												// console.log( jqxhr , status , error );
 										} 			      		
 									   });												
 									   
 								}  ,
 								error : function( jqxhr , status , error ){
-									console.log( jqxhr , status , error );
+									// console.log( jqxhr , status , error );
 											} 			      		
 							   });		
 							}  // end of insert 일때
@@ -1964,13 +1977,13 @@ else if (eworks_item === '연구개발보고서') {
 															
 											},
 											error : function( jqxhr , status , error ){
-												console.log( jqxhr , status , error );
+												// console.log( jqxhr , status , error );
 										} 			      		
 									   });												
 									   
 								}  ,
 								error : function( jqxhr , status , error ){
-									console.log( jqxhr , status , error );
+									// console.log( jqxhr , status , error );
 											} 			      		
 							   });		
 							}  // end of insert 일때
@@ -2016,7 +2029,7 @@ else if (eworks_item === '연구개발보고서') {
 															
 											},
 											error : function( jqxhr , status , error ){
-												console.log( jqxhr , status , error );
+												// console.log( jqxhr , status , error );
 										} 			      		
 									   });												
 							
@@ -2040,14 +2053,14 @@ else if (eworks_item === '연구개발보고서') {
 					if (id !== null && id !== '') e_num = Number(id);
 
 					// 승인 전 모든 hidden 필드 값 확인
-					console.log('=== 승인 버튼 클릭 - 현재 폼 상태 ===');
-					console.log('e_num:', $('#e_num').val());
-					console.log('eworks_board_form #e_confirm:', $('#eworks_board_form #e_confirm').val());
-					console.log('eworks_board_form #e_confirm_id:', $('#eworks_board_form #e_confirm_id').val());
-					console.log('eworks_board_form #e_line:', $('#eworks_board_form #e_line').val());
-					console.log('eworks_board_form #e_line_id:', $('#eworks_board_form #e_line_id').val());
-					console.log('eworks_board_form #author:', $('#eworks_board_form #author').val());
-					console.log('eworks_board_form #author_id:', $('#eworks_board_form #author_id').val());
+					// console.log('=== 승인 버튼 클릭 - 현재 폼 상태 ===');
+					// console.log('e_num:', $('#e_num').val());
+					// console.log('eworks_board_form #e_confirm:', $('#eworks_board_form #e_confirm').val());
+					// console.log('eworks_board_form #e_confirm_id:', $('#eworks_board_form #e_confirm_id').val());
+					// console.log('eworks_board_form #e_line:', $('#eworks_board_form #e_line').val());
+					// console.log('eworks_board_form #e_line_id:', $('#eworks_board_form #e_line_id').val());
+					// console.log('eworks_board_form #author:', $('#eworks_board_form #author').val());
+					// console.log('eworks_board_form #author_id:', $('#eworks_board_form #author_id').val());
 
 					Swal.fire({
 						title: '전자결재 처리',
@@ -2067,12 +2080,12 @@ else if (eworks_item === '연구개발보고서') {
 
 							// 디버깅: 직렬화된 데이터 확인
 							var formData = $("#eworks_board_form").serialize();
-							console.log('=== 전송할 직렬화 데이터 ===');
-							console.log(formData);
+							// console.log('=== 전송할 직렬화 데이터 ===');
+							// console.log(formData);
 							
 							// e_confirm_id가 포함되어 있는지 확인
 							if (formData.indexOf('e_confirm_id') === -1) {
-								console.error('경고: e_confirm_id가 전송 데이터에 포함되지 않았습니다!');
+								// console.error('경고: e_confirm_id가 전송 데이터에 포함되지 않았습니다!');
 							}
 
 							if (ajaxRequest !== null) {
@@ -2112,7 +2125,7 @@ else if (eworks_item === '연구개발보고서') {
 									// 로딩 인디케이터 숨김
 									hideLoadingIndicator();
 									
-									console.log(jqxhr, status, error);
+									// console.log(jqxhr, status, error);
 									$btn.prop('disabled', false); // 오류 발생 시 재활성화
 								}
 							});
@@ -2186,7 +2199,7 @@ else if (eworks_item === '연구개발보고서') {
 															
 											},
 											error : function( jqxhr , status , error ){
-												console.log( jqxhr , status , error );
+												// console.log( jqxhr , status , error );
 										} 			      		
 									   });												
 						   } });	
@@ -2255,7 +2268,7 @@ else if (eworks_item === '연구개발보고서') {
 														
 										},
 										error : function( jqxhr , status , error ){
-											console.log( jqxhr , status , error );
+											// console.log( jqxhr , status , error );
 									} 			      		
 								   });												
 					   } });	
@@ -2278,13 +2291,13 @@ else if (eworks_item === '연구개발보고서') {
 
 				}  ,
 				error : function( jqxhr , status , error ){
-					console.log( jqxhr , status , error );
+												// console.log( jqxhr , status , error );
 							} 			      		
 			   });	// 2번 ajax문장
 		
 			}  ,
 	error : function( jqxhr , status , error ){
-		console.log( jqxhr , status , error );
+												// console.log( jqxhr , status , error );
 				} 			      		
    });	 // 첫번째 ajax문장		
 		
@@ -2329,7 +2342,7 @@ eworks_delete_ripple = function (ripple_num)
 								data: $("#eworks_board_form").serialize(),
 								dataType:"json",  // json형태로 보냄
 								success : function( data ){															
-										console.log('저장된 e_num ' + $("#e_num").val()) ;													
+										// console.log('저장된 e_num ' + $("#e_num").val()) ;													
 										 Toastify({
 												text: "의견 삭제 완료!",
 												duration: 3000,
@@ -2349,7 +2362,7 @@ eworks_delete_ripple = function (ripple_num)
 													
 									},
 									error : function( jqxhr , status , error ){
-										console.log( jqxhr , status , error );
+										// console.log( jqxhr , status , error );
 										// 사용자가 취소를 클릭한 경우, 버튼을 다시 활성화
 										btn.prop('disabled', false);									
 								} 			      		
@@ -2414,7 +2427,7 @@ eworks_insert_ripple = function (e_num) {
         data: $("#eworks_board_form").serialize(),
         dataType: "json",
         success: function(data) {
-            console.log('저장된 e_num ' + $("#e_num").val());
+            // console.log('저장된 e_num ' + $("#e_num").val());
             Toastify({
                 text: "의견 추가!",
                 duration: 2000,
@@ -2451,7 +2464,7 @@ eworks_insert_ripple = function (e_num) {
             // $('#your-input-field-id').val('');
         },
         error: function(jqxhr, status, error) {
-            console.log(jqxhr, status, error);
+            // console.log(jqxhr, status, error);
             btn.prop('disabled', false);                                    
         }                   
     });
@@ -2496,7 +2509,7 @@ restore = function (e_num, eworksPage)
 								data: $("#eworks_board_form").serialize(),
 								dataType:"json",  // json형태로 보냄
 								success : function( data ){															
-										console.log('저장된 e_num ' + $("#e_num").val()) ;													
+										// console.log('저장된 e_num ' + $("#e_num").val()) ;													
 										 Toastify({
 												text: "파일 복구 완료!",
 												duration: 3000,
@@ -2514,7 +2527,7 @@ restore = function (e_num, eworksPage)
 													
 									},
 									error : function( jqxhr , status , error ){
-										console.log( jqxhr , status , error );
+										// console.log( jqxhr , status , error );
 										// 사용자가 취소를 클릭한 경우, 버튼을 다시 활성화
 										btn.prop('disabled', false);									
 								} 			      		
@@ -2554,8 +2567,8 @@ approvalviewExcept = function (e_num, eworksPage)
                 data: { selectedIds: selectedEworks },
                 dataType: "json",
                 success: function(data) {
-					console.log('전달된 data');
-					console.log(data);
+					// console.log('전달된 data');
+					// console.log(data);
 					
                     Toastify({
                         text: "선택 결재 완료!",
@@ -2573,7 +2586,7 @@ approvalviewExcept = function (e_num, eworksPage)
 
                 },
                 error: function(jqxhr, status, error) {
-                    console.error(jqxhr, status, error);								
+                    // console.error(jqxhr, status, error);								
                 }
             });
         }
@@ -2637,7 +2650,7 @@ viewExcept = function (e_num, eworksPage)
 													
 									},
 									error : function( jqxhr , status , error ){
-										console.log( jqxhr , status , error );
+										// console.log( jqxhr , status , error );
 										// 사용자가 취소를 클릭한 경우, 버튼을 다시 활성화
 										btn.prop('disabled', false);									
 								} 			      		
@@ -2659,7 +2672,7 @@ approvalSelectedEworks = function ()
         return;
     }
 
-    console.log(selectedEworks);
+    // console.log(selectedEworks);
     Swal.fire({ 
         title: '일괄결재', 
         text: "항목을 결재하시겠습니까?", 
@@ -2683,7 +2696,7 @@ approvalSelectedEworks = function ()
                 data: { selectedIds: selectedEworks },
                 dataType: "json",
                 success: function(data) {
-					console.log(data);
+					// console.log(data);
 					
                     Toastify({
                         text: "선택 결재 완료!",
@@ -2701,7 +2714,7 @@ approvalSelectedEworks = function ()
 
                 },
                 error: function(jqxhr, status, error) {
-                    console.error(jqxhr, status, error);								
+                    // console.error(jqxhr, status, error);								
                 }
             });
         }
@@ -2722,7 +2735,7 @@ deleteSelectedEworks = function ()
     }
 
 
-    console.log(selectedEworks);
+    // console.log(selectedEworks);
     Swal.fire({ 
         title: '선택 삭제', 
         text: "선택된 항목을 삭제하시겠습니까?", 
@@ -2747,7 +2760,7 @@ deleteSelectedEworks = function ()
                 data: { selectedIds: selectedEworks },
                 dataType: "json",
                 success: function(data) {
-					console.log(data);
+					// console.log(data);
 					
                     Toastify({
                         text: "선택된 항목 삭제 완료!",
@@ -2765,7 +2778,7 @@ deleteSelectedEworks = function ()
 
                 },
                 error: function(jqxhr, status, error) {
-                    console.error(jqxhr, status, error);								
+                    // console.error(jqxhr, status, error);								
                 }
             });
         }
@@ -2776,22 +2789,22 @@ deleteSelectedEworks = function ()
 
 	// 화면에 결재관련 숫자 표현
 	// 페이지 로드 시 전자결재 카운트 표시
-	console.log('=== 페이지 로드 완료, 전자결재 초기화 시작 ===');
-	console.log('eworks_board_form 존재 여부:', $('#eworks_board_form').length);
+	// console.log('=== 페이지 로드 완료, 전자결재 초기화 시작 ===');
+	// console.log('eworks_board_form 존재 여부:', $('#eworks_board_form').length);
 
 	if ($('#eworks_board_form').length > 0) {
-		console.log('전자결재 폼 발견, 데이터 로드 시작');
+		// console.log('전자결재 폼 발견, 데이터 로드 시작');
 		// 약간의 지연을 주어 DOM이 완전히 로드되도록 함
 		// 모바일/PC 모두에서 한 번만 호출
 		setTimeout(function() {
 			if (!load_eworkslist_isLoading) {
 				load_eworkslist();
 			} else {
-				console.log('페이지 로드 시 load_eworkslist 이미 로딩 중: 호출 건너뜀');
+				// console.log('페이지 로드 시 load_eworkslist 이미 로딩 중: 호출 건너뜀');
 			}
 		}, 1000); // 1초 지연으로 다른 초기화 작업 완료 대기
 	} else {
-		console.warn('전자결재 폼(eworks_board_form)이 존재하지 않습니다');
+		// console.warn('전자결재 폼(eworks_board_form)이 존재하지 않습니다');
 	}
 
 });
@@ -2824,7 +2837,7 @@ function eworks_movetoPage(eworksPage)
 					hideEworksLoadingIndicator(); // 로딩 완료
 			  },
 			  error: function(jqxhr, status, error) {
-					console.log('eworks_movetoPage 오류:', jqxhr, status, error);
+					// console.log('eworks_movetoPage 오류:', jqxhr, status, error);
 					hideEworksLoadingIndicator(); // 오류 시에도 로딩 완료
 			  }
 			});	  
@@ -2848,8 +2861,8 @@ function eworksList()
 		dataType:"json",	
 		success : function(data){	
 
-			console.log('data result: ');
-			console.log(data);
+			// console.log('data result: ');
+			// console.log(data);
 			// 거래처 납기일 등 기록하기		
 				
 			let num_arr= data["num_arr"];
@@ -2895,7 +2908,7 @@ function eworksList()
 			 hideEworksLoadingIndicator(); // 로딩 완료
 			},
 		error : function( jqxhr , status , error ){
-			console.log( jqxhr , status , error );
+												// console.log( jqxhr , status , error );
 			hideEworksLoadingIndicator(); // 로딩 완료 (오류 시에도)
 					} 			      		
 	   });	
@@ -2944,7 +2957,7 @@ function eworksList()
 	} else {
 		// 모바일에서는 모달을 열지 않고 바로 내용 표시
 		isModalOpen = false; // 모바일에서는 모달이 열려있지 않음
-		console.log('모바일: 모달 열기 건너뜀, 내용만 표시');
+		// console.log('모바일: 모달 열기 건너뜀, 내용만 표시');
 		
 		// 모바일에서도 버튼 이벤트 처리
 		$('#E_searchBtn').off('click').on('click', function(e) {
@@ -3035,7 +3048,7 @@ function eworksList()
 		
 		// 모바일에서는 페이지 새로고침하므로 load_eworkslist() 호출하지 않음
 		if (window.innerWidth <= 768) {
-			console.log('모바일: 모달 닫힘, 페이지 새로고침 예정 (load_eworkslist 호출 안 함)');
+			// console.log('모바일: 모달 닫힘, 페이지 새로고침 예정 (load_eworkslist 호출 안 함)');
 			return;
 		}
 		
@@ -3047,7 +3060,7 @@ function eworksList()
 	
 function update_eworks_nav() 
 {
-	console.log('=== update_eworks_nav 호출, activeTab:', activeTab);
+	// console.log('=== update_eworks_nav 호출, activeTab:', activeTab);
 	
 	$.ajax({
 		url: "/eworks/eworks_nav.php?selnum=" + activeTab, 
@@ -3055,10 +3068,16 @@ function update_eworks_nav()
 		success: function(response) {
 			// 서버에서 받은 HTML을 웹 페이지의 특정 부분에 삽입
 			$("#eworksNavContainer").html(response);
-			console.log('eworks_nav 업데이트 완료');
+			
+			// 모바일 모달 내부의 nav도 업데이트
+			if (window.innerWidth <= 768) {
+				$("#eworksModalNav").html(response);
+			}
+			
+			// console.log('eworks_nav 업데이트 완료');
 		},
 		error: function(xhr, status, error) {
-			console.error("eworks_nav 오류:", error);
+			// console.error("eworks_nav 오류:", error);
 		}
 	});
 }
@@ -3100,14 +3119,14 @@ function load_eworkslist()
 {	
 	// 이미 로딩 중이면 호출하지 않음
 	if (load_eworkslist_isLoading) {
-		console.log('load_eworkslist 이미 로딩 중: 호출 건너뜀');
+		// console.log('load_eworkslist 이미 로딩 중: 호출 건너뜀');
 		return;
 	}
 	
 	// 최소 호출 간격 체크 (너무 자주 호출되지 않도록)
 	var now = Date.now();
 	if (now - load_eworkslist_lastCall < load_eworkslist_minInterval) {
-		console.log('load_eworkslist 최소 호출 간격 미달: 호출 건너뜀', (now - load_eworkslist_lastCall) + 'ms');
+		// console.log('load_eworkslist 최소 호출 간격 미달: 호출 건너뜀', (now - load_eworkslist_lastCall) + 'ms');
 		return;
 	}
 	
@@ -3133,45 +3152,45 @@ function load_eworkslist()
 				  dataType:"json",	  
 				  success : function(data){
 					
-				             console.log('=== 전자결재 데이터 로드 성공 ===');
-				             console.log('받은 데이터:', data);
-							 console.log('데이터 타입:', typeof data);
+				             // console.log('=== 전자결재 데이터 로드 성공 ===');
+				             // console.log('받은 데이터:', data);
+							 // console.log('데이터 타입:', typeof data);
 
 							 // 각 badge 요소 존재 여부 확인
-							 console.log('badge1 존재:', $('#badge1').length);
-							 console.log('badge2 존재:', $('#badge2').length);
-							 console.log('badge3 존재:', $('#badge3').length);
-							 console.log('badge4 존재:', $('#badge4').length);
-							 console.log('badge5 존재:', $('#badge5').length);
+							 // console.log('badge1 존재:', $('#badge1').length);
+							 // console.log('badge2 존재:', $('#badge2').length);
+							 // console.log('badge3 존재:', $('#badge3').length);
+							 // console.log('badge4 존재:', $('#badge4').length);
+							 // console.log('badge5 존재:', $('#badge5').length);
 
 							// badge1 = 작성(draft) = val0
 							if ($('#badge1').length > 0) {
 								var val = (data["val0"] && data["val0"] !== 0) ? data["val0"] : '';
-								console.log('badge1에 설정할 값:', val);
+								// console.log('badge1에 설정할 값:', val);
 								$('#badge1').text(val);
 							}
 							// badge2 = 상신(send) = val1
 							if ($('#badge2').length > 0) {
 								var val = (data["val1"] && data["val1"] !== 0) ? data["val1"] : '';
-								console.log('badge2에 설정할 값:', val);
+								// console.log('badge2에 설정할 값:', val);
 								$('#badge2').text(val);
 							}
 							// badge3 = 미결(noend) = val2
 							if ($('#badge3').length > 0) {
 								var val = (data["val2"] && data["val2"] !== 0) ? data["val2"] : '';
-								console.log('badge3에 설정할 값:', val);
+								// console.log('badge3에 설정할 값:', val);
 								$('#badge3').text(val);
 							}
 							// badge4 = 진행(ing) = val3
 							if ($('#badge4').length > 0) {
 								var val = (data["val3"] && data["val3"] !== 0) ? data["val3"] : '';
-								console.log('badge4에 설정할 값:', val);
+								// console.log('badge4에 설정할 값:', val);
 								$('#badge4').text(val);
 							}
 							// badge5 = 결재(end) = val4
 							if ($('#badge5').length > 0) {
 								var val = (data["val4"] && data["val4"] !== 0) ? data["val4"] : '';
-								console.log('badge5에 설정할 값:', val);
+								// console.log('badge5에 설정할 값:', val);
 								$('#badge5').text(val);
 							}
 							// badge6 = 반려(reject) = val5
@@ -3190,7 +3209,7 @@ function load_eworkslist()
 								$('#badge8').text(val);
 							}
 
-							console.log('=== badge 업데이트 완료 ===');
+							// console.log('=== badge 업데이트 완료 ===');
 
 														
 						// 종 아이콘 및 "알림" 버튼 처리
@@ -3207,8 +3226,8 @@ function load_eworkslist()
 								badgeCount = 0;
 							}
 							
-							console.log('badgeCount :', badgeCount);								  
-							console.log('ework_approval :', $("#ework_approval").val());
+							// console.log('badgeCount :', badgeCount);								  
+							// console.log('ework_approval :', $("#ework_approval").val());
 							
 							if (parseInt(ework_approval) > 0 && badgeCount > 0)
 								{
@@ -3234,23 +3253,23 @@ function load_eworkslist()
 					// 성공 후 플래그 해제 (약간의 지연을 두어 중복 호출 방지)
 					setTimeout(function() {
 						load_eworkslist_isLoading = false;
-						console.log('load_eworkslist 로딩 완료, 플래그 해제');
+						// console.log('load_eworkslist 로딩 완료, 플래그 해제');
 					}, 500);
 					}, 
 					error : function( jqxhr , status , error ){
-						console.error('=== 전자결재 데이터 로드 실패 ===');
-						console.error('Status:', status);
-						console.error('Error:', error);
-						console.error('Response:', jqxhr.responseText);
+						// console.error('=== 전자결재 데이터 로드 실패 ===');
+						// console.error('Status:', status);
+						// console.error('Error:', error);
+						// console.error('Response:', jqxhr.responseText);
 						// 로딩 실패 시 플래그 해제 (약간의 지연을 두어 중복 호출 방지)
 						setTimeout(function() {
 							load_eworkslist_isLoading = false;
-							console.log('load_eworkslist 로딩 실패, 플래그 해제');
+							// console.log('load_eworkslist 로딩 실패, 플래그 해제');
 						}, 500);
 				}
 			   });
 		} else {
-			console.warn('eworks_board_form이 페이지에 존재하지 않습니다');
+			// console.warn('eworks_board_form이 페이지에 존재하지 않습니다');
 			load_eworkslist_isLoading = false; // 플래그 해제
 		}
 	}, 1000); // 1000ms 디바운싱 (1초)
@@ -3258,7 +3277,7 @@ function load_eworkslist()
 
 function seltab(e_num) 
 {
-	console.log('=== seltab 호출 ===', e_num);
+	// console.log('=== seltab 호출 ===', e_num);
 	
     $("#search").val('');  	
     activeTab = e_num;
@@ -3305,6 +3324,17 @@ function seltab(e_num)
             break;
     }
 	
+	// 모바일에서는 모달을 먼저 열고, 그 다음에 데이터 로드
+	if (window.innerWidth <= 768) {
+		if (typeof window.openEworksModal === 'function') {
+			window.openEworksModal();
+			// 모달이 열릴 때 nav도 함께 업데이트
+			setTimeout(function() {
+				update_eworks_nav();
+			}, 50);
+		}
+	}
+	
 	// 즉시 실행 (타임아웃 제거하여 속도 개선)
 	refresheworks(); // 페이지 새로고침 또는 데이터 테이블 재로드
 	
@@ -3312,7 +3342,7 @@ function seltab(e_num)
 }
 
 function refresheworks() {	
-	console.log('=== refresheworks 시작 ===');
+	// console.log('=== refresheworks 시작 ===');
 	
 	// 탭 UI 업데이트
 	update_eworks_nav();
@@ -3329,39 +3359,61 @@ function refresheworks() {
 		type: 'POST',
 		data: $("#eworks_board_form").serialize(),
 		success: function(response) {
-			console.log('목록 로드 완료, 길이:', response.length);
-			$('#eworks_list').html(response);
+			// console.log('목록 로드 완료, 길이:', response.length);
 			
-			// 모바일에서도 내용이 표시되도록 강제 적용
+			// 모바일과 PC에서 다른 위치에 내용 삽입
 			if (window.innerWidth <= 768) {
-				setTimeout(function() {
-					$('#eworks_list').css({
-						'display': 'block',
-						'visibility': 'visible',
-						'opacity': '1',
-						'height': 'auto',
-						'width': '100%'
-					});
-					console.log('모바일: 목록 내용 강제 표시');
+				// 모바일: 모달 내부의 eworks_list에 내용 삽입
+				var mobileEworksList = $('#eworksModalBody #eworks_list');
+				if (mobileEworksList.length > 0) {
+					// response에서 #eworks_list div를 제거하고 내부 내용만 추출
+					var $response = $('<div>').html(response);
+					var innerContent = $response.find('#eworks_list');
+					var content;
+					if (innerContent.length > 0) {
+						// #eworks_list div가 있으면 내부 내용만 추출
+						content = innerContent.html();
+					} else {
+						// #eworks_list div가 없으면 response 전체 사용
+						content = response;
+					}
+					mobileEworksList.html(content);
 					
-					// 모바일에서 행 클릭 이벤트 바인딩
-					bindMobileRowClickEvents();
-					
+					setTimeout(function() {
+						mobileEworksList.css({
+							'display': 'block',
+							'visibility': 'visible',
+							'opacity': '1',
+							'height': 'auto',
+							'width': '100%'
+						});
+						// console.log('모바일: 목록 내용 강제 표시');
+						
+						// 모바일에서 행 클릭 이벤트 바인딩
+						bindMobileRowClickEvents();
+						
+						hideEworksLoadingIndicator();
+					}, 100);
+				} else {
+					// 모달이 없으면 일반 위치에 삽입
+					$('#eworks_list').html(response);
 					hideEworksLoadingIndicator();
-				}, 100);
+				}
 			} else {
+				// PC: 일반 위치에 삽입
+				$('#eworks_list').html(response);
 				// PC에서는 eworksList()로 JSON 데이터 로드
 				eworksList();
 				// 로딩 인디케이터는 eworksList() 완료 후 숨김
 			}
 		},
 		error: function(jqxhr, status, error) {
-			console.log('목록 로드 오류:', jqxhr, status, error);
+			// console.log('목록 로드 오류:', jqxhr, status, error);
 			hideEworksLoadingIndicator();
 		}
 	});
 	
-	console.log('=== refresheworks 완료, activeTab:', activeTab);
+	// console.log('=== refresheworks 완료, activeTab:', activeTab);
 }
 
 // 전자결재 각 항목별 해당 숫자 읽기
@@ -3404,7 +3456,7 @@ function alert_eworkslist() {
             }
         },
         error: function(jqxhr, status, error) {
-            console.log(jqxhr, status, error);
+            // console.log(jqxhr, status, error);
         }
       });
    }
@@ -3440,12 +3492,37 @@ function openOvertimeWindow() {
 
 $(document).ready(function () {	
 	
+	// PC용 전체선택/해제
 	 $(document).on('change', '#checkAll', function(e) {
         var checkboxes = document.querySelectorAll('.checkItem');
         for (var i = 0; i < checkboxes.length; i++) {
             checkboxes[i].checked = e.target.checked;
         }
     });
+
+	// 모바일용 전체선택/해제
+	$(document).on('change', '#checkAllMobile', function(e) {
+        var checkboxes = document.querySelectorAll('.checkItem');
+        for (var i = 0; i < checkboxes.length; i++) {
+            checkboxes[i].checked = e.target.checked;
+        }
+    });
+
+	// 개별 체크박스 변경 시 전체선택 체크박스 상태 업데이트 (PC)
+	$(document).on('change', '.checkItem', function() {
+		var totalCheckboxes = $('.checkItem').length;
+		var checkedCheckboxes = $('.checkItem:checked').length;
+		
+		// PC용 전체선택 체크박스 업데이트
+		if ($('#checkAll').length > 0) {
+			$('#checkAll').prop('checked', totalCheckboxes > 0 && totalCheckboxes === checkedCheckboxes);
+		}
+		
+		// 모바일용 전체선택 체크박스 업데이트
+		if ($('#checkAllMobile').length > 0) {
+			$('#checkAllMobile').prop('checked', totalCheckboxes > 0 && totalCheckboxes === checkedCheckboxes);
+		}
+	});
 
   	
 });
@@ -3515,11 +3592,11 @@ $(document).ready(function() {
 	
 function showLoadingIndicator() {
     var indicator = document.getElementById('loadingIndicator');
-    console.log('showLoadingIndicator 호출, indicator:', indicator);
+    // console.log('showLoadingIndicator 호출, indicator:', indicator);
     
     if (indicator) {
         indicator.style.display = 'flex';
-        console.log('로딩 인디케이터 표시됨');
+        // console.log('로딩 인디케이터 표시됨');
         
         // 키 입력 차단
         document.body.style.pointerEvents = 'none';
@@ -3527,17 +3604,17 @@ function showLoadingIndicator() {
         // 로딩 인디케이터는 클릭 가능하도록
         indicator.style.pointerEvents = 'auto';
     } else {
-        console.error('loadingIndicator 요소를 찾을 수 없습니다!');
+        // console.error('loadingIndicator 요소를 찾을 수 없습니다!');
     }
 }
 
 function hideLoadingIndicator() {
     var indicator = document.getElementById('loadingIndicator');
-    console.log('hideLoadingIndicator 호출, indicator:', indicator);
+    // console.log('hideLoadingIndicator 호출, indicator:', indicator);
     
     if (indicator) {
         indicator.style.display = 'none';
-        console.log('로딩 인디케이터 숨김');
+        // console.log('로딩 인디케이터 숨김');
         
         // 키 입력 복구
         document.body.style.pointerEvents = 'auto';
@@ -3547,23 +3624,23 @@ function hideLoadingIndicator() {
 // 전자결재 전용 로딩 인디케이터
 function showEworksLoadingIndicator() {
     var indicator = document.getElementById('eworksLoadingIndicator');
-    console.log('showEworksLoadingIndicator 호출, indicator:', indicator);
+    // console.log('showEworksLoadingIndicator 호출, indicator:', indicator);
     
     if (indicator) {
         indicator.style.display = 'block';
-        console.log('전자결재 로딩 인디케이터 표시됨');
+        // console.log('전자결재 로딩 인디케이터 표시됨');
     } else {
-        console.error('eworksLoadingIndicator 요소를 찾을 수 없습니다!');
+        // console.error('eworksLoadingIndicator 요소를 찾을 수 없습니다!');
     }
 }
 
 function hideEworksLoadingIndicator() {
     var indicator = document.getElementById('eworksLoadingIndicator');
-    console.log('hideEworksLoadingIndicator 호출, indicator:', indicator);
+    // console.log('hideEworksLoadingIndicator 호출, indicator:', indicator);
     
     if (indicator) {
         indicator.style.display = 'none';
-        console.log('전자결재 로딩 인디케이터 숨김');
+        // console.log('전자결재 로딩 인디케이터 숨김');
     }
 }
 
@@ -3614,12 +3691,12 @@ function bindMobileRowClickEvents() {
                 if (match) {
                     var e_num = match[1];
                     var eworksPage = parseInt(match[2]);
-                    console.log('모바일 행 클릭:', e_num, eworksPage);
+                    // console.log('모바일 행 클릭:', e_num, eworksPage);
                     viewEworks_detail(e_num, eworksPage);
                 }
             }
             return false;
         });
-        console.log('모바일 행 클릭 이벤트 바인딩 완료');
+        // console.log('모바일 행 클릭 이벤트 바인딩 완료');
     }
 }

@@ -57,6 +57,211 @@ include getDocumentRoot() . '/load_header.php';
     cursor: not-allowed; /* Change cursor to indicate non-editable */
 }
 
+/* 모바일 반응형 스타일 */
+@media (max-width: 768px) {
+	/* body와 html의 width 제한 */
+	html, body {
+		max-width: 100vw !important;
+		overflow-x: hidden !important;
+		font-size: 16px !important;
+	}
+
+	/* 컨테이너 패딩 조정 */
+	.container-fluid, .container {
+		max-width: 100vw !important;
+		padding-left: 10px !important;
+		padding-right: 10px !important;
+		overflow-x: hidden !important;
+	}
+
+	/* 카드 패딩 조정 */
+	.card {
+		margin-bottom: 10px !important;
+	}
+
+	.card-body {
+		padding: 10px !important;
+	}
+
+	/* 제목 영역 모바일 최적화 */
+	.d-flex h4 {
+		font-size: 1.2rem !important;
+		white-space: nowrap !important;
+		margin-bottom: 15px !important;
+		margin-top: 10px !important;
+	}
+
+	/* 버튼 그룹 모바일 최적화 */
+	.btn-sm {
+		font-size: 0.9rem !important;
+		padding: 0.5rem 0.8rem !important;
+		white-space: nowrap !important;
+		margin-bottom: 5px !important;
+	}
+
+	/* 버튼 영역 줄바꿈 허용 */
+	.d-flex.justify-content-start,
+	.d-flex.justify-content-end {
+		flex-wrap: wrap !important;
+		gap: 5px !important;
+	}
+
+	/* 테이블 모바일 최적화 */
+	.table {
+		font-size: 0.95rem !important;
+	}
+
+	.table td, .table th {
+		padding: 8px 4px !important;
+		font-size: 0.9rem !important;
+		vertical-align: middle !important;
+	}
+
+	/* 테이블 첫 번째 열 (라벨) 너비 조정 */
+	.table td:first-child {
+		width: 25% !important;
+		min-width: 80px !important;
+		font-weight: 600 !important;
+		background-color: #f8f9fa !important;
+	}
+
+	/* 입력 필드 모바일 최적화 */
+	.form-control {
+		font-size: 0.9rem !important;
+		padding: 0.5rem 0.75rem !important;
+		width: 100% !important;
+		box-sizing: border-box !important;
+	}
+
+	/* 날짜 입력 필드 크기 조정 */
+	input[type="date"].form-control {
+		font-size: 0.85rem !important;
+		padding: 0.4rem 0.6rem !important;
+		min-width: 140px !important;
+	}
+
+	/* 날짜 입력 필드 내부 텍스트 크기 조정 */
+	input[type="date"].form-control::-webkit-datetime-edit {
+		font-size: 0.85rem !important;
+		padding: 0 !important;
+	}
+
+	/* 날짜 입력 필드 달력 아이콘 크기 조정 */
+	input[type="date"].form-control::-webkit-calendar-picker-indicator {
+		width: 18px !important;
+		height: 18px !important;
+		padding: 0 !important;
+	}
+
+	/* 텍스트 영역 모바일 최적화 */
+	textarea.form-control {
+		font-size: 0.9rem !important;
+		padding: 0.5rem 0.75rem !important;
+		min-height: 80px !important;
+		resize: vertical !important;
+	}
+
+	/* 사진 첨부 버튼 모바일 최적화 */
+	label[for="upfileimage"] {
+		font-size: 0.95rem !important;
+		padding: 0.6rem 1rem !important;
+		margin: 10px 0 !important;
+		width: auto !important;
+		display: inline-block !important;
+	}
+
+	/* 이미지 표시 영역 모바일 최적화 */
+	#displayImage {
+		width: 100% !important;
+		padding: 10px !important;
+	}
+
+	#displayImage img {
+		max-width: 100% !important;
+		height: auto !important;
+		width: auto !important;
+		margin: 5px !important;
+	}
+
+	#displayImage .row {
+		margin: 0 !important;
+	}
+
+	#displayImage .col {
+		padding: 5px !important;
+		display: flex !important;
+		flex-direction: column !important;
+		align-items: center !important;
+		justify-content: center !important;
+	}
+
+	/* 이미지 삭제 버튼 모바일 최적화 */
+	#displayImage .btn-danger {
+		margin-top: 5px !important;
+		font-size: 0.85rem !important;
+		padding: 0.4rem 0.6rem !important;
+	}
+
+	/* 행 레이아웃 모바일 최적화 */
+	.row {
+		margin-left: -5px !important;
+		margin-right: -5px !important;
+	}
+
+	.row > [class*="col-"] {
+		padding-left: 5px !important;
+		padding-right: 5px !important;
+	}
+
+	/* col-sm-9, col-sm-3 모바일에서 전체 너비 */
+	.col-sm-9, .col-sm-3 {
+		width: 100% !important;
+		flex: 0 0 100% !important;
+		max-width: 100% !important;
+		margin-bottom: 10px !important;
+	}
+
+	/* 버튼 영역 중앙 정렬 */
+	.col-sm-9 .d-flex,
+	.col-sm-3 .d-flex {
+		justify-content: center !important;
+	}
+
+	/* 테이블 반응형 처리 */
+	.table-responsive {
+		overflow-x: auto !important;
+		-webkit-overflow-scrolling: touch !important;
+	}
+
+	/* readonly 입력 필드 모바일 스타일 */
+	input[readonly], textarea[readonly] {
+		font-size: 0.9rem !important;
+		padding: 0.5rem 0.75rem !important;
+	}
+
+	/* 카드 내부 여백 조정 */
+	.card-body > .row {
+		margin-left: 0 !important;
+		margin-right: 0 !important;
+	}
+
+	/* 제목과 버튼 영역 간격 조정 */
+	.d-flex.mb-5.mt-5 {
+		margin-bottom: 15px !important;
+		margin-top: 10px !important;
+	}
+
+	/* 테이블 border 모바일 최적화 */
+	.table-bordered {
+		border: 1px solid #dee2e6 !important;
+	}
+
+	.table-bordered td,
+	.table-bordered th {
+		border: 1px solid #dee2e6 !important;
+	}
+}
+
 </style>	
  
 
@@ -65,20 +270,7 @@ include getDocumentRoot() . '/load_header.php';
 <?php include getDocumentRoot() . "/common/modal.php"; ?>
 
 <?php
-// 모바일이면 특정 CSS 적용
-if ($chkMobile) {
-    echo '<style>
-        body, table th, table td, h4, .form-control {
-            font-size: 30px;
-        }
-        h4 {
-            font-size: 40px;
-        }
-        .btn-sm {
-            font-size: 30px;
-        }
-    </style>';
-}
+// 모바일 CSS는 위의 <style> 태그 내 @media 쿼리로 처리
 
 // 요청 변수 초기화
 $id = $_REQUEST["id"] ?? '';

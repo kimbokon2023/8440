@@ -113,27 +113,113 @@ include includePath('load_header.php');
 
 /* Mobile Responsive */
 @media (max-width: 768px) {
-    .hpi-navigation-buttons {
-        padding: 1rem;
-    }
+	/* body와 html의 width 제한 */
+	html, body {
+		max-width: 100vw !important;
+		overflow-x: hidden !important;
+		font-size: 16px !important;
+	}
 
-    .hpi-nav-btn {
-        display: block;
-        width: 100%;
-        margin: 0.25rem 0;
-    }
+	/* 컨테이너 패딩 조정 */
+	.container {
+		max-width: 100vw !important;
+		padding-left: 10px !important;
+		padding-right: 10px !important;
+		overflow-x: hidden !important;
+	}
 
-    .hpi-image-container {
-        padding: 1rem;
-    }
+	/* 카드 패딩 조정 */
+	.modern-management-card {
+		margin-bottom: 15px !important;
+		padding: 0 !important;
+	}
 
-    .hpi-section-title {
-        font-size: 1.1rem;
-    }
+	.modern-dashboard-header {
+		padding: 0.75rem !important;
+	}
 
-    .hpi-section-subtitle {
-        font-size: 1rem;
-    }
+	div[style*="padding: 1.5rem"] {
+		padding: 0.75rem !important;
+	}
+
+	/* 제목 영역 모바일 최적화 */
+	.hpi-section-title {
+		font-size: 1rem !important;
+		line-height: 1.4 !important;
+		margin-bottom: 0.75rem !important;
+		padding: 0.5rem !important;
+		word-wrap: break-word !important;
+	}
+
+	.hpi-section-subtitle {
+		font-size: 0.9rem !important;
+		line-height: 1.5 !important;
+		margin: 1rem 0 !important;
+		padding: 0.5rem !important;
+		word-wrap: break-word !important;
+	}
+
+	/* 네비게이션 버튼 영역 모바일 최적화 */
+	.hpi-navigation-buttons {
+		padding: 0.75rem !important;
+		margin-bottom: 1rem !important;
+		border-radius: 8px !important;
+	}
+
+	.hpi-nav-btn {
+		display: block !important;
+		width: 100% !important;
+		margin: 0.4rem 0 !important;
+		padding: 0.6rem 0.8rem !important;
+		font-size: 0.85rem !important;
+		white-space: normal !important;
+		word-wrap: break-word !important;
+		text-align: center !important;
+	}
+
+	/* 이미지 컨테이너 모바일 최적화 */
+	.hpi-image-container {
+		padding: 0.75rem !important;
+		margin: 1rem 0 !important;
+		border-radius: 6px !important;
+	}
+
+	.hpi-image-container:hover {
+		transform: none !important;
+	}
+
+	/* 이미지 모바일 최적화 */
+	.hpi-image-container img {
+		max-width: 100% !important;
+		width: 100% !important;
+		height: auto !important;
+		border-radius: 6px !important;
+		display: block !important;
+		margin: 0 auto !important;
+	}
+
+	/* 고정 width 속성 제거 */
+	img[width="900px"] {
+		width: 100% !important;
+		max-width: 100% !important;
+		height: auto !important;
+	}
+
+	img[style*="width:80%"] {
+		width: 100% !important;
+		max-width: 100% !important;
+		height: auto !important;
+	}
+
+	/* 텍스트 정렬 모바일 최적화 */
+	.text-center {
+		text-align: center !important;
+	}
+
+	/* 카드 간격 조정 */
+	.modern-management-card + .modern-management-card {
+		margin-top: 15px !important;
+	}
 }
 </style>
 

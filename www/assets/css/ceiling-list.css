@@ -164,7 +164,7 @@ body {
 }
 
 /* 모바일 전용 스타일 */
-@media (max-width: 768px) {
+@media (max-width: 767.98px) {
   /* 1. 기본 레이아웃 설정 - 가로 스크롤 완전 제거 */
   html, body {
     max-width: 100vw !important;
@@ -179,11 +179,20 @@ body {
     overflow-x: hidden !important;
   }
 
-  .row {
+  /* 헤더의 row는 제외하고 나머지 row만 적용 */
+  .row:not(.d-flex.align-items-center) {
     max-width: 100vw !important;
     margin-left: 0 !important;
     margin-right: 0 !important;
     overflow-x: hidden !important;
+  }
+  
+  /* 헤더 row는 정상적으로 표시 */
+  .row.d-flex.align-items-center {
+    display: flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 8px 0 !important;
   }
 
   .card {
@@ -194,19 +203,154 @@ body {
   }
 
   .card-body {
-    padding: 12px !important;
+    padding: 8px 6px !important;
+  }
+  
+  /* 모바일에서 card-body 내부 요소 간격 최소화 */
+  .card-body > * {
+    margin-top: 0.25rem !important;
+    margin-bottom: 0.25rem !important;
+  }
+  
+  .card-body > *:first-child {
+    margin-top: 0 !important;
+  }
+  
+  .card-body > *:last-child {
+    margin-bottom: 0 !important;
   }
 
+  /* 헤더 영역은 제외 - 정상 정렬 유지 */
+  .row.d-flex.align-items-center {
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    margin: 0 !important;
+    padding: 8px 0 !important;
+  }
+  
+  .row.d-flex.align-items-center .col-4,
+  .row.d-flex.align-items-center .col-8 {
+    display: flex !important;
+    align-items: center !important;
+    height: 100% !important;
+  }
+  
+  /* col-8 컨테이너에서 햄버거 버튼이 보이도록 */
+  .row.d-flex.align-items-center .col-8.col-sm-10 {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    padding: 0 8px !important;
+  }
+  
+  /* 햄버거 버튼은 모바일에서만 표시 - Bootstrap d-md-none과 함께 작동 */
+  .row.d-flex.align-items-center .col-8.col-sm-10 button.mobile-menu-toggle.d-md-none {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 44px !important;
+    width: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    flex-shrink: 0 !important;
+    position: relative !important;
+    z-index: 10 !important;
+  }
+  
+  /* 추가 보장: 모든 mobile-menu-toggle 버튼 */
+  button.mobile-menu-toggle.d-md-none {
+    display: flex !important;
+  }
+  
   /* 3. 상단 제어 영역 최적화 */
-  .d-flex.align-items-center {
+  .d-flex.align-items-center:not(.row) {
     flex-wrap: wrap;
     gap: 0.25rem;
   }
 
-  /* 제목 영역 */
-  .d-flex h5 {
-    font-size: 1.1rem !important;
+  /* 제목 영역 - 모바일에서 컴팩트하게 */
+  .card-body h5,
+  .d-flex h5,
+  .card-body > a > h5 {
+    font-size: 0.95rem !important;
     white-space: nowrap !important;
+    margin: 0.2rem 0 !important;
+    padding: 0.2rem 0 !important;
+    text-align: center !important;
+    font-weight: 600 !important;
+  }
+  
+  /* 제목 행 전체를 한 줄로 - 모바일에서 버튼 숨기기 */
+  .card-body > .d-flex:has(h5),
+  .card-body > .d-flex.p-1.m-1.mt-1:has(h5) {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 0.2rem 0.3rem !important;
+    margin: 0.2rem 0 !important;
+    min-height: auto !important;
+    gap: 0.25rem !important;
+  }
+  
+  /* 제목 행의 버튼들 모바일에서 숨기기 - 더 강력한 선택자 */
+  .card-body > .d-flex.p-1.m-1.mt-1 > button,
+  .card-body > .d-flex.p-1.m-1.mt-1 > span.btn,
+  .card-body > .d-flex.p-1.m-1.mt-1 > select,
+  .card-body > .d-flex.p-1.m-1.mt-1 > #showalignframe,
+  .card-body > .d-flex.p-1.m-1.mt-1 > #showextractframe,
+  .card-body > .d-flex.p-1.m-1.mt-1 > #plan_cutandbending,
+  .card-body > .d-flex.p-1.m-1.mt-1 > #dDaySelect,
+  .card-body > .d-flex.p-1.m-1.mt-1 > .btn-danger,
+  .card-body > .d-flex.p-1.m-1.mt-1 > .btn-warning {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  
+  /* 제목만 표시 */
+  .card-body > .d-flex.p-1.m-1.mt-1 > a {
+    flex: 1 1 auto !important;
+    text-align: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+  
+  /* 제목 행 전체를 한 줄로 - 모바일에서 버튼 숨기기 */
+  .card-body > .d-flex.p-1.m-1.mt-1 {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 0.2rem 0.3rem !important;
+    margin: 0.2rem 0 !important;
+    min-height: auto !important;
+    gap: 0 !important;
+  }
+  
+  /* 제목 행의 버튼들 모바일에서 숨기기 */
+  .card-body > .d-flex:has(h5) > button,
+  .card-body > .d-flex:has(h5) > span.btn,
+  .card-body > .d-flex.p-1.m-1.mt-1:has(h5) > button,
+  .card-body > .d-flex.p-1.m-1.mt-1:has(h5) > span.btn {
+    display: none !important;
+  }
+  
+  /* 제목만 표시 */
+  .card-body > .d-flex:has(h5) > a,
+  .card-body > .d-flex.p-1.m-1.mt-1:has(h5) > a {
+    flex: 1 1 auto !important;
+    text-align: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
   /* 버튼 크기 */
@@ -391,13 +535,18 @@ body {
     margin-bottom: 10px !important;
   }
 
-  /* 8-1. 상단 버튼 영역 Grid 레이아웃 */
-  .d-flex.p-1.m-1.mt-1.justify-content-center.align-items-center {
+  /* 8-1. 상단 버튼 영역 Grid 레이아웃 - date-row는 제외 */
+  .d-flex.p-1.m-1.mt-1.justify-content-center.align-items-center:not(.date-row) {
     display: grid !important;
     grid-template-columns: 1fr !important;
     gap: 8px !important;
     padding: 12px !important;
     margin: 8px 0 !important;
+  }
+  
+  /* 모바일에서 date-row 숨기기 */
+  .date-row {
+    display: none !important;
   }
 
   /* 제목 영역 - 첫 번째 줄 */
@@ -406,163 +555,303 @@ body {
     margin-bottom: 8px !important;
   }
 
-  /* 버튼 그룹 1: 리로드, 정렬, 부가기능 */
-  .d-flex.p-1.m-1.mt-1 > .btn:nth-of-type(1),
-  .d-flex.p-1.m-1.mt-1 > #showalign,
-  .d-flex.p-1.m-1.mt-1 > #showextract {
-    display: inline-block !important;
-  }
-
-  /* 버튼들을 가로로 정렬 */
-  .d-flex.p-1.m-1.mt-1 {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    justify-content: center !important;
-    gap: 8px !important;
-  }
-
-  .d-flex.p-1.m-1.mt-1 > * {
-    flex: 0 0 auto !important;
-  }
-
-  /* 제목은 전체 너비 */
-  .d-flex.p-1.m-1.mt-1 > a {
-    flex: 1 1 100% !important;
-    text-align: center !important;
-    margin-bottom: 12px !important;
-    padding-bottom: 12px !important;
-    border-bottom: 2px solid #e9ecef !important;
-  }
-
-  /* 버튼 그룹 배치 */
-  .d-flex.p-1.m-1.mt-1 > .btn,
-  .d-flex.p-1.m-1.mt-1 > #showalign,
-  .d-flex.p-1.m-1.mt-1 > #showextract,
-  .d-flex.p-1.m-1.mt-1 > #plan_cutandbending {
-    min-width: 45% !important;
-    max-width: 48% !important;
+  /* 모바일에서 제목 행의 모든 버튼과 요소 숨기기 - 기존 버튼 그룹 스타일 무시 */
+  .card-body > .d-flex.p-1.m-1.mt-1 > button,
+  .card-body > .d-flex.p-1.m-1.mt-1 > span.btn,
+  .card-body > .d-flex.p-1.m-1.mt-1 > select,
+  .card-body > .d-flex.p-1.m-1.mt-1 > #showalign,
+  .card-body > .d-flex.p-1.m-1.mt-1 > #showextract,
+  .card-body > .d-flex.p-1.m-1.mt-1 > #showalignframe,
+  .card-body > .d-flex.p-1.m-1.mt-1 > #showextractframe,
+  .card-body > .d-flex.p-1.m-1.mt-1 > #plan_cutandbending,
+  .card-body > .d-flex.p-1.m-1.mt-1 > #dDaySelect,
+  .card-body > .d-flex.p-1.m-1.mt-1 > .btn-danger,
+  .card-body > .d-flex.p-1.m-1.mt-1 > .btn-warning,
+  .card-body > .d-flex.p-1.m-1.mt-1 > .btn-secondary {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    padding: 0 !important;
     margin: 0 !important;
+    position: absolute !important;
+    left: -9999px !important;
+  }
+
+  /* 제목 행 전체를 한 줄로 - 제목만 표시 */
+  .card-body > .d-flex.p-1.m-1.mt-1 {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 0.2rem 0.3rem !important;
+    margin: 0.2rem 0 !important;
+    min-height: auto !important;
+    gap: 0 !important;
+    flex-wrap: nowrap !important;
+  }
+
+  /* 제목만 표시 */
+  .card-body > .d-flex.p-1.m-1.mt-1 > a {
+    flex: 1 1 auto !important;
     text-align: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    border-bottom: none !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
   }
 
-  /* Select 박스와 납기 버튼 - 3개 가로 배치 */
-  .d-flex.p-1.m-1.mt-1 > #dDaySelect {
-    min-width: 30% !important;
-    max-width: 33% !important;
+  /* 모바일에서만 기간 설정 카드 숨기기 - 모바일 전용 클래스와 함께 사용 */
+  .mobile-date-row-simple ~ * #showframe,
+  .mobile-date-row-simple #showframe {
+    display: none !important;
   }
-
-  .d-flex.p-1.m-1.mt-1 > .btn-danger,
-  .d-flex.p-1.m-1.mt-1 > .btn-warning {
-    min-width: 30% !important;
-    max-width: 33% !important;
+  
+  /* 모바일에서만 기간 버튼 숨기기 - 모바일 전용 클래스와 함께 사용 */
+  .mobile-date-row-simple ~ * #showdate,
+  .mobile-date-row-simple #showdate {
+    display: none !important;
   }
-
-  /* 8-2. 검색 영역 재구성 */
-  .d-flex.p-1.m-1.mt-1.mb-1.justify-content-center.align-items-center {
+  
+  /* 모바일에서 PC용 date-row 숨기기 */
+  .date-row {
+    display: none !important;
+  }
+  
+  /* 모바일용 날짜 행 - 한 줄로 컴팩트하게 표시 */
+  .mobile-date-row-compact {
     display: flex !important;
     flex-direction: row !important;
-    flex-wrap: wrap !important;
+    flex-wrap: nowrap !important;
     align-items: center !important;
-    justify-content: flex-start !important;
-    gap: 8px !important;
-    padding: 12px !important;
-    margin: 8px 0 !important;
-    background: #f8f9fa !important;
-    border-radius: 8px !important;
-  }
-
-  /* 기간 버튼 - 전체 너비 */
-  .d-flex.p-1.m-1.mt-1.mb-1 > #showdate {
-    flex: 1 1 100% !important;
-    order: 1 !important;
-  }
-
-  /* 체크박스와 라벨 - 한 줄에 함께 */
-  .d-flex.p-1.m-1.mt-1.mb-1 > #receptionDateFilter {
-    order: 2 !important;
-    flex: 0 0 auto !important;
-    margin: 0 !important;
-  }
-
-  .d-flex.p-1.m-1.mt-1.mb-1 > label[for="receptionDateFilter"] {
-    order: 3 !important;
-    flex: 0 0 auto !important;
-    margin: 0 !important;
-    font-size: 0.9rem !important;
-  }
-
-  /* 날짜 입력 - 2개 나란히 */
-  .d-flex.p-1.m-1.mt-1.mb-1 > #fromdate {
-    order: 4 !important;
-    flex: 1 1 48% !important;
-    max-width: 48% !important;
-    font-size: 0.9rem !important;
-    padding: 0.5rem !important;
-    height: 44px !important;
-  }
-
-  .d-flex.p-1.m-1.mt-1.mb-1 > #todate {
-    order: 5 !important;
-    flex: 1 1 48% !important;
-    max-width: 48% !important;
-    font-size: 0.9rem !important;
-    padding: 0.5rem !important;
-    height: 44px !important;
-  }
-
-  /* 검색 Select - 35% */
-  .d-flex.p-1.m-1.mt-1.mb-1 > #find {
-    order: 6 !important;
-    flex: 0 0 35% !important;
-    max-width: 35% !important;
-    font-size: 0.9rem !important;
-    height: 44px !important;
-  }
-
-  /* 검색 Input - 63% */
-  .d-flex.p-1.m-1.mt-1.mb-1 > .inputWrap {
-    order: 7 !important;
-    flex: 0 0 63% !important;
-    max-width: 63% !important;
-  }
-
-  .d-flex.p-1.m-1.mt-1.mb-1 .inputWrap > #search {
+    justify-content: center !important;
+    gap: 2px !important;
+    padding: 0.25rem 0.15rem !important;
+    margin: 0.2rem 0 !important;
     width: 100% !important;
+    box-sizing: border-box !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    min-height: 34px !important;
+    max-height: 40px !important;
+  }
+  
+  /* 모바일 총 건수 텍스트 */
+  .mobile-date-row-compact .mobile-total-count {
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    color: #495057 !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    margin-right: 1px !important;
+    padding: 0 !important;
+  }
+  
+  /* 모바일 체크박스 */
+  .mobile-date-row-compact .mobile-checkbox {
+    width: 14px !important;
+    height: 14px !important;
+    flex-shrink: 0 !important;
+    margin: 0 1px !important;
+    padding: 0 !important;
+  }
+  
+  /* 모바일 체크박스 라벨 */
+  .mobile-date-row-compact .mobile-checkbox-label {
+    font-size: 0.7rem !important;
+    color: #6c757d !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    margin: 0 1px !important;
+    padding: 0 !important;
+    cursor: pointer !important;
+  }
+  
+  /* 모바일 날짜 입력 필드 */
+  .mobile-date-row-compact .mobile-date-input {
+    width: auto !important;
+    min-width: 90px !important;
+    max-width: 110px !important;
+    font-size: 0.7rem !important;
+    padding: 0.2rem 0.3rem !important;
+    height: 30px !important;
+    line-height: 1.3 !important;
+    box-sizing: border-box !important;
+    border: 1px solid #ced4da !important;
+    border-radius: 4px !important;
+    flex: 0 0 auto !important;
+  }
+  
+  /* 모바일 날짜 입력 필드 내부 텍스트 */
+  .mobile-date-row-compact .mobile-date-input::-webkit-datetime-edit {
+    font-size: 0.75rem !important;
+    padding: 0 !important;
+  }
+  
+  .mobile-date-row-compact .mobile-date-input::-webkit-datetime-edit-text {
+    padding: 0 1px !important;
+  }
+  
+  .mobile-date-row-compact .mobile-date-input::-webkit-datetime-edit-month-field,
+  .mobile-date-row-compact .mobile-date-input::-webkit-datetime-edit-day-field,
+  .mobile-date-row-compact .mobile-date-input::-webkit-datetime-edit-year-field {
+    padding: 0 1px !important;
+  }
+  
+  /* 모바일 날짜 구분자 */
+  .mobile-date-row-compact .mobile-date-separator {
+    font-size: 0.75rem !important;
+    color: #6c757d !important;
+    margin: 0 1px !important;
+    flex-shrink: 0 !important;
+    padding: 0 !important;
+  }
+  
+  /* 모바일 캘린더 아이콘 */
+  .mobile-date-row-compact .mobile-date-input::-webkit-calendar-picker-indicator {
+    width: 14px !important;
+    height: 14px !important;
+    padding: 0 !important;
+    margin-left: 2px !important;
+  }
+  
+  /* 검색 행 스타일 - 한 줄로 표시 */
+  .search-row {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 3px !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    padding: 0.3rem 0.2rem !important;
+    margin: 0.25rem 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    min-height: 36px !important;
+  }
+  
+  /* 검색 행 내부 모든 요소 공백 제거 */
+  .search-row > * {
+    margin: 0 !important;
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+  }
+  
+  /* 검색 드롭다운 크기 조정 */
+  .search-row .form-select,
+  .search-row #find {
+    width: auto !important;
+    min-width: 80px !important;
+    max-width: 100px !important;
+    font-size: 0.75rem !important;
+    height: 30px !important;
+    padding: 0.2rem 0.4rem !important;
+    flex: 0 0 auto !important;
+  }
+  
+  /* inputWrap 크기 조정 */
+  .search-row .inputWrap {
+    flex: 1 1 auto !important;
+    min-width: 100px !important;
+    max-width: none !important;
+    margin: 0 2px !important;
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+  
+  /* 검색 입력 필드 크기 조정 */
+  .search-row #search {
+    font-size: 0.75rem !important;
+    padding: 0.2rem 0.4rem !important;
+    padding-right: 55px !important; /* 검색 아이콘과 클리어 버튼 공간 확보 */
+    width: 100% !important;
+    height: 30px !important;
+    box-sizing: border-box !important;
+  }
+  
+  /* 모바일 검색 아이콘 버튼 */
+  .search-row .inputWrap .mobile-search-icon {
+    position: absolute !important;
+    right: 30px !important; /* btnClear 버튼(오른쪽 끝) 옆에 배치 */
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 26px !important;
+    height: 26px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    background: #6c757d !important;
+    color: white !important;
+    border-radius: 4px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    z-index: 5 !important;
+    flex-shrink: 0 !important;
+  }
+  
+  /* 모바일에서 btnClear 버튼 위치 조정 */
+  .search-row .inputWrap .btnClear {
+    right: 0 !important;
+    z-index: 6 !important; /* 검색 아이콘보다 위에 */
+  }
+  
+  .search-row .inputWrap .mobile-search-icon:hover {
+    background: #5a6268 !important;
+  }
+  
+  .search-row .inputWrap .mobile-search-icon:active {
+    background: #495057 !important;
+  }
+  
+  .search-row .inputWrap .mobile-search-icon i {
     font-size: 0.9rem !important;
-    padding: 0.5rem !important;
-    height: 44px !important;
+    margin: 0 !important;
   }
-
-  /* 검색 버튼 - 전체 너비 */
-  .d-flex.p-1.m-1.mt-1.mb-1 > #searchBtn {
-    order: 8 !important;
-    flex: 1 1 100% !important;
-    margin: 4px 0 !important;
+  
+  /* PC에서는 모바일 검색 아이콘 숨기기 */
+  @media (min-width: 769px) {
+    .search-row .inputWrap .mobile-search-icon {
+      display: none !important;
+    }
+    
+    .search-row #search {
+      padding-right: 0.4rem !important; /* PC에서는 원래대로 */
+    }
   }
-
-  /* 하단 버튼 그룹 - 2개씩 */
-  .d-flex.p-1.m-1.mt-1.mb-1 > #writeBtn {
-    order: 9 !important;
-    flex: 0 0 48% !important;
-    max-width: 48% !important;
+  
+  /* 검색 버튼 - 오른쪽 끝에 배치 */
+  .search-row #searchBtn {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+    font-size: 0.75rem !important;
+    padding: 0.3rem 0.6rem !important;
+    height: 30px !important;
+    margin-left: auto !important;
+    order: 999 !important;
+    min-width: 50px !important;
   }
-
-  .d-flex.p-1.m-1.mt-1.mb-1 > #rawmaterialBtn {
-    order: 10 !important;
-    flex: 0 0 48% !important;
-    max-width: 48% !important;
+  
+  /* autocomplete-list 숨기기 (필요시) */
+  .search-row #autocomplete-list {
+    position: absolute;
+    z-index: 1000;
   }
-
-  /* 컬럼 설정 버튼 - 전체 너비 */
-  .d-flex.p-1.m-1.mt-1.mb-1 > .btn-outline-primary {
-    order: 11 !important;
-    flex: 1 1 100% !important;
-  }
-
-  /* autocomplete-list */
-  .d-flex.p-1.m-1.mt-1.mb-1 > #autocomplete-list {
-    order: 12 !important;
-    flex: 1 1 100% !important;
+  
+  /* 하단 버튼 그룹 숨기기 (search-row 내부) */
+  .search-row > #writeBtn,
+  .search-row > #rawmaterialBtn,
+  .search-row > .btn-outline-primary {
+    display: none !important;
   }
 
   /* 12. 모바일에서 불필요한 요소 숨기기 */
@@ -574,100 +863,26 @@ body {
   }
 
   /* 대부분의 버튼 숨기기 - 검색 버튼만 남김 */
-  .d-flex.p-1.m-1.mt-1 > .btn:nth-of-type(1),  /* 리로드 버튼 */
-  .d-flex.p-1.m-1.mt-1 > #showalign,            /* 정렬 버튼 */
-  .d-flex.p-1.m-1.mt-1 > #showextract,          /* 부가기능 버튼 */
-  .d-flex.p-1.m-1.mt-1 > #plan_cutandbending,   /* 생산공정표 버튼 */
-  .d-flex.p-1.m-1.mt-1 > .btn-secondary,        /* 전체 미설계 리스트 버튼 */
-  .d-flex.p-1.m-1.mt-1 > #dDaySelect,           /* D-Day Select */
-  .d-flex.p-1.m-1.mt-1 > .btn-danger,           /* 납기 버튼 */
-  .d-flex.p-1.m-1.mt-1 > .btn-warning {         /* 미설계 버튼 */
+  /* 모바일에서 제목 행의 모든 버튼 숨기기 - 더 구체적인 선택자로 덮어쓰기 */
+  .card-body > .d-flex.p-1.m-1.mt-1 > .btn:nth-of-type(1),  /* 리로드 버튼 */
+  .card-body > .d-flex.p-1.m-1.mt-1 > #showalign,            /* 정렬 버튼 */
+  .card-body > .d-flex.p-1.m-1.mt-1 > #showextract,          /* 부가기능 버튼 */
+  .card-body > .d-flex.p-1.m-1.mt-1 > #plan_cutandbending,   /* 생산공정표 버튼 */
+  .card-body > .d-flex.p-1.m-1.mt-1 > .btn-secondary,        /* 전체 미설계 리스트 버튼 */
+  .card-body > .d-flex.p-1.m-1.mt-1 > #dDaySelect,           /* D-Day Select */
+  .card-body > .d-flex.p-1.m-1.mt-1 > .btn-danger,           /* 납기 버튼 */
+  .card-body > .d-flex.p-1.m-1.mt-1 > .btn-warning {         /* 미설계 버튼 */
     display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    position: absolute !important;
+    left: -9999px !important;
   }
 
-  /* 검색 영역의 불필요한 버튼 숨기기 */
-  .d-flex.p-1.m-1.mt-1.mb-1 > #showdate,        /* 기간 버튼 */
-  .d-flex.p-1.m-1.mt-1.mb-1 > #writeBtn,        /* 신규 버튼 */
-  .d-flex.p-1.m-1.mt-1.mb-1 > #rawmaterialBtn,  /* 재고 버튼 */
-  .d-flex.p-1.m-1.mt-1.mb-1 > .btn-outline-primary { /* 컬럼 설정 버튼 */
-    display: none !important;
-  }
-
-  /* 검색 버튼은 표시 */
-  .d-flex.p-1.m-1.mt-1.mb-1 > #searchBtn {
-    display: block !important;
-  }
-
-  /* 날짜 입력 영역 개선 - 전체 너비 사용 */
-  .card-body .d-flex:has(#fromdate) {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 8px !important;
-    align-items: stretch !important;
-    width: 100% !important;
-  }
-
-  /* 체크박스 라벨 영역 */
-  .card-body .d-flex:has(#fromdate) > label {
-    order: 1 !important;
-    font-size: 0.9rem !important;
-    margin-bottom: 4px !important;
-  }
-
-  /* 날짜 입력 컨테이너 */
-  .card-body .d-flex:has(#fromdate) > * {
-    width: 100% !important;
-  }
-
-  #fromdate, #todate {
-    width: 100% !important;
-    min-width: 0 !important;
-    font-size: 1rem !important;
-    padding: 10px !important;
-    height: 48px !important;
-    border: 1px solid #ced4da !important;
-    border-radius: 6px !important;
-  }
-
-  /* 검색 영역 개선 - 세로 배치 */
-  .card-body .d-flex:has(#search) {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 8px !important;
-    align-items: stretch !important;
-    width: 100% !important;
-  }
-
-  #find {
-    width: 100% !important;
-    min-width: 0 !important;
-    font-size: 1rem !important;
-    padding: 10px !important;
-    height: 48px !important;
-  }
-
-  .inputWrap {
-    width: 100% !important;
-    max-width: 100% !important;
-  }
-
-  #search {
-    width: 100% !important;
-    min-width: 0 !important;
-    font-size: 1rem !important;
-    padding: 10px !important;
-    height: 48px !important;
-    border: 1px solid #ced4da !important;
-    border-radius: 6px !important;
-  }
-
-  #searchBtn {
-    white-space: nowrap !important;
-    width: 100% !important;
-    height: 48px !important;
-    font-size: 1rem !important;
-    padding: 10px !important;
-  }
 
   /* 버튼 영역 배경 */
   .card-body > .d-flex.justify-content-center {
@@ -1396,7 +1611,233 @@ th, td {
 }
 
 @media (min-width: 769px) {
+    /* PC에서 모바일 전용 HTML 구조 완전히 숨기기 */
+    .mobile-date-row-simple,
+    .row .mobile-date-row-simple,
+    .col-sm-12 .mobile-date-row-simple,
+    .mobile-date-row-line {
+        display: none !important;
+        visibility: hidden !important;
+    }
+    
+    /* PC에서 모바일용 row 구조 숨기기 */
+    .row.d-flex.justify-content-center.align-items-center:has(.mobile-date-row-simple) {
+        display: none !important;
+    }
+    
+    /* PC에서만 date-row 표시 - 모든 모바일 스타일 덮어쓰기 (최우선) */
+    .date-row,
+    .d-flex.date-row,
+    .d-flex.p-1.m-1.mt-1.mb-1.justify-content-center.align-items-center.date-row,
+    .date-row:not(.mobile-date-row-simple),
+    div.date-row,
+    div.d-flex.date-row,
+    .d-flex.p-1.m-1.mt-1.mb-1.date-row {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        flex-wrap: nowrap !important;
+        gap: 0.5rem !important;
+        justify-content: center !important;
+        align-items: center !important;
+        padding: 0.5rem 1rem !important;
+        margin: 0.5rem 0 !important;
+        font-size: 1rem !important;
+        white-space: normal !important;
+        overflow-x: visible !important;
+        height: auto !important;
+        min-height: auto !important;
+        max-height: none !important;
+        grid-template-columns: none !important;
+    }
+    
+    /* PC에서 date-row 내부 모든 요소 표시 */
+    .date-row > * {
+        display: inline-block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
     .table-view, #tabulator-table {
         overflow-x: auto !important;
+    }
+    
+    /* PC에서는 햄버거 버튼 숨김 (Bootstrap d-md-none과 함께 작동) */
+    .row.d-flex.align-items-center .mobile-menu-toggle {
+        display: none !important;
+    }
+    
+    /* PC에서 date-row 내부 모든 요소 표시 및 스타일 */
+    .date-row > * {
+        margin: 0 !important;
+        flex-shrink: 0 !important;
+        flex-grow: 0 !important;
+        flex-basis: auto !important;
+        display: inline-block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    /* PC에서 기간 버튼 표시 - 모든 경우에 표시 (모바일 스타일 덮어쓰기) */
+    #showdate,
+    .date-row #showdate,
+    .date-row:not(.mobile-date-row-simple) #showdate {
+        display: inline-block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    /* PC에서 기간 설정 카드 표시 - 모든 경우에 표시 (모바일 스타일 덮어쓰기) */
+    #showframe,
+    .date-row #showframe,
+    .date-row:not(.mobile-date-row-simple) #showframe {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    /* PC에서 총 건수 텍스트 */
+    .date-row > span:first-child {
+        white-space: normal !important;
+        font-size: 1rem !important;
+        margin-right: 0.5rem !important;
+        display: inline-block !important;
+    }
+    
+    /* PC에서 날짜 입력 필드 원래 크기 */
+    .date-row #fromdate,
+    .date-row #todate {
+        width: 120px !important;
+        min-width: 120px !important;
+        max-width: 120px !important;
+        font-size: 0.85rem !important;
+        padding: 0.25rem 0.5rem !important;
+        height: auto !important;
+        line-height: 1.4 !important;
+        flex: 0 0 auto !important;
+        box-sizing: border-box !important;
+    }
+    
+    .date-row #fromdate::-webkit-datetime-edit,
+    .date-row #todate::-webkit-datetime-edit {
+        font-size: 0.85rem !important;
+        padding: 0 !important;
+    }
+    
+    .date-row #fromdate::-webkit-datetime-edit-text,
+    .date-row #todate::-webkit-datetime-edit-text {
+        padding: 0 2px !important;
+    }
+    
+    .date-row #fromdate::-webkit-datetime-edit-month-field,
+    .date-row #fromdate::-webkit-datetime-edit-day-field,
+    .date-row #fromdate::-webkit-datetime-edit-year-field,
+    .date-row #todate::-webkit-datetime-edit-month-field,
+    .date-row #todate::-webkit-datetime-edit-day-field,
+    .date-row #todate::-webkit-datetime-edit-year-field {
+        padding: 0 1px !important;
+    }
+    
+    .date-row #fromdate::-webkit-calendar-picker-indicator,
+    .date-row #todate::-webkit-calendar-picker-indicator {
+        width: 18px !important;
+        height: 18px !important;
+        padding: 0 !important;
+        margin-left: 3px !important;
+    }
+    
+    /* PC에서 체크박스와 라벨 원래 스타일 */
+    .date-row #receptionDateFilter {
+        width: 1rem !important;
+        height: 1rem !important;
+        margin: 0 0.5rem !important;
+        flex-shrink: 0 !important;
+        display: inline-block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    .date-row label[for="receptionDateFilter"] {
+        font-size: 1rem !important;
+        margin: 0 0.5rem !important;
+        padding: 0 !important;
+        white-space: normal !important;
+        flex-shrink: 0 !important;
+        cursor: pointer !important;
+        display: inline-block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    /* PC에서 날짜 구분자 원래 스타일 */
+    .date-row .date-separator {
+        margin: 0 0.5rem !important;
+        font-size: 1rem !important;
+    }
+    
+    /* PC에서 Bootstrap margin 클래스 정상 작동 */
+    .date-row .mx-1 {
+        margin-left: 0.25rem !important;
+        margin-right: 0.25rem !important;
+    }
+    
+    .date-row .mx-2 {
+        margin-left: 0.5rem !important;
+        margin-right: 0.5rem !important;
+    }
+    
+    .date-row .me-1 {
+        margin-right: 0.25rem !important;
+    }
+    
+    /* PC에서 검색 행 원래 스타일 */
+    .search-row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+        justify-content: center !important;
+        align-items: center !important;
+        padding: 0.5rem 1rem !important;
+        margin: 0.5rem 0 !important;
+    }
+    
+    .search-row #find {
+        width: auto !important;
+        min-width: auto !important;
+        max-width: none !important;
+        font-size: 1rem !important;
+        height: auto !important;
+        padding: 0.375rem 0.75rem !important;
+    }
+    
+    .search-row .inputWrap {
+        width: auto !important;
+        min-width: auto !important;
+        max-width: none !important;
+        margin: 0 0.5rem !important;
+    }
+    
+    .search-row #search {
+        width: 150px !important;
+        min-width: 150px !important;
+        max-width: none !important;
+        font-size: 1rem !important;
+        padding: 0.375rem 0.75rem !important;
+        height: auto !important;
+    }
+    
+    .search-row #searchBtn {
+        font-size: 1rem !important;
+        padding: 0.375rem 0.75rem !important;
+        height: auto !important;
+        margin-left: 0 !important;
+        order: 0 !important;
+    }
+    
+    /* PC에서 하단 버튼 그룹 표시 */
+    .search-row > #writeBtn,
+    .search-row > #rawmaterialBtn,
+    .search-row > .btn-outline-primary {
+        display: inline-block !important;
     }
 }

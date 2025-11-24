@@ -117,8 +117,10 @@ if (empty($todate)) {
 if ($mode === "search" || empty($mode)) {
     if (empty($search)) {
         $sql = "SELECT * FROM {$DB}.idea ORDER BY num DESC";
+        $count_sql = "SELECT COUNT(*) as total FROM {$DB}.idea";
     } elseif ($search === "결재상신 1차결재") {
         $sql = "SELECT * FROM {$DB}.idea WHERE approve = '결재상신' OR approve = '1차결재' ORDER BY num DESC";
+        $count_sql = "SELECT COUNT(*) as total FROM {$DB}.idea WHERE approve = '결재상신' OR approve = '1차결재'";
         $search = null;
     } else {
         // SQL Injection 방지를 위한 Prepared Statement 사용
@@ -126,18 +128,23 @@ if ($mode === "search" || empty($mode)) {
                 WHERE emember LIKE ? OR place LIKE ? OR content LIKE ? 
                 OR method LIKE ? OR approve LIKE ? 
                 ORDER BY occur DESC";
+        $count_sql = "SELECT COUNT(*) as total FROM {$DB}.idea 
+                      WHERE emember LIKE ? OR place LIKE ? OR content LIKE ? 
+                      OR method LIKE ? OR approve LIKE ?";
         $searchParam = '%' . $search . '%';
         $usesPrepared = true;
     }
 } else {
     $sql = "SELECT * FROM {$DB}.idea ORDER BY num DESC";
+    $count_sql = "SELECT COUNT(*) as total FROM {$DB}.idea";
 }
 
-// 데이터 조회 및 저장
+// 데이터 조회 및 저장 (먼저 데이터를 조회)
 $dataRows = array();
+$usesPrepared = isset($usesPrepared) ? $usesPrepared : false;
 
 try {
-    if (isset($usesPrepared) && $usesPrepared === true) {
+    if ($usesPrepared === true) {
         $stmh = $pdo->prepare($sql);
         $stmh->bindValue(1, $searchParam, PDO::PARAM_STR);
         $stmh->bindValue(2, $searchParam, PDO::PARAM_STR);
@@ -156,14 +163,14 @@ try {
         }
     }
     
-    // 전체 레코드 수 계산
-    $total_row = count($dataRows);
-    
 } catch (PDOException $ex) {
     error_log("DB query error in idea/index.php: " . $ex->getMessage());
     $dataRows = array();
-    $total_row = 0;
 }
+
+// 전체 레코드 수 계산 (실제 조회된 데이터 개수 우선 사용)
+$total_row = count($dataRows);
+$result_count = $total_row;
 
 include getDocumentRoot() . '/load_header.php';
 ?>
@@ -222,6 +229,213 @@ include getDocumentRoot() . '/load_header.php';
 th {
     white-space: nowrap;
 }
+
+/* 모바일 환경 최적화 */
+@media (max-width: 768px) {
+    /* 컨테이너 최적화 */
+    .container,
+    .container-fluid {
+        padding: 0.5rem !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 카드 최적화 */
+    .card {
+        margin: 0.5rem auto !important;
+        width: calc(100% - 1rem) !important;
+        max-width: calc(100% - 1rem) !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .card-body {
+        padding: 0.75rem 0.5rem !important;
+        overflow-x: hidden !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    /* 검색 UI 최적화 */
+    .d-flex.justify-content-center {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.5rem !important;
+        flex-wrap: wrap !important;
+    }
+    
+    .d-flex.justify-content-center .form-control,
+    .d-flex.justify-content-center .btn {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0.25rem 0 !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* jQuery DataTable 숨기기 */
+    .dataTables_length,
+    .dataTables_filter {
+        display: none !important;
+    }
+    
+    /* 테이블을 카드 형식으로 변환 */
+    table.table {
+        width: 100% !important;
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+    }
+    
+    table.table thead {
+        display: none !important;
+    }
+    
+    table.table tbody {
+        display: block !important;
+        width: 100% !important;
+    }
+    
+    table.table tbody tr {
+        display: block !important;
+        width: calc(100% - 0.5rem) !important;
+        max-width: calc(100% - 0.5rem) !important;
+        margin: 0.5rem auto 0.75rem auto !important;
+        background: #fff !important;
+        border: 1px solid #ddd !important;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+        padding: 0.75rem !important;
+        box-sizing: border-box !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        cursor: pointer !important;
+    }
+    
+    table.table tbody tr td {
+        display: flex !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0.5rem 0.4rem !important;
+        text-align: left !important;
+        border: none !important;
+        border-bottom: 1px solid #f0f0f0 !important;
+        box-sizing: border-box !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+    }
+    
+    table.table tbody tr td:last-child {
+        border-bottom: none !important;
+    }
+    
+    table.table tbody tr td::before {
+        content: attr(data-label) !important;
+        font-weight: bold !important;
+        font-size: 0.75rem !important;
+        color: #666 !important;
+        margin-right: 0.5rem !important;
+        min-width: 80px !important;
+        flex-shrink: 0 !important;
+    }
+    
+    /* 텍스트 오버플로우 방지 */
+    * {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 모든 텍스트 요소 강제 줄바꿈 */
+    p, div, h1, h2, h3, h4, h5, h6, label, strong, em, b, i, u, span {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* span 요소 줄바꿈 처리 */
+    span {
+        display: inline !important;
+        overflow: visible !important;
+    }
+    
+    /* 버튼 최적화 */
+    .btn {
+        font-size: 0.875rem !important;
+        padding: 0.5rem 0.75rem !important;
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 모달 최적화 */
+    .modal {
+        padding: 0 !important;
+    }
+    
+    .modal-dialog {
+        margin: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+    }
+    
+    .modal-content {
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        border-radius: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    
+    .modal-header {
+        padding: 0.75rem 0.5rem !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .modal-body {
+        padding: 0.75rem 0.5rem !important;
+        overflow-y: auto !important;
+        flex: 1 1 auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+    
+    .modal-body img {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+    }
+    
+    .modal-footer {
+        padding: 0.75rem 0.5rem !important;
+        flex-shrink: 0 !important;
+    }
+    
+    /* '기간' 버튼 숨기기 */
+    #showdate {
+        display: none !important;
+    }
+}
+
+/* PC 환경 버튼 간격 최적화 */
+@media (min-width: 769px) {
+    .d-flex.justify-content-center .btn,
+    .d-flex.justify-content-start .btn {
+        margin-left: 0.25rem !important;
+        margin-right: 0.25rem !important;
+    }
+}
 </style>
 </head>
 
@@ -278,7 +492,7 @@ if ($menu !== 'no') {
                 </div>
                 
                 <div class="d-flex mb-2 px-5 px-lg-2 mt-2 justify-content-center align-items-center">
-                    ▷ 전체: <?php echo htmlspecialchars($total_row, ENT_QUOTES, 'UTF-8'); ?>건 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    ▷ 전체: <?php echo htmlspecialchars($result_count, ENT_QUOTES, 'UTF-8'); ?>건 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <input type="text" class="form-control mx-1" style="width:150px;" name="search" id="search" value="<?php echo htmlspecialchars($search, ENT_QUOTES, 'UTF-8'); ?>" autocomplete="off" onkeydown="JavaScript:SearchEnter();" placeholder="검색어">
                     <button type="button" id="searchBtn" class="btn btn-dark btn-sm me-2">
                         <i class="bi bi-search"></i> 검색
@@ -308,6 +522,11 @@ if ($menu !== 'no') {
                             <?php
                             // 디버깅: total_row 확인
                             error_log("DEBUG idea/index.php - total_row: " . $total_row . ", dataRows count: " . count($dataRows));
+                            
+                            // 실제 조회된 데이터가 있으면 그 개수를 사용 (COUNT 쿼리 실패 대비)
+                            if ($total_row == 0 && count($dataRows) > 0) {
+                                $total_row = count($dataRows);
+                            }
 
                             $start_num = 1;
 
@@ -315,16 +534,16 @@ if ($menu !== 'no') {
                                 include "rowDB.php";                                
                             ?>
                             <tr onclick="redirectToView('<?php echo htmlspecialchars($num, ENT_QUOTES, 'UTF-8'); ?>', '<?php echo htmlspecialchars($tablename, ENT_QUOTES, 'UTF-8'); ?>')">
-                                <td class="text-center"><?php echo htmlspecialchars($start_num, ENT_QUOTES, 'UTF-8'); ?></td>
-                                <td class="text-center"><?php echo htmlspecialchars($occur, ENT_QUOTES, 'UTF-8'); ?></td>
-                                <td class="text-center"><?php echo htmlspecialchars($approve, ENT_QUOTES, 'UTF-8'); ?></td>
-                                <td class="text-center"><?php echo htmlspecialchars(str_replace('!', ',', $errortype), ENT_QUOTES, 'UTF-8'); ?></td>
-                                <td class="text-start"><?php echo htmlspecialchars($place, ENT_QUOTES, 'UTF-8'); ?></td>
-                                <td class="text-start"><?php echo htmlspecialchars($content, ENT_QUOTES, 'UTF-8'); ?></td>
-                                <td class="text-start"><?php echo htmlspecialchars($method, ENT_QUOTES, 'UTF-8'); ?></td>
-                                <td class="text-center"><?php echo htmlspecialchars($firstone, ENT_QUOTES, 'UTF-8'); ?></td>
-                                <td class="text-start"><?php echo htmlspecialchars($emember, ENT_QUOTES, 'UTF-8'); ?></td>
-                                <td class="text-center"><?php echo htmlspecialchars($payment, ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td class="text-center" data-label="번호"><?php echo htmlspecialchars($start_num, ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td class="text-center" data-label="등록일"><?php echo htmlspecialchars($occur, ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td class="text-center" data-label="제안등급"><?php echo htmlspecialchars($approve, ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td class="text-center" data-label="종류"><?php echo htmlspecialchars(str_replace('!', ',', $errortype), ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td class="text-start" data-label="제안명"><?php echo htmlspecialchars($place, ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td class="text-start" data-label="개선 내용"><?php echo htmlspecialchars($content, ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td class="text-start" data-label="개선 효과"><?php echo htmlspecialchars($method, ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td class="text-center" data-label="최초 제안자"><?php echo htmlspecialchars($firstone, ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td class="text-start" data-label="제안 참여자"><?php echo htmlspecialchars($emember, ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td class="text-center" data-label="포상지급여부"><?php echo htmlspecialchars($payment, ENT_QUOTES, 'UTF-8'); ?></td>
                             </tr>
                             <?php
                                 $start_num++;
@@ -435,6 +654,34 @@ if ($menu !== 'no') {
         if (typeof saveLogData === 'function') {
             saveLogData('직원 제안제도 운영');
         }
+        
+        // 모바일 환경에서 '기간' 버튼 숨기기
+        if (window.innerWidth <= 768) {
+            $('#showdate').hide();
+        }
+        
+        // 창 크기 변경 시 '기간' 버튼 표시/숨김 처리
+        $(window).resize(function() {
+            if (window.innerWidth <= 768) {
+                $('#showdate').hide();
+            } else {
+                $('#showdate').show();
+            }
+        });
+        
+        // 모바일 환경에서 jQuery DataTable 컨트롤 숨기기
+        if (window.innerWidth <= 768) {
+            $('.dataTables_length, .dataTables_filter').hide();
+        }
+        
+        // 창 크기 변경 시 DataTable 컨트롤 표시/숨김 처리
+        $(window).resize(function() {
+            if (window.innerWidth <= 768) {
+                $('.dataTables_length, .dataTables_filter').hide();
+            } else {
+                $('.dataTables_length, .dataTables_filter').show();
+            }
+        });
     });
     
     /**

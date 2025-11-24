@@ -112,17 +112,437 @@ $time = time(); // 스크립트 캐시 방지용
 }
 /* 마우스 오버하면 드롭다운하기 */
 
+/* PC 화면에서 메뉴 한 줄 표시를 위한 스타일 */
+@media (min-width: 768px) {
+    .header-area {
+        position: relative !important;
+        top: 0 !important;
+        background-color: #7a6ad8 !important;
+        border-radius: 0px 0px 25px 25px !important;
+        box-shadow: 0px 0px 10px rgba(0,0,0,0.15) !important;
+    }
+    
+    .header-area .main-nav {
+        background: transparent !important;
+    }
+    
+    .header-area .main-nav {
+        display: flex !important;
+        align-items: center !important;
+        flex-wrap: nowrap !important;
+        white-space: nowrap !important;
+        width: 100%;
+    }
+    
+    .header-area .main-nav .nav {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        gap: 0 !important;
+        white-space: nowrap !important;
+        flex-shrink: 0;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .header-area .main-nav .nav li {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        flex-shrink: 0 !important;
+        white-space: nowrap !important;
+        margin: 0 !important;
+    }
+    
+    .header-area .main-nav .nav li a {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+        font-size: 21px !important;
+        white-space: nowrap !important;
+        height: 50px !important;
+        line-height: 50px !important;
+    }
+    
+    .header-area .main-nav .nav li.dropdown > a::after {
+        margin-left: 5px;
+        font-size: 18px;
+    }
+    
+    /* SNS 아이콘 버튼 스타일 */
+    .desktop-sns-icons {
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        height: auto !important;
+    }
+    
+    .desktop-sns-btn {
+        width: 38px !important;
+        height: 38px !important;
+        padding: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 50% !important;
+        border: 2px solid transparent !important;
+        transition: all 0.3s ease !important;
+        flex-shrink: 0;
+    }
+    
+    .desktop-sns-btn:hover {
+        transform: translateY(-2px);
+    }
+    
+    .desktop-sns-btn svg,
+    .desktop-sns-btn img {
+        width: 20px !important;
+        height: 20px !important;
+        display: block;
+    }
+    
+    /* 로그인 폼 크기 최적화 */
+    .desktop-login-form {
+        display: flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+        margin: 0 !important;
+        white-space: nowrap;
+    }
+    
+    .login-input {
+        width: 80px !important;
+        height: 30px !important;
+        font-size: 11px !important;
+        padding: 3px 6px !important;
+        display: inline-block !important;
+    }
+    
+    .login-btn {
+        font-size: 11px !important;
+        padding: 3px 10px !important;
+        height: 30px !important;
+        white-space: nowrap !important;
+    }
+    
+    .user-name {
+        font-size: 12px !important;
+        white-space: nowrap !important;
+    }
+    
+    /* 관리자 버튼 크기 조정 */
+    .admin-btn {
+        font-size: 11px !important;
+        padding: 3px 8px !important;
+        height: 30px !important;
+        display: flex !important;
+        align-items: center !important;
+        white-space: nowrap !important;
+    }
+    
+    .admin-btn i {
+        margin-right: 3px !important;
+    }
+    
+    /* 로고와 메뉴 사이 간격 조정 */
+    .logo-sns-container {
+        flex-shrink: 0;
+        max-width: 300px;
+    }
+    
+    .logo h1 {
+        font-size: 26px !important;
+        margin-right: 8px !important;
+        padding-right: 8px !important;
+        border-right: 1px solid rgba(250, 250, 250, 0.3) !important;
+    }
+    
+    /* 컨테이너 최적화 */
+    .header-area .container {
+        max-width: 100% !important;
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+    
+    /* 메뉴 중앙 정렬 */
+    .header-area .main-nav {
+        justify-content: center !important;
+    }
+    
+    .header-area .main-nav .nav {
+        flex: 0 0 auto;
+        justify-content: center !important;
+        margin: 0 auto !important;
+    }
+    
+    /* 로고를 왼쪽에 배치 */
+    .logo-sns-container {
+        position: absolute !important;
+        left: 15px !important;
+        z-index: 10;
+    }
+    
+    /* PC용 SNS 아이콘 컨테이너 숨기기 (nav 안으로 이동) */
+    .desktop-sns-icons-wrapper {
+        display: none !important;
+    }
+    
+    /* SNS 아이콘을 nav에서 표시하고 "회사안내" 왼쪽에 배치 */
+    .header-area .main-nav .nav li.desktop-sns-icons {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        margin-right: 10px !important;
+    }
+    
+    /* SNS 아이콘 크기 조정 */
+    .desktop-sns-btn {
+        width: 45px !important;
+        height: 45px !important;
+    }
+    
+    .desktop-sns-btn svg,
+    .desktop-sns-btn img {
+        width: 26px !important;
+        height: 26px !important;
+    }
+    
+    /* 로그인 폼을 오른쪽에 배치 */
+    .header-area .main-nav .nav li:last-child,
+    .header-area .main-nav .nav li:nth-last-child(2) {
+        position: absolute !important;
+        right: 15px !important;
+        z-index: 10;
+    }
+    
+    /* 메뉴 항목들 간격 조정 */
+    .header-area .main-nav .nav li {
+        padding-left: 3px !important;
+        padding-right: 3px !important;
+    }
+    
+    /* 메뉴만 중앙에 정렬되도록 */
+    .header-area .main-nav .nav {
+        width: auto;
+        margin: 0 auto;
+    }
+}
+
 /* 모바일 메뉴 초기 상태: 닫힘 상태로 강제 설정 */
 @media (max-width: 767px) {
     .header-area .main-nav .nav:not(.nav-open) {
         display: none !important;
     }
-    .header-area .main-nav .menu-trigger {
-        display: block !important;
-        cursor: pointer;
-    }
     .header-area .main-nav .nav.nav-open {
         display: block !important;
+    }
+    
+    /* 모바일 헤더 컨테이너 패딩 조정 */
+    .header-area .container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    
+    /* 모바일 헤더 높이 설정 - 상부 여백 제거 */
+    .header-area {
+        top: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        height: 70px !important;
+        min-height: 70px !important;
+        max-height: 70px !important;
+    }
+    
+    .header-area .main-nav {
+        min-height: 70px !important;
+        height: 70px !important;
+        max-height: 70px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    .header-area .container {
+        padding: 0 !important;
+        margin: 0 !important;
+        height: 70px !important;
+        min-height: 70px !important;
+        max-height: 70px !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+    
+    /* 로고의 상부 여백 제거 */
+    .header-area .main-nav .logo {
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+    }
+    
+    /* 로고 컨테이너 오버플로우 방지 */
+    .logo-sns-container {
+        overflow: visible;
+        max-width: 100%;
+        width: 100%;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        height: 70px !important;
+        min-height: 70px !important;
+        vertical-align: middle !important;
+        position: relative;
+        z-index: 1000;
+        padding: 0 10px !important;
+        margin: 0 !important;
+        gap: 12px;
+    }
+    
+    /* 헤더 내 모든 요소 세로 중앙 정렬 */
+    .logo-sns-container > *,
+    .logo-sns-container > div {
+        display: flex !important;
+        align-items: center !important;
+        height: 100% !important;
+        vertical-align: middle !important;
+    }
+    
+    /* 로고와 SNS 아이콘을 감싸는 내부 컨테이너 */
+    .logo-sns-inner {
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px;
+        flex-wrap: nowrap;
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        height: 100% !important;
+    }
+    
+    /* 로고 텍스트 중앙 정렬 */
+    .logo {
+        display: flex !important;
+        align-items: center !important;
+        height: 100% !important;
+        vertical-align: middle !important;
+        flex-shrink: 0;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .logo h1 {
+        line-height: 1 !important;
+        display: flex !important;
+        align-items: center !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        height: auto !important;
+        vertical-align: middle !important;
+        width: 110%;
+        white-space: nowrap;
+        font-size: 36px;
+        color: #fff;
+    }
+    
+    .mobile-menu-toggle i {
+        font-size: 1.5rem;
+        color: white;
+    }
+    
+    /* 햄버거 버튼이 잘리지 않도록 */
+    .mobile-menu-toggle {
+        flex-shrink: 0 !important;
+        min-width: 44px;
+        width: 44px;
+        height: 44px !important;
+        padding: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+        backdrop-filter: blur(5px);
+        margin: 0 !important;
+        vertical-align: middle !important;
+        align-self: center !important;
+        border-radius: 8px;
+        position: relative;
+        top: 0;
+    }
+    
+    .mobile-menu-toggle i {
+        line-height: 1 !important;
+        vertical-align: middle !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: inline-block;
+        font-size: 1.5rem;
+        color: white;
+    }
+    
+    /* SNS 아이콘 컨테이너 */
+    .mobile-sns-icons {
+        display: flex !important;
+        align-items: center !important;
+        height: 100% !important;
+        gap: 6px !important;
+        vertical-align: middle !important;
+        align-self: center !important;
+    }
+    
+    /* SNS 아이콘 버튼 */
+    .mobile-sns-icons button {
+        width: 38px !important;
+        height: 38px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-shrink: 0 !important;
+        vertical-align: middle !important;
+        align-self: center !important;
+        border-radius: 50%;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+        position: relative;
+        top: 0;
+    }
+    
+    .mobile-sns-icons button svg,
+    .mobile-sns-icons button img {        
+        margin: 0 !important;
+        padding: 0 !important;
+        display: block;
+        object-fit: contain;
+    }
+    
+    .mobile-sns-icons button svg {
+        width: 18px;
+        height: 18px;
+    }
+    
+    .mobile-sns-icons button img {
+        width: 18px;
+        height: 18px;
+    }
+    
+    .mobile-menu-toggle:hover,
+    .mobile-menu-toggle:focus {
+        background-color: rgba(255, 255, 255, 0.15) !important;
+        border: 1px solid rgba(255, 255, 255, 0.4) !important;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2) !important;
+        opacity: 1;
+    }
+    
+    .mobile-menu-toggle:active {
+        background-color: rgba(255, 255, 255, 0.2) !important;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2) !important;
+    }
+    
+    .mobile-menu-toggle i {
+        color: white !important;
     }
     
     /* 모바일에서 드롭다운 메뉴 스타일 */
@@ -167,6 +587,159 @@ $time = time(); // 스크립트 캐시 방지용
         padding: 12px 30px;
         border-top: 1px solid #eee;
     }
+}
+
+/* 모바일 오프캔버스 메뉴 스타일 */
+.offcanvas {
+    box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.accordion-button {
+    padding: 15px 20px;
+    font-weight: 600;
+    color: #2d3748;
+    background-color: #ffffff;
+    border: none;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.accordion-button:not(.collapsed) {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: #ffffff !important;
+    box-shadow: none;
+}
+
+.accordion-button:not(.collapsed) i {
+    color: #ffffff !important;
+}
+
+.accordion-button:focus {
+    box-shadow: none;
+    border-color: rgba(102, 126, 234, 0.5);
+}
+
+.accordion-button::after {
+    margin-left: auto;
+    font-size: 0.9rem;
+    opacity: 0.6;
+}
+
+.accordion-button:not(.collapsed)::after {
+    filter: invert(1);
+    opacity: 1 !important;
+}
+
+.accordion-button i {
+    font-size: 1.1rem;
+    width: 24px;
+    text-align: center;
+    color: #667eea;
+    transition: color 0.2s ease;
+}
+
+.mobile-sub-link {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px 12px 50px;
+    color: #4a5568;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+    gap: 12px;
+}
+
+.mobile-sub-link:hover {
+    background-color: #f0f4f8;
+    color: #667eea;
+    border-left-color: #667eea;
+    padding-left: 55px;
+}
+
+.mobile-sub-link i {
+    color: #667eea;
+    width: 20px;
+    text-align: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.mobile-sub-link span {
+    flex: 1;
+}
+
+.mobile-menu-item {
+    border-bottom: 1px solid #e9ecef;
+}
+
+.mobile-menu-link {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    color: #2d3748;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    gap: 12px;
+    width: 100%;
+}
+
+.mobile-menu-link:hover {
+    background-color: #f0f4f8;
+    color: #667eea;
+}
+
+.mobile-menu-link i:first-child {
+    font-size: 1.2rem;
+    width: 24px;
+    text-align: center;
+    color: #667eea;
+    flex-shrink: 0;
+}
+
+.mobile-menu-link span {
+    flex: 1;
+}
+
+.mobile-menu-link i:last-child {
+    margin-left: auto;
+    font-size: 0.9rem;
+    opacity: 0.6;
+    color: #4a5568;
+}
+
+.accordion-body {
+    background-color: #ffffff;
+    padding: 0 !important;
+}
+
+.accordion-item {
+    border: none;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.accordion-item:last-child {
+    border-bottom: none;
+}
+
+/* 스크롤바 스타일링 */
+.offcanvas-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.offcanvas-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.offcanvas-body::-webkit-scrollbar-thumb {
+    background: #667eea;
+    border-radius: 3px;
+}
+
+.offcanvas-body::-webkit-scrollbar-thumb:hover {
+    background: #764ba2;
 }
 
 /* 파일선택 CSS */
@@ -388,55 +961,74 @@ $time = time(); // 스크립트 캐시 방지용
     <div class="container">        
                 <nav class="main-nav">
                     <!-- ***** Logo Start ***** -->
-                    <div class="logo-sns-container" style="display: flex; align-items: center; gap: 15px; flex-wrap: nowrap; position: relative; z-index: 1000;">
-                        <a href="index.php" class="logo me-1" style="flex-shrink: 0;">
-                            <h1 class="me-1" style="width:110%; margin: 0;">미래기업</h1>
-                        </a>
-                        <!-- ***** Logo End ***** -->
+                    <div class="logo-sns-container">
+                        <!-- 모바일 햄버거 메뉴 버튼 (맨 왼쪽) -->
+                        <button class="btn d-md-none mobile-menu-toggle" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNavMenu" aria-controls="mobileNavMenu">
+                            <i class="fa fa-bars"></i>
+                        </button>
                         
-                    <!-- 모바일 SNS 아이콘 (로고 옆에 표시) -->
-                  <div class="mobile-sns-icons" style="display: flex; align-items: center; gap: 10px; flex-shrink: 0;">
-                  <button type="button" class="btn btn-outline-danger btn-sm" onclick="popupCenter('https://youtube.com/@miraecorp', 'YouTube', 1920, 1080); return false;" style="padding: 0; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 2px solid transparent; transition: all 0.3s ease;" title="미래기업 유튜브">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 26" width="24" height="24" style="vertical-align:middle;">
-                    <rect width="34" height="26" rx="5" ry="5" fill="#FF0000"/>					
-                    <polygon points="10,5 10,20 25,15" fill="#FFFFFF"/>
-                    </svg>
-                  </button>	
-                  <button type="button" class="btn btn-outline-secondary btn-sm"
-                    onclick="popupCenter('https://www.instagram.com/miraecompany2025/', 'Instagram', 1280, 900); return false;"
-                    style="padding: 0; border: none; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 2px solid transparent; transition: all 0.3s ease;" 
-                    title="미래기업 인스타그램">
-                    <img src="https://ko.savefrom.net/img/articles/instagram/new/instagram.webp" 
-                      width="24" 
-                      height="24" 
-                      alt="Instagram"
-                      style="vertical-align: middle; object-fit: contain;">
-                  </button>
+                        <div class="logo-sns-inner">
+                            <a href="index.php" class="logo">
+                                <h1>미래기업</h1>
+                            </a>
+                            <!-- ***** Logo End ***** -->
+                            
+                            <!-- PC용 SNS 아이콘 (로고 옆에 표시) -->
+                            <div class="desktop-sns-icons-wrapper d-none d-md-flex">
+                                <button type="button" class="btn btn-outline-danger btn-sm desktop-sns-btn" onclick="popupCenter('https://youtube.com/@miraecorp', 'YouTube', 1920, 1080); return false;" title="미래기업 유튜브">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 26" width="22" height="22">
+                                    <rect width="34" height="26" rx="5" ry="5" fill="#FF0000"/>					
+                                    <polygon points="10,5 10,20 25,15" fill="#FFFFFF"/>
+                                    </svg>
+                                </button>	
+                                <button type="button" class="btn btn-outline-secondary btn-sm desktop-sns-btn"
+                                    onclick="popupCenter('https://www.instagram.com/miraecompany2025/', 'Instagram', 1280, 900); return false;"
+                                    title="미래기업 인스타그램">
+                                    <img src="https://ko.savefrom.net/img/articles/instagram/new/instagram.webp" 
+                                        width="22" 
+                                        height="22" 
+                                        alt="Instagram">
+                                </button>
+                            </div>
+                            
+                            <!-- 모바일 SNS 아이콘 (로고 옆에 표시) -->
+                            <div class="mobile-sns-icons d-md-none">
+                                <button type="button" class="btn btn-outline-danger btn-sm" onclick="popupCenter('https://youtube.com/@miraecorp', 'YouTube', 1920, 1080); return false;" title="미래기업 유튜브">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 26" width="18" height="18">
+                                    <rect width="34" height="26" rx="5" ry="5" fill="#FF0000"/>					
+                                    <polygon points="10,5 10,20 25,15" fill="#FFFFFF"/>
+                                    </svg>
+                                </button>	
+                                <button type="button" class="btn btn-outline-secondary btn-sm"
+                                    onclick="popupCenter('https://www.instagram.com/miraecompany2025/', 'Instagram', 1280, 900); return false;"
+                                    title="미래기업 인스타그램">
+                                    <img src="https://ko.savefrom.net/img/articles/instagram/new/instagram.webp" 
+                                      width="18" 
+                                      height="18" 
+                                      alt="Instagram">
+                                </button>
+                            </div>
                         </div>
-                  </div>
+                    </div>
 					
             <!-- ***** Menu Start ***** -->
-            <ul class="nav align-items-center" style="display: flex; align-items: center;">
-					<li class="scroll-to-section desktop-sns-icons" style="display: flex; align-items: center; gap: 15px; height: auto;">						
-						<button type="button" class="btn btn-outline-danger btn-sm mx-1" onclick="popupCenter('https://youtube.com/@miraecorp', 'YouTube', 1920, 1080); return false;" style="padding: 0; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 2px solid transparent; transition: all 0.3s ease;" title="미래기업 유튜브" onmouseover="this.style.backgroundColor='#FF0000'; this.style.borderColor='#FF0000'; this.style.transform='translateY(-2px)';" onmouseout="this.style.backgroundColor='transparent'; this.style.borderColor='transparent'; this.style.transform='translateY(0)';">
-						  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 26" width="28" height="28" style="vertical-align:middle;">
+            <ul class="nav align-items-center d-none d-md-flex">
+					<li class="scroll-to-section desktop-sns-icons">						
+						<button type="button" class="btn btn-outline-danger btn-sm desktop-sns-btn" onclick="popupCenter('https://youtube.com/@miraecorp', 'YouTube', 1920, 1080); return false;" title="미래기업 유튜브">
+						  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 26" width="22" height="22">
 							<!-- 빨간 배경 (라운드 사각형) -->
 							<rect width="34" height="26" rx="5" ry="5" fill="#FF0000"/>					
 							<!-- 흰색 재생 버튼 (삼각형) -->
 							<polygon points="10,5 10,20 25,15" fill="#FFFFFF"/>
 						  </svg>
 						</button>	
-						<button type="button" class="btn btn-outline-secondary btn-sm mx-1"
+						<button type="button" class="btn btn-outline-secondary btn-sm desktop-sns-btn"
 							onclick="popupCenter('https://www.instagram.com/miraecompany2025/', 'Instagram', 1280, 900); return false;"
-							style="padding: 0; border: none; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 2px solid transparent; transition: all 0.3s ease;" 
-							title="미래기업 인스타그램"
-							onmouseover="this.style.borderColor='#dc2743'; this.style.transform='translateY(-2px)';" 
-							onmouseout="this.style.borderColor='transparent'; this.style.transform='translateY(0)';">
+							title="미래기업 인스타그램">
 							<img src="https://ko.savefrom.net/img/articles/instagram/new/instagram.webp" 
-								width="28" 
-								height="28" 
-								alt="Instagram"
-								style="vertical-align: middle; object-fit: contain;">
+								width="22" 
+								height="22" 
+								alt="Instagram">
 						</button>
 					</li>					
 					<!-- <li class="scroll-to-section"><a href="#top" class="active">H</a></li>					  -->
@@ -479,25 +1071,24 @@ $time = time(); // 스크립트 캐시 방지용
 					<li class="scroll-to-section">
 						<a href="#contact" >견적문의</a>
 					</li>					
-					<li class="scroll-to-section" style="display: flex; align-items: center; height: auto;">
-						<a href="login_manager.php" class="btn btn-sm btn-outline-warning" style="height: 35px; padding: 5px 15px; font-size: 13px; white-space: nowrap; display: flex; align-items: center;">
-							<i class="fa fa-lock" aria-hidden="true" style="margin-right: 6px;"></i>관리자
+					<li class="scroll-to-section">
+						<a href="login_manager.php" class="btn btn-sm btn-outline-warning admin-btn">
+							<i class="fa fa-lock" aria-hidden="true"></i>관리자
 						</a>
 					</li>
 
-            <!-- <li class="scroll-to-section" style="display: flex; align-items: center; height: auto;">							 -->
-            <li class="scroll-to-section" >							
+            <li class="scroll-to-section">							
               <?php if (!$chkMobile): ?>
                 <?php if (!isset($_SESSION["name"])): ?>
-                <form id="login_form" name="login_form" method="post" style="display: flex; align-items: center; gap: 8px; margin: 0;">
-                  <input type="text" id="uid" name="uid" class="form-control me-1" style="width: 100px; display: inline-block; height: 35px; font-size: 13px; padding: 5px 10px;" placeholder="ID" required autofocus>
-                  <input type="password" id="upw" name="upw" class="form-control me-1" style="width: 100px; display: inline-block; height: 35px; font-size: 13px; padding: 5px 10px;" placeholder="Password" required>
-                  <button id="loginBtn" class="btn btn-dark btn-sm" type="button" style="height: 35px; padding: 5px 15px; font-size: 13px; white-space: nowrap;">로그인</button>
+                <form id="login_form" name="login_form" method="post" class="desktop-login-form">
+                  <input type="text" id="uid" name="uid" class="form-control login-input" placeholder="ID" required autofocus>
+                  <input type="password" id="upw" name="upw" class="form-control login-input" placeholder="Password" required>
+                  <button id="loginBtn" class="btn btn-dark btn-sm login-btn" type="button">로그인</button>
                 </form>
                 <?php else: ?>									
-                <form id="login_form" name="login_form" method="post" style="display: flex; align-items: center; gap: 10px; margin: 0;">											
-                  <span class="text-white" style="font-size: 14px; white-space: nowrap;"><?php echo $_SESSION["name"]; ?> 님</span>
-                  <button id="logoutBtn" class="btn btn-dark btn-sm" type="button" style="height: 35px; padding: 5px 15px; font-size: 13px; white-space: nowrap;">로그아웃</button>
+                <form id="login_form" name="login_form" method="post" class="desktop-login-form">											
+                  <span class="text-white user-name"><?php echo $_SESSION["name"]; ?> 님</span>
+                  <button id="logoutBtn" class="btn btn-dark btn-sm login-btn" type="button">로그아웃</button>
                 </form>									
                 <?php endif; ?>
               <?php else: ?>							
@@ -516,14 +1107,156 @@ $time = time(); // 스크립트 캐시 방지용
               <?php endif; ?>
             </li>
               </ul>
-              <a class="menu-trigger">
-                  <span>Menu</span>
-              </a>
                     <!-- ***** Menu End ***** -->
                 </nav>
           </div>
 </header>
 <!-- ***** Header Area End ***** -->
+
+<!-- 모바일 오프캔버스 메뉴 -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="mobileNavMenu" aria-labelledby="mobileNavMenuLabel" style="width: 85%; max-width: 360px;">
+	<div class="offcanvas-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px;">
+		<h5 class="offcanvas-title" id="mobileNavMenuLabel" style="display: flex; align-items: center; gap: 10px; font-weight: 600;">
+			<i class="fa fa-bars"></i> 메뉴
+		</h5>
+		<button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close" style="filter: invert(1);"></button>
+	</div>
+	<div class="offcanvas-body p-0">
+		<div class="accordion accordion-flush" id="mobileMenuAccordion">
+			<!-- 홈 -->
+			<div class="mobile-menu-item">
+				<a href="#top" class="mobile-menu-link">
+					<i class="fa fa-home"></i>
+					<span>홈</span>
+					<i class="fa fa-chevron-right" style="margin-left: auto; font-size: 0.9rem; opacity: 0.6;"></i>
+				</a>
+			</div>
+
+			<!-- 회사안내 -->
+			<div class="accordion-item">
+				<h2 class="accordion-header">
+					<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCompany">
+						<i class="fa fa-building"></i> 회사안내
+					</button>
+				</h2>
+				<div id="collapseCompany" class="accordion-collapse collapse" data-bs-parent="#mobileMenuAccordion">
+					<div class="accordion-body p-0">
+						<a href="#about-us" class="mobile-sub-link"><i class="fa fa-handshake-o"></i> <span>인사말</span></a>
+						<a href="#history" class="mobile-sub-link"><i class="fa fa-history"></i> <span>연혁</span></a>
+						<a href="#organization" class="mobile-sub-link"><i class="fa fa-sitemap"></i> <span>조직도</span></a>
+						<a href="#location" class="mobile-sub-link"><i class="fa fa-map-marker"></i> <span>오시는길</span></a>
+						<a href="#notice" class="mobile-sub-link"><i class="fa fa-bullhorn"></i> <span>공지사항</span></a>
+					</div>
+				</div>
+			</div>
+
+			<!-- 사업분야 -->
+			<div class="accordion-item">
+				<h2 class="accordion-header">
+					<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBusiness">
+						<i class="fa fa-briefcase"></i> 사업분야
+					</button>
+				</h2>
+				<div id="collapseBusiness" class="accordion-collapse collapse" data-bs-parent="#mobileMenuAccordion">
+					<div class="accordion-body p-0">
+						<a href="#ceiling" class="mobile-sub-link"><i class="fa fa-lightbulb-o"></i> <span>EL 조명천장</span></a>
+						<a href="#jambcladding" class="mobile-sub-link"><i class="fa fa-cube"></i> <span>EL 잠 덧씌우기</span></a>
+						<a href="#sillcoverdetail" class="mobile-sub-link"><i class="fa fa-th"></i> <span>EL 재료분리대</span></a>
+					</div>
+				</div>
+			</div>
+
+			<!-- 설비/공정 -->
+			<div class="accordion-item">
+				<h2 class="accordion-header">
+					<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFacility">
+						<i class="fa fa-cogs"></i> 설비/공정
+					</button>
+				</h2>
+				<div id="collapseFacility" class="accordion-collapse collapse" data-bs-parent="#mobileMenuAccordion">
+					<div class="accordion-body p-0">
+						<a href="#device" class="mobile-sub-link"><i class="fa fa-wrench"></i> <span>설비</span></a>
+						<a href="#processchart" class="mobile-sub-link"><i class="fa fa-industry"></i> <span>생산공정</span></a>
+					</div>
+				</div>
+			</div>
+
+			<!-- 품질/안전 -->
+			<div class="accordion-item">
+				<h2 class="accordion-header">
+					<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseQuality">
+						<i class="fa fa-shield"></i> 품질/안전
+					</button>
+				</h2>
+				<div id="collapseQuality" class="accordion-collapse collapse" data-bs-parent="#mobileMenuAccordion">
+					<div class="accordion-body p-0">
+						<a href="#QCplan" class="mobile-sub-link"><i class="fa fa-check-circle"></i> <span>품질목표/품질방침</span></a>
+						<a href="#iso" class="mobile-sub-link"><i class="fa fa-certificate"></i> <span>ISO인증서</span></a>
+						<a href="#NG" class="mobile-sub-link"><i class="fa fa-exclamation-triangle"></i> <span>품질불량</span></a>
+						<a href="#RiskAssessement" class="mobile-sub-link"><i class="fa fa-shield"></i> <span>위험성평가</span></a>
+					</div>
+				</div>
+			</div>
+
+			<!-- 제품/시공 갤러리 -->
+			<div class="mobile-menu-item">
+				<a href="#gallery" class="mobile-menu-link">
+					<i class="fa fa-image"></i>
+					<span>제품/시공 갤러리</span>
+					<i class="fa fa-chevron-right" style="margin-left: auto; font-size: 0.9rem; opacity: 0.6;"></i>
+				</a>
+			</div>
+
+			<!-- 견적문의 -->
+			<div class="mobile-menu-item">
+				<a href="#contact" class="mobile-menu-link">
+					<i class="fa fa-envelope"></i>
+					<span>견적문의</span>
+					<i class="fa fa-chevron-right" style="margin-left: auto; font-size: 0.9rem; opacity: 0.6;"></i>
+				</a>
+			</div>
+
+			<!-- 관리자 -->
+			<div class="mobile-menu-item">
+				<a href="login_manager.php" class="mobile-menu-link">
+					<i class="fa fa-lock"></i>
+					<span>관리자</span>
+					<i class="fa fa-chevron-right" style="margin-left: auto; font-size: 0.9rem; opacity: 0.6;"></i>
+				</a>
+			</div>
+
+			<?php if (isset($_SESSION["name"])): ?>
+			<!-- 사용자 프로필 섹션 -->
+			<div class="mobile-menu-item" style="margin-top: 10px; border-top: 2px solid #e9ecef; padding-top: 0;">
+				<div style="padding: 15px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-weight: 600; display: flex; align-items: center; gap: 10px;">
+					<i class="fa fa-user-circle" style="font-size: 1.3rem;"></i>
+					<span><?php echo $_SESSION["name"]; ?>님</span>
+				</div>
+			</div>
+
+			<!-- 로그아웃 -->
+			<div class="mobile-menu-item">
+				<a href="javascript:void(0);" id="mobileLogoutBtn" class="mobile-menu-link">
+					<i class="fa fa-sign-out"></i>
+					<span>로그아웃</span>
+					<i class="fa fa-chevron-right" style="margin-left: auto; font-size: 0.9rem; opacity: 0.6;"></i>
+				</a>
+			</div>
+			<?php else: ?>
+			<!-- 로그인 폼 -->
+			<div class="mobile-menu-item" style="margin-top: 10px; border-top: 2px solid #e9ecef; padding: 15px 20px;">
+				<form id="mobile_login_form" name="mobile_login_form" method="post" style="display: flex; flex-direction: column; gap: 10px;">
+					<div style="display: flex; flex-direction: column; gap: 8px;">
+						<input type="text" id="mobile_uid" name="uid" class="form-control" placeholder="ID" required autofocus style="height: 40px; font-size: 14px;">
+						<input type="password" id="mobile_upw" name="upw" class="form-control" placeholder="Password" required style="height: 40px; font-size: 14px;">
+					</div>
+					<button id="mobileLoginBtn" class="btn btn-dark" type="button" style="width: 100%; height: 40px; font-size: 14px; font-weight: 600;">로그인</button>
+				</form>
+			</div>
+			<?php endif; ?>
+		</div>
+	</div>
+</div>
 
 <!-- 모달 창 -->
 <div class="modal fade" id="youtubeModal" tabindex="-1" aria-labelledby="youtubeModalLabel" aria-hidden="true">
@@ -2125,9 +2858,27 @@ $(document).ready(function(){
 		performLogin();
 	});
 	
+	// 모바일 로그인 버튼 클릭 이벤트
+	$("#mobileLoginBtn").click(function(){ 
+		// 모바일 폼의 값을 메인 폼에 복사
+		$("#uid").val($("#mobile_uid").val());
+		$("#upw").val($("#mobile_upw").val());
+		performLogin();
+	});
+	
 	// 폼 제출 이벤트 (엔터키 처리)
 	$("#login_form").on('submit', function(e){
 		e.preventDefault(); // 기본 폼 제출 방지
+		performLogin();
+		return false;
+	});
+	
+	// 모바일 폼 제출 이벤트 (엔터키 처리)
+	$("#mobile_login_form").on('submit', function(e){
+		e.preventDefault(); // 기본 폼 제출 방지
+		// 모바일 폼의 값을 메인 폼에 복사
+		$("#uid").val($("#mobile_uid").val());
+		$("#upw").val($("#mobile_upw").val());
 		performLogin();
 		return false;
 	});
@@ -2139,9 +2890,26 @@ $(document).ready(function(){
 			performLogin();
 			return false;
 		}
+	});
+	
+	// 모바일 ID, Password 입력창에서 엔터키 처리
+	$("#mobile_uid, #mobile_upw").on('keypress', function(e){
+		if(e.which === 13) { // 엔터키 코드
+			e.preventDefault();
+			// 모바일 폼의 값을 메인 폼에 복사
+			$("#uid").val($("#mobile_uid").val());
+			$("#upw").val($("#mobile_upw").val());
+			performLogin();
+			return false;
+		}
 	});		
 		
 	$("#logoutBtn").click(function(){ 	
+			location.href = './login/logout.php';		  // log out
+	});		
+	
+	// 모바일 로그아웃 버튼
+	$("#mobileLogoutBtn").click(function(){ 	
 			location.href = './login/logout.php';		  // log out
 	});		
 	
@@ -2229,82 +2997,44 @@ function popupCenter(href, pop_name, w, h) {
 <script src="js/portfolio.js?v=<?php echo $version; ?>"></script>
 
 <script>
-// 모바일에서 드롭다운 메뉴 터치 이벤트 처리
+// 모바일 메뉴 링크 클릭 시 오프캔버스 닫기
 $(document).ready(function() {
     function isMobile() {
         return $(window).width() < 768;
     }
     
-    // 모바일에서 드롭다운 토글 처리
-    function initMobileDropdown() {
-        if (isMobile()) {
-            // 기존 Bootstrap 드롭다운 비활성화
-            $('.dropdown-toggle').off('click.bs.dropdown').attr('data-bs-toggle', '');
-            
-            // 커스텀 드롭다운 토글
-            $(document).off('click', '.dropdown-toggle').on('click', '.dropdown-toggle', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                var $dropdown = $(this).closest('.dropdown');
-                var $menu = $dropdown.find('.dropdown-menu');
-                
-                // 현재 드롭다운이 열려있는지 확인
-                var isOpen = $dropdown.hasClass('dropdown-open');
-                
-                // 다른 모든 드롭다운 닫기
-                $('.dropdown').not($dropdown).removeClass('dropdown-open');
-                $('.dropdown-menu').not($menu).stop(true, true).slideUp(200);
-                
-                if (!isOpen) {
-                    // 현재 드롭다운 열기
-                    $dropdown.addClass('dropdown-open');
-                    $menu.stop(true, true).slideDown(200);
-                } else {
-                    // 현재 드롭다운 닫기
-                    $dropdown.removeClass('dropdown-open');
-                    $menu.stop(true, true).slideUp(200);
-                }
-            });
-        } else {
-            // PC 화면에서는 Bootstrap 드롭다운 활성화
-            $('.dropdown-toggle').attr('data-bs-toggle', 'dropdown');
-            $('.dropdown').removeClass('dropdown-open');
-            $('.dropdown-menu').css('display', '');
+    // 모바일 메뉴 링크 클릭 시 오프캔버스 닫기
+    $(document).on('click', '.mobile-menu-link, .mobile-sub-link', function(e) {
+        // 로그아웃 버튼은 제외 (이미 처리됨)
+        if (!$(this).attr('id') || $(this).attr('id') !== 'mobileLogoutBtn') {
+            var href = $(this).attr('href');
+            // 모든 링크 클릭 시 메뉴 닫기 (앵커 링크 포함)
+            if (href && href !== 'javascript:void(0);') {
+                // 약간의 지연을 두어 스크롤이 먼저 실행되도록
+                setTimeout(function() {
+                    var offcanvasElement = document.getElementById('mobileNavMenu');
+                    if (offcanvasElement) {
+                        var bsOffcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
+                        if (bsOffcanvas) {
+                            bsOffcanvas.hide();
+                        }
+                    }
+                }, 150);
+            }
         }
-    }
+    });
     
-    // 초기화
-    initMobileDropdown();
+    // PC 화면에서는 Bootstrap 드롭다운 활성화
+    if (!isMobile()) {
+        $('.dropdown-toggle').attr('data-bs-toggle', 'dropdown');
+    }
     
     // 화면 크기 변경 시 처리
     $(window).on('resize', function() {
-        initMobileDropdown();
-    });
-    
-    // 메뉴 외부 클릭 시 드롭다운 닫기 (모바일에서만)
-    $(document).on('click', function(e) {
-        if (isMobile() && !$(e.target).closest('.dropdown').length) {
-            $('.dropdown').removeClass('dropdown-open');
-            $('.dropdown-menu').stop(true, true).slideUp(200);
-        }
-    });
-    
-    // 모바일에서 메뉴 항목(a 태그) 클릭 시 메뉴바 닫기
-    $(document).on('click', '.header-area .nav a', function(e) {
-        if (isMobile()) {
-            // 드롭다운 토글 버튼이 아닌 경우에만 메뉴 닫기
-            if (!$(this).hasClass('dropdown-toggle')) {
-                // 약간의 지연을 두어 링크 이동이 먼저 실행되도록
-                setTimeout(function() {
-                    $('.menu-trigger').removeClass('active');
-                    $('.header-area .nav').removeClass('nav-open');
-                    $('.header-area .nav').stop(true, true).slideUp(200);
-                    // 드롭다운도 모두 닫기
-                    $('.dropdown').removeClass('dropdown-open');
-                    $('.dropdown-menu').stop(true, true).slideUp(200);
-                }, 100);
-            }
+        if (!isMobile()) {
+            $('.dropdown-toggle').attr('data-bs-toggle', 'dropdown');
+        } else {
+            $('.dropdown-toggle').removeAttr('data-bs-toggle');
         }
     });
 });

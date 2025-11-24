@@ -815,27 +815,434 @@ $tablename = 'popupwindow';
     
     /* 전자결재 상세 모달 (eworks_viewmodal) - 모바일에서 리스트 모달 위에 표시 */
     #eworks_viewmodal.modal {
-        z-index: 1065 !important;
-    }
-    
-    #eworks_viewmodal.modal.show {
-        z-index: 1065 !important;
-        display: block !important;
-    }
-    
-    #eworks_viewmodal .modal-dialog {
-        z-index: 1065 !important;
+        z-index: 9999 !important;
+        padding: 0 !important;
         margin: 0 !important;
     }
     
+    #eworks_viewmodal.modal.show {
+        z-index: 9999 !important;
+        display: block !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    #eworks_viewmodal .modal-dialog {
+        z-index: 9999 !important;
+        margin: 0 !important;
+        max-width: 100vw !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        min-height: 100vh !important;
+        padding: 0 !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        transform: none !important;
+    }
+    
     #eworks_viewmodal .modal-content {
-        z-index: 1065 !important;
+        z-index: 9999 !important;
+        width: 100vw !important;
+        max-width: 100vw !important;
+        min-width: 100vw !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        min-height: 100vh !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
+        border: none !important;
+        display: flex !important;
+        flex-direction: column !important;
+        box-shadow: none !important;
+        position: relative !important;
+    }
+    
+    #eworks_viewmodal .modal-header {
+        flex-shrink: 0;
+        padding: 16px 20px;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        border-radius: 0 !important;
+    }
+    
+    #eworks_viewmodal .modal-title {
+        color: white !important;
+        font-weight: 700;
+        font-size: 20px;
+        margin: 0;
+    }
+    
+    #eworks_viewmodal .modal-header .btn,
+    #eworks_viewmodal .modal-header button {
+        color: white !important;
+        filter: brightness(0) invert(1);
+        opacity: 0.9;
+    }
+    
+    #eworks_viewmodal .modal-header .btn:hover,
+    #eworks_viewmodal .modal-header button:hover {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+    
+    #eworks_viewmodal .modal-body {
+        flex: 1 1 auto !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        padding: 12px !important;
+        margin: 0 !important;
+        -webkit-overflow-scrolling: touch;
+        background: #f8f9fa !important;
+        min-height: calc(100vh - 120px) !important;
+        max-height: calc(100vh - 120px) !important;
+    }
+    
+    #eworks_viewmodal .modal-footer {
+        flex-shrink: 0;
+        padding: 12px 20px;
+        border-top: 1px solid #e9ecef;
+        background: #ffffff;
+        justify-content: center;
+        position: relative !important;
+        z-index: 100 !important;
+    }
+    
+    /* 버튼 영역 z-index 설정 */
+    #eworks_viewmodal #eworksBtn {
+        position: relative !important;
+        z-index: 100 !important;
+    }
+    
+    #eworks_viewmodal #eworksBtn .d-flex {
+        position: relative !important;
+        z-index: 100 !important;
+    }
+    
+    /* 승인, 반려, 보류 버튼 z-index 설정 */
+    #eworks_viewmodal #eworks_approvalBtn,
+    #eworks_viewmodal #eworks_rejectBtn,
+    #eworks_viewmodal #eworks_waitBtn,
+    #eworks_viewmodal #eworks_saveBtn,
+    #eworks_viewmodal #eworks_delBtn,
+    #eworks_viewmodal #eworks_sendBtn,
+    #eworks_viewmodal #eworks_recallBtn {
+        position: relative !important;
+        z-index: 101 !important;
+    }
+    
+    /* card-body 내부 버튼 영역 */
+    #eworks_viewmodal .card-body #eworksBtn {
+        position: relative !important;
+        z-index: 100 !important;
+        margin-top: 16px !important;
+    }
+    
+    /* 버튼들이 다른 요소 위에 표시되도록 */
+    #eworks_viewmodal .card-body {
+        position: relative !important;
+        z-index: 10 !important;
+    }
+    
+    #eworks_viewmodal .card {
+        position: relative !important;
+        z-index: 10 !important;
+    }
+    
+    /* SweetAlert 모달이 전자결재 상세 모달 위에 표시되도록 */
+    .swal2-container {
+        z-index: 10000 !important;
+    }
+    
+    .swal2-popup {
+        z-index: 10001 !important;
+    }
+    
+    .swal2-backdrop-show {
+        z-index: 9999 !important;
+    }
+    
+    /* SweetAlert가 열려있을 때 전자결재 상세 모달보다 위에 표시 */
+    body.swal2-shown .swal2-container {
+        z-index: 10000 !important;
+    }
+    
+    body.swal2-shown #eworks_viewmodal.modal {
+        z-index: 9998 !important;
+    }
+    
+    body.swal2-shown #eworks_viewmodal .modal-dialog {
+        z-index: 9998 !important;
+    }
+    
+    body.swal2-shown #eworks_viewmodal .modal-content {
+        z-index: 9998 !important;
+    }
+    
+    /* 전자결재 상세 모달 내부 테이블 모바일 최적화 */
+    #eworks_viewmodal .table-responsive {
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        margin-bottom: 12px !important;
+    }
+    
+    #eworks_viewmodal .table {
+        font-size: 13px !important;
+        width: 100% !important;
+        table-layout: auto !important;
+        margin-bottom: 0 !important;
+    }
+    
+    #eworks_viewmodal .table td,
+    #eworks_viewmodal .table th {
+        padding: 10px 8px !important;
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        word-break: break-word !important;
+        font-size: 13px !important;
+        line-height: 1.5 !important;
+        vertical-align: middle !important;
+    }
+    
+    #eworks_viewmodal .table td.text-center {
+        text-align: center !important;
+        font-weight: 600;
+        background-color: #f8f9fa;
+        min-width: 80px;
+        width: auto;
+    }
+    
+    #eworks_viewmodal .table td:not(.text-center) {
+        text-align: left !important;
+    }
+    
+    /* 모바일에서 테이블 행을 세로로 배치 */
+    #eworks_viewmodal .table tbody tr {
+        display: flex !important;
+        flex-direction: column !important;
+        border: 1px solid #dee2e6 !important;
+        margin-bottom: 12px !important;
+        border-radius: 8px !important;
+        overflow: hidden !important;
+        background: white !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+    }
+    
+    #eworks_viewmodal .table tbody tr td {
+        display: flex !important;
+        flex-direction: row !important;
+        padding: 12px !important;
+        border: none !important;
+        border-bottom: 1px solid #e9ecef !important;
+    }
+    
+    #eworks_viewmodal .table tbody tr td:last-child {
+        border-bottom: none !important;
+    }
+    
+    #eworks_viewmodal .table tbody tr td.text-center {
+        background-color: #667eea !important;
+        color: white !important;
+        font-weight: 700 !important;
+        padding: 10px 12px !important;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.2) !important;
+        min-width: 0 !important;
+        width: 100% !important;
+    }
+    
+    #eworks_viewmodal .table tbody tr td:not(.text-center) {
+        flex: 1 !important;
+        padding-left: 12px !important;
+    }
+    
+    /* 입력 필드 모바일 최적화 */
+    #eworks_viewmodal .form-control {
+        font-size: 14px !important;
+        padding: 8px 12px !important;
+        border-radius: 6px !important;
+        border: 1px solid #ced4da !important;
+        width: 100% !important;
+    }
+    
+    #eworks_viewmodal select.form-control {
+        min-height: 40px !important;
+    }
+    
+    #eworks_viewmodal textarea.form-control {
+        min-height: 120px !important;
+        resize: vertical !important;
+    }
+    
+    /* 카드 스타일 모바일 최적화 */
+    #eworks_viewmodal .card {
+        margin: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        background: transparent !important;
+    }
+    
+    #eworks_viewmodal .card-body {
+        padding: 12px !important;
+    }
+    
+    /* approvalTable 모바일 최적화 */
+    #eworks_viewmodal #approvalTable {
+        width: 100% !important;
+        margin-bottom: 12px !important;
+    }
+    
+    #eworks_viewmodal #approvalTable table {
+        width: 100% !important;
+        font-size: 12px !important;
+    }
+    
+    #eworks_viewmodal #approvalTable td,
+    #eworks_viewmodal #approvalTable th {
+        padding: 8px 6px !important;
+        font-size: 12px !important;
+        word-break: break-word !important;
+    }
+    
+    /* 버튼 모바일 최적화 */
+    #eworks_viewmodal .btn {
+        min-height: 44px !important;
+        font-size: 14px !important;
+        padding: 8px 16px !important;
+        border-radius: 6px !important;
+    }
+    
+    #eworks_viewmodal .btn-sm {
+        min-height: 36px !important;
+        font-size: 13px !important;
+        padding: 6px 12px !important;
+    }
+    
+    /* 모바일에서 d-flex 요소 최적화 */
+    #eworks_viewmodal .d-flex {
+        flex-wrap: wrap !important;
+    }
+    
+    #eworks_viewmodal .d-flex input {
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+    }
+    
+    #eworks_viewmodal .d-flex button {
+        flex: 0 0 auto !important;
+        min-width: 44px !important;
+    }
+    
+    /* 모바일에서 테이블을 카드 형태로 변환 */
+    #eworks_viewmodal .table tbody {
+        display: block !important;
+    }
+    
+    #eworks_viewmodal .table tbody tr {
+        display: block !important;
+        width: 100% !important;
+        margin-bottom: 16px !important;
+        border: 1px solid #dee2e6 !important;
+        border-radius: 8px !important;
+        overflow: hidden !important;
+        background: white !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+    }
+    
+    #eworks_viewmodal .table tbody tr td {
+        display: block !important;
+        width: 100% !important;
+        padding: 12px !important;
+        border: none !important;
+        border-bottom: 1px solid #e9ecef !important;
+        text-align: left !important;
+    }
+    
+    #eworks_viewmodal .table tbody tr td:last-child {
+        border-bottom: none !important;
+    }
+    
+    #eworks_viewmodal .table tbody tr td.text-center {
+        background-color: #667eea !important;
+        color: white !important;
+        font-weight: 700 !important;
+        padding: 12px !important;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.2) !important;
+        text-align: center !important;
+    }
+    
+    /* 테이블 내부의 입력 필드와 버튼 최적화 */
+    #eworks_viewmodal .table tbody tr td .form-control {
+        width: 100% !important;
+        margin-top: 4px !important;
+    }
+    
+    #eworks_viewmodal .table tbody tr td .d-flex {
+        display: flex !important;
+        gap: 8px !important;
+        margin-top: 4px !important;
+    }
+    
+    #eworks_viewmodal .table tbody tr td .d-flex input {
+        flex: 1 !important;
+    }
+    
+    #eworks_viewmodal .table tbody tr td .d-flex button {
+        flex: 0 0 auto !important;
+        min-width: 44px !important;
+    }
+    
+    /* colspan 처리 */
+    #eworks_viewmodal .table tbody tr td[colspan] {
+        width: 100% !important;
+    }
+    
+    /* approvalTable 모바일 최적화 추가 */
+    #eworks_viewmodal #approvalTable {
+        width: 100% !important;
+        margin-bottom: 12px !important;
+    }
+    
+    #eworks_viewmodal #approvalTable .table {
+        width: 100% !important;
+        font-size: 12px !important;
+    }
+    
+    #eworks_viewmodal #approvalTable .table td,
+    #eworks_viewmodal #approvalTable .table th {
+        padding: 8px 6px !important;
+        font-size: 12px !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+    }
+    
+    /* htmlContainer 모바일 최적화 */
+    #eworks_viewmodal #htmlContainer {
+        width: 100% !important;
+    }
+    
+    #eworks_viewmodal #htmlContainer table {
+        width: 100% !important;
+        font-size: 13px !important;
+    }
+    
+    #eworks_viewmodal #htmlContainer table td {
+        padding: 8px !important;
+        word-break: break-word !important;
     }
     
     /* 전자결재 상세 모달 backdrop - 리스트 모달 위에 표시 */
     #eworks_viewmodal + .modal-backdrop,
     .modal-backdrop.show:last-of-type {
-        z-index: 1060 !important;
+        z-index: 9998 !important;
         background-color: rgba(0, 0, 0, 0.8) !important;
     }
     
@@ -860,11 +1267,15 @@ $tablename = 'popupwindow';
     
     /* 전자결재 상세 모달이 열릴 때 리스트 모달 backdrop 위에 표시 */
     body.modal-open #eworks_viewmodal.modal {
-        z-index: 1065 !important;
+        z-index: 9999 !important;
     }
     
     body.modal-open #eworks_viewmodal .modal-dialog {
-        z-index: 1065 !important;
+        z-index: 9999 !important;
+    }
+    
+    body.modal-open #eworks_viewmodal .modal-content {
+        z-index: 9999 !important;
     }
     
     /* 리스트 모달의 backdrop이 상세 모달을 가리지 않도록 */
@@ -1352,6 +1763,54 @@ $tablename = 'popupwindow';
     transform: scale(0.95);
 }
 
+.eworks-modal-nav {
+    background: #ffffff;
+    border-bottom: 1px solid #e9ecef;
+    padding: 12px 8px;
+    position: sticky;
+    top: 64px;
+    z-index: 9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.eworks-modal-nav .nav {
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 0;
+}
+
+.eworks-modal-nav .nav-item {
+    flex: 0 0 calc(50% - 4px);
+    max-width: calc(50% - 4px);
+    margin: 2px;
+}
+
+.eworks-modal-nav .nav-link {
+    font-size: 13px;
+    padding: 8px 6px;
+    margin: 0;
+    cursor: pointer;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.eworks-modal-nav .nav-link i {
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.eworks-modal-nav .nav-link.active {
+    background-color: #667eea;
+    color: white !important;
+    border-radius: 6px;
+}
+
 .eworks-modal-body {
     flex: 1;
     overflow-y: auto;
@@ -1652,16 +2111,7 @@ $tablename = 'popupwindow';
 					title="천장 카다로그">
 				<i class="bi bi-journal-check"></i>
 			</button>
-			<?php endif; ?>
-			<!-- <button type="button" class="modern-social-btn"
-					onclick="popupCenter('https://blog.naver.com/mirae8440', '', 1800, 900); return false;"
-					title="미래기업 네이버 블로그">
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="27" height="27" style="vertical-align:middle;">
-					<rect width="100" height="100" rx="15" ry="15" fill="#00c73c"/>
-					<path d="M20 20 h60 a5 5 0 0 1 5 5 v30 a5 5 0 0 1 -5 5 h-20 l-10 10 -10-10 h-20 a5 5 0 0 1 -5 -5 v-30 a5 5 0 0 1 5-5z" fill="#ffffff"/>
-					<text x="50%" y="48%" text-anchor="middle" dy=".35em" font-family="Arial, sans-serif" font-weight="bold" font-size="20" fill="#f47920">N blog</text>
-				</svg>
-			</button> -->
+			<?php endif; ?>			
 			<button type="button" class="modern-social-btn"
 					onclick="popupCenter('https://www.youtube.com/@miraecorp', '', 1920, 1080); return false;"
 					title="미래기업 유튜브">
@@ -3241,7 +3691,7 @@ $tablename = 'popupwindow';
     <script type="text/javascript">
         // PHP 변수를 JavaScript로 전달
         var deliveryCountToday = <?php echo isset($delivery_count_today) ? $delivery_count_today : 0; ?>;
-        console.log('deliveryCountToday: ' + deliveryCountToday);
+        // console.log('deliveryCountToday: ' + deliveryCountToday);
         // google.charts.load('current', {packages:["orgchart"]});
         // google.charts.setOnLoadCallback(drawChart);
 
@@ -3314,6 +3764,10 @@ $tablename = 'popupwindow';
             <button type="button" class="eworks-modal-close" onclick="closeEworksModal(); return false;" aria-label="닫기">
                 <i class="bi bi-x-lg"></i>
             </button>
+        </div>
+        <!-- 전자결재 nav 영역 -->
+        <div class="eworks-modal-nav" id="eworksModalNav">
+            <!-- eworks_nav.php에서 동적으로 로드됨 -->
         </div>
         <div class="eworks-modal-body" id="eworksModalBody">
             <div id="eworks_list" class="eworks-list-container"></div>
@@ -3549,7 +4003,7 @@ $(document).ready(function(){
 
             // 체크박스의 현재 상태를 확인
             var isChecked = this.checked;
-            console.log("Toggle Management Info - isChecked:", isChecked); // 디버깅용
+            // console.log("Toggle Management Info - isChecked:", isChecked); // 디버깅용
 
             if (isChecked) {
                 // 경영정보 보이기
@@ -3581,7 +4035,7 @@ $(document).ready(function(){
 
     // 화물/택배 풍선 표시 조건 확인
     if (Number(deliveryCountToday) > 0) {
-		console.log('실행전 조건 deliveryCountToday: ' + deliveryCountToday);
+		// console.log('실행전 조건 deliveryCountToday: ' + deliveryCountToday);
         setTimeout(function() {
             $('#deliveryReminder').fadeIn(300);
         }, 1000); // 페이지 로드 1초 후 표시
@@ -3682,7 +4136,7 @@ intervalId = setInterval(showNotification, 10000); // 10초마다 showNotificati
 
 // DataTable 라이브러리 로드 확인
 if (typeof $.fn.DataTable === 'undefined') {
-  console.warn('DataTable 라이브러리가 로드되지 않았습니다.');
+  // console.warn('DataTable 라이브러리가 로드되지 않았습니다.');
 }
 
 // 인생의 조언 60가지 가져와서 보여주기
@@ -3697,7 +4151,7 @@ fetch('advice.json')
     }
   })
   .catch(error => {
-    console.warn('advice.json 파일을 로드할 수 없습니다:', error);
+    // console.warn('advice.json 파일을 로드할 수 없습니다:', error);
   });
 
 // 안전한 요소 업데이트
@@ -3855,7 +4309,7 @@ function check_alert()
 	
 					},
 					error : function( jqxhr , status , error ){
-						console.log( jqxhr , status , error );
+						// console.log( jqxhr , status , error );
 				} 			      		
 			   });		
 	   									
@@ -4179,8 +4633,8 @@ $(document).ready(function() {
 		}
 	}	
 
-// 모바일 전자결재 모달 열기/닫기 함수
-function openEworksModal() {
+// 모바일 전자결재 모달 열기/닫기 함수 (전역 함수로 등록)
+window.openEworksModal = function() {
     if (isMobileDevice()) {
         const overlay = document.getElementById('eworksModalOverlay');
         const body = document.getElementById('eworksModalBody');
@@ -4209,7 +4663,7 @@ function openEworksModal() {
             }, 10);
         }
     }
-}
+};
 
 // 전자결재 모달 닫기 함수 (부트스트랩 모달용)
 function closeEworksModal() {
@@ -4225,30 +4679,36 @@ function closeEworksModal() {
             document.documentElement.style.overflow = '';
             setTimeout(() => {
                 overlay.style.display = 'none';
+                // 모달이 닫히면 index2.php로 돌아가기 (현재 페이지 유지)
+                // 필요시 window.location.href = '/index2.php'; 사용 가능
             }, 300);
         }
     }
 }
 
+// 전역 함수로 등록 (index.js에서도 사용 가능하도록)
+window.closeEworksModal = closeEworksModal;
+
 // 모바일에서 전자결재 버튼 클릭 시 모달 열기
-$(document).ready(function() {
-    // seltab 함수 래핑하여 모바일에서 모달 열기
-    if (typeof window.seltab !== 'undefined') {
-        const originalSeltab = window.seltab;
-        window.seltab = function(e_num) {
-            const result = originalSeltab.apply(this, arguments);
-            // 모바일에서는 모달 열기 (약간의 지연을 두어 데이터 로드 후 열기)
-            if (isMobileDevice()) {
-                setTimeout(function() {
-                    if (typeof openEworksModal === 'function') {
-                        openEworksModal();
-                    }
-                }, 100);
-            }
-            return result;
-        };
-    }
-});
+// 주석: refresheworks() 함수 내에서 모달을 열도록 변경하여 중복 호출 방지
+// $(document).ready(function() {
+//     // seltab 함수 래핑하여 모바일에서 모달 열기
+//     if (typeof window.seltab !== 'undefined') {
+//         const originalSeltab = window.seltab;
+//         window.seltab = function(e_num) {
+//             const result = originalSeltab.apply(this, arguments);
+//             // 모바일에서는 모달 열기 (약간의 지연을 두어 데이터 로드 후 열기)
+//             if (isMobileDevice()) {
+//                 setTimeout(function() {
+//                     if (typeof openEworksModal === 'function') {
+//                         openEworksModal();
+//                     }
+//                 }, 100);
+//             }
+//             return result;
+//         };
+//     }
+// });
 
 });
 

@@ -197,23 +197,215 @@ $employees = [
 
 	/* 반응형 디자인 */
 	@media (max-width: 768px) {
+		/* body와 html 오버플로우 방지 */
+		html, body {
+			overflow-x: hidden !important;
+			max-width: 100% !important;
+			width: 100% !important;
+			box-sizing: border-box !important;
+			margin: 0 !important;
+			padding: 0 !important;
+		}
+		
+		* {
+			max-width: 100% !important;
+			box-sizing: border-box !important;
+		}
+		
+		/* 컨테이너 최적화 */
+		.container,
+		.gift-draw-container {
+			padding: 0.5rem !important;
+			max-width: 100% !important;
+			width: 100% !important;
+			box-sizing: border-box !important;
+			margin: 0 !important;
+			overflow-x: hidden !important;
+		}
+		
 		.main-title {
-			font-size: 2rem;
+			font-size: 1.5rem !important;
+			margin-bottom: 1rem !important;
+			padding: 0.5rem !important;
+			word-wrap: break-word !important;
+			overflow-wrap: break-word !important;
 		}
 		
 		.draw-button {
-			font-size: 1.5rem;
-			padding: 15px 30px;
+			font-size: 1.25rem !important;
+			padding: 1rem !important;
+			width: 100% !important;
+			max-width: 100% !important;
+			margin: 0.5rem 0 !important;
+			word-wrap: break-word !important;
+			overflow-wrap: break-word !important;
 		}
 		
 		#countdown {
-			font-size: 8rem;
+			font-size: 8rem !important;
 		}
 		
-		.ranking-table th,
+		/* 결과 컨테이너 최적화 */
+		.results-container {
+			width: 100% !important;
+			max-width: 100% !important;
+			padding: 0.75rem !important;
+			margin: 0.5rem 0 !important;
+			box-sizing: border-box !important;
+			display: block !important;
+		}
+		
+		.results-title {
+			font-size: 1.25rem !important;
+			margin-bottom: 1rem !important;
+			word-wrap: break-word !important;
+			overflow-wrap: break-word !important;
+		}
+		
+		/* 테이블을 카드 형식으로 변환 */
+		.ranking-table {
+			display: block !important;
+			width: 100% !important;
+			max-width: 100% !important;
+		}
+		
+		.ranking-table thead {
+			display: none !important;
+		}
+		
+		.ranking-table tbody {
+			display: block !important;
+			width: 100% !important;
+			max-width: 100% !important;
+		}
+		
+		.ranking-table tr {
+			display: block !important;
+			width: 100% !important;
+			max-width: 100% !important;
+			margin-bottom: 0.75rem !important;
+			border: 1px solid #ddd !important;
+			border-radius: 0.5rem !important;
+			padding: 0.75rem !important;
+			background: #f8f9fa !important;
+			box-sizing: border-box !important;
+		}
+		
 		.ranking-table td {
-			padding: 10px 5px;
-			font-size: 0.9rem;
+			display: block !important;
+			width: 100% !important;
+			max-width: 100% !important;
+			padding: 0.5rem 0 !important;
+			text-align: left !important;
+			border: none !important;
+			font-size: 0.9rem !important;
+			word-wrap: break-word !important;
+			overflow-wrap: break-word !important;
+			box-sizing: border-box !important;
+		}
+		
+		.ranking-table td:before {
+			content: attr(data-label) ": ";
+			font-weight: bold !important;
+			color: #0077AA !important;
+			margin-right: 0.5rem !important;
+			display: inline-block !important;
+		}
+		
+		.ranking-table td:first-child:before {
+			content: "순위: " !important;
+		}
+		
+		.ranking-table td:nth-child(2):before {
+			content: "이름: " !important;
+		}
+		
+		.ranking-table td:nth-child(3):before {
+			content: "선물: " !important;
+		}
+		
+		.ranking-table td:nth-child(4):before {
+			content: "지급완료: " !important;
+		}
+		
+		.ranking-table td .rank-number,
+		.ranking-table td .employee-name {
+			display: inline !important;
+		}
+		
+		/* 텍스트 오버플로우 방지 */
+		* {
+			word-wrap: break-word !important;
+			overflow-wrap: break-word !important;
+			box-sizing: border-box !important;
+		}
+		
+		/* 모든 텍스트 요소 강제 줄바꿈 */
+		p, div, h1, h2, h3, h4, h5, h6, label, strong, em, b, i, u, span, td, th {
+			word-wrap: break-word !important;
+			overflow-wrap: break-word !important;
+			word-break: break-word !important;
+			white-space: normal !important;
+			max-width: 100% !important;
+			box-sizing: border-box !important;
+		}
+		
+		/* span 요소 줄바꿈 처리 */
+		span {
+			display: inline-block !important;
+			overflow: visible !important;
+			max-width: 100% !important;
+			box-sizing: border-box !important;
+		}
+		
+		/* 모든 div 요소 오버플로우 방지 */
+		div {
+			max-width: 100% !important;
+			overflow-x: hidden !important;
+			box-sizing: border-box !important;
+		}
+		
+		/* 결과 테이블 컨테이너 추가 최적화 */
+		.results-container table {
+			width: 100% !important;
+			max-width: 100% !important;
+			table-layout: fixed !important;
+		}
+		
+		/* '기간' 버튼 숨기기 */
+		#showdate {
+			display: none !important;
+		}
+		
+		/* 모달 최적화 */
+		.countdown-modal {
+			padding: 0 !important;
+			overflow: hidden !important;
+			z-index: 9999 !important;
+		}
+		
+		.countdown-content {
+			margin: 0 !important;
+			width: 100% !important;
+			max-width: 100% !important;
+			height: 100vh !important;
+			max-height: 100vh !important;
+			display: flex !important;
+			align-items: center !important;
+			justify-content: center !important;
+			box-sizing: border-box !important;
+		}
+		
+		#countdown {
+			font-size: 8rem !important;
+			word-wrap: break-word !important;
+			overflow-wrap: break-word !important;
+		}
+		
+		/* 체크박스 최적화 */
+		.gift-checkbox {
+			width: 1.5em !important;
+			height: 1.5em !important;
 		}
 	}		
   </style>
@@ -335,6 +527,8 @@ function shuffleArray(array) {
 function generateResultsTable(rankedEmployees) {
     resultsTableBody.innerHTML = '';
     
+    const isMobile = window.innerWidth <= 768;
+    
     rankedEmployees.forEach((employee, index) => {
         const row = document.createElement('tr');
         row.classList.add('slide-in');
@@ -343,12 +537,23 @@ function generateResultsTable(rankedEmployees) {
         const rank = index + 1;
         const gift = gifts[index] || '🎁 참가상';
         
-        row.innerHTML = `
-            <td><span class="rank-number">${rank}위</span></td>
-            <td><span class="employee-name">${employee}</span></td>
-            <td>${gift}</td>
-            <td><input type="checkbox" class="gift-checkbox" id="gift-${index}"></td>
-        `;
+        if (isMobile) {
+            // 모바일에서는 카드 형식으로 표시
+            row.innerHTML = `
+                <td data-label="순위"><span class="rank-number">${rank}위</span></td>
+                <td data-label="이름"><span class="employee-name">${employee}</span></td>
+                <td data-label="선물">${gift}</td>
+                <td data-label="지급완료"><input type="checkbox" class="gift-checkbox" id="gift-${index}"></td>
+            `;
+        } else {
+            // 데스크톱에서는 일반 테이블 형식
+            row.innerHTML = `
+                <td><span class="rank-number">${rank}위</span></td>
+                <td><span class="employee-name">${employee}</span></td>
+                <td>${gift}</td>
+                <td><input type="checkbox" class="gift-checkbox" id="gift-${index}"></td>
+            `;
+        }
         
         resultsTableBody.appendChild(row);
     });
@@ -361,6 +566,21 @@ drawButton.addEventListener('click', startDraw);
 document.addEventListener('DOMContentLoaded', function() {
     // 결과 컨테이너는 처음에 숨김
     resultsContainer.style.display = 'none';
+    
+    // 창 크기 변경 시 테이블 다시 렌더링
+    let resizeTimer;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+            // 결과가 표시되어 있으면 다시 렌더링
+            if (resultsContainer.style.display === 'block' && resultsTableBody.children.length > 0) {
+                const currentEmployees = Array.from(resultsTableBody.children).map(row => {
+                    return row.querySelector('.employee-name').textContent;
+                });
+                generateResultsTable(currentEmployees);
+            }
+        }, 250);
+    });
 });
     </script>
 </body>

@@ -91,6 +91,243 @@ include includePath('load_header.php');
         height: auto;
         border: 1px solid #ddd;
     }
+    
+    /* 모바일 환경 최적화 */
+    @media (max-width: 768px) {
+        /* body와 html 오버플로우 방지 */
+        html, body {
+            overflow-x: hidden !important;
+            max-width: 100vw !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        * {
+            max-width: 100vw !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 컨테이너 최적화 */
+        .container,
+        .container-fluid {
+            padding: 0.5rem !important;
+            max-width: 100vw !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+            margin: 0 auto !important;
+            overflow-x: hidden !important;
+        }
+        
+        /* 카드 최적화 */
+        .card {
+            margin: 0.5rem auto !important;
+            width: calc(100vw - 1rem) !important;
+            max-width: calc(100vw - 1rem) !important;
+            box-sizing: border-box !important;
+            overflow-x: hidden !important;
+        }
+        
+        .card-body,
+        .card-header {
+            padding: 0.75rem !important;
+            overflow-x: hidden !important;
+        }
+        
+        /* 카드 헤더 최적화 */
+        .card-header {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 0.5rem !important;
+        }
+        
+        .card-header button {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0.25rem 0 !important;
+            padding: 0.5rem !important;
+            font-size: 1rem !important;
+        }
+        
+        .card-header span {
+            width: 100% !important;
+            max-width: 100% !important;
+            text-align: center !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        /* 이미지 최적화 */
+        .photo-frame {
+            margin: 0.5rem !important;
+            padding: 0.5rem !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        .framed-photo {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            margin: 0.25rem 0 !important;
+            display: block !important;
+        }
+        
+        .framed-photofull {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+        }
+        
+        /* YouTube iframe 최적화 */
+        iframe {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            aspect-ratio: 16 / 9 !important;
+            margin: 0.5rem 0 !important;
+        }
+        
+        /* iframe 컨테이너 최적화 */
+        .d-flex.p-2.mb-2.justify-content-center {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            padding: 0.5rem !important;
+            gap: 0.5rem !important;
+        }
+        
+        /* 제목 최적화 */
+        .d-flex.p-2.mb-2.mt-5.justify-content-center,
+        .d-flex.p-2.mb-2.mt-3.justify-content-center {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            padding: 0.5rem !important;
+        }
+        
+        .d-flex.p-2.mb-2.mt-5.justify-content-center h4,
+        .d-flex.p-2.mb-2.mt-3.justify-content-center h4 {
+            width: 100% !important;
+            max-width: 100% !important;
+            text-align: center !important;
+            font-size: 1.1rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            margin: 0.5rem 0 !important;
+        }
+        
+        /* row 최적화 */
+        .row.d-flex {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        
+        .row.d-flex .col-sm-12 {
+            padding: 0.5rem !important;
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+        
+        /* 텍스트 오버플로우 방지 */
+        * {
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 모든 텍스트 요소 강제 줄바꿈 */
+        p, div, h1, h2, h3, h4, h5, h6, label, strong, em, b, i, u, span, td, th {
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            word-break: break-word !important;
+            white-space: normal !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* span 요소 줄바꿈 처리 */
+        span {
+            display: inline-block !important;
+            overflow: visible !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 모든 div 요소 오버플로우 방지 */
+        div {
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* '기간' 버튼 숨기기 */
+        #showdate {
+            display: none !important;
+        }
+        
+        /* 모달 최적화 */
+        .modal {
+            padding: 0 !important;
+            overflow: hidden !important;
+        }
+        
+        .modal-dialog {
+            margin: 0 !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            height: 100vh !important;
+            max-height: 100vh !important;
+        }
+        
+        .modal-content {
+            margin: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 100vh !important;
+            max-height: 100vh !important;
+            border-radius: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            box-sizing: border-box !important;
+        }
+        
+        .modal-header {
+            padding: 0.75rem 0.5rem !important;
+            flex-shrink: 0 !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .modal-title {
+            font-size: 1rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .modal-body {
+            flex: 1 !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            padding: 0.75rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            -webkit-overflow-scrolling: touch !important;
+        }
+        
+        .modal-footer {
+            padding: 0.75rem 0.5rem !important;
+            flex-shrink: 0 !important;
+            flex-direction: column !important;
+            gap: 0.5rem !important;
+        }
+        
+        .modal-footer button {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0.5rem !important;
+            font-size: 1rem !important;
+        }
+    }
 </style>
 
 <div class="container">
@@ -399,6 +636,29 @@ include includePath('load_header.php');
 
 <script>
     $(document).ready(function() {
+        // 모바일에서 iframe 높이 조정
+        function adjustIframeHeight() {
+            if (window.innerWidth <= 768) {
+                $('iframe').each(function() {
+                    var $iframe = $(this);
+                    var width = $iframe.width();
+                    if (width > 0) {
+                        // 16:9 비율로 높이 계산
+                        var height = (width * 9) / 16;
+                        $iframe.css('height', height + 'px');
+                    }
+                });
+            }
+        }
+        
+        // 초기 조정
+        adjustIframeHeight();
+        
+        // 창 크기 변경 시 조정
+        $(window).on('resize', function() {
+            adjustIframeHeight();
+        });
+        
         // 쿠키 저장 함수
         function setCookie(name, value, days) {
             var date = new Date();
@@ -437,6 +697,8 @@ include includePath('load_header.php');
                 if (albumContainer.css("display") === "none") {
                     albumContainer.css("display", "inline-block");
                     setCookie(cookieName, "show", 10);
+                    // 앨범이 열릴 때 iframe 높이 재조정
+                    setTimeout(adjustIframeHeight, 100);
                 } else {
                     albumContainer.css("display", "none");
                     setCookie(cookieName, "hide", 10);

@@ -226,6 +226,243 @@ try {
         padding: 50px;
         display: none;
     }
+
+    /* 모바일 최적화 */
+    @media (max-width: 768px) {
+        /* body와 html의 width 제한 */
+        html, body {
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+            font-size: 16px !important;
+        }
+
+        /* 컨테이너 모바일 최적화 */
+        .container,
+        .container-fluid {
+            max-width: 100vw !important;
+            padding: 10px !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+        }
+
+        /* 카드 모바일 최적화 */
+        .card {
+            margin: 0.5rem 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+        }
+
+        .card-body {
+            padding: 0.75rem 0.5rem !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow-x: hidden !important;
+        }
+
+        /* 헤더 모바일 최적화 */
+        .display-5, .display-4, .display-3, h2, h3, h4, h5 {
+            font-size: 0.9rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            max-width: 100% !important;
+        }
+
+        /* 검색 영역 모바일 최적화 */
+        .row {
+            margin-left: -5px !important;
+            margin-right: -5px !important;
+            flex-wrap: wrap !important;
+        }
+
+        .row > [class*="col-"] {
+            padding-left: 5px !important;
+            padding-right: 5px !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            flex: 0 0 100% !important;
+            margin-bottom: 0.5rem !important;
+        }
+
+        /* 검색 영역 특정 컬럼 조정 */
+        .row > .col-4:first-child {
+            flex: 0 0 100% !important;
+            margin-bottom: 0.5rem !important;
+        }
+
+        .row > .col-4:nth-child(2) {
+            flex: 1 1 auto !important;
+            min-width: 0 !important;
+            max-width: calc(100% - 80px) !important;
+            margin-bottom: 0 !important;
+        }
+
+        .row > .col-2:last-child {
+            flex: 0 0 auto !important;
+            max-width: 80px !important;
+            margin-bottom: 0 !important;
+        }
+
+        /* 검색 입력 필드 모바일 최적화 */
+        .inputcontainer {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        .inputcontainer .input,
+        #search {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            font-size: 0.9rem !important;
+            padding: 0.5rem !important;
+        }
+
+        .input {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            font-size: 0.9rem !important;
+            padding: 0.5rem !important;
+        }
+
+        /* 버튼 모바일 최적화 */
+        .btn {
+            font-size: 0.8rem !important;
+            padding: 0.4rem 0.6rem !important;
+            white-space: nowrap !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            width: 100% !important;
+        }
+
+        .btn-lg {
+            font-size: 0.85rem !important;
+            padding: 0.45rem 0.65rem !important;
+        }
+
+        /* 천장발주 버튼 모바일 최적화 */
+        .btn-success.btn-lg {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin-bottom: 0.5rem !important;
+            box-sizing: border-box !important;
+        }
+
+        /* 리스트 항목 모바일 최적화 - 카드 형식 */
+        .list-item-card {
+            background: #fff !important;
+            border: 1px solid #dee2e6 !important;
+            border-radius: 0.375rem !important;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+            padding: 0.75rem !important;
+            margin-bottom: 0.75rem !important;
+            box-sizing: border-box !important;
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+
+        .list-item-card .col-2,
+        .list-item-card .col-9 {
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 0.5rem !important;
+            box-sizing: border-box !important;
+        }
+
+        .list-item-card .col-2 {
+            border-bottom: 1px solid #f0f0f0 !important;
+            margin-bottom: 0.5rem !important;
+            padding-bottom: 0.75rem !important;
+        }
+
+        .list-item-card .col-2 h3 {
+            font-size: 0.85rem !important;
+            margin: 0 !important;
+            text-align: left !important;
+        }
+
+        .list-item-card .col-9 h2 {
+            font-size: 0.9rem !important;
+            margin: 0 !important;
+            line-height: 1.5 !important;
+        }
+
+        .list-item-card .col-9 a {
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            display: block !important;
+            color: #007bff !important;
+            text-decoration: none !important;
+        }
+
+        /* 페이지네이션 모바일 최적화 */
+        #page_button {
+            max-width: 100% !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+        }
+
+        #page_button a {
+            font-size: 0.8rem !important;
+            padding: 0.3rem 0.5rem !important;
+            margin: 0.1rem !important;
+            display: inline-block !important;
+            box-sizing: border-box !important;
+            word-wrap: break-word !important;
+        }
+
+        /* 모든 요소가 컨테이너 내부에 머물도록 */
+        * {
+            box-sizing: border-box !important;
+        }
+
+        .container-fluid,
+        .container-fluid *,
+        .row,
+        .row * {
+            max-width: 100% !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+
+        /* 폼 요소 모바일 최적화 */
+        form {
+            max-width: 100% !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+        }
+
+        form * {
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        /* 상단 메뉴 모바일 최적화 */
+        #top-menu {
+            padding: 0.5rem !important;
+            font-size: 0.85rem !important;
+        }
+
+        #top-menu a {
+            font-size: 0.85rem !important;
+            padding: 0.25rem 0.5rem !important;
+            display: inline-block !important;
+            word-wrap: break-word !important;
+        }
+
+        /* 날짜 입력 필드 모바일 최적화 */
+        input[type="date"],
+        input[type="text"] {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            font-size: 0.9rem !important;
+            padding: 0.5rem !important;
+        }
+    }
 </style>
 
 <script>
@@ -338,7 +575,7 @@ $(document).ready(function() {
 
         $sqlTemp = "select * from mirae8440.make where num='{$num}' order by num desc";  // 처음 내림차순
         ?>
-        <div class="row">
+        <div class="row list-item-card">
             <div class="col-2">
                 <h3 class="display-5 font-center text-center" style="color:<?= $date_font ?>;">
                     <b><?= substr($orderdate, 0, 15) ?></b>

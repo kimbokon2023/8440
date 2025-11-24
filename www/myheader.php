@@ -60,16 +60,16 @@
  	<div class="container-xxl">     
 	<?php } ?>	
   
-<div class="row d-flex align-items-center" style="margin: 0; padding: 8px 0;">
-    <div class="col-4 col-sm-2 d-flex align-items-center" style="padding: 0 8px;">
-		<a href="<?= $root_dir ?>/index.php">
+<div class="row d-flex align-items-center header-row" style="margin: 0; padding: 8px 0;">
+    <div class="col-4 col-sm-2 d-flex align-items-center header-logo-col" style="padding: 0 8px;">
+		<a href="<?= $root_dir ?>/index.php" class="d-flex align-items-center header-logo-link" style="height: 100%;">
 			<?php //<img class="img-fluid" src="<?$root_dir /img/companylogo.jpg"> ?>
-			<img src="<?= $root_dir ?>/img/mirae_logo.png" style="width:100%; max-width: 120px;">
+			<img src="<?= $root_dir ?>/img/mirae_logo.png" class="header-logo-img" style="width:100%; max-width: 120px; height: auto; object-fit: contain;">
 		</a>
 	</div>
-<div class="col-8 col-sm-10 d-flex justify-content-end align-items-center" style="padding: 0 8px;">
+<div class="col-8 col-sm-10 d-flex justify-content-end align-items-center header-menu-col" style="padding: 0 8px;">
 	<!-- 모바일 햄버거 메뉴 버튼 -->
-	<button class="btn btn-primary d-md-none mobile-menu-toggle" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNavMenu" aria-controls="mobileNavMenu">
+	<button class="btn btn-primary d-md-none mobile-menu-toggle" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNavMenu" aria-controls="mobileNavMenu" style="display: flex; align-items: center; justify-content: center;">
 		<i class="bi bi-list" style="font-size: 1.5rem;"></i>
 	</button>
 
@@ -1036,6 +1036,143 @@
 	box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
+/* 헤더 행 기본 스타일 - 모든 환경에서 강제 적용 */
+.header-row {
+	display: flex !important;
+	align-items: center !important;
+	flex-wrap: nowrap !important;
+	min-height: 60px;
+	width: 100% !important;
+	box-sizing: border-box !important;
+}
+
+.header-logo-col,
+.header-menu-col {
+	display: flex !important;
+	align-items: center !important;
+	flex-shrink: 0;
+	box-sizing: border-box !important;
+}
+
+.header-logo-link {
+	display: flex !important;
+	align-items: center !important;
+	height: 100% !important;
+	width: 100% !important;
+	box-sizing: border-box !important;
+}
+
+.header-logo-img {
+	object-fit: contain !important;
+	max-height: 50px;
+	width: auto !important;
+	display: block !important;
+}
+
+/* 모바일 환경 최적화 - 강제 정렬 */
+@media (max-width: 767.98px) {
+	/* 헤더 행 강제 설정 */
+	.header-row,
+	.row.d-flex.align-items-center.header-row,
+	div.row.d-flex.align-items-center.header-row {
+		display: flex !important;
+		align-items: center !important;
+		flex-wrap: nowrap !important;
+		min-height: 60px !important;
+		height: auto !important;
+		width: 100% !important;
+		margin: 0 !important;
+		padding: 8px 0 !important;
+		box-sizing: border-box !important;
+	}
+	
+	/* 로고 컬럼 강제 설정 */
+	.header-logo-col,
+	.col-4.col-sm-2.d-flex.align-items-center.header-logo-col,
+	div.col-4.col-sm-2.d-flex.align-items-center.header-logo-col {
+		display: flex !important;
+		align-items: center !important;
+		height: 100% !important;
+		flex: 0 0 auto !important;
+		max-width: 40% !important;
+		width: auto !important;
+		padding: 0 8px !important;
+		box-sizing: border-box !important;
+	}
+	
+	/* 메뉴 컬럼 강제 설정 */
+	.header-menu-col,
+	.col-8.col-sm-10.d-flex.justify-content-end.align-items-center.header-menu-col,
+	div.col-8.col-sm-10.d-flex.justify-content-end.align-items-center.header-menu-col {
+		display: flex !important;
+		align-items: center !important;
+		justify-content: flex-end !important;
+		height: 100% !important;
+		flex: 1 1 auto !important;
+		padding: 0 8px !important;
+		box-sizing: border-box !important;
+	}
+	
+	/* 로고 링크 강제 설정 */
+	.header-logo-link,
+	.header-logo-col a,
+	.header-logo-col a.d-flex.align-items-center {
+		display: flex !important;
+		align-items: center !important;
+		height: 100% !important;
+		width: 100% !important;
+		box-sizing: border-box !important;
+	}
+	
+	/* 로고 이미지 강제 설정 */
+	.header-logo-img,
+	.header-logo-col img,
+	.header-logo-link img {
+		object-fit: contain !important;
+		max-height: 50px !important;
+		width: auto !important;
+		max-width: 100% !important;
+		height: auto !important;
+		display: block !important;
+		margin: 0 !important;
+	}
+	
+	/* 햄버거 버튼 강제 설정 */
+	.mobile-menu-toggle,
+	button.btn.btn-primary.d-md-none.mobile-menu-toggle {
+		flex-shrink: 0 !important;
+		min-width: 44px !important;
+		width: 44px !important;
+		height: 44px !important;
+		display: flex !important;
+		align-items: center !important;
+		justify-content: center !important;
+		padding: 0 !important;
+		margin: 0 !important;
+		box-sizing: border-box !important;
+	}
+}
+
+/* PC 환경 */
+@media (min-width: 768px) {
+	.header-row {
+		display: flex !important;
+		align-items: center !important;
+		flex-wrap: nowrap !important;
+	}
+	
+	.header-logo-col,
+	.header-menu-col {
+		display: flex !important;
+		align-items: center !important;
+		height: 100% !important;
+	}
+	
+	.header-logo-img {
+		max-height: 60px;
+	}
+}
+
 .offcanvas {
 	box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
 }
@@ -1145,4 +1282,5 @@
 }
 </style>
 
+</form>
 </form>

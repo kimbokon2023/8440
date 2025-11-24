@@ -24,6 +24,367 @@ if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
 ?>
 
 <title>외주 청구일/출고일 일괄처리</title>
+
+<style>
+/* 모바일 최적화 스타일 */
+@media (max-width: 768px) {
+    /* 컨테이너 및 카드 최적화 */
+    .container-fluid,
+    .container {
+        padding: 0.75rem 0.5rem !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    .card {
+        margin: 0.5rem auto !important;
+        border-radius: 0.5rem !important;
+        width: calc(100% - 1rem) !important;
+        max-width: calc(100% - 1rem) !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+        overflow-y: visible !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .card-header {
+        padding: 0.75rem 0.5rem !important;
+        overflow-x: hidden !important;
+        overflow-y: visible !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 창닫기 버튼 모바일 최적화 */
+    .card-header .d-flex.justify-content-between {
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+    }
+    
+    .card-header #closeBtn {
+        width: auto !important;
+        max-width: none !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .card-body {
+        padding: 0.75rem 0.5rem !important;
+        overflow-x: hidden !important;
+        overflow-y: visible !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 제목 최적화 */
+    h4, h5, h6 {
+        font-size: 1rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        text-align: center !important;
+        margin-bottom: 0.75rem !important;
+        padding: 0 0.5rem !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 버튼 최적화 */
+    .btn {
+        font-size: 0.875rem !important;
+        padding: 0.5rem 0.75rem !important;
+        white-space: nowrap !important;
+        min-height: 40px !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    
+    /* d-flex 컨테이너 안의 버튼은 자동 크기 */
+    .d-flex .btn,
+    .d-flex.justify-content-center .btn,
+    .d-flex.justify-content-start .btn {
+        width: auto !important;
+        max-width: none !important;
+        margin: 0.25rem !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .btn-sm {
+        font-size: 0.8rem !important;
+        padding: 0.4rem 0.6rem !important;
+        min-height: 36px !important;
+    }
+    
+    /* 입력 필드 최적화 */
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    input[type="file"],
+    textarea,
+    select,
+    .form-control {
+        font-size: 0.875rem !important;
+        padding: 0.5rem !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        margin-bottom: 0.5rem !important;
+    }
+    
+    /* 기간 설정 UI 최적화 */
+    .d-flex.mt-1.mb-2.justify-content-center.align-items-center {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.5rem !important;
+    }
+    
+    .d-flex.mt-1.mb-2.justify-content-center.align-items-center > * {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    /* 버튼 그룹 최적화 */
+    .d-flex.mb-1.mt-1.justify-content-center.align-items-center {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.5rem !important;
+    }
+    
+    .d-flex.mb-1.mt-1.justify-content-center.align-items-center > * {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    /* TUI Grid 숨기기 */
+    #grid {
+        display: none !important;
+    }
+    
+    /* 모바일 카드 컨테이너 */
+    #mobile-grid-cards {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 0 0.25rem !important;
+    }
+    
+    .mobile-grid-card {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin: 0.5rem auto 0.75rem auto !important;
+        padding: 0.75rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        width: calc(100% - 0.5rem) !important;
+        max-width: calc(100% - 0.5rem) !important;
+        overflow-x: hidden;
+        overflow-y: visible !important;
+        box-sizing: border-box;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .mobile-grid-card-item {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 0.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #f0f0f0;
+        width: 100%;
+        max-width: 100% !important;
+        box-sizing: border-box;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .mobile-grid-card-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    
+    .mobile-grid-card-label {
+        font-weight: bold;
+        font-size: 0.75rem;
+        color: #666;
+        margin-bottom: 0.25rem;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    .mobile-grid-card-value {
+        font-size: 0.9rem;
+        color: #333;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        padding-left: 0 !important;
+        overflow: visible !important;
+    }
+    
+    /* 텍스트 오버플로우 방지 */
+    * {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 모든 텍스트 요소 강제 줄바꿈 */
+    p, div, h1, h2, h3, h4, h5, h6, label, strong, em, b, i, u, span {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* span 요소 줄바꿈 처리 */
+    span {
+        display: inline !important;
+        overflow: visible !important;
+    }
+    
+    /* badge 최적화 */
+    .badge {
+        font-size: 0.875rem !important;
+        padding: 0.5rem 0.75rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+}
+
+/* PC 환경에서 모바일 카드 숨기기 */
+@media (min-width: 769px) {
+    #mobile-grid-cards {
+        display: none !important;
+    }
+    #grid {
+        display: block !important;
+    }
+}
+
+/* PC 환경 버튼 간격 최적화 */
+@media (min-width: 769px) {
+    .d-flex.justify-content-center .btn,
+    .d-flex.justify-content-start .btn {
+        margin-left: 0.25rem !important;
+        margin-right: 0.25rem !important;
+    }
+}
+
+/* 모달 최적화 */
+@media (max-width: 768px) {
+    .modal-dialog {
+        margin: 0.5rem !important;
+        max-width: calc(100% - 1rem) !important;
+    }
+    
+    .modal-dialog.modal-lg {
+        margin: 0 !important;
+        max-width: 100% !important;
+    }
+    
+    .modal-content {
+        border-radius: 0.5rem !important;
+    }
+    
+    .modal-header {
+        padding: 0.75rem 0.5rem !important;
+        min-height: 50px !important;
+        flex-wrap: wrap !important;
+        gap: 0.25rem !important;
+    }
+    
+    .modal-title {
+        font-size: 1rem !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        word-wrap: break-word !important;
+    }
+    
+    .modal-header .btn-close {
+        margin: 0 !important;
+        padding: 0.5rem !important;
+    }
+    
+    .modal-body {
+        padding: 0.75rem 0.5rem !important;
+        font-size: 0.9rem !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .modal-footer {
+        padding: 0.75rem 0.5rem !important;
+        flex-wrap: wrap !important;
+        gap: 0.25rem !important;
+    }
+    
+    .modal-footer .btn {
+        padding: 0.5rem 0.75rem !important;
+        font-size: 0.875rem !important;
+        min-height: 40px !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        margin-bottom: 0.25rem !important;
+    }
+    
+    /* SweetAlert2 모달 최적화 */
+    .swal2-popup {
+        width: 90% !important;
+        max-width: 90% !important;
+        padding: 1rem !important;
+        font-size: 0.9rem !important;
+    }
+    
+    .swal2-title {
+        font-size: 1.1rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .swal2-content {
+        font-size: 0.875rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .swal2-actions {
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+    }
+    
+    .swal2-confirm,
+    .swal2-cancel {
+        font-size: 0.875rem !important;
+        padding: 0.5rem 1rem !important;
+        min-height: 40px !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+    }
+}
+</style>
 </head>
 
 <?php
@@ -307,16 +668,17 @@ $all_sum = $sum1 + $sum2 + $sum3;
         <div class="container-fluid">
             <div class="card">
                 <div class="card-header">
-                    <div class="d-flex mb-1 mt-2 justify-content-center align-items-center">
+                    <div class="d-flex mb-1 mt-2 justify-content-between align-items-center">
                         <span class="badge bg-success fs-6">외주 청구일/출고일 일괄처리</span>
+                        <button type="button" id="closeBtn" class="btn btn-secondary btn-sm">
+                            <i class="bi bi-x-lg"></i> 닫기
+                        </button>
                     </div>
                     
-                    <div class="row">
-                        <div class="d-flex mt-1 mb-2 justify-content-center align-items-center">
-                            <!-- 기간설정 칸 -->
-                            <?php include getDocumentRoot() . '/setdate.php'; ?>
-                        </div>
-                    </div>
+                    
+                    <!-- 기간설정 칸 -->
+                    <?php include getDocumentRoot() . '/setdate.php'; ?>
+            
                     
                     <div class="d-flex mb-1 mt-1 justify-content-center align-items-center">
                         납기일 기준 &nbsp;&nbsp;
@@ -330,6 +692,8 @@ $all_sum = $sum1 + $sum2 + $sum3;
                     </div>
                     
                     <div id="grid" style="width:1680px;"></div>
+                    <!-- 모바일 카드 컨테이너 -->
+                    <div id="mobile-grid-cards" style="display: none;"></div>
                 </div>
             </div>
         </div>
@@ -532,6 +896,117 @@ $all_sum = $sum1 + $sum2 + $sum3;
                     text: '#b0b0b0'
                 }
             }
+        });
+        
+        // 모바일 카드 렌더링 함수
+        function renderMobileCards() {
+            var isMobile = window.innerWidth <= 768;
+            var gridEl = document.getElementById('grid');
+            var cardsContainer = document.getElementById('mobile-grid-cards');
+            
+            if (!cardsContainer) return;
+            
+            if (isMobile) {
+                // 모바일: 그리드 숨기고 카드 표시
+                if (gridEl) gridEl.style.display = 'none';
+                cardsContainer.style.display = 'block';
+                
+                // 기존 카드 제거
+                cardsContainer.innerHTML = '';
+                
+                // 컬럼 정보
+                var columnConfig = {
+                    'col1': { label: '납기일', width: 80 },
+                    'col9': { label: '청구일', width: 80 },
+                    'col10': { label: '출고일', width: 80 },
+                    'col2': { label: '현장명', width: 280 },
+                    'col3': { label: '발주처', width: 150 },
+                    'col4': { label: '현장주소', width: 300 },
+                    'col5': { label: '수량', width: 150 },
+                    'col6': { label: '운송비', width: 120 },
+                    'col7': { label: '상세내역', width: 250 },
+                    'col8': { label: 'rec No.', width: 50 }
+                };
+                
+                // 각 행을 카드로 변환
+                data.forEach(function(row, index) {
+                    var card = document.createElement('div');
+                    card.className = 'mobile-grid-card';
+                    card.setAttribute('data-row-index', index);
+                    
+                    var cardContent = '';
+                    
+                    // 체크박스 추가
+                    cardContent += '<div class="mobile-grid-card-item">';
+                    cardContent += '<input type="checkbox" class="mobile-checkbox" data-row-index="' + index + '" style="margin-right: 0.5rem;">';
+                    cardContent += '<span class="mobile-grid-card-label">선택</span>';
+                    cardContent += '</div>';
+                    
+                    // 각 컬럼을 카드 아이템으로 추가
+                    Object.keys(columnConfig).forEach(function(colName) {
+                        var config = columnConfig[colName];
+                        var value = row[colName] || '';
+                        
+                        if (value !== '' && value !== null && value !== undefined) {
+                            cardContent += '<div class="mobile-grid-card-item">';
+                            cardContent += '<span class="mobile-grid-card-label">' + config.label + '</span>';
+                            cardContent += '<span class="mobile-grid-card-value">' + (value || '') + '</span>';
+                            cardContent += '</div>';
+                        }
+                    });
+                    
+                    card.innerHTML = cardContent;
+                    cardsContainer.appendChild(card);
+                });
+                
+                // 카드 클릭 이벤트 (더블클릭 대신)
+                cardsContainer.addEventListener('click', function(e) {
+                    var targetCard = e.target.closest('.mobile-grid-card');
+                    if (targetCard && !e.target.closest('.mobile-checkbox')) {
+                        var rowIndex = parseInt(targetCard.getAttribute('data-row-index'));
+                        if (numcopy[rowIndex] > 0) {
+                            <?php
+                            $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+                            $host = $_SERVER['HTTP_HOST'];
+                            ?>
+                            var link = '<?= $protocol ?>://<?= $host ?>/outorder/view.php?num=' + numcopy[rowIndex];
+                            window.open(link, "_blank");
+                        }
+                    }
+                });
+                
+                // 체크박스 이벤트 처리
+                cardsContainer.addEventListener('change', function(e) {
+                    if (e.target.classList.contains('mobile-checkbox')) {
+                        var rowIndex = parseInt(e.target.getAttribute('data-row-index'));
+                        // 그리드의 체크박스와 동기화
+                        if (grid) {
+                            if (e.target.checked) {
+                                grid.check(rowIndex);
+                            } else {
+                                grid.uncheck(rowIndex);
+                            }
+                        }
+                    }
+                });
+            } else {
+                // PC: 카드 숨기고 그리드 표시
+                if (gridEl) gridEl.style.display = 'block';
+                cardsContainer.style.display = 'none';
+            }
+        }
+        
+        // 초기 렌더링 및 리사이즈 이벤트
+        renderMobileCards();
+        $(window).on('resize', function() {
+            setTimeout(renderMobileCards, 100);
+        });
+        
+        // 그리드 데이터 변경 시 카드 업데이트
+        grid.on('afterChange', function() {
+            if (window.innerWidth <= 768) {
+                renderMobileCards();
+            }
         });	
 	
 	
@@ -552,6 +1027,11 @@ $all_sum = $sum1 + $sum2 + $sum3;
  		
 		
 	
+        // 창닫기 버튼
+        $("#closeBtn").click(function() {
+            window.close(); // 현재 창 닫기
+        });
+        
         // 청구일 적용&저장 버튼
         $("#saveBtn").click(function() {
             var tmp = grid.getCheckedRowKeys();

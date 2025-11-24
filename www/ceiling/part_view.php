@@ -22,6 +22,176 @@ ini_set('display_errors', '1');
 <?php include getDocumentRoot() . '/load_header.php' ?>
 
 <title> 주요부품 입출고 이력 </title>
+
+<style>
+/* 모바일 최적화 스타일 */
+@media (max-width: 768px) {
+    /* 컨테이너 및 카드 최적화 */
+    .container-fluid {
+        padding: 0.75rem 0.5rem !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 제목 최적화 */
+    .fs-3, .fs-5, h4, h5, h6 {
+        font-size: 1rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        text-align: center !important;
+        margin-bottom: 0.75rem !important;
+        padding: 0 0.5rem !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 버튼 최적화 */
+    .btn {
+        font-size: 0.875rem !important;
+        padding: 0.5rem 0.75rem !important;
+        white-space: nowrap !important;
+        min-height: 40px !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    
+    /* d-flex 컨테이너 안의 버튼은 자동 크기 */
+    .d-flex .btn,
+    .d-flex.justify-content-center .btn,
+    .d-flex.align-items-center .btn {
+        width: auto !important;
+        max-width: none !important;
+        margin: 0.25rem !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .btn-sm {
+        font-size: 0.8rem !important;
+        padding: 0.4rem 0.6rem !important;
+        min-height: 36px !important;
+    }
+    
+    /* d-flex justify-content-center 최적화 */
+    .d-flex.justify-content-center {
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }
+    
+    /* Grid 숨기기 및 카드 컨테이너 표시 */
+    #grid {
+        display: none !important;
+    }
+    
+    #mobile-grid-cards {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 0 0.25rem !important;
+    }
+    
+    .mobile-grid-card {
+        background: #fff !important;
+        border: 1px solid #ddd !important;
+        border-radius: 8px !important;
+        margin: 0.5rem auto 0.75rem auto !important;
+        padding: 0.75rem !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+        width: calc(100% - 0.5rem) !important;
+        max-width: calc(100% - 0.5rem) !important;
+        overflow-x: hidden !important;
+        overflow-y: visible !important;
+        box-sizing: border-box !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .mobile-grid-card-item {
+        display: flex !important;
+        flex-direction: column !important;
+        margin-bottom: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+        border-bottom: 1px solid #f0f0f0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .mobile-grid-card-item:last-child {
+        border-bottom: none !important;
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
+    }
+    
+    .mobile-grid-card-label {
+        font-weight: bold !important;
+        font-size: 0.75rem !important;
+        color: #666 !important;
+        margin-bottom: 0.25rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    .mobile-grid-card-value {
+        font-size: 0.9rem !important;
+        color: #333 !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        padding-left: 0 !important;
+        overflow: visible !important;
+    }
+    
+    /* 텍스트 오버플로우 방지 */
+    * {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 모든 텍스트 요소 강제 줄바꿈 */
+    p, div, h1, h2, h3, h4, h5, h6, label, strong, em, b, i, u, span {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* span 요소 줄바꿈 처리 */
+    span {
+        display: inline !important;
+        overflow: visible !important;
+    }
+}
+
+/* PC 화면 */
+@media (min-width: 769px) {
+    #mobile-grid-cards {
+        display: none !important;
+    }
+    
+    #grid {
+        display: block !important;
+    }
+}
+</style>
+
 </head>
 
 <body>
@@ -184,6 +354,7 @@ for ($i = 0; $i < count($arr); $i++) {
         
         <div class="d-flex mb-1 mt-2 justify-content-center align-items-center">
             <div id="grid" class="board"></div>
+            <div id="mobile-grid-cards" style="display: none; width: 100%;"></div>
         </div>
     </form>
 </div>
@@ -253,11 +424,15 @@ $(document).ready(function() {
         }
     }
     
-    // TUI Grid 생성
-    const grid = new tui.Grid({
+    // 모바일 여부 확인
+    var isMobile = window.innerWidth <= 768;
+    var bodyHeight = isMobile ? 400 : 700;
+    
+    // grid를 전역 변수로 선언
+    window.grid = new tui.Grid({
         el: document.getElementById('grid'),
         data: data,
-        bodyHeight: 700,
+        bodyHeight: bodyHeight,
         columns: [
             {
                 header: '입고 조립완료일',
@@ -343,6 +518,106 @@ $(document).ready(function() {
                 border: '#418ed4'
             }
         }
+    });
+    
+    // 모바일 카드 렌더링 함수
+    function renderMobileGridCards() {
+        if (!window.grid) return;
+        
+        var isMobile = window.innerWidth <= 768;
+        var cardsContainer = document.getElementById('mobile-grid-cards');
+        var gridContainer = document.getElementById('grid');
+        
+        if (!isMobile) {
+            // PC 화면: Grid 표시, 카드 숨김
+            if (gridContainer) {
+                gridContainer.style.display = '';
+            }
+            if (cardsContainer) {
+                cardsContainer.style.display = 'none';
+            }
+            return;
+        }
+        
+        // 모바일 화면: Grid 숨김, 카드 표시
+        if (gridContainer) {
+            gridContainer.style.display = 'none';
+        }
+        if (!cardsContainer) return;
+        
+        cardsContainer.style.display = 'block';
+        cardsContainer.innerHTML = '';
+        
+        try {
+            var gridData = window.grid.getData();
+            
+            if (!gridData || gridData.length === 0) {
+                cardsContainer.innerHTML = '<div class="text-center py-4 text-muted">데이터가 없습니다.</div>';
+                return;
+            }
+            
+            // 컬럼 매핑
+            var columnMap = [
+                { name: 'col1', label: '입고 조립완료일' },
+                { name: 'col2', label: '현장명' },
+                { name: 'col3', label: '입고' },
+                { name: 'col4', label: '출고' },
+                { name: 'col5', label: '재고' }
+            ];
+            
+            gridData.forEach(function(rowData, index) {
+                var card = document.createElement('div');
+                card.className = 'mobile-grid-card';
+                
+                var cardHtml = '';
+                
+                columnMap.forEach(function(colInfo) {
+                    var value = rowData[colInfo.name];
+                    if (value === null || value === undefined || value === '') {
+                        value = '0';
+                    }
+                    
+                    var displayValue = value;
+                    
+                    cardHtml += '<div class="mobile-grid-card-item">';
+                    cardHtml += '<div class="mobile-grid-card-label">' + colInfo.label + '</div>';
+                    cardHtml += '<div class="mobile-grid-card-value">' + displayValue + '</div>';
+                    cardHtml += '</div>';
+                });
+                
+                if (cardHtml === '') {
+                    cardHtml = '<div class="text-muted">데이터 없음</div>';
+                }
+                
+                card.innerHTML = cardHtml;
+                cardsContainer.appendChild(card);
+            });
+        } catch (error) {
+            console.error('모바일 카드 렌더링 오류:', error);
+            cardsContainer.innerHTML = '<div class="text-center py-4 text-danger">데이터를 불러오는 중 오류가 발생했습니다.</div>';
+        }
+    }
+    
+    // 화면 크기 변경 시 카드/그리드 전환
+    function updateGridDisplay() {
+        renderMobileGridCards();
+    }
+    
+    // Grid 렌더링 완료 후 모바일 카드 렌더링
+    setTimeout(function() {
+        updateGridDisplay();
+    }, 300);
+    
+    // 리사이즈 이벤트
+    window.addEventListener('resize', function() {
+        updateGridDisplay();
+    });
+    
+    // 페이지 로드 완료 후에도 한 번 더 확인
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            updateGridDisplay();
+        }, 500);
     });
 });
 

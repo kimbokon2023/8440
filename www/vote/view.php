@@ -28,6 +28,279 @@ include includePath('load_header.php');
         .table-hover tbody tr:hover {
             cursor: pointer;
         }
+        
+        /* 모바일 환경 최적화 */
+        @media (max-width: 768px) {
+            /* body와 html 오버플로우 방지 */
+            html, body {
+                overflow-x: hidden !important;
+                max-width: 100vw !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            
+            * {
+                max-width: 100vw !important;
+                box-sizing: border-box !important;
+            }
+            
+            /* 컨테이너 최적화 */
+            .container,
+            .container-fluid {
+                padding: 0.5rem !important;
+                max-width: 100vw !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+                margin: 0 auto !important;
+                overflow-x: hidden !important;
+            }
+            
+            /* 카드 최적화 */
+            .card {
+                margin: 0.5rem auto !important;
+                width: calc(100vw - 1rem) !important;
+                max-width: calc(100vw - 1rem) !important;
+                box-sizing: border-box !important;
+                overflow-x: hidden !important;
+            }
+            
+            .card-body {
+                padding: 0.75rem !important;
+                overflow-x: hidden !important;
+            }
+            
+            /* 제목 영역 최적화 */
+            .d-flex.mt-3.mb-2.justify-content-center {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 0.5rem !important;
+                padding: 0.5rem !important;
+            }
+            
+            .d-flex.mt-3.mb-2.justify-content-center h3 {
+                font-size: 1.25rem !important;
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+                text-align: center !important;
+                margin: 0.5rem 0 !important;
+            }
+            
+            /* 버튼 그룹 최적화 */
+            .row.d-flex.m-1.mt-2.mb-2.justify-content-left.align-items-center {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 0.5rem !important;
+                padding: 0.5rem !important;
+            }
+            
+            .row.d-flex.m-1.mt-2.mb-2.justify-content-left.align-items-center button {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0.25rem 0 !important;
+                padding: 0.5rem !important;
+                font-size: 1rem !important;
+            }
+            
+            /* 정보 테이블 최적화 */
+            .row.d-flex.p-1.m-1.mt-2.mb-2.justify-content-left.align-items-center {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                padding: 0.5rem !important;
+            }
+            
+            .table-responsive {
+                width: 100% !important;
+                max-width: 100% !important;
+                overflow-x: auto !important;
+            }
+            
+            .table-bordered {
+                font-size: 0.875rem !important;
+            }
+            
+            .table-bordered td {
+                padding: 0.5rem !important;
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+            }
+            
+            /* 본문 내용 최적화 */
+            .row.p-2.m-2.mt-1.mb-1.align-items-center {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                padding: 0.5rem !important;
+            }
+            
+            .row.p-2.m-2.mt-1.mb-1.align-items-center .col-sm-8,
+            .row.p-2.m-2.mt-1.mb-1.align-items-center .col-sm-4 {
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 0.5rem !important;
+            }
+            
+            .row.p-2.m-2.mt-1.mb-1.align-items-center span {
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+                max-width: 100% !important;
+            }
+            
+            /* 차트 최적화 */
+            .vote-chart-canvas {
+                width: 100% !important;
+                max-width: 100% !important;
+                height: auto !important;
+            }
+            
+            /* 투표 테이블 최적화 */
+            .row.d-flex.mt-3.mb-1.justify-content-center {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                padding: 0.5rem !important;
+            }
+            
+            .row.d-flex.mt-3.mb-1.justify-content-center .card {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            
+            .d-flex.mt-2.mb-2.justify-content-center {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 0.5rem !important;
+                padding: 0.5rem !important;
+            }
+            
+            .d-flex.mt-2.mb-2.justify-content-center span {
+                width: 100% !important;
+                max-width: 100% !important;
+                text-align: center !important;
+                margin: 0.25rem 0 !important;
+            }
+            
+            #dynamicTable {
+                font-size: 0.875rem !important;
+            }
+            
+            #dynamicTable th,
+            #dynamicTable td {
+                padding: 0.5rem !important;
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+            }
+            
+            #dynamicTable input,
+            #dynamicTable button {
+                width: 100% !important;
+                max-width: 100% !important;
+                font-size: 0.875rem !important;
+            }
+            
+            #dynamicTable .progress {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            
+            /* 텍스트 오버플로우 방지 */
+            * {
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+                box-sizing: border-box !important;
+            }
+            
+            /* 모든 텍스트 요소 강제 줄바꿈 */
+            p, div, h1, h2, h3, h4, h5, h6, label, strong, em, b, i, u, span, td, th {
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+                word-break: break-word !important;
+                white-space: normal !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            
+            /* span 요소 줄바꿈 처리 */
+            span {
+                display: inline-block !important;
+                overflow: visible !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            
+            /* 모든 div 요소 오버플로우 방지 */
+            div {
+                max-width: 100vw !important;
+                overflow-x: hidden !important;
+                box-sizing: border-box !important;
+            }
+            
+            /* '기간' 버튼 숨기기 */
+            #showdate {
+                display: none !important;
+            }
+            
+            /* 모달 최적화 */
+            .modal {
+                padding: 0 !important;
+                overflow: hidden !important;
+            }
+            
+            .modal-dialog {
+                margin: 0 !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                height: 100vh !important;
+                max-height: 100vh !important;
+            }
+            
+            .modal-content {
+                margin: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                height: 100vh !important;
+                max-height: 100vh !important;
+                border-radius: 0 !important;
+                display: flex !important;
+                flex-direction: column !important;
+                box-sizing: border-box !important;
+            }
+            
+            .modal-header {
+                padding: 0.75rem 0.5rem !important;
+                flex-shrink: 0 !important;
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+            }
+            
+            .modal-title {
+                font-size: 1rem !important;
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+            }
+            
+            .modal-body {
+                flex: 1 !important;
+                overflow-y: auto !important;
+                overflow-x: hidden !important;
+                padding: 0.75rem !important;
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+            
+            .modal-footer {
+                padding: 0.75rem 0.5rem !important;
+                flex-shrink: 0 !important;
+                flex-direction: column !important;
+                gap: 0.5rem !important;
+            }
+            
+            .modal-footer button {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0.5rem !important;
+                font-size: 1rem !important;
+            }
+        }
     </style> 
 	
  </head> 
@@ -493,6 +766,9 @@ $(document).ready(function() {
         voteData.push(voteCount);
     });
 
+    // 모바일 환경 감지
+    var isMobile = window.innerWidth <= 768;
+    
     // 파이 차트 생성
     var myChart = new Chart(ctx, {
         type: 'pie',
@@ -505,21 +781,43 @@ $(document).ready(function() {
                     'rgba(255, 99, 132, 0.2)',
                     'rgba(54, 162, 235, 0.2)',
                     'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)',
                     // 추가 색상 필요 시 여기에 추가
                 ],
                 borderColor: [
                     'rgba(255, 99, 132, 1)',
                     'rgba(54, 162, 235, 1)',
                     'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
                     // 추가 색상 필요 시 여기에 추가
                 ],
                 borderWidth: 1
             }]
         },
-        options: {        
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: isMobile ? 1 : 1,
             plugins: {
+                legend: {
+                    display: true,
+                    position: isMobile ? 'bottom' : 'right',
+                    labels: {
+                        font: {
+                            size: isMobile ? 12 : 14
+                        },
+                        padding: isMobile ? 10 : 15
+                    }
+                },
                 datalabels: {
                     color: '#000000', // 라벨 색상
+                    font: {
+                        size: isMobile ? 10 : 12
+                    },
                     formatter: function(value, context) {
                         return context.chart.data.labels[context.dataIndex] + ': ' + value;
                     }
@@ -527,6 +825,20 @@ $(document).ready(function() {
             }
         }    
     });  // end of chart function
+    
+    // 창 크기 변경 시 차트 크기 조정
+    $(window).on('resize', function() {
+        var isMobileNow = window.innerWidth <= 768;
+        if (isMobileNow !== isMobile) {
+            isMobile = isMobileNow;
+            myChart.options.plugins.legend.position = isMobile ? 'bottom' : 'right';
+            myChart.options.plugins.legend.labels.font.size = isMobile ? 12 : 14;
+            myChart.options.plugins.legend.labels.padding = isMobile ? 10 : 15;
+            myChart.options.plugins.datalabels.font.size = isMobile ? 10 : 12;
+            myChart.options.aspectRatio = isMobile ? 1 : 1;
+            myChart.resize();
+        }
+    });
 	
 
 });

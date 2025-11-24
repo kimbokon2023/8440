@@ -27,6 +27,222 @@ th, td {
     vertical-align: middle !important;
 }
 
+/* 모바일 반응형 스타일 */
+@media (max-width: 768px) {
+	/* body와 html의 width 제한 */
+	html, body {
+		max-width: 100vw !important;
+		overflow-x: hidden !important;
+		font-size: 16px !important;
+	}
+
+	/* 컨테이너 패딩 조정 */
+	.container-fluid {
+		max-width: 100vw !important;
+		padding-left: 10px !important;
+		padding-right: 10px !important;
+		overflow-x: hidden !important;
+	}
+
+	/* 카드 패딩 조정 */
+	.card {
+		margin-bottom: 10px !important;
+	}
+
+	.card-body {
+		padding: 10px !important;
+	}
+
+	/* 제목 영역 모바일 최적화 */
+	.d-flex.fs-4 {
+		font-size: 1.2rem !important;
+		white-space: nowrap !important;
+		margin-bottom: 15px !important;
+		margin-top: 10px !important;
+	}
+
+	/* 버튼 그룹 모바일 최적화 */
+	.btn-sm {
+		font-size: 0.9rem !important;
+		padding: 0.5rem 0.8rem !important;
+		white-space: nowrap !important;
+		margin-bottom: 5px !important;
+		margin-right: 3px !important;
+	}
+
+	/* 버튼 영역 줄바꿈 허용 */
+	.d-flex.justify-content-start,
+	.d-flex.justify-content-end {
+		flex-wrap: wrap !important;
+		gap: 5px !important;
+		justify-content: center !important;
+	}
+
+	/* col-sm-9, col-sm-3 모바일에서 전체 너비 */
+	.col-sm-9, .col-sm-3 {
+		width: 100% !important;
+		flex: 0 0 100% !important;
+		max-width: 100% !important;
+		margin-bottom: 10px !important;
+	}
+
+	/* 테이블 모바일 최적화 */
+	.table {
+		font-size: 0.95rem !important;
+		width: 100% !important;
+	}
+
+	.table td, .table th {
+		padding: 8px 4px !important;
+		font-size: 0.9rem !important;
+		vertical-align: middle !important;
+		word-wrap: break-word !important;
+	}
+
+	/* 테이블 첫 번째 열 (라벨) 너비 조정 */
+	.table td:first-child {
+		width: 30% !important;
+		min-width: 90px !important;
+		font-weight: 600 !important;
+		background-color: #f8f9fa !important;
+	}
+
+	/* 입력 필드 모바일 최적화 */
+	input[type="text"],
+	input[type="date"],
+	textarea {
+		font-size: 0.9rem !important;
+		padding: 0.5rem 0.75rem !important;
+		width: 100% !important;
+		box-sizing: border-box !important;
+		max-width: 100% !important;
+	}
+
+	/* 날짜 입력 필드 크기 조정 */
+	input[type="date"] {
+		font-size: 0.85rem !important;
+		padding: 0.4rem 0.6rem !important;
+		min-width: 140px !important;
+	}
+
+	/* 날짜 입력 필드 내부 텍스트 크기 조정 */
+	input[type="date"]::-webkit-datetime-edit {
+		font-size: 0.85rem !important;
+		padding: 0 !important;
+	}
+
+	/* 날짜 입력 필드 달력 아이콘 크기 조정 */
+	input[type="date"]::-webkit-calendar-picker-indicator {
+		width: 18px !important;
+		height: 18px !important;
+		padding: 0 !important;
+	}
+
+	/* 텍스트 영역 모바일 최적화 */
+	textarea.form-control {
+		font-size: 0.9rem !important;
+		padding: 0.5rem 0.75rem !important;
+		min-height: 80px !important;
+		resize: vertical !important;
+	}
+
+	/* 라디오 버튼 모바일 최적화 */
+	input[type="radio"] {
+		margin: 0 3px !important;
+		width: 18px !important;
+		height: 18px !important;
+	}
+
+	/* 라디오 버튼 라벨 모바일 최적화 */
+	span.text-primary,
+	span.text-danger,
+	span.text-dark {
+		font-size: 0.85rem !important;
+		margin-right: 2px !important;
+	}
+
+	/* 결재 테이블 모바일 최적화 */
+	.table thead th {
+		font-size: 0.95rem !important;
+		padding: 8px 4px !important;
+	}
+
+	.table tbody td {
+		font-size: 0.9rem !important;
+		padding: 8px 4px !important;
+		height: auto !important;
+		min-height: 40px !important;
+	}
+
+	/* 행 레이아웃 모바일 최적화 */
+	.row {
+		margin-left: -5px !important;
+		margin-right: -5px !important;
+	}
+
+	.row > [class*="col-"] {
+		padding-left: 5px !important;
+		padding-right: 5px !important;
+	}
+
+	/* readonly 입력 필드 모바일 스타일 */
+	input[readonly], textarea[readonly] {
+		font-size: 0.9rem !important;
+		padding: 0.5rem 0.75rem !important;
+	}
+
+	/* 경고 메시지 모바일 최적화 */
+	.text-danger.text-center.fw-bold {
+		font-size: 0.85rem !important;
+		padding: 8px 4px !important;
+		line-height: 1.4 !important;
+	}
+
+	/* 등록/수정 정보 모바일 최적화 */
+	td.text-center.fw-bold {
+		font-size: 0.85rem !important;
+		padding: 10px 5px !important;
+		line-height: 1.6 !important;
+	}
+
+	/* Log 기록 버튼 모바일 최적화 */
+	#showlogBtn {
+		margin-top: 5px !important;
+		font-size: 0.85rem !important;
+		padding: 0.4rem 0.6rem !important;
+	}
+
+	/* 테이블 border 모바일 최적화 */
+	.table-bordered {
+		border: 1px solid #dee2e6 !important;
+	}
+
+	.table-bordered td,
+	.table-bordered th {
+		border: 1px solid #dee2e6 !important;
+	}
+
+	/* 컨테이너 mb-2 모바일 최적화 */
+	.container.mb-2 {
+		padding-left: 5px !important;
+		padding-right: 5px !important;
+		margin-bottom: 10px !important;
+	}
+
+	/* 제목과 버튼 영역 간격 조정 */
+	.d-flex.mb-5.mt-5 {
+		margin-bottom: 15px !important;
+		margin-top: 10px !important;
+	}
+
+	/* 검색 결과 영역 모바일 최적화 */
+	#displaysearch {
+		width: 100% !important;
+		max-width: 100% !important;
+		font-size: 0.9rem !important;
+	}
+}
+
 </style>
 
 </head>

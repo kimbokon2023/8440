@@ -31,6 +31,266 @@ $titlemsg = '원자재(철판) 발주';
 th, td {
     vertical-align: middle !important;
 }
+
+/* 모바일 반응형 스타일 */
+@media (max-width: 768px) {
+	/* body와 html의 width 제한 */
+	html, body {
+		max-width: 100vw !important;
+		overflow-x: hidden !important;
+		font-size: 16px !important;
+	}
+
+	/* 컨테이너 패딩 조정 */
+	.container {
+		max-width: 100vw !important;
+		padding-left: 10px !important;
+		padding-right: 10px !important;
+		overflow-x: hidden !important;
+	}
+
+	/* 카드 패딩 조정 */
+	.card {
+		margin-bottom: 10px !important;
+	}
+
+	.card-body {
+		padding: 10px !important;
+	}
+
+	/* 제목 영역 모바일 최적화 */
+	.d-flex h4 {
+		font-size: 1.2rem !important;
+		white-space: nowrap !important;
+		margin-bottom: 15px !important;
+		margin-top: 10px !important;
+	}
+
+	/* 버튼 그룹 모바일 최적화 */
+	.btn-sm {
+		font-size: 0.9rem !important;
+		padding: 0.5rem 0.8rem !important;
+		white-space: nowrap !important;
+		margin-bottom: 5px !important;
+		margin-right: 3px !important;
+	}
+
+	/* 버튼 영역 줄바꿈 허용 */
+	.d-flex.justify-content-start,
+	.d-flex.justify-content-end {
+		flex-wrap: wrap !important;
+		gap: 5px !important;
+		justify-content: center !important;
+	}
+
+	/* col-sm-9, col-sm-3 모바일에서 전체 너비 */
+	.col-sm-9, .col-sm-3 {
+		width: 100% !important;
+		flex: 0 0 100% !important;
+		max-width: 100% !important;
+		margin-bottom: 10px !important;
+	}
+
+	/* 테이블 모바일 최적화 */
+	.table {
+		font-size: 0.95rem !important;
+		width: 100% !important;
+	}
+
+	.table td, .table th {
+		padding: 8px 4px !important;
+		font-size: 0.9rem !important;
+		vertical-align: middle !important;
+		word-wrap: break-word !important;
+	}
+
+	/* 테이블 첫 번째 열 (라벨) 너비 조정 */
+	.table td:first-child {
+		width: 30% !important;
+		min-width: 90px !important;
+		font-weight: 600 !important;
+		background-color: #f8f9fa !important;
+	}
+
+	/* 입력 필드 모바일 최적화 */
+	input[type="text"],
+	input[type="date"],
+	textarea,
+	select.form-control {
+		font-size: 0.9rem !important;
+		padding: 0.5rem 0.75rem !important;
+		width: 100% !important;
+		box-sizing: border-box !important;
+		max-width: 100% !important;
+	}
+
+	/* 날짜 입력 필드 크기 조정 */
+	input[type="date"] {
+		font-size: 0.85rem !important;
+		padding: 0.4rem 0.6rem !important;
+		min-width: 140px !important;
+	}
+
+	/* 날짜 입력 필드 내부 텍스트 크기 조정 */
+	input[type="date"]::-webkit-datetime-edit {
+		font-size: 0.85rem !important;
+		padding: 0 !important;
+	}
+
+	/* 날짜 입력 필드 달력 아이콘 크기 조정 */
+	input[type="date"]::-webkit-calendar-picker-indicator {
+		width: 18px !important;
+		height: 18px !important;
+		padding: 0 !important;
+	}
+
+	/* 텍스트 영역 모바일 최적화 */
+	textarea.form-control {
+		font-size: 0.9rem !important;
+		padding: 0.5rem 0.75rem !important;
+		min-height: 80px !important;
+		resize: vertical !important;
+	}
+
+	/* 드롭다운 선택 필드 모바일 최적화 */
+	select.form-control {
+		font-size: 0.9rem !important;
+		padding: 0.5rem 0.75rem !important;
+		height: auto !important;
+		min-height: 38px !important;
+	}
+
+	/* 라디오 버튼 모바일 최적화 */
+	input[type="radio"] {
+		margin: 0 3px !important;
+		width: 18px !important;
+		height: 18px !important;
+	}
+
+	/* 라디오 버튼 라벨 모바일 최적화 */
+	span.text-primary,
+	span.text-danger,
+	span.text-dark {
+		font-size: 0.85rem !important;
+		margin-right: 2px !important;
+	}
+
+	/* 행 레이아웃 모바일 최적화 */
+	.row {
+		margin-left: -5px !important;
+		margin-right: -5px !important;
+	}
+
+	.row > [class*="col-"] {
+		padding-left: 5px !important;
+		padding-right: 5px !important;
+	}
+
+	/* readonly 입력 필드 모바일 스타일 */
+	input[readonly], textarea[readonly] {
+		font-size: 0.9rem !important;
+		padding: 0.5rem 0.75rem !important;
+	}
+
+	/* 경고 메시지 모바일 최적화 */
+	.text-danger.text-center.fw-bold {
+		font-size: 0.85rem !important;
+		padding: 8px 4px !important;
+		line-height: 1.4 !important;
+	}
+
+	/* 테이블 border 모바일 최적화 */
+	.table-bordered {
+		border: 1px solid #dee2e6 !important;
+	}
+
+	.table-bordered td,
+	.table-bordered th {
+		border: 1px solid #dee2e6 !important;
+	}
+
+	/* d-flex align-items-center 내부 요소 최적화 */
+	.d-flex.align-items-center {
+		flex-wrap: wrap !important;
+		gap: 5px !important;
+	}
+
+	/* 버튼 그룹 모바일 최적화 */
+	.btn-outline-success.btn-sm {
+		font-size: 0.8rem !important;
+		padding: 0.4rem 0.6rem !important;
+		margin: 3px 2px !important;
+		white-space: nowrap !important;
+	}
+
+	/* 규격 버튼 행 최적화 */
+	.table tr td[colspan="2"] .btn-outline-success {
+		display: inline-block !important;
+		margin: 3px 2px !important;
+		font-size: 0.75rem !important;
+		padding: 0.35rem 0.5rem !important;
+	}
+
+	/* 유사 재고, 톤 계산기 버튼 행 최적화 */
+	.table tr td[colspan="2"].text-center .btn {
+		display: inline-block !important;
+		margin: 3px 2px !important;
+		font-size: 0.8rem !important;
+		padding: 0.4rem 0.6rem !important;
+		white-space: normal !important;
+		word-break: break-word !important;
+	}
+
+	/* 검색 결과 영역 모바일 최적화 */
+	#displaysearch {
+		width: 100% !important;
+		max-width: 100% !important;
+		font-size: 0.9rem !important;
+		position: relative !important;
+		z-index: 1000 !important;
+	}
+
+	/* 현장명 검색 영역 모바일 최적화 */
+	.d-flex.mb-1.mt-2 {
+		flex-wrap: wrap !important;
+		gap: 5px !important;
+		margin-bottom: 8px !important;
+		margin-top: 8px !important;
+	}
+
+	/* 현장명 입력 필드와 검색 버튼 영역 */
+	.d-flex.align-items-center:has(#outworkplace) {
+		flex-wrap: nowrap !important;
+		gap: 5px !important;
+	}
+
+	/* 현장명 입력 필드 */
+	#outworkplace {
+		flex: 1 1 auto !important;
+		min-width: 150px !important;
+	}
+
+	/* 검색 버튼 */
+	.d-flex.align-items-center:has(#outworkplace) .btn {
+		flex-shrink: 0 !important;
+		white-space: nowrap !important;
+	}
+
+	/* 재고량 입력 필드 모바일 최적화 */
+	#stock {
+		width: 60px !important;
+		min-width: 60px !important;
+		font-size: 0.85rem !important;
+		padding: 0.4rem 0.5rem !important;
+	}
+
+	/* 제목과 버튼 영역 간격 조정 */
+	.d-flex.mb-5.mt-5 {
+		margin-bottom: 15px !important;
+		margin-top: 10px !important;
+	}
+}
+
 </style>
  
 <body>

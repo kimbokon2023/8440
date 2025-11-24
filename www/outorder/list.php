@@ -15,6 +15,328 @@ if(!isset($_SESSION["level"]) || $_SESSION["level"]>8) {
  <?php include getDocumentRoot() . '/load_header.php' ?>
 
 <title> <?=$title_message?> </title>
+
+<style>
+/* 모바일 최적화 스타일 */
+@media (max-width: 768px) {
+    /* 컨테이너 및 카드 최적화 */
+    .container-fluid {
+        padding: 0.75rem 0.5rem !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    .card {
+        margin: 0.5rem auto !important;
+        border-radius: 0.5rem !important;
+        width: calc(100% - 1rem) !important;
+        max-width: calc(100% - 1rem) !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+        overflow-y: visible !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .card-body {
+        padding: 0.75rem 0.5rem !important;
+        overflow-x: hidden !important;
+        overflow-y: visible !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 제목 최적화 */
+    h4, h5, h6 {
+        font-size: 1rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        text-align: center !important;
+        margin-bottom: 0.75rem !important;
+        padding: 0 0.5rem !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 버튼 최적화 */
+    .btn {
+        font-size: 0.875rem !important;
+        padding: 0.5rem 0.75rem !important;
+        white-space: nowrap !important;
+        min-height: 40px !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    
+    /* d-flex 컨테이너 안의 버튼은 자동 크기 */
+    .d-flex .btn,
+    .d-flex.justify-content-center .btn,
+    .d-flex.align-items-center .btn {
+        width: auto !important;
+        max-width: none !important;
+        margin: 0.125rem !important;
+        flex-shrink: 0 !important;
+    }
+    
+    /* flex-wrap 컨테이너 안의 요소들 */
+    .d-flex.flex-wrap .btn,
+    .d-flex.flex-wrap span,
+    .d-flex.flex-wrap select,
+    .d-flex.flex-wrap input {
+        margin: 0.125rem !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .btn-sm {
+        font-size: 0.8rem !important;
+        padding: 0.4rem 0.6rem !important;
+        min-height: 36px !important;
+    }
+    
+    /* d-flex justify-content-center 최적화 */
+    .d-flex.justify-content-center {
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }
+    
+    /* 검색 UI 최적화 */
+    .form-select,
+    .form-control {
+        font-size: 0.875rem !important;
+        padding: 0.5rem !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 모바일에서 검색 영역 가로 배치 */
+    .d-flex.flex-wrap {
+        flex-wrap: wrap !important;
+        gap: 0.25rem !important;
+        justify-content: flex-start !important;
+        align-items: center !important;
+    }
+    
+    .d-flex.flex-wrap > * {
+        flex: 0 0 auto !important;
+        margin: 0.125rem !important;
+    }
+    
+    .form-select.form-select-sm {
+        width: auto !important;
+        min-width: 100px !important;
+        max-width: none !important;
+    }
+    
+    .form-control.w-auto,
+    .form-control[style*="width: auto"] {
+        width: auto !important;
+        min-width: 150px !important;
+        max-width: none !important;
+        flex: 1 1 auto !important;
+    }
+    
+    /* jQuery DataTable 숨기기 */
+    .dataTables_length,
+    .dataTables_filter {
+        display: none !important;
+    }
+    
+    /* 테이블을 카드 형식으로 변환 */
+    table.table {
+        width: 100% !important;
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+    }
+    
+    table.table tbody {
+        display: block !important;
+        width: 100% !important;
+    }
+    
+    table.table tbody tr {
+        display: block !important;
+        width: calc(100% - 0.5rem) !important;
+        max-width: calc(100% - 0.5rem) !important;
+        margin: 0.5rem auto 0.75rem auto !important;
+        background: #fff !important;
+        border: 1px solid #ddd !important;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+        padding: 0.75rem !important;
+        box-sizing: border-box !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        cursor: pointer;
+    }
+    
+    table.table tbody tr td {
+        display: flex !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0.5rem 0.4rem !important;
+        text-align: left !important;
+        border: none !important;
+        border-bottom: 1px solid #f0f0f0 !important;
+        box-sizing: border-box !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+    }
+    
+    table.table tbody tr td:last-child {
+        border-bottom: none !important;
+    }
+    
+    table.table thead {
+        display: none !important;
+    }
+    
+    table.table tbody tr td::before {
+        content: attr(data-label) !important;
+        font-weight: bold !important;
+        font-size: 0.75rem !important;
+        color: #666 !important;
+        margin-right: 0.5rem !important;
+        min-width: 80px !important;
+        flex-shrink: 0 !important;
+    }
+    
+    /* 텍스트 오버플로우 방지 */
+    * {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 모든 텍스트 요소 강제 줄바꿈 */
+    p, div, h1, h2, h3, h4, h5, h6, label, strong, em, b, i, u, span {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* span 요소 줄바꿈 처리 */
+    span {
+        display: inline !important;
+        overflow: visible !important;
+    }
+    
+    /* badge 최적화 */
+    .badge {
+        font-size: 0.75rem !important;
+        padding: 0.4rem 0.6rem !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+        max-width: 100% !important;
+        display: inline-block !important;
+        margin: 0.25rem !important;
+    }
+    
+    /* 모바일에서 정보 문구 숨기기 */
+    .mobile-hide-info {
+        display: none !important;
+    }
+}
+
+/* 모달 최적화 */
+@media (max-width: 768px) {
+    .modal-dialog {
+        margin: 0.5rem !important;
+        max-width: calc(100% - 1rem) !important;
+    }
+    
+    .modal-dialog.modal-lg {
+        margin: 0 !important;
+        max-width: 100% !important;
+    }
+    
+    .modal-content {
+        border-radius: 0.5rem !important;
+    }
+    
+    .modal-header {
+        padding: 0.75rem 0.5rem !important;
+        min-height: 50px !important;
+        flex-wrap: wrap !important;
+        gap: 0.25rem !important;
+    }
+    
+    .modal-title {
+        font-size: 1rem !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        word-wrap: break-word !important;
+    }
+    
+    .modal-header .btn-close {
+        margin: 0 !important;
+        padding: 0.5rem !important;
+    }
+    
+    .modal-body {
+        padding: 0.75rem 0.5rem !important;
+        font-size: 0.9rem !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .modal-footer {
+        padding: 0.75rem 0.5rem !important;
+        flex-wrap: wrap !important;
+        gap: 0.25rem !important;
+    }
+    
+    .modal-footer .btn {
+        padding: 0.5rem 0.75rem !important;
+        font-size: 0.875rem !important;
+        min-height: 40px !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        margin-bottom: 0.25rem !important;
+    }
+}
+
+/* PC 환경 버튼 간격 최적화 */
+@media (min-width: 769px) {
+    .d-flex.justify-content-center .btn,
+    .d-flex.align-items-center .btn {
+        margin-left: 0.25rem !important;
+        margin-right: 0.25rem !important;
+    }
+    
+    /* 검색 영역 버튼 간격 */
+    .d-flex.flex-wrap .btn {
+        margin-left: 0.25rem !important;
+        margin-right: 0.25rem !important;
+    }
+    
+    /* Select와 Input 간격 */
+    .form-select,
+    .form-control {
+        margin-left: 0.25rem !important;
+        margin-right: 0.25rem !important;
+    }
+}
+</style>
 			
 <body>
 
@@ -216,10 +538,10 @@ if($mode!=='search')
 	<div class="d-flex mb-1 mt-1 justify-content-center  align-items-center " >  			
 		<h4>	<span class="text-dark">  <?=$title_message?></span> </h4>
 	</div>	 	
-	<div class="d-flex mb-1 mt-1 justify-content-center  align-items-center" >  		  			 
+	<div class="d-flex mb-1 mt-1 justify-content-center  align-items-center mobile-hide-info" >  		  			 
 		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style="color:red;"> 한국엘리베이터/ 팝너트X  </span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 형광등 = 내고대상 아님  
 	</div>
-	<div class="d-flex mb-1 mt-1 justify-content-center  align-items-center" >  	
+	<div class="d-flex mb-1 mt-1 justify-content-center  align-items-center mobile-hide-info" >  	
 		<span class="badge bg-success fs-6" >	
 			모든 : MCI-600 (017) / 500 (013) / 550 (012)  
 		 </span> 
@@ -232,16 +554,13 @@ if($mode!=='search')
 		<b> '발주서변경/신규발주건에 대한 팝업창이 뜹니다.' </b>
 		&nbsp;&nbsp;&nbsp; 		 
 	</div>	 
-	<div class="d-flex mb-1 mt-1 justify-content-center  align-items-center" >        
-	   <?= $total_row ?> 자료 &nbsp; &nbsp;&nbsp;&nbsp;				
-		&nbsp; &nbsp; 							
-	   <button type="button" class="btn btn-dark   btn-sm" onclick="search_condition('0')"> 전체 </button> &nbsp;   		
-	   <button type="button" class="btn btn-dark btn-sm" onclick="search_condition('1')"> 미출고 </button> &nbsp;   		       
-	   <button type="button" class="btn btn-danger btn-sm" onclick="search_condition('3')"> 발주서변경 </button> &nbsp;   		
-		
-		<button type="button" id="outputBtn" class="btn btn-outline-danger  btn-sm"> 출고완료 미청구 </button> &nbsp;				
-       &nbsp; &nbsp; &nbsp; 
-        <select id="find" name="find"  class="form-select form-select-sm me-1 w-auto"  >
+	<div class="d-flex mb-1 mt-1 justify-content-center  align-items-center flex-wrap" >        
+	   <span class="me-2"><?= $total_row ?> 자료</span>
+	   <button type="button" class="btn btn-dark btn-sm" onclick="search_condition('0')"> 전체 </button>
+	   <button type="button" class="btn btn-dark btn-sm" onclick="search_condition('1')"> 미출고 </button>
+	   <button type="button" class="btn btn-danger btn-sm" onclick="search_condition('3')"> 발주서변경 </button>
+		<button type="button" id="outputBtn" class="btn btn-outline-danger btn-sm"> 출고완료 미청구 </button>
+        <select id="find" name="find"  class="form-select form-select-sm me-1" style="width: auto; min-width: 100px;"  >
            <?php		  
 		      if($find=="")
 			  {			?>	  
@@ -311,19 +630,13 @@ if($mode!=='search')
 				  
         </select>
 		
-          &nbsp;
-          <input type="text" id="search" name="search"  class="form-control w-auto me-1"  value="<?=$search?>" onkeydown="JavaScript:SearchEnter();" >
-          
-		  &nbsp;
-		  <button id="searchBtn" type="button" class="btn btn-outline-dark  btn-sm" > <i class="bi bi-search"></i> 검색  </button> 
-		  
-		  &nbsp;&nbsp;&nbsp; 
-		  
+          <input type="text" id="search" name="search"  class="form-control me-1" style="width: auto; min-width: 150px;" value="<?=$search?>" onkeydown="JavaScript:SearchEnter();" >
+		  <button id="searchBtn" type="button" class="btn btn-outline-dark btn-sm" > <i class="bi bi-search"></i> 검색  </button>
 		<? if($user_name !== '덴크리' && $user_name !== '서한컴퍼니' && $user_name !== '다온텍' ) { ?>
-		   <button type="button" class="btn btn-dark  btn-sm me-2" id="writeBtn"> <i class="bi bi-pencil"></i>  신규  </button> 			     
-           <button type="button" class="btn btn-dark  btn-sm" onclick="window.open('batchDB.php','청구일/출고일 일괄처리','left=10,top=50, scrollbars=yes, toolbars=no,width=1800,height=850');"> 청구일/출고일 일괄처리 </button>    &nbsp;           
-		<?  } ?>      		   
-           <button type="button" class="btn btn-dark  btn-sm" onclick="window.open('plan_making.php','납품일정 List DB','left=10,top=10, scrollbars=yes, toolbars=no,width=1800,height=800');" >납품예정 </button>    &nbsp;
+		   <button type="button" class="btn btn-dark btn-sm me-2" id="writeBtn"> <i class="bi bi-pencil"></i>  신규  </button>
+           <button type="button" class="btn btn-dark btn-sm" onclick="window.open('batchDB.php','청구일/출고일 일괄처리','left=10,top=50, scrollbars=yes, toolbars=no,width=1800,height=850');"> 청구일/출고일 일괄처리 </button>
+		<?  } ?>
+           <button type="button" class="btn btn-dark btn-sm" onclick="window.open('plan_making.php','납품일정 List DB','left=10,top=10, scrollbars=yes, toolbars=no,width=1800,height=800');" >납품예정 </button>
                       
 		</div> 
 	</div>	 
@@ -494,24 +807,24 @@ th {
 			 ?>
 				  
 	    <tr onclick="redirectToView('<?=$num?>')" >
-			<td class="text-center"> <?php echo echo_null($start_num); ?> </td>
-			<td class="text-center" style="width:80px;" data-order="<?=$orderday ?>"> <?php echo echo_null($orderday); ?> </td>
-			<td class="text-center"> <?php echo echo_null($firstord); ?> </td>
-			<td class="text-center <?=$color?>  <?=$confirmblink?> "> <?php echo $confirm; ?> </td>
-			<td class="text-center" data-order="<?=$startday ?>"> <?php echo echo_null(iconv_substr($startday, 5, 5, "utf-8")); ?> </td>
-			<td class="text-center" data-order="<?=$deadline ?>"> <?php echo echo_null(iconv_substr($deadline, 5, 5, "utf-8")); ?> </td>
-			<td class="text-center" data-order="<?=$workday ?>">  <?php echo echo_null(iconv_substr($workday, 5, 5, "utf-8")); ?> </td>
-			<td class="text-center" data-order="<?=$demand ?>"> <?php echo echo_null(iconv_substr($demand, 5, 5, "utf-8")); ?> </td>
-			<td class="text-left"> <?php echo echo_null($workplacename); ?> </td>
-			<td class="text-center"> <?php echo echo_null($secondord); ?> </td>
-			<td class="text-center"> <?php echo $typeAll; ?> </td>
-			<td class="text-center"> <?php echo $inseungAll; ?> </td>
-			<td class="text-center"> <?php echo $car_insideAll; ?> </td>
-			<td class="text-center"> <?php echo $su; ?> </td>
-			<td class="text-center"> <?php echo $lc_suAll; ?> </td>
-			<td class="text-center"> <?php echo echo_null($etc_su); ?> </td>
-			<td class="text-center"> <?php echo echo_null($deli_text); ?> </td>
-			<td class="text-center"> <?php echo echo_null(iconv_substr($memo, 0, 8, "utf-8")); ?> </td>
+			<td class="text-center" data-label="번호"> <?php echo echo_null($start_num); ?> </td>
+			<td class="text-center" style="width:80px;" data-order="<?=$orderday ?>" data-label="접수일"> <?php echo echo_null($orderday); ?> </td>
+			<td class="text-center" data-label="매입처"> <?php echo echo_null($firstord); ?> </td>
+			<td class="text-center <?=$color?>  <?=$confirmblink?> " data-label="발주확인"> <?php echo $confirm; ?> </td>
+			<td class="text-center" data-order="<?=$startday ?>" data-label="발주일"> <?php echo echo_null(iconv_substr($startday, 5, 5, "utf-8")); ?> </td>
+			<td class="text-center" data-order="<?=$deadline ?>" data-label="납기일"> <?php echo echo_null(iconv_substr($deadline, 5, 5, "utf-8")); ?> </td>
+			<td class="text-center" data-order="<?=$workday ?>" data-label="출고일">  <?php echo echo_null(iconv_substr($workday, 5, 5, "utf-8")); ?> </td>
+			<td class="text-center" data-order="<?=$demand ?>" data-label="청구"> <?php echo echo_null(iconv_substr($demand, 5, 5, "utf-8")); ?> </td>
+			<td class="text-left" data-label="현장명"> <?php echo echo_null($workplacename); ?> </td>
+			<td class="text-center" data-label="발주처"> <?php echo echo_null($secondord); ?> </td>
+			<td class="text-center" data-label="타입"> <?php echo $typeAll; ?> </td>
+			<td class="text-center" data-label="인승"> <?php echo $inseungAll; ?> </td>
+			<td class="text-center" data-label="Car inside"> <?php echo $car_insideAll; ?> </td>
+			<td class="text-center" data-label="결합"> <?php echo $su; ?> </td>
+			<td class="text-center" data-label="L/C"> <?php echo $lc_suAll; ?> </td>
+			<td class="text-center" data-label="기타"> <?php echo echo_null($etc_su); ?> </td>
+			<td class="text-center" data-label="운반비 내역"> <?php echo echo_null($deli_text); ?> </td>
+			<td class="text-center" data-label="비고"> <?php echo echo_null(iconv_substr($memo, 0, 8, "utf-8")); ?> </td>
 		</tr>
 
 		     
@@ -539,23 +852,38 @@ th {
 var dataTable; // DataTables 인스턴스 전역 변수
 var outorderpageNumber; // 현재 페이지 번호 저장을 위한 전역 변수
 
-$(document).ready(function() {			
+$(document).ready(function() {
+    // 모바일 여부 확인
+    var isMobile = window.innerWidth <= 768;
+    
     // DataTables 초기 설정
     dataTable = $('#myTable').DataTable({
         "paging": true,
         "ordering": true,
-        "searching": true,
-        "pageLength": 50,
-        "lengthMenu": [25, 50, 100, 200, 500, 1000],
+        "searching": !isMobile, // 모바일에서는 검색 숨김
+        "pageLength": isMobile ? 10 : 50,
+        "lengthMenu": isMobile ? [10, 25, 50] : [25, 50, 100, 200, 500, 1000],
         "language": {
             "lengthMenu": "Show _MENU_ entries",
             "search": "Live Search:"
         },
-        // "createdRow": function(row, data, dataIndex) {
-            // $(row).find('td').css('border', '1px solid #eeee'); // 셀에 스타일 적용
-        // },		
-		
-        "order": [[0, 'desc']]
+        "order": [[0, 'desc']],
+        "responsive": true
+    });
+    
+    // 모바일에서 Show entries와 Live Search 숨기기
+    function handleDataTablesMobile() {
+        if (window.innerWidth <= 768) {
+            $('.dataTables_length, .dataTables_filter').hide();
+        } else {
+            $('.dataTables_length, .dataTables_filter').show();
+        }
+    }
+    
+    // 초기 실행 및 리사이즈 이벤트
+    handleDataTablesMobile();
+    $(window).on('resize', function() {
+        handleDataTablesMobile();
     });
 	
 

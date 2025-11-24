@@ -1,4 +1,9 @@
-<meta charset="utf-8">
+<?php
+require_once __DIR__ . '/../bootstrap.php';
+
+include includePath('load_header.php');
+?>
+
 <!-- Light & Subtle Theme CSS -->
 <link rel="stylesheet" href="../css/dashboard-style.css" type="text/css" />
 
@@ -120,41 +125,162 @@
 
 /* Mobile Responsive */
 @media (max-width: 768px) {
-    .gallery-table {
-        font-size: 0.9rem;
-    }
+	/* body와 html의 width 제한 */
+	html, body {
+		max-width: 100vw !important;
+		overflow-x: hidden !important;
+		font-size: 16px !important;
+	}
 
-    .gallery-table th,
-    .gallery-table td {
-        padding: 0.8rem;
-    }
+	/* 컨테이너 패딩 조정 */
+	.container {
+		max-width: 100vw !important;
+		padding-left: 10px !important;
+		padding-right: 10px !important;
+		overflow-x: hidden !important;
+	}
 
-    .image-container img {
-        max-width: 280px;
-        max-height: 220px;
-    }
+	/* 카드 패딩 조정 */
+	.modern-management-card {
+		margin-bottom: 10px !important;
+		padding: 0 !important;
+	}
 
-    .gallery-title {
-        font-size: 1.2rem;
-    }
+	.modern-dashboard-header {
+		padding: 0.75rem !important;
+	}
+
+	div[style*="padding: 1.5rem"] {
+		padding: 0.75rem !important;
+	}
+
+	/* 제목 영역 모바일 최적화 */
+	.gallery-title {
+		font-size: 1rem !important;
+		line-height: 1.4 !important;
+		margin-bottom: 1rem !important;
+		padding: 0.5rem !important;
+		word-wrap: break-word !important;
+	}
+
+	/* 테이블 모바일 최적화 - 세로 스택 */
+	.gallery-table {
+		font-size: 0.9rem !important;
+		display: block !important;
+		width: 100% !important;
+		border-radius: 8px !important;
+		margin-bottom: 15px !important;
+	}
+
+	.gallery-table thead {
+		display: none !important;
+	}
+
+	.gallery-table tbody {
+		display: block !important;
+		width: 100% !important;
+	}
+
+	.gallery-table tr {
+		display: block !important;
+		width: 100% !important;
+		margin-bottom: 15px !important;
+		border: 1px solid var(--dashboard-border) !important;
+		border-radius: 8px !important;
+		background: white !important;
+		box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+		overflow: hidden !important;
+	}
+
+	.gallery-table th {
+		display: block !important;
+		width: 100% !important;
+		padding: 0.75rem !important;
+		font-size: 0.95rem !important;
+		height: auto !important;
+		text-align: center !important;
+		word-wrap: break-word !important;
+		line-height: 1.5 !important;
+	}
+
+	.gallery-table td {
+		display: block !important;
+		width: 100% !important;
+		padding: 1rem 0.75rem !important;
+		border: none !important;
+		border-bottom: 1px solid var(--dashboard-border) !important;
+		text-align: center !important;
+	}
+
+	.gallery-table tr:last-child td {
+		border-bottom: none !important;
+	}
+
+	/* 헤더 영역 모바일 최적화 */
+	.workplace-header {
+		font-size: 0.9rem !important;
+		padding: 0.75rem !important;
+		line-height: 1.5 !important;
+		word-wrap: break-word !important;
+	}
+
+	/* Badge 모바일 최적화 */
+	.gallery-badge {
+		font-size: 0.85rem !important;
+		padding: 0.4rem 0.8rem !important;
+		margin-bottom: 0.75rem !important;
+		display: inline-block !important;
+	}
+
+	/* 회전 버튼 모바일 최적화 */
+	.rotate-btn {
+		font-size: 0.8rem !important;
+		padding: 0.4rem 0.6rem !important;
+		margin-bottom: 1rem !important;
+		white-space: nowrap !important;
+	}
+
+	.rotate-btn i {
+		font-size: 0.9rem !important;
+	}
+
+	/* 이미지 컨테이너 모바일 최적화 */
+	.image-container {
+		display: block !important;
+		width: 100% !important;
+		margin-top: 0.5rem !important;
+		margin-bottom: 1rem !important;
+		text-align: center !important;
+	}
+
+	.image-container img {
+		max-width: 100% !important;
+		max-height: 300px !important;
+		width: auto !important;
+		height: auto !important;
+		border-radius: 6px !important;
+		display: block !important;
+		margin: 0 auto !important;
+	}
+
+	/* d-flex justify-content-center 모바일 최적화 */
+	.d-flex.justify-content-center {
+		flex-wrap: wrap !important;
+		gap: 5px !important;
+	}
+
+	/* 텍스트 정렬 모바일 최적화 */
+	div[style*="text-align: center"] {
+		text-align: center !important;
+		padding: 0.5rem !important;
+	}
 }
 </style>
 
-<?php
-require_once __DIR__ . '/../bootstrap.php';
-
-// 세션 변수 안전하게 초기화
-$user_name = $_SESSION["name"] ?? '';
-$level = $_SESSION["level"] ?? '';
-
-require_once(includePath('lib/mydb.php'));
-$pdo = db_connect();
-
-include includePath('load_header.php');
-?>
 
 <title>미래기업 Jamb 시공사진 모음</title>
-
+</head>
+<body>
 <?php include includePath('myheader.php'); ?>   
 
 <div class="container">

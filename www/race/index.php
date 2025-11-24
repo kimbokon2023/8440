@@ -28,7 +28,7 @@ try {
 
 ?>
 
-<meta name="viewport" content="width=device-width, initial-scale=0.6 maximum-scale=0.5, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <title>동물 경주 Game</title>
 
@@ -75,7 +75,197 @@ try {
 	  top: 50%;
 	  left: 50%;
 	  transform: translate(-50%, -50%);
-	}		
+	}
+	
+	/* 모바일 환경 최적화 */
+	@media (max-width: 768px) {
+		/* body와 html 오버플로우 방지 */
+		html, body {
+			overflow-x: hidden !important;
+			max-width: 100vw !important;
+			width: 100% !important;
+			box-sizing: border-box !important;
+		}
+		
+		* {
+			max-width: 100vw !important;
+			box-sizing: border-box !important;
+		}
+		
+		/* 컨테이너 최적화 */
+		.container,
+		.container-fluid {
+			padding: 0.5rem !important;
+			max-width: 100vw !important;
+			width: 100% !important;
+			box-sizing: border-box !important;
+			margin: 0 auto !important;
+			overflow-x: hidden !important;
+		}
+		
+		/* 카드 영역 최적화 */
+		.card {
+			margin: 0.5rem auto !important;
+			width: calc(100vw - 1rem) !important;
+			max-width: calc(100vw - 1rem) !important;
+			box-sizing: border-box !important;
+			overflow-x: hidden !important;
+		}
+		
+		.card-body {
+			padding: 0.75rem !important;
+			overflow-x: hidden !important;
+		}
+		
+		/* 행 레이아웃 최적화 */
+		.row {
+			margin: 0 !important;
+			flex-direction: column !important;
+		}
+		
+		.row > [class*="col-"] {
+			width: 100% !important;
+			max-width: 100% !important;
+			padding: 0.5rem !important;
+			margin-bottom: 0.5rem !important;
+		}
+		
+		/* 버튼 그룹 최적화 */
+		.d-flex.justify-content-center {
+			flex-direction: column !important;
+			align-items: stretch !important;
+			gap: 0.5rem !important;
+			padding: 0.5rem !important;
+		}
+		
+		.d-flex.justify-content-center button,
+		.d-flex.justify-content-center h2 {
+			width: 100% !important;
+			max-width: 100% !important;
+			margin: 0.25rem 0 !important;
+			padding: 0.5rem !important;
+			font-size: 1rem !important;
+			text-align: center !important;
+		}
+		
+		.d-flex.justify-content-center h2 {
+			font-size: 1.5rem !important;
+			margin: 0.5rem 0 !important;
+		}
+		
+		/* 텍스트 오버플로우 방지 */
+		* {
+			word-wrap: break-word !important;
+			overflow-wrap: break-word !important;
+			box-sizing: border-box !important;
+		}
+		
+		/* 모든 텍스트 요소 강제 줄바꿈 */
+		p, div, h1, h2, h3, h4, h5, h6, label, strong, em, b, i, u, span, td, th {
+			word-wrap: break-word !important;
+			overflow-wrap: break-word !important;
+			word-break: break-word !important;
+			white-space: normal !important;
+			max-width: 100% !important;
+			box-sizing: border-box !important;
+		}
+		
+		/* span 요소 줄바꿈 처리 */
+		span {
+			display: inline-block !important;
+			overflow: visible !important;
+			max-width: 100% !important;
+			box-sizing: border-box !important;
+		}
+		
+		/* 모든 div 요소 오버플로우 방지 */
+		div {
+			max-width: 100vw !important;
+			overflow-x: hidden !important;
+			box-sizing: border-box !important;
+		}
+		
+		/* '기간' 버튼 숨기기 */
+		#showdate {
+			display: none !important;
+		}
+		
+		/* 모달 최적화 */
+		.modalcustom {
+			padding: 0 !important;
+			overflow: hidden !important;
+			z-index: 9999 !important;
+		}
+		
+		.modalcustom-content {
+			margin: 0 !important;
+			width: 100% !important;
+			max-width: 100% !important;
+			height: 100vh !important;
+			max-height: 100vh !important;
+			display: flex !important;
+			align-items: center !important;
+			justify-content: center !important;
+			box-sizing: border-box !important;
+		}
+		
+		#countdown {
+			font-size: 10rem !important;
+			color: white !important;
+			position: absolute !important;
+			top: 50% !important;
+			left: 50% !important;
+			transform: translate(-50%, -50%) !important;
+			word-wrap: break-word !important;
+			overflow-wrap: break-word !important;
+		}
+		
+		/* 경주 트랙 최적화 */
+		.player-container {
+			width: 100% !important;
+			max-width: 100vw !important;
+			overflow-x: hidden !important;
+			position: relative !important;
+			min-height: 400px !important;
+		}
+		
+		.imgrace {
+			width: auto !important;
+			max-width: 100px !important;
+		}
+		
+		.imgrace img {
+			width: 80px !important;
+			height: auto !important;
+			max-width: 100% !important;
+		}
+		
+		.goalline {
+			width: 3% !important;
+			height: auto !important;
+			max-height: 100% !important;
+			right: 5% !important;
+		}
+		
+		/* 접속 목록 최적화 */
+		#waitlist {
+			width: 100% !important;
+			max-width: 100% !important;
+			word-wrap: break-word !important;
+			overflow-wrap: break-word !important;
+			display: block !important;
+		}
+		
+		/* 상태 표시 최적화 */
+		#display_status {
+			width: 100% !important;
+			max-width: 100% !important;
+			word-wrap: break-word !important;
+			overflow-wrap: break-word !important;
+			display: block !important;
+			font-size: 0.9rem !important;
+		}
+	}
   </style>
 
 </head>
@@ -220,14 +410,22 @@ function addPlayer(name, playerIndex) {
     // console.log('name ', name);
     // console.log('playerNameSpan.className ', playerNameSpan.className);
 	
-    playerImage.style.width = '100px'; // Set the image width    
-    playerImage.style.height = '55px'; // Set the image Height    
+    // 모바일 환경에 맞게 이미지 크기 및 경주 트랙 너비 조정
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile) {
+        playerImage.style.width = '60px'; // Set the image width for mobile
+        playerImage.style.height = 'auto'; // Set the image Height for mobile
+    } else {
+        playerImage.style.width = '100px'; // Set the image width
+        playerImage.style.height = '55px'; // Set the image Height
+    }    
     playerNameSpan.textContent = name;
     playerSpan.style.top = `${top}%`; // Set the calculated top position
     playerSpan.style.left = '10%'; // Center horizontally
     playerSpan.style.transform = 'translateX(-50%)'; // Center horizontally
     
-    const raceTrackWidth = window.innerWidth - 500; // Adjust the width as needed
+    // 모바일 환경에 맞게 경주 트랙 너비 조정
+    const raceTrackWidth = isMobile ? window.innerWidth - 100 : window.innerWidth - 500; // Adjust the width as needed
     const startPositionPercentage = 5; // Adjust the percentage as needed
     const startPosition = (raceTrackWidth * startPositionPercentage) / 100;
 
@@ -326,7 +524,9 @@ function resetPositions() {
 	
     const playerDivs = document.querySelectorAll('.imgrace'); // Select all elements with the 'imgrace' class
     
-    const raceTrackWidth = window.innerWidth - 500; // Adjust the width as needed
+    // 모바일 환경에 맞게 경주 트랙 너비 조정
+    const isMobile = window.innerWidth <= 768;
+    const raceTrackWidth = isMobile ? window.innerWidth - 100 : window.innerWidth - 500; // Adjust the width as needed
     const startPositionPercentage = 5; // Adjust the percentage as needed
     const startPosition = (raceTrackWidth * startPositionPercentage) / 100;
     
@@ -360,10 +560,11 @@ $(document).ready(function(){
 		
 		// Calculate values based on the screen width
 		var screenWidth = window.innerWidth;
+		var isMobile = screenWidth <= 768;
 
-		// Define ratio for finishLine and intervalTime
-		var finishLineRatio = 0.9; // Adjust the ratio as needed
-		var intervalTimeRatio = 0.02; // Adjust the ratio as needed
+		// Define ratio for finishLine and intervalTime (모바일에서는 조정)
+		var finishLineRatio = isMobile ? 0.85 : 0.9; // Adjust the ratio as needed
+		var intervalTimeRatio = isMobile ? 0.03 : 0.02; // Adjust the ratio as needed
 
 		// Calculate finishLine and intervalTime based on screen width and ratio
 		var finishLine = screenWidth * finishLineRatio;

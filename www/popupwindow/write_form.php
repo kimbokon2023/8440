@@ -18,6 +18,329 @@ $title_message = '팝업창 관리';
 
 <?php include getDocumentRoot() . '/load_header.php' ?>
 <title><?= $title_message ?></title>
+
+<style>
+    /* 모바일 환경 최적화 */
+    @media (max-width: 768px) {
+        /* body와 html 오버플로우 방지 */
+        html, body {
+            overflow-x: hidden !important;
+            max-width: 100vw !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        * {
+            max-width: 100vw !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 컨테이너 최적화 */
+        .container,
+        .container-fluid {
+            padding: 0.5rem !important;
+            max-width: 100vw !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+            margin: 0 auto !important;
+            overflow-x: hidden !important;
+        }
+        
+        /* 카드 최적화 */
+        .card {
+            margin: 0.5rem auto !important;
+            width: calc(100vw - 1rem) !important;
+            max-width: calc(100vw - 1rem) !important;
+            box-sizing: border-box !important;
+            overflow-x: hidden !important;
+        }
+        
+        .card-body {
+            padding: 0.75rem !important;
+            overflow-x: hidden !important;
+        }
+        
+        /* 제목 영역 최적화 */
+        .d-flex.mt-3.mb-1.justify-content-center.align-items-center {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 0.5rem !important;
+            padding: 0.5rem !important;
+        }
+        
+        .d-flex.mt-3.mb-1.justify-content-center.align-items-center span {
+            font-size: 1.25rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            text-align: center !important;
+            margin: 0.5rem 0 !important;
+            width: 100% !important;
+        }
+        
+        /* 작성자/제목 영역 최적화 */
+        .d-flex.mt-2.mb-1.justify-content-center.align-items-center .card {
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+        
+        .d-flex.mt-2.mb-1.justify-content-center.align-items-center .row {
+            width: 100% !important;
+            margin: 0 !important;
+            flex-direction: column !important;
+        }
+        
+        .d-flex.mt-2.mb-1.justify-content-center.align-items-center .row > div {
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 0.5rem !important;
+            margin: 0.25rem 0 !important;
+        }
+        
+        .d-flex.justify-content-center.align-items-center {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 0.5rem !important;
+            padding: 0.5rem !important;
+        }
+        
+        .d-flex.mt-2.justify-content-center.align-items-center {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 0.5rem !important;
+            padding: 0.5rem !important;
+        }
+        
+        /* 제목 입력 필드 최적화 */
+        .d-flex.mt-2.justify-content-center.align-items-center input#subject,
+        .d-flex.mt-2.justify-content-center.align-items-center select#division {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0.25rem 0 !important;
+            padding: 0.5rem !important;
+            font-size: 1rem !important;
+        }
+        
+        .d-flex.mt-2.justify-content-center.align-items-center span.form-control {
+            width: 100% !important;
+            max-width: 100% !important;
+            text-align: left !important;
+            padding: 0.5rem !important;
+            font-size: 1rem !important;
+        }
+        
+        /* 버튼 그룹 최적화 */
+        .d-flex.mt-1.mb-1.justify-content-start.align-items-center {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 0.5rem !important;
+            padding: 0.5rem !important;
+        }
+        
+        .d-flex.mt-1.mb-1.justify-content-start.align-items-center button {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0.25rem 0 !important;
+            padding: 0.5rem !important;
+            font-size: 1rem !important;
+        }
+        
+        /* Summernote 에디터 최적화 */
+        .note-editor {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        .note-editable {
+            width: 100% !important;
+            max-width: 100% !important;
+            min-height: 300px !important;
+            font-size: 1rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .note-toolbar {
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 0.25rem !important;
+        }
+        
+        .note-toolbar .note-btn-group {
+            margin: 0.125rem !important;
+        }
+        
+        .note-toolbar .note-btn {
+            padding: 0.25rem 0.5rem !important;
+            font-size: 0.875rem !important;
+        }
+        
+        /* 파일/이미지 업로드 버튼 최적화 */
+        .d-flex.mt-3.mb-1.justify-content-center,
+        .d-flex.mt-1.mb-1.justify-content-center {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 0.5rem !important;
+            padding: 0.5rem !important;
+        }
+        
+        .d-flex.mt-3.mb-1.justify-content-center label,
+        .d-flex.mt-1.mb-1.justify-content-center label {
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 0.5rem !important;
+            font-size: 1rem !important;
+            text-align: center !important;
+        }
+        
+        /* 이미지/파일 표시 영역 최적화 */
+        #displayImage,
+        #displayFile {
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 0.5rem !important;
+            box-sizing: border-box !important;
+        }
+        
+        #displayImage img {
+            max-width: 100% !important;
+            width: auto !important;
+            height: auto !important;
+        }
+        
+        #displayImage .row,
+        #displayFile .row {
+            margin: 0.5rem 0 !important;
+            width: 100% !important;
+        }
+        
+        #displayImage .d-flex,
+        #displayFile .d-flex {
+            flex-direction: column !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+            padding: 0.5rem !important;
+        }
+        
+        #displayImage a,
+        #displayFile a {
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            max-width: 100% !important;
+        }
+        
+        #displayImage button,
+        #displayFile button {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0.25rem 0 !important;
+            padding: 0.5rem !important;
+            font-size: 1rem !important;
+        }
+        
+        /* 텍스트 오버플로우 방지 */
+        * {
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 모든 텍스트 요소 강제 줄바꿈 */
+        p, div, h1, h2, h3, h4, h5, h6, label, strong, em, b, i, u, span, td, th, input, textarea, select {
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            word-break: break-word !important;
+            white-space: normal !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* span 요소 줄바꿈 처리 */
+        span {
+            display: inline-block !important;
+            overflow: visible !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 모든 div 요소 오버플로우 방지 */
+        div {
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* '기간' 버튼 숨기기 */
+        #showdate {
+            display: none !important;
+        }
+        
+        /* 모달 최적화 */
+        .modal {
+            padding: 0 !important;
+            overflow: hidden !important;
+        }
+        
+        .modal-dialog {
+            margin: 0 !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            height: 100vh !important;
+            max-height: 100vh !important;
+        }
+        
+        .modal-content {
+            margin: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 100vh !important;
+            max-height: 100vh !important;
+            border-radius: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            box-sizing: border-box !important;
+        }
+        
+        .modal-header {
+            padding: 0.75rem 0.5rem !important;
+            flex-shrink: 0 !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .modal-title {
+            font-size: 1rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .modal-body {
+            flex: 1 !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            padding: 0.75rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            -webkit-overflow-scrolling: touch !important;
+        }
+        
+        .modal-footer {
+            padding: 0.75rem 0.5rem !important;
+            flex-shrink: 0 !important;
+            flex-direction: column !important;
+            gap: 0.5rem !important;
+        }
+        
+        .modal-footer button {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0.5rem !important;
+            font-size: 1rem !important;
+        }
+    }
+</style>
+
 </head>
 <body>
 
@@ -132,24 +455,66 @@ require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, ima
 <script> 
 
 $(document).ready(function(){	
+    // 모바일/PC 환경 감지
+    var isMobile = window.innerWidth <= 768;
+    var editorWidth = isMobile ? '100%' : 1200;
+    var editorHeight = isMobile ? 300 : 500;
+    var toolbarConfig = isMobile ? [
+        ['font', ['bold', 'underline', 'clear']],
+        ['para', ['ul', 'ol', 'paragraph']],
+        ['insert', ['link', 'picture']],
+        ['view', ['codeview']]
+    ] : [
+        ['style', ['style']],
+        ['font', ['bold', 'underline', 'clear']],
+        ['color', ['color']],
+        ['para', ['ul', 'ol', 'paragraph']],
+        ['table', ['table']],
+        ['insert', ['link', 'picture', 'video']],
+        ['view', ['fullscreen', 'codeview', 'help']]
+    ];
 
-      $('#summernote').summernote({
-       placeholder: '내용 작성',
-		// maximumImageFileSize: 500*1024, // 500 KB
-		maximumImageFileSize: 1920*5000, 		
+    $('#summernote').summernote({
+        placeholder: '내용 작성',
+        // maximumImageFileSize: 500*1024, // 500 KB
+        maximumImageFileSize: 1920*5000, 		
         tabsize: 2,
-        height: 500,
-        width: 1200,
-        toolbar: [
-          ['style', ['style']],
-          ['font', ['bold', 'underline', 'clear']],
-          ['color', ['color']],
-          ['para', ['ul', 'ol', 'paragraph']],
-          ['table', ['table']],
-          ['insert', ['link', 'picture', 'video']],
-          ['view', ['fullscreen', 'codeview', 'help']]
-        ]
-      });
+        height: editorHeight,
+        width: editorWidth,
+        toolbar: toolbarConfig
+    });
+    
+    // 창 크기 변경 시 에디터 크기 조정
+    $(window).on('resize', function() {
+        var currentIsMobile = window.innerWidth <= 768;
+        if (currentIsMobile !== isMobile) {
+            isMobile = currentIsMobile;
+            var newWidth = isMobile ? '100%' : 1200;
+            var newHeight = isMobile ? 300 : 500;
+            $('#summernote').summernote('destroy');
+            $('#summernote').summernote({
+                placeholder: '내용 작성',
+                maximumImageFileSize: 1920*5000,
+                tabsize: 2,
+                height: newHeight,
+                width: newWidth,
+                toolbar: isMobile ? [
+                    ['font', ['bold', 'underline', 'clear']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['insert', ['link', 'picture']],
+                    ['view', ['codeview']]
+                ] : [
+                    ['style', ['style']],
+                    ['font', ['bold', 'underline', 'clear']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['table', ['table']],
+                    ['insert', ['link', 'picture', 'video']],
+                    ['view', ['fullscreen', 'codeview', 'help']]
+                ]
+            });
+        }
+    });
 			 
 	$("#closeModalBtn").click(function(){ 
 		$('#myModal').modal('hide');
@@ -477,11 +842,15 @@ function displayFile() {
                     return;
                 }
 
+				var fileStyle = window.innerWidth <= 768 
+					? "width:100%; max-width:100%; word-wrap:break-word; overflow-wrap:break-word; text-align:center; padding:0.5rem;"
+					: "";
+				
 				$("#displayFile").append(
 					"<div class='row mt-1 mb-2'>" +
-						"<div class='d-flex align-items-center justify-content-center'>" +
+						"<div class='d-flex align-items-center justify-content-center' style='" + fileStyle + "'>" +
 							"<span id='file" + index + "'>" +
-								"<a href='#' onclick=\"popupCenter('" + link + "', 'filePopup', 800, 600); return false;\">" + realName + "</a>" +
+								"<a href='#' onclick=\"popupCenter('" + link + "', 'filePopup', 800, 600); return false;\" style='word-wrap:break-word; overflow-wrap:break-word; max-width:100%;'>" + realName + "</a>" +
 							"</span> &nbsp;&nbsp;" +
 							"<button type='button' class='btn btn-danger btn-sm' id='delFile" + index + "' onclick=\"delFileFn('" + index + "', '" + fileId + "')\">" +
 								"<i class='bi bi-trash'></i>" +
@@ -526,11 +895,15 @@ function displayFileLoad() {
                 return;
             }
 
+			var fileStyle = window.innerWidth <= 768 
+				? "width:100%; max-width:100%; word-wrap:break-word; overflow-wrap:break-word; text-align:center; padding:0.5rem;"
+				: "";
+			
 			$("#displayFile").append(
 				"<div class='row mb-3'>" +
-					"<div class='d-flex mb-3 align-items-center justify-content-center'>" +
+					"<div class='d-flex mb-3 align-items-center justify-content-center' style='" + fileStyle + "'>" +
 						"<span id='file" + i + "'>" +
-							"<a href='#' onclick=\"popupCenter('" + link + "', 'filePopup', 800, 600); return false;\">" + realName + "</a>" +
+							"<a href='#' onclick=\"popupCenter('" + link + "', 'filePopup', 800, 600); return false;\" style='word-wrap:break-word; overflow-wrap:break-word; max-width:100%;'>" + realName + "</a>" +
 						"</span> &nbsp;&nbsp;" +
 						"<button type='button' class='btn btn-danger btn-sm' id='delFile" + i + "' onclick=\"delFileFn('" + i + "', '" + fileId + "')\">" +
 							"<i class='bi bi-trash'></i>" +
@@ -642,11 +1015,15 @@ function displayImage() {
                     return;
                 }
 
+				var imgStyle = window.innerWidth <= 768 
+					? "max-width:100%; width:100%; height:auto; display:block; margin:0 auto;"
+					: "width:150px; height:auto;";
+				
 				$("#displayImage").append(
 					"<div class='row mb-3'>" +
 						"<div class='col d-flex align-items-center justify-content-center'>" +
 							"<a href='#' onclick=\"popupCenter('" + link + "', 'imagePopup', 800, 600); return false;\">" +
-								"<img id='image" + index + "' src='" + thumbnail + "' style='width:150px; height:auto;'>" +
+								"<img id='image" + index + "' src='" + thumbnail + "' style='" + imgStyle + "' class='img-fluid' alt='Image'>" +
 							"</a> &nbsp;&nbsp;" +
 							"<button type='button' class='btn btn-danger btn-sm' id='delImage" + index + "' onclick=\"delImageFn('" + index + "', '" + fileId + "')\">" +
 								"<i class='bi bi-trash'></i>" +
@@ -691,11 +1068,15 @@ function displayImageLoad() {
                 return;
             }
 
+			var imgStyle = window.innerWidth <= 768 
+				? "max-width:100%; width:100%; height:auto; display:block; margin:0 auto;"
+				: "width:150px; height:auto;";
+			
 			$("#displayImage").append(
 				"<div class='row mb-3'>" +
 					"<div class='col d-flex align-items-center justify-content-center'>" +
 						"<a href='#' onclick=\"popupCenter('" + link + "', 'imagePopup', 800, 600); return false;\">" +
-							"<img id='image" + i + "' src='" + thumbnail + "' style='width:150px; height:auto;'>" +
+							"<img id='image" + i + "' src='" + thumbnail + "' style='" + imgStyle + "' class='img-fluid' alt='Image'>" +
 						"</a> &nbsp;&nbsp;" +
 						"<button type='button' class='btn btn-danger btn-sm' id='delImage" + i + "' onclick=\"delImageFn('" + i + "', '" + fileId + "')\">" +
 							"<i class='bi bi-trash'></i>" +

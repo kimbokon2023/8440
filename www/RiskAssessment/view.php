@@ -58,6 +58,268 @@ include getDocumentRoot() . '/load_header.php';
 
 <title><?= htmlspecialchars($title_message, ENT_QUOTES, 'UTF-8') ?></title>
 
+<style>
+    /* 모바일 환경 최적화 */
+    @media (max-width: 768px) {
+        /* body와 html 오버플로우 방지 */
+        html, body {
+            overflow-x: hidden !important;
+            max-width: 100vw !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        * {
+            max-width: 100vw !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 컨테이너 최적화 */
+        .container,
+        .container-fluid {
+            padding: 0.5rem !important;
+            max-width: 100vw !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+            margin: 0 auto !important;
+            overflow-x: hidden !important;
+        }
+        
+        /* 카드 최적화 */
+        .card {
+            margin: 0.5rem auto !important;
+            width: calc(100vw - 1rem) !important;
+            max-width: calc(100vw - 1rem) !important;
+            box-sizing: border-box !important;
+            overflow-x: hidden !important;
+        }
+        
+        .card-body {
+            padding: 0.75rem !important;
+            overflow-x: hidden !important;
+        }
+        
+        /* 제목 영역 최적화 */
+        .d-flex.mt-3.mb-4.justify-content-center h5 {
+            font-size: 1.25rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            text-align: center !important;
+        }
+        
+        /* 버튼 그룹 최적화 */
+        .d-flex.p-1.m-1.mt-1.mb-1 {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 0.5rem !important;
+            padding: 0.5rem !important;
+        }
+        
+        .d-flex.p-1.m-1.mt-1.mb-1 button {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0.25rem 0 !important;
+            padding: 0.5rem !important;
+            font-size: 1rem !important;
+        }
+        
+        /* 제목/정보 영역 최적화 */
+        .row.d-flex.p-2.m-2.mt-1.mb-1.justify-content-center.bg-secondary {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            padding: 0.75rem !important;
+            margin: 0.5rem 0 !important;
+        }
+        
+        .row.d-flex.p-2.m-2.mt-1.mb-1.justify-content-center.bg-secondary .col-7,
+        .row.d-flex.p-2.m-2.mt-1.mb-1.justify-content-center.bg-secondary .col-5 {
+            width: 100% !important;
+            max-width: 100% !important;
+            text-align: left !important;
+            margin-bottom: 0.5rem !important;
+            padding: 0.25rem !important;
+        }
+        
+        /* 내용 영역 최적화 */
+        .row.d-flex.p-2.m-2.mt-1.mb-1.justify-content-left {
+            padding: 0.75rem !important;
+            margin: 0.5rem 0 !important;
+        }
+        
+        /* 이미지 최적화 */
+        img {
+            max-width: 100% !important;
+            height: auto !important;
+            width: auto !important;
+        }
+        
+        #displayImage img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+        }
+        
+        #displayImage .row {
+            margin: 0.5rem 0 !important;
+        }
+        
+        #displayImage .d-flex {
+            padding: 0.5rem !important;
+        }
+        
+        /* 파일 링크 최적화 */
+        #displayFile {
+            padding: 0.5rem !important;
+        }
+        
+        #displayFile .row {
+            margin: 0.5rem 0 !important;
+        }
+        
+        #displayFile a {
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            word-break: break-word !important;
+            white-space: normal !important;
+            max-width: 100% !important;
+            display: inline-block !important;
+        }
+        
+        /* 텍스트 오버플로우 방지 */
+        * {
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 모든 텍스트 요소 강제 줄바꿈 */
+        p, div, h1, h2, h3, h4, h5, h6, label, strong, em, b, i, u, span, td, th {
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            word-break: break-word !important;
+            white-space: normal !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* span 요소 줄바꿈 처리 */
+        span {
+            display: inline-block !important;
+            overflow: visible !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 모든 div 요소 오버플로우 방지 */
+        div {
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 모달 최적화 */
+        .modal {
+            padding: 0 !important;
+            overflow: hidden !important;
+        }
+        
+        .modal-dialog {
+            margin: 0 !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            height: 100vh !important;
+            max-height: 100vh !important;
+        }
+        
+        .modal-content {
+            margin: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 100vh !important;
+            max-height: 100vh !important;
+            border-radius: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            box-sizing: border-box !important;
+        }
+        
+        .modal-header {
+            padding: 0.75rem 0.5rem !important;
+            flex-shrink: 0 !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .modal-title {
+            font-size: 1rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .modal-body {
+            flex: 1 !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            padding: 0.75rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            -webkit-overflow-scrolling: touch !important;
+        }
+        
+        .modal-footer {
+            padding: 0.75rem 0.5rem !important;
+            flex-shrink: 0 !important;
+            flex-direction: column !important;
+            gap: 0.5rem !important;
+        }
+        
+        .modal-footer button {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0.5rem !important;
+            font-size: 1rem !important;
+        }
+        
+        /* SweetAlert2 모달 최적화 */
+        .swal2-popup {
+            width: 90% !important;
+            max-width: 90% !important;
+            padding: 1rem !important;
+            font-size: 0.875rem !important;
+        }
+        
+        .swal2-title {
+            font-size: 1.125rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .swal2-content {
+            font-size: 0.875rem !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        
+        .swal2-actions {
+            flex-direction: column !important;
+            gap: 0.5rem !important;
+        }
+        
+        .swal2-confirm,
+        .swal2-cancel {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+        }
+        
+        /* '기간' 버튼 숨기기 */
+        #showdate {
+            display: none !important;
+        }
+    }
+</style>
+
 </head>
 
 <body>
@@ -298,7 +560,7 @@ function displayImageLoad() {
             "<div class='row mt-2 mb-1'>" +
                 "<div class='d-flex justify-content-center mt-1 mb-1'>" +
                     "<a href='#' onclick=\"popupCenter('" + link + "', 'imagePopup', 800, 600); return false;\">" +
-                        "<img id='pic" + index + "' src='" + thumbnail + "' style='width:300px; height:auto;'>" +
+                        "<img id='pic" + index + "' src='" + thumbnail + "' style='width:300px; max-width:100%; height:auto;' class='img-fluid'>" +
                     "</a>" +
                 "</div>" +
             "</div>"

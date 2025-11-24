@@ -31,7 +31,11 @@ $page = getRequestValue("page", '1');        // 페이지 번호 (기본값: 1)
 $text = getRequestValue("text", '');         // 텍스트 데이터
 
 // 데이터베이스 연결
-require_once(includePath('lib/mydb.php'));
+if (function_exists('includePath')) {
+    require_once(includePath('lib/mydb.php'));
+} else {
+    require_once(__DIR__ . '/../lib/mydb.php');
+}
 $pdo = db_connect();
 
 // 집계 데이터 배열

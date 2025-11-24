@@ -15,6 +15,197 @@ include includePath('load_header.php');
 ?>
 
 <title>시공소장 시공비</title>
+
+<style>
+/* 모바일 반응형 스타일 */
+@media (max-width: 768px) {
+	/* body와 html의 width 제한 */
+	html, body {
+		max-width: 100vw !important;
+		overflow-x: hidden !important;
+		font-size: 16px !important;
+	}
+
+	/* 컨테이너 패딩 조정 */
+	.container-fluid {
+		max-width: 100vw !important;
+		padding-left: 10px !important;
+		padding-right: 10px !important;
+		overflow-x: hidden !important;
+	}
+
+	/* 카드 패딩 조정 */
+	.card {
+		margin-bottom: 10px !important;
+	}
+
+	.card-header {
+		padding: 0.75rem !important;
+		font-size: 0.85rem !important;
+		line-height: 1.5 !important;
+	}
+
+	/* 헤더 영역 버튼 모바일 최적화 */
+	.card-header .btn-sm {
+		font-size: 0.75rem !important;
+		padding: 0.3rem 0.5rem !important;
+		margin: 0.2rem 0.1rem !important;
+		white-space: nowrap !important;
+	}
+
+	.card-header .badge {
+		font-size: 0.7rem !important;
+		padding: 0.3rem 0.5rem !important;
+	}
+
+	.card-header span {
+		font-size: 0.75rem !important;
+		margin: 0.2rem 0.1rem !important;
+		display: inline-block !important;
+	}
+
+	/* 작업소장 버튼 영역 모바일 최적화 */
+	.card-header > span:last-of-type,
+	.card-header > button {
+		margin: 0.2rem 0.1rem !important;
+	}
+
+	/* 검색 필터 영역 모바일 최적화 */
+	.d-flex.p-1.m-1.mt-1.mb-1 {
+		flex-wrap: wrap !important;
+		gap: 3px !important;
+		padding: 0.5rem !important;
+		margin: 0.5rem 0 !important;
+		justify-content: center !important;
+		align-items: center !important;
+	}
+
+	.d-flex.p-1.m-1.mt-1.mb-1 > span {
+		font-size: 0.75rem !important;
+		white-space: nowrap !important;
+		margin: 0.1rem 0.05rem !important;
+		flex-shrink: 0 !important;
+	}
+
+	.d-flex.p-1.m-1.mt-1.mb-1 .btn-sm {
+		font-size: 0.7rem !important;
+		padding: 0.3rem 0.5rem !important;
+		white-space: nowrap !important;
+		margin: 0.1rem 0.05rem !important;
+		flex-shrink: 0 !important;
+	}
+
+	/* 시공비 청구일자 일괄처리 영역 모바일 최적화 */
+	.d-flex.p-1.m-1.mt-1.mb-1 > span:first-child {
+		width: 100% !important;
+		text-align: center !important;
+		margin-bottom: 0.3rem !important;
+		font-weight: 600 !important;
+	}
+
+	/* 날짜 입력 필드 모바일 최적화 */
+	#recordDate,
+	#fromdate,
+	#todate {
+		width: auto !important;
+		min-width: 120px !important;
+		max-width: 140px !important;
+		font-size: 0.8rem !important;
+		padding: 0.35rem 0.4rem !important;
+		flex: 0 0 auto !important;
+	}
+
+	#recordDate::-webkit-datetime-edit,
+	#fromdate::-webkit-datetime-edit,
+	#todate::-webkit-datetime-edit {
+		font-size: 0.8rem !important;
+		padding: 0 !important;
+	}
+
+	#recordDate::-webkit-calendar-picker-indicator,
+	#fromdate::-webkit-calendar-picker-indicator,
+	#todate::-webkit-calendar-picker-indicator {
+		width: 16px !important;
+		height: 16px !important;
+		padding: 0 !important;
+	}
+
+	/* 검색 입력 필드 모바일 최적화 */
+	#search {
+		width: auto !important;
+		min-width: 120px !important;
+		max-width: 200px !important;
+		font-size: 0.8rem !important;
+		padding: 0.35rem 0.4rem !important;
+		flex: 1 1 auto !important;
+	}
+
+	/* 기간 설정 카드 모바일 최적화 */
+	#showframe {
+		position: absolute !important;
+		z-index: 1000 !important;
+		width: auto !important;
+		min-width: 200px !important;
+		max-width: 90vw !important;
+		font-size: 0.8rem !important;
+	}
+
+	#showframe .card-header {
+		padding: 0.5rem !important;
+		font-size: 0.8rem !important;
+	}
+
+	#showframe .card-body {
+		padding: 0.5rem !important;
+	}
+
+	#showframe .btn-sm {
+		font-size: 0.7rem !important;
+		padding: 0.3rem 0.5rem !important;
+		margin: 0.2rem 0.1rem !important;
+		white-space: nowrap !important;
+	}
+
+	/* TUI Grid 모바일 최적화 */
+	#grid {
+		width: 100% !important;
+		max-width: 100vw !important;
+		overflow-x: auto !important;
+		-webkit-overflow-scrolling: touch !important;
+	}
+
+	/* 안내 텍스트 모바일 최적화 */
+	span[style*="margin-left:20px"],
+	span[style*="margin-left:70px"] {
+		font-size: 0.75rem !important;
+		margin-left: 0 !important;
+		margin: 0.3rem 0.1rem !important;
+		display: block !important;
+		text-align: center !important;
+		width: 100% !important;
+	}
+
+	/* input-group-text 모바일 최적화 */
+	.input-group-text {
+		padding: 0.25rem 0.5rem !important;
+		font-size: 0.8rem !important;
+		flex-wrap: wrap !important;
+	}
+
+	/* form-control 모바일 최적화 */
+	.form-control {
+		font-size: 0.8rem !important;
+		padding: 0.35rem 0.4rem !important;
+	}
+
+	/* 버튼 그룹 모바일 최적화 */
+	.btn-group,
+	.d-flex {
+		flex-wrap: wrap !important;
+		gap: 3px !important;
+	}
+}
+</style>
 </head>
 
 <body>

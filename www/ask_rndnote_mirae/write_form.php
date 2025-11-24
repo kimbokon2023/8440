@@ -36,6 +36,306 @@ $title_message = '개발프로젝트 연구노트';
     td, th, tr, span, input {
         vertical-align: middle;
     }
+
+    /* 모바일 최적화 */
+    @media (max-width: 768px) {
+        /* body와 html의 width 제한 */
+        html, body {
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+            font-size: 16px !important;
+        }
+
+        /* 컨테이너 모바일 최적화 */
+        .container,
+        .container-fluid {
+            max-width: 100vw !important;
+            padding: 5px !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+        }
+
+        /* 카드 모바일 최적화 */
+        .card {
+            margin: 0.25rem 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+        }
+
+        .card-body {
+            padding: 0.4rem 0.3rem !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow-x: hidden !important;
+        }
+
+        .card-header {
+            padding: 0.4rem 0.3rem !important;
+            font-size: 0.9rem !important;
+        }
+
+        /* 제목 영역 모바일 최적화 */
+        h4 {
+            font-size: 0.9rem !important;
+            margin: 0 !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+
+        .d-flex.mb-5.mt-5 {
+            margin-top: 0.5rem !important;
+            margin-bottom: 0.5rem !important;
+            padding: 0.3rem !important;
+        }
+
+        /* 버튼 영역 모바일 최적화 */
+        .d-flex.justify-content-start,
+        .d-flex.justify-content-end,
+        .d-flex.justify-content-center {
+            flex-wrap: wrap !important;
+            gap: 0.2rem !important;
+            padding: 0.3rem 0.25rem !important;
+            margin: 0.25rem 0 !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        .btn {
+            font-size: 0.75rem !important;
+            padding: 0.25rem 0.4rem !important;
+            white-space: nowrap !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            flex: 0 0 auto !important;
+            margin: 0.1rem !important;
+        }
+
+        .btn-sm {
+            font-size: 0.7rem !important;
+            padding: 0.25rem 0.35rem !important;
+        }
+
+        /* 테이블 모바일 최적화 - 카드 형식으로 변환 (모바일에서만) */
+        .table {
+            width: 100% !important;
+            border-collapse: separate !important;
+            border-spacing: 0 !important;
+        }
+
+        .table tbody {
+            display: block !important;
+            width: 100% !important;
+        }
+
+        .table tbody tr {
+            display: block !important;
+            width: 100% !important;
+            margin-bottom: 0.4rem !important;
+            background: #fff !important;
+            border: 1px solid #dee2e6 !important;
+            border-radius: 0.25rem !important;
+            box-shadow: 0 0.1rem 0.2rem rgba(0, 0, 0, 0.075) !important;
+            padding: 0.4rem !important;
+            box-sizing: border-box !important;
+        }
+
+        .table tbody tr:hover {
+            background: #f8f9fa !important;
+            box-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .table tbody tr td {
+            display: flex !important;
+            width: 100% !important;
+            padding: 0.3rem 0.4rem !important;
+            text-align: left !important;
+            border: none !important;
+            border-bottom: 1px solid #f0f0f0 !important;
+            box-sizing: border-box !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            flex-wrap: wrap !important;
+            align-items: center !important;
+        }
+
+        .table tbody tr td:last-child {
+            border-bottom: none !important;
+        }
+
+        .table tbody tr td label,
+        .table tbody tr td .fw-bold {
+            font-weight: bold !important;
+            display: inline-block !important;
+            min-width: 30% !important;
+            margin-right: 0.5rem !important;
+            color: #495057 !important;
+            font-size: 0.75rem !important;
+            flex-shrink: 0 !important;
+        }
+
+        .table tbody tr td .form-control,
+        .table tbody tr td input,
+        .table tbody tr td textarea,
+        .table tbody tr td .d-flex {
+            flex: 1 1 auto !important;
+            min-width: 0 !important;
+            font-size: 0.75rem !important;
+            color: #212529 !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+
+        /* 테이블 헤더 숨기기 (모바일) */
+        .table thead {
+            display: none !important;
+        }
+
+        /* 결재 테이블 특별 처리 (모바일) */
+        .table.table-bordered tbody tr td[colspan] {
+            display: block !important;
+            width: 100% !important;
+            text-align: center !important;
+            padding: 0.5rem !important;
+            font-weight: bold !important;
+            background: #f8f9fa !important;
+            border-bottom: 2px solid #dee2e6 !important;
+        }
+
+        /* 입력 필드 모바일 최적화 */
+        .form-control {
+            font-size: 0.8rem !important;
+            padding: 0.3rem 0.4rem !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        input[type="date"],
+        input[type="text"],
+        input[type="number"],
+        textarea {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            font-size: 0.8rem !important;
+            padding: 0.3rem 0.4rem !important;
+        }
+
+        /* Summernote 에디터 모바일 최적화 */
+        .note-editor {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        .note-editor .note-editing-area {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        .note-editor .note-editing-area .note-editable {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            font-size: 0.8rem !important;
+        }
+
+        .note-toolbar {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            flex-wrap: wrap !important;
+        }
+
+        .note-toolbar .note-btn-group {
+            flex-wrap: wrap !important;
+        }
+
+        /* 레이블 모바일 최적화 */
+        label {
+            font-size: 0.8rem !important;
+            margin-bottom: 0.25rem !important;
+        }
+
+        /* 행 레이아웃 모바일 최적화 */
+        .row {
+            margin-left: -5px !important;
+            margin-right: -5px !important;
+        }
+
+        .row > [class*="col-"] {
+            padding-left: 5px !important;
+            padding-right: 5px !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        /* 모든 요소가 카드 내부에 머물도록 */
+        .card *,
+        .container *,
+        .container-fluid * {
+            box-sizing: border-box !important;
+            max-width: 100% !important;
+        }
+
+        .card button,
+        .card .btn,
+        .card span,
+        .card input,
+        .container button,
+        .container .btn,
+        .container span,
+        .container input,
+        .card-body *,
+        .card-header * {
+            max-width: 100% !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            box-sizing: border-box !important;
+        }
+
+        /* 카드 내부 모든 요소가 넘치지 않도록 */
+        .card {
+            overflow-x: hidden !important;
+            overflow-y: visible !important;
+        }
+
+        .card-body {
+            overflow-x: hidden !important;
+            overflow-y: visible !important;
+        }
+
+        /* 폼 요소 모바일 최적화 */
+        form {
+            max-width: 100% !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+        }
+
+        form * {
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        /* 파일 표시 영역 모바일 최적화 */
+        #displayFile {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        #displayFile .row {
+            margin: 0.25rem 0 !important;
+        }
+
+        #displayFile a {
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            max-width: 100% !important;
+        }
+    }
 </style>
 
 <body>
@@ -328,7 +628,15 @@ $title_message = '개발프로젝트 연구노트';
 				</tr>
 			</thead>
 			<tbody>
-				<tr>								
+				<tr>
+					<?php foreach ($approvals as $approval) { ?>
+						<td class="text-center fs-6" style="height: 60px;"><?php echo $approval["name"]; ?></td>
+					<?php } ?>
+				</tr>
+				<tr>
+					<?php foreach ($approvals as $approval) { ?>
+						<td class="text-center">-</td>
+					<?php } ?>
 				</tr>
 			</tbody>
 		</table>
@@ -422,13 +730,16 @@ $title_message = '개발프로젝트 연구노트';
 <script>
     // ES5 호환 코드
     $(document).ready(function() {
+        // 모바일 감지
+        var isMobile = window.innerWidth <= 768;
+        
         // Summernote 초기화
         $('#summernote').summernote({
             placeholder: '내용',
             maximumImageFileSize: 1920 * 5000,
             tabsize: 2,
-            height: 450,
-            width: 1300,
+            height: isMobile ? 300 : 450,
+            width: isMobile ? '100%' : 1300,
             toolbar: [
                 ['style', ['style']],
                 ['font', ['bold', 'underline', 'clear']],
