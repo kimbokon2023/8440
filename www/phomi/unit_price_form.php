@@ -39,15 +39,354 @@ if ($mode == "edit" && !empty($num)) {
 ?>
 
 <title><?= $page_title ?></title>
+<style>
+  /* 모바일 환경 최적화 */
+  @media (max-width: 768px) {
+    /* body와 html 오버플로우 방지 */
+    html, body {
+      overflow-x: hidden !important;
+      max-width: 100% !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    
+    * {
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+    }
+    
+    /* 컨테이너 최적화 */
+    .container {
+      padding: 0.5rem !important;
+      max-width: 100% !important;
+      width: 100% !important;
+      margin: 0 auto !important;
+      overflow-x: hidden !important;
+    }
+    
+    /* 카드 영역 최적화 */
+    .card {
+      margin: 0.5rem auto !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+      overflow-x: hidden !important;
+    }
+    
+    .card-header {
+      padding: 0.75rem !important;
+    }
+    
+    .card-header h4 {
+      font-size: 1.25rem !important;
+      word-wrap: break-word !important;
+      overflow-wrap: break-word !important;
+      margin-bottom: 0 !important;
+    }
+    
+    /* 카드 헤더 버튼 그룹 최적화 */
+    .card-header .d-flex.justify-content-between {
+      flex-direction: column !important;
+      align-items: stretch !important;
+      gap: 0.75rem !important;
+    }
+    
+    .card-header .header-buttons {
+      display: flex !important;
+      flex-direction: row !important;
+      flex-wrap: nowrap !important;
+      gap: 0.5rem !important;
+      justify-content: flex-end !important;
+      width: 100% !important;
+      align-items: center !important;
+    }
+    
+    .card-header .header-buttons button {
+      flex: 0 0 auto !important;
+      width: auto !important;
+      min-width: fit-content !important;
+      max-width: none !important;
+      padding: 0.5rem 0.75rem !important;
+      font-size: 0.9rem !important;
+      white-space: nowrap !important;
+      color: #fff !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      text-align: center !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      line-height: 1.5 !important;
+      height: auto !important;
+      background-color: #000 !important;
+      border-color: #000 !important;
+      overflow: visible !important;
+      text-overflow: clip !important;
+    }
+    
+    /* 삭제 버튼만 빨간색 */
+    .card-header .header-buttons button.btn-danger,
+    .card-header .header-buttons button#deleteBtnHeader,
+    .card-header .header-buttons button#deleteBtn {
+      background-color: #dc3545 !important;
+      border-color: #dc3545 !important;
+      color: #fff !important;
+    }
+    
+    /* 나머지 버튼은 검정색 */
+    .card-header .header-buttons button:not(.btn-danger):not(#deleteBtnHeader):not(#deleteBtn) {
+      background-color: #000 !important;
+      border-color: #000 !important;
+      color: #fff !important;
+    }
+    
+    .card-header .header-buttons button i {
+      margin-right: 0.25rem !important;
+      display: inline-block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+    
+    /* 아이콘이 없는 버튼도 적절한 패딩 유지 */
+    .card-header .header-buttons button {
+      padding-left: 0.75rem !important;
+      padding-right: 0.75rem !important;
+    }
+    
+    /* 작은 화면에서 헤더 버튼 조정 */
+    @media (max-width: 480px) {
+      .card-header .d-flex.justify-content-between {
+        flex-direction: column !important;
+        align-items: stretch !important;
+      }
+      
+      .card-header .header-buttons {
+        justify-content: center !important;
+        flex-wrap: wrap !important;
+        width: 100% !important;
+        margin-top: 0.5rem !important;
+        gap: 0.5rem !important;
+      }
+      
+      .card-header .header-buttons button {
+        flex: 0 0 auto !important;
+        width: auto !important;
+        min-width: fit-content !important;
+        max-width: none !important;
+        font-size: 0.85rem !important;
+        padding: 0.5rem 0.75rem !important;
+      }
+    }
+    
+    .card-body {
+      padding: 0.75rem !important;
+      overflow-x: hidden !important;
+    }
+    
+    /* 폼 입력 필드 최적화 */
+    .form-label {
+      font-size: 0.9rem !important;
+      margin-bottom: 0.25rem !important;
+      word-wrap: break-word !important;
+      overflow-wrap: break-word !important;
+    }
+    
+    .form-control,
+    input[type="text"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100% !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+      padding: 0.5rem !important;
+      font-size: 1rem !important;
+    }
+    
+    /* 행 레이아웃 최적화 */
+    .row {
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+    }
+    
+    .col-md-6,
+    .col-md-4 {
+      width: 100% !important;
+      max-width: 100% !important;
+      flex: 0 0 100% !important;
+      padding-left: 0.5rem !important;
+      padding-right: 0.5rem !important;
+      margin-bottom: 0.75rem !important;
+    }
+    
+    /* 버튼 그룹 최적화 - 수정 모드일 때 한 줄에 배치 */
+    .d-flex.justify-content-between {
+      flex-direction: row !important;
+      align-items: center !important;
+      flex-wrap: nowrap !important;
+      gap: 0.5rem !important;
+      margin-top: 1rem !important;
+      justify-content: space-between !important;
+    }
+    
+    .d-flex.justify-content-between > div {
+      display: flex !important;
+      flex-direction: row !important;
+      flex-wrap: nowrap !important;
+      gap: 0.5rem !important;
+      flex: 0 0 auto !important;
+    }
+    
+    .d-flex.justify-content-between > div:first-child {
+      order: 0 !important;
+    }
+    
+    .d-flex.justify-content-between > div:last-child {
+      order: 0 !important;
+    }
+    
+    .d-flex.justify-content-between button {
+      flex: 0 0 auto !important;
+      width: auto !important;
+      min-width: fit-content !important;
+      max-width: none !important;
+      padding: 0.5rem 0.75rem !important;
+      font-size: 0.85rem !important;
+      white-space: nowrap !important;
+      background-color: #000 !important;
+      border-color: #000 !important;
+      color: #fff !important;
+      overflow: visible !important;
+      text-overflow: clip !important;
+    }
+    
+    /* 삭제 버튼만 빨간색 (본문) */
+    .d-flex.justify-content-between button.btn-danger,
+    .d-flex.justify-content-between button#deleteBtn {
+      background-color: #dc3545 !important;
+      border-color: #dc3545 !important;
+      color: #fff !important;
+    }
+    
+    /* 나머지 버튼은 검정색 (본문) */
+    .d-flex.justify-content-between button:not(.btn-danger):not(#deleteBtn) {
+      background-color: #000 !important;
+      border-color: #000 !important;
+      color: #fff !important;
+    }
+    
+    /* 저장 버튼 강조 */
+    .d-flex.justify-content-between button.btn-primary {
+      flex: 0 0 auto !important;
+      min-width: auto !important;
+    }
+    
+    /* 모바일에서 버튼이 너무 많으면 줄바꿈 허용 */
+    @media (max-width: 480px) {
+      .d-flex.justify-content-between {
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+      }
+      
+      .d-flex.justify-content-between button {
+        flex: 0 0 auto !important;
+        width: auto !important;
+        min-width: fit-content !important;
+        max-width: none !important;
+        padding: 0.5rem 0.75rem !important;
+      }
+    }
+    
+    /* 텍스트 줄바꿈 */
+    span, text, label, p, div {
+      word-wrap: break-word !important;
+      overflow-wrap: break-word !important;
+    }
+    
+    /* hr 최적화 */
+    hr {
+      margin: 1rem 0 !important;
+    }
+    
+    /* 모달/팝업 최적화 */
+    body {
+      padding: 0 !important;
+    }
+  }
+  
+  /* PC 환경에서도 모바일 스타일 일부 적용 */
+  @media (min-width: 769px) {
+    .card {
+      max-width: 100% !important;
+    }
+    
+    .form-control {
+      max-width: 100% !important;
+    }
+    
+    /* PC에서 헤더 버튼 가로 배치 */
+    .card-header .d-flex.justify-content-between {
+      flex-direction: row !important;
+      align-items: center !important;
+    }
+    
+    .card-header .header-buttons {
+      flex-wrap: nowrap !important;
+      width: auto !important;
+    }
+    
+    /* PC에서도 버튼 색상 적용 */
+    .card-header .header-buttons button:not(.btn-danger):not(#deleteBtnHeader):not(#deleteBtn) {
+      background-color: #000 !important;
+      border-color: #000 !important;
+      color: #fff !important;
+    }
+    
+    .card-header .header-buttons button.btn-danger,
+    .card-header .header-buttons button#deleteBtnHeader,
+    .card-header .header-buttons button#deleteBtn {
+      background-color: #dc3545 !important;
+      border-color: #dc3545 !important;
+      color: #fff !important;
+    }
+    
+    .d-flex.justify-content-between button:not(.btn-danger):not(#deleteBtn) {
+      background-color: #000 !important;
+      border-color: #000 !important;
+      color: #fff !important;
+    }
+    
+    .d-flex.justify-content-between button.btn-danger,
+    .d-flex.justify-content-between button#deleteBtn {
+      background-color: #dc3545 !important;
+      border-color: #dc3545 !important;
+      color: #fff !important;
+    }
+  }
+</style>
 </head>
 <body>
 <div class="container mt-4">
     <div class="card">
         <div class="card-header">
-            <h4><?= $page_title ?></h4>
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0"><?= $page_title ?></h4>
+                <div class="header-buttons">
+                    <?php if ($mode == 'edit') : ?>
+                        <button type="button" class="btn btn-info btn-sm me-2" id="copyBtnHeader">
+                            <i class="bi bi-files"></i> 복사
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm me-2" id="deleteBtnHeader">삭제</button>
+                    <?php endif; ?>
+                    <button type="submit" class="btn btn-primary btn-sm me-2" form="unit_price_form" id="saveBtnHeader">저장</button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="window.close()" id="closeBtnHeader">닫기</button>
+                </div>
+            </div>
         </div>
         <div class="card-body">
-            <form name="unit_price_form" method="post" action="unit_price_process.php" onsubmit="return validateForm()">
+            <form name="unit_price_form" id="unit_price_form" method="post" action="unit_price_process.php" onsubmit="return validateForm()">
                 <input type="hidden" name="mode" value="<?= ($mode == 'copy') ? 'new' : $mode ?>">
                 <input type="hidden" name="num" value="<?= ($mode == 'copy') ? '' : $num ?>">
                 <input type="hidden" name="tablename" value="<?= $tablename ?>">
@@ -177,7 +516,8 @@ $(document).ready(function() {
     loadCopyData();
     <?php endif; ?>
     
-    $('#deleteBtn').click(function() {
+    // 삭제 버튼 이벤트 (본문과 헤더 모두)
+    $('#deleteBtn, #deleteBtnHeader').click(function() {
         if (confirm('정말로 이 항목을 삭제하시겠습니까?')) {
             var form = document.unit_price_form;
             form.mode.value = 'delete';
@@ -185,9 +525,18 @@ $(document).ready(function() {
         }
     });
     
-    $('#copyBtn').click(function() {
+    // 복사 버튼 이벤트 (본문과 헤더 모두)
+    $('#copyBtn, #copyBtnHeader').click(function() {
         if (confirm('이 데이터를 복사하여 새 항목을 생성하시겠습니까?')) {
             copyData();
+        }
+    });
+    
+    // 저장 버튼 이벤트 (헤더)
+    $('#saveBtnHeader').click(function(e) {
+        e.preventDefault();
+        if (validateForm()) {
+            document.unit_price_form.submit();
         }
     });
 });

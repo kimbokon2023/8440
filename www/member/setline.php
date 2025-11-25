@@ -107,8 +107,10 @@ if (file_exists($filePath)) {
         width: 100%;
         height: 100%;
         background-color: rgba(0, 0, 0, 0.5);
-        z-index: 1050;
+        z-index: 9999;
         display: none;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
     
     .modal-content {
@@ -117,6 +119,37 @@ if (file_exists($filePath)) {
         padding: 20px;
         border: 1px solid #888;
         width: 80%;
+        max-width: 600px;
+        border-radius: 8px;
+        position: relative;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .modal-title {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+    
+    .modal-body {
+        padding: 15px 0;
+    }
+    
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 15px;
+        padding-top: 10px;
+        border-top: 1px solid #dee2e6;
     }
     
     .close {
@@ -145,6 +178,334 @@ if (file_exists($filePath)) {
         background: none;
         cursor: pointer;
     }
+
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+	/* body와 html의 width 제한 */
+	html, body {
+		max-width: 100vw !important;
+		overflow-x: hidden !important;
+		font-size: 16px !important;
+	}
+
+	/* 컨테이너 모바일 최적화 */
+	.container,
+	.container-fluid {
+		max-width: 100vw !important;
+		padding: 10px !important;
+		overflow-x: hidden !important;
+		box-sizing: border-box !important;
+	}
+
+	/* 카드 모바일 최적화 */
+	.card {
+		margin: 0.5rem auto !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		overflow-x: hidden !important;
+		box-sizing: border-box !important;
+		border-radius: 12px !important;
+	}
+
+	.card-header {
+		font-size: 1.1rem !important;
+		padding: 0.75rem 0.5rem !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+	}
+
+	.card-body {
+		padding: 0.75rem 0.5rem !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+	}
+
+	/* 테이블 모바일 최적화 - 카드 레이아웃 */
+	.table-responsive {
+		overflow-x: visible !important;
+	}
+
+	.table,
+	.table thead,
+	.table tbody,
+	.table tr,
+	.table td,
+	.table th {
+		display: block !important;
+		width: 100% !important;
+	}
+
+	.table thead {
+		display: none !important;
+	}
+
+	.table tr {
+		margin: 0 auto 10px auto !important;
+		border: 1px solid #dee2e6 !important;
+		border-radius: 10px !important;
+		background: white !important;
+		box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+		padding: 12px !important;
+		overflow: hidden !important;
+		box-sizing: border-box !important;
+		width: 100% !important;
+		max-width: 100% !important;
+	}
+
+	/* 카드 내 필드 스타일 */
+	.table td,
+	.table th {
+		text-align: left !important;
+		padding: 12px !important;
+		border: none !important;
+		position: relative !important;
+		padding-left: 0 !important;
+		white-space: normal !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		min-height: 50px !important;
+		font-size: 0.95rem !important;
+		line-height: 1.6 !important;
+		box-sizing: border-box !important;
+		display: flex !important;
+		flex-direction: column !important;
+		gap: 0.5rem !important;
+	}
+
+	/* data-label이 있는 경우 원본 텍스트 숨기기 */
+	.table td[data-label]:not([data-label=""]),
+	.table th[data-label]:not([data-label=""]) {
+		font-size: 0 !important;
+		line-height: 0 !important;
+	}
+
+	.table td[data-label]:not([data-label=""]) *,
+	.table th[data-label]:not([data-label=""]) * {
+		font-size: 0.95rem !important;
+		line-height: 1.6 !important;
+	}
+
+	/* 라벨 표시 */
+	.table td:before,
+	.table th:before {
+		content: attr(data-label);
+		position: static !important;
+		width: 100% !important;
+		padding-right: 0 !important;
+		white-space: normal !important;
+		overflow: visible !important;
+		text-overflow: clip !important;
+		font-weight: 600 !important;
+		color: #495057 !important;
+		font-size: 0.9rem !important;
+		margin-bottom: 0.25rem !important;
+		display: block !important;
+		line-height: 1.4 !important;
+	}
+
+	.table td:after,
+	.table th:after {
+		display: none !important;
+	}
+
+	/* 리스트 그룹 모바일 최적화 */
+	.list-group {
+		width: 100% !important;
+		max-width: 100% !important;
+	}
+
+	.list-group-item {
+		padding: 0.75rem !important;
+		font-size: 0.95rem !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		white-space: normal !important;
+	}
+
+	/* 입력 필드 모바일 최적화 */
+	.form-control,
+	.form-select {
+		width: 100% !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		font-size: 0.95rem !important;
+		padding: 0.6rem !important;
+	}
+
+	/* 버튼 모바일 최적화 */
+	.btn-sm {
+		font-size: 0.85rem !important;
+		padding: 0.5rem 0.75rem !important;
+		white-space: nowrap !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+	}
+
+	/* 버튼 그룹 모바일 최적화 */
+	.d-flex {
+		flex-wrap: wrap !important;
+		gap: 0.5rem !important;
+	}
+
+	/* 행 레이아웃 모바일 최적화 */
+	.row {
+		margin: 0 !important;
+		padding: 0 !important;
+	}
+
+	.col-sm-7,
+	.col-sm-5 {
+		flex: 0 0 100% !important;
+		max-width: 100% !important;
+		padding: 0.5rem !important;
+		margin-bottom: 0.5rem !important;
+	}
+
+	/* 모달 모바일 최적화 */
+	#approvalModal {
+		position: fixed !important;
+		left: 0 !important;
+		top: 0 !important;
+		width: 100vw !important;
+		height: 100vh !important;
+		z-index: 99999 !important;
+		display: none !important;
+		overflow-y: auto !important;
+		-webkit-overflow-scrolling: touch !important;
+		background-color: rgba(0, 0, 0, 0.6) !important;
+	}
+
+	#approvalModal[style*="block"] {
+		display: block !important;
+	}
+
+	.modal-content {
+		width: 95% !important;
+		max-width: 95% !important;
+		margin: 2% auto !important;
+		padding: 1rem !important;
+		border-radius: 12px !important;
+		max-height: 96vh !important;
+		overflow-y: auto !important;
+		position: relative !important;
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+		-webkit-overflow-scrolling: touch !important;
+	}
+
+	.modal-header {
+		padding: 0.75rem 0 !important;
+		margin-bottom: 1rem !important;
+		display: flex !important;
+		justify-content: space-between !important;
+		align-items: center !important;
+		flex-wrap: wrap !important;
+	}
+
+	.modal-title {
+		font-size: 1.1rem !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		margin: 0 !important;
+		flex: 1 !important;
+	}
+
+	.modal-body {
+		padding: 0.5rem 0 !important;
+		font-size: 0.95rem !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		max-height: calc(96vh - 150px) !important;
+		overflow-y: auto !important;
+		-webkit-overflow-scrolling: touch !important;
+	}
+
+	.modal-footer {
+		padding: 0.75rem 0 !important;
+		margin-top: 1rem !important;
+		display: flex !important;
+		justify-content: flex-end !important;
+		gap: 0.5rem !important;
+		flex-wrap: wrap !important;
+	}
+
+	.modal-body table {
+		width: 100% !important;
+		max-width: 100% !important;
+		font-size: 0.9rem !important;
+		margin: 0 !important;
+	}
+
+	.modal-body table thead {
+		display: table-header-group !important;
+	}
+
+	.modal-body table tbody {
+		display: table-row-group !important;
+	}
+
+	.modal-body table tr {
+		display: table-row !important;
+	}
+
+	.modal-body table td,
+	.modal-body table th {
+		display: table-cell !important;
+		padding: 0.5rem !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		white-space: normal !important;
+		text-align: left !important;
+	}
+
+	.modal-body .table td:before,
+	.modal-body .table th:before {
+		display: none !important;
+	}
+
+	.close {
+		font-size: 2rem !important;
+		line-height: 1 !important;
+		padding: 0 !important;
+		margin: 0 !important;
+		width: 30px !important;
+		height: 30px !important;
+		display: flex !important;
+		align-items: center !important;
+		justify-content: center !important;
+		cursor: pointer !important;
+		background: transparent !important;
+		border: none !important;
+	}
+
+	/* 모든 텍스트와 버튼이 카드 내부에 머물도록 */
+	.card *,
+	.container *,
+	.container-fluid *,
+	.row *,
+	.col-sm-* {
+		box-sizing: border-box !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+	}
+
+	.card button,
+	.card .btn,
+	.card span,
+	.card input,
+	.card table,
+	.card p,
+	.card ul,
+	.card li,
+	.card strong,
+	.card label,
+	.card select {
+		max-width: 100% !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		white-space: normal !important;
+	}
+}
 </style>
 
 <title><?= htmlspecialchars($title_message, ENT_QUOTES, 'UTF-8') ?></title>
@@ -183,16 +544,17 @@ if (file_exists($filePath)) {
                 </div>
                 
                 <div class="card-body">
+                    <div class="table-responsive">
                     <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th><h6>결재권자 목록</h6></th>
-                                <th><h6>결재 순서</h6></th>
+                                <th data-label=""><h6>결재권자 목록</h6></th>
+                                <th data-label=""><h6>결재 순서</h6></th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td class="col" style="width:50%;">
+                                <td class="col" style="width:50%;" data-label="결재권자 목록">
                                     <ul id="approverList" class="list-group">
                                         <?php foreach ($approvalData["firstStep"] as $approver): ?>
                                             <li class="list-group-item" data-user-id="<?= htmlspecialchars($approver['id'], ENT_QUOTES, 'UTF-8') ?>">
@@ -202,7 +564,7 @@ if (file_exists($filePath)) {
                                         <li class="list-group-item dummy" style="display: none;"></li>
                                     </ul>
                                 </td>
-                                <td class="col" style="width:50%;">
+                                <td class="col" style="width:50%;" data-label="결재 순서">
                                     <ul id="approvalOrder" class="list-group">
                                         <!-- 드래그 앤 드롭으로 이동된 결재권자가 여기에 표시됨 -->
                                     </ul>
@@ -210,6 +572,7 @@ if (file_exists($filePath)) {
                             </tr>
                         </tbody>
                     </table>
+                    </div>
                     
                     <div class="row">
                         <div class="col-sm-7">
@@ -556,13 +919,44 @@ if (file_exists($filePath)) {
     };
     
     window.openModal = function() {
-        document.getElementById("approvalModal").style.display = "block";
+        var modal = document.getElementById("approvalModal");
+        if (modal) {
+            modal.style.display = "block";
+            // 모바일에서 body 스크롤 방지
+            document.body.style.overflow = "hidden";
+            document.body.style.position = "fixed";
+            document.body.style.width = "100%";
+        }
     };
     
     window.closeModal = function() {
-        document.getElementById("approvalModal").style.display = "none";
+        var modal = document.getElementById("approvalModal");
+        if (modal) {
+            modal.style.display = "none";
+            // 모바일에서 body 스크롤 복원
+            document.body.style.overflow = "";
+            document.body.style.position = "";
+            document.body.style.width = "";
+        }
         location.reload();
     };
+    
+    // 모달 배경 클릭 시 닫기
+    $(document).on('click', '#approvalModal', function(e) {
+        if (e.target === this) {
+            closeModal();
+        }
+    });
+    
+    // ESC 키로 모달 닫기
+    $(document).on('keydown', function(e) {
+        if (e.key === "Escape" || e.keyCode === 27) {
+            var modal = document.getElementById("approvalModal");
+            if (modal && modal.style.display === "block") {
+                closeModal();
+            }
+        }
+    });
     
 })();
 </script>

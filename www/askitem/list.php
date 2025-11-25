@@ -432,9 +432,8 @@ $title_message = '품의서';
     <?php
     $tablename = 'eworks';
 
-    if (!$chkMobile) {
-        require_once(includePath('myheader.php'));
-    }
+    require_once(includePath('myheader.php'));
+
 
     // 모바일이면 특정 CSS 적용
     if ($chkMobile) {

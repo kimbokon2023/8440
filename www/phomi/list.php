@@ -90,6 +90,287 @@ $search = $_REQUEST["search"] ?? '';
 .autocomplete-item:hover {
 	background-color: #e9e9e9;
 }
+
+/* 모바일 환경 최적화 */
+@media (max-width: 768px) {
+	/* body와 html 오버플로우 방지 */
+	html, body {
+		overflow-x: hidden !important;
+		max-width: 100vw !important;
+	}
+	
+	/* 컨테이너 최적화 */
+	.container-fluid {
+		padding: 0.5rem !important;
+		max-width: 100% !important;
+		overflow-x: hidden !important;
+	}
+	
+	/* 카드 최적화 */
+	.card {
+		width: 100% !important;
+		max-width: 100% !important;
+		margin: 0.5rem 0 !important;
+		padding: 0.5rem !important;
+		box-sizing: border-box !important;
+	}
+	
+	.card-body {
+		padding: 0.75rem !important;
+	}
+	
+	/* 테이블 숨기기 (모바일에서는 카드로 표시) */
+	table:not(.mobile-cards-container table) {
+		display: none !important;
+	}
+	
+	/* DataTables UI 요소 숨기기 */
+	.dataTables_length,
+	.dataTables_filter,
+	.dataTables_info,
+	.dataTables_paginate {
+		display: none !important;
+	}
+	
+	/* 모바일 카드 컨테이너 */
+	.mobile-cards-container {
+		width: 100% !important;
+		max-width: 100% !important;
+		padding: 0.5rem 0 !important;
+		box-sizing: border-box !important;
+	}
+	
+	.mobile-card {
+		border: 1px solid #ddd;
+		border-radius: 0.5rem;
+		padding: 0.75rem;
+		margin-bottom: 0.75rem;
+		background: #f8f9fa;
+		width: 100% !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+	}
+	
+	.mobile-card strong {
+		flex-shrink: 0 !important;
+		min-width: fit-content !important;
+		color: #0d6efd !important;
+		margin-right: 0.5rem !important;
+	}
+	
+	.mobile-card span {
+		flex: 1 !important;
+		min-width: 0 !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		font-size: 0.9em !important;
+	}
+	
+	/* 카드 내부 텍스트 줄바꿈 */
+	.mobile-card div {
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+	}
+	
+	/* 기간 버튼 숨기기 */
+	#showdate {
+		display: none !important;
+	}
+	
+	/* 기간 설정 프레임 최적화 */
+	#showframe {
+		width: 100% !important;
+		max-width: 100% !important;
+		left: 0 !important;
+		transform: none !important;
+		position: fixed !important;
+		top: 50% !important;
+		z-index: 9999 !important;
+	}
+	
+	#showframe .card-body {
+		padding: 0.75rem !important;
+	}
+	
+	#showframe .d-flex.justify-content-center.align-items-center {
+		flex-wrap: wrap !important;
+		gap: 0.5rem !important;
+	}
+	
+	#showframe button {
+		width: calc(50% - 0.25rem) !important;
+		margin: 0.25rem 0 !important;
+		padding: 0.5rem !important;
+		font-size: 0.9rem !important;
+	}
+	
+	/* 날짜 입력 필드 최적화 */
+	.d-flex.mb-1.mt-1.justify-content-center.align-items-center {
+		flex-direction: row !important;
+		flex-wrap: nowrap !important;
+		align-items: center !important;
+		justify-content: flex-start !important;
+		gap: 0.25rem !important;
+		padding: 0.25rem 0.5rem !important;
+		white-space: nowrap !important;
+		margin-top: 0.25rem !important;
+		margin-bottom: 0.25rem !important;
+	}
+	
+	.d-flex.mb-1.mt-1.justify-content-center.align-items-center input[type="date"] {
+		width: auto !important;
+		flex: 1 1 0 !important;
+		min-width: 0 !important;
+		max-width: calc(50% - 0.75rem) !important;
+		padding: 0.375rem 0.5rem !important;
+		font-size: 0.85rem !important;
+		margin: 0 !important;
+		box-sizing: border-box !important;
+	}
+	
+	/* 검색 영역 최적화 */
+	.search-container {
+		flex-direction: row !important;
+		flex-wrap: nowrap !important;
+		align-items: center !important;
+		justify-content: flex-start !important;
+		gap: 0.5rem !important;
+		padding: 0.25rem 0.5rem !important;
+		width: 100% !important;
+		overflow-x: hidden !important;
+		overflow-y: hidden !important;
+		margin-top: 0.25rem !important;
+	}
+	
+	.inputWrap {
+		flex: 1 1 auto !important;
+		min-width: 0 !important;
+		position: relative !important;
+		display: flex !important;
+		align-items: center !important;
+		overflow: hidden !important;
+	}
+	
+	.inputWrap input {
+		width: 100% !important;
+		max-width: 100% !important;
+		padding: 0.5rem 80px 0.5rem 0.75rem !important;
+		font-size: 1rem !important;
+		margin: 0 !important;
+		box-sizing: border-box !important;
+		border: 2px solid #28a745 !important;
+		border-radius: 0.5rem !important;
+		background-color: #fff !important;
+	}
+	
+	.btnClear {
+		position: absolute !important;
+		right: 50px !important;
+		top: 50% !important;
+		transform: translateY(-50%) !important;
+		width: 24px !important;
+		height: 24px !important;
+		background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/></svg>') no-repeat center !important;
+		background-size: 16px 16px !important;
+		border: none !important;
+		cursor: pointer !important;
+		z-index: 10 !important;
+	}
+	
+	/* 검색 버튼을 입력 필드 내부로 통합 */
+	.btn-search-icon {
+		position: absolute !important;
+		right: 8px !important;
+		top: 50% !important;
+		transform: translateY(-50%) !important;
+		width: 40px !important;
+		height: 40px !important;
+		min-width: 40px !important;
+		padding: 0 !important;
+		margin: 0 !important;
+		border: none !important;
+		background: transparent !important;
+		border-radius: 0.25rem !important;
+		display: flex !important;
+		align-items: center !important;
+		justify-content: center !important;
+		z-index: 11 !important;
+		cursor: pointer !important;
+	}
+	
+	.btn-search-icon i {
+		font-size: 1.2rem !important;
+		color: #28a745 !important;
+	}
+	
+	/* 버튼 최적화 */
+	.btn-sm {
+		font-size: 0.85rem !important;
+		padding: 0.375rem 0.5rem !important;
+		white-space: nowrap !important;
+	}
+	
+	/* 제목과 버튼 행 분리 */
+	.title-row {
+		flex-direction: column !important;
+		align-items: center !important;
+		margin-bottom: 0.5rem !important;
+	}
+	
+	.button-row {
+		flex-direction: row !important;
+		flex-wrap: wrap !important;
+		justify-content: center !important;
+		align-items: center !important;
+		gap: 0.5rem !important;
+		margin-top: 0.5rem !important;
+		margin-bottom: 0.5rem !important;
+	}
+	
+	.button-row .btn {
+		flex: 0 0 auto !important;
+		min-width: fit-content !important;
+		margin: 0.25rem !important;
+	}
+	
+	/* 모달창 최적화 */
+	.modal-dialog {
+		max-width: 100% !important;
+		margin: 0 !important;
+		height: 100% !important;
+	}
+	
+	.modal-content {
+		height: 100% !important;
+		border-radius: 0 !important;
+	}
+	
+	.modal-body {
+		overflow-y: auto !important;
+		max-height: calc(100vh - 120px) !important;
+	}
+	
+	/* 팝업 창 최적화 (customPopup 사용 시) */
+	iframe {
+		width: 100% !important;
+		max-width: 100% !important;
+	}
+	
+	/* 알림 메시지 숨기기 (모바일에서 깜빡임 방지) */
+	.alert {
+		font-size: 0.85rem !important;
+		padding: 0.5rem !important;
+	}
+	
+	/* 알림 메시지 컨테이너 숨기기 */
+	.alert-container {
+		display: none !important;
+	}
+}
 </style>   
 </head>		 
 <body>
@@ -126,7 +407,7 @@ $todate = $_REQUEST['todate'] ?? '';
 
 // fromdate 또는 todate가 빈 문자열이거나 null인 경우
 if ($fromdate === "" || $fromdate === null || $todate === "" || $todate === null) {
-    $fromdate = date("Y-m-d", strtotime("-3 months", strtotime($currentDate))); // 3개월 이전 날짜
+    $fromdate = "2025-01-01";
     $todate = $currentDate; // 현재 날짜
 	$Transtodate = $todate;
 } else {
@@ -188,9 +469,11 @@ try{
 <div class="container-fluid">  	
 		<div class="card mt-2">
 			<div class="card-body">
-				<div class="d-flex mb-3 mt-2 justify-content-center align-items-center">  
+				<div class="d-flex mb-3 mt-2 justify-content-center align-items-center title-row">  
 					<h4> <?=$title_message?> </h4>  
-					<button type="button" class="btn btn-dark btn-sm mx-3"  onclick='location.reload();' title="새로고침"> <i class="bi bi-arrow-clockwise"></i> </button>  	 			
+				</div>
+				<div class="d-flex mb-3 mt-2 justify-content-center align-items-center button-row">  
+					<button type="button" class="btn btn-dark btn-sm mx-1"  onclick='location.reload();' title="새로고침"> <i class="bi bi-arrow-clockwise"></i> </button>  	 			
 					<button type="button" class="btn btn-primary btn-sm mx-1" onclick="location.href='list_estimate.php';" title="견적 관리">
 						<i class="bi bi-file-earmark-text"></i> 견적서로 이동
 					</button>
@@ -201,7 +484,7 @@ try{
 						<i class="bi bi-currency-dollar"></i> 단가표
 					</button>
 				</div>	
-				<div class="d-flex justify-content-center align-items-center"> 
+				<div class="d-flex justify-content-center align-items-center alert-container"> 
 					<div class="alert alert-primary p-2" role="alert">
 						포미스톤 수주 관리 시스템입니다. 견적 -> 수주 -> 출고요청서 순으로 이동합니다.
 					</div>		 
@@ -234,11 +517,18 @@ try{
 				   
 				<?php if($chkMobile) { ?>
 						</div>
-					<div class="d-flex justify-content-center align-items-center">  	
+					<div class="d-flex justify-content-center align-items-center search-container">  	
+				<?php } else { ?>
+					<div class="d-flex justify-content-center align-items-center">
 				<?php } ?>&nbsp;				
 			<div class="inputWrap">
-				<input type="text" id="search" name="search" value="<?=$search?>" autocomplete="off"  class="form-control w-auto mx-1" > &nbsp;			
+				<input type="text" id="search" name="search" value="<?=$search?>" autocomplete="off"  class="form-control w-auto mx-1" placeholder="검색어를 입력해 주세요."> &nbsp;			
 				<button class="btnClear"></button>
+				<?php if($chkMobile) { ?>
+					<button type="button" id="searchBtnMobile" class="btn-search-icon">
+						<i class="bi bi-search"></i>
+					</button>
+				<?php } ?>
 			</div>				
 			<div id="autocomplete-list">
 			</div>
@@ -408,6 +698,204 @@ $(document).ready(function(){
 		loader.style.display = 'none';
 });
 
+// 모바일 카드 렌더링 관련 전역 변수
+var isRenderingCards = false;
+var renderCardsTimeout = null;
+var processedTables = new Set(); // 처리된 테이블 추적 (전역 변수)
+
+// 모바일에서 테이블을 카드 형식으로 변환하는 함수
+function renderMobileCards() {
+	// 이미 렌더링 중이면 무시
+	if (isRenderingCards) {
+		return;
+	}
+	
+	// 데스크톱에서는 모든 카드 컨테이너 제거
+	if (window.innerWidth > 768) {
+		var containers = document.querySelectorAll('.mobile-cards-container');
+		containers.forEach(function(container) {
+			container.remove();
+		});
+		return;
+	}
+	
+	// 렌더링 시작 플래그 설정
+	isRenderingCards = true;
+	
+	// 모든 테이블에 대해 카드 변환
+	var tables = document.querySelectorAll('table:not(.mobile-cards-container table)');
+	
+	tables.forEach(function(table) {
+		// 테이블이 이미 숨겨져 있거나 카드 컨테이너 내부에 있는 경우 건너뛰기
+		if (table.style.display === 'none' || table.closest('.mobile-cards-container')) {
+			return;
+		}
+		
+		// 합계 테이블은 카드로 변환하지 않음
+		if (table.classList.contains('total-summary-table')) {
+			return;
+		}
+		
+		// 테이블 ID 또는 고유 식별자 생성
+		var tableId = table.id;
+		if (!tableId) {
+			var parent = table.parentElement;
+			var tableIndex = Array.from(parent.querySelectorAll('table:not(.mobile-cards-container table)')).indexOf(table);
+			var parentId = parent.id || parent.className || 'container';
+			tableId = 'table-' + parentId.replace(/\s+/g, '-') + '-' + tableIndex;
+		}
+		
+		// 이미 해당 테이블에 대한 카드 컨테이너가 있는지 확인
+		var cardsContainer = document.querySelector('#mobileCardsContainer-' + tableId);
+		if (!cardsContainer) {
+			// 카드 컨테이너 생성
+			cardsContainer = document.createElement('div');
+			cardsContainer.id = 'mobileCardsContainer-' + tableId;
+			cardsContainer.className = 'mobile-cards-container';
+			cardsContainer.setAttribute('data-table-id', tableId);
+			cardsContainer.style.cssText = 'width: 100%; max-width: 100%; padding: 0.5rem 0;';
+			
+			// 테이블 다음에 카드 컨테이너 삽입
+			if (table.nextSibling) {
+				table.parentElement.insertBefore(cardsContainer, table.nextSibling);
+			} else {
+				table.parentElement.appendChild(cardsContainer);
+			}
+		}
+		
+		// 기존 내용 제거 (항상 새로 렌더링)
+		cardsContainer.innerHTML = '';
+		
+		// 처리된 테이블로 표시 (중복 방지)
+		processedTables.add(tableId);
+		
+		// tbody 처리
+		var tbody = table.querySelector('tbody');
+		if (tbody) {
+			var rows = tbody.querySelectorAll('tr');
+			
+			// 테이블 헤더에서 라벨 가져오기
+			var thead = table.querySelector('thead');
+			var headers = [];
+			if (thead) {
+				var headerCells = thead.querySelectorAll('th');
+				headerCells.forEach(function(headerCell) {
+					headers.push(headerCell.textContent.trim());
+				});
+			}
+			
+			rows.forEach(function(row) {
+				var cells = row.querySelectorAll('td');
+				if (cells.length === 0) return;
+				
+				var card = document.createElement('div');
+				card.className = 'mobile-card';
+				card.style.cssText = 'border: 1px solid #ddd; border-radius: 0.5rem; padding: 0.75rem; margin-bottom: 0.75rem; background: #f8f9fa;';
+				
+				// 클릭 이벤트 복사
+				if (row.onclick) {
+					card.onclick = row.onclick;
+				} else if (row.getAttribute('onclick')) {
+					card.setAttribute('onclick', row.getAttribute('onclick'));
+				} else if (row.getAttribute('data-id')) {
+					var dataId = row.getAttribute('data-id');
+					card.setAttribute('data-id', dataId);
+					card.style.cursor = 'pointer';
+					card.addEventListener('click', function() {
+						if (typeof redirectToView === 'function') {
+							redirectToView(dataId);
+						}
+					});
+				}
+				
+				cells.forEach(function(cell, index) {
+					var label = cell.getAttribute('data-label') || headers[index] || '항목 ' + (index + 1);
+					
+					var cardItem = document.createElement('div');
+					cardItem.style.cssText = 'padding: 0.5rem 0; border-bottom: 1px solid #eee; display: flex; flex-wrap: wrap; align-items: center;';
+					if (index === cells.length - 1) {
+						cardItem.style.borderBottom = 'none';
+					}
+					
+					var labelSpan = document.createElement('strong');
+					labelSpan.textContent = label + ': ';
+					labelSpan.style.cssText = 'color: #007bff; margin-right: 0.5rem; flex-shrink: 0;';
+					
+					var valueSpan = document.createElement('span');
+					valueSpan.innerHTML = cell.innerHTML;
+					valueSpan.style.cssText = 'word-wrap: break-word; overflow-wrap: break-word; flex: 1; min-width: 0;';
+					
+					cardItem.appendChild(labelSpan);
+					cardItem.appendChild(valueSpan);
+					card.appendChild(cardItem);
+				});
+				
+				cardsContainer.appendChild(card);
+			});
+		}
+		
+		// tfoot 처리
+		var tfoot = table.querySelector('tfoot');
+		if (tfoot) {
+			var tfootRow = tfoot.querySelector('tr');
+			if (tfootRow) {
+				var tfootCells = tfootRow.querySelectorAll('td');
+				if (tfootCells.length > 0) {
+					var summaryCard = document.createElement('div');
+					summaryCard.className = 'mobile-card-summary';
+					summaryCard.style.cssText = 'border: 2px solid #0dcaf0; border-radius: 0.5rem; padding: 0.75rem; margin-top: 1rem; background: #d1ecf1; font-weight: bold;';
+					
+					tfootCells.forEach(function(cell, index) {
+						var summaryItem = document.createElement('div');
+						summaryItem.style.cssText = 'padding: 0.5rem 0;';
+						
+						var label = document.createElement('strong');
+						label.style.cssText = 'color: #0dcaf0; margin-right: 0.5rem;';
+						label.textContent = '소계: ';
+						
+						var value = document.createElement('span');
+						value.innerHTML = cell.innerHTML;
+						
+						summaryItem.appendChild(label);
+						summaryItem.appendChild(value);
+						summaryCard.appendChild(summaryItem);
+					});
+					
+					cardsContainer.appendChild(summaryCard);
+				}
+			}
+		}
+	});
+	
+	// 렌더링 완료 플래그 해제
+	setTimeout(function() {
+		isRenderingCards = false;
+	}, 100);
+}
+
+// debounce 함수
+function debounce(func, wait) {
+	var timeout;
+	return function executedFunction() {
+		var context = this;
+		var args = arguments;
+		var later = function() {
+			timeout = null;
+			func.apply(context, args);
+		};
+		clearTimeout(timeout);
+		timeout = setTimeout(later, wait);
+	};
+}
+
+// 모바일 카드 렌더링 debounce
+var debouncedRenderMobileCards = debounce(renderMobileCards, 300);
+
+// 모바일 환경 확인 함수
+function isMobile() {
+	return window.innerWidth <= 768;
+}
+
 $(document).ready(function() {			
     // DataTables 초기 설정
     dataTable = $('#myTable').DataTable({
@@ -420,7 +908,16 @@ $(document).ready(function() {
             "lengthMenu": "Show _MENU_ entries",
             "search": "Live Search:"
         },
-        "order": [[0, 'desc']]
+        "order": [[0, 'desc']],
+        "drawCallback": function(settings) {
+            // DataTables 그리기 완료 후 모바일 카드 렌더링
+            if (isMobile()) {
+                setTimeout(function() {
+                    processedTables.clear();
+                    renderMobileCards();
+                }, 100);
+            }
+        }
     });
 
     // 페이지 번호 복원 (초기 로드 시)
@@ -445,6 +942,18 @@ $(document).ready(function() {
         if (savedPageNumber) {
             dataTable.page(parseInt(savedPageNumber) - 1).draw(false);
         }
+    });
+    
+    // 초기 로드 시 모바일 카드 렌더링
+    if (isMobile()) {
+        setTimeout(function() {
+            renderMobileCards();
+        }, 500);
+    }
+    
+    // 창 크기 변경 시 모바일 카드 렌더링
+    $(window).on('resize', function() {
+        debouncedRenderMobileCards();
     });
 });
 
@@ -471,7 +980,17 @@ $(document).ready(function() {
             // Trigger click event on #searchBtn
             $("#searchBtn").click();
         }
-    });	
+    });
+    
+    // 모바일 검색 버튼 이벤트
+    $(document).on('click', '#searchBtnMobile', function() {
+        $("#searchBtn").click();
+    });
+    
+    // 검색창 클리어 버튼 이벤트
+    $(document).on('click', '.btnClear', function() {
+        $('#search').val('').focus();
+    });
 });
 
 $(document).ready(function() { 

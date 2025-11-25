@@ -627,7 +627,7 @@ function openPopup() {
         </td>              
 	  </tr>
     </tbody>
-  </table>
+  </table> 
   
   <table class="table table-responsive table-fixed">
   <tbody>

@@ -78,6 +78,229 @@ include getDocumentRoot() . '/load_header.php';
     .table-hover tbody tr:hover {
         cursor: pointer;
     }
+
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+	/* body와 html의 width 제한 */
+	html, body {
+		max-width: 100vw !important;
+		overflow-x: hidden !important;
+		font-size: 16px !important;
+	}
+
+	/* 컨테이너 모바일 최적화 */
+	.container,
+	.container-fluid {
+		max-width: 100vw !important;
+		padding: 10px !important;
+		overflow-x: hidden !important;
+		box-sizing: border-box !important;
+	}
+
+	/* 카드 모바일 최적화 */
+	.card {
+		margin: 0.5rem auto !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		overflow-x: hidden !important;
+		box-sizing: border-box !important;
+		border-radius: 12px !important;
+	}
+
+	.card-body {
+		padding: 0.75rem 0.5rem !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+	}
+
+	.card-title {
+		font-size: 1.1rem !important;
+		margin-bottom: 0.75rem !important;
+		padding: 0 0.5rem !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+	}
+
+	/* 테이블 모바일 최적화 - 카드 레이아웃 */
+	.table-responsive {
+		overflow-x: visible !important;
+	}
+
+	.table,
+	.table thead,
+	.table tbody,
+	.table tr,
+	.table td {
+		display: block !important;
+		width: 100% !important;
+	}
+
+	.table thead {
+		display: none !important;
+	}
+
+	.table tr {
+		margin: 0 auto 10px auto !important;
+		border: 1px solid #dee2e6 !important;
+		border-radius: 10px !important;
+		background: white !important;
+		box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+		padding: 12px !important;
+		overflow: hidden !important;
+		box-sizing: border-box !important;
+		width: 100% !important;
+		max-width: 100% !important;
+	}
+
+	/* 카드 내 필드 스타일 */
+	.table td {
+		text-align: left !important;
+		padding: 12px !important;
+		border: none !important;
+		position: relative !important;
+		padding-left: 0 !important;
+		white-space: normal !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		min-height: 50px !important;
+		font-size: 0.95rem !important;
+		line-height: 1.6 !important;
+		box-sizing: border-box !important;
+		display: flex !important;
+		flex-direction: column !important;
+		gap: 0.5rem !important;
+	}
+
+	/* data-label이 있는 경우 원본 텍스트 숨기기 */
+	.table td[data-label]:not([data-label=""]) {
+		font-size: 0 !important;
+		line-height: 0 !important;
+	}
+
+	.table td[data-label]:not([data-label=""]) * {
+		font-size: 0.95rem !important;
+		line-height: 1.6 !important;
+	}
+
+	/* 라벨 표시 */
+	.table td:before {
+		content: attr(data-label);
+		position: static !important;
+		width: 100% !important;
+		padding-right: 0 !important;
+		white-space: normal !important;
+		overflow: visible !important;
+		text-overflow: clip !important;
+		font-weight: 600 !important;
+		color: #495057 !important;
+		font-size: 0.9rem !important;
+		margin-bottom: 0.25rem !important;
+		display: block !important;
+		line-height: 1.4 !important;
+	}
+
+	.table td:after {
+		display: none !important;
+	}
+
+	/* 입력 필드 모바일 최적화 */
+	.table td input,
+	.table td select {
+		width: 100% !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		font-size: 0.95rem !important;
+		padding: 0.6rem !important;
+		border: 1px solid #ced4da !important;
+		border-radius: 0.375rem !important;
+	}
+
+	/* 빈 셀 숨기기 */
+	.table td[data-label=""] {
+		display: none !important;
+	}
+
+	/* colspan이 있는 셀 처리 */
+	.table td[colspan] {
+		display: block !important;
+	}
+
+	/* 모든 텍스트와 버튼이 카드 내부에 머물도록 */
+	.card *,
+	.container *,
+	.container-fluid *,
+	.row *,
+	.col-md-* {
+		box-sizing: border-box !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+	}
+
+	.card button,
+	.card .btn,
+	.card span,
+	.card input,
+	.card table,
+	.card p,
+	.card ul,
+	.card li,
+	.card strong,
+	.card label,
+	.card select {
+		max-width: 100% !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		white-space: normal !important;
+	}
+
+	/* 버튼 모바일 최적화 */
+	.btn-sm {
+		font-size: 0.85rem !important;
+		padding: 0.5rem 0.75rem !important;
+		white-space: nowrap !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+	}
+
+	/* 버튼 그룹 모바일 최적화 */
+	.d-flex.justify-content-center {
+		flex-wrap: wrap !important;
+		gap: 0.5rem !important;
+		justify-content: center !important;
+	}
+
+	/* 모달 모바일 최적화 */
+	.modal-dialog {
+		width: 95% !important;
+		max-width: 95% !important;
+		margin: 1rem auto !important;
+	}
+
+	.modal-content {
+		width: 100% !important;
+		max-width: 100% !important;
+		border-radius: 12px !important;
+	}
+
+	.modal-header,
+	.modal-body,
+	.modal-footer {
+		padding: 1rem !important;
+	}
+
+	.modal-title {
+		font-size: 1.1rem !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+	}
+
+	.modal-body {
+		font-size: 0.95rem !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+	}
+}
 </style>
 </head>
 <body>
@@ -111,11 +334,12 @@ include getDocumentRoot() . '/load_header.php';
                 <form id="board_form" name="board_form" class="form-signin" method="post">
                     <input type="hidden" id="mode" name="mode" value="<?= htmlspecialchars($mode, ENT_QUOTES, 'UTF-8') ?>">
                     
+                    <div class="table-responsive">
                     <table class="table table-bordered">
                         <tr>
-                            <td colspan="3">* 구분(미래기업,협력사,작업소장,포미스톤)</td>
-                            <td colspan="1">
-                                <select id="division" name="division" class="form-select w-auto" style="font-size: 0.7rem; height:30px;">
+                            <td colspan="3" data-label="* 구분">* 구분(미래기업,협력사,작업소장,포미스톤)</td>
+                            <td colspan="1" data-label="구분 선택">
+                                <select id="division" name="division" class="form-select w-auto" style="font-size: 0.7rem; height:30px; width: 100%; max-width: 100%;">
                                     <option value="">-- 선택 --</option>
                                     <option value="미래기업" <?= ($division == "미래기업") ? "selected" : "" ?>>미래기업</option>
                                     <option value="협력사" <?= ($division == "협력사") ? "selected" : "" ?>>협력사</option>
@@ -125,53 +349,54 @@ include getDocumentRoot() . '/load_header.php';
                             </td>
                         </tr>
                         <tr>
-                            <td>* 성명</td>
-                            <td>
+                            <td data-label="* 성명">* 성명</td>
+                            <td data-label="성명 입력">
                                 <input type="text" id="name" name="name" value="<?= htmlspecialchars($name, ENT_QUOTES, 'UTF-8') ?>" class="form-control text-center">
                             </td>
-                            <td>* ID</td>
-                            <td>
+                            <td data-label="* ID">* ID</td>
+                            <td data-label="ID 입력">
                                 <input type="text" id="id" name="id" value="<?= htmlspecialchars($id, ENT_QUOTES, 'UTF-8') ?>" class="form-control text-center">
                             </td>
                         </tr>
                         <tr>
-                            <td>* Password</td>
-                            <td>
+                            <td data-label="* Password">* Password</td>
+                            <td data-label="Password 입력">
                                 <input type="text" id="pass" name="pass" value="<?= htmlspecialchars($pass, ENT_QUOTES, 'UTF-8') ?>" class="form-control text-center">
                             </td>
-                            <td>연락처 (HP)</td>
-                            <td>
+                            <td data-label="연락처 (HP)">연락처 (HP)</td>
+                            <td data-label="연락처 입력">
                                 <input type="text" id="hp" name="hp" value="<?= htmlspecialchars($hp, ENT_QUOTES, 'UTF-8') ?>" class="form-control text-center">
                             </td>
                         </tr>
                         <tr>
-                            <td>* 레벨<br><span class="text-muted">- 포미스톤은 20으로 설정</span></td>
-                            <td class="align-middle">
+                            <td data-label="* 레벨">* 레벨<br><span class="text-muted" style="font-size: 0.8rem;">- 포미스톤은 20으로 설정</span></td>
+                            <td class="align-middle" data-label="레벨 입력">
                                 <input type="text" id="level" name="level" value="<?= htmlspecialchars($level, ENT_QUOTES, 'UTF-8') ?>" class="form-control text-center">
                             </td>
-                            <td class="align-middle">파트</td>
-                            <td class="align-middle">
+                            <td class="align-middle" data-label="파트">파트</td>
+                            <td class="align-middle" data-label="파트 입력">
                                 <input type="text" id="part" name="part" value="<?= htmlspecialchars($part, ENT_QUOTES, 'UTF-8') ?>" class="form-control text-center">
                             </td>
                         </tr>
                         <tr>
-                            <td>번호순서 (Numorder)</td>
-                            <td>
+                            <td data-label="번호순서 (Numorder)">번호순서 (Numorder)</td>
+                            <td data-label="번호순서 입력">
                                 <input type="text" id="numorder" name="numorder" value="<?= htmlspecialchars($numorder, ENT_QUOTES, 'UTF-8') ?>" class="form-control text-center">
                             </td>
-                            <td>직위 (Position)</td>
-                            <td>
+                            <td data-label="직위 (Position)">직위 (Position)</td>
+                            <td data-label="직위 입력">
                                 <input type="text" id="position" name="position" value="<?= htmlspecialchars($position, ENT_QUOTES, 'UTF-8') ?>" class="form-control text-center">
                             </td>
                         </tr>
                         <tr>
-                            <td>전자결재 레벨 (eworks_level)</td>
-                            <td colspan="1">
+                            <td data-label="전자결재 레벨 (eworks_level)">전자결재 레벨 (eworks_level)</td>
+                            <td colspan="1" data-label="전자결재 레벨 입력">
                                 <input type="text" id="eworks_level" name="eworks_level" value="<?= htmlspecialchars($eworks_level, ENT_QUOTES, 'UTF-8') ?>" class="form-control text-center">
                             </td>
-                            <td colspan="2"></td>
+                            <td colspan="2" data-label=""></td>
                         </tr>
                     </table>
+                    </div>
                     
                     <div class="d-flex justify-content-center mt-4 mb-2">
                         <?php if ($user_name === '김보곤'): ?>

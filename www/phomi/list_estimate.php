@@ -133,14 +133,20 @@ $search = $_REQUEST["search"] ?? '';
 	.card-body {
 		padding: 0.75rem !important;
 		overflow-x: hidden !important;
+		overflow-y: visible !important;
+		max-height: none !important;
+		height: auto !important;
 	}
 	
 	/* 제목 영역 최적화 */
 	.d-flex.mb-3.mt-2.justify-content-center.align-items-center {
-		flex-direction: column !important;
-		align-items: stretch !important;
-		gap: 0.5rem !important;
+		flex-direction: row !important;
+		flex-wrap: wrap !important;
+		align-items: center !important;
+		justify-content: center !important;
+		gap: 0.25rem !important;
 		padding: 0.5rem !important;
+		margin-bottom: 0.5rem !important; /* mb-3 (1rem)을 절반으로 줄임 */
 	}
 	
 	.d-flex.mb-3.mt-2.justify-content-center.align-items-center h4 {
@@ -150,24 +156,32 @@ $search = $_REQUEST["search"] ?? '';
 		margin-bottom: 0.5rem !important;
 		word-wrap: break-word !important;
 		overflow-wrap: break-word !important;
+		flex-basis: 100% !important;
+		flex-shrink: 0 !important;
 	}
 	
 	.d-flex.mb-3.mt-2.justify-content-center.align-items-center button {
-		width: 100% !important;
-		max-width: 100% !important;
-		margin: 0.25rem 0 !important;
-		padding: 0.5rem !important;
-		font-size: 1rem !important;
+		width: auto !important;
+		flex: 0 0 auto !important;
+		min-width: auto !important;
+		max-width: none !important;
+		margin: 0.125rem !important;
+		padding: 0.375rem 0.75rem !important;
+		font-size: 0.9rem !important;
+		white-space: nowrap !important;
 	}
 	
-	/* 알림 영역 최적화 */
+	.d-flex.mb-3.mt-2.justify-content-center.align-items-center button i {
+		margin-right: 0.25rem !important;
+	}
+	
+	/* 알림 영역 최적화 - 모바일에서 숨김 */
+	.alert-container {
+		display: none !important;
+	}
+	
 	.alert {
-		width: 100% !important;
-		max-width: 100% !important;
-		padding: 0.75rem !important;
-		font-size: 0.9rem !important;
-		word-wrap: break-word !important;
-		overflow-wrap: break-word !important;
+		display: none !important;
 	}
 	
 	/* 검색 영역 최적화 */
@@ -176,6 +190,23 @@ $search = $_REQUEST["search"] ?? '';
 		align-items: stretch !important;
 		gap: 0.5rem !important;
 		padding: 0.5rem !important;
+		overflow-x: hidden !important;
+		overflow-y: hidden !important;
+		max-height: none !important;
+		height: auto !important;
+	}
+	
+	/* 날짜 입력 영역 - 한 행에 표시 */
+	.d-flex.mb-1.mt-1.justify-content-center.align-items-center {
+		flex-direction: row !important;
+		flex-wrap: nowrap !important;
+		align-items: center !important;
+		justify-content: flex-start !important;
+		gap: 0.25rem !important;
+		padding: 0.25rem 0.5rem !important; /* 상하 패딩을 절반으로 줄임 */
+		white-space: nowrap !important;
+		margin-top: 0.25rem !important; /* mt-1 (0.25rem)을 절반으로 줄임 */
+		margin-bottom: 0.25rem !important; /* mb-1 (0.25rem)을 절반으로 줄임 */
 	}
 	
 	/* 기간 설정 영역 최적화 */
@@ -205,8 +236,20 @@ $search = $_REQUEST["search"] ?? '';
 		font-size: 0.9rem !important;
 	}
 	
-	/* 날짜 입력 최적화 */
-	input[type="date"] {
+	/* 날짜 입력 필드 최적화 - 한 행에 표시 */
+	.d-flex.mb-1.mt-1.justify-content-center.align-items-center input[type="date"] {
+		width: auto !important;
+		flex: 1 1 0 !important;
+		min-width: 0 !important;
+		max-width: calc(50% - 0.75rem) !important;
+		padding: 0.375rem 0.5rem !important;
+		font-size: 0.85rem !important;
+		margin: 0 !important;
+		box-sizing: border-box !important;
+	}
+	
+	/* 일반 날짜 입력 (다른 곳에 있는 경우) */
+	input[type="date"]:not(.d-flex.mb-1.mt-1.justify-content-center.align-items-center input[type="date"]) {
 		width: 100% !important;
 		max-width: 100% !important;
 		padding: 0.5rem !important;
@@ -214,26 +257,58 @@ $search = $_REQUEST["search"] ?? '';
 		margin: 0.25rem 0 !important;
 	}
 	
-	/* 검색 입력 최적화 */
-	.inputWrap {
+	/* 검색 영역 최적화 - 한 행에 검색 입력과 버튼 통합 */
+	.search-container {
+		flex-direction: row !important;
+		flex-wrap: nowrap !important;
+		align-items: center !important;
+		justify-content: flex-start !important;
+		gap: 0.5rem !important;
+		padding: 0.25rem 0.5rem !important; /* 상하 패딩을 절반으로 줄임 */
 		width: 100% !important;
-		max-width: 100% !important;
+		overflow-x: hidden !important;
+		overflow-y: hidden !important;
+		max-height: none !important;
+		height: auto !important;
+		margin-top: 0.25rem !important; /* 상단 마진 추가하여 간격 조정 */
+	}
+	
+	.inputWrap {
+		flex: 1 1 auto !important;
+		min-width: 0 !important;
 		position: relative !important;
-		display: block !important;
+		display: flex !important;
+		align-items: center !important;
+		overflow: hidden !important;
+		max-height: none !important;
+		height: auto !important;
 	}
 	
 	.inputWrap input {
 		width: 100% !important;
 		max-width: 100% !important;
-		padding: 0.5rem 35px 0.5rem 0.5rem !important;
+		padding: 0.5rem 80px 0.5rem 0.75rem !important;
 		font-size: 1rem !important;
-		margin: 0.25rem 0 !important;
+		margin: 0 !important;
 		box-sizing: border-box !important;
+		border: 2px solid #28a745 !important;
+		border-radius: 0.5rem !important;
+		background-color: #fff !important;
+		overflow: hidden !important;
+		overflow-x: hidden !important;
+		overflow-y: hidden !important;
+		height: auto !important;
+		max-height: none !important;
+		line-height: 1.5 !important;
+	}
+	
+	.inputWrap input::placeholder {
+		color: #999 !important;
 	}
 	
 	.btnClear {
 		position: absolute !important;
-		right: 8px !important;
+		right: 50px !important;
 		top: 50% !important;
 		transform: translateY(-50%) !important;
 		width: 24px !important;
@@ -243,6 +318,41 @@ $search = $_REQUEST["search"] ?? '';
 		border: none !important;
 		cursor: pointer !important;
 		z-index: 10 !important;
+	}
+	
+	/* 검색 버튼을 입력 필드 내부로 통합 */
+	.btn-search-icon {
+		position: absolute !important;
+		right: 8px !important;
+		top: 50% !important;
+		transform: translateY(-50%) !important;
+		width: 40px !important;
+		height: 40px !important;
+		min-width: 40px !important;
+		padding: 0 !important;
+		margin: 0 !important;
+		border: none !important;
+		background: transparent !important;
+		border-radius: 0.25rem !important;
+		display: flex !important;
+		align-items: center !important;
+		justify-content: center !important;
+		z-index: 11 !important;
+		cursor: pointer !important;
+	}
+	
+	.btn-search-icon i {
+		font-size: 1.2rem !important;
+		color: #28a745 !important;
+	}
+	
+	.btn-search-icon:hover {
+		background-color: rgba(40, 167, 69, 0.1) !important;
+	}
+	
+	/* 모바일에서는 PC 검색 버튼 숨김 */
+	.search-container #searchBtn {
+		display: none !important;
 	}
 	
 	/* 버튼 최적화 */
@@ -256,7 +366,9 @@ $search = $_REQUEST["search"] ?? '';
 	
 	/* DataTables 숨기기 */
 	.dataTables_length,
-	.dataTables_filter {
+	.dataTables_filter,
+	.dataTables_info,
+	.dataTables_paginate {
 		display: none !important;
 	}
 	
@@ -495,6 +607,22 @@ $search = $_REQUEST["search"] ?? '';
 		top: 100% !important;
 		position: absolute !important;
 		z-index: 99 !important;
+		overflow-x: hidden !important;
+		overflow-y: auto !important;
+		max-height: 200px !important;
+	}
+	
+	/* 검색 영역 전체에 스크롤 제거 */
+	.search-container,
+	.search-container * {
+		overflow-y: hidden !important;
+		max-height: none !important;
+	}
+	
+	.search-container .inputWrap,
+	.search-container .inputWrap * {
+		overflow-y: hidden !important;
+		max-height: none !important;
 	}
 	
 	/* 모바일 카드 컨테이너 */
@@ -502,12 +630,66 @@ $search = $_REQUEST["search"] ?? '';
 		width: 100% !important;
 		max-width: 100% !important;
 		padding: 0.5rem 0 !important;
+		box-sizing: border-box !important;
 	}
 	
 	.mobile-card {
 		width: 100% !important;
 		max-width: 100% !important;
 		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+	}
+	
+	.mobile-card .d-flex {
+		width: 100% !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+	}
+	
+	.mobile-card strong {
+		flex-shrink: 0 !important;
+		min-width: fit-content !important;
+	}
+	
+	.mobile-card span {
+		flex: 1 !important;
+		min-width: 0 !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		font-size: 0.8em !important; /* 현재 폰트 크기의 80%로 줄임 (20% 감소) */
+	}
+	
+	.mobile-card-summary {
+		width: 100% !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+	}
+	
+	.mobile-card-summary .d-flex {
+		width: 100% !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+	}
+	
+	.mobile-card-summary strong {
+		flex-shrink: 0 !important;
+		min-width: fit-content !important;
+	}
+	
+	.mobile-card-summary span {
+		flex: 1 !important;
+		min-width: 0 !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+	}
+}
+
+/* PC 환경에서 모바일 전용 요소 숨김 */
+@media (min-width: 769px) {
+	.btn-search-icon,
+	#searchBtnMobile {
+		display: none !important;
 	}
 }
 </style>   
@@ -516,10 +698,8 @@ $search = $_REQUEST["search"] ?? '';
 
 <?php
 $tablename = 'phomi_estimate';
-if(!$chkMobile) 
-{ 	
-	require_once(includePath('myheader.php')); 
-}
+
+require_once(includePath('myheader.php')); 
 
 // 모바일이면 특정 CSS 적용
 if ($chkMobile) {
@@ -620,9 +800,10 @@ try{
 					</button>
 					<button type="button" class="btn btn-secondary btn-sm mx-1" onclick="location.href='unit_price.php';" title="단가표">
 						<i class="bi bi-currency-dollar"></i> 단가표
-					</button>					
+					</button>
+					<button type="button" class="btn btn-dark btn-sm mx-1" id="writeBtn"> <i class="bi bi-pencil-fill"></i> 신규  </button>					
 				</div>	
-				<div class="d-flex justify-content-center align-items-center"> 
+				<div class="d-flex justify-content-center align-items-center alert-container"> 
 					<div class="alert alert-primary p-2" role="alert">
 						포미스톤 견적서 관리 시스템입니다. 견적 -> 수주 -> 출고요청서 순으로 이동합니다.
 					</div>		 
@@ -655,17 +836,21 @@ try{
 				   
 				<?php if($chkMobile) { ?>
 						</div>
-					<div class="d-flex justify-content-center align-items-center">  	
+					<div class="d-flex justify-content-center align-items-center search-container">  	
+				<?php } else { ?>
+					<div class="d-flex justify-content-center align-items-center search-container">
 				<?php } ?>	&nbsp;				
 			<div class="inputWrap">
-				<input type="text" id="search" name="search" value="<?=$search?>" autocomplete="off"  class="form-control w-auto mx-1" > &nbsp;			
+				<input type="text" id="search" name="search" value="<?=$search?>" autocomplete="off"  class="form-control w-auto mx-1" placeholder="검색어를 입력해 주세요."> &nbsp;			
 				<button class="btnClear"></button>
+				<button type="button" id="searchBtnMobile" class="btn-search-icon"> <i class="bi bi-search"></i>  </button>
 			</div>				
 			<div id="autocomplete-list">
 			</div>
 			 &nbsp;												   			   
-				<button type="button" id="searchBtn" class="btn btn-dark  btn-sm"> <i class="bi bi-search"></i>  </button>	&nbsp;&nbsp;
-				<button type="button" class="btn btn-dark  btn-sm me-1" id="writeBtn"> <i class="bi bi-pencil-fill"></i> 신규  </button> 	    			 
+				<?php if(!$chkMobile) { ?>
+					<button type="button" id="searchBtn" class="btn btn-dark  btn-sm"> <i class="bi bi-search"></i>  </button>	&nbsp;&nbsp;
+				<?php } ?>
 		</div>
 	</div>
   </div>	
@@ -800,111 +985,234 @@ $(document).ready(function(){
 		loader.style.display = 'none';
 });
 
-// 모바일에서 테이블을 카드 형식으로 변환하는 함수
-function renderMobileCards() {
-	if (window.innerWidth > 768) {
-		return; // 데스크톱에서는 실행하지 않음
-	}
-	
-	var table = document.getElementById('myTable');
-	if (!table) return;
-	
-	var tbody = table.querySelector('tbody');
-	if (!tbody) return;
-	
-	var rows = tbody.querySelectorAll('tr');
-	var cardsContainer = document.getElementById('mobileCardsContainer');
-	
-	// 카드 컨테이너가 없으면 생성
-	if (!cardsContainer) {
-		cardsContainer = document.createElement('div');
-		cardsContainer.id = 'mobileCardsContainer';
-		cardsContainer.className = 'mobile-cards-container';
-		table.parentElement.appendChild(cardsContainer);
-	}
-	
-	cardsContainer.innerHTML = '';
-	
-	rows.forEach(function(row) {
-		var cells = row.querySelectorAll('td');
-		if (cells.length === 0) return;
-		
-		var card = document.createElement('div');
-		card.className = 'mobile-card';
-		card.style.cssText = 'border: 1px solid #ddd; border-radius: 0.5rem; padding: 0.75rem; margin-bottom: 0.75rem; background: #f8f9fa; cursor: pointer;';
-		card.onclick = row.onclick || function() {
-			var dataId = row.getAttribute('data-id');
-			if (dataId) {
-				redirectToView(dataId);
-			}
+// ============================================
+// 모바일 최적화 관련 함수들 (mobile_dev.md 패턴 적용)
+// ============================================
+
+/**
+ * 현재 화면이 모바일인지 확인
+ * @param {number} breakpoint - 모바일/PC 구분 기준 (기본값: 768)
+ * @returns {boolean}
+ */
+function isMobile(breakpoint) {
+	breakpoint = breakpoint || 768;
+	return window.innerWidth <= breakpoint;
+}
+
+/**
+ * 디바운스 함수 - 불필요한 함수 호출 방지
+ * @param {Function} func - 실행할 함수
+ * @param {number} wait - 대기 시간 (ms)
+ * @returns {Function}
+ */
+function debounce(func, wait) {
+	var timeout;
+	return function executedFunction(...args) {
+		var later = function() {
+			clearTimeout(timeout);
+			func(...args);
 		};
+		clearTimeout(timeout);
+		timeout = setTimeout(later, wait);
+	};
+}
+
+// 렌더링 플래그 (중복 렌더링 방지)
+var isRenderingCards = false;
+var processedTables = new Set(); // 처리된 테이블 추적
+
+/**
+ * 모바일에서 테이블을 카드 형식으로 변환하는 함수
+ * mobile_dev.md 패턴 적용
+ */
+function renderMobileCards() {
+	// 이미 렌더링 중이면 무시
+	if (isRenderingCards) {
+		return;
+	}
+	
+	// 데스크톱에서는 모든 카드 컨테이너 제거
+	if (!isMobile()) {
+		var containers = document.querySelectorAll('.mobile-cards-container');
+		containers.forEach(function(container) {
+			container.remove();
+		});
+		processedTables.clear();
+		return;
+	}
+	
+	// 렌더링 시작 플래그 설정
+	isRenderingCards = true;
+	
+	try {
+		var table = document.getElementById('myTable');
+		if (!table) {
+			isRenderingCards = false;
+			return;
+		}
 		
-		var labels = ['번호', '견적일자', '수신', '구분', '현장명', '작성자', '합계(VAT별도)', '합계(VAT포함)'];
+		// 테이블 ID 또는 고유 식별자 생성
+		var tableId = table.id || 'myTable';
 		
-		cells.forEach(function(cell, index) {
-			if (index < labels.length) {
-				var cardItem = document.createElement('div');
-				cardItem.style.cssText = 'padding: 0.5rem 0; border-bottom: 1px solid #eee;';
-				if (index === cells.length - 1) {
-					cardItem.style.borderBottom = 'none';
-				}
-				
-				var label = document.createElement('strong');
-				label.textContent = labels[index] + ': ';
-				label.style.cssText = 'color: #007bff; margin-right: 0.5rem;';
-				
-				var value = document.createElement('span');
-				value.textContent = cell.textContent.trim();
-				value.style.cssText = 'word-wrap: break-word; overflow-wrap: break-word;';
-				
-				cardItem.appendChild(label);
-				cardItem.appendChild(value);
-				card.appendChild(cardItem);
+		// 이미 처리된 테이블인지 확인
+		if (processedTables.has(tableId)) {
+			// 기존 카드 컨테이너 업데이트
+			var existingContainer = document.getElementById('mobileCardsContainer');
+			if (existingContainer) {
+				existingContainer.innerHTML = '';
+			} else {
+				isRenderingCards = false;
+				return;
 			}
+		} else {
+			processedTables.add(tableId);
+		}
+		
+		var tbody = table.querySelector('tbody');
+		if (!tbody) {
+			isRenderingCards = false;
+			return;
+		}
+		
+		// DataTables의 현재 표시된 행만 가져오기
+		var rows = [];
+		if (typeof dataTable !== 'undefined' && dataTable) {
+			// DataTables가 활성화된 경우 현재 페이지의 행만 가져오기
+			var visibleRows = dataTable.rows({ page: 'current' }).nodes();
+			rows = Array.from(visibleRows);
+		} else {
+			// DataTables가 없는 경우 모든 행 가져오기
+			rows = Array.from(tbody.querySelectorAll('tr'));
+		}
+		
+		var cardsContainer = document.getElementById('mobileCardsContainer');
+		
+		// 카드 컨테이너가 없으면 생성
+		if (!cardsContainer) {
+			cardsContainer = document.createElement('div');
+			cardsContainer.id = 'mobileCardsContainer';
+			cardsContainer.className = 'mobile-cards-container';
+			table.parentElement.appendChild(cardsContainer);
+		}
+		
+		cardsContainer.innerHTML = '';
+		
+		// 테이블 헤더 읽기 (라벨용)
+		var headers = table.querySelectorAll('thead th');
+		var labels = [];
+		headers.forEach(function(header) {
+			labels.push(header.textContent.trim());
 		});
 		
-		cardsContainer.appendChild(card);
-	});
-	
-	// tfoot 처리
-	var tfoot = table.querySelector('tfoot');
-	if (tfoot) {
-		var tfootRow = tfoot.querySelector('tr');
-		if (tfootRow) {
-			var tfootCells = tfootRow.querySelectorAll('td');
-			if (tfootCells.length > 0) {
-				var summaryCard = document.createElement('div');
-				summaryCard.className = 'mobile-card-summary';
-				summaryCard.style.cssText = 'border: 2px solid #0dcaf0; border-radius: 0.5rem; padding: 0.75rem; margin-top: 1rem; background: #d1ecf1; font-weight: bold;';
-				
-				tfootCells.forEach(function(cell, index) {
-					var summaryItem = document.createElement('div');
-					summaryItem.style.cssText = 'padding: 0.5rem 0;';
+		// 기본 라벨 (헤더가 없는 경우 대비)
+		if (labels.length === 0) {
+			labels = ['번호', '견적일자', '수신', '구분', '현장명', '작성자', '합계(VAT별도)', '합계(VAT포함)'];
+		}
+		
+		rows.forEach(function(row) {
+			var cells = row.querySelectorAll('td');
+			if (cells.length === 0) return;
+			
+			var card = document.createElement('div');
+			card.className = 'card mobile-card mb-3';
+			card.style.cssText = 'border: 1px solid #ddd; border-radius: 0.5rem; padding: 0.75rem; background: #f8f9fa; cursor: pointer; box-sizing: border-box; width: 100%; max-width: 100%;';
+			
+			// 클릭 이벤트 설정
+			var dataId = row.getAttribute('data-id');
+			if (dataId) {
+				card.onclick = function() {
+					redirectToView(dataId);
+				};
+			} else {
+				// onclick 속성에서 함수 추출
+				var onclickAttr = row.getAttribute('onclick');
+				if (onclickAttr) {
+					card.setAttribute('onclick', onclickAttr);
+				}
+			}
+			
+			cells.forEach(function(cell, index) {
+				if (index < labels.length) {
+					var cardItem = document.createElement('div');
+					cardItem.className = 'd-flex align-items-center mb-2';
+					cardItem.style.cssText = 'padding: 0.5rem 0; border-bottom: 1px solid #eee; word-wrap: break-word; overflow-wrap: break-word;';
+					if (index === cells.length - 1) {
+						cardItem.style.borderBottom = 'none';
+					}
 					
 					var label = document.createElement('strong');
-					label.style.cssText = 'color: #0dcaf0; margin-right: 0.5rem;';
-					
-					if (index === 0) {
-						label.textContent = '소계: ';
-					} else if (index === 1) {
-						label.textContent = '합계(VAT별도): ';
-					} else if (index === 2) {
-						label.textContent = '합계(VAT포함): ';
-					}
+					var labelText = cell.getAttribute('data-label') || labels[index] || '';
+					label.textContent = labelText + ': ';
+					label.style.cssText = 'color: #007bff; margin-right: 0.5rem; flex-shrink: 0;';
 					
 					var value = document.createElement('span');
 					value.textContent = cell.textContent.trim();
+					value.style.cssText = 'word-wrap: break-word; overflow-wrap: break-word; flex: 1; min-width: 0;';
 					
-					summaryItem.appendChild(label);
-					summaryItem.appendChild(value);
-					summaryCard.appendChild(summaryItem);
-				});
-				
-				cardsContainer.appendChild(summaryCard);
+					cardItem.appendChild(label);
+					cardItem.appendChild(value);
+					card.appendChild(cardItem);
+				}
+			});
+			
+			cardsContainer.appendChild(card);
+		});
+		
+		// tfoot 처리
+		var tfoot = table.querySelector('tfoot');
+		if (tfoot) {
+			var tfootRow = tfoot.querySelector('tr');
+			if (tfootRow) {
+				var tfootCells = tfootRow.querySelectorAll('td');
+				if (tfootCells.length > 0) {
+					var summaryCard = document.createElement('div');
+					summaryCard.className = 'card mobile-card-summary mt-3';
+					summaryCard.style.cssText = 'border: 2px solid #0dcaf0; border-radius: 0.5rem; padding: 0.75rem; background: #d1ecf1; font-weight: bold; box-sizing: border-box; width: 100%; max-width: 100%;';
+					
+					tfootCells.forEach(function(cell, index) {
+						var summaryItem = document.createElement('div');
+						summaryItem.className = 'd-flex align-items-center mb-2';
+						summaryItem.style.cssText = 'padding: 0.5rem 0; word-wrap: break-word; overflow-wrap: break-word;';
+						
+						var label = document.createElement('strong');
+						label.style.cssText = 'color: #0dcaf0; margin-right: 0.5rem; flex-shrink: 0;';
+						
+						var labelText = cell.getAttribute('data-label') || '';
+						if (!labelText) {
+							if (index === 0) {
+								labelText = '소계';
+							} else if (index === 1) {
+								labelText = '합계(VAT별도)';
+							} else if (index === 2) {
+								labelText = '합계(VAT포함)';
+							}
+						}
+						
+						label.textContent = labelText + ': ';
+						
+						var value = document.createElement('span');
+						value.textContent = cell.textContent.trim();
+						value.style.cssText = 'word-wrap: break-word; overflow-wrap: break-word; flex: 1; min-width: 0;';
+						
+						summaryItem.appendChild(label);
+						summaryItem.appendChild(value);
+						summaryCard.appendChild(summaryItem);
+					});
+					
+					cardsContainer.appendChild(summaryCard);
+				}
 			}
 		}
+	} catch (error) {
+		console.error('모바일 카드 렌더링 오류:', error);
+	} finally {
+		// 렌더링 완료 플래그 해제
+		isRenderingCards = false;
 	}
 }
+
+// 디바운스된 렌더링 함수
+var debouncedRenderMobileCards = debounce(renderMobileCards, 300);
 
 $(document).ready(function() {			
     // DataTables 초기 설정
@@ -921,18 +1229,19 @@ $(document).ready(function() {
         "order": [[0, 'desc']],
         "initComplete": function() {
 			// 모바일에서 카드 형식으로 변환
-			if (window.innerWidth <= 768) {
+			if (isMobile()) {
 				setTimeout(function() {
-					renderMobileCards();
-				}, 100);
+					processedTables.clear(); // 테이블 처리 상태 초기화
+					debouncedRenderMobileCards();
+				}, 200);
 			}
 		},
 		"drawCallback": function() {
 			// 페이지 변경 시 모바일 카드 다시 렌더링
-			if (window.innerWidth <= 768) {
+			if (isMobile()) {
 				setTimeout(function() {
-					renderMobileCards();
-				}, 100);
+					debouncedRenderMobileCards();
+				}, 200);
 			}
 		}
     });
@@ -961,26 +1270,26 @@ $(document).ready(function() {
         }
     });
 	
-	// 창 크기 변경 시 모바일 카드 다시 렌더링
-	$(window).on('resize', function() {
-		if (window.innerWidth <= 768) {
-			setTimeout(function() {
-				renderMobileCards();
-			}, 100);
+	// 창 크기 변경 시 모바일 카드 다시 렌더링 (디바운스 적용)
+	$(window).on('resize', debounce(function() {
+		if (isMobile()) {
+			processedTables.clear(); // 테이블 처리 상태 초기화
+			debouncedRenderMobileCards();
 		} else {
 			// 데스크톱으로 돌아가면 카드 컨테이너 제거
-			var cardsContainer = document.getElementById('mobileCardsContainer');
-			if (cardsContainer) {
-				cardsContainer.remove();
-			}
+			var containers = document.querySelectorAll('.mobile-cards-container');
+			containers.forEach(function(container) {
+				container.remove();
+			});
+			processedTables.clear();
 		}
-	});
+	}, 300));
 	
 	// 초기 로드 시 모바일 카드 렌더링
-	if (window.innerWidth <= 768) {
+	if (isMobile()) {
 		setTimeout(function() {
-			renderMobileCards();
-		}, 300);
+			debouncedRenderMobileCards();
+		}, 500);
 	}
 });
 
@@ -1004,8 +1313,12 @@ $(document).ready(function() {
         if (event.key === "Enter" || event.keyCode === 13) {
             // Prevent the default action to stop form submission
             event.preventDefault();
-            // Trigger click event on #searchBtn
-            $("#searchBtn").click();
+            // Trigger click event on search button
+            if (isMobile()) {
+                $("#searchBtnMobile").click();
+            } else {
+                $("#searchBtn").click();
+            }
         }
     });	
 });
@@ -1016,7 +1329,8 @@ $(document).ready(function() {
 		var url = "ET_write_form.php?tablename=" + tablename ; 
 		customPopup(url, '등록', 1200, 950); 		
 	 });	 
-	$("#searchBtn").click(function() { 
+	// 검색 버튼 클릭 이벤트 (PC용과 모바일용 모두)
+	function handleSearch() {
 		// 페이지 번호를 1로 설정
 		currentpageNumber = 1;
 		setCookie('currentpageNumber', currentpageNumber, 10); // 쿠키에 페이지 번호 저장
@@ -1026,11 +1340,16 @@ $(document).ready(function() {
 		document.getElementById('board_form').submit();
 		
 		// 모바일에서 카드 다시 렌더링
-		if (window.innerWidth <= 768) {
+		if (isMobile()) {
 			setTimeout(function() {
-				renderMobileCards();
+				processedTables.clear(); // 테이블 처리 상태 초기화
+				debouncedRenderMobileCards();
 			}, 500);
 		}
+	}
+	
+	$("#searchBtn, #searchBtnMobile").click(function() {
+		handleSearch();
 	});
 }); 
 

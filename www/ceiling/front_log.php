@@ -342,6 +342,172 @@ body {
     color: var(--dashboard-text);
 }
 
+/* PC에서 기존 버튼 숨기기 */
+.pc-only-btn {
+	display: none !important;
+}
+
+/* PC/모바일 공통 - 검색 아이콘 버튼 표시 */
+.btn-search-icon,
+#searchBtnMobile {
+	display: flex !important;
+}
+
+/* PC/모바일 공통 검색창 스타일 */
+.search-container {
+	display: flex !important;
+	flex-direction: row !important;
+	flex-wrap: nowrap !important;
+	align-items: center !important;
+	justify-content: center !important;
+	gap: 0.5rem !important;
+	padding: 0.5rem !important;
+	width: 100% !important;
+}
+
+.inputWrap {
+	flex: 0 1 auto !important;
+	min-width: 200px !important;
+	max-width: 400px !important;
+	position: relative !important;
+	display: flex !important;
+	align-items: center !important;
+}
+
+.inputWrap input {
+	width: 100% !important;
+	max-width: 100% !important;
+	padding: 0.5rem 80px 0.5rem 0.75rem !important;
+	font-size: 0.9rem !important;
+	border: 2px solid #28a745 !important;
+	border-radius: 0.5rem !important;
+	background-color: #fff !important;
+	margin: 0 !important;
+	box-sizing: border-box !important;
+}
+
+.btnClear {
+	position: absolute !important;
+	right: 50px !important;
+	top: 50% !important;
+	transform: translateY(-50%) !important;
+	width: 24px !important;
+	height: 24px !important;
+	background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/></svg>') no-repeat center !important;
+	background-size: 16px 16px !important;
+	border: none !important;
+	cursor: pointer !important;
+	z-index: 10 !important;
+	opacity: 0.6 !important;
+	transition: opacity 0.2s ease !important;
+}
+
+.btnClear:hover {
+	opacity: 1 !important;
+}
+
+.btn-search-icon {
+	position: absolute !important;
+	right: 8px !important;
+	top: 50% !important;
+	transform: translateY(-50%) !important;
+	width: 40px !important;
+	height: 40px !important;
+	min-width: 40px !important;
+	padding: 0 !important;
+	border: none !important;
+	background: transparent !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	z-index: 11 !important;
+	cursor: pointer !important;
+	border-radius: 0.25rem !important;
+	transition: background-color 0.2s ease !important;
+}
+
+.btn-search-icon i {
+	font-size: 1.2rem !important;
+	color: #28a745 !important;
+}
+
+.btn-search-icon:hover {
+	background-color: rgba(40, 167, 69, 0.1) !important;
+}
+
+#searchInfo {
+	font-size: 0.85rem !important;
+	margin-left: 0.5rem !important;
+	flex-shrink: 0 !important;
+	white-space: nowrap !important;
+	color: #6c757d !important;
+}
+
+/* PC 화면 - 조명천장&본천장 제품별 단가 테이블 최적화 */
+@media (min-width: 769px) {
+	/* 단가 테이블 컨테이너 */
+	.col-sm-4 .table-responsive {
+		overflow-x: visible !important;
+	}
+	
+	/* 단가 테이블 스타일 */
+	.col-sm-4 .table {
+		min-width: auto !important;
+		width: 100% !important;
+		font-size: 0.8rem !important;
+	}
+	
+	/* 단가 테이블 헤더 */
+	.col-sm-4 .table thead th {
+		font-size: 0.75rem !important;
+		padding: 0.4rem 0.3rem !important;
+		white-space: nowrap !important;
+	}
+	
+	/* 단가 테이블 셀 */
+	.col-sm-4 .table tbody td {
+		font-size: 0.75rem !important;
+		padding: 0.4rem 0.3rem !important;
+		white-space: nowrap !important;
+	}
+	
+	/* 단가 테이블 내부 span */
+	.col-sm-4 .table tbody td span {
+		font-size: 0.75rem !important;
+	}
+	
+	/* 단가 테이블 제목 */
+	.col-sm-4 .card-title {
+		font-size: 0.85rem !important;
+	}
+	
+	/* 발주접수 후 미청구 제품 결재 예측 테이블 (#table2) 동일 스타일 적용 */
+	#table2 {
+		min-width: auto !important;
+		width: 100% !important;
+		font-size: 0.8rem !important;
+	}
+	
+	/* #table2 헤더 */
+	#table2 thead th {
+		font-size: 0.75rem !important;
+		padding: 0.4rem 0.3rem !important;
+		white-space: nowrap !important;
+	}
+	
+	/* #table2 셀 */
+	#table2 tbody td {
+		font-size: 0.75rem !important;
+		padding: 0.4rem 0.3rem !important;
+		white-space: nowrap !important;
+	}
+	
+	/* #table2 제목 */
+	.col-sm-8 .fs-6 {
+		font-size: 0.85rem !important;
+	}
+}
+
 @media (max-width: 768px) {
 	/* body와 html의 width 제한 */
 	html, body {
@@ -357,6 +523,17 @@ body {
 		padding: 10px !important;
 		overflow-x: hidden !important;
 		box-sizing: border-box !important;
+	}
+	
+	/* PC 전용 버튼 숨기기 */
+	.pc-only-btn {
+		display: none !important;
+	}
+	
+	/* 모바일 전용 검색 버튼 표시 */
+	.btn-search-icon,
+	#searchBtnMobile {
+		display: flex !important;
 	}
 
 	/* 행 레이아웃 모바일 최적화 */
@@ -410,64 +587,56 @@ body {
 		font-size: 0.85rem !important;
 	}
 
-	/* 검색 영역 모바일 최적화 - 한 줄로 표시 */
-	.d-flex.p-1.m-1.mt-1.mb-1.justify-content-center.align-items-center {
-		display: flex !important;
-		flex-wrap: nowrap !important;
-		gap: 0.3rem !important;
+	/* 검색 영역 모바일 최적화 - 통합 레이아웃 */
+	.search-container {
 		justify-content: flex-start !important;
-		align-items: center !important;
-		padding: 0.5rem 0.25rem !important;
-		margin: 0.5rem 0 !important;
-		max-width: 100% !important;
-		box-sizing: border-box !important;
-		overflow-x: auto !important;
-		-webkit-overflow-scrolling: touch !important;
-		width: 100% !important;
+		padding: 0.25rem 0.5rem !important;
+		margin-top: 0.25rem !important;
 	}
-
-	.d-flex.p-1.m-1.mt-1.mb-1.justify-content-center.align-items-center #search {
-		width: 100% !important;
-		min-width: 0 !important;
-		max-width: calc(100% - 200px) !important;
-		font-size: 0.75rem !important;
-		padding: 0.35rem 0.4rem !important;
+	
+	.inputWrap {
 		flex: 1 1 auto !important;
-		margin-right: 0.3rem !important;
-		box-sizing: border-box !important;
+		min-width: 0 !important;
+		max-width: none !important;
 	}
-
-	.d-flex.p-1.m-1.mt-1.mb-1.justify-content-center.align-items-center #searchBtn,
-	.d-flex.p-1.m-1.mt-1.mb-1.justify-content-center.align-items-center #clearBtn {
-		font-size: 0.75rem !important;
-		padding: 0.35rem 0.5rem !important;
-		white-space: nowrap !important;
-		flex-shrink: 0 !important;
-		box-sizing: border-box !important;
-		min-width: 60px !important;
+	
+	.inputWrap input {
+		font-size: 1rem !important;
 	}
-
-	.d-flex.p-1.m-1.mt-1.mb-1.justify-content-center.align-items-center #searchInfo {
+	
+	#searchInfo {
 		font-size: 0.7rem !important;
 		margin-left: 0.3rem !important;
-		flex-shrink: 0 !important;
-		white-space: nowrap !important;
 	}
 
-	/* 테이블 모바일 최적화 */
+	/* 테이블 모바일 최적화 - 가로 스크롤 */
 	.table-responsive {
 		overflow-x: auto !important;
+		overflow-y: visible !important;
 		-webkit-overflow-scrolling: touch !important;
 		width: 100% !important;
+		max-width: 100% !important;
 		margin: 0 !important;
 		padding: 0 !important;
+		display: block !important;
+		position: relative !important;
+	}
+
+	.table-responsive .table {
+		width: auto !important;
+		min-width: 100% !important;
+		margin-bottom: 0 !important;
+		display: table !important;
+		table-layout: auto !important;
 	}
 
 	.table {
 		font-size: 0.8rem !important;
-		width: 100% !important;
-		min-width: 600px !important;
+		width: auto !important;
+		min-width: 800px !important;
 		margin-bottom: 0 !important;
+		display: table !important;
+		table-layout: auto !important;
 	}
 
 	.table th {
@@ -475,35 +644,154 @@ body {
 		padding: 0.5rem 0.4rem !important;
 		white-space: nowrap !important;
 		text-align: center !important;
+		min-width: 60px !important;
 	}
 
 	.table td {
 		font-size: 0.75rem !important;
 		padding: 0.5rem 0.4rem !important;
 		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
 		text-align: center !important;
+		min-width: 60px !important;
 	}
-
-	/* Tabulator 모바일 최적화 */
-	.tabulator {
-		font-size: 0.75rem !important;
-		max-width: 100% !important;
+	
+	/* 테이블2 (발주접수 후 미청구 제품 결재 예측) 최소 너비 설정 */
+	#table2 {
+		min-width: 1000px !important;
+		width: auto !important;
+	}
+	
+	#table2 th {
+		min-width: 80px !important;
+		white-space: normal !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		padding: 0.5rem 0.4rem !important;
+	}
+	
+	#table2 td {
+		min-width: 80px !important;
+		white-space: normal !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		padding: 0.5rem 0.4rem !important;
+	}
+	
+	/* 인승 열 최소 너비 */
+	#table2 th:first-child,
+	#table2 td:first-child {
+		min-width: 100px !important;
+	}
+	
+	/* 수량합 열 최소 너비 */
+	#table2 th:nth-child(2),
+	#table2 td:nth-child(2) {
+		min-width: 70px !important;
+	}
+	
+	/* 조명천장/본천장 수량 열 */
+	#table2 th:nth-child(3),
+	#table2 th:nth-child(5),
+	#table2 td:nth-child(3),
+	#table2 td:nth-child(5) {
+		min-width: 60px !important;
+	}
+	
+	/* 조명천장/본천장 금액 열 */
+	#table2 th:nth-child(4),
+	#table2 th:nth-child(6),
+	#table2 td:nth-child(4),
+	#table2 td:nth-child(6) {
+		min-width: 90px !important;
+	}
+	
+	/* 기타 인테리어 열 (rowspan이 있는 셀) */
+	#table2 th[rowspan="2"]:nth-child(7),
+	#table2 td[rowspan="4"]:nth-child(7) {
+		min-width: 100px !important;
+	}
+	
+	/* 합계 열 */
+	#table2 th:last-child,
+	#table2 td:last-child {
+		min-width: 100px !important;
+	}
+	
+	/* 합계 행의 colspan 셀 */
+	#table2 td[colspan="4"],
+	#table2 td[colspan="2"] {
+		min-width: 200px !important;
+	}
+	
+	/* output-table 모바일 최적화 */
+	.output-table {
+		width: auto !important;
+		min-width: 100% !important;
+		display: table !important;
+		table-layout: auto !important;
+	}
+	
+	.output-chart-container .table-responsive {
 		overflow-x: auto !important;
 		-webkit-overflow-scrolling: touch !important;
+		width: 100% !important;
+		max-width: 100% !important;
 	}
 
-	.tabulator .tabulator-header .tabulator-col {
-		font-size: 0.7rem !important;
-		padding: 0.5rem 0.4rem !important;
+	/* Tabulator 모바일 최적화 - 숨기기 */
+	#myTable {
+		display: none !important;
 	}
-
-	.tabulator .tabulator-row .tabulator-cell {
-		font-size: 0.7rem !important;
-		padding: 0.5rem 0.4rem !important;
+	
+	/* Tabulator UI 요소 숨기기 */
+	.tabulator .tabulator-header,
+	.tabulator .tabulator-footer,
+	.tabulator .tabulator-paginator {
+		display: none !important;
 	}
-
-	.tabulator .tabulator-header .tabulator-col .tabulator-col-content {
-		padding: 0.5rem 0.4rem !important;
+	
+	/* 모바일 카드 컨테이너 */
+	.mobile-cards-container {
+		width: 100% !important;
+		max-width: 100% !important;
+		padding: 0.5rem !important;
+		box-sizing: border-box !important;
+	}
+	
+	.mobile-card {
+		background: white !important;
+		border: 1px solid #e2e8f0 !important;
+		border-radius: 8px !important;
+		padding: 0.75rem !important;
+		margin-bottom: 0.75rem !important;
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+	}
+	
+	.mobile-card strong {
+		color: #0dcaf0 !important;
+		margin-right: 0.5rem !important;
+		font-size: 0.9rem !important;
+		flex-shrink: 0 !important;
+	}
+	
+	.mobile-card span {
+		flex: 1 !important;
+		min-width: 0 !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		font-size: 0.8em !important;
+	}
+	
+	.mobile-card .d-flex {
+		display: flex !important;
+		align-items: center !important;
+		margin-bottom: 0.5rem !important;
+		flex-wrap: wrap !important;
 	}
 
 	/* 입력 필드 모바일 최적화 */
@@ -538,7 +826,8 @@ body {
 	.glass-container *,
 	.modern-management-card *,
 	.container *,
-	.container-fluid * {
+	.container-fluid *,
+	.mobile-card * {
 		box-sizing: border-box !important;
 	}
 
@@ -555,10 +844,39 @@ body {
 	.container button,
 	.container .btn,
 	.container span,
-	.container input {
+	.container input,
+	.mobile-card button,
+	.mobile-card .btn,
+	.mobile-card span,
+	.mobile-card input {
 		max-width: 100% !important;
 		word-wrap: break-word !important;
 		overflow-wrap: break-word !important;
+	}
+	
+	/* 텍스트 줄바꿈 */
+	p, div, h1, h2, h3, h4, h5, h6, label, strong, em, b, i, u, span, td, th {
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+	}
+	
+	/* 모달 최적화 */
+	.modal-dialog {
+		max-width: 100% !important;
+		margin: 0 !important;
+		width: 100% !important;
+		height: 100% !important;
+	}
+	
+	.modal-content {
+		width: 100% !important;
+		height: 100% !important;
+		border-radius: 0 !important;
+	}
+	
+	.modal-body {
+		overflow-y: auto !important;
+		max-height: calc(100vh - 120px) !important;
 	}
 
 	/* 출력 섹션 제목 모바일 최적화 */
@@ -873,57 +1191,57 @@ input{
 		<div class="card-body mt-2 mb-2 justify-content-center">	
 	<span class="card-title fs-6" style="color: #113366; ">조명천장&본천장 제품별 단가 (단위:천원)</span> 
 						
-	<div class="d-flex justify-content-center align-items-center mt-2">	   									
-	<table class="table table-bordered justify-content-center" >
-		<thead class="table-primary">
-			<tr>
-				<th >인승</th>
-				<th >조명천장</th>
-				<th >본천장</th>
-			</tr>        
-		</thead>
-		<tbody>
-			<tr>
-				<td>12인승 이하</td>
-				<td>
-				   <div class="d-flex justify-content-center">
-						<span class="w-75 text-end"><?= number_format((float)str_replace(',', '', $readIni['lc_unit_12'] ?? 0)) ?></span>
-					</div>
-				</td>
-				<td>
-				   <div class="d-flex justify-content-center">
-						<span class="w-75 text-end"><?= number_format((float)str_replace(',', '', $readIni['bon_unit_12'] ?? 0)) ?></span>
-					</div>
-				</td>
-			</tr>
-			<tr>
-				<td>13인승 이상 17인승 이하</td>
-				<td>
-				   <div class="d-flex justify-content-center">
-						<span class="w-75 text-end"><?= number_format((float)str_replace(',', '', $readIni['lc_unit_13to17'] ?? 0)) ?></span>
-					</div>
-				</td>
-				<td>
-				   <div class="d-flex justify-content-center">
-						<span class="w-75 text-end"><?= number_format((float)str_replace(',', '', $readIni['bon_unit_13to17'] ?? 0)) ?></span>
-					</div>
-				</td>
-			</tr>
-			<tr>
-				<td>18인승 이상</td>
-				<td>
-				   <div class="d-flex justify-content-center">
-						<span class="w-75 text-end"><?= number_format((float)str_replace(',', '', $readIni['lc_unit_18'] ?? 0)) ?></span>
-					</div>
-				</td>
-				<td>
-				   <div class="d-flex justify-content-center">
-						<span class="w-75 text-end"><?= number_format((float)str_replace(',', '', $readIni['bon_unit_18'] ?? 0)) ?></span>
-					</div>
-				</td>
-			</tr>
-		</tbody>
-	</table>	
+	<div class="table-responsive">
+		<table class="table table-bordered justify-content-center" style="min-width: 400px;">
+			<thead class="table-primary">
+				<tr>
+					<th >인승</th>
+					<th >조명천장</th>
+					<th >본천장</th>
+				</tr>        
+			</thead>
+			<tbody>
+				<tr>
+					<td>12인승 이하</td>
+					<td>
+					   <div class="d-flex justify-content-center">
+							<span class="w-75 text-end"><?= number_format((float)str_replace(',', '', $readIni['lc_unit_12'] ?? 0)) ?></span>
+						</div>
+					</td>
+					<td>
+					   <div class="d-flex justify-content-center">
+							<span class="w-75 text-end"><?= number_format((float)str_replace(',', '', $readIni['bon_unit_12'] ?? 0)) ?></span>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td>13인승 이상 17인승 이하</td>
+					<td>
+					   <div class="d-flex justify-content-center">
+							<span class="w-75 text-end"><?= number_format((float)str_replace(',', '', $readIni['lc_unit_13to17'] ?? 0)) ?></span>
+						</div>
+					</td>
+					<td>
+					   <div class="d-flex justify-content-center">
+							<span class="w-75 text-end"><?= number_format((float)str_replace(',', '', $readIni['bon_unit_13to17'] ?? 0)) ?></span>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td>18인승 이상</td>
+					<td>
+					   <div class="d-flex justify-content-center">
+							<span class="w-75 text-end"><?= number_format((float)str_replace(',', '', $readIni['lc_unit_18'] ?? 0)) ?></span>
+						</div>
+					</td>
+					<td>
+					   <div class="d-flex justify-content-center">
+							<span class="w-75 text-end"><?= number_format((float)str_replace(',', '', $readIni['bon_unit_18'] ?? 0)) ?></span>
+						</div>
+					</td>
+				</tr>
+			</tbody>
+		</table>	
 	</div>
 	<div class="d-flex  p-1 m-1 mt-1 mb-1 justify-content-center align-items-center "> 
 		<button id="writeBtn" type="button" class="btn btn-primary btn-sm">  <i class="bi bi-pencil-square"></i> 단가 자료수정  </button> &nbsp;&nbsp;&nbsp;&nbsp;
@@ -944,7 +1262,7 @@ input{
 </div>
 
 
-<div class="d-flex justify-content-center align-items-center mt-2">
+<div class="table-responsive">
 <table id="table2" class="table table-bordered justify-content-center" >
     <thead class="table-primary">
         <tr>
@@ -1091,7 +1409,8 @@ input{
         </td>
     </tr>		
 </tbody>
-</table>                  
+</table>
+</div>                  
 </div>
 </div>
 </div>
@@ -1125,14 +1444,17 @@ input{
 	<div class="card-body">  	
 		<div class="d-flex  p-1 m-1 mt-1 mb-1 justify-content-center align-items-center "> 	    	
 </div>	  
-<div class="d-flex  p-1 m-1 mt-1 mb-1 justify-content-center align-items-center">  
-	
-<input type="text" id="search" name="search" class="form-control p-1 me-1" style="width:250px;" placeholder="현장명, 발주처, 타입, 인승, Car inside 검색..."  value="<?=$search?>" > &nbsp;
-
-<button id="searchBtn" type="button" class="btn btn-dark  btn-sm"  > <i class="bi bi-search"></i> 검색 </button> &nbsp;
-<button id="clearBtn" type="button" class="btn btn-secondary btn-sm"> <i class="bi bi-x-circle"></i> 초기화 </button> &nbsp;
-<span id="searchInfo" class="text-muted small"></span> &nbsp;&nbsp;&nbsp;&nbsp;
-			
+<div class="d-flex p-1 m-1 mt-1 mb-1 justify-content-center align-items-center search-container">  
+	<div class="inputWrap">
+		<input type="text" id="search" name="search" class="form-control p-1 me-1" style="width:300px!important;" placeholder="현장명, 발주처, 타입.."  value="<?=$search?>" >
+		<button class="btnClear" type="button"></button>
+		<button type="button" id="searchBtnMobile" class="btn-search-icon">
+			<i class="bi bi-search"></i>
+		</button>
+	</div>
+	<button id="searchBtn" type="button" class="btn btn-dark btn-sm pc-only-btn"> <i class="bi bi-search"></i> 검색 </button>
+	<button id="clearBtn" type="button" class="btn btn-secondary btn-sm pc-only-btn"> <i class="bi bi-x-circle"></i> 초기화 </button>
+	<span id="searchInfo" class="text-muted small"></span>
 </div> <!-- end of 2단계 list_search1  -->     
 <div class="table-responsive">
   <div id="myTable"></div>
@@ -1327,6 +1649,26 @@ input{
 // 전역 변수 선언
 var table; // Tabulator 인스턴스
 var workfrontlogpageNumber; // 현재 페이지 번호 저장
+var isRenderingCards = false;
+var processedTables = new Set();
+
+// 모바일 환경 체크
+function isMobile() {
+	return window.innerWidth <= 768;
+}
+
+// 디바운스 함수
+function debounce(func, wait) {
+	var timeout;
+	return function executedFunction(...args) {
+		var later = function() {
+			clearTimeout(timeout);
+			func(...args);
+		};
+		clearTimeout(timeout);
+		timeout = setTimeout(later, wait);
+	};
+}
 
 // Tabulator 초기화 함수
 function initializeTabulator() {
@@ -1392,6 +1734,13 @@ function initializeTabulator() {
             // 검색어가 없으면 모든 필터 제거
             table.clearFilter();
             searchInfo.textContent = '';
+            
+            // 모바일 카드 재렌더링
+            if (isMobile()) {
+                setTimeout(function() {
+                    renderMobileCards();
+                }, 200);
+            }
         } else {
             // 공백 제거한 검색어 생성
             var cleanSearchValue = searchValue.replace(/\s+/g, '');
@@ -1442,19 +1791,47 @@ function initializeTabulator() {
                 var filteredCount = table.getDataCount("active");
                 var totalCount = table.getDataCount();
                 searchInfo.textContent = `검색결과: ${filteredCount}건 / 전체: ${totalCount}건`;
+                
+                // 모바일 카드 재렌더링
+                if (isMobile()) {
+                    setTimeout(function() {
+                        renderMobileCards();
+                    }, 200);
+                }
             }, 100);
         }
     }
 
-    // 검색 버튼 클릭 이벤트
-    document.getElementById('searchBtn').addEventListener('click', performSearch);
+    // 검색 버튼 클릭 이벤트 (PC/모바일 통합)
+    var searchBtn = document.getElementById('searchBtn');
+    var searchBtnMobile = document.getElementById('searchBtnMobile');
+    var clearBtn = document.getElementById('clearBtn');
+    
+    if (searchBtn) {
+        searchBtn.addEventListener('click', performSearch);
+    }
+    if (searchBtnMobile) {
+        searchBtnMobile.addEventListener('click', performSearch);
+    }
 
     // 초기화 버튼 클릭 이벤트
-    document.getElementById('clearBtn').addEventListener('click', function() {
-        document.getElementById('search').value = '';
-        table.clearFilter();
-        document.getElementById('searchInfo').textContent = '';
-    });
+    if (clearBtn) {
+        clearBtn.addEventListener('click', function() {
+            document.getElementById('search').value = '';
+            table.clearFilter();
+            document.getElementById('searchInfo').textContent = '';
+        });
+    }
+    
+    // Clear 버튼 (X 아이콘) 클릭 이벤트
+    var btnClear = document.querySelector('.btnClear');
+    if (btnClear) {
+        btnClear.addEventListener('click', function() {
+            document.getElementById('search').value = '';
+            table.clearFilter();
+            document.getElementById('searchInfo').textContent = '';
+        });
+    }
 
     // 엔터키로 검색
     document.getElementById('search').addEventListener('keypress', function(e) {
@@ -1481,7 +1858,139 @@ function initializeTabulator() {
         workfrontlogpageNumber = pageno;
         setCookie('workfrontlogpageNumber', pageno, 10);
     });
+    
+    // Tabulator 데이터 로드 후 모바일 카드 렌더링
+    if (isMobile()) {
+        setTimeout(function() {
+            renderMobileCards();
+        }, 300);
+    }
+    
+    // Tabulator 데이터 변경 감지
+    table.on("dataLoaded", function() {
+        if (isMobile()) {
+            setTimeout(function() {
+                renderMobileCards();
+            }, 300);
+        }
+    });
+    
+    // 필터 변경 감지
+    table.on("dataFiltered", function() {
+        if (isMobile()) {
+            setTimeout(function() {
+                renderMobileCards();
+            }, 200);
+        }
+    });
 }
+
+// 모바일 카드 렌더링 함수
+function renderMobileCards() {
+	if (isRenderingCards) {
+		return;
+	}
+	
+	if (window.innerWidth > 768) {
+		var containers = document.querySelectorAll('.mobile-cards-container');
+		containers.forEach(function(container) {
+			container.remove();
+		});
+		return;
+	}
+	
+	isRenderingCards = true;
+	
+	// 기존 카드 컨테이너 제거
+	var existingContainer = document.querySelector('.mobile-cards-container');
+	if (existingContainer) {
+		existingContainer.remove();
+	}
+	
+	// Tabulator 데이터 가져오기
+	if (!table) {
+		isRenderingCards = false;
+		return;
+	}
+	
+	var tableData = table.getData();
+	if (!tableData || tableData.length === 0) {
+		isRenderingCards = false;
+		return;
+	}
+	
+	// 카드 컨테이너 생성
+	var cardContainer = document.createElement('div');
+	cardContainer.className = 'mobile-cards-container';
+	cardContainer.style.cssText = 'width: 100%; max-width: 100%; padding: 0.5rem; box-sizing: border-box;';
+	
+	// Tabulator 컬럼 정보 가져오기
+	var columns = table.getColumns();
+	var columnTitles = [];
+	columns.forEach(function(column) {
+		var field = column.getField();
+		var title = column.getDefinition().title || field;
+		columnTitles.push({field: field, title: title});
+	});
+	
+	// 각 행을 카드로 변환
+	tableData.forEach(function(rowData, index) {
+		var card = document.createElement('div');
+		card.className = 'mobile-card';
+		card.style.cssText = 'background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem; margin-bottom: 0.75rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); width: 100%; max-width: 100%; box-sizing: border-box; overflow-x: hidden;';
+		
+		// 각 컬럼을 카드 항목으로 변환
+		columnTitles.forEach(function(col) {
+			var field = col.field;
+			var title = col.title;
+			var value = rowData[field];
+			
+			if (value !== undefined && value !== null && value !== '') {
+				var cardItem = document.createElement('div');
+				cardItem.className = 'd-flex align-items-center mb-2';
+				cardItem.style.cssText = 'display: flex; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap;';
+				
+				var label = document.createElement('strong');
+				label.textContent = title + ': ';
+				label.style.cssText = 'color: #0dcaf0; margin-right: 0.5rem; font-size: 0.9rem; flex-shrink: 0;';
+				
+				var valueSpan = document.createElement('span');
+				if (field === 'price' && typeof value === 'number') {
+					valueSpan.textContent = value.toLocaleString();
+				} else {
+					valueSpan.textContent = value;
+				}
+				valueSpan.style.cssText = 'flex: 1; min-width: 0; word-wrap: break-word; overflow-wrap: break-word; font-size: 0.8em;';
+				
+				cardItem.appendChild(label);
+				cardItem.appendChild(valueSpan);
+				card.appendChild(cardItem);
+			}
+		});
+		
+		// 카드 클릭 이벤트 (상세보기)
+		card.style.cursor = 'pointer';
+		card.addEventListener('click', function() {
+			var num = rowData.num;
+			if (num) {
+				redirectToView(num);
+			}
+		});
+		
+		cardContainer.appendChild(card);
+	});
+	
+	// Tabulator 컨테이너 다음에 카드 컨테이너 삽입
+	var tableContainer = document.getElementById('myTable');
+	if (tableContainer && tableContainer.parentNode) {
+		tableContainer.parentNode.insertBefore(cardContainer, tableContainer.nextSibling);
+	}
+	
+	isRenderingCards = false;
+}
+
+// 디바운스된 렌더링 함수
+var debouncedRenderMobileCards = debounce(renderMobileCards, 300);
 
 // 문서 준비 이벤트
 $(document).ready(function() {
@@ -1489,6 +1998,20 @@ $(document).ready(function() {
     setTimeout(function() {
         initializeTabulator();
     }, 100);
+    
+    // 창 크기 변경 시 모바일 카드 재렌더링
+    $(window).on('resize', debouncedRenderMobileCards);
+    
+    // Tabulator 데이터 변경 감지
+    if (table) {
+        table.on("dataLoaded", function() {
+            if (isMobile()) {
+                setTimeout(function() {
+                    renderMobileCards();
+                }, 300);
+            }
+        });
+    }
 });
 
 // 페이지 번호 복원 함수

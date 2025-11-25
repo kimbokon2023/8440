@@ -70,11 +70,21 @@ $subTitle = '포미스톤 제품';
 	margin-left: 1rem !important;
 }
 
+/* PC에서는 모바일 전용 버튼 숨기기 */
+.mobile-only-btn {
+	display: none !important;
+}
+
 	/* 모바일 환경 최적화 */
 @media (max-width: 768px) {
 	/* 공급자 정보 숨기기 */
 	.supplier-info {
 		display: none !important;
+	}
+	
+	/* 모바일에서 계산하기 버튼 표시 */
+	.mobile-only-btn {
+		display: inline-block !important;
 	}
 	
 	/* body와 html 오버플로우 방지 */
@@ -1172,6 +1182,7 @@ if($mode == 'view') {
                     </div>
                 </div>
                 <div class="d-flex align-items-center">
+                    <button type="button" id="mobileCalculateBtn" class="btn btn-success btn-sm me-2 mobile-only-btn" onclick="recalculateAllMobile()">계산하기</button>
                     <button type="button" id="saveBtn" class="btn btn-primary btn-sm me-2">저장</button>
                     <button type="button" class="btn btn-dark btn-sm me-2" onclick="generatePDF()">PDF 저장</button>
                     <button type="button" class="btn btn-secondary btn-sm" onclick="window.close()">닫기</button>
@@ -1668,12 +1679,51 @@ if($mode == 'view') {
 // 중복 호출 방지를 위한 플래그
 var isRenderingCards = false;
 var renderCardsTimeout = null;
+var processedTables = new Set(); // 처리된 테이블 추적 (전역 변수)
+
+// 모바일 입력 상태 추적 변수
+var isMobileInputActive = false;
+var activeMobileInputElement = null;
+var mobileInputCalculationTimeouts = {};
+
+// 모바일 디바이스 감지 함수
+function isMobileDevice() {
+	return window.innerWidth <= 768 || 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+}
+
+// 모바일 입력 디바운스 함수
+function debounceMobileCalculation(inputId, calculationFunc, wait) {
+	// 기존 타이머 취소
+	if (mobileInputCalculationTimeouts[inputId]) {
+		clearTimeout(mobileInputCalculationTimeouts[inputId]);
+	}
+	
+	// 새 타이머 설정
+	mobileInputCalculationTimeouts[inputId] = setTimeout(function() {
+		calculationFunc();
+		delete mobileInputCalculationTimeouts[inputId];
+	}, wait);
+}
 
 // 모바일에서 테이블을 카드 형식으로 변환하는 함수
 function renderMobileCards() {
 	// 이미 렌더링 중이면 무시
 	if (isRenderingCards) {
 		return;
+	}
+	
+	// 입력 중이면 렌더링하지 않음
+	if (isMobileInputActive && activeMobileInputElement) {
+		return;
+	}
+	
+	// 현재 포커스된 요소 확인 (input 필드인 경우)
+	var activeElement = document.activeElement;
+	if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA' || activeElement.tagName === 'SELECT')) {
+		// 입력 중이면 렌더링하지 않음
+		if (isMobileInputActive && activeMobileInputElement === activeElement) {
+			return;
+		}
 	}
 	
 	// 데스크톱에서는 모든 카드 컨테이너 제거
@@ -1693,7 +1743,7 @@ function renderMobileCards() {
 	
 	// 모든 테이블에 대해 카드 변환
 	var tables = document.querySelectorAll('table:not(.mobile-cards-container table)');
-	var processedTables = new Set(); // 처리된 테이블 추적
+	// processedTables는 전역 변수로 선언됨
 	
 	tables.forEach(function(table) {
 		// 테이블이 이미 숨겨져 있거나 카드 컨테이너 내부에 있는 경우 건너뛰기
@@ -1716,14 +1766,6 @@ function renderMobileCards() {
 			tableId = 'table-' + parentId.replace(/\s+/g, '-') + '-' + tableIndex;
 		}
 		
-		// 이미 처리된 테이블인지 확인
-		if (processedTables.has(tableId)) {
-			return;
-		}
-		
-		// 처리된 테이블로 표시 (먼저 추가하여 중복 방지)
-		processedTables.add(tableId);
-		
 		// 이미 해당 테이블에 대한 카드 컨테이너가 있는지 확인
 		var cardsContainer = document.querySelector('#mobileCardsContainer-' + tableId);
 		if (!cardsContainer) {
@@ -1742,8 +1784,11 @@ function renderMobileCards() {
 			}
 		}
 		
-		// 기존 내용 제거 (중복 방지)
+		// 기존 내용 제거 (항상 새로 렌더링)
 		cardsContainer.innerHTML = '';
+		
+		// 처리된 테이블로 표시 (중복 방지)
+		processedTables.add(tableId);
 		
 		// tbody 처리
 		var tbody = table.querySelector('tbody');
@@ -1802,7 +1847,15 @@ function renderMobileCards() {
 					// 원본 select 요소를 복제
 					var clonedSelect = selectElement.cloneNode(true);
 					clonedSelect.style.cssText = 'width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; display: block !important; visibility: visible !important; opacity: 1 !important;';
-					clonedSelect.className = selectElement.className;
+					// Select2 관련 클래스 제거
+					var baseClasses = selectElement.className.split(' ').filter(function(cls) {
+						return cls !== 'select2-hidden-accessible';
+					}).join(' ');
+					clonedSelect.className = baseClasses;
+					// Select2 관련 속성 제거
+					clonedSelect.removeAttribute('data-select2-id');
+					clonedSelect.removeAttribute('tabindex');
+					clonedSelect.removeAttribute('aria-hidden');
 					// 고유 ID 생성 (중복 방지)
 					clonedSelect.id = (selectElement.id || '') + '-mobile-' + originalRowIndex;
 					clonedSelect.name = selectElement.name;
@@ -1840,90 +1893,127 @@ function renderMobileCards() {
 								'background-color': '#fff'
 							});
 							
-							// populateProductOptions를 호출하여 옵션 로드
-							if (typeof populateProductOptions === 'function') {
-								populateProductOptions($clonedSelect, function() {
-									// 옵션 로드 완료 후 원본 select의 값 복사
-									if (originalValue) {
-										$clonedSelect.val(originalValue);
-									}
-									
-									// change 이벤트 동기화 (일반 select의 change 이벤트 사용)
-									$clonedSelect.off('change.mobile-sync');
-									$clonedSelect.on('change.mobile-sync', function(e) {
-										var selectedValue = $clonedSelect.val();
-										// 원본 select에 값 설정
-										$originalSelect.val(selectedValue);
-										// 원본 select의 change 이벤트 트리거
-										$originalSelect.trigger('change');
-										// 원본 테이블의 계산 함수 호출
-										if (typeof updateTotals === 'function') {
-											updateTotals();
-										}
-										// 카드 다시 렌더링하여 선택된 값이 표시되도록
-										if (window.innerWidth <= 768) {
-											setTimeout(function() {
-												renderMobileCards();
-											}, 300);
-										}
-									});
-									
-									// 원본 select의 change 이벤트에서 카드 내부 select 업데이트 (중복 방지)
-									$originalSelect.off('change.mobile-sync');
-									$originalSelect.on('change.mobile-sync', function() {
-										var currentValue = $originalSelect.val();
-										if ($clonedSelect.val() !== currentValue) {
-											$clonedSelect.val(currentValue);
-										}
-									});
-								});
-							} else {
-								// populateProductOptions가 없는 경우 원본 select의 옵션 복사
-								var originalOptions = $originalSelect.find('option');
-								$clonedSelect.empty();
-								originalOptions.each(function() {
-									var optionValue = $(this).val();
-									var optionText = $(this).text();
-									var isSelected = $(this).prop('selected');
-									var newOption = $('<option></option>').attr('value', optionValue).text(optionText);
-									if (isSelected) {
-										newOption.prop('selected', true);
-									}
-									$clonedSelect.append(newOption);
-								});
-								
-								if (originalValue) {
-									$clonedSelect.val(originalValue);
+							// 원본 select의 옵션을 복사하여 사용 (AJAX 호출 방지)
+							// 이미 로드된 옵션을 복사하므로 populateProductOptions를 호출하지 않음
+							var originalOptions = $originalSelect.find('option');
+							$clonedSelect.empty();
+							originalOptions.each(function() {
+								var optionValue = $(this).val();
+								var optionText = $(this).text();
+								var isSelected = $(this).prop('selected');
+								var optionData = {
+									'data-spec': $(this).data('spec'),
+									'data-size': $(this).data('size'),
+									'data-thickness': $(this).data('thickness'),
+									'data-area': $(this).data('area'),
+									'data-unit-price': $(this).data('unit-price')
+								};
+								var newOption = $('<option>', {
+									value: optionValue,
+									text: optionText
+								}).data(optionData);
+								if (isSelected) {
+									newOption.prop('selected', true);
+								}
+								$clonedSelect.append(newOption);
+							});
+							
+							// 옵션 복사 완료 후 원본 select의 값 복사
+							if (originalValue) {
+								$clonedSelect.val(originalValue);
+							}
+							
+							// change 이벤트 동기화 (일반 select의 change 이벤트 사용)
+							// 무한 루프 방지를 위한 플래그
+							var isSyncing = false;
+							
+							// 무한 루프 방지: 복제된 select에서만 원본으로 단방향 동기화
+							// 원본 select의 change 이벤트는 복제된 select에 영향을 주지 않음
+							$clonedSelect.off('change.mobile-sync');
+							$clonedSelect.on('change.mobile-sync', function(e) {
+								// 이미 동기화 중이면 무시
+								if (isSyncing) {
+									return;
 								}
 								
-								// change 이벤트 동기화
-								$clonedSelect.off('change.mobile-sync');
-								$clonedSelect.on('change.mobile-sync', function(e) {
-									var selectedValue = $clonedSelect.val();
-									$originalSelect.val(selectedValue).trigger('change');
-									if (typeof updateTotals === 'function') {
-										updateTotals();
-									}
-									if (window.innerWidth <= 768) {
-										setTimeout(function() {
-											renderMobileCards();
-										}, 300);
-									}
-								});
+								// 이벤트가 프로그래밍 방식으로 발생한 경우 무시
+								if (e.isTrigger) {
+									return;
+								}
 								
+								isSyncing = true;
+								var selectedValue = $clonedSelect.val();
+								console.log('[모바일] 상품 선택:', selectedValue);
+								
+								// 원본 select의 change.mobile-sync 이벤트 핸들러 일시 제거
 								$originalSelect.off('change.mobile-sync');
-								$originalSelect.on('change.mobile-sync', function() {
-									var currentValue = $originalSelect.val();
-									if ($clonedSelect.val() !== currentValue) {
-										$clonedSelect.val(currentValue);
+								
+								// 원본 select에 값 설정
+								$originalSelect.val(selectedValue);
+								
+								// Select2가 활성화되어 있으면 Select2도 업데이트하고 이벤트 트리거
+								if ($originalSelect.hasClass('select2-hidden-accessible')) {
+									// Select2 값 업데이트
+									$originalSelect.trigger('change.select2');
+									// Select2 select 이벤트 트리거 (handleProductSelectChange 호출)
+									$originalSelect.trigger('select2:select');
+								} else {
+									// Select2가 없으면 일반 change 이벤트 트리거
+									$originalSelect.trigger('change');
+								}
+								
+								// 추가 안전장치: handleProductSelectChange 직접 호출 (약간의 지연 후)
+								// 이렇게 하면 Select2 이벤트가 제대로 트리거되지 않아도 동작 보장
+								// 주의: 원본 select를 사용해야 itemRow를 찾을 수 있음
+								setTimeout(function() {
+									// 함수가 정의되어 있는지 확인 (스코프 문제 해결)
+									// handleProductSelectChange는 함수 선언이므로 호이스팅되어 접근 가능해야 함
+									try {
+										// 직접 호출 시도
+										if (typeof handleProductSelectChange === 'function') {
+											handleProductSelectChange($originalSelect);
+										}
+									} catch (error) {
+										console.error('[모바일] handleProductSelectChange 호출 오류:', error);
 									}
-								});
-							}
+								}, 150);
+								
+								// 동기화 완료 후 플래그 해제
+								setTimeout(function() {
+									isSyncing = false;
+								}, 300);
+								
+								// 원본 테이블의 계산 함수 호출은 handleProductSelectChange 내부에서 처리됨
+								// 카드 재렌더링은 handleProductSelectChange 내부에서 처리됨
+							});
+							
+							// 원본 select의 change.mobile-sync 이벤트 핸들러는 제거
+							// 무한 루프 방지를 위해 단방향 동기화만 사용 (복제된 select -> 원본 select)
+							$originalSelect.off('change.mobile-sync');
 						}
 					}, 200);
 				} else {
 					// select가 아닌 경우 기존 방식대로 처리
-					valueSpan.innerHTML = cell.innerHTML;
+					// 입력 필드인 경우 클래스와 속성을 유지하도록 처리
+					var inputElement = cell.querySelector('input');
+					if (inputElement) {
+						// 입력 필드를 복제하여 클래스와 속성 유지
+						var clonedInput = inputElement.cloneNode(true);
+						// 모바일 카드에서도 입력 필드가 작동하도록 클래스 유지
+						clonedInput.className = inputElement.className;
+						clonedInput.name = inputElement.name;
+						clonedInput.id = (inputElement.id || '') + '-mobile-' + (row.getAttribute('data-row') || '');
+						clonedInput.value = inputElement.value;
+						clonedInput.type = inputElement.type;
+						clonedInput.placeholder = inputElement.placeholder;
+						clonedInput.readOnly = inputElement.readOnly;
+						clonedInput.step = inputElement.step;
+						clonedInput.style.cssText = 'width: 100% !important; max-width: 100% !important; box-sizing: border-box !important;';
+						valueSpan.appendChild(clonedInput);
+					} else {
+						// 입력 필드가 아닌 경우 기존 방식대로 처리
+						valueSpan.innerHTML = cell.innerHTML;
+					}
 					valueSpan.style.cssText = 'word-wrap: break-word; overflow-wrap: break-word; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important;';
 				}
 				
@@ -2044,6 +2134,104 @@ function renderMobileCards() {
 				fixRowNumberLayout();
 			}, 50);
 		}
+		
+		// 모바일 카드의 입력 필드에 이벤트 핸들러 재연결 (안전장치)
+		// 이벤트 위임을 사용하므로 자동으로 연결되어야 하지만, 명시적으로 확인
+		$('.mobile-card .quantity-input, .mobile-card .unit-price-input').off('input.mobile-card-sync');
+		$('.mobile-card .quantity-input, .mobile-card .unit-price-input').on('input.mobile-card-sync', function() {
+			// 이벤트 위임으로 이미 처리되지만, 추가 확인을 위해 로그 출력
+			console.log('[모바일 카드] 입력 필드 변경 감지');
+		});
+		
+		// 모바일 카드의 모든 input, select, textarea에 터치 이벤트 바인딩
+		var mobileInputs = document.querySelectorAll('.mobile-card input, .mobile-card select, .mobile-card textarea');
+		mobileInputs.forEach(function(input) {
+			// 이미 바인딩된 경우 건너뛰기
+			if (input.hasAttribute('data-touch-events-bound')) {
+				return;
+			}
+			
+			// 터치 이벤트 바인딩 (native addEventListener 사용)
+			input.addEventListener('touchstart', function(e) {
+				e.stopPropagation();
+				e.stopImmediatePropagation();
+				
+				if (this.tagName === 'INPUT' || this.tagName === 'TEXTAREA' || this.tagName === 'SELECT') {
+					isMobileInputActive = true;
+					activeMobileInputElement = this;
+					
+					var self = this;
+					setTimeout(function() {
+						if (self && document.body.contains(self)) {
+							self.focus();
+							if (document.activeElement !== self) {
+								self.focus();
+							}
+						}
+					}, 50);
+				}
+			}, { passive: false });
+			
+			input.addEventListener('touchend', function(e) {
+				e.stopPropagation();
+				e.stopImmediatePropagation();
+				
+				if (this.tagName === 'INPUT' || this.tagName === 'TEXTAREA' || this.tagName === 'SELECT') {
+					var self = this;
+					setTimeout(function() {
+						if (self && document.body.contains(self)) {
+							self.focus();
+						}
+					}, 10);
+				}
+			}, { passive: false });
+			
+			input.addEventListener('touchmove', function(e) {
+				e.stopPropagation();
+			}, { passive: true });
+			
+			input.addEventListener('click', function(e) {
+				e.stopPropagation();
+				e.stopImmediatePropagation();
+				
+				if (this.tagName === 'INPUT' || this.tagName === 'TEXTAREA' || this.tagName === 'SELECT') {
+					isMobileInputActive = true;
+					activeMobileInputElement = this;
+					
+					var self = this;
+					setTimeout(function() {
+						if (self && document.body.contains(self)) {
+							self.focus();
+						}
+					}, 10);
+				}
+				
+				return false;
+			}, { capture: true });
+			
+			input.addEventListener('focus', function(e) {
+				e.stopPropagation();
+				e.stopImmediatePropagation();
+				
+				if (this.tagName === 'INPUT' || this.tagName === 'TEXTAREA' || this.tagName === 'SELECT') {
+					isMobileInputActive = true;
+					activeMobileInputElement = this;
+				}
+			}, { capture: true });
+			
+			input.addEventListener('input', function(e) {
+				e.stopPropagation();
+				e.stopImmediatePropagation();
+			}, { capture: true });
+			
+			input.addEventListener('change', function(e) {
+				e.stopPropagation();
+				e.stopImmediatePropagation();
+			}, { capture: true });
+			
+			// 바인딩 완료 표시
+			input.setAttribute('data-touch-events-bound', 'true');
+		});
 	}, 100);
 }
 
@@ -2111,74 +2299,7 @@ $(document).ready(function() {
 		removeVATParentheses();
 	}
 	
-	// 행 번호와 버튼 레이아웃 수정 함수
-	function fixRowNumberLayout() {
-		if (window.innerWidth <= 768) {
-			// 상품 테이블 - 번호와 버튼
-			$('.item-row td[data-label="No."] .d-flex, .cost-row td[data-label="No."] .d-flex').each(function() {
-				var $this = $(this);
-				var currentStyle = $this.attr('style') || '';
-				$this.attr('style', currentStyle + '; display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; align-items: center !important; justify-content: flex-start !important; gap: 0.5rem !important; width: 100% !important;');
-			});
-			
-			$('.item-row td[data-label="No."] .d-flex > span, .cost-row td[data-label="No."] .d-flex > span').each(function() {
-				var $this = $(this);
-				var currentStyle = $this.attr('style') || '';
-				$this.attr('style', currentStyle + '; width: auto !important; flex: 0 0 auto !important; margin: 0 !important; white-space: nowrap !important;');
-			});
-			
-			$('.item-row td[data-label="No."] .d-flex > .btn-group, .cost-row td[data-label="No."] .d-flex > .btn-group').each(function() {
-				var $this = $(this);
-				var currentStyle = $this.attr('style') || '';
-				$this.attr('style', currentStyle + '; display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; width: auto !important; min-width: auto !important; max-width: none !important; flex: 0 0 auto !important; flex-shrink: 0 !important; flex-grow: 0 !important; margin-left: auto !important; gap: 0.25rem !important;');
-				
-				// 버튼들도 직접 수정
-				$this.find('button').each(function() {
-					var $btn = $(this);
-					var btnStyle = $btn.attr('style') || '';
-					$btn.attr('style', btnStyle + '; width: 36px !important; min-width: 36px !important; max-width: 36px !important; height: 36px !important; flex: 0 0 36px !important; flex-shrink: 0 !important; flex-grow: 0 !important; display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important;');
-				});
-			});
-			
-			// 기타비용 테이블 - 기능 버튼만 (원본 테이블)
-			$('.cost-row td[data-label="기능"] .btn-group, .cost-row td.row-function-cell .btn-group').each(function() {
-				var $this = $(this);
-				var currentStyle = $this.attr('style') || '';
-				$this.attr('style', currentStyle + '; display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; width: auto !important; min-width: auto !important; max-width: none !important; gap: 0.25rem !important; margin: 0 !important;');
-				
-				// 버튼들도 직접 수정
-				$this.find('button').each(function() {
-					var $btn = $(this);
-					var btnStyle = $btn.attr('style') || '';
-					$btn.attr('style', btnStyle + '; width: 36px !important; min-width: 36px !important; max-width: 36px !important; height: 36px !important; flex: 0 0 36px !important; flex-shrink: 0 !important; flex-grow: 0 !important; display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important;');
-				});
-			});
-			
-			// 카드 내부 버튼 그룹 처리 (모바일 카드)
-			$('.mobile-card').each(function() {
-				var $card = $(this);
-				// "기능:" 라벨이 있는 카드 항목 찾기
-				$card.find('div').each(function() {
-					var $item = $(this);
-					var labelText = $item.find('strong').text();
-					if (labelText && labelText.includes('기능')) {
-						var $btnGroup = $item.find('.btn-group');
-						if ($btnGroup.length > 0) {
-							var currentStyle = $btnGroup.attr('style') || '';
-							$btnGroup.attr('style', currentStyle + '; display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; width: auto !important; min-width: auto !important; max-width: none !important; gap: 0.25rem !important; margin: 0 !important;');
-							
-							// 버튼들도 직접 수정
-							$btnGroup.find('button').each(function() {
-								var $btn = $(this);
-								var btnStyle = $btn.attr('style') || '';
-								$btn.attr('style', btnStyle + '; width: 36px !important; min-width: 36px !important; max-width: 36px !important; height: 36px !important; flex: 0 0 36px !important; flex-shrink: 0 !important; flex-grow: 0 !important; display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important;');
-							});
-						}
-					}
-				});
-			});
-		}
-	}
+	// fixRowNumberLayout 함수는 전역 스코프에 정의됨 (아래 참조)
 	
 	// 창 크기 변경 시 레이아웃 수정
 	$(window).on('resize', function() {
@@ -2224,6 +2345,17 @@ $(document).ready(function() {
 	// MutationObserver 설정 (더 제한적으로)
 	if (window.innerWidth <= 768) {
 		observer = new MutationObserver(function(mutations) {
+			// 모바일 입력 중이면 재렌더링하지 않음
+			if (isMobileInputActive && activeMobileInputElement) {
+				return;
+			}
+			
+			// input 필드에 포커스가 있으면 renderMobileCards 호출하지 않음
+			var activeElement = document.activeElement;
+			if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA' || activeElement.tagName === 'SELECT')) {
+				return; // 포커스가 있는 동안은 렌더링하지 않음
+			}
+			
 			// 실제로 테이블 행이 추가/삭제되었는지 확인
 			var hasRowChange = false;
 			mutations.forEach(function(mutation) {
@@ -2277,6 +2409,11 @@ $(document).ready(function() {
 	}
     // Select2 초기화
     function initializeSelect2() {
+        // 모바일 환경에서는 Select2를 초기화하지 않음
+        if (window.innerWidth <= 768) {
+            return;
+        }
+        
         $('.product-select').select2({
             placeholder: '상품을 선택하세요',
             allowClear: true,
@@ -2336,7 +2473,6 @@ $(document).ready(function() {
                 
                 // 값이 있지만 관련 필드가 비어있는 경우 재처리
                 if (selectedValue && itemRow.find('.specification-input').val() === '') {
-                    console.log('추가 확인: 상품 데이터 재처리', selectedValue);
                     processRowData(selectElement);
                 }
             });
@@ -2355,10 +2491,10 @@ $(document).ready(function() {
             const selectedOption = selectElement.find('option[value="' + selectedValue + '"]');
             if (selectedOption.length > 0) {
                 const itemRow = selectElement.closest('.item-row');
-                const spec = selectedOption.data('spec');
-                const size = selectedOption.data('size');
-                const area = selectedOption.data('area');
-                const unitPrice = selectedOption.data('unit-price');
+                const spec = selectedOption.data('spec') || '';
+                const size = selectedOption.data('size') || '';
+                const area = selectedOption.data('area') || '';
+                const unitPrice = selectedOption.data('unit-price') || '';
                 
                 // 데이터가 유효한지 확인
                 if (spec && size && unitPrice) {
@@ -2375,12 +2511,10 @@ $(document).ready(function() {
                     if (savedUnitPrice && savedUnitPrice !== '' && savedUnitPrice !== '0') {
                         // 기존에 수정된 단가가 있으면 그 값을 유지
                         unitPriceVal = parseFloat(savedUnitPrice.replace(/,/g, '')) || 0;
-                        console.log('초기 로딩 - 기존 수정된 단가 유지:', unitPriceVal);
                     } else {
                         // 기존 단가가 없거나 0이면 단가표의 기본값 사용
-                        unitPriceVal = parseFloat(unitPrice.toString().replace(/,/g, '')) || 0;
+                        unitPriceVal = parseFloat((unitPrice || '').toString().replace(/,/g, '')) || 0;
                         itemRow.find('.unit-price-input').val(unitPriceVal.toLocaleString());
-                        console.log('초기 로딩 - 단가표 기본값 사용:', unitPriceVal);
                     }
                     
                     // 기존 저장된 수량과 면적이 있으면 그 값을 사용, 없으면 기본값 계산
@@ -2389,24 +2523,26 @@ $(document).ready(function() {
                     
                     // 실제 면적 계산 (규격에서 면적 추출)
                     let actualArea = 0;
-                    if (size.includes('*')) {
-                        const sizeParts = size.split('*');
-                        if (sizeParts.length >= 2) {
-                            const width = parseFloat(sizeParts[0]) || 0;
-                            const height = parseFloat(sizeParts[1]) || 0;
-                            actualArea = (width * height) / 1000000; // mm²를 m²로 변환
+                    if (size && typeof size === 'string') {
+                        if (size.includes('*')) {
+                            const sizeParts = size.split('*');
+                            if (sizeParts.length >= 2) {
+                                const width = parseFloat(sizeParts[0]) || 0;
+                                const height = parseFloat(sizeParts[1]) || 0;
+                                actualArea = (width * height) / 1000000; // mm²를 m²로 변환
+                            }
+                        } else if (size.includes('×')) {
+                            const sizeParts = size.split('×');
+                            if (sizeParts.length >= 2) {
+                                const width = parseFloat(sizeParts[0]) || 0;
+                                const height = parseFloat(sizeParts[1]) || 0;
+                                actualArea = (width * height) / 1000000; // mm²를 m²로 변환
+                            }
+                        } else {
+                            // 단일 숫자인 경우 (가정: 정사각형)
+                            const singleSize = parseFloat(size) || 0;
+                            actualArea = (singleSize * singleSize) / 1000000; // mm²를 m²로 변환
                         }
-                    } else if (size.includes('×')) {
-                        const sizeParts = size.split('×');
-                        if (sizeParts.length >= 2) {
-                            const width = parseFloat(sizeParts[0]) || 0;
-                            const height = parseFloat(sizeParts[1]) || 0;
-                            actualArea = (width * height) / 1000000; // mm²를 m²로 변환
-                        }
-                    } else {
-                        // 단일 숫자인 경우 (가정: 정사각형)
-                        const singleSize = parseFloat(size) || 0;
-                        actualArea = (singleSize * singleSize) / 1000000; // mm²를 m²로 변환
                     }
                     
                     // 저장된 면적이 있으면 그 값을 사용, 없으면 계산된 값 사용
@@ -2420,16 +2556,10 @@ $(document).ready(function() {
                     itemRow.find('.supply-amount').text('' + supplyAmount.toLocaleString());
                     itemRow.find('.tax-amount').text('' + taxAmount.toLocaleString());
                     
-                    console.log('기존 데이터 로딩 - size:', size, 'actualArea:', actualArea, 'savedQuantity:', savedQuantity, 'savedArea:', savedArea, 'finalArea:', finalArea, 'unitPriceVal:', unitPriceVal);
-                    
                     // 개별 행 계산 후 소계 업데이트
                     updateItemSubtotals();
                     updateTotals();
-                } else {
-                    console.warn('상품 데이터가 불완전합니다:', { selectedValue, spec, size, unitPrice });
                 }
-            } else {
-                console.warn('선택된 상품 옵션을 찾을 수 없습니다:', selectedValue);
             }
         } else {
             // 상품이 선택되지 않은 경우에도 기존 데이터가 있으면 금액 계산
@@ -2445,8 +2575,6 @@ $(document).ready(function() {
                 
                 itemRow.find('.supply-amount').text('' + supplyAmount.toLocaleString());
                 itemRow.find('.tax-amount').text('' + taxAmount.toLocaleString());
-                
-                console.log('기존 데이터 금액 계산 - savedQuantity:', savedQuantity, 'savedArea:', savedArea, 'unitPriceVal:', unitPriceVal, 'supplyAmount:', supplyAmount);
                 
                 // 개별 행 계산 후 소계 업데이트
                 updateItemSubtotals();
@@ -2478,7 +2606,6 @@ $(document).ready(function() {
                 
                 if (!isAutoCalculated) {
                     $(this).data('manually-modified', true);
-                    console.log('기존 데이터에서 수동 수정 감지:', category, item, quantity, unitPrice);
                 }
             }
         });
@@ -2523,7 +2650,6 @@ $(document).ready(function() {
                 $(this).find('.cost-supply-amount').val( supplyAmount.toLocaleString());
                 $(this).find('.cost-tax-amount').val(taxAmount.toLocaleString());
                 
-                console.log('기존 기타비용 금액 계산 - category:', category, 'item:', item, 'quantity:', quantity, 'unitPrice:', unitPrice, 'supplyAmount:', supplyAmount);
             }
         });
     }
@@ -2546,7 +2672,7 @@ $(document).ready(function() {
         });
         
         if (hasExistingData) {
-            console.log('수정 모드에서 기존 기타비용 데이터가 있어 자동 계산을 건너뜁니다.');
+            // 수정 모드에서 기존 기타비용 데이터가 있어 자동 계산을 건너뜀
         } else {
             // 기존 데이터가 없을 때만 자동 계산 실행
             calculateOtherCostsFromProducts(false);
@@ -2572,21 +2698,18 @@ $(document).ready(function() {
     
     // 기타비용 자동산출 체크박스 이벤트 리스너
     $('#etc_autocheck').change(function() {
-        console.log('기타비용 자동산출 체크박스 변경:', $(this).is(':checked'));
         // 기타비용 테이블 재계산 (강제 재계산)
         calculateOtherCostsFromProducts(true);
     });
     
     // 시공비 제외 체크박스 이벤트 리스너
     $('#exclude_construction_cost').change(function() {
-        console.log('시공비 제외 체크박스 변경:', $(this).is(':checked'));
         // 기타비용 테이블 재계산 (강제 재계산)
         calculateOtherCostsFromProducts(true);
     });
     
     // 몰딩 제외 체크박스 이벤트 리스너
     $('#exclude_molding').change(function() {
-        console.log('몰딩 제외 체크박스 변경:', $(this).is(':checked'));
         // 기타비용 테이블 재계산 (강제 재계산)
         calculateOtherCostsFromProducts(true);
     });
@@ -2606,37 +2729,288 @@ $(document).ready(function() {
     
     // 기타비용 행 입력 이벤트
     $(document).on('input', '.cost-quantity-input, .cost-unit-price-input', function(e) {
-        const row = $(this).closest('.cost-row');
+        const $input = $(this);
+        var inputId = $input.attr('id') || $input.attr('name') || Math.random().toString(36);
+        let row = $input.closest('.cost-row');
+        
+        // 모바일 카드의 입력 필드인 경우 원본 테이블의 행 찾기
+        if (row.length === 0 || !row.hasClass('cost-row')) {
+            // 모바일 카드 내부인지 확인
+            const $mobileCard = $input.closest('.mobile-card');
+            if ($mobileCard.length > 0) {
+                // 모바일 카드 내의 입력 필드에서 구분, 항목, 단위 값을 가져와서 원본 테이블 행 찾기
+                const $cardCategoryInput = $mobileCard.find('input[name*="[category]"]');
+                const $cardItemInput = $mobileCard.find('input[name*="[item]"]');
+                const $cardUnitInput = $mobileCard.find('input[name*="[unit]"]');
+                
+                if ($cardCategoryInput.length > 0 && $cardItemInput.length > 0) {
+                    const cardCategoryVal = $cardCategoryInput.val();
+                    const cardItemVal = $cardItemInput.val();
+                    const cardUnitVal = $cardUnitInput.val() || '';
+                    
+                    // 원본 테이블에서 일치하는 행 찾기
+                    $('.cost-row').each(function() {
+                        const $costRow = $(this);
+                        const rowCategory = $costRow.find('input[name*="[category]"]').val();
+                        const rowItem = $costRow.find('input[name*="[item]"]').val();
+                        const rowUnit = $costRow.find('input[name*="[unit]"]').val() || '';
+                        
+                        if (rowCategory === cardCategoryVal && rowItem === cardItemVal && rowUnit === cardUnitVal) {
+                            row = $costRow;
+                            return false; // break
+                        }
+                    });
+                    
+                    // 원본 테이블 행을 찾았으면 모바일 카드의 값을 원본 테이블로 동기화
+                    if (row.length > 0 && row.hasClass('cost-row')) {
+                        if ($input.hasClass('cost-quantity-input')) {
+                            const mobileQuantity = $input.val();
+                            row.find('.cost-quantity-input').val(mobileQuantity);
+                        } else if ($input.hasClass('cost-unit-price-input')) {
+                            const mobileUnitPrice = $input.val();
+                            row.find('.cost-unit-price-input').val(mobileUnitPrice);
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (row.length === 0 || !row.hasClass('cost-row')) {
+            return; // 원본 테이블의 행을 찾을 수 없으면 종료
+        }
 
         // 프로그래밍 방식으로 값이 변경된 경우인지 확인
-        const isProgrammaticChange = $(this).data('programmatic-change') === true;
+        const isProgrammaticChange = $input.data('programmatic-change') === true;
 
         if (!isProgrammaticChange) {
             // 수동 수정 플래그 설정
             row.data('manually-modified', true);
 
             // 기타 비용의 수량을 수동으로 입력하면 자동산출 체크박스 해제
-            if ($(this).hasClass('cost-quantity-input')) {
+            if ($input.hasClass('cost-quantity-input')) {
                 const etcAutoCheckbox = $('#etc_autocheck');
                 if (etcAutoCheckbox.is(':checked')) {
                     etcAutoCheckbox.prop('checked', false);
-                    console.log('기타비용 수량 수동 입력으로 인해 자동산출 체크박스 해제됨 (모드: ' + mode + ')');
                     alertToast('자동산출 해제');
                 }
             }
         } else {
             // 프로그래밍 방식 변경 플래그 제거
-            $(this).removeData('programmatic-change');
-            console.log('프로그래밍 방식으로 값이 변경되어 자동산출 체크박스 유지됨');
+            $input.removeData('programmatic-change');
         }
 
-        calculateCostRow(row);
+        // 모바일 환경인 경우 입력이 끝날 때까지 대기
+        if (isMobileDevice()) {
+            // 입력 중이면 계산하지 않음
+            if (isMobileInputActive && activeMobileInputElement === this) {
+                debounceMobileCalculation(inputId, function() {
+                    // 입력이 완전히 끝난 후에만 계산
+                    if (!isMobileInputActive || activeMobileInputElement !== $input[0]) {
+                        calculateCostRow(row);
+                        updateOtherCostsSubtotal();
+                        updateTotals();
+                        
+                        // 모바일 카드의 값도 업데이트
+                        const $mobileCard = $input.closest('.mobile-card');
+                        if ($mobileCard.length > 0 && row.length > 0) {
+                            const supplyAmount = row.find('.cost-supply-amount').val();
+                            const taxAmount = row.find('.cost-tax-amount').val();
+                            
+                            $mobileCard.find('input.cost-supply-amount, input[name*="[supply_amount]"]').val(supplyAmount);
+                            $mobileCard.find('input.cost-tax-amount, input[name*="[tax_amount]"]').val(taxAmount);
+                            
+                            $mobileCard.find('strong').each(function() {
+                                const labelText = $(this).text().trim();
+                                if (labelText.includes('공급가액') || labelText.includes('Supply')) {
+                                    const $nextSpan = $(this).next('span');
+                                    if ($nextSpan.length > 0) {
+                                        $nextSpan.text(supplyAmount);
+                                    }
+                                }
+                                if (labelText.includes('세액') || labelText.includes('Tax')) {
+                                    const $nextSpan = $(this).next('span');
+                                    if ($nextSpan.length > 0) {
+                                        $nextSpan.text(taxAmount);
+                                    }
+                                }
+                            });
+                        }
+                    }
+                }, 800);
+            } else {
+                debounceMobileCalculation(inputId, function() {
+                    calculateCostRow(row);
+                    updateOtherCostsSubtotal();
+                    updateTotals();
+                    
+                    // 모바일 카드의 값도 업데이트
+                    const $mobileCard = $input.closest('.mobile-card');
+                    if ($mobileCard.length > 0 && row.length > 0) {
+                        const supplyAmount = row.find('.cost-supply-amount').val();
+                        const taxAmount = row.find('.cost-tax-amount').val();
+                        
+                        $mobileCard.find('input.cost-supply-amount, input[name*="[supply_amount]"]').val(supplyAmount);
+                        $mobileCard.find('input.cost-tax-amount, input[name*="[tax_amount]"]').val(taxAmount);
+                        
+                        $mobileCard.find('strong').each(function() {
+                            const labelText = $(this).text().trim();
+                            if (labelText.includes('공급가액') || labelText.includes('Supply')) {
+                                const $nextSpan = $(this).next('span');
+                                if ($nextSpan.length > 0) {
+                                    $nextSpan.text(supplyAmount);
+                                }
+                            }
+                            if (labelText.includes('세액') || labelText.includes('Tax')) {
+                                const $nextSpan = $(this).next('span');
+                                if ($nextSpan.length > 0) {
+                                    $nextSpan.text(taxAmount);
+                                }
+                            }
+                        });
+                    }
+                }, 800);
+            }
+        } else {
+            // PC 환경에서는 즉시 계산
+            calculateCostRow(row);
+            
+            // 모바일 카드의 값도 업데이트
+            const $mobileCard = $input.closest('.mobile-card');
+            if ($mobileCard.length > 0 && row.length > 0) {
+                // 계산된 공급가액과 세액을 모바일 카드에도 반영
+                const supplyAmount = row.find('.cost-supply-amount').val();
+                const taxAmount = row.find('.cost-tax-amount').val();
+                
+                $mobileCard.find('input.cost-supply-amount, input[name*="[supply_amount]"]').val(supplyAmount);
+                $mobileCard.find('input.cost-tax-amount, input[name*="[tax_amount]"]').val(taxAmount);
+                
+                // 공급가액과 세액을 span으로 표시하는 경우도 업데이트
+                $mobileCard.find('strong').each(function() {
+                    const labelText = $(this).text().trim();
+                    if (labelText.includes('공급가액') || labelText.includes('Supply')) {
+                        const $nextSpan = $(this).next('span');
+                        if ($nextSpan.length > 0) {
+                            $nextSpan.text(supplyAmount);
+                        }
+                    }
+                    if (labelText.includes('세액') || labelText.includes('Tax')) {
+                        const $nextSpan = $(this).next('span');
+                        if ($nextSpan.length > 0) {
+                            $nextSpan.text(taxAmount);
+                        }
+                    }
+                });
+            }
 
-        // 기타비용 소계 즉시 업데이트
-        updateOtherCostsSubtotal();
+            // 기타비용 소계 즉시 업데이트
+            updateOtherCostsSubtotal();
 
-        // 전체 합계 업데이트
-        updateTotals();
+            // 전체 합계 업데이트
+            updateTotals();
+        }
+    });
+    
+    // 모바일에서 blur 이벤트 시 즉시 계산 실행 (기타비용)
+    $(document).on('blur', '.cost-quantity-input, .cost-unit-price-input', function() {
+        if (isMobileDevice()) {
+            var $input = $(this);
+            var inputId = $input.attr('id') || $input.attr('name') || Math.random().toString(36);
+            
+            // 입력 종료 플래그 설정 (약간의 지연 후)
+            setTimeout(function() {
+                var currentActive = document.activeElement;
+                if (!currentActive || (currentActive.tagName !== 'INPUT' && currentActive.tagName !== 'TEXTAREA' && currentActive.tagName !== 'SELECT')) {
+                    isMobileInputActive = false;
+                    activeMobileInputElement = null;
+                }
+            }, 200);
+            
+            // 해당 input의 대기 중인 계산 즉시 실행
+            if (mobileInputCalculationTimeouts[inputId]) {
+                clearTimeout(mobileInputCalculationTimeouts[inputId]);
+                delete mobileInputCalculationTimeouts[inputId];
+            }
+            
+            // 모바일 카드에서 원본 테이블의 행 찾기
+            let row = $input.closest('.cost-row');
+            if (row.length === 0 || !row.hasClass('cost-row')) {
+                const $mobileCard = $input.closest('.mobile-card');
+                if ($mobileCard.length > 0) {
+                    const $cardCategoryInput = $mobileCard.find('input[name*="[category]"]');
+                    const $cardItemInput = $mobileCard.find('input[name*="[item]"]');
+                    const $cardUnitInput = $mobileCard.find('input[name*="[unit]"]');
+                    
+                    if ($cardCategoryInput.length > 0 && $cardItemInput.length > 0) {
+                        const cardCategoryVal = $cardCategoryInput.val();
+                        const cardItemVal = $cardItemInput.val();
+                        const cardUnitVal = $cardUnitInput.val() || '';
+                        
+                        $('.cost-row').each(function() {
+                            const $costRow = $(this);
+                            const rowCategory = $costRow.find('input[name*="[category]"]').val();
+                            const rowItem = $costRow.find('input[name*="[item]"]').val();
+                            const rowUnit = $costRow.find('input[name*="[unit]"]').val() || '';
+                            
+                            if (rowCategory === cardCategoryVal && rowItem === cardItemVal && rowUnit === cardUnitVal) {
+                                row = $costRow;
+                                return false;
+                            }
+                        });
+                        
+                        if (row.length > 0 && row.hasClass('cost-row')) {
+                            if ($input.hasClass('cost-quantity-input')) {
+                                const mobileQuantity = $input.val();
+                                row.find('.cost-quantity-input').val(mobileQuantity);
+                            } else if ($input.hasClass('cost-unit-price-input')) {
+                                const mobileUnitPrice = $input.val();
+                                row.find('.cost-unit-price-input').val(mobileUnitPrice);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            if (row.length > 0 && row.hasClass('cost-row')) {
+                // 즉시 계산 실행
+                calculateCostRow(row);
+                
+                // 모바일 카드의 값도 업데이트
+                const $mobileCard = $input.closest('.mobile-card');
+                if ($mobileCard.length > 0) {
+                    const supplyAmount = row.find('.cost-supply-amount').val();
+                    const taxAmount = row.find('.cost-tax-amount').val();
+                    
+                    $mobileCard.find('input.cost-supply-amount, input[name*="[supply_amount]"]').val(supplyAmount);
+                    $mobileCard.find('input.cost-tax-amount, input[name*="[tax_amount]"]').val(taxAmount);
+                    
+                    $mobileCard.find('strong').each(function() {
+                        const labelText = $(this).text().trim();
+                        if (labelText.includes('공급가액') || labelText.includes('Supply')) {
+                            const $nextSpan = $(this).next('span');
+                            if ($nextSpan.length > 0) {
+                                $nextSpan.text(supplyAmount);
+                            }
+                        }
+                        if (labelText.includes('세액') || labelText.includes('Tax')) {
+                            const $nextSpan = $(this).next('span');
+                            if ($nextSpan.length > 0) {
+                                $nextSpan.text(taxAmount);
+                            }
+                        }
+                    });
+                }
+                
+                // 소계 및 합계 업데이트
+                setTimeout(function() {
+                    if (typeof updateOtherCostsSubtotal === 'function') {
+                        updateOtherCostsSubtotal();
+                    }
+                    if (typeof updateTotals === 'function') {
+                        updateTotals();
+                    }
+                }, 50);
+            }
+        }
     });
     
     // 기타비용 카테고리/품목 수동 수정 추적
@@ -2664,43 +3038,151 @@ $(document).ready(function() {
         noticeCount++;
     });
 
-    // 상품 선택 시 관련 정보 자동 채우기
-    $(document).on('select2:select select2:unselect', '.product-select', function() {
-        const row = $(this).data('row');
-        const selectedProductCode = $(this).val();
-        const selectedOption = $(this).find('option:selected');
-        const itemRow = $(this).closest('.item-row');
+    // 상품 선택 시 관련 정보 자동 채우기 함수 (공통 로직)
+    function handleProductSelectChange(selectElement) {
+        const selectedProductCode = selectElement.val();
+        const selectedOption = selectElement.find('option:selected');
+        
+        // 모바일 카드의 select인지 확인 (ID에 -mobile-이 포함되어 있으면 모바일 카드)
+        const selectId = selectElement.attr('id') || '';
+        const isMobileCardSelect = selectId.includes('-mobile-');
+        
+        let itemRow;
+        if (isMobileCardSelect) {
+            console.log('[모바일] 원본 select 찾기 시작 - selectId:', selectId);
+            
+            // 먼저 data-original-select-id 속성 확인 (가장 확실한 방법)
+            const originalSelectIdFromAttr = selectElement.attr('data-original-select-id');
+            if (originalSelectIdFromAttr && originalSelectIdFromAttr !== '') {
+                const $originalSelect = $('#' + originalSelectIdFromAttr);
+                if ($originalSelect.length > 0) {
+                    console.log('[모바일] 원본 select 찾음 (data-original-select-id):', originalSelectIdFromAttr);
+                    // 원본 select로 다시 호출
+                    return handleProductSelectChange($originalSelect);
+                } else {
+                    console.error('[모바일] 원본 select를 찾을 수 없음 (ID):', originalSelectIdFromAttr);
+                    // data-row 속성을 사용하여 원본 select 찾기 시도
+                    const rowIndex = selectElement.attr('data-row');
+                    if (rowIndex !== undefined && rowIndex !== '') {
+                        const $originalSelectByRow = $('.product-select[data-row="' + rowIndex + '"]').not('[id*="-mobile-"]');
+                        if ($originalSelectByRow.length > 0) {
+                            console.log('[모바일] 원본 select 찾음 (data-row):', rowIndex);
+                            return handleProductSelectChange($originalSelectByRow.first());
+                        }
+                    }
+                    return;
+                }
+            }
+            
+            // data-row 속성을 사용하여 원본 select 찾기 시도
+            const rowIndex = selectElement.attr('data-row');
+            if (rowIndex !== undefined && rowIndex !== '') {
+                const $originalSelectByRow = $('.product-select[data-row="' + rowIndex + '"]').not('[id*="-mobile-"]');
+                if ($originalSelectByRow.length > 0) {
+                    console.log('[모바일] 원본 select 찾음 (data-row):', rowIndex);
+                    return handleProductSelectChange($originalSelectByRow.first());
+                }
+            }
+            
+            // data-original-select-id가 없으면 ID에서 추출 시도
+            // 모바일 카드의 select ID 형식: {originalId}-mobile-{rowIndex}
+            // 예: product-select-0-mobile-0
+            const mobileMatch = selectId.match(/^(.+)-mobile-\d+$/);
+            if (mobileMatch && mobileMatch[1] && mobileMatch[1] !== '') {
+                const originalSelectId = mobileMatch[1];
+                const $originalSelect = $('#' + originalSelectId);
+                if ($originalSelect.length > 0) {
+                    console.log('[모바일] 원본 select 찾음 (ID 패턴):', originalSelectId);
+                    // 원본 select로 다시 호출
+                    return handleProductSelectChange($originalSelect);
+                } else {
+                    console.error('[모바일] 원본 select를 찾을 수 없음 (ID 패턴):', originalSelectId);
+                    return;
+                }
+            } else {
+                console.error('[모바일] 원본 select ID 추출 실패 - selectId:', selectId);
+                return;
+            }
+        } else {
+            itemRow = selectElement.closest('.item-row');
+        }
 
+        // itemRow를 찾을 수 없으면 오류
+        if (!itemRow || itemRow.length === 0) {
+            console.error('[오류] itemRow를 찾을 수 없음 - selectElement ID:', selectElement.attr('id'));
+            return;
+        }
+        
         if (selectedProductCode) {
-            const spec = selectedOption.data('spec');
-            const size = selectedOption.data('size');
-            const thickness = selectedOption.data('thickness');
-            const area = selectedOption.data('area');
-            const unitPrice = selectedOption.data('unit-price');
+            const spec = selectedOption.data('spec') || '';
+            const size = selectedOption.data('size') || '';
+            const thickness = selectedOption.data('thickness') || '';
+            const area = selectedOption.data('area') || '';
+            const unitPrice = selectedOption.data('unit-price') || '';
+            
+            console.log('[상품선택] 상품코드:', selectedProductCode, '| 규격:', size, '| 단가:', unitPrice);
 
-            itemRow.find('.specification-input').val(size);
-            itemRow.find('.size-input').val(spec);
+            const specInput = itemRow.find('.specification-input');
+            const sizeInput = itemRow.find('.size-input');
+            
+            if (specInput.length === 0 || sizeInput.length === 0) {
+                console.error('[오류] 입력 필드를 찾을 수 없음 - specInput:', specInput.length, 'sizeInput:', sizeInput.length);
+                return;
+            }
+            
+            specInput.val(size || '');
+            sizeInput.val(spec || '');
+            
+            console.log('[상품선택] 입력 필드 업데이트 완료 - 규격:', specInput.val(), '| 사이즈:', sizeInput.val());
+            
+            // 모바일 카드의 입력 필드도 업데이트
+            const rowIndexForMobile = itemRow.attr('data-row');
+            if (rowIndexForMobile !== undefined && rowIndexForMobile !== '') {
+                // 모바일 카드 찾기 (data-row 속성으로)
+                const $mobileCard = $('.mobile-card').filter(function() {
+                    // 모바일 카드 내의 select 요소의 data-row 속성 확인
+                    const $cardSelect = $(this).find('select[data-row="' + rowIndexForMobile + '"]');
+                    return $cardSelect.length > 0;
+                });
+                
+                if ($mobileCard.length > 0) {
+                    // 모바일 카드 내의 입력 필드 찾기 및 업데이트
+                    const $mobileSpecInput = $mobileCard.find('.specification-input, input[name*="[specification]"]');
+                    const $mobileSizeInput = $mobileCard.find('.size-input, input[name*="[size]"]');
+                    
+                    if ($mobileSpecInput.length > 0) {
+                        $mobileSpecInput.val(size || '');
+                    }
+                    if ($mobileSizeInput.length > 0) {
+                        $mobileSizeInput.val(spec || '');
+                    }
+                    
+                    console.log('[모바일] 카드 입력 필드 업데이트 완료 - 규격:', size, '| 사이즈:', spec);
+                }
+            }
             
             // 실제 면적 계산 (규격에서 면적 추출)
             let actualArea = 0;
-            if (size.includes('*')) {
-                const sizeParts = size.split('*');
-                if (sizeParts.length >= 2) {
-                    const width = parseFloat(sizeParts[0]) || 0;
-                    const height = parseFloat(sizeParts[1]) || 0;
-                    actualArea = (width * height) / 1000000; // mm²를 m²로 변환
+            if (size && typeof size === 'string') {
+                if (size.includes('*')) {
+                    const sizeParts = size.split('*');
+                    if (sizeParts.length >= 2) {
+                        const width = parseFloat(sizeParts[0]) || 0;
+                        const height = parseFloat(sizeParts[1]) || 0;
+                        actualArea = (width * height) / 1000000; // mm²를 m²로 변환
+                    }
+                } else if (size.includes('×')) {
+                    const sizeParts = size.split('×');
+                    if (sizeParts.length >= 2) {
+                        const width = parseFloat(sizeParts[0]) || 0;
+                        const height = parseFloat(sizeParts[1]) || 0;
+                        actualArea = (width * height) / 1000000; // mm²를 m²로 변환
+                    }
+                } else {
+                    // 단일 숫자인 경우 (가정: 정사각형)
+                    const singleSize = parseFloat(size) || 0;
+                    actualArea = (singleSize * singleSize) / 1000000; // mm²를 m²로 변환
                 }
-            } else if (size.includes('×')) {
-                const sizeParts = size.split('×');
-                if (sizeParts.length >= 2) {
-                    const width = parseFloat(sizeParts[0]) || 0;
-                    const height = parseFloat(sizeParts[1]) || 0;
-                    actualArea = (width * height) / 1000000; // mm²를 m²로 변환
-                }
-            } else {
-                // 단일 숫자인 경우 (가정: 정사각형)
-                const singleSize = parseFloat(size) || 0;
-                actualArea = (singleSize * singleSize) / 1000000; // mm²를 m²로 변환
             }
             
             // 상품명 변경 시 단가 처리 로직
@@ -2714,13 +3196,11 @@ $(document).ready(function() {
                 if (existingUnitPrice && existingUnitPrice !== '' && existingUnitPrice !== '0') {
                     // 기존에 수정된 단가가 있으면 그 값을 유지
                     unitPriceVal = parseFloat(existingUnitPrice.replace(/,/g, '')) || 0;
-                    console.log('초기 로딩 - 기존 수정된 단가 유지:', unitPriceVal);
                 } else {
                     // 기존 단가가 없거나 0이면 단가표의 기본값 사용
                     if (unitPrice && unitPrice !== '' && !isNaN(unitPrice)) {
                         unitPriceVal = parseFloat(unitPrice) || 0;
                         itemRow.find('.unit-price-input').val(unitPriceVal.toLocaleString());
-                        console.log('초기 로딩 - 단가표 기본값 사용:', unitPriceVal);
                     } else {
                         itemRow.find('.unit-price-input').val('');
                     }
@@ -2732,7 +3212,6 @@ $(document).ready(function() {
                 if (unitPrice && unitPrice !== '' && !isNaN(unitPrice)) {
                     unitPriceVal = parseFloat(unitPrice) || 0;
                     itemRow.find('.unit-price-input').val(unitPriceVal.toLocaleString());
-                    console.log('상품명 변경 - 단가표 원래 단가 사용:', unitPriceVal);
                 } else {
                     itemRow.find('.unit-price-input').val('');
                 }
@@ -2751,13 +3230,79 @@ $(document).ready(function() {
             const supplyAmount = totalArea * unitPriceVal;
             const taxAmount = supplyAmount * 0.1;
 
-            itemRow.find('.supply-amount').text('' + supplyAmount.toLocaleString());
-            itemRow.find('.tax-amount').text('' + taxAmount.toLocaleString());
+            const $supplyAmountEl = itemRow.find('.supply-amount');
+            const $taxAmountEl = itemRow.find('.tax-amount');
             
-            console.log('상품 선택 - size:', size, 'actualArea:', actualArea, 'quantity:', quantity, 'totalArea:', totalArea, 'unitPriceVal:', unitPriceVal);
+            if ($supplyAmountEl.length === 0 || $taxAmountEl.length === 0) {
+                console.error('[오류] 금액 요소를 찾을 수 없음 - supply-amount:', $supplyAmountEl.length, 'tax-amount:', $taxAmountEl.length);
+                return;
+            }
+            
+            $supplyAmountEl.text('' + supplyAmount.toLocaleString());
+            $taxAmountEl.text('' + taxAmount.toLocaleString());
+            
+            console.log('[상품선택] 금액 계산 완료 - 공급가액:', supplyAmount.toLocaleString(), '| 세액:', taxAmount.toLocaleString());
+            
+            // 모바일 카드의 단가, 수량, 면적, 금액 필드도 업데이트
+            if (rowIndexForMobile !== undefined && rowIndexForMobile !== '') {
+                // 모바일 카드 찾기 (data-row 속성으로)
+                const $mobileCard = $('.mobile-card').filter(function() {
+                    // 모바일 카드 내의 select 요소의 data-row 속성 확인
+                    const $cardSelect = $(this).find('select[data-row="' + rowIndexForMobile + '"]');
+                    return $cardSelect.length > 0;
+                });
+                
+                if ($mobileCard.length > 0) {
+                    // 모바일 카드 내의 입력 필드 찾기 및 업데이트
+                    const $mobileUnitPriceInput = $mobileCard.find('input.unit-price-input, input[name*="[unit_price]"]');
+                    const $mobileQuantityInput = $mobileCard.find('input.quantity-input, input[name*="[quantity]"]');
+                    const $mobileAreaInput = $mobileCard.find('input.area-input, input[name*="[area]"]');
+                    
+                    if ($mobileUnitPriceInput.length > 0) {
+                        $mobileUnitPriceInput.val(unitPriceVal > 0 ? unitPriceVal.toLocaleString() : '');
+                    }
+                    if ($mobileQuantityInput.length > 0) {
+                        $mobileQuantityInput.val(quantity);
+                    }
+                    if ($mobileAreaInput.length > 0) {
+                        $mobileAreaInput.val(totalArea.toFixed(2));
+                    }
+                    
+                    // 모바일 카드 내의 금액 표시 찾기 및 업데이트
+                    $mobileCard.find('strong').each(function() {
+                        const labelText = $(this).text().trim();
+                        if (labelText.includes('공급가액') || labelText.includes('Supply')) {
+                            const $nextSpan = $(this).next('span');
+                            if ($nextSpan.length > 0) {
+                                $nextSpan.text('' + supplyAmount.toLocaleString());
+                            }
+                        }
+                        if (labelText.includes('세액') || labelText.includes('Tax')) {
+                            const $nextSpan = $(this).next('span');
+                            if ($nextSpan.length > 0) {
+                                $nextSpan.text('' + taxAmount.toLocaleString());
+                            }
+                        }
+                    });
+                    
+                    console.log('[모바일] 카드 모든 필드 업데이트 완료 - 단가:', unitPriceVal.toLocaleString(), '| 공급가액:', supplyAmount.toLocaleString(), '| 세액:', taxAmount.toLocaleString());
+                }
+            }
 
             // 각 행의 기본값 설정
-            calculateOtherCostsFromProducts(false); // 상품 선택 시에는 일반 재계산    
+            calculateOtherCostsFromProducts(false); // 상품 선택 시에는 일반 재계산
+            
+            // 소계 및 합계 업데이트
+            if (typeof updateItemSubtotals === 'function') {
+                updateItemSubtotals();
+            }
+            if (typeof updateTotals === 'function') {
+                updateTotals();
+            }
+            
+            // 모바일 카드 재렌더링은 제거
+            // 이미 모바일 카드의 입력 필드를 직접 업데이트했으므로 재렌더링이 불필요함
+            // 재렌더링하면 원본 테이블의 이전 값이 다시 복사되어 값이 되돌아가는 문제 발생    
             
             // 기타비용 테이블 연동 - 무한루프 방지를 위해 제거
             // setTimeout(function() {
@@ -2776,60 +3321,250 @@ $(document).ready(function() {
             //     initializeOtherCostsTable();
             // }, 100);
         }
+    }
+    
+    // Select2 이벤트 (PC용)
+    $(document).on('select2:select select2:unselect', '.product-select', function() {
+        handleProductSelectChange($(this));
     });
+    
+    // 일반 change 이벤트 (모바일용 및 PC 백업용)
+    $(document).on('change', '.product-select', function(e) {
+        // Select2가 활성화되어 있으면 select2 이벤트가 처리하므로 중복 방지
+        if ($(this).hasClass('select2-hidden-accessible')) {
+            return;
+        }
+        // 모바일 또는 Select2가 없는 경우에만 처리
+        handleProductSelectChange($(this));
+    });
+
+    // PC용 즉시 계산 함수
+    function executeCalculationPC($input, row, cost_row) {
+        // cost-quantity-input 또는 cost-unit-price-input에서 입력이 일어나면 새로운 calculateCostRow 함수 호출
+        if($input.hasClass('cost-quantity-input') || $input.hasClass('cost-unit-price-input')) {
+            var $costRow = $input.closest('.cost-row');
+            calculateCostRow($costRow);
+            updateOtherCostsSubtotal();
+            updateTotals();
+            return;
+        }
+
+        if($input.hasClass('quantity-input') || $input.hasClass('unit-price-input')) {
+            // 상품 행 계산 로직
+            var $itemRow = null;
+            if (typeof row === 'number' || typeof row === 'string') {
+                $itemRow = $('.item-row[data-row="' + row + '"]');
+            } else if (row && row.jquery) {
+                $itemRow = row;
+            } else {
+                $itemRow = $input.closest('.item-row');
+            }
+            
+            if ($itemRow.length > 0) {
+                // 수량과 단가 가져오기
+                var quantity = parseFloat($itemRow.find('.quantity-input').val()) || 0;
+                var unitPriceText = $itemRow.find('.unit-price-input').val() || '0';
+                var unitPrice = parseFloat(unitPriceText.toString().replace(/,/g, '')) || 0;
+                
+                // 실제면적 가져오기
+                var areaText = $itemRow.find('.area-input').val() || '0';
+                var actualArea = parseFloat(areaText) || 0;
+                
+                // 총면적 계산 (수량 × 실제면적)
+                var totalArea = quantity * actualArea;
+                $itemRow.find('.area-input').val(totalArea.toFixed(2));
+                
+                // 금액 계산
+                var supplyAmount = totalArea * unitPrice;
+                var taxAmount = supplyAmount * 0.1;
+                
+                // 원본 테이블에 반영
+                $itemRow.find('.supply-amount').text('' + supplyAmount.toLocaleString());
+                $itemRow.find('.tax-amount').text('' + taxAmount.toLocaleString());
+                
+                // 모바일 카드의 공급가액과 세액 업데이트
+                var rowIndex = $itemRow.attr('data-row');
+                if (rowIndex !== undefined && rowIndex !== '') {
+                    var $mobileCard = $('.mobile-card').filter(function() {
+                        var $cardSelect = $(this).find('select[data-row="' + rowIndex + '"]');
+                        return $cardSelect.length > 0;
+                    });
+                    
+                    if ($mobileCard.length > 0) {
+                        $mobileCard.find('strong').each(function() {
+                            var labelText = $(this).text().trim();
+                            if (labelText.includes('공급가액') || labelText.includes('Supply')) {
+                                var $nextSpan = $(this).next('span');
+                                if ($nextSpan.length > 0) {
+                                    $nextSpan.text('' + supplyAmount.toLocaleString());
+                                }
+                            }
+                            if (labelText.includes('세액') || labelText.includes('Tax')) {
+                                var $nextSpan = $(this).next('span');
+                                if ($nextSpan.length > 0) {
+                                    $nextSpan.text('' + taxAmount.toLocaleString());
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+            
+            // 소계 업데이트
+            if (typeof updateItemSubtotals === 'function') {
+                updateItemSubtotals();
+            }
+            const etcAutoChecked = $('#etc_autocheck').is(':checked') || $('#etc_autocheck').val() === '1';
+            if (etcAutoChecked) {  
+                calculateOtherCostsFromProducts(true);
+            }
+            // 합계 업데이트
+            updateTotals();
+        }
+    }
+    
+    // 모바일용 지연 계산 함수 (입력이 완전히 끝난 후 실행)
+    function executeCalculationMobile($input, row, cost_row) {
+        // 입력 중 플래그 확인 - 입력 중이면 계산하지 않음
+        if (isMobileInputActive && activeMobileInputElement && activeMobileInputElement !== $input[0]) {
+            return;
+        }
+        
+        // 입력이 완전히 끝난 후에만 계산 실행
+        setTimeout(function() {
+            // 다시 한번 입력 중인지 확인
+            if (isMobileInputActive && activeMobileInputElement && activeMobileInputElement !== $input[0]) {
+                return;
+            }
+            
+            executeCalculationPC($input, row, cost_row);
+        }, 100);
+    }
+    
+    // 공통 계산 함수 (PC/모바일 분기)
+    function executeCalculation($input, row, cost_row) {
+        if (isMobileDevice()) {
+            executeCalculationMobile($input, row, cost_row);
+        } else {
+            executeCalculationPC($input, row, cost_row);
+        }
+    }
 
     // 수량을 변경시 금액 계산
     $(document).on('input', '.quantity-input, .unit-price-input', function() {
-        const row = $(this).closest('tr');
-        const quantity = parseFloat(row.find('.quantity-input').val()) || 0;
+        const $input = $(this);
+        var inputId = $input.attr('id') || $input.attr('name') || Math.random().toString(36);
+        let row = $input.closest('tr.item-row');
         
-        // 단가 안전하게 추출 - NaN 방지
-        let unitPrice = 0;
-        const unitPriceText = row.find('.unit-price-input').val();
-        if (unitPriceText && unitPriceText !== '') {
-            const cleanUnitPrice = unitPriceText.replace(/,/g, '');
-            unitPrice = parseFloat(cleanUnitPrice) || 0;
-        }
-        const specification = row.find('.specification-input').val() || '';
-        
-        // 실제 면적 계산 (규격에서 면적 추출)
-        let actualArea = 0;
-        if (specification.includes('*')) {
-            const sizeParts = specification.split('*');
-            if (sizeParts.length >= 2) {
-                const width = parseFloat(sizeParts[0]) || 0;
-                const height = parseFloat(sizeParts[1]) || 0;
-                actualArea = (width * height) / 1000000; // mm²를 m²로 변환
+        // 모바일 카드의 입력 필드인 경우 원본 테이블의 행 찾기
+        if (row.length === 0 || !row.hasClass('item-row')) {
+            // 모바일 카드 내부인지 확인
+            const $mobileCard = $input.closest('.mobile-card');
+            if ($mobileCard.length > 0) {
+                // 모바일 카드 내의 select 요소에서 data-row 찾기
+                const rowIndex = $mobileCard.find('select[data-row]').first().attr('data-row');
+                if (rowIndex !== undefined && rowIndex !== '') {
+                    // 원본 테이블의 행 찾기
+                    row = $('.item-row[data-row="' + rowIndex + '"]');
+                    
+                    // 모바일 카드의 값을 원본 테이블로 동기화
+                    if ($input.hasClass('quantity-input')) {
+                        const mobileQuantity = $input.val();
+                        row.find('.quantity-input').val(mobileQuantity);
+                    } else if ($input.hasClass('unit-price-input')) {
+                        const mobileUnitPrice = $input.val();
+                        row.find('.unit-price-input').val(mobileUnitPrice);
+                    }
+                }
             }
-        } else if (specification.includes('×')) {
-            const sizeParts = specification.split('×');
-            if (sizeParts.length >= 2) {
-                const width = parseFloat(sizeParts[0]) || 0;
-                const height = parseFloat(sizeParts[1]) || 0;
-                actualArea = (width * height) / 1000000; // mm²를 m²로 변환
+        }
+        
+        if (row.length === 0 || !row.hasClass('item-row')) {
+            return; // 원본 테이블의 행을 찾을 수 없으면 종료
+        }
+        
+        const rowIndex = row.attr('data-row');
+        
+        // 모바일 환경인 경우 입력이 끝날 때까지 대기
+        if (isMobileDevice()) {
+            // 입력 중이면 계산하지 않음
+            if (isMobileInputActive && activeMobileInputElement === this) {
+                debounceMobileCalculation(inputId, function() {
+                    // 입력이 완전히 끝난 후에만 계산
+                    if (!isMobileInputActive || activeMobileInputElement !== $input[0]) {
+                        executeCalculationPC($input, rowIndex, null);
+                    }
+                }, 800);
+            } else {
+                debounceMobileCalculation(inputId, function() {
+                    executeCalculationPC($input, rowIndex, null);
+                }, 800);
             }
         } else {
-            // 단일 숫자인 경우 (가정: 정사각형)
-            const singleSize = parseFloat(specification) || 0;
-            actualArea = (singleSize * singleSize) / 1000000; // mm²를 m²로 변환
+            // PC 환경에서는 즉시 계산
+            executeCalculationPC($input, rowIndex, null);
         }
-        
-        // m² 열 업데이트 (수량 × 실제면적)
-        let totalArea = quantity * actualArea;
-        totalArea = totalArea.toFixed(2);
-        row.find('.area-input').val(totalArea);
-        
-        // 공급가액변경, 세액변경   
-        unitPrice = parseFloat(row.find('.unit-price-input').val().replace(/,/g, '')) || 0;
-        const supplyAmount = totalArea * unitPrice;
-        const taxAmount = supplyAmount * 0.1;
-        
-        row.find('.supply-amount').text('' + supplyAmount.toLocaleString());
-        row.find('.tax-amount').text('' + taxAmount.toLocaleString());
-        
-        console.log('수량 변경 - specification:', specification, 'actualArea:', actualArea, 'quantity:', quantity, 'totalArea:', totalArea, 'supplyAmount:', supplyAmount, 'taxAmount:', taxAmount);
-        // 기타비용 테이블 재계산
-        calculateOtherCostsFromProducts(true); // 수량 변경 시에는 일반 재계산                
+    });
+    
+    // 모바일에서 blur 이벤트 시 즉시 계산 실행
+    $(document).on('blur', '.quantity-input, .unit-price-input', function() {
+        if (isMobileDevice()) {
+            var $input = $(this);
+            var inputId = $input.attr('id') || $input.attr('name') || Math.random().toString(36);
+            
+            // 입력 종료 플래그 설정 (약간의 지연 후)
+            setTimeout(function() {
+                // 포커스가 다른 입력 필드로 이동하지 않았으면 입력 종료
+                var currentActive = document.activeElement;
+                if (!currentActive || (currentActive.tagName !== 'INPUT' && currentActive.tagName !== 'TEXTAREA' && currentActive.tagName !== 'SELECT')) {
+                    isMobileInputActive = false;
+                    activeMobileInputElement = null;
+                }
+            }, 200);
+            
+            // 해당 input의 대기 중인 계산 즉시 실행
+            if (mobileInputCalculationTimeouts[inputId]) {
+                clearTimeout(mobileInputCalculationTimeouts[inputId]);
+                delete mobileInputCalculationTimeouts[inputId];
+            }
+            
+            // 모바일 카드에서 원본 테이블의 행 찾기
+            let row = null;
+            var $mobileCard = $input.closest('.mobile-card');
+            if ($mobileCard.length > 0) {
+                var $rowElement = $mobileCard.find('select[data-row], input[data-row]').first();
+                if ($rowElement.length > 0) {
+                    var rowIndex = $rowElement.attr('data-row');
+                    if (rowIndex !== undefined && rowIndex !== '') {
+                        row = parseInt(rowIndex);
+                    }
+                }
+            }
+            
+            if (row !== null && row !== undefined) {
+                // 모바일 카드의 값을 원본 테이블로 동기화
+                if ($input.hasClass('quantity-input')) {
+                    const mobileQuantity = $input.val();
+                    $('.item-row[data-row="' + row + '"]').find('.quantity-input').val(mobileQuantity);
+                } else if ($input.hasClass('unit-price-input')) {
+                    const mobileUnitPrice = $input.val();
+                    $('.item-row[data-row="' + row + '"]').find('.unit-price-input').val(mobileUnitPrice);
+                }
+                
+                // 즉시 계산 실행
+                executeCalculationPC($input, row, null);
+                
+                // 소계 및 합계 업데이트
+                setTimeout(function() {
+                    if (typeof updateItemSubtotals === 'function') {
+                        updateItemSubtotals();
+                    }
+                    if (typeof updateTotals === 'function') {
+                        updateTotals();
+                    }
+                }, 50);
+            }
+        }
     });
     
     // 기존 데이터 처리는 이제 초기 로딩 시 처리됨 (위의 populateProductOptions 콜백에서 처리)
@@ -2852,10 +3587,77 @@ $(document).ready(function() {
 let itemRowCount = <?= max(1, count($items)) ?>;
 let costRowCount = <?= max(1, count($other_costs)) ?>;
 
+// 행 번호와 버튼 레이아웃 수정 함수 (전역 함수)
+function fixRowNumberLayout() {
+	if (window.innerWidth <= 768) {
+		// 상품 테이블 - 번호와 버튼
+		$('.item-row td[data-label="No."] .d-flex, .cost-row td[data-label="No."] .d-flex').each(function() {
+			var $this = $(this);
+			var currentStyle = $this.attr('style') || '';
+			$this.attr('style', currentStyle + '; display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; align-items: center !important; justify-content: flex-start !important; gap: 0.5rem !important; width: 100% !important;');
+		});
+		
+		$('.item-row td[data-label="No."] .d-flex > span, .cost-row td[data-label="No."] .d-flex > span').each(function() {
+			var $this = $(this);
+			var currentStyle = $this.attr('style') || '';
+			$this.attr('style', currentStyle + '; width: auto !important; flex: 0 0 auto !important; margin: 0 !important; white-space: nowrap !important;');
+		});
+		
+		$('.item-row td[data-label="No."] .d-flex > .btn-group, .cost-row td[data-label="No."] .d-flex > .btn-group').each(function() {
+			var $this = $(this);
+			var currentStyle = $this.attr('style') || '';
+			$this.attr('style', currentStyle + '; display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; width: auto !important; min-width: auto !important; max-width: none !important; flex: 0 0 auto !important; flex-shrink: 0 !important; flex-grow: 0 !important; margin-left: auto !important; gap: 0.25rem !important;');
+			
+			// 버튼들도 직접 수정
+			$this.find('button').each(function() {
+				var $btn = $(this);
+				var btnStyle = $btn.attr('style') || '';
+				$btn.attr('style', btnStyle + '; width: 36px !important; min-width: 36px !important; max-width: 36px !important; height: 36px !important; flex: 0 0 36px !important; flex-shrink: 0 !important; flex-grow: 0 !important; display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important;');
+			});
+		});
+		
+		// 기타비용 테이블 - 기능 버튼만 (원본 테이블)
+		$('.cost-row td[data-label="기능"] .btn-group, .cost-row td.row-function-cell .btn-group').each(function() {
+			var $this = $(this);
+			var currentStyle = $this.attr('style') || '';
+			$this.attr('style', currentStyle + '; display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; width: auto !important; min-width: auto !important; max-width: none !important; gap: 0.25rem !important; margin: 0 !important;');
+			
+			// 버튼들도 직접 수정
+			$this.find('button').each(function() {
+				var $btn = $(this);
+				var btnStyle = $btn.attr('style') || '';
+				$btn.attr('style', btnStyle + '; width: 36px !important; min-width: 36px !important; max-width: 36px !important; height: 36px !important; flex: 0 0 36px !important; flex-shrink: 0 !important; flex-grow: 0 !important; display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important;');
+			});
+		});
+		
+		// 카드 내부 버튼 그룹 처리 (모바일 카드)
+		$('.mobile-card').each(function() {
+			var $card = $(this);
+			// "기능:" 라벨이 있는 카드 항목 찾기
+			$card.find('div').each(function() {
+				var $item = $(this);
+				var labelText = $item.find('strong').text();
+				if (labelText && labelText.includes('기능')) {
+					var $btnGroup = $item.find('.btn-group');
+					if ($btnGroup.length > 0) {
+						var currentStyle = $btnGroup.attr('style') || '';
+						$btnGroup.attr('style', currentStyle + '; display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; width: auto !important; min-width: auto !important; max-width: none !important; gap: 0.25rem !important; margin: 0 !important;');
+						
+						// 버튼들도 직접 수정
+						$btnGroup.find('button').each(function() {
+							var $btn = $(this);
+							var btnStyle = $btn.attr('style') || '';
+							$btn.attr('style', btnStyle + '; width: 36px !important; min-width: 36px !important; max-width: 36px !important; height: 36px !important; flex: 0 0 36px !important; flex-shrink: 0 !important; flex-grow: 0 !important; display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important;');
+						});
+					}
+				}
+			});
+		});
+	}
+}
+
 // 저장 함수
 function saveEstimate() {
-    console.log('=== 저장 함수 호출 ===');
-   
     try {
         // JSON 데이터 생성
         const items = [];
@@ -2866,7 +3668,8 @@ function saveEstimate() {
             const size = $(this).find('.size-input').val();
             const quantity = parseFloat($(this).find('input[name*="[quantity]"]').val()) || 0;
             const area = parseFloat($(this).find('input[name*="[area]"]').val()) || 0;
-            const unitPrice = parseFloat($(this).find('input[name*="[unit_price]"]').val().replace(/,/g, '')) || 0;
+            const unitPriceText3 = $(this).find('input[name*="[unit_price]"]').val();
+            const unitPrice = parseFloat((unitPriceText3 || '').toString().replace(/,/g, '')) || 0;
             const remarks = $(this).find('input[name*="[remarks]"]').val();
 
             items.push({
@@ -2886,8 +3689,10 @@ function saveEstimate() {
             const category = $(this).find('input[name*="[category]"]').val();
             const item = $(this).find('input[name*="[item]"]').val();
             const unit = $(this).find('input[name*="[unit]"]').val();
-            const quantity = parseFloat($(this).find('input[name*="[quantity]"]').val().replace(/,/g, '')) || 0;
-            const unitPrice = parseFloat($(this).find('input[name*="[unit_price]"]').val().replace(/,/g, '')) || 0;
+            const quantityText = $(this).find('input[name*="[quantity]"]').val();
+            const quantity = parseFloat((quantityText || '').toString().replace(/,/g, '')) || 0;
+            const unitPriceText3 = $(this).find('input[name*="[unit_price]"]').val();
+            const unitPrice = parseFloat((unitPriceText3 || '').toString().replace(/,/g, '')) || 0;
             const remarks = $(this).find('input[name*="[remarks]"]').val();
 
             otherCosts.push({
@@ -2940,16 +3745,9 @@ function saveEstimate() {
             dataType: 'json',
             timeout: 30000, // 30초 타임아웃
             beforeSend: function() {
-                console.log('=== AJAX 요청 시작 ===');
-                console.log('URL:', 'ET_process.php');
-                console.log('Method:', 'POST');
             },
             success: function(response) {
-                console.log('=== AJAX 성공 응답 ===');
-                console.log('Response:', response);
-                
                 if (response.result === 'success') {
-                    console.log('저장 성공 - mode:', '<?= $mode ?>', 'num:', response.num);
                     
                     Swal.fire({
                         icon: 'success',
@@ -2964,7 +3762,6 @@ function saveEstimate() {
                         // 성공 시 view 모드로 이동
                         const mode = '<?= $mode ?>';
                         const num = response.num;
-                        console.log('리다이렉트 - mode:', mode, 'num:', num);                        
                         // 복사인 경우 view 모드로 이동 (새로 생성된 num 사용)
                         // 부모창 새로고침
                         if(window.opener) {
@@ -2973,17 +3770,12 @@ function saveEstimate() {
                         window.location.href = 'ET_write_form.php?mode=view&num=' + num + '&tablename=phomi_estimate';                        
                     }, 1500);
                 } else {
-                    console.log('저장 실패 - message:', response.message);
                     alert('저장 중 오류가 발생했습니다: ' + response.message);
                     submitBtn.prop('disabled', false).text(originalText);
                 }
             },
             error: function(xhr, status, error) {
-                console.log('=== AJAX 오류 ===');
-                console.log('Status:', status);
-                console.log('Error:', error);
-                console.log('Response Text:', xhr.responseText);
-                console.log('Status Code:', xhr.status);
+                // AJAX 오류 발생
                 
                 let errorMessage = '저장 중 오류가 발생했습니다.';
                 if (status === 'timeout') {
@@ -3004,8 +3796,7 @@ function saveEstimate() {
             }
         });
     } catch (error) {
-        console.log('=== JavaScript 오류 ===');
-        console.log('Error:', error);
+        // JavaScript 오류 발생
         alert('JavaScript 오류가 발생했습니다: ' + error.message);
         submitBtn.prop('disabled', false).text(originalText);
     }
@@ -3016,7 +3807,6 @@ function updateItemSubtotals() {
     let mode = $("#mode").val();
     // 조회모드에서는 소계 계산하지 않음
     if (mode === 'view') {
-        console.log('조회모드에서는 소계 계산을 건너뜁니다.');
         return;
     }
 
@@ -3039,7 +3829,6 @@ function updateItemSubtotals() {
     $('#totalSupply').text('' + totalSupply.toLocaleString());
     $('#totalTax').text('' + totalTax.toLocaleString());
     
-    console.log('상품 소계 업데이트 - totalSupply:', totalSupply, 'totalTax:', totalTax);
 }
 
 // 합계 업데이트 함수
@@ -3047,7 +3836,6 @@ function updateTotals() {
     const mode = $("#mode").val();
     // 조회모드에서는 합계 계산하지 않음
     if (mode === 'view') {
-        console.log('조회모드에서는 합계 계산을 건너뜁니다.');
         return;
     }
     
@@ -3055,8 +3843,6 @@ function updateTotals() {
     // if (window.isUpdatingTotals) {
     //     return;
     // }
-
-    console.log('합계를 나타내는 (상품+기타비용) 합계 업데이트 updateTotals 호출됨');
     window.isUpdatingTotals = true;
     
     let otherCostsSupply = 0;
@@ -3111,8 +3897,7 @@ function updateTotals() {
 
 // 상품 데이터 기반으로 기타비용 자동 계산
 function calculateOtherCostsFromProducts(forceRecalculate = false) {
-    console.clear();
-    console.log('calculateOtherCostsFromProducts 호출됨');
+    // console.clear(); // 디버깅을 위해 주석 처리
     
     let totalArea = 0;
     let totalQuantity = 0;
@@ -3146,23 +3931,17 @@ function calculateOtherCostsFromProducts(forceRecalculate = false) {
     
     // 시공비 제외 체크박스 상태 확인
     const exclude_construction_cost = $('input[name="exclude_construction_cost"]').is(':checked');
-    console.log('exclude_construction_cost', exclude_construction_cost);
     // 몰딩 제외 체크박스 상태 확인
     const exclude_molding = $('input[name="exclude_molding"]').is(':checked');
-    console.log('exclude_molding', exclude_molding);
     // 기존 기타비용 행들을 모두 제거하고 새로 생성
     const costTableBody = $('#otherCostsTableBody');
     
     // 수동 수정 여부 확인 (강제 재계산이 아닌 경우에만)
     let hasManualModifications = false;
     const etc_autocheck = $('input[name="etc_autocheck"]').is(':checked');
-    console.log('etc_autocheck', etc_autocheck);
     
     if (etc_autocheck) {
-        console.log('기타비용 자동산출 체크박스 체크됨');
         hasManualModifications = false;
-    } else {
-        console.log('기타비용 자동산출 체크박스 체크되지 않음');
     }
     
     // 수정 모드에서 기존 데이터가 있는지 확인
@@ -3207,11 +3986,8 @@ function calculateOtherCostsFromProducts(forceRecalculate = false) {
             }
         });
         
-        console.log('hasManualModifications', hasManualModifications);
-
         // 수동 수정이 있고 강제 재계산이 아닌 경우 기존 데이터 보존
         if (hasManualModifications) {
-            console.log('기타비용 자동산출 체크박스 체크되지 않음 또는 수동 수정된 기타비용 데이터가 있어 자동 계산을 건너뜁니다.');
             window.isCalculatingOtherCosts = false;
             return;
         }
@@ -3306,7 +4082,6 @@ function calculateOtherCostsFromProducts(forceRecalculate = false) {
         if (etc_autocheck) {
             // 기타비용 행 업데이트
             const updatedCostRows = $('.cost-row');
-            console.log('총 기타비용 행 수:', updatedCostRows.length);
             
             let rowIndex = 0;
             updatedCostRows.each(function(index) {
@@ -3322,7 +4097,6 @@ function calculateOtherCostsFromProducts(forceRecalculate = false) {
                 
                 if (actualRowIndex === 0) {
                     // 1행: 부자재, 본드
-                    console.log('1행: 본드 설정');
                     $(this).find('input[name*="[category]"]').val('부자재');
                     $(this).find('input[name*="[item]"]').val('본드');
                     $(this).find('input[name*="[unit]"]').val('EA');
@@ -3336,7 +4110,6 @@ function calculateOtherCostsFromProducts(forceRecalculate = false) {
                     $(this).find('input[name*="[remarks]"]').val('');
                 } else if (actualRowIndex === 1 && !exclude_molding) {
                     // 2행: 부자재, 몰딩 (몰딩 제외가 아닐 때만)
-                    console.log('2행: 몰딩 설정');
                     $(this).find('input[name*="[category]"]').val('부자재');
                     $(this).find('input[name*="[item]"]').val('몰딩');
                     $(this).find('input[name*="[unit]"]').val('EA');
@@ -3347,7 +4120,6 @@ function calculateOtherCostsFromProducts(forceRecalculate = false) {
                     $(this).find('input[name*="[remarks]"]').val('');
                 } else if (actualRowIndex === 2 || (actualRowIndex === 1 && exclude_molding)) {
                     // 3행: 빈 행 (몰딩 제외시 2행이 빈 행이 됨)
-                    console.log('3행: 빈 행 설정');
                     $(this).find('input[name*="[category]"]').val('');
                     $(this).find('input[name*="[item]"]').val('');
                     $(this).find('input[name*="[unit]"]').val('');
@@ -3359,7 +4131,6 @@ function calculateOtherCostsFromProducts(forceRecalculate = false) {
                 } else if (actualRowIndex === 3 || (actualRowIndex === 2 && exclude_molding)) {
                     if (exclude_construction_cost) {
                         // 시공비 제외시: 4행은 운송비
-                        console.log('4행: 운송비 설정 (시공비 제외)');
                         $(this).find('input[name*="[category]"]').val('운송비');
                         $(this).find('input[name*="[item]"]').val('');
                         $(this).find('input[name*="[unit]"]').val('');
@@ -3370,7 +4141,6 @@ function calculateOtherCostsFromProducts(forceRecalculate = false) {
                         $(this).find('input[name*="[remarks]"]').val('착불');
                     } else {
                         // 시공비 포함시: 4행은 시공비
-                        console.log('4행: 시공비 설정');
                         $(this).find('input[name*="[category]"]').val('시공비');
                         $(this).find('input[name*="[item]"]').val('㎡당 시공비');
                         $(this).find('input[name*="[unit]"]').val('㎡');
@@ -3392,7 +4162,6 @@ function calculateOtherCostsFromProducts(forceRecalculate = false) {
                     }
                 } else if (actualRowIndex === 4 || (actualRowIndex === 3 && exclude_molding && !exclude_construction_cost)) {
                     // 5행: 운송비 (시공비 포함시에만)
-                    console.log('5행: 운송비 설정');
                     $(this).find('input[name*="[category]"]').val('운송비');
                     $(this).find('input[name*="[item]"]').val('');
                     $(this).find('input[name*="[unit]"]').val('');
@@ -3406,7 +4175,6 @@ function calculateOtherCostsFromProducts(forceRecalculate = false) {
                 // 각 행의 입력값 확인
                 const category = $(this).find('input[name*="[category]"]').val();
                 const item = $(this).find('input[name*="[item]"]').val();
-                console.log(`행 ${index + 1} 설정 완료 - 카테고리: ${category}, 품목: ${item}`);
                 
                 calculateCostRow($(this));
                 rowIndex++;
@@ -3422,11 +4190,8 @@ function calculateOtherCostsFromProducts(forceRecalculate = false) {
 
 // 기타비용 테이블 초기화 함수
 function initializeOtherCostsTable() {
-    console.log('initializeOtherCostsTable 호출됨');
-    
     // 무한루프 방지를 위한 플래그
     if (window.isInitializingOtherCosts) {
-        console.log('initializeOtherCostsTable 중복 호출 방지');
         return;
     }
     window.isInitializingOtherCosts = true;
@@ -3463,17 +4228,17 @@ function initializeOtherCostsTable() {
     // 플래그 해제
     setTimeout(() => {
         window.isInitializingOtherCosts = false;
-        console.log('initializeOtherCostsTable 완료');
     }, 100);
 }
 
 // 기타비용 행 계산 함수
 function calculateCostRow(row) {
-    console.log('기타비용 행 계산 함수 calculateCostRow 호출됨');
     
     // 기본 input 값 가져오기
-    const quantity = parseFloat(row.find('.cost-quantity-input').val().replace(/,/g, '')) || 0;
-    const unitPrice = row.find('.cost-unit-price-input').val().replace(/,/g, '') || '0';    
+    const quantityText2 = row.find('.cost-quantity-input').val();
+    const quantity = parseFloat((quantityText2 || '').toString().replace(/,/g, '')) || 0;
+    const unitPriceText4 = row.find('.cost-unit-price-input').val();
+    const unitPrice = (unitPriceText4 || '').toString().replace(/,/g, '') || '0';    
     const category = row.find('input[name*="[category]"]').val() || '';
     const item = row.find('input[name*="[item]"]').val() || '';
 
@@ -3482,7 +4247,6 @@ function calculateCostRow(row) {
     // 기본 계산 로직 - 수량 * 단가
     supplyAmount = quantity * unitPrice;
 
-    console.log('quantity:', quantity, 'unitPrice:', unitPrice, 'supplyAmount:', supplyAmount, 'category:', category, 'item:', item);
     
     // 시공비 특별 계산 로직 - 기본 input 값 무시하고 규칙에 따라 계산
     if (category === '시공비' && item === '㎡당 시공비') {
@@ -3579,6 +4343,8 @@ function addRowAfter(rowIndex) {
     
     // 모바일 카드 다시 렌더링
     if (window.innerWidth <= 768) {
+        // processedTables 초기화하여 모든 테이블을 다시 처리
+        processedTables.clear();
         setTimeout(function() {
             renderMobileCards();
             // 카드 렌더링 완료 후 레이아웃 수정
@@ -3600,7 +4366,8 @@ function copyRow(rowIndex) {
     const size = sourceRow.find('input[name*="[size]"]').val();
     const quantity = sourceRow.find('input[name*="[quantity]"]').val();
     const area = sourceRow.find('input[name*="[area]"]').val();
-    const unitPrice = sourceRow.find('input[name*="[unit_price]"]').val().replace(/,/g, '');
+    const unitPriceText5 = sourceRow.find('input[name*="[unit_price]"]').val();
+    const unitPrice = (unitPriceText5 || '').toString().replace(/,/g, '');
     const remarks = sourceRow.find('input[name*="[remarks]"]').val();
     
     const newRow = `
@@ -3661,7 +4428,7 @@ function copyRow(rowIndex) {
     // unitPrice가 숫자 형식인지 확인하고 안전하게 변환
     if (unitPrice && unitPrice !== '') {
         // 쉼표 제거 후 숫자로 변환
-        const cleanUnitPrice = unitPrice.toString().replace(/,/g, '');
+        const cleanUnitPrice = (unitPrice || '').toString().replace(/,/g, '');
         unitPriceVal = parseFloat(cleanUnitPrice) || 0;
     }
         
@@ -3700,7 +4467,6 @@ function copyRow(rowIndex) {
     newRowElement.find('.supply-amount').text('' + supplyAmount.toLocaleString());
     newRowElement.find('.tax-amount').text('' + taxAmount.toLocaleString());
     
-    console.log('행 복사 - specification:', copiedSpecification, 'actualArea:', copiedActualArea, 'quantityVal:', quantityVal, 'totalArea:', copiedTotalArea, 'supplyAmount:', supplyAmount, 'taxAmount:', taxAmount);
     
     itemRowCount++;
     updateRowNumbers();
@@ -3713,6 +4479,8 @@ function copyRow(rowIndex) {
     
     // 모바일 카드 다시 렌더링
     if (window.innerWidth <= 768) {
+        // processedTables 초기화하여 모든 테이블을 다시 처리
+        processedTables.clear();
         setTimeout(function() {
             renderMobileCards();
             // 카드 렌더링 완료 후 레이아웃 수정
@@ -3742,6 +4510,8 @@ function deleteRow(rowIndex) {
     
     // 모바일 카드 다시 렌더링
     if (window.innerWidth <= 768) {
+        // processedTables 초기화하여 모든 테이블을 다시 처리
+        processedTables.clear();
         setTimeout(function() {
             renderMobileCards();
             // 카드 렌더링 완료 후 레이아웃 수정
@@ -3806,6 +4576,8 @@ function addCostRowAfter(rowIndex) {
     
     // 모바일 카드 다시 렌더링
     if (window.innerWidth <= 768) {
+        // processedTables 초기화하여 모든 테이블을 다시 처리
+        processedTables.clear();
         setTimeout(function() {
             renderMobileCards();
             // 카드 렌더링 완료 후 레이아웃 수정
@@ -3862,7 +4634,7 @@ function copyCostRow(rowIndex) {
     // 새로 추가된 행의 금액 계산
     const newRowElement = sourceRow.next();
     const quantityVal = parseFloat(quantity) || 0;
-    const unitPriceVal = parseFloat(unitPrice.toString().replace(/,/g, '')) || 0;
+    const unitPriceVal = parseFloat((unitPrice || '').toString().replace(/,/g, '')) || 0;
     const supplyAmountVal = quantityVal * unitPriceVal;
     const taxAmountVal = supplyAmountVal * 0.1;
     
@@ -3876,6 +4648,8 @@ function copyCostRow(rowIndex) {
     
     // 모바일 카드 다시 렌더링
     if (window.innerWidth <= 768) {
+        // processedTables 초기화하여 모든 테이블을 다시 처리
+        processedTables.clear();
         setTimeout(function() {
             renderMobileCards();
             // 카드 렌더링 완료 후 레이아웃 수정
@@ -3907,6 +4681,8 @@ function deleteCostRow(rowIndex) {
     
     // 모바일 카드 다시 렌더링
     if (window.innerWidth <= 768) {
+        // processedTables 초기화하여 모든 테이블을 다시 처리
+        processedTables.clear();
         setTimeout(function() {
             renderMobileCards();
             // 카드 렌더링 완료 후 레이아웃 수정
@@ -4143,25 +4919,28 @@ function populateProductOptions(selectElement, callback) {
                 selectElement.append(option);
             });
             
-            // Select2 업데이트
-            if (selectElement.hasClass('select2-hidden-accessible')) {
-                selectElement.select2('destroy');
-            }
-            
-            // Select2 재초기화
-            selectElement.select2({
-                placeholder: '상품을 선택하세요',
-                allowClear: true,
-                width: '100%',
-                language: {
-                    noResults: function() {
-                        return "검색 결과가 없습니다.";
-                    },
-                    searching: function() {
-                        return "검색 중...";
-                    }
+            // 모바일 환경에서는 Select2를 초기화하지 않음
+            if (window.innerWidth > 768) {
+                // Select2 업데이트
+                if (selectElement.hasClass('select2-hidden-accessible')) {
+                    selectElement.select2('destroy');
                 }
-            });
+                
+                // Select2 재초기화
+                selectElement.select2({
+                    placeholder: '상품을 선택하세요',
+                    allowClear: true,
+                    width: '100%',
+                    language: {
+                        noResults: function() {
+                            return "검색 결과가 없습니다.";
+                        },
+                        searching: function() {
+                            return "검색 중...";
+                        }
+                    }
+                });
+            }
             
             // Select2 초기화 완료 후 이전에 선택된 값이 있으면 다시 설정
             if (initialValue) {
@@ -4345,14 +5124,11 @@ function convertToOutorder() {
         };
         
         // 디버깅: 수집된 기타비용 데이터 로그
-        console.log('견적서에서 수집된 기타비용 데이터:', costItem);
         
         // 빈 데이터가 아닌 경우에만 추가
         if (category || item || costItem.quantity > 0 || costItem.unit_price > 0) {
             estimateData.other_costs.push(costItem);
-            console.log('견적서 기타비용 데이터 추가됨:', costItem);
         } else {
-            console.log('견적서 기타비용 데이터 제외됨 (빈 데이터):', costItem);
         }
     });
 
@@ -4373,7 +5149,6 @@ function convertToOutorder() {
     // 폼을 body에 추가하고 제출
     $('body').append(form);
 
-    console.log('estimateData', estimateData);      
 
     form.submit();
 }       
@@ -4412,6 +5187,474 @@ function openEstimatePDF() {
   // 팝업창(현재창)에서 바로 다운로드가 되도록 location.href 사용
   location.href = '/pdf/estimate_pdf.php?num=' + encodeURIComponent(num) + '&download=1';
 }
+
+// 모바일 전용 전체 재계산 함수
+function recalculateAllMobile() {
+	if (!isMobileDevice()) {
+		return; // 모바일이 아니면 실행하지 않음
+	}
+	
+	// 모바일 카드의 모든 값을 원본 테이블에 동기화
+	$('.mobile-card').each(function() {
+		var $mobileCard = $(this);
+		
+		// 모바일 카드에서 data-row 찾기
+		var rowIndex = $mobileCard.find('select[data-row], input[data-row]').first().attr('data-row');
+		if (rowIndex === undefined || rowIndex === '') {
+			// name 속성에서 추출 시도
+			var $firstInput = $mobileCard.find('input[name*="["]').first();
+			if ($firstInput.length > 0) {
+				var inputName = $firstInput.attr('name') || '';
+				var match = inputName.match(/\[(\d+)\]/);
+				if (match && match[1]) {
+					rowIndex = match[1];
+				}
+			}
+		}
+		
+		if (rowIndex !== undefined && rowIndex !== '') {
+			// 모바일 카드의 모든 입력 필드 값을 원본 테이블에 동기화
+			$mobileCard.find('input, select, textarea').each(function() {
+				var $mobileInput = $(this);
+				var inputName = $mobileInput.attr('name');
+				var inputValue = $mobileInput.val();
+				
+				if (inputName) {
+					var $originalInput = $('input[name="' + inputName + '"], select[name="' + inputName + '"], textarea[name="' + inputName + '"]').not('.mobile-card input, .mobile-card select, .mobile-card textarea');
+					if ($originalInput.length > 0) {
+						$originalInput.val(inputValue);
+						$originalInput.trigger('change');
+					}
+				}
+			});
+		}
+	});
+	
+	// 모든 상품 행 계산
+	$('.item-row').each(function() {
+		var $itemRow = $(this);
+		var row = $itemRow.data('row');
+		if (row !== undefined && row !== null) {
+			// 수량과 단가 가져오기
+			var quantity = parseFloat($itemRow.find('.quantity-input').val()) || 0;
+			var unitPriceText = $itemRow.find('.unit-price-input').val() || '0';
+			var unitPrice = parseFloat(unitPriceText.replace(/,/g, '')) || 0;
+			
+			// 실제면적 가져오기
+			var areaText = $itemRow.find('.area-input').val() || '0';
+			var actualArea = parseFloat(areaText) || 0;
+			
+			// 총면적 계산 (수량 × 실제면적)
+			var totalArea = quantity * actualArea;
+			
+			// 금액 계산
+			var supplyAmount = totalArea * unitPrice;
+			var taxAmount = supplyAmount * 0.1;
+			
+			// 원본 테이블에 반영
+			$itemRow.find('.supply-amount').text('' + supplyAmount.toLocaleString());
+			$itemRow.find('.tax-amount').text('' + taxAmount.toLocaleString());
+			
+			// 계산된 공급가액과 세액을 모바일 카드에 반영
+			var supplyAmountText = '' + supplyAmount.toLocaleString();
+			var taxAmountText = '' + taxAmount.toLocaleString();
+			
+			var $mobileCard = $('.mobile-card').filter(function() {
+				var $cardSelect = $(this).find('select[data-row="' + row + '"]');
+				return $cardSelect.length > 0;
+			});
+			
+			if ($mobileCard.length > 0) {
+				// 모바일 카드의 공급가액과 세액 업데이트
+				$mobileCard.find('strong').each(function() {
+					var labelText = $(this).text().trim();
+					if (labelText.includes('공급가액') || labelText.includes('Supply')) {
+						var $nextSpan = $(this).next('span');
+						if ($nextSpan.length > 0) {
+							$nextSpan.text(supplyAmountText);
+						}
+					}
+					if (labelText.includes('세액') || labelText.includes('Tax')) {
+						var $nextSpan = $(this).next('span');
+						if ($nextSpan.length > 0) {
+							$nextSpan.text(taxAmountText);
+						}
+					}
+				});
+			}
+		}
+	});
+	
+	// 모든 기타비용 행 계산
+	$('.cost-row').each(function() {
+		var $costRow = $(this);
+		var costRowIndex = $costRow.data('row');
+		calculateCostRow($costRow);
+		
+		// 계산된 공급가액과 세액을 모바일 카드에 반영
+		var supplyAmount = $costRow.find('.cost-supply-amount').val();
+		var taxAmount = $costRow.find('.cost-tax-amount').val();
+		
+		var $mobileCard = $('.mobile-card').filter(function() {
+			// 기타비용 카드 찾기 (category, item으로 매칭)
+			var $cardCategoryInput = $(this).find('input[name*="[category]"]');
+			var $cardItemInput = $(this).find('input[name*="[item]"]');
+			if ($cardCategoryInput.length > 0 && $cardItemInput.length > 0) {
+				var cardCategory = $cardCategoryInput.val();
+				var cardItem = $cardItemInput.val();
+				var rowCategory = $costRow.find('input[name*="[category]"]').val();
+				var rowItem = $costRow.find('input[name*="[item]"]').val();
+				return cardCategory === rowCategory && cardItem === rowItem;
+			}
+			return false;
+		});
+		
+		if ($mobileCard.length > 0) {
+			// 모바일 카드의 공급가액과 세액 업데이트
+			$mobileCard.find('strong').each(function() {
+				var labelText = $(this).text().trim();
+				if (labelText.includes('공급가액') || labelText.includes('Supply')) {
+					var $nextSpan = $(this).next('span');
+					if ($nextSpan.length > 0) {
+						$nextSpan.text(supplyAmount || '0');
+					}
+				}
+				if (labelText.includes('세액') || labelText.includes('Tax')) {
+					var $nextSpan = $(this).next('span');
+					if ($nextSpan.length > 0) {
+						$nextSpan.text(taxAmount || '0');
+					}
+				}
+			});
+		}
+	});
+	
+	// 기타비용 자동 계산 (체크박스가 체크되어 있는 경우)
+	const etcAutoChecked = $('#etc_autocheck').is(':checked') || $('#etc_autocheck').val() === '1';
+	if (etcAutoChecked) {
+		calculateOtherCostsFromProducts(true);
+	}
+	
+	// 소계 업데이트 (개별 행 계산 후)
+	if (typeof updateItemSubtotals === 'function') {
+		updateItemSubtotals();
+	}
+	if (typeof updateOtherCostsSubtotal === 'function') {
+		updateOtherCostsSubtotal();
+	}
+	
+	// 합계 업데이트 (소계 업데이트 후)
+	if (typeof updateTotals === 'function') {
+		updateTotals();
+	}
+	
+	// 계산 후 모바일 카드의 입력 필드 값(수량, 단가 등)을 원본 테이블에 다시 동기화
+	// 이렇게 하면 renderMobileCards() 호출 시 사용자가 입력한 값이 유지됩니다.
+	$('.mobile-card').each(function() {
+		var $mobileCard = $(this);
+		
+		// 모바일 카드에서 data-row 찾기
+		var rowIndex = $mobileCard.find('select[data-row], input[data-row]').first().attr('data-row');
+		if (rowIndex === undefined || rowIndex === '') {
+			// name 속성에서 추출 시도
+			var $firstInput = $mobileCard.find('input[name*="["]').first();
+			if ($firstInput.length > 0) {
+				var inputName = $firstInput.attr('name') || '';
+				var match = inputName.match(/\[(\d+)\]/);
+				if (match && match[1]) {
+					rowIndex = match[1];
+				}
+			}
+		}
+		
+		if (rowIndex !== undefined && rowIndex !== '') {
+			// 모바일 카드의 입력 필드 값(수량, 단가, 면적 등)을 원본 테이블에 동기화
+			$mobileCard.find('input, select, textarea').each(function() {
+				var $mobileInput = $(this);
+				var inputName = $mobileInput.attr('name');
+				var inputValue = $mobileInput.val();
+				
+				// 수량, 단가, 면적 등 계산에 영향을 주는 필드만 동기화
+				if (inputName && (
+					inputName.includes('[quantity]') || 
+					inputName.includes('[unit_price]') || 
+					inputName.includes('[area]') ||
+					inputName.includes('[specification]') ||
+					inputName.includes('[size]') ||
+					inputName.includes('[category]') ||
+					inputName.includes('[item]') ||
+					inputName.includes('[cost_quantity]') ||
+					inputName.includes('[cost_unit_price]')
+				)) {
+					var $originalInput = $('input[name="' + inputName + '"], select[name="' + inputName + '"], textarea[name="' + inputName + '"]').not('.mobile-card input, .mobile-card select, .mobile-card textarea');
+					if ($originalInput.length > 0) {
+						$originalInput.val(inputValue);
+					}
+				}
+			});
+		}
+	});
+	
+	// 모바일 카드 다시 렌더링 (계산된 값 반영)
+	// 이제 원본 테이블에는 모바일 카드의 현재 값이 반영되어 있으므로, 재렌더링해도 값이 유지됩니다.
+	setTimeout(function() {
+		processedTables.clear();
+		renderMobileCards();
+		removeVATParentheses();
+	}, 200);
+	
+	// 완료 메시지
+	if (typeof alertToast === 'function') {
+		alertToast('계산 완료');
+	} else {
+		alert('계산이 완료되었습니다.');
+	}
+}
+
+// 모바일 환경에서 동적으로 생성된 모든 input, select, textarea 필드에 터치 이벤트 위임
+$(document).on('touchstart', '.mobile-card input, .mobile-card select, .mobile-card textarea', function(e) {
+	e.stopPropagation();
+	e.stopImmediatePropagation();
+	
+	if (this.tagName === 'INPUT' || this.tagName === 'TEXTAREA' || this.tagName === 'SELECT') {
+		// 입력 시작 플래그 설정
+		isMobileInputActive = true;
+		activeMobileInputElement = this;
+		
+		// 포커스 설정
+		var self = this;
+		setTimeout(function() {
+			if (self && document.body.contains(self)) {
+				self.focus();
+				// 포커스가 실제로 설정되었는지 확인
+				if (document.activeElement !== self) {
+					self.focus();
+				}
+			}
+		}, 50);
+	}
+	
+	// preventDefault는 선택적으로만 사용 (키보드가 나오도록)
+	return true;
+});
+
+$(document).on('touchend', '.mobile-card input, .mobile-card select, .mobile-card textarea', function(e) {
+	e.stopPropagation();
+	e.stopImmediatePropagation();
+	
+	if (this.tagName === 'INPUT' || this.tagName === 'TEXTAREA' || this.tagName === 'SELECT') {
+		// 포커스 유지
+		var self = this;
+		setTimeout(function() {
+			if (self && document.body.contains(self)) {
+				self.focus();
+			}
+		}, 10);
+	}
+	
+	return true;
+});
+
+$(document).on('touchmove', '.mobile-card input, .mobile-card select, .mobile-card textarea', function(e) {
+	e.stopPropagation();
+	// 스크롤을 허용하기 위해 preventDefault는 사용하지 않음
+});
+
+$(document).on('click', '.mobile-card input, .mobile-card select, .mobile-card textarea', function(e) {
+	e.stopPropagation();
+	e.stopImmediatePropagation();
+	
+	if (this.tagName === 'INPUT' || this.tagName === 'TEXTAREA' || this.tagName === 'SELECT') {
+		isMobileInputActive = true;
+		activeMobileInputElement = this;
+		
+		var self = this;
+		setTimeout(function() {
+			if (self && document.body.contains(self)) {
+				self.focus();
+			}
+		}, 10);
+	}
+	
+	return false;
+});
+
+$(document).on('focus', '.mobile-card input, .mobile-card select, .mobile-card textarea', function(e) {
+	e.stopPropagation();
+	e.stopImmediatePropagation();
+	
+	if (this.tagName === 'INPUT' || this.tagName === 'TEXTAREA' || this.tagName === 'SELECT') {
+		isMobileInputActive = true;
+		activeMobileInputElement = this;
+	}
+});
+
+// blur 이벤트 처리 - 입력 중에는 키보드가 사라지지 않도록 함
+$(document).on('blur', '.mobile-card input, .mobile-card textarea', function(e) {
+	if (!isMobileDevice()) {
+		return; // 모바일이 아니면 일반 처리
+	}
+	
+	var $input = $(this);
+	var inputId = $input.attr('id') || $input.attr('name') || Math.random().toString(36);
+	
+	// 포커스가 다른 입력 필드로 이동하는 경우는 허용
+	var relatedTarget = e.relatedTarget;
+	if (relatedTarget && (relatedTarget.tagName === 'INPUT' || relatedTarget.tagName === 'TEXTAREA' || relatedTarget.tagName === 'SELECT')) {
+		isMobileInputActive = true;
+		activeMobileInputElement = relatedTarget;
+		return;
+	}
+	
+	// 입력 중이면 포커스 복원 시도
+	if (isMobileInputActive && activeMobileInputElement === this) {
+		var self = this;
+		e.preventDefault();
+		e.stopPropagation();
+		e.stopImmediatePropagation();
+		
+		setTimeout(function() {
+			if (self && document.body.contains(self)) {
+				// 포커스 복원 시도
+				self.focus();
+				// 여전히 포커스가 없으면 다시 시도
+				if (document.activeElement !== self) {
+					setTimeout(function() {
+						if (self && document.body.contains(self)) {
+							self.focus();
+						}
+					}, 50);
+				}
+			}
+		}, 10);
+		
+		return false;
+	}
+	
+	// 계산이 필요한 입력 필드인지 확인
+	var hasCalculationClass = $input.hasClass('quantity-input') || 
+	                          $input.hasClass('unit-price-input') ||
+	                          $input.hasClass('cost-quantity-input') ||
+	                          $input.hasClass('cost-unit-price-input');
+	
+	// 계산이 필요한 필드인 경우 계산 먼저 실행
+	if (hasCalculationClass) {
+		// 입력 종료 플래그 설정 (약간의 지연 후)
+		setTimeout(function() {
+			// 포커스가 다른 입력 필드로 이동하지 않았으면 입력 종료
+			var currentActive = document.activeElement;
+			if (!currentActive || (currentActive.tagName !== 'INPUT' && currentActive.tagName !== 'TEXTAREA' && currentActive.tagName !== 'SELECT')) {
+				isMobileInputActive = false;
+				activeMobileInputElement = null;
+			}
+		}, 200);
+		
+		// 해당 input의 대기 중인 계산 즉시 실행
+		if (mobileInputCalculationTimeouts[inputId]) {
+			clearTimeout(mobileInputCalculationTimeouts[inputId]);
+			delete mobileInputCalculationTimeouts[inputId];
+		}
+		
+		// 모바일 카드에서 원본 테이블의 행 찾기
+		var row = null;
+		var cost_row = null;
+		
+		// 모바일 카드 내부인지 확인
+		var $mobileCard = $input.closest('.mobile-card');
+		if ($mobileCard.length > 0) {
+			// 모바일 카드에서 data-row 속성 찾기 (select 또는 input에서)
+			var $rowElement = $mobileCard.find('select[data-row], input[data-row]').first();
+			if ($rowElement.length > 0) {
+				var rowIndex = $rowElement.attr('data-row');
+				if (rowIndex !== undefined && rowIndex !== '') {
+					row = parseInt(rowIndex);
+				}
+			}
+			
+			// cost-row인지 확인
+			if ($mobileCard.find('.cost-quantity-input, .cost-unit-price-input').length > 0) {
+				cost_row = row;
+			}
+			
+			// row를 찾지 못한 경우, input의 name 속성에서 추출 시도
+			if (row === null || row === undefined) {
+				var inputName = $input.attr('name') || '';
+				var match = inputName.match(/\[(\d+)\]/);
+				if (match && match[1]) {
+					row = parseInt(match[1]);
+					if ($input.hasClass('cost-quantity-input') || $input.hasClass('cost-unit-price-input')) {
+						cost_row = row;
+					}
+				}
+			}
+			
+			// 모바일 카드의 값을 원본 테이블로 동기화
+			if ($input.hasClass('quantity-input')) {
+				var mobileQuantity = $input.val();
+				$('.item-row[data-row="' + row + '"]').find('.quantity-input').val(mobileQuantity);
+			} else if ($input.hasClass('unit-price-input')) {
+				var mobileUnitPrice = $input.val();
+				$('.item-row[data-row="' + row + '"]').find('.unit-price-input').val(mobileUnitPrice);
+			} else if ($input.hasClass('cost-quantity-input')) {
+				var $costRow = $('.cost-row').eq(cost_row);
+				if ($costRow.length > 0) {
+					var mobileQuantity = $input.val();
+					$costRow.find('.cost-quantity-input').val(mobileQuantity);
+				}
+			} else if ($input.hasClass('cost-unit-price-input')) {
+				var $costRow = $('.cost-row').eq(cost_row);
+				if ($costRow.length > 0) {
+					var mobileUnitPrice = $input.val();
+					$costRow.find('.cost-unit-price-input').val(mobileUnitPrice);
+				}
+			}
+		}
+		
+		// 즉시 계산 실행
+		if (row !== null && row !== undefined) {
+			if (cost_row !== null && cost_row !== undefined) {
+				var $costRow = $('.cost-row').eq(cost_row);
+				if ($costRow.length > 0) {
+					executeCalculationPC($input, null, $costRow);
+				}
+			} else {
+				executeCalculationPC($input, row, null);
+			}
+			
+			// 소계 및 합계 업데이트
+			setTimeout(function() {
+				if (typeof updateItemSubtotals === 'function') {
+					updateItemSubtotals();
+				}
+				if (typeof updateOtherCostsSubtotal === 'function') {
+					updateOtherCostsSubtotal();
+				}
+				if (typeof updateTotals === 'function') {
+					updateTotals();
+				}
+			}, 50);
+		}
+	} else {
+		// 계산이 필요하지 않은 필드인 경우 포커스 복원 시도
+		setTimeout(function() {
+			var currentActive = document.activeElement;
+			if (!currentActive || (currentActive.tagName !== 'INPUT' && currentActive.tagName !== 'TEXTAREA' && currentActive.tagName !== 'SELECT')) {
+				// 키보드가 사라지지 않도록 포커스 복원 시도
+				if (activeMobileInputElement && document.body.contains(activeMobileInputElement)) {
+					activeMobileInputElement.focus();
+					// 여전히 포커스가 없으면 다시 시도
+					if (document.activeElement !== activeMobileInputElement) {
+						setTimeout(function() {
+							if (activeMobileInputElement && document.body.contains(activeMobileInputElement)) {
+								activeMobileInputElement.focus();
+							}
+						}, 50);
+					}
+				}
+			}
+		}, 100);
+	}
+});
 </script>
 </body>
 </html>  

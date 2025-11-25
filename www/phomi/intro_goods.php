@@ -17,15 +17,154 @@ $counter = 0;
 ?>
 
 <?php include getDocumentRoot() . '/load_header.php' ?>
-<title>포미스톤 색상 정보 테이블</title>	
+<title>포미스톤 색상 정보 테이블</title>
+<style>
+  /* 모바일 환경 최적화 */
+  @media (max-width: 768px) {
+    /* body와 html 오버플로우 방지 */
+    html, body {
+      overflow-x: hidden !important;
+      max-width: 100% !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    
+    * {
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+    }
+    
+    /* 컨테이너 최적화 */
+    .container {
+      padding: 0.5rem !important;
+      max-width: 100% !important;
+      width: 100% !important;
+      margin: 0 auto !important;
+      overflow-x: hidden !important;
+    }
+    
+    /* 제목 및 닫기 버튼 영역 최적화 */
+    .d-flex.justify-content-between.align-items-center {
+      position: relative !important;
+      width: 100% !important;
+      margin-bottom: 1rem !important;
+      padding: 0 0.5rem !important;
+    }
+    
+    h5 {
+      font-size: 1.25rem !important;
+      word-wrap: break-word !important;
+      overflow-wrap: break-word !important;
+      margin-bottom: 0 !important;
+      padding: 0 !important;
+      flex-grow: 1 !important;
+      text-align: center !important;
+    }
+    
+    /* 닫기 버튼 최적화 */
+    #closeBtn {
+      position: absolute !important;
+      right: 0.5rem !important;
+      top: 0 !important;
+      flex-shrink: 0 !important;
+      padding: 0.375rem 0.75rem !important;
+      font-size: 0.85rem !important;
+      white-space: nowrap !important;
+      z-index: 10 !important;
+    }
+    
+    #closeBtn i {
+      margin-right: 0.25rem !important;
+    }
+    
+    /* 테이블 숨기기 (모바일에서는 카드로 표시) */
+    .table-responsive,
+    .table {
+      display: none !important;
+    }
+    
+    /* 모바일 카드 컨테이너 */
+    .mobile-cards-container {
+      width: 100% !important;
+      max-width: 100% !important;
+      padding: 0.5rem 0 !important;
+      box-sizing: border-box !important;
+    }
+    
+    .mobile-card {
+      width: 100% !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+      overflow-x: hidden !important;
+      margin-bottom: 0.75rem !important;
+      border: 1px solid #ddd !important;
+      border-radius: 0.5rem !important;
+      padding: 0.75rem !important;
+      background: #f8f9fa !important;
+    }
+    
+    .mobile-card .d-flex {
+      width: 100% !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+    }
+    
+    .mobile-card strong {
+      flex-shrink: 0 !important;
+      min-width: fit-content !important;
+      color: #0d6efd !important;
+      margin-right: 0.5rem !important;
+    }
+    
+    .mobile-card span {
+      flex: 1 !important;
+      min-width: 0 !important;
+      word-wrap: break-word !important;
+      overflow-wrap: break-word !important;
+      font-size: 0.9rem !important;
+    }
+    
+    /* 텍스트 줄바꿈 */
+    span, text, label, p, div, td {
+      word-wrap: break-word !important;
+      overflow-wrap: break-word !important;
+    }
+  }
+  
+  /* PC 화면에서 닫기 버튼 스타일 */
+  .d-flex.justify-content-between.align-items-center {
+    position: relative;
+    width: 100%;
+  }
+  
+  #closeBtn {
+    position: absolute;
+    right: 0;
+    top: 0;
+    flex-shrink: 0;
+  }
+  
+  #closeBtn i {
+    margin-right: 0.25rem;
+  }
+</style>
 </head> 
 
 <body class="p-10">
 <div class="container mt-4 d-flex justify-content-center">
-  <div>
-    <h5 class="mb-4 fw-bold text-center">포미스톤 색상 정보 테이블</h5>
+  <div style="position: relative; width: 100%;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h5 class="mb-0 fw-bold text-center flex-grow-1">포미스톤 색상 정보 테이블</h5>
+      <button type="button" class="btn btn-secondary btn-sm" id="closeBtn" onclick="window.close()" style="position: absolute; right: 0; top: 0;">
+        <i class="bi bi-x-lg"></i> 닫기
+      </button>
+    </div>
+    <!-- 모바일 카드 컨테이너 -->
+    <div id="mobileCardsContainer" class="mobile-cards-container"></div>
     <div class="table-responsive">
-              <table class="table table-bordered table-striped table-sm align-middle">
+              <table class="table table-bordered table-striped table-sm align-middle" id="colorTable">
         <thead class="table-dark">
           <tr>
             <th class="text-center">영문 색상명</th>
@@ -63,5 +202,121 @@ $counter = 0;
     </div>
   </div>
 </div>
+
+<script>
+  // 모바일 환경 체크 함수
+  function isMobile(breakpoint) {
+    breakpoint = breakpoint || 768;
+    return window.innerWidth <= breakpoint;
+  }
+  
+  // 디바운스 함수
+  function debounce(func, wait) {
+    var timeout;
+    return function executedFunction(...args) {
+      var later = function() {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  }
+  
+  // 모바일 카드 렌더링 플래그
+  var isRenderingCards = false;
+  
+  // 모바일 카드 렌더링 함수
+  function renderMobileCards() {
+    if (isRenderingCards) {
+      return;
+    }
+    
+    if (window.innerWidth > 768) {
+      var containers = document.querySelectorAll('.mobile-cards-container');
+      containers.forEach(function(container) {
+        container.innerHTML = '';
+      });
+      return;
+    }
+    
+    isRenderingCards = true;
+    
+    var table = document.getElementById('colorTable');
+    if (!table) {
+      isRenderingCards = false;
+      return;
+    }
+    
+    var cardsContainer = document.getElementById('mobileCardsContainer');
+    if (!cardsContainer) {
+      isRenderingCards = false;
+      return;
+    }
+    
+    cardsContainer.innerHTML = '';
+    
+    var headers = table.querySelectorAll('thead th');
+    var rows = table.querySelectorAll('tbody tr');
+    
+    rows.forEach(function(row) {
+      var card = document.createElement('div');
+      card.className = 'card mobile-card';
+      card.style.cssText = 'border: 1px solid #ddd; border-radius: 0.5rem; padding: 0.75rem; background: #f8f9fa; box-sizing: border-box; width: 100%; max-width: 100%;';
+      
+      var cells = row.querySelectorAll('td');
+      cells.forEach(function(cell, index) {
+        if (index >= headers.length) return;
+        
+        var label = headers[index] ? headers[index].textContent.trim() : '';
+        var cellText = cell.textContent.trim();
+        
+        var cardItem = document.createElement('div');
+        cardItem.className = 'd-flex align-items-center mb-2';
+        
+        var labelSpan = document.createElement('strong');
+        labelSpan.textContent = label + ':';
+        labelSpan.className = 'me-2';
+        
+        var valueSpan = document.createElement('span');
+        valueSpan.textContent = cellText;
+        
+        cardItem.appendChild(labelSpan);
+        cardItem.appendChild(valueSpan);
+        card.appendChild(cardItem);
+      });
+      
+      cardsContainer.appendChild(card);
+    });
+    
+    isRenderingCards = false;
+  }
+  
+  // 디바운스된 렌더링 함수
+  var debouncedRenderMobileCards = debounce(renderMobileCards, 300);
+  
+  // 페이지 로드 시 카드 렌더링
+  $(document).ready(function() {
+    if (isMobile()) {
+      setTimeout(function() {
+        debouncedRenderMobileCards();
+      }, 200);
+    }
+  });
+  
+  // 창 크기 변경 시 카드 렌더링
+  $(window).on('resize', debounce(function() {
+    if (isMobile()) {
+      setTimeout(function() {
+        debouncedRenderMobileCards();
+      }, 200);
+    } else {
+      var containers = document.querySelectorAll('.mobile-cards-container');
+      containers.forEach(function(container) {
+        container.innerHTML = '';
+      });
+    }
+  }, 300));
+</script>
 </body>
 </html>

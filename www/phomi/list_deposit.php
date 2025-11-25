@@ -124,17 +124,389 @@ $search = $_REQUEST["search"] ?? '';
 #myTable td.negative-balance {
     color: #dc3545 !important;
 }
+
+/* PC/모바일 공통 검색창 스타일 */
+.inputWrap {
+	flex: 0 1 auto !important;
+	min-width: 200px !important;
+	max-width: 400px !important;
+	position: relative !important;
+	display: flex !important;
+	align-items: center !important;
+}
+
+.inputWrap input {
+	width: 100% !important;
+	max-width: 100% !important;
+	padding: 0.5rem 80px 0.5rem 0.75rem !important;
+	font-size: 0.9rem !important;
+	border: 2px solid #28a745 !important;
+	border-radius: 0.5rem !important;
+	background-color: #fff !important;
+	margin: 0 !important;
+	box-sizing: border-box !important;
+}
+
+.btnClear {
+	position: absolute !important;
+	right: 50px !important;
+	top: 50% !important;
+	transform: translateY(-50%) !important;
+	width: 24px !important;
+	height: 24px !important;
+	background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/></svg>') no-repeat center !important;
+	background-size: 16px 16px !important;
+	border: none !important;
+	cursor: pointer !important;
+	z-index: 10 !important;
+	opacity: 0.6 !important;
+	transition: opacity 0.2s ease !important;
+}
+
+.btnClear:hover {
+	opacity: 1 !important;
+}
+
+.btn-search-icon {
+	position: absolute !important;
+	right: 8px !important;
+	top: 50% !important;
+	transform: translateY(-50%) !important;
+	width: 40px !important;
+	height: 40px !important;
+	min-width: 40px !important;
+	padding: 0 !important;
+	border: none !important;
+	background: transparent !important;
+	display: none !important;
+	align-items: center !important;
+	justify-content: center !important;
+	z-index: 11 !important;
+	cursor: pointer !important;
+	border-radius: 0.25rem !important;
+	transition: background-color 0.2s ease !important;
+}
+
+.btn-search-icon i {
+	font-size: 1.2rem !important;
+	color: #28a745 !important;
+}
+
+.btn-search-icon:hover {
+	background-color: rgba(40, 167, 69, 0.1) !important;
+}
+
+/* PC 화면 - 검색창 최대 너비 제한 */
+@media (min-width: 769px) {
+	.inputWrap {
+		max-width: 200px !important;
+	}
+	
+	.pc-only-btn {
+		display: inline-block !important;
+	}
+}
+
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+	/* body와 html의 width 제한 */
+	html, body {
+		max-width: 100vw !important;
+		overflow-x: hidden !important;
+		font-size: 16px !important;
+	}
+
+	/* 컨테이너 모바일 최적화 */
+	.container,
+	.container-fluid {
+		max-width: 100vw !important;
+		padding: 10px !important;
+		overflow-x: hidden !important;
+		box-sizing: border-box !important;
+	}
+	
+	/* 행 레이아웃 모바일 최적화 */
+	.row {
+		margin: 0 !important;
+		padding: 0 !important;
+		max-width: 100vw !important;
+		overflow-x: hidden !important;
+	}
+
+	/* 카드 모바일 최적화 */
+	.card {
+		margin: 0.5rem auto !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		overflow-x: hidden !important;
+		box-sizing: border-box !important;
+		border-radius: 12px !important;
+	}
+	
+	/* 카드 컨테이너 가운데 정렬 */
+	.d-flex.justify-content-center.align-items-center {
+		justify-content: center !important;
+		flex-wrap: wrap !important;
+	}
+	
+	/* 상단 카드 영역 가운데 정렬 */
+	.card-body > .d-flex.justify-content-center.align-items-center {
+		justify-content: center !important;
+		align-items: center !important;
+	}
+
+	.card-body {
+		padding: 0.75rem 0.5rem !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		overflow-x: hidden !important;
+	}
+
+	.card-title {
+		font-size: 0.9rem !important;
+		margin-bottom: 0.75rem !important;
+		padding: 0 0.5rem !important;
+	}
+
+	/* 제목 영역 */
+	h4 {
+		font-size: 1.1rem !important;
+		white-space: nowrap !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+	}
+
+	/* 버튼 모바일 최적화 */
+	.btn-sm {
+		font-size: 0.85rem !important;
+		padding: 0.4rem 0.6rem !important;
+		white-space: nowrap !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+	}
+
+	/* PC 전용 버튼 숨기기 */
+	.pc-only-btn {
+		display: none !important;
+	}
+
+	/* PC 전용 카드 숨기기 */
+	.pc-only-card {
+		display: none !important;
+	}
+
+	/* 기간 버튼 숨기기 */
+	#showdate {
+		display: none !important;
+	}
+
+	/* 기간 설정 팝업 모바일 최적화 */
+	.showextractframe,
+	#showframe {
+		position: fixed !important;
+		left: 50% !important;
+		top: 50% !important;
+		transform: translate(-50%, -50%) !important;
+		width: 95% !important;
+		max-width: 400px !important;
+		z-index: 9999 !important;
+		max-height: 80vh !important;
+		overflow-y: auto !important;
+	}
+
+	/* 날짜 입력 필드 */
+	#fromdate, #todate {
+		width: auto !important;
+		min-width: 120px !important;
+		max-width: 150px !important;
+		font-size: 0.9rem !important;
+		padding: 0.4rem !important;
+		box-sizing: border-box !important;
+		flex-shrink: 0 !important;
+	}
+
+	/* 검색 영역 모바일 최적화 */
+	.inputWrap {
+		flex: 1 1 auto !important;
+		min-width: 0 !important;
+		max-width: none !important;
+	}
+	
+	.inputWrap input {
+		font-size: 1rem !important;
+	}
+
+	.btn-search-icon {
+		display: flex !important;
+	}
+
+	/* 검색 버튼 */
+	#searchBtn {
+		white-space: nowrap !important;
+	}
+
+	/* 상단 제어 영역 세로 배치 */
+	.card-body .d-flex {
+		flex-direction: column !important;
+		align-items: stretch !important;
+		gap: 10px !important;
+	}
+
+	.card-body > .d-flex:first-of-type {
+		flex-direction: row !important;
+		justify-content: space-between !important;
+		align-items: center !important;
+		margin-bottom: 15px !important;
+		padding-bottom: 12px !important;
+		border-bottom: 2px solid #e9ecef !important;
+		flex-wrap: wrap !important;
+	}
+
+	/* 날짜 입력 영역 - 한 줄에 표시 */
+	.card-body .d-flex:has(#fromdate),
+	.d-flex:has(#fromdate) {
+		display: flex !important;
+		flex-direction: row !important;
+		flex-wrap: nowrap !important;
+		align-items: center !important;
+		gap: 0.5rem !important;
+		justify-content: flex-start !important;
+	}
+	
+	/* 날짜 입력 영역의 ~ 기호 */
+	.d-flex:has(#fromdate) span,
+	.card-body .d-flex:has(#fromdate) span {
+		white-space: nowrap !important;
+		flex-shrink: 0 !important;
+	}
+
+	/* DataTables 숨기기 */
+	.dataTables_wrapper .dataTables_length,
+	.dataTables_wrapper .dataTables_filter {
+		display: none !important;
+	}
+
+	.dataTables_wrapper .dataTables_paginate {
+		font-size: 0.9rem !important;
+		margin-top: 15px !important;
+	}
+
+	.dataTables_wrapper .dataTables_paginate .paginate_button {
+		padding: 0.5rem 0.7rem !important;
+		margin: 0 2px !important;
+	}
+
+	.dataTables_wrapper .dataTables_info {
+		font-size: 0.9rem !important;
+		text-align: center !important;
+		margin-top: 10px !important;
+		margin-bottom: 10px !important;
+	}
+
+	/* 테이블 모바일 최적화 - 카드 레이아웃 */
+	.table-responsive {
+		overflow-x: visible !important;
+	}
+
+	#myTable thead {
+		display: none !important;
+	}
+
+	#myTable,
+	#myTable tbody,
+	#myTable tr,
+	#myTable td {
+		display: block !important;
+		width: 100% !important;
+	}
+
+	#myTable tr {
+		margin: 0 auto 15px auto !important;
+		border: 1px solid #dee2e6 !important;
+		border-radius: 10px !important;
+		background: white !important;
+		box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+		padding: 14px !important;
+		overflow: hidden !important;
+		box-sizing: border-box !important;
+		width: 100% !important;
+		max-width: 100% !important;
+	}
+
+	/* 카드 내 필드 스타일 */
+	#myTable td {
+		text-align: left !important;
+		padding: 12px !important;
+		border: none !important;
+		position: relative !important;
+		padding-left: 35% !important;
+		white-space: normal !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		min-height: 40px !important;
+		font-size: 1rem !important;
+		line-height: 1.6 !important;
+		box-sizing: border-box !important;
+	}
+
+	/* 라벨 표시 */
+	#myTable td:before {
+		content: attr(data-label);
+		position: absolute !important;
+		left: 12px !important;
+		width: 30% !important;
+		padding-right: 8px !important;
+		white-space: nowrap !important;
+		overflow: hidden !important;
+		text-overflow: ellipsis !important;
+		font-weight: 600 !important;
+		color: #6b7280 !important;
+		font-size: 0.9rem !important;
+	}
+
+	#myTable td:after {
+		content: ':' !important;
+		position: absolute !important;
+		left: 32% !important;
+		font-weight: bold !important;
+		color: #9ca3af !important;
+	}
+
+	/* 모든 텍스트와 버튼이 카드 내부에 머물도록 */
+	.card *,
+	.container *,
+	.container-fluid *,
+	.row *,
+	.col-md-* {
+		box-sizing: border-box !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+	}
+
+	.card button,
+	.card .btn,
+	.card span,
+	.card input,
+	.card table,
+	.card p,
+	.card ul,
+	.card li,
+	.card strong,
+	.card label,
+	.card select {
+		max-width: 100% !important;
+		word-wrap: break-word !important;
+		overflow-wrap: break-word !important;
+		white-space: normal !important;
+	}
+}
 </style>   
 </head>		 
 <body>
 
 <?php
 $tablename = 'phomi_deposit';
- if(!$chkMobile) 
-{ 	
-	require_once(includePath('myheader.php')); 
-}
-
+ require_once(includePath('myheader.php')); 
  // 모바일이면 특정 CSS 적용
 if ($chkMobile) {
     echo '<style>
@@ -352,7 +724,7 @@ try{
 					<button type="button" class="btn btn-dark btn-sm mx-3"  onclick='location.reload();' title="새로고침"> <i class="bi bi-arrow-clockwise"></i> </button>  	 			
 				</div>	
 				<div class="d-flex justify-content-center align-items-center"> 
-					<div class="alert alert-primary p-2" role="alert">
+					<div class="alert alert-primary p-2 pc-only-card" role="alert">
 						포미스톤 본사 예치금 및 지출 관리 시스템입니다. 총판 공급가 기준으로 예치금이 차감됩니다. 지출액은 VAT포함 금액입니다.
 					</div>		 
 				</div>					
@@ -387,13 +759,16 @@ try{
 					<div class="d-flex justify-content-center align-items-center">  	
 				<?php } ?>&nbsp;				
 			<div class="inputWrap">
-				<input type="text" id="search" name="search" value="<?=$search?>" autocomplete="off"  class="form-control w-auto mx-1" > &nbsp;			
-				<button class="btnClear"></button>
+				<input type="text" id="search" name="search" value="<?=$search?>" autocomplete="off"  class="form-control w-auto mx-1" placeholder="날짜, 비고, 입금액 검색..." > &nbsp;			
+				<button class="btnClear" type="button"></button>
+				<button type="button" id="searchBtnMobile" class="btn-search-icon">
+					<i class="bi bi-search"></i>
+				</button>
 			</div>				
 			<div id="autocomplete-list">
 			</div>
 			 &nbsp;												   			   
-				<button type="button" id="searchBtn" class="btn btn-dark  btn-sm"> <i class="bi bi-search"></i>  </button>	&nbsp;&nbsp;
+				<button type="button" id="searchBtn" class="btn btn-dark btn-sm pc-only-btn"> <i class="bi bi-search"></i>  </button>	&nbsp;&nbsp;
 				<button type="button" class="btn btn-dark  btn-sm me-1" id="writeBtn"> <i class="bi bi-pencil-fill"></i> 신규  </button> 	    			 
 		</div>
 	</div>
@@ -465,20 +840,20 @@ th {
 				
 				echo '<tr style="cursor:pointer;" '.$click_data.'>';
 				?>
-					<td class="text-center"><?= $start_num ?></td>
-					<td class="text-start" data-order="<?= $date ?>"> <?=$date?> </td>	  
-					<td class="text-end income-amount" data-order="<?= $income ?>">
+					<td class="text-center" data-label="번호"><?= $start_num ?></td>
+					<td class="text-start" data-label="날짜" data-order="<?= $date ?>"> <?=$date?> </td>	  
+					<td class="text-end income-amount" data-label="입금액" data-order="<?= $income ?>">
 						<?= $income_formatted ?>
 					</td>  <!-- 입금액 -->
-					<td class="text-end expense-amount" data-order="<?= $expense ?>">
+					<td class="text-end expense-amount" data-label="지출액(VAT포함)" data-order="<?= $expense ?>">
 						<?= $expense_formatted ?>
 					</td>  <!-- 지출액 -->
-					<td class="text-end <?= $balance_class ?>" data-order="<?= $balance ?>">
+					<td class="text-end <?= $balance_class ?>" data-label="잔액" data-order="<?= $balance ?>">
 						<?= $balance_formatted ?>
 					</td>  <!-- 잔액 -->
-					<td class="text-start"> <?= $site_names ? $site_names : '-' ?> </td>  <!-- 현장명 -->
-					<td class="text-start"> <?= $recipients ? $recipients : '-' ?> </td>  <!-- 수신처 -->
-					<td class="text-start"> <?= $note ?> </td>          
+					<td class="text-start" data-label="현장명"> <?= $site_names ? $site_names : '-' ?> </td>  <!-- 현장명 -->
+					<td class="text-start" data-label="수신처"> <?= $recipients ? $recipients : '-' ?> </td>  <!-- 수신처 -->
+					<td class="text-start" data-label="비고"> <?= $note ?> </td>          
 					</tr>
 		<?php
 			$start_num--;  
@@ -574,13 +949,34 @@ $(document).ready(function() {
     });	
 });
 
+// 모바일 환경 감지
+function isMobile() {
+	return window.innerWidth <= 768;
+}
+
+// 검색 기능
+function performSearch() {
+	var searchValue = $('#search').val();
+	if (dataTable) {
+		dataTable.search(searchValue).draw();
+	}
+}
+
+// 검색창 클리어
+$(document).on('click', '.btnClear', function() {
+	$('#search').val('');
+	if (dataTable) {
+		dataTable.search('').draw();
+	}
+});
+
 $(document).ready(function() { 
 	$("#writeBtn").click(function(){ 		
 		var tablename = $("#tablename").val();			
 		var url = "write_form_deposit.php?tablename=" + tablename ; 
 		customPopup(url, '등록', 800, 600); 		
 	 });	 
-	$("#searchBtn").click(function() { 
+	$("#searchBtn, #searchBtnMobile").click(function() { 
 		// 페이지 번호를 1로 설정
 		currentpageNumber = 1;
 		setCookie('currentpageNumber', currentpageNumber, 10); // 쿠키에 페이지 번호 저장
@@ -589,6 +985,11 @@ $(document).ready(function() {
 		$('#dateRange').val('전체').change();
 		document.getElementById('board_form').submit();
 	});
+	
+	// 모바일에서 DataTables 초기화 시 길이 및 필터 숨기기
+	if (isMobile()) {
+		$('.dataTables_length, .dataTables_filter').hide();
+	}
 }); 
 
 
