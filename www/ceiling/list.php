@@ -60,6 +60,23 @@ include includePath('load_header.php');
 <link href="https://unpkg.com/tabulator-tables@6.2.1/dist/css/tabulator.min.css" rel="stylesheet">
 <link rel="stylesheet" href="<?php echo $base_url; ?>/assets/css/ceiling-list.css?v=<?php echo time(); ?>">
 <script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.2.1/dist/js/tabulator.min.js"></script>
+<style>
+/* PC 화면에서 모바일 검색 아이콘 숨기기 */
+@media (min-width: 769px) {
+    .mobile-search-icon,
+    .btnSearchIcon.mobile-search-icon {
+        display: none !important;
+    }
+}
+
+/* 모바일 화면에서만 모바일 검색 아이콘 표시 */
+@media (max-width: 768px) {
+    .mobile-search-icon,
+    .btnSearchIcon.mobile-search-icon {
+        display: inline-block !important;
+    }
+}
+</style>
 <?php
 // 모바일 접속일 때만 viewport meta 태그 출력
 function isMobile() {
@@ -2392,7 +2409,7 @@ function switchView(viewType) {
         cardViewBtn.classList.remove('btn-primary');
         cardViewBtn.classList.add('btn-outline-primary');
     }
-}
+} 
 
 // 모바일 카드 생성 함수
 function generateMobileCards() {

@@ -62,7 +62,18 @@ if($user_name=='소현철' || $user_name=='김보곤' || $user_name=='이경묵'
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<?php
+// PC 버전 강제 모드 체크
+$force_pc_view = isset($_COOKIE['force_pc_view']) && $_COOKIE['force_pc_view'] === '1';
+
+if ($force_pc_view) {
+    // PC 뷰 강제 시 고정 너비 설정 (예: 1280px)
+    echo '<meta name="viewport" content="width=1280, user-scalable=yes">';
+} else {
+    // 기본 모바일 반응형 뷰포트
+    echo '<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">';
+}
+?>
 <meta property="og:type" content="미래기업 통합정보시스템">
 <meta property="og:title" content="미래기업 통합정보시스템">
 <meta property="og:url" content="<?= getBaseUrl() ?>">
