@@ -1,5 +1,35 @@
 <?php require_once __DIR__ . '/bootstrap.php'; ?>
 
+<?php
+// 모바일 감지 함수 (쿠키 확인 포함)
+if (!function_exists('isMobile')) {
+    function isMobile() {
+        // force_pc_view 쿠키가 설정되어 있으면 PC 버전으로 강제 표시
+        if (isset($_COOKIE['force_pc_view']) && $_COOKIE['force_pc_view'] == '1') {
+            return false;
+        }
+        
+        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+        // 모바일 디바이스 감지
+        $mobilePattern = '/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i';
+        $isMobileDevice = preg_match($mobilePattern, $userAgent);
+        
+        // 화면 너비도 확인 (JavaScript로 설정된 경우)
+        if (isset($_COOKIE['screen_width'])) {
+            $screenWidth = (int)$_COOKIE['screen_width'];
+            return $isMobileDevice || $screenWidth < 768;
+        }
+        
+        return $isMobileDevice;
+    }
+}
+
+// chkMobile 변수 설정 (이미 설정되어 있지 않은 경우만)
+if (!isset($chkMobile)) {
+    $chkMobile = function_exists('isMobile') ? isMobile() : false;
+}
+?>
+
 <form id="eworks_board_form" name="eworks_board_form" method="post" enctype="multipart/form-data" >	    
 	<input type="hidden" id="eworksPage" name="eworksPage" value="<?= isset($eworksPage) ? $eworksPage : '' ?>" > 
 	<input type="hidden" id="e_viewexcept_id" name="e_viewexcept_id" value="<?= isset($e_viewexcept_id) ? $e_viewexcept_id : '' ?>" >   <!-- 전자결재 보기 제한 -->    
@@ -61,11 +91,28 @@
 	<?php } ?>	
   
 <div class="row d-flex align-items-center header-row" style="margin: 0; padding: 8px 0;">
-    <div class="col-4 col-sm-2 d-flex align-items-center header-logo-col" style="padding: 0 8px;">
+    <div class="col-4 col-sm-2 d-flex flex-column align-items-center header-logo-col" style="padding: 0 8px;">
 		<a href="<?= $root_dir ?>/index.php" class="d-flex align-items-center header-logo-link" style="height: 100%;">
 			<?php //<img class="img-fluid" src="<?$root_dir /img/companylogo.jpg"> ?>
 			<img src="<?= $root_dir ?>/img/mirae_logo.png" class="header-logo-img" style="width:100%; max-width: 120px; height: auto; object-fit: contain;">
 		</a>
+		<!-- 모바일 기계 접속 시에만 표시되는 PC/모바일 화면 버전 토글 버튼 (로고 밑에 작은 버튼) -->
+		<?php 
+		// 실제 모바일 디바이스인지 확인 (쿠키 무시, User-Agent 기반)
+		$userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+		$mobilePattern = '/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i';
+		$isActualMobileDevice = preg_match($mobilePattern, $userAgent);
+		?>
+		<?php if($isActualMobileDevice) : ?>
+		<div class="btn-group btn-group-sm mt-1" role="group" aria-label="화면 버전 전환" style="font-size: 0.65rem; width: 100%; max-width: 120px;">
+			<button type="button" class="btn btn-sm <?php echo (isset($_COOKIE['force_pc_view']) && $_COOKIE['force_pc_view'] == '1') ? 'btn-primary' : 'btn-outline-primary'; ?>" id="pcVersionToggle" onclick="togglePCVersion(true);" style="padding: 0.2rem 0.4rem; font-size: 0.65rem; flex: 1;">
+				<i class="bi bi-display"></i> PC
+			</button>
+			<button type="button" class="btn btn-sm <?php echo (!isset($_COOKIE['force_pc_view']) || $_COOKIE['force_pc_view'] != '1') ? 'btn-primary' : 'btn-outline-primary'; ?>" id="mobileVersionToggle" onclick="togglePCVersion(false);" style="padding: 0.2rem 0.4rem; font-size: 0.65rem; flex: 1;">
+				<i class="bi bi-phone"></i> 모바일
+			</button>
+		</div>
+		<?php endif; ?>
 	</div>
 <div class="col-8 col-sm-10 d-flex justify-content-end align-items-center header-menu-col" style="padding: 0 8px;">
 	<!-- 모바일 햄버거 메뉴 버튼 -->
@@ -288,6 +335,9 @@
                     구매/발주/자재
                 </a>								
 				<div class="dropdown-menu">
+					<a class="dropdown-item" href="<?=$root_dir?>/integratedordering/list.php">
+						<i class="bi bi-clipboard-check"></i> 구매(통합형 개발중)
+					</a>    										
 					<a class="dropdown-item" href="<?=$root_dir?>/orders/index.php">
 						<i class="bi bi-clipboard-check"></i> 발주 리스트
 					</a>    										
@@ -1281,6 +1331,29 @@
 	background: #764ba2;
 }
 </style>
+
+<script>
+// PC/모바일 버전 토글 함수 (공통 함수)
+function togglePCVersion(isPC) {
+    var path = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) + '/';
+    if (path === '/') path = '/';
+    
+    if (isPC) {
+        // PC 버전으로 전환 - 쿠키 설정 (1년 유지)
+        var expiryDate = new Date();
+        expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+        document.cookie = 'force_pc_view=1; expires=' + expiryDate.toUTCString() + '; path=' + path;
+    } else {
+        // 모바일 버전으로 전환 - 쿠키 삭제
+        document.cookie = 'force_pc_view=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=' + path;
+        // 혹시 루트에 설정된 쿠키가 있을 수 있으므로 루트 경로로도 삭제 시도
+        document.cookie = 'force_pc_view=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
+    }
+    
+    // 페이지 리로드
+    window.location.reload();
+}
+</script>
 
 </form>
 </form>

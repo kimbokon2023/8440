@@ -79,25 +79,11 @@ include includePath('load_header.php');
 </style>
 <?php
 // 모바일 접속일 때만 viewport meta 태그 출력
-function isMobile() {
-    $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
-    // 모바일 디바이스 감지
-    $mobilePattern = '/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i';
-    $isMobileDevice = preg_match($mobilePattern, $userAgent);
-    
-    // 화면 너비도 확인 (JavaScript로 설정된 경우)
-    if (isset($_COOKIE['screen_width'])) {
-        $screenWidth = (int)$_COOKIE['screen_width'];
-        return $isMobileDevice || $screenWidth < 768;
-    }
-    
-    return $isMobileDevice;
-}
 // if (isMobile()) {
 //     echo '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">';
 // }
 ?>
-<body>		 
+<body>
 <!-- 로딩 오버레이 -->
 <div id="loadingOverlay" class="loading-overlay" style="display: none;">
     <div class="loading-container">

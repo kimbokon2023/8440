@@ -18,8 +18,8 @@ $admin = 0;
 $ework_approval = 0 ;
 
 try {
-    $sql = "SELECT * FROM mirae8440.member WHERE part IN ('제조파트', '지원파트')";
-    $stmh = $pdo->prepare($sql);
+    $loadSQL = "SELECT * FROM mirae8440.member WHERE part IN ('제조파트', '지원파트')";
+    $stmh = $pdo->prepare($loadSQL);
     $stmh->execute();
 
     while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
