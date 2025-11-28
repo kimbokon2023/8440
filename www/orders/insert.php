@@ -215,6 +215,7 @@ try {
         $sql = "UPDATE `orders` SET
                 order_no = :order_no,
                 issue_date = :issue_date,
+                customer_id = :customer_id,
                 supplier_code = :supplier_code,
                 supplier_name = :supplier_name,
                 supplier_address = :supplier_address,
@@ -241,6 +242,7 @@ try {
         $params = [
             ':order_no' => $order_no ?: null,
             ':issue_date' => $issue_date,
+            ':customer_id' => !empty($_POST['customer_id']) ? $_POST['customer_id'] : null,
             ':supplier_code' => $supplier_code ?: null,
             ':supplier_name' => $supplier_name,
             ':supplier_address' => $supplier_address ?: null,
@@ -288,12 +290,12 @@ try {
     } else {
         // 새로 추가 작업
         $sql = "INSERT INTO `orders` (
-                order_no, issue_date, supplier_code, supplier_name, supplier_address,
+                order_no, issue_date, customer_id, supplier_code, supplier_name, supplier_address,
                 business_type, business_item, supplier_phone, supplier_fax, contact_name,
                 business_registration_number, phone, fax, project_site, order_items, subtotal, delivery_date, delivery_location,
                 payment_terms, note, status, created_at, updated_at, is_deleted
                 ) VALUES (
-                :order_no, :issue_date, :supplier_code, :supplier_name, :supplier_address,
+                :order_no, :issue_date, :customer_id, :supplier_code, :supplier_name, :supplier_address,
                 :business_type, :business_item, :supplier_phone, :supplier_fax, :contact_name,
                 :business_registration_number, :phone, :fax, :project_site, :order_items, :subtotal, :delivery_date, :delivery_location,
                 :payment_terms, :note, :status, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0
@@ -303,6 +305,7 @@ try {
         $params = [
             ':order_no' => $order_no ?: null,
             ':issue_date' => $issue_date,
+            ':customer_id' => !empty($_POST['customer_id']) ? $_POST['customer_id'] : null,
             ':supplier_code' => $supplier_code ?: null,
             ':supplier_name' => $supplier_name,
             ':supplier_address' => $supplier_address ?: null,

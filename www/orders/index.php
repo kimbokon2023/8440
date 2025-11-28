@@ -1364,6 +1364,9 @@ a:hover {
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <i class="fas fa-times"></i> 닫기
                 </button>
+                <button type="button" class="btn btn-info text-white" id="modalEmailBtn">
+                    <i class="fas fa-envelope"></i> Email 전송
+                </button>
                 <button type="button" class="btn btn-success" id="modalPdfBtn">
                     <i class="fas fa-file-pdf"></i> PDF 저장
                 </button>
@@ -1403,6 +1406,34 @@ a:hover {
         </div>
     </div>
 </div>
+
+    <!-- 이메일 전송 모달 -->
+    <div class="modal fade" id="emailSendModal" tabindex="-1" aria-labelledby="emailSendModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="emailSendModalLabel">이메일 전송</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="emailRecipientName" class="form-label">받는 사람 (거래처)</label>
+                        <input type="text" class="form-control" id="emailRecipientName" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="emailRecipientAddress" class="form-label">이메일 주소</label>
+                        <input type="email" class="form-control" id="emailRecipientAddress" placeholder="example@domain.com">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                    <button type="button" class="btn btn-primary" id="btnSendEmailAction">
+                        <i class="fas fa-paper-plane"></i> 전송
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 <style>
 /* 부트스트랩 모달 커스터마이징 */
@@ -1723,6 +1754,8 @@ a:hover {
      * 현재 선택된 발주서 ID (전역 변수)
      */
     var currentOrderId = null;
+    var currentOrderEmail = ''; // 거래처 이메일 저장 변수
+    var currentOrderContactName = ''; // 거래처명 저장 변수
     var orderModal = null;
     var orderEditModal = null;
     var iframeMessageListenerRegistered = false;
@@ -2002,6 +2035,92 @@ a:hover {
         });
     }
 
+    // 이메일 전송 버튼 이벤트 리스너 (모달 열기)
+    var modalEmailBtn = document.getElementById('modalEmailBtn');
+    if (modalEmailBtn) {
+        modalEmailBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            if (!currentOrderId) {
+                alert('발주서 ID를 찾을 수 없습니다.');
+                return;
+            }
+
+            // 모달 필드 채우기
+            document.getElementById('emailRecipientName').value = currentOrderContactName;
+            document.getElementById('emailRecipientAddress').value = currentOrderEmail;
+            
+            // 모달 열기
+            var emailModal = new bootstrap.Modal(document.getElementById('emailSendModal'));
+            emailModal.show();
+        });
+    }
+
+    // 모달 내 전송 버튼 이벤트 리스너
+    var btnSendEmailAction = document.getElementById('btnSendEmailAction');
+    if (btnSendEmailAction) {
+        btnSendEmailAction.addEventListener('click', function() {
+            var emailInput = document.getElementById('emailRecipientAddress');
+            var email = emailInput.value.trim();
+            
+            if (!email) {
+                alert('이메일 주소를 입력해주세요.');
+                emailInput.focus();
+                return;
+            }
+            
+            // 이메일 형식 검사
+            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert('유효하지 않은 이메일 주소입니다.');
+                emailInput.focus();
+                return;
+            }
+            
+            // 전송 중 표시
+            var originalText = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 전송 중...';
+            this.disabled = true;
+            var btn = this;
+            
+            // AJAX 요청
+            var formData = new FormData();
+            formData.append('order_id', currentOrderId);
+            formData.append('email', email);
+            
+            fetch('send_email.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(data) {
+                if (data.success) {
+                    alert(data.message || '이메일이 성공적으로 전송되었습니다.');
+                    // 모달 닫기
+                    var modalEl = document.getElementById('emailSendModal');
+                    var modalInstance = bootstrap.Modal.getInstance(modalEl);
+                    if (modalInstance) {
+                        modalInstance.hide();
+                    }
+                } else {
+                    alert('전송 실패: ' + (data.message || '알 수 없는 오류'));
+                }
+            })
+            .catch(function(error) {
+                console.error('이메일 전송 오류:', error);
+                alert('전송 중 오류가 발생했습니다.');
+            })
+            .finally(function() {
+                // 버튼 상태 복구
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            });
+        });
+    }
+
     // 수정 모달 닫힐 때 iframe 초기화
     var editModalElement = document.getElementById('orderEditModal');
     if (editModalElement) {
@@ -2188,6 +2307,10 @@ a:hover {
         var tax = hasItems ? normalizedItems.totals.tax : Math.round(subtotal * 0.1);
         var total = hasItems ? normalizedItems.totals.total : subtotal + tax;
         
+        // 이메일 저장
+        currentOrderEmail = order.email || '';
+        currentOrderContactName = order.contact_name || order.supplier_name || '';
+
         var statusLabels = {
             'draft': '임시저장',
             'sent': '발송완료',

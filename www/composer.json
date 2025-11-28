@@ -5,7 +5,8 @@
         "google/apiclient": "^2.14",
         "google/apiclient-services": "^0.283",
         "monolog/monolog": "^2.0",
-        "psr/log": "^1.0"
+        "psr/log": "^1.0",
+        "phpmailer/phpmailer": "^7.0"
     },
     "config": {
         "platform": {

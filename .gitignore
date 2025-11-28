@@ -51,6 +51,7 @@ www/tokens/
 www/apikey
 tokens/
 apikey/
+secret/
 
 # SSL certificates (local development only)
 *.pem

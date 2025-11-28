@@ -689,7 +689,7 @@ require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, ima
           <td data-label="타입"><input type="text" name="type<?= $i+1 ?>" value="<?= $type ?>" size="10"></td>
 
           <td style="text-align:right; width: 30px; color: blue;" data-label="인승">인승</td>
-          <td data-label=""><input type="text" name="inseung<?= $i+1 ?>" value="<?= $inseung ?>" size="2"></td> 
+          <td data-label=""><input type="text" readonly name="inseung<?= $i+1 ?>" value="<?= $inseung ?>" size="2"></td> 
 
           <td style="text-align:right; width: 50px; color: red;" data-label="inside">inside</td>
           <td data-label=""><input type="text" name="car_inside<?= $i+1 ?>" value="<?= $car_inside ?>" size="8"></td>
@@ -800,12 +800,13 @@ function calculateInseung(index) {
     const wide_inside = inside.split('*');
     const wide = Number(wide_inside[0]);
     const depth = Number(wide_inside[1]);
+    $(`input[name=inseung${index}]`).val('');
     $(`input[name=inseung${index}]`).val(calinseung(wide, depth));
 }
 
 $(document).ready(function() {
     for (let i = 1; i <= 10; i++) {
-        $(`input[name=car_inside${i}]`).focusout(function() {
+        $(`input[name=car_inside${i}]`).off('focusout change').on('focusout change', function() {
             calculateInseung(i);
         });
     }

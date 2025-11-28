@@ -596,6 +596,9 @@ body.iframe-mode .btn-primary:hover {
         <?php if (!empty($cart_items_param)): ?>
             <input type="hidden" name="cart_items" value="<?php echo htmlspecialchars($cart_items_param); ?>">
         <?php endif; ?>
+        
+        <!-- 거래처 ID (이메일 조회용) -->
+        <input type="hidden" name="customer_id" id="customer_id" value="<?php echo $order_data ? ($order_data['customer_id'] ?? '') : ''; ?>">
 
         <?php if (!$iframe_mode): ?>
         <div class="order-title">발 주 서</div>
@@ -1604,19 +1607,22 @@ window.onload = function() {
         }
 
         // 거래처 선택 함수
+        // 거래처 선택 함수
         function selectCustomer(customer) {
             document.getElementById('contact_name').value = customer.company_name || '';
             document.getElementById('business_registration_number').value = customer.business_registration_number || '';
             
-            // 전화번호와 팩스번호도 자동 입력 (있는 경우)
-            if (customer.phone_number) {
-                var phoneInput = document.querySelector('input[name="phone"]');
-                if (phoneInput) phoneInput.value = customer.phone_number;
+            // 거래처 ID 설정 (hidden input)
+            var customerIdInput = document.getElementById('customer_id');
+            if (customerIdInput) {
+                customerIdInput.value = customer.num || ''; 
             }
-            if (customer.fax_number) {
-                var faxInput = document.querySelector('input[name="fax"]');
-                if (faxInput) faxInput.value = customer.fax_number;
-            }
+
+            var phoneInput = document.querySelector('input[name="phone"]');
+            if (phoneInput) phoneInput.value = customer.phone_number || '';
+            
+            var faxInput = document.querySelector('input[name="fax"]');
+            if (faxInput) faxInput.value = customer.fax_number || '';
             
             customerSearchModal.hide();
         }
