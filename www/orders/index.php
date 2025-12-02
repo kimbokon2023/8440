@@ -171,20 +171,20 @@ $stats = $pdo->query($stats_sql)->fetch();
 
 <style>
 :root {
-    /* 라이트 모드 색상 - 파란색 계열 */
+    /* 라이트 모드 색상 - 그레이 계열 */
     --bg-primary: #ffffff;
     --bg-secondary: #ffffff;
     --bg-card: #f8f9fa;
-    --bg-gradient-start: #2196f3;
-    --bg-gradient-end: #1976d2;
+    --bg-gradient-start: #6c757d;
+    --bg-gradient-end: #495057;
     --text-primary: #333333;
     --text-secondary: #666666;
     --text-white: #ffffff;
     --border-color: #e0e0e0;
     --border-light: #f0f0f0;
     --shadow: rgba(0,0,0,0.08);
-    --shadow-hover: rgba(33, 150, 243, 0.2);
-    --hover-bg: #f5f9ff;
+    --shadow-hover: rgba(108, 117, 125, 0.2);
+    --hover-bg: #f8f9fa;
 }
 
 [data-theme="dark"] {
@@ -192,16 +192,16 @@ $stats = $pdo->query($stats_sql)->fetch();
     --bg-primary: #1a1a2e;
     --bg-secondary: #16213e;
     --bg-card: #1e2a3a;
-    --bg-gradient-start: #1976d2;
-    --bg-gradient-end: #0d47a1;
+    --bg-gradient-start: #495057;
+    --bg-gradient-end: #343a40;
     --text-primary: #e2e8f0;
     --text-secondary: #cbd5e0;
     --text-white: #ffffff;
     --border-color: #4a5568;
     --border-light: #2d3748;
     --shadow: rgba(0,0,0,0.3);
-    --shadow-hover: rgba(25, 118, 210, 0.5);
-    --hover-bg: #1e3a5f;
+    --shadow-hover: rgba(108, 117, 125, 0.5);
+    --hover-bg: #2d3748;
 }
 
 * {
@@ -286,12 +286,12 @@ body {
 }
 
 .page-header {
-    background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+    background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
     color: white;
     padding: 20px 25px;
     border-radius: 10px;
     margin-bottom: 20px;
-    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.15);
+    box-shadow: 0 2px 8px rgba(108, 117, 125, 0.15);
 }
 
 .page-header h1 {
@@ -326,7 +326,7 @@ body {
 .stat-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 2px 6px var(--shadow-hover);
-    border-color: #2196f3;
+    border-color: #6c757d;
 }
 
 .stat-card h3 {
@@ -339,11 +339,11 @@ body {
 .stat-card .number {
     font-size: 20px;
     font-weight: bold;
-    color: #2196f3;
+    color: #6c757d;
 }
 
 .stat-card.draft .number { color: #ff9800; }
-.stat-card.sent .number { color: #2196f3; }
+.stat-card.sent .number { color: #6c757d; }
 .stat-card.completed .number { color: #4caf50; }
 
 .action-bar {
@@ -439,8 +439,8 @@ body {
     padding: 6px 14px;
     border-radius: 20px;
     border: 1px solid var(--border-color);
-    background: #f0f4ff;
-    color: #3b5bdb;
+    background: #f8f9fa;
+    color: #495057;
     cursor: pointer;
     font-size: 13px;
     transition: all 0.2s;
@@ -450,7 +450,7 @@ body {
     background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
     color: #fff;
     border-color: transparent;
-    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+    box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
 }
 
 .filter-group label {
@@ -473,8 +473,8 @@ body {
 .filter-group input:focus,
 .filter-group select:focus {
     outline: none;
-    border-color: #2196f3;
-    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+    border-color: #6c757d;
+    box-shadow: 0 0 0 2px rgba(108, 117, 125, 0.1);
 }
 
 .table-container {
@@ -572,8 +572,8 @@ body {
 }
 
 .status-sent {
-    background: #e3f2fd;
-    color: #1976d2;
+    background: #e9ecef;
+    color: #495057;
 }
 
 .status-completed {
@@ -587,8 +587,8 @@ body {
 }
 
 [data-theme="dark"] .status-sent {
-    background: #1e3a5f;
-    color: #64b5f6;
+    background: #343a40;
+    color: #adb5bd;
 }
 
 [data-theme="dark"] .status-completed {
@@ -627,8 +627,8 @@ body {
 
 .pagination .page-link:hover {
     background: var(--hover-bg);
-    border-color: #2196f3;
-    color: #2196f3;
+    border-color: #6c757d;
+    color: #6c757d;
 }
 
 .pagination .page-item.active .page-link {
@@ -647,7 +647,7 @@ body {
     font-size: 48px;
     margin-bottom: 15px;
     opacity: 0.3;
-    color: #2196f3;
+    color: #6c757d;
 }
 
 .empty-state h3 {
@@ -663,13 +663,13 @@ body {
 }
 
 a {
-    color: #2196f3;
+    color: #6c757d;
     text-decoration: none;
     transition: color 0.3s ease;
 }
 
 a:hover {
-    color: #1976d2;
+    color: #495057;
 }
 
 @media (max-width: 768px) {
@@ -1098,7 +1098,7 @@ a:hover {
                     <th width="3%" class="text-center">
                         <input type="checkbox" id="selectAll" class="form-check-input">
                     </th>
-                    <th width="8%" class="sortable" data-sort="issue_date">
+                    <th width="9%" class="text-center sortable" data-sort="issue_date">
                         발행일
                         <?php if ($sort_column === 'issue_date'): ?>
                             <i class="fas fa-sort-<?php echo strtolower($sort_direction) === 'asc' ? 'up' : 'down'; ?>"></i>
@@ -1106,7 +1106,7 @@ a:hover {
                             <i class="fas fa-sort text-muted" style="opacity: 0.3;"></i>
                         <?php endif; ?>
                     </th>
-                    <th width="15%" class="sortable" data-sort="contact_name">
+                    <th width="12%" class="sortable" data-sort="contact_name">
                         거래처명
                         <?php if ($sort_column === 'contact_name'): ?>
                             <i class="fas fa-sort-<?php echo strtolower($sort_direction) === 'asc' ? 'up' : 'down'; ?>"></i>
@@ -1114,8 +1114,8 @@ a:hover {
                             <i class="fas fa-sort text-muted" style="opacity: 0.3;"></i>
                         <?php endif; ?>
                     </th>
-                    <th width="30%">품목/규격</th>
-                    <th width="8%" class="sortable" data-sort="subtotal">
+                    <th width="20%">품목/규격</th>
+                    <th width="8%" class="text-right sortable" data-sort="subtotal">
                         공급가액
                         <?php if ($sort_column === 'subtotal'): ?>
                             <i class="fas fa-sort-<?php echo strtolower($sort_direction) === 'asc' ? 'up' : 'down'; ?>"></i>
@@ -1123,8 +1123,8 @@ a:hover {
                             <i class="fas fa-sort text-muted" style="opacity: 0.3;"></i>
                         <?php endif; ?>
                     </th>
-                    <th width="6%">세액</th>
-                    <th width="10%" class="sortable" data-sort="business_registration_number">
+                    <th width="6%" class="text-right">세액</th>
+                    <th width="10%" class="text-center sortable" data-sort="business_registration_number">
                         사업자번호
                         <?php if ($sort_column === 'business_registration_number'): ?>
                             <i class="fas fa-sort-<?php echo strtolower($sort_direction) === 'asc' ? 'up' : 'down'; ?>"></i>
@@ -1132,8 +1132,8 @@ a:hover {
                             <i class="fas fa-sort text-muted" style="opacity: 0.3;"></i>
                         <?php endif; ?>
                     </th>
-                    <th width="8%">합계금액</th>
-                    <th width="8%" class="text-center sortable" data-sort="status">
+                    <th width="8%" class="text-right">합계금액</th>
+                    <th width="6%" class="text-center sortable" data-sort="status">
                         상태
                         <?php if ($sort_column === 'status'): ?>
                             <i class="fas fa-sort-<?php echo strtolower($sort_direction) === 'asc' ? 'up' : 'down'; ?>"></i>
@@ -1141,7 +1141,7 @@ a:hover {
                             <i class="fas fa-sort text-muted" style="opacity: 0.3;"></i>
                         <?php endif; ?>
                     </th>
-                    <th width="8%" class="sortable" data-sort="delivery_date">
+                    <th width="8%" class="text-center sortable" data-sort="delivery_date" style="white-space: nowrap;">
                         납기일자
                         <?php if ($sort_column === 'delivery_date'): ?>
                             <i class="fas fa-sort-<?php echo strtolower($sort_direction) === 'asc' ? 'up' : 'down'; ?>"></i>
@@ -1149,7 +1149,7 @@ a:hover {
                             <i class="fas fa-sort text-muted" style="opacity: 0.3;"></i>
                         <?php endif; ?>
                     </th>
-                    <th width="6%">비고</th>
+                    <th width="10%">비고</th>
                 </tr>
             </thead>
             <tbody>
@@ -1258,7 +1258,7 @@ a:hover {
                         echo '<span class="status-badge ' . $status_class . '">' . ($status_labels[$status] ?? '알 수 없음') . '</span>';
                         ?>
                     </td>
-                    <td class="text-center">
+                    <td class="text-center" style="white-space: nowrap;">
                         <?php
                         $delivery_date = $order['delivery_date'] ?? '';
                         // 빈 값이거나 '0000-00-00' 형식의 날짜는 공백으로 표시
@@ -1285,8 +1285,8 @@ a:hover {
                         ?>
                     </td>
                     <td>
-                        <?php echo htmlspecialchars(mb_substr($order['note'] ?? '', 0, 20)); ?>
-                        <?php if (mb_strlen($order['note'] ?? '') > 20) echo '...'; ?>
+                        <?php echo htmlspecialchars(mb_substr($order['note'] ?? '', 0, 10)); ?>
+                        <?php if (mb_strlen($order['note'] ?? '') > 10) echo '...'; ?>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -1348,7 +1348,7 @@ a:hover {
 <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-labelledby="orderDetailModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header" style="background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); color: white;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #6c757d 0%, #495057 100%); color: white;">
                 <h5 class="modal-title" id="orderDetailModalLabel">📋 발주서 상세 정보</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -1386,7 +1386,7 @@ a:hover {
 <div class="modal fade" id="orderEditModal" tabindex="-1" aria-labelledby="orderEditModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
     <div class="modal-dialog modal-fullscreen">
         <div class="modal-content">
-            <div class="modal-header" style="background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); color: white; display: flex; justify-content: space-between; align-items: center;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #6c757d 0%, #495057 100%); color: white; display: flex; justify-content: space-between; align-items: center;">
                 <h5 class="modal-title" id="orderEditModalLabel">✏️ 발주서 수정</h5>
                 <div style="display: flex; gap: 8px; align-items: center;">
                     <button type="button" class="btn btn-sm btn-success" onclick="iframeSaveOrder()">
@@ -1450,10 +1450,10 @@ a:hover {
 .detail-section-title {
     font-size: 18px;
     font-weight: 600;
-    color: #2196f3;
+    color: #6c757d;
     margin-bottom: 15px;
     padding-bottom: 10px;
-    border-bottom: 2px solid #2196f3;
+    border-bottom: 2px solid #6c757d;
 }
 
 .detail-grid {
@@ -1494,7 +1494,7 @@ a:hover {
     text-align: left;
     font-size: 14px;
     font-weight: 600;
-    border-bottom: 2px solid #2196f3;
+    border-bottom: 2px solid #6c757d;
 }
 
 .detail-table td {
@@ -2296,7 +2296,7 @@ a:hover {
      */
     function loadOrderDetail(orderId) {
         var contentDiv = document.getElementById('orderDetailContent');
-        contentDiv.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin" style="font-size: 38px; color: #2196f3;"></i><p>불러오는 중...</p></div>';
+        contentDiv.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin" style="font-size: 38px; color: #6c757d;"></i><p>불러오는 중...</p></div>';
         
         fetch('get_order_detail.php?id=' + orderId)
             .then(function(response) {
@@ -2367,7 +2367,7 @@ a:hover {
         html += '<div class="detail-grid">';
         html += '<div class="detail-item"><div class="detail-label">공급가액</div><div class="detail-value">' + formatNumber(subtotal) + '원</div></div>';
         html += '<div class="detail-item"><div class="detail-label">세액 (10%)</div><div class="detail-value">' + formatNumber(tax) + '원</div></div>';
-        html += '<div class="detail-item"><div class="detail-label">합계금액</div><div class="detail-value" style="color: #2196f3; font-size: 18px;">' + formatNumber(total) + '원</div></div>';
+        html += '<div class="detail-item"><div class="detail-label">합계금액</div><div class="detail-value" style="color: #6c757d; font-size: 18px;">' + formatNumber(total) + '원</div></div>';
         html += '</div>';
         html += '</div>';
         

@@ -1167,7 +1167,14 @@ try {
     .blink {
         animation: blink 1s linear infinite;
     }
-    </style>
+
+    #floatingCartBtn {
+        position: absolute;
+        display: none;
+        z-index: 1000;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+</style>
     <td class="text-center" data-label="완료일" data-order="<?= $indate ?>"><?= iconv_substr($indate, 5, 9, "utf-8") ?></td>
     <td class="text-center" data-label="요청인"><?= $tmpStr ?></td>
     <td class="<?= $font_state ?> text-center" data-label="진행상태"><?= $tmp_word ?></td>
@@ -1240,6 +1247,11 @@ try {
      </body>
   </html>
   
+<!-- Floating Cart Button -->
+<button id="floatingCartBtn" class="btn btn-primary btn-sm" onclick="triggerAddToCart()">
+    <i class="fas fa-cart-plus"></i> 담기
+</button>
+
 <script>
 
 var dataTable; // DataTables 인스턴스 전역 변수
@@ -1573,6 +1585,44 @@ $(document).ready(function() {
         $('#selectAll').prop('checked', totalCheckboxes === checkedCheckboxes);
     });
 
+    // Floating Cart Button Logic
+    // Floating Cart Button Logic
+    $(document).on('change', '.row-checkbox', function(e) {
+        var floatingBtn = $('#floatingCartBtn');
+        
+        if ($(this).is(':checked')) {
+            // Show button near the checkbox
+            var rect = this.getBoundingClientRect();
+            var scrollTop = $(window).scrollTop();
+            var scrollLeft = $(window).scrollLeft();
+
+            // Ensure button is visible and positioned correctly
+            floatingBtn.css({
+                'top': (rect.top + scrollTop - 10) + 'px',
+                'left': (rect.left + scrollLeft + 30) + 'px',
+                'display': 'block',
+                'position': 'absolute',
+                'z-index': 9999
+            });
+            
+            // Append to body to avoid overflow issues if table container has overflow:hidden
+            $('body').append(floatingBtn);
+            
+        } else {
+            // Check if any other checkboxes are checked
+            if ($('.row-checkbox:checked').length === 0) {
+                floatingBtn.hide();
+            }
+        }
+    });
+
+    // Hide button when clicking outside
+    $(document).on('click', function(e) {
+        if (!$(e.target).closest('.row-checkbox').length && !$(e.target).closest('#floatingCartBtn').length) {
+            // $('#floatingCartBtn').hide(); // Optional
+        }
+    });
+
     // 구매카트 담기 버튼 클릭 이벤트
     $('#addToCartBtn').on('click', function() {
         var selectedItems = [];
@@ -1619,6 +1669,11 @@ $(document).ready(function() {
         
         orderWriteModal.show();
     }
+
+    // Trigger Add to Cart from Floating Button
+    window.triggerAddToCart = function() {
+        $('#addToCartBtn').trigger('click');
+    };
 
     // iframe에서 메시지를 받는 리스너 (구매카트 모달용)
     function ensureIframeMessageListenerForCart() {

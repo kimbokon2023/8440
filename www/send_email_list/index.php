@@ -135,20 +135,20 @@ $total_pages = ceil($total_records / $per_page);
 
 <style>
 :root {
-    /* 라이트 모드 색상 - 파란색 계열 (orders/index.php와 동일) */
+    /* 라이트 모드 색상 - 그레이 계열 */
     --bg-primary: #ffffff;
     --bg-secondary: #ffffff;
     --bg-card: #f8f9fa;
-    --bg-gradient-start: #2196f3;
-    --bg-gradient-end: #1976d2;
+    --bg-gradient-start: #6c757d;
+    --bg-gradient-end: #495057;
     --text-primary: #333333;
     --text-secondary: #666666;
     --text-white: #ffffff;
     --border-color: #e0e0e0;
     --border-light: #f0f0f0;
     --shadow: rgba(0,0,0,0.08);
-    --shadow-hover: rgba(33, 150, 243, 0.2);
-    --hover-bg: #f5f9ff;
+    --shadow-hover: rgba(108, 117, 125, 0.2);
+    --hover-bg: #f8f9fa;
 }
 
 [data-theme="dark"] {
@@ -156,16 +156,16 @@ $total_pages = ceil($total_records / $per_page);
     --bg-primary: #1a1a2e;
     --bg-secondary: #16213e;
     --bg-card: #1e2a3a;
-    --bg-gradient-start: #1976d2;
-    --bg-gradient-end: #0d47a1;
+    --bg-gradient-start: #495057;
+    --bg-gradient-end: #343a40;
     --text-primary: #e2e8f0;
     --text-secondary: #cbd5e0;
     --text-white: #ffffff;
     --border-color: #4a5568;
     --border-light: #2d3748;
     --shadow: rgba(0,0,0,0.3);
-    --shadow-hover: rgba(25, 118, 210, 0.5);
-    --hover-bg: #1e3a5f;
+    --shadow-hover: rgba(108, 117, 125, 0.5);
+    --hover-bg: #2d3748;
 }
 
 * {
@@ -188,12 +188,12 @@ body {
 }
 
 .page-header {
-    background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+    background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
     color: white;
     padding: 20px 25px;
     border-radius: 10px;
     margin-bottom: 20px;
-    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.15);
+    box-shadow: 0 2px 8px rgba(108, 117, 125, 0.15);
 }
 
 .page-header h1 {
@@ -223,6 +223,7 @@ body {
     gap: 12px;
     align-items: center;
     flex-wrap: wrap;
+    justify-content: center; /* Center alignment added */
 }
 
 .filter-group {
@@ -251,8 +252,8 @@ body {
 .filter-group input:focus,
 .filter-group select:focus {
     outline: none;
-    border-color: #2196f3;
-    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+    border-color: #6c757d;
+    box-shadow: 0 0 0 2px rgba(108, 117, 125, 0.1);
 }
 
 .btn {
@@ -379,8 +380,8 @@ body {
 
 .pagination .page-link:hover {
     background: var(--hover-bg);
-    border-color: #2196f3;
-    color: #2196f3;
+    border-color: #6c757d;
+    color: #6c757d;
 }
 
 .pagination .page-item.active .page-link {
@@ -399,7 +400,7 @@ body {
     font-size: 48px;
     margin-bottom: 15px;
     opacity: 0.3;
-    color: #2196f3;
+    color: #6c757d;
 }
 
 @media (max-width: 768px) {
@@ -457,7 +458,7 @@ body {
                 </select>
             </div>
             
-            <div class="filter-group" style="margin-left: auto;">
+            <div class="filter-group">
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-search"></i> 조회
                 </button>

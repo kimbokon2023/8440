@@ -793,11 +793,11 @@ try{
 	<div class="card-body">  	
 	<div class="d-flex justify-content-center align-items-center my-1 d-none d-md-flex">
 		<div class="w-100" style="max-width: 800px;">
-			<div class="shadow-lg rounded-4 d-flex align-items-center px-2 " style="background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%); min-height:55px; border: 2px solid #0369a1;">
-				<i class="bi bi-megaphone-fill text-white me-3" style="font-size:1.5rem; text-shadow: 0 2px 4px rgba(0,0,0,0.3);"></i>
+			<div class="shadow-lg rounded-4 d-flex align-items-center px-2 " style="background: linear-gradient(135deg, #6c757d 0%, #495057 100%); min-height:45px; border: 2px solid #495057;">
+				<i class="bi bi-megaphone-fill text-white me-3" style="font-size:1.2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.3);"></i>
 				<div class="flex-grow-1">
-					<div class="text-white fw-bold mb-1" style="font-size:1.2rem; text-shadow: 0 1px 3px rgba(0,0,0,0.3);">
-						한산에 도장을 맡길때는 <span class="badge bg-white text-cyan px-3 py-2 mx-2" style="font-size:0.9rem; font-weight:700; box-shadow: 0 2px 4px rgba(0,0,0,0.2); color: #0369a1 !important;">도장홀</span>을 각 4개씩 타공해야 도장이 가능합니다. <span class="text-warning" style="font-weight:700;">주의하세요!</span>
+					<div class="text-white fw-bold mb-1" style="font-size:0.95rem; text-shadow: 0 1px 3px rgba(0,0,0,0.3);">
+						한산에 도장을 맡길때는 <span class="badge bg-white text-secondary px-2 py-1 mx-2" style="font-size:0.8rem; font-weight:700; box-shadow: 0 2px 4px rgba(0,0,0,0.2); color: #495057 !important;">도장홀</span>을 각 4개씩 타공해야 도장이 가능합니다. <span class="text-warning" style="font-weight:700;">주의하세요!</span>
 					</div>
 				</div>				
 			</div>

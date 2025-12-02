@@ -136,11 +136,11 @@ body {
 }
 
 body.iframe-mode {
-    --dashboard-primary: #e3f2fd;
-    --dashboard-secondary: #bbdefb;
-    --dashboard-accent: #2196f3;
+    --dashboard-primary: #f8f9fa;
+    --dashboard-secondary: #e9ecef;
+    --dashboard-accent: #6c757d;
     --dashboard-text: #333333;
-    --dashboard-border: #e0e0e0;
+    --dashboard-border: #dee2e6;
     --dashboard-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     margin: 0;
     padding: 0;
@@ -175,7 +175,7 @@ body.iframe-mode .order-container {
 }
 
 body.iframe-mode .order-header {
-    background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
     color: #ffffff;
 }
 
@@ -222,8 +222,8 @@ body.iframe-mode .order-header {
 }
 
 body.iframe-mode .section-header {
-    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-    color: #1976d2;
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    color: #495057;
     font-weight: 600;
 }
 
@@ -304,16 +304,16 @@ body.iframe-mode .section-header {
     padding: 6px 14px;
     border: none;
     border-radius: 6px;
-    background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
     color: #fff;
     font-size: 13px;
     cursor: pointer;
-    box-shadow: 0 2px 6px rgba(33, 150, 243, 0.3);
+    box-shadow: 0 2px 6px rgba(108, 117, 125, 0.3);
 }
 
 .items-header .btn-add-row:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(33, 150, 243, 0.4);
+    box-shadow: 0 4px 10px rgba(108, 117, 125, 0.4);
 }
 
 .row-actions {
@@ -331,7 +331,7 @@ body.iframe-mode .section-header {
 .row-action-btn {
     border: none;
     background: transparent;
-    color: #2196f3;
+    color: #6c757d;
     cursor: pointer;
     font-size: 12px;
     padding: 2px;
@@ -339,7 +339,7 @@ body.iframe-mode .section-header {
 }
 
 .row-action-btn:hover {
-    color: #0d47a1;
+    color: #495057;
 }
 
 .tabulator {
@@ -468,13 +468,13 @@ body.iframe-mode .section-header {
 }
 
 body.iframe-mode .btn-primary {
-    background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
-    border-color: #2196f3;
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    border-color: #6c757d;
 }
 
 body.iframe-mode .btn-primary:hover {
-    background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
-    border-color: #1976d2;
+    background: linear-gradient(135deg, #5a6268 0%, #343a40 100%);
+    border-color: #5a6268;
 }
 
 .btn-success {
@@ -797,7 +797,7 @@ function renumberRows() {
     if (!orderTable) return;
     var rows = orderTable.getRows();
     rows.forEach(function(row, idx) {
-        row.update({ 순번: idx + 1 });
+        row.update({ "순번": idx + 1 });
     });
 }
 
@@ -861,7 +861,11 @@ endforeach;
 ?>
 orderItems = <?php echo json_encode($cart_order_items, JSON_UNESCAPED_UNICODE); ?>;
 <?php elseif ($order_data && isset($order_data['order_items']) && $order_data['order_items']): ?>
-orderItems = <?php echo $order_data['order_items']; ?>;
+orderItems = <?php 
+    $items = json_decode($order_data['order_items'] ?? '[]', true);
+    if (!is_array($items)) $items = [];
+    echo json_encode($items, JSON_UNESCAPED_UNICODE); 
+?>;
 <?php else: ?>
 orderItems = [
     {순번: 1, 품목: '', 규격: '', 수량: '', 단가: '', 공급가액: '', 세액: '', 비고: ''},
@@ -884,7 +888,7 @@ document.addEventListener('DOMContentLoaded', function() {
             {title: "순번", field: "순번", width: 90, hozAlign: "center", headerHozAlign: "center", resizable: false,
              formatter: function(cell) {
                  var row = cell.getRow();
-                 var position = row.getPosition(true) + 1;
+                 var position = cell.getValue();
                  return '<div class="row-actions">' +
                         '<span class="row-index">' + position + '</span>' +
                         '<button type="button" class="row-action-btn" data-action="add">＋</button>' +

@@ -521,17 +521,17 @@ try{
 	<div class="card-body">  	 
 	<div class="d-flex justify-content-center align-items-center d-none d-md-flex">
 		<div class="w-100" style="max-width: 700px;">
-			<div class="shadow-lg rounded-4 d-flex align-items-center px-2 py-1" style="background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%); min-height:70px; border: 2px solid #0369a1;">
-				<i class="bi bi-megaphone-fill text-white me-3" style="font-size:1.5rem; text-shadow: 0 2px 4px rgba(0,0,0,0.3);"></i>
+			<div class="shadow-lg rounded-4 d-flex align-items-center px-2 py-1" style="background: linear-gradient(135deg, #6c757d 0%, #495057 100%); min-height:60px; border: 2px solid #495057;">
+				<i class="bi bi-megaphone-fill text-white me-3" style="font-size:1.2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.3);"></i>
 				<div class="flex-grow-1">
-					<div class="text-white fw-bold mb-1" style="font-size:1rem; text-shadow: 0 1px 3px rgba(0,0,0,0.3);">
+					<div class="text-white fw-bold mb-1" style="font-size:0.95rem; text-shadow: 0 1px 3px rgba(0,0,0,0.3);">
 						2025년 8월부터 
-						<span class="badge bg-white text-cyan px-3 py-2 mx-2" style="font-size:0.9rem; font-weight:700; box-shadow: 0 2px 4px rgba(0,0,0,0.2); color: #0369a1 !important;">037</span>
-						<span class="badge bg-white text-cyan px-3 py-2 mx-2" style="font-size:0.9rem; font-weight:700; box-shadow: 0 2px 4px rgba(0,0,0,0.2); color: #0369a1 !important;">038</span>
+						<span class="badge bg-white text-secondary px-2 py-1 mx-2" style="font-size:0.8rem; font-weight:700; box-shadow: 0 2px 4px rgba(0,0,0,0.2); color: #495057 !important;">037</span>
+						<span class="badge bg-white text-secondary px-2 py-1 mx-2" style="font-size:0.8rem; font-weight:700; box-shadow: 0 2px 4px rgba(0,0,0,0.2); color: #495057 !important;">038</span>
 						자체 생산!
 					</div>
-					<div class="text-white-50" style="font-size:0.8rem;">
-						코드는 <span class="fw-bold" style="text-shadow: 0 1px 2px rgba(0,0,0,0.5); color: #e0f2fe !important;">N037, N038</span>로 입력해 주세요.
+					<div class="text-white-50" style="font-size:0.75rem;">
+						코드는 <span class="fw-bold" style="text-shadow: 0 1px 2px rgba(0,0,0,0.5); color: #e9ecef !important;">N037, N038</span>로 입력해 주세요.
 						<small class="text-white-75 ms-2" style="font-size:0.9em;">※ 기존 청디자인 모델과 구분하기 위함입니다.</small>
 					</div>
 				</div>				
@@ -680,7 +680,7 @@ try{
     <?php endif; ?>
     <!-- 검색 행 -->
     <div class="d-flex p-1 m-1 mt-1 mb-1 justify-content-center align-items-center search-row">
-        <select id="find" name="find" class="form-select w-auto mx-1" style="font-size:1em; height:30px;">
+        <select id="find" name="find" class="form-select form-select-sm w-auto mx-1" style="font-size:1em;">
             <?php
             $options = array(
                 'all' => '전체',
@@ -695,8 +695,8 @@ try{
             }
             ?>
         </select>
-        <div class="inputWrap">
-            <input type="text" id="search" name="search" value="<?php echo htmlspecialchars($search, ENT_QUOTES, 'UTF-8'); ?>" onkeydown="JavaScript:SearchEnter();" autocomplete="off" class="form-control">
+        <div class="inputWrap d-flex align-items-center">
+            <input type="text" id="search" name="search" value="<?php echo htmlspecialchars($search, ENT_QUOTES, 'UTF-8'); ?>" onkeydown="JavaScript:SearchEnter();" autocomplete="off" class="form-control form-control-sm">
             <button class="btnClear"></button>
             <button type="button" class="btnSearchIcon mobile-search-icon" onclick="saveSearch(); return false;" title="검색">
                 <i class="bi bi-search"></i>
@@ -704,10 +704,10 @@ try{
         </div>				
 		<div id="autocomplete-list">				
 		</div>	
-		<button id="searchBtn" type="button" class="btn btn-dark btn-sm"> <i class="bi bi-search"></i> 검색 </button>
-		<button type="button" class="btn btn-dark btn-sm me-1" id="writeBtn"> <i class="bi bi-pencil-fill"></i> 신규  </button>
-		<button type="button" id="rawmaterialBtn" class="btn btn-dark btn-sm"> <i class="bi bi-list"></i> 재고 </button>
-		<button type="button" class="btn btn-outline-primary btn-sm me-2" onclick="openColumnSettings()" style="border-radius: 25px; padding: 0.5rem 1rem;">
+		<button id="searchBtn" type="button" class="btn btn-dark btn-sm ms-1"> <i class="bi bi-search"></i> 검색 </button>
+		<button type="button" class="btn btn-dark btn-sm me-1 ms-1" id="writeBtn"> <i class="bi bi-pencil-fill"></i> 신규  </button>
+		<button type="button" id="rawmaterialBtn" class="btn btn-dark btn-sm me-1"> <i class="bi bi-list"></i> 재고 </button>
+		<button type="button" class="btn btn-outline-primary btn-sm" onclick="openColumnSettings()" style="border-radius: 25px; padding: 0.25rem 0.75rem;">
 			<i class="bi bi-gear"></i> 컬럼 설정
 		</button>
     </div>

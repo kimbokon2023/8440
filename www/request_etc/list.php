@@ -572,6 +572,16 @@ if ($chkMobile) {
 		.btn-sm {
         font-size: 30px;
 		}
+    .blink {
+        animation: blink 1s linear infinite;
+    }
+
+    #floatingCartBtn {
+        position: absolute;
+        display: none;
+        z-index: 1000;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
     </style>';
 }
  
@@ -1030,6 +1040,11 @@ $dateCon =" AND between date('$fromdate') and date('$Transtodate') " ;
 <? include '../footer_sub.php'; ?>
 </div>
 
+<!-- Floating Cart Button -->
+<button id="floatingCartBtn" class="btn btn-primary btn-sm" onclick="triggerAddToCart()">
+    <i class="fas fa-cart-plus"></i> 담기
+</button>
+
 <script>
 var dataTable; // DataTables 인스턴스 전역 변수
 var requestetcpageNumber; // 현재 페이지 번호 저장을 위한 전역 변수
@@ -1228,6 +1243,48 @@ function toggleAll(source) {
         checkboxes[i].checked = source.checked;
     }
 }
+
+// Floating Cart Button Logic
+$(document).on('change', '.row-checkbox', function(e) {
+    var floatingBtn = $('#floatingCartBtn');
+    
+    if ($(this).is(':checked')) {
+        // Show button near the checkbox
+        var rect = this.getBoundingClientRect();
+        var scrollTop = $(window).scrollTop();
+        var scrollLeft = $(window).scrollLeft();
+
+        // Ensure button is visible and positioned correctly
+        floatingBtn.css({
+            'top': (rect.top + scrollTop - 10) + 'px',
+            'left': (rect.left + scrollLeft + 30) + 'px',
+            'display': 'block',
+            'position': 'absolute',
+            'z-index': 9999
+        });
+        
+        // Append to body to avoid overflow issues if table container has overflow:hidden
+        $('body').append(floatingBtn);
+        
+    } else {
+        // Check if any other checkboxes are checked
+        if ($('.row-checkbox:checked').length === 0) {
+            floatingBtn.hide();
+        }
+    }
+});
+
+// Hide button when clicking outside
+$(document).on('click', function(e) {
+    if (!$(e.target).closest('.row-checkbox').length && !$(e.target).closest('#floatingCartBtn').length) {
+        // $('#floatingCartBtn').hide(); // Optional
+    }
+});
+
+// Trigger Add to Cart from Floating Button
+window.triggerAddToCart = function() {
+    addToCart();
+};
 
 // 구매카트 담기 (모달 열기)
 function addToCart() {

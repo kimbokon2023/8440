@@ -44,6 +44,9 @@ if ($mode === 'modify' && $num) {
         
         if ($row) {
             include '_row.php';
+            if ($indate == '0000-00-00') $indate = '';
+            if ($requestdate == '0000-00-00') $requestdate = '';
+            if ($outdate == '0000-00-00') $outdate = '';
             $type = ($eworks_item === '부자재구매') ? 'aux' : 'main';
         }
     } catch (PDOException $e) {
@@ -300,7 +303,10 @@ sort($spec_arr);
                     <button type="button" class="btn btn-primary" onclick="saveData(1)">
                         <i class="bi bi-cart-plus"></i> 구매카트 담기
                     </button>
-                    <button type="button" class="btn btn-dark" onclick="saveData(0)">저장</button>
+                    <button type="button" class="btn btn-danger" onclick="saveData(0)">
+                        <i class="bi bi-cart-dash"></i> 구매카트 취소
+                    </button>
+                    <button type="button" class="btn btn-dark" onclick="saveData(<?= $cart ?>)">저장</button>
                     <button type="button" class="btn btn-secondary" onclick="window.close()">닫기</button>
                 </div>
 
@@ -351,6 +357,29 @@ sort($spec_arr);
             url: 'process.php',
             type: 'POST',
             data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                try {
+                    var result = typeof response === 'string' ? JSON.parse(response) : response;
+                    if (result.success) {
+                        Swal.fire('성공', result.message || '저장되었습니다.', 'success').then(() => {
+                            if (isCart) {
+                                window.location.reload();
+                            } else {
+                                if (window.opener) {
+                                    window.opener.location.reload();
+                                }
+                                window.close();
+                            }
+                        });
+                    } else {
+                        Swal.fire('오류', result.message || '저장 실패', 'error');
+                    }
+                } catch (e) {
+                    console.error('Response parse error:', e);
+                    Swal.fire('오류', '응답 처리 중 오류가 발생했습니다.', 'error');
+                }
             },
             error: function(xhr, status, error) {
                 console.error(error);

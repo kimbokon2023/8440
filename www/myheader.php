@@ -165,10 +165,10 @@ if (!isset($chkMobile)) {
 				<div class="col">
 				   <b> <span class="text-primary"> 구매&자재 </span> </b>
 				   <a class="dropdown-item " href="../askitem/list.php">품의서</a>                    
-				   <a class="dropdown-item " href="../request/list.php">원자재 구매/입출고</a>				   
+				   <a class="dropdown-item " href="../request/list.php">원자재 구매신청</a>				   
 				   <a class="dropdown-item " href="../steel/list.php">원자재 출고</a>
 				   <a class="dropdown-item " href="../steel/rawmaterial.php">원자재 재고현황</a>
-				   <a class="dropdown-item " href="../request_etc/list.php">부자재 구매/입출고</a>
+				   <a class="dropdown-item " href="../request_etc/list.php">부자재 구매신청</a>
 				   <a class="dropdown-item " href="../ceiling/list_part_table.php">부자재 재고현황</a>                    
 				   <a class="dropdown-item " href="../delivery/list.php"> <i class="bi bi-truck"></i> 화물/택배 배송 </a>
 				</div>
@@ -336,16 +336,16 @@ if (!isset($chkMobile)) {
                 </a>								
 				<div class="dropdown-menu">
 					<a class="dropdown-item" href="<?=$root_dir?>/integratedordering/list.php">
-						<i class="bi bi-clipboard-check"></i> 구매(통합)
+						<i class="bi bi-clipboard-check"></i> 통합 발주 현황
 					</a>    										
 					<a class="dropdown-item" href="<?=$root_dir?>/orders/index.php">
-						<i class="bi bi-clipboard-check"></i> 발주 리스트
+						<i class="bi bi-clipboard-check"></i> 구매발주서 관리
 					</a>    										
 					<a class="dropdown-item" href="<?=$root_dir?>/send_email_list/index.php">
-						<i class="bi bi-clipboard-check"></i> 이메일전송 리스트 
+						<i class="bi bi-clipboard-check"></i> 발주 이메일전송 리스트 
 					</a>    										
 					<a class="dropdown-item" href="<?=$root_dir?>/corp/index.php">
-						<i class="bi bi-building"></i> 거래처 관리
+						<i class="bi bi-building"></i> 발주 거래처 관리
 					</a>    			
 					<hr style="margin:7px!important; border-color:#007bff;">							
 					<a class="dropdown-item" href="<?=$root_dir?>/askitem/list.php">
@@ -353,7 +353,7 @@ if (!isset($chkMobile)) {
 					</a>    		
 					<hr style="margin:7px!important; border-color:#007bff;">								
 					<a class="dropdown-item" href="<?=$root_dir?>/request/list.php">
-						<i class="bi bi-cart-check"></i> 원자재 구매/입출고
+						<i class="bi bi-cart-check"></i> 원자재 구매신청
 					</a>    										
 					<a class="dropdown-item" href="<?=$root_dir?>/steel/list.php">
 						<i class="bi bi-box-arrow-up-right"></i> 원자재 출고
@@ -363,7 +363,7 @@ if (!isset($chkMobile)) {
 					</a>
 					<hr style="margin:7px!important; border-color:#007bff;">
 					<a class="dropdown-item" href="<?=$root_dir?>/request_etc/list.php">
-						<i class="bi bi-cart-check"></i> 부자재 구매/입출고
+						<i class="bi bi-cart-check"></i> 부자재 구매신청
 					</a>                                                
 					<a class="dropdown-item" href="<?=$root_dir?>/ceiling/list_part_table.php">
 						<i class="bi bi-archive"></i> 부자재 재고현황
@@ -417,6 +417,9 @@ if (!isset($chkMobile)) {
 						<i class="bi bi-person-gear"></i> 부적합개선(품질분임조)
 					</a>				
 					<hr style="margin:15px!important; border-color:#007bff;">						
+					<a class="dropdown-item" href="<?=$root_dir?>/process_guide/index.php">
+						<i class="bi bi-gear-wide-connected"></i> 작업 공정
+					</a>
 					<a class="dropdown-item" href="<?=$root_dir?>/p_workstandard/list.php">
 						<i class="bi bi-diagram-3-fill"></i> 작업표준서
 					</a>                    
@@ -852,15 +855,15 @@ if (!isset($chkMobile)) {
 				</h2>
 				<div id="collapsePurchase" class="accordion-collapse collapse" data-bs-parent="#mobileMenuAccordion">
 					<div class="accordion-body p-0">
-						<a href="<?=$root_dir?>/integratedordering/list.php" class="mobile-sub-link"><i class="bi bi-clipboard-check"></i> 구매(통합)</a>
+						<a href="<?=$root_dir?>/integratedordering/list.php" class="mobile-sub-link"><i class="bi bi-clipboard-check"></i> 통합 발주 관리</a>
 						<a href="<?=$root_dir?>/orders/index.php" class="mobile-sub-link"><i class="bi bi-clipboard-check"></i> 발주 리스트</a>
 						<a href="<?=$root_dir?>/corp/index.php" class="mobile-sub-link"><i class="bi bi-building"></i> 거래처 관리</a>
 						<a href="<?=$root_dir?>/send_email_list/index.php" class="mobile-sub-link"><i class="bi bi-clipboard-check"></i> 이메일전송 리스트 </a>						
 						<a href="<?=$root_dir?>/askitem/list.php" class="mobile-sub-link"><i class="bi bi-basket3"></i> 품의서</a>
-						<a href="<?=$root_dir?>/request/list.php" class="mobile-sub-link"><i class="bi bi-cart-check"></i> 원자재 구매/입출고</a>
+						<a href="<?=$root_dir?>/request/list.php" class="mobile-sub-link"><i class="bi bi-cart-check"></i> 원자재 구매신청</a>
 						<a href="<?=$root_dir?>/steel/list.php" class="mobile-sub-link"><i class="bi bi-box-arrow-up-right"></i> 원자재 출고</a>
 						<a href="<?=$root_dir?>/steel/rawmaterial.php" class="mobile-sub-link"><i class="bi bi-box-seam"></i> 원자재 재고현황</a>
-						<a href="<?=$root_dir?>/request_etc/list.php" class="mobile-sub-link"><i class="bi bi-cart-check"></i> 부자재 구매/입출고</a>
+						<a href="<?=$root_dir?>/request_etc/list.php" class="mobile-sub-link"><i class="bi bi-cart-check"></i> 부자재 구매신청</a>
 						<a href="<?=$root_dir?>/ceiling/list_part_table.php" class="mobile-sub-link"><i class="bi bi-archive"></i> 부자재 재고현황</a>
 						<a href="<?=$root_dir?>/outorder/list.php" class="mobile-sub-link"><i class="bi bi-diagram-3"></i> 외주(덴크리,서한,다온텍)</a>
 						<a href="<?=$root_dir?>/make/list.php" class="mobile-sub-link"><i class="bi bi-bag-check"></i> 도장발주</a>

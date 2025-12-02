@@ -117,26 +117,26 @@ function getSortLink($column, $label, $current_column, $current_order, $next_ord
 }
 
 ?>
-<title>통합 발주 관리 - 미래정공</title>
+<title>통합 발주 현황 </title>
 <!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
 <style>
     :root {
-        /* 라이트 모드 색상 - 파란색 계열 (orders/index.php와 동일) */
+        /* 그레이 톤 색상 변경 */
         --bg-primary: #ffffff;
         --bg-secondary: #ffffff;
         --bg-card: #f8f9fa;
-        --bg-gradient-start: #2196f3;
-        --bg-gradient-end: #1976d2;
+        --bg-gradient-start: #6c757d; /* Gray */
+        --bg-gradient-end: #495057;   /* Darker Gray */
         --text-primary: #333333;
         --text-secondary: #666666;
         --text-white: #ffffff;
         --border-color: #e0e0e0;
         --border-light: #f0f0f0;
         --shadow: rgba(0,0,0,0.08);
-        --shadow-hover: rgba(33, 150, 243, 0.2);
-        --hover-bg: #f5f9ff;
+        --shadow-hover: rgba(108, 117, 125, 0.2); /* Gray shadow */
+        --hover-bg: #f8f9fa; /* Light gray hover */
     }
 
     [data-theme="dark"] {
@@ -144,16 +144,16 @@ function getSortLink($column, $label, $current_column, $current_order, $next_ord
         --bg-primary: #1a1a2e;
         --bg-secondary: #16213e;
         --bg-card: #1e2a3a;
-        --bg-gradient-start: #1976d2;
-        --bg-gradient-end: #0d47a1;
+        --bg-gradient-start: #495057;
+        --bg-gradient-end: #343a40;
         --text-primary: #e2e8f0;
         --text-secondary: #cbd5e0;
         --text-white: #ffffff;
         --border-color: #4a5568;
         --border-light: #2d3748;
         --shadow: rgba(0,0,0,0.3);
-        --shadow-hover: rgba(25, 118, 210, 0.5);
-        --hover-bg: #1e3a5f;
+        --shadow-hover: rgba(108, 117, 125, 0.5);
+        --hover-bg: #2d3748;
     }
 
     * {
@@ -176,12 +176,12 @@ function getSortLink($column, $label, $current_column, $current_order, $next_ord
     }
 
     .page-header {
-        background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+        background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
         color: white;
         padding: 20px 25px;
         border-radius: 10px;
         margin-bottom: 20px;
-        box-shadow: 0 2px 8px rgba(33, 150, 243, 0.15);
+        box-shadow: 0 2px 8px rgba(108, 117, 125, 0.15);
     }
 
     .page-header h1 {
@@ -240,8 +240,8 @@ function getSortLink($column, $label, $current_column, $current_order, $next_ord
     .filter-group input:focus,
     .filter-group select:focus {
         outline: none;
-        border-color: #2196f3;
-        box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+        border-color: #6c757d;
+        box-shadow: 0 0 0 2px rgba(108, 117, 125, 0.1);
     }
 
     .btn {
@@ -347,8 +347,8 @@ function getSortLink($column, $label, $current_column, $current_order, $next_ord
     .fw-bold { font-weight: 700 !important; }
 
     /* 구분 배지 스타일 */
-    .badge-main { background-color: #0d6efd; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; } /* 원자재 */
-    .badge-aux { background-color: #198754; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; } /* 부자재 */
+    .badge-main { background-color: #6c757d; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; } /* 원자재 */
+    .badge-aux { background-color: #495057; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; } /* 부자재 */
     
     .badge {
         padding: 4px 8px;
@@ -356,9 +356,9 @@ function getSortLink($column, $label, $current_column, $current_order, $next_ord
         font-size: 11px;
         color: white;
     }
-    .bg-primary { background-color: #0d6efd !important; }
-    .bg-danger { background-color: #dc3545 !important; }
-    .bg-secondary { background-color: #6c757d !important; }
+    .bg-primary { background-color: #6c757d !important; }
+    .bg-danger { background-color: #dc3545 !important; } /* Keep danger red for importance */
+    .bg-secondary { background-color: #adb5bd !important; }
 
     /* 모바일 반응형 */
     @media (max-width: 768px) {
@@ -400,6 +400,22 @@ function getSortLink($column, $label, $current_column, $current_order, $next_ord
     
     @media (min-width: 769px) {
         .mobile-list { display: none; }
+    }
+
+    @keyframes blink {
+        0%   { opacity: 1; }
+        50%  { opacity: 0.35; }
+        100% { opacity: 1; }
+    }
+    .blink {
+        animation: blink 1s linear infinite;
+    }
+
+    #floatingCartBtn {
+        position: absolute;
+        display: none;
+        z-index: 1000;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
 </style>
 
@@ -633,15 +649,17 @@ function getSortLink($column, $label, $current_column, $current_order, $next_ord
                     <th><?= getSortLink('which', '진행상태', $sort_column, $sort_order, $next_sort_order) ?></th>
                     <th><?= getSortLink('outdate', '접수일', $sort_column, $sort_order, $next_sort_order) ?></th>
                     <th><?= getSortLink('requestdate', '납기일', $sort_column, $sort_order, $next_sort_order) ?></th>
+                    <th>결재</th>
                     <th><?= getSortLink('indate', '완료일', $sort_column, $sort_order, $next_sort_order) ?></th>
                     <th>구매카트</th>
                     <th>요청자</th>
+                    <th><?= getSortLink('supplier', '공급처', $sort_column, $sort_order, $next_sort_order) ?></th>
                     <th><?= getSortLink('outworkplace', '현장명/물품명', $sort_column, $sort_order, $next_sort_order) ?></th>
                     <th><?= getSortLink('model', '모델', $sort_column, $sort_order, $next_sort_order) ?></th>
                     <th><?= getSortLink('steel_item', '종류', $sort_column, $sort_order, $next_sort_order) ?></th>
                     <th><?= getSortLink('spec', '규격', $sort_column, $sort_order, $next_sort_order) ?></th>
                     <th><?= getSortLink('steelnum', '수량', $sort_column, $sort_order, $next_sort_order) ?></th>
-                    <th><?= getSortLink('supplier', '공급처', $sort_column, $sort_order, $next_sort_order) ?></th>
+                    <th>비고</th>
                 </tr>
             </thead>
             <tbody>
@@ -657,11 +675,26 @@ function getSortLink($column, $label, $current_column, $current_order, $next_ord
                         elseif ($which == '2') $status_badge = '<span class="badge bg-danger">발주</span>';
                         elseif ($which == '3') $status_badge = '<span class="badge bg-secondary">완료</span>';
                         
-                        // 구분 배지
-                        $type_badge = '';
                         if ($eworks_item === '원자재구매') $type_badge = '<span class="badge badge-main">원자재</span>';
                         elseif ($eworks_item === '부자재구매') $type_badge = '<span class="badge badge-aux">부자재</span>';
                         
+                        // 결재 상태 설정
+                        $statusstr = '';
+                        switch ($status) {
+                            case 'send':
+                                $statusstr = '상신';
+                                break;
+                            case 'ing':
+                                $statusstr = '진행';
+                                break;
+                            case 'end':
+                                $statusstr = '완료';
+                                break;
+                            default:
+                                $statusstr = '';
+                                break;
+                        }
+
                         echo "<tr onclick=\"viewDetail('$num')\" style='cursor:pointer;'>";
                         echo "<td class='text-center' onclick='event.stopPropagation()'><input type='checkbox' class='row-checkbox' value='$num'></td>";
                         echo "<td class='text-center'>$num</td>";
@@ -670,6 +703,10 @@ function getSortLink($column, $label, $current_column, $current_order, $next_ord
                         echo "<td class='text-center'>$outdate</td>";
                         
                         echo "<td class='text-center'>$requestdate</td>";
+                        
+                        $blink_class = ($status === 'ing') ? ' text-primary blink' : '';
+                        echo "<td class='text-center$blink_class'>$statusstr</td>"; // 결재
+                        
                         if ($indate == '0000-00-00') $indate = '';
                         echo "<td class='text-center'>$indate</td>";
 
@@ -680,13 +717,14 @@ function getSortLink($column, $label, $current_column, $current_order, $next_ord
                         }
                         echo "<td class='text-center'>$cart_badge</td>";
                         echo "<td class='text-center'>$author</td>"; // 요청자 추가
+                        echo "<td class='text-center'>$supplier</td>"; // 공급처 이동
                         
                         echo "<td>$outworkplace</td>"; // 현장명 또는 물품명
                         echo "<td>$model</td>";
                         echo "<td>$steel_item</td>";
                         echo "<td>$spec</td>"; // 규격 추가
                         echo "<td class='text-center text-danger fw-bold'>$steelnum</td>";
-                        echo "<td class='text-center'>$supplier</td>";
+                        echo "<td>$request_comment</td>"; // 비고 추가
                         echo "</tr>";
                     }
                 } else {
@@ -740,6 +778,11 @@ function getSortLink($column, $label, $current_column, $current_order, $next_ord
 
 </div>
 
+<!-- Floating Cart Button -->
+<button id="floatingCartBtn" class="btn btn-primary btn-sm" onclick="addToCart()">
+    <i class="fas fa-cart-plus"></i> 담기
+</button>
+
 <script>
       function viewDetail(num) {
         // 팝업 창 열기
@@ -763,6 +806,45 @@ function getSortLink($column, $label, $current_column, $current_order, $next_ord
     function restorePageNumber() {
         location.reload();
     }
+    function restorePageNumber() {
+        location.reload();
+    }
+
+    // Floating Cart Button Logic
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkboxes = document.querySelectorAll('.row-checkbox');
+        const floatingBtn = document.getElementById('floatingCartBtn');
+
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('click', function(e) {
+                // e.stopPropagation(); // Already handled in inline onclick, but good to be safe if needed
+                
+                if (this.checked) {
+                    // Show button near the checkbox
+                    const rect = this.getBoundingClientRect();
+                    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+
+                    floatingBtn.style.top = (rect.top + scrollTop - 10) + 'px'; // Slightly above
+                    floatingBtn.style.left = (rect.left + scrollLeft + 30) + 'px'; // To the right
+                    floatingBtn.style.display = 'block';
+                } else {
+                    // Check if any other checkboxes are checked
+                    const anyChecked = document.querySelector('.row-checkbox:checked');
+                    if (!anyChecked) {
+                        floatingBtn.style.display = 'none';
+                    }
+                }
+            });
+        });
+
+        // Hide button when clicking outside (optional, but good for UX)
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.row-checkbox') && !e.target.closest('#floatingCartBtn')) {
+                // floatingBtn.style.display = 'none'; // Uncomment if you want it to hide on outside click
+            }
+        });
+    });
 </script>
 </body>
 </html>

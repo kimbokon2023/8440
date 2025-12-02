@@ -644,7 +644,7 @@ body {
 
 /* 거래처 조회 전용 스타일 */
 .page-header {
-    background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
     color: white;
     padding: 1.5rem 2rem;
     border-radius: 12px;
@@ -689,7 +689,7 @@ body {
 }
 
 .action-bar .btn-primary {
-    background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
     border: none;
 }
 
@@ -807,10 +807,10 @@ body {
 }
 
 .filter-buttons .btn.active {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
     color: #fff;
     border-color: transparent;
-    box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 4px 10px rgba(108, 117, 125, 0.3);
 }
 
 .detail-section {
@@ -820,7 +820,7 @@ body {
 .detail-section-title {
     font-size: 1rem;
     font-weight: 600;
-    color: #2563eb;
+    color: #6c757d;
     margin-bottom: 12px;
     display: flex;
     align-items: center;
@@ -907,10 +907,10 @@ body {
 }
 
 .customer-file-item:hover {
-    background: #e7f3ff;
-    border-color: #007bff;
+    background: #e9ecef;
+    border-color: #6c757d;
     transform: translateX(4px);
-    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.1);
+    box-shadow: 0 2px 4px rgba(108, 117, 125, 0.1);
 }
 
 .customer-file-item .file-icon {
@@ -926,13 +926,13 @@ body {
 }
 
 .customer-file-item:hover .file-name {
-    color: #007bff;
+    color: #495057;
     font-weight: 500;
 }
 
 /* 테이블 스타일 개선 */
 .tabulator .tabulator-header {
-    background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
     color: white;
     font-weight: 600;
 }
@@ -965,7 +965,7 @@ body {
 }
 
 .tabulator .tabulator-row.tabulator-selectable:hover {
-    background: #e3f2fd;
+    background: #e9ecef;
 }
 
 .tabulator .tabulator-row-even {
@@ -1039,16 +1039,16 @@ body {
 }
 
 [data-theme="dark"] .filter-buttons .btn:hover {
-    background: #2196f3;
+    background: #6c757d;
     color: white;
 }
 
 [data-theme="dark"] .filter-buttons .btn.active {
-    background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
 }
 
 [data-theme="dark"] .tabulator .tabulator-header {
-    background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%);
+    background: linear-gradient(135deg, #495057 0%, #343a40 100%);
 }
 
 [data-theme="dark"] .tabulator .tabulator-row:hover {
@@ -1159,13 +1159,13 @@ body {
     <div class="modal fade" id="customerDetailModal" tabindex="-1" aria-labelledby="customerDetailModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
         <div class="modal-dialog modal-xl modal-dialog-scrollable">
             <div class="modal-content">
-                <div class="modal-header" style="background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); color: white;">
+                <div class="modal-header" style="background: linear-gradient(135deg, #6c757d 0%, #495057 100%); color: white;">
                     <h5 class="modal-title" id="customerDetailModalLabel"><i class="bi bi-card-list me-2"></i>거래처 상세 정보</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="customerDetailContent">
                     <div class="text-center py-5">
-                        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                        <div class="spinner-border text-secondary" role="status" style="width: 3rem; height: 3rem;">
                             <span class="visually-hidden">Loading...</span>
                         </div>
                         <p class="mt-3 text-muted">거래처 정보를 불러오는 중입니다...</p>
@@ -1190,7 +1190,7 @@ body {
     <div class="modal fade" id="customerEditModal" tabindex="-1" aria-labelledby="customerEditModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-fullscreen">
             <div class="modal-content">
-                <div class="modal-header" style="background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); color: white; display: flex; justify-content: space-between; align-items: center;">
+                <div class="modal-header" style="background: linear-gradient(135deg, #6c757d 0%, #495057 100%); color: white; display: flex; justify-content: space-between; align-items: center;">
                     <h5 class="modal-title" id="customerEditModalLabel"><i class="bi bi-pencil-square me-2"></i><span id="customerEditModalTitle">거래처 수정</span></h5>
                     <div style="display: flex; gap: 8px; align-items: center;">
                         <button type="button" class="btn btn-sm btn-success" onclick="iframeSaveCustomer()" id="iframeSaveBtn" style="display: none;">
@@ -1216,7 +1216,7 @@ body {
     <div class="modal fade" id="columnSettingsModal" tabindex="-1" aria-labelledby="columnSettingsModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header" style="background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); color: white;">
+                <div class="modal-header" style="background: linear-gradient(135deg, #6c757d 0%, #495057 100%); color: white;">
                     <h5 class="modal-title" id="columnSettingsModalLabel">
                         <i class="bi bi-gear"></i> 컬럼 표시 설정
                     </h5>
@@ -1460,7 +1460,7 @@ try {
 
             // 로딩 표시
             contentElement.innerHTML = '<div class="text-center py-5">' +
-                '<div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">' +
+                '<div class="spinner-border text-secondary" role="status" style="width: 3rem; height: 3rem;">' +
                 '<span class="visually-hidden">Loading...</span>' +
                 '</div>' +
                 '<p class="mt-3 text-muted">거래처 정보를 불러오는 중입니다...</p>' +
@@ -1628,7 +1628,7 @@ try {
             hozAlign: "center",
             formatter: function(cell, formatterParams) {
                 var value = cell.getValue();
-                var badgeClass = value === '사업자' ? 'bg-primary' : 'bg-secondary';
+                var badgeClass = value === '사업자' ? 'bg-secondary' : 'bg-light text-dark border';
                 return '<span class="badge ' + badgeClass + '">' + value + '</span>';
             }
         },
@@ -1804,9 +1804,9 @@ try {
             formatter: function(cell, formatterParams) {
                 var rowData = cell.getRow().getData();
                 var groups = [];
-                if (rowData.is_sales_customer === 'Y') groups.push('<span class="badge bg-success">매출</span>');
-                if (rowData.is_purchase_customer === 'Y') groups.push('<span class="badge bg-info">매입</span>');
-                if (rowData.is_other_customer === 'Y') groups.push('<span class="badge bg-secondary">기타</span>');
+                if (rowData.is_sales_customer === 'Y') groups.push('<span class="badge bg-secondary">매출</span>');
+                if (rowData.is_purchase_customer === 'Y') groups.push('<span class="badge bg-dark">매입</span>');
+                if (rowData.is_other_customer === 'Y') groups.push('<span class="badge bg-light text-dark border">기타</span>');
                 return groups.join(' ');
             }
         },
@@ -2239,7 +2239,7 @@ try {
                         
                         // 특수 포맷팅
                         if (fieldInfo.field === 'classification') {
-                            var badgeClass = value === '사업자' ? 'bg-primary' : 'bg-secondary';
+                            var badgeClass = value === '사업자' ? 'bg-secondary' : 'bg-light text-dark border';
                             displayValue = '<span class="badge ' + badgeClass + '">' + value + '</span>';
                         }
                         
@@ -2525,9 +2525,9 @@ try {
             }
 
             var groups = [];
-            if (customer.is_sales_customer === 'Y') groups.push('<span class="badge bg-success me-1">매출</span>');
-            if (customer.is_purchase_customer === 'Y') groups.push('<span class="badge bg-info me-1">매입</span>');
-            if (customer.is_other_customer === 'Y') groups.push('<span class="badge bg-secondary me-1">기타</span>');
+            if (customer.is_sales_customer === 'Y') groups.push('<span class="badge bg-secondary me-1">매출</span>');
+            if (customer.is_purchase_customer === 'Y') groups.push('<span class="badge bg-dark me-1">매입</span>');
+            if (customer.is_other_customer === 'Y') groups.push('<span class="badge bg-light text-dark border me-1">기타</span>');
             if (!groups.length) {
                 groups.push('<span class="text-muted">-</span>');
             }
@@ -2592,7 +2592,7 @@ try {
             html += '<div class="detail-section">';
             html += '<div class="detail-section-title"><i class="bi bi-paperclip"></i> 첨부 파일</div>';
             html += '<div id="customerFilesList" class="customer-files-list">';
-            html += '<div class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+            html += '<div class="text-center py-3"><div class="spinner-border spinner-border-sm text-secondary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
             html += '</div>';
             html += '</div>';
 

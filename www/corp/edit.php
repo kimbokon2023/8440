@@ -171,8 +171,8 @@ include getDocumentRoot() . '/load_header.php';
 }
 
 .form-control:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    border-color: #6c757d;
+    box-shadow: 0 0 0 0.2rem rgba(108, 117, 125, 0.25);
 }
 
 .form-note {
@@ -229,7 +229,7 @@ include getDocumentRoot() . '/load_header.php';
 }
 
 .add-button {
-    background: #007bff;
+    background: #6c757d;
     border: none;
     border-radius: 50%;
     width: 25px;
@@ -244,7 +244,7 @@ include getDocumentRoot() . '/load_header.php';
 }
 
 .add-button:hover {
-    background: #0056b3;
+    background: #5a6268;
     transform: scale(1.1);
 }
 
@@ -340,13 +340,14 @@ include getDocumentRoot() . '/load_header.php';
 }
 
 .file-attach-link {
-    color: #007bff;
+    color: #6c757d;
     text-decoration: none;
     font-size: 0.85rem;
 }
 
 .file-attach-link:hover {
     text-decoration: underline;
+    color: #495057;
 }
 
 /* 업로드 영역 스타일 */
@@ -362,13 +363,13 @@ include getDocumentRoot() . '/load_header.php';
 }
 
 .upload-area:hover {
-    border-color: #007bff;
-    background: #e7f3ff;
+    border-color: #6c757d;
+    background: #e9ecef;
 }
 
 .upload-area.dragover {
-    border-color: #007bff;
-    background: rgba(0, 123, 255, 0.1);
+    border-color: #6c757d;
+    background: rgba(108, 117, 125, 0.1);
     transform: scale(1.02);
 }
 
@@ -384,7 +385,7 @@ include getDocumentRoot() . '/load_header.php';
 }
 
 .upload-text strong {
-    color: #007bff;
+    color: #6c757d;
 }
 
 /* 파일 미리보기 영역 */
@@ -467,7 +468,7 @@ include getDocumentRoot() . '/load_header.php';
 }
 
 .file-info:hover {
-    color: #007bff;
+    color: #6c757d;
 }
 
 .btn-group {
@@ -480,7 +481,7 @@ include getDocumentRoot() . '/load_header.php';
 }
 
 .btn-save {
-    background: #007bff;
+    background: #6c757d;
     border: none;
     border-radius: 4px;
     padding: 0.5rem 1.5rem;
@@ -491,7 +492,7 @@ include getDocumentRoot() . '/load_header.php';
 }
 
 .btn-save:hover {
-    background: #0056b3;
+    background: #5a6268;
     color: white;
 }
 
@@ -811,7 +812,7 @@ include getDocumentRoot() . '/load_header.php';
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-body text-center py-4">
-                            <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                            <div class="spinner-border text-secondary mb-3" role="status" style="width: 3rem; height: 3rem;">
                                 <span class="visually-hidden">Loading...</span>
                             </div>
                             <h5 class="mb-2">업로드 중입니다.</h5>

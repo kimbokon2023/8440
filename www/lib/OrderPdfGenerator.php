@@ -364,7 +364,7 @@ class OrderPdfGenerator {
                 </tr>
                 <tr>
                     <th style="height: 60pt;">비 고</th>
-                    <td colspan="3" style="vertical-align: top; text-align: left; padding: 5pt;"><?= nl2br($esc($order['remarks'] ?? '')) ?></td>
+                    <td colspan="3" style="vertical-align: top; text-align: left; padding: 5pt;"><?= nl2br($esc($order['note'] ?? '')) ?></td>
                 </tr>
             </table>
 
