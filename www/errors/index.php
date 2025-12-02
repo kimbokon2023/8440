@@ -21,6 +21,8 @@ $tablename = 'error';
 require_once(includePath('lib/mydb.php'));
 $pdo = db_connect();
 
+include getDocumentRoot() . '/load_header.php';
+
 // 접속 IP 기록
 $ip_address = $_SERVER["REMOTE_ADDR"] ?? '';
 $ip_address = 'ip_(불량보고) : ' . $ip_address;
@@ -109,7 +111,6 @@ $voc_alert = $_REQUEST["voc_alert"] ?? '';
 $ma_alert = $_REQUEST["ma_alert"] ?? '';
 $order_alert = $_REQUEST["order_alert"] ?? '';
 
-include getDocumentRoot() . '/load_header.php';
 
 ?>
 
@@ -302,19 +303,6 @@ include getDocumentRoot() . '/load_header.php';
 		text-overflow: clip !important;
 	}
 
-	/* 비용 관련 셀 강조 */
-	#myTable tbody tr td.text-end {
-		font-weight: 600 !important;
-		color: #dc2626 !important;
-	}
-
-	/* 테이블 반응형 컨테이너 */
-	.table-responsive {
-		overflow-x: visible !important;
-		-webkit-overflow-scrolling: touch !important;
-		width: 100% !important;
-		margin-bottom: 15px !important;
-	}
 
 	/* 이미지 모바일 최적화 */
 	img {
@@ -328,74 +316,10 @@ include getDocumentRoot() . '/load_header.php';
 		white-space: normal !important;
 	}
 
-	/* col-sm-12 모바일에서 전체 너비 */
-	.col-sm-12 {
-		width: 100% !important;
-		flex: 0 0 100% !important;
-		max-width: 100% !important;
-		margin-bottom: 10px !important;
-	}
-	
-	/* 카드 최적화 */
-	.card {
-		width: calc(100% - 1rem) !important;
-		max-width: calc(100% - 1rem) !important;
-		margin: 0.5rem auto !important;
-		box-sizing: border-box !important;
-		overflow-x: hidden !important;
-		word-wrap: break-word !important;
-		overflow-wrap: break-word !important;
-	}
-	
 	/* jQuery DataTable 컨트롤 숨기기 */
 	.dataTables_length,
 	.dataTables_filter {
 		display: none !important;
-	}
-	
-	/* 검색 UI 최적화 */
-	.d-flex.mb-2.px-5 {
-		flex-direction: column !important;
-		align-items: stretch !important;
-		gap: 0.5rem !important;
-		padding: 0.5rem 0.25rem !important;
-	}
-	
-	.d-flex.mb-2.px-5 > * {
-		width: 100% !important;
-		max-width: 100% !important;
-		margin: 0.25rem 0 !important;
-	}
-	
-	.d-flex.mb-2.px-5 #search {
-		width: 100% !important;
-		max-width: 100% !important;
-		min-width: auto !important;
-		flex: 1 1 auto !important;
-	}
-	
-	.d-flex.mb-2.px-5 #searchBtn,
-	.d-flex.mb-2.px-5 #writeBtn {
-		width: 100% !important;
-		max-width: 100% !important;
-		flex: 1 1 auto !important;
-	}
-	
-	/* 텍스트 오버플로우 방지 강화 */
-	* {
-		word-wrap: break-word !important;
-		overflow-wrap: break-word !important;
-		box-sizing: border-box !important;
-	}
-	
-	/* 모든 텍스트 요소 강제 줄바꿈 */
-	p, div, h1, h2, h3, h4, h5, h6, label, strong, em, b, i, u, span {
-		word-wrap: break-word !important;
-		overflow-wrap: break-word !important;
-		word-break: break-word !important;
-		white-space: normal !important;
-		max-width: 100% !important;
-		box-sizing: border-box !important;
 	}
 	
 	/* span 요소 줄바꿈 처리 */
@@ -499,15 +423,6 @@ include getDocumentRoot() . '/load_header.php';
 	}
 }
 
-/* PC 환경 버튼 간격 최적화 */
-@media (min-width: 769px) {
-	.d-flex.justify-content-center .btn,
-	.d-flex.justify-content-start .btn,
-	.d-flex.mb-2.px-5 .btn {
-		margin-left: 0.25rem !important;
-		margin-right: 0.25rem !important;
-	}
-}
 </style>
 </head>
 
@@ -516,16 +431,17 @@ include getDocumentRoot() . '/load_header.php';
 <?php include includePath('myheader.php') ?>
 
 <form name="board_form" id="board_form" method="post">
-    <div class="container-fluid">
-        <div class="card">
-            <div class="card-body">
+    <!-- container-fluid에 p-0를 적용하여 화면 꽉 차게 설정 -->
+    <div class="container-fluid p-0">
+        <div class="card border-0 rounded-0" style="width: 100%; margin: 0;">
+            <div class="card-body p-0">
                 <div class="row">
                     <div class="col-sm-12">
                         <div class="card">
                             <div class="card-body">
                                 <div class="d-flex justify-content-center mt-2 mb-2">
                                     <!-- 품질불량 관리기법 -->
-                                    <div id="Materialshow">
+                                    <div id="MaterialModalBtn" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#qualityModal">
                                         <h4 class="text-center">
                                             품질불량 관리기법
                                             <img src="<?= asset('img/click.gif') ?>" width="5%" height="5%" alt="클릭">
@@ -533,24 +449,7 @@ include getDocumentRoot() . '/load_header.php';
                                     </div>
                                 </div>
                                 
-                                <div class="d-flex justify-content-center mt-2 mb-2">
-                                    <div id="Material" style="display:none;">
-                                        <section class="page-section">                                            
-                                                <div class="row text-center">
-                                                    <?php include '8d.php'; ?>
-                                                </div>
-                                                <div class="row text-left">
-                                                    <?php include 'fmea.php'; ?>
-                                                    <img src="<?= asset('img/qm1.jpg') ?>" alt="품질경영 1">
-                                                    <img src="<?= asset('img/qm2.jpg') ?>" alt="품질경영 2">
-                                                    <img src="<?= asset('img/qm3.jpg') ?>" alt="품질경영 3">
-                                                    <img src="<?= asset('img/qm4.jpg') ?>" alt="품질경영 4">
-                                                    <img src="<?= asset('img/qm5.jpg') ?>" alt="품질경영 5">
-                                                    <img src="<?= asset('img/qm6.jpg') ?>" alt="품질경영 6">
-                                                </div>
-                                        </section>
-                                    </div>
-                                </div>
+                                <!-- 기존 내용 모달로 이동됨 -->
                                 
                                 <div class="d-flex px-1 px-lg-1 mt-1 justify-content-center">
                                     <h5 class="mb-1 text-secondary">지속적 관심/분석/개선이 불량감소에 큰 도움이 됩니다.</h5>
@@ -632,6 +531,7 @@ include getDocumentRoot() . '/load_header.php';
         <input type="hidden" id="ma_alert" name="ma_alert" value="<?= htmlspecialchars($ma_alert) ?>" size="5">
         <input type="hidden" id="order_alert" name="order_alert" value="<?= htmlspecialchars($order_alert) ?>" size="5">
         
+    <div class="container-fluid p-0">		
         <div class="d-flex mb-2 px-5 px-lg-2 mt-2 justify-content-center align-items-center">
             ▷ <?= $total_row ?> 건 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <input type="text" class="form-control me-2" style="width:150px;height:32px;" 
@@ -706,7 +606,7 @@ include getDocumentRoot() . '/load_header.php';
         </div>
         </div>
         </div>
-    
+	</div>
     <!-- Footer -->
     <?php include "footer.php"; ?>
 </form>
@@ -830,7 +730,36 @@ $(document).ready(function() {
 });
 </script>
 
+<!-- Quality Management Modal -->
+<div class="modal fade" id="qualityModal" tabindex="-1" aria-labelledby="qualityModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" style="max-width: 95%;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="qualityModalLabel">품질불량 관리기법</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+         <section class="page-section">                                            
+            <div class="row text-center">
+                <?php include '8d.php'; ?>
+            </div>
+            <div class="row text-left">
+                <?php include 'fmea.php'; ?>
+                <img src="<?= asset('img/qm1.jpg') ?>" alt="품질경영 1" style="max-width: 100%; height: auto; margin-bottom: 10px;">
+                <img src="<?= asset('img/qm2.jpg') ?>" alt="품질경영 2" style="max-width: 100%; height: auto; margin-bottom: 10px;">
+                <img src="<?= asset('img/qm3.jpg') ?>" alt="품질경영 3" style="max-width: 100%; height: auto; margin-bottom: 10px;">
+                <img src="<?= asset('img/qm4.jpg') ?>" alt="품질경영 4" style="max-width: 100%; height: auto; margin-bottom: 10px;">
+                <img src="<?= asset('img/qm5.jpg') ?>" alt="품질경영 5" style="max-width: 100%; height: auto; margin-bottom: 10px;">
+                <img src="<?= asset('img/qm6.jpg') ?>" alt="품질경영 6" style="max-width: 100%; height: auto; margin-bottom: 10px;">
+            </div>
+        </section>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
-
-

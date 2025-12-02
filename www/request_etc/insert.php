@@ -17,7 +17,9 @@ $user_name = $_SESSION["name"] ?? '';
 // 요청 변수 초기화
 $timekey = $_REQUEST["timekey"] ?? '';
 $mode = $_REQUEST["mode"] ?? '';
+$mode = $_REQUEST["mode"] ?? '';
 $num = $_REQUEST["num"] ?? '';
+$cart = $_REQUEST["cart"] ?? 0; // 카트 상태 추가
 
 include '_request.php';
      
@@ -53,14 +55,17 @@ if ($mode == "modify") {
         "steelnum" => $steelnum,
         "request_comment" => $request_comment,
         "payment" => $payment,
-        "supplier" => $supplier
+        "request_comment" => $request_comment,
+        "payment" => $payment,
+        "supplier" => $supplier,
+        "cart" => $cart
     );
 
     $contents = json_encode($data, JSON_UNESCAPED_UNICODE);
 
     try {
         $pdo->beginTransaction();
-        $sql = "update {$DB}.eworks set which=?, outdate=?, indate=?, outworkplace=?, steel_item=?, spec=?, steelnum=?, company=?, request_comment=?, payment=?, first_writer=?, update_log=?, supplier=?, contents=?";
+        $sql = "update {$DB}.eworks set which=?, outdate=?, indate=?, outworkplace=?, steel_item=?, spec=?, steelnum=?, company=?, request_comment=?, payment=?, first_writer=?, update_log=?, supplier=?, contents=?, cart=?";
         $sql .= " where num=? LIMIT 1";		
 
         $stmh = $pdo->prepare($sql);
@@ -78,7 +83,8 @@ if ($mode == "modify") {
         $stmh->bindValue(12, $update_log, PDO::PARAM_STR);
         $stmh->bindValue(13, $supplier, PDO::PARAM_STR);
         $stmh->bindValue(14, $contents, PDO::PARAM_STR);
-        $stmh->bindValue(15, $num, PDO::PARAM_STR);
+        $stmh->bindValue(15, $cart, PDO::PARAM_INT);
+        $stmh->bindValue(16, $num, PDO::PARAM_STR);
 
         $stmh->execute();
         $pdo->commit();
@@ -133,7 +139,9 @@ if ($mode == "modify") {
         "steelnum" => $steelnum,
         "request_comment" => $request_comment,
         "payment" => $payment,
-        "supplier" => $supplier
+        "payment" => $payment,
+        "supplier" => $supplier,
+        "cart" => $cart
     );
 
     $contents = json_encode($data, JSON_UNESCAPED_UNICODE);
@@ -147,8 +155,8 @@ if ($mode == "modify") {
     try {
         $pdo->beginTransaction();
 
-        $sql = "insert into {$DB}.eworks(which, outdate, indate, outworkplace, steel_item, spec, steelnum, company, request_comment, payment, first_writer, update_log, supplier, status, e_line_id, e_line, e_title, contents, eworks_item, registdate, author_id, author)";
-        $sql .= " values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "insert into {$DB}.eworks(which, outdate, indate, outworkplace, steel_item, spec, steelnum, company, request_comment, payment, first_writer, update_log, supplier, status, e_line_id, e_line, e_title, contents, eworks_item, registdate, author_id, author, cart)";
+        $sql .= " values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         $stmh = $pdo->prepare($sql);
         $stmh->bindValue(1, $which, PDO::PARAM_STR);
@@ -175,6 +183,7 @@ if ($mode == "modify") {
         $stmh->bindValue(20, $registdate, PDO::PARAM_STR);
         $stmh->bindValue(21, $author_id, PDO::PARAM_STR);
         $stmh->bindValue(22, $author, PDO::PARAM_STR);
+        $stmh->bindValue(23, $cart, PDO::PARAM_INT);
 
         $stmh->execute();
         $pdo->commit();

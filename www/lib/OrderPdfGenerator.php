@@ -90,8 +90,13 @@ class OrderPdfGenerator {
         // 변수 준비
         $order_no = $order['order_no'] ?? '';
         $issue_date = $order['issue_date'] ?? '';
-        $supplier_name = $order['supplier_name'] ?? '주식회사미래기업';
-        $supplier_address = $order['supplier_address'] ?? '경기도 김포시 양촌읍 흥신로 220-27 (흥신리)';
+        $supplier_name = $order['supplier_name'] ?? '주식회사 미래기업';
+        if ($supplier_name === '주식회사미래기업') $supplier_name = '주식회사 미래기업';
+
+        $supplier_address = $order['supplier_address'] ?? '경기도 김포시 양촌읍 흥신로 220-27';
+        $supplier_address = str_replace('(흥신리)', '', $supplier_address);
+        $supplier_address = trim($supplier_address);
+        
         $business_type = $order['business_type'] ?? '제조업';
         $business_item = $order['business_item'] ?? '엘리베이터의장품';
         $supplier_phone = $order['supplier_phone'] ?? '031-983-8440';
@@ -119,20 +124,43 @@ class OrderPdfGenerator {
         $fontPath = realpath($this->baseDir . '/asset/fonts/NotoSansKR-Regular.ttf');
         $fontUrl = $fontPath ? 'file://' . $fontPath : '';
 
-        // 헬퍼 함수 (Closure로 정의하거나 private 메서드로 분리 가능, 여기선 간단히 내부 변수로)
+        // 헬퍼 함수
         $esc = function ($s) { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); };
         $nf = function ($v) { return number_format((float)str_replace(',', '', (string)$v)); };
         $ymdKorean = function ($ymd) {
             if (!$ymd || $ymd === '0000-00-00') return '';
             $ts = strtotime($ymd);
-            return $ts ? date('Y년 n월 j일', $ts) : '';
+            return $ts ? date('Y년 m월 d일', $ts) : '';
         };
         $formatPhone = function ($phone) {
-            // 간단한 포맷팅 로직 (기존 코드 참조)
             $phone = preg_replace('/[^0-9]/', '', $phone);
             if (strlen($phone) === 11) return substr($phone, 0, 3) . '-' . substr($phone, 3, 4) . '-' . substr($phone, 7);
-            if (strlen($phone) === 10) return substr($phone, 0, 3) . '-' . substr($phone, 3, 3) . '-' . substr($phone, 6); // 02 제외 일반화
+            if (strlen($phone) === 10) return substr($phone, 0, 3) . '-' . substr($phone, 3, 3) . '-' . substr($phone, 6);
             return $phone; 
+        };
+        
+        // 숫자 한글 변환 (간이 구현)
+        $numToKorean = function($number) {
+            $num = (string)$number;
+            $han = ['','일','이','삼','사','오','육','칠','팔','구'];
+            $unit = ['','십','백','천'];
+            $unit2 = ['','만','억','조','경'];
+            
+            $result = '';
+            $len = strlen($num);
+            $j = 0;
+            
+            for ($i = $len - 1; $i >= 0; $i--) {
+                $n = $num[$len - 1 - $i];
+                if ($n > 0) {
+                    $result .= $han[$n];
+                    $result .= $unit[$i % 4];
+                }
+                if ($i % 4 == 0) {
+                    $result .= $unit2[$i / 4];
+                }
+            }
+            return $result ? $result : '영';
         };
 
         // HTML 템플릿 시작
@@ -143,138 +171,206 @@ class OrderPdfGenerator {
         <head>
         <meta charset="utf-8">
         <style>
-            @page { margin: 10mm 8mm 10mm 8mm; }
+            @page { margin: 7mm; }
             @font-face {
                 font-family: 'NotoSansKR';
                 src: url('<?= $fontUrl ?>') format('truetype');
                 font-weight: 400;
                 font-style: normal;
             }
-            html, body { font-family: 'NotoSansKR', sans-serif; font-size: 10pt; color: #111; line-height: 1.5; }
-            table { width: 100%; border-collapse: collapse; font-size: 9pt; }
-            th, td { border: 1px solid #000; padding: 3pt 4pt; vertical-align: middle; }
+            body { font-family: 'NotoSansKR', sans-serif; font-size: 9pt; color: #000; line-height: 1.3; }
+            
+            /* Layout Table */
+            .layout-table { width: 100%; border-collapse: collapse; border: 1px solid #000; margin-bottom: 10pt; }
+            .layout-table td { border: 1px solid #000; padding: 3pt; vertical-align: middle; }
+            
+            /* Left Side (Recipient) */
+            .recipient-cell { width: 40%; vertical-align: top; padding: 10pt; position: relative; }
+            .recipient-name { font-size: 16pt; font-weight: bold; text-align: center; text-decoration: underline; margin-bottom: 15pt; }
+            .order-info { margin-bottom: 3pt; font-size: 10pt; }
+            .delivery-note { margin-top: 20pt; font-weight: bold; text-align: center; }
+            
+            /* Right Side (Supplier) */
+            .supplier-label { background-color: #e0e0e0; text-align: center; font-weight: bold; width: 50pt; white-space: nowrap; font-size: 8pt; }
+            .vertical-header { background-color: #e0e0e0; width: 25pt; text-align: center; font-weight: bold; vertical-align: middle; font-size: 9pt; }
+            .supplier-content { font-size: 8pt; }
+            
+            /* Items Table */
+            .items-table { width: 100%; border-collapse: collapse; margin-top: 5pt; }
+            .items-table th { 
+                background-color: #e0e0e0; 
+                color: #000; 
+                border: 1px solid #ccc; 
+                padding: 3pt;
+                font-weight: bold;
+                text-align: center;
+            }
+            .items-table td { 
+                padding: 3pt;
+                border: 1px solid #eee;
+            }
+            .items-table tr:nth-child(even) { background-color: #f9f9f9; }
+            .items-table tr:last-child td { border-bottom: 1px solid #000; }
+            
+            /* Utils */
             .text-center { text-align: center; }
             .text-right { text-align: right; }
-            .fw700 { font-weight: 700; }
-            /* ... 기존 스타일 ... */
-            .title-section { text-align: center; margin-bottom: 8pt; position: relative; }
-            .title-section h1 { font-size: 18pt; font-weight: 700; margin: 0; padding-bottom: 4pt; letter-spacing: 0.8em; }
-            .title-section::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: #000; }
-            .top-layout { display: table; width: 100%; margin-bottom: 8pt; margin-top: 4pt; }
-            .top-left-cell { display: table-cell; width: 45%; vertical-align: top; padding-right: 10pt; }
-            .top-right-cell { display: table-cell; width: 55%; vertical-align: top; padding-left: 10pt; }
-            .supplier-table th { background: #f2f2f2; text-align: center; }
-            #footer { position: fixed; bottom: -18mm; left: 0; right: 0; height: 8mm; font-size: 8pt; color: #666; text-align: center; border-top: 1px solid #000; padding-top: 4pt; }
+            .text-bold { font-weight: bold; }
         </style>
         </head>
         <body>
-        <div id="footer">경기도 김포시 양촌읍 흥신로 220-27 | TEL: 031-983-8440 | FAX: 031-982-8449</div>
-        
-        <div class="title-section"><h1>발 주 서</h1></div>
-        
-        <?php if ($order_no): ?>
-        <div style="text-align: left; margin-bottom: 6pt; font-size: 9pt;">
-            <strong>NO :</strong> <?= $esc($order_no) ?>
-            <div style="border-bottom: 1px solid #000; margin-top: 4pt; width: 100%;"></div>
-        </div>
-        <?php endif; ?>
 
-        <div class="top-layout">
-            <div class="top-left-cell">
-                <div style="font-size: 12pt; font-weight: 700; margin-bottom: 8pt;"><?= $esc($contact_name ?: '거래처') ?> 貴下</div>
-                <div style="font-size: 9pt; line-height: 1.6;">
-                    <div><strong>발주일자:</strong> <?= $ymdKorean($issue_date) ?></div>
-                    <div><strong>전화번호:</strong> <?= $esc($formatPhone($phone)) ?> 
-                    <?php if ($fax): ?> <strong>팩스번호:</strong> <?= $esc($formatPhone($fax)) ?><?php endif; ?>
-                    </div>
-                    <div style="font-size: 12pt; margin-top: 6pt; font-weight: 600;"><strong>프로젝트/현장명: <?= $esc($project_site) ?></strong></div>
-                </div>
+            <!-- Header Title -->
+            <div style="text-align: center; margin-bottom: 20pt;">
+                <h1 style="font-size: 24pt; font-weight: bold; margin: 0;">발 주 서</h1>
             </div>
-            <div class="top-right-cell">
-                <table class="supplier-table">
-                    <tr>
-                        <th rowspan="5" style="width: 20pt; padding: 4pt 2pt;">발<br>주<br>자</th>
-                        <th>등록번호</th>
-                        <td colspan="3"><?= $esc($business_registration_number ?: '722-88-00035') ?></td>
-                    </tr>
-                    <tr>
-                        <th>상호</th>
-                        <td class="fw700"><?= $esc($supplier_name) ?></td>
-                        <th>성명</th>
-                        <td>소현철 
-                            <?php 
-                            $stampPath = getDocumentRoot() . '/img/miraestamp.png';
-                            if (file_exists($stampPath)) {
-                                $base64 = base64_encode(file_get_contents($stampPath));
-                                echo '<img src="data:image/png;base64,' . $base64 . '" style="width: 20px; height: 20px; vertical-align: middle; margin-left: 4pt;">';
-                            }
-                            ?>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>전화번호</th>
-                        <td><?= $esc($formatPhone($supplier_phone)) ?></td>
-                        <th>팩스번호</th>
-                        <td><?= $esc($formatPhone($supplier_fax)) ?></td>
-                    </tr>
-                    <tr>
-                        <th>주소</th>
-                        <td colspan="3"><?= $esc($supplier_address) ?></td>
-                    </tr>
-                    <tr>
-                        <th>업태</th>
-                        <td><?= $esc($business_type) ?></td>
-                        <th>종목</th>
-                        <td><?= $esc($business_item) ?></td>
-                    </tr>
-                </table>
-            </div>
-        </div>
 
-        <div style="margin: 12pt 0; font-size: 9pt;">
-            <div style="margin-bottom: 6pt;">납기일 내에 인도해 주시기 바랍니다.</div>
-            <div>
-                <span class="fw700" style="margin-right: 8pt;">합계금액:</span>
-                <span class="fw700" style="font-size: 11pt;">일금 <?= $nf($grand_total) ?>원정</span>
-                <span style="font-size: 9pt; margin-left: 4pt;">(부가세포함)</span>
-            </div>
-        </div>
-
-        <?php if (!empty($items)): ?>
-        <table>
-            <thead>
-                <tr style="background: #f5f5f5;">
-                    <th style="width: 5%;">순번</th>
-                    <th style="width: 28%;">품목</th>
-                    <th style="width: 18%;">규격</th>
-                    <th style="width: 7%;">수량</th>
-                    <th style="width: 10%;">단가</th>
-                    <th style="width: 11%;">공급가액</th>
-                    <th style="width: 11%;">세액</th>
-                    <th style="width: 10%;">비고</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php $i = 1; foreach ($items as $item): 
-                    $q = (float)str_replace(',', '', $item['수량'] ?? $item['quantity'] ?? 0);
-                    $p = (float)str_replace(',', '', $item['단가'] ?? $item['unit_price'] ?? 0);
-                    $s = $q * $p;
-                    $t = round($s * 0.1);
-                ?>
+            <!-- Main Layout Table -->
+            <table class="layout-table">
                 <tr>
-                    <td class="text-center"><?= $i++ ?></td>
-                    <td><?= $esc($item['품목'] ?? $item['item_name'] ?? '') ?></td>
-                    <td><?= $esc($item['규격'] ?? $item['spec'] ?? '') ?></td>
-                    <td class="text-right"><?= $q ? $nf($q) : '' ?></td>
-                    <td class="text-right"><?= $p ? $nf($p) : '' ?></td>
-                    <td class="text-right"><?= $s ? $nf($s) : '' ?></td>
-                    <td class="text-right"><?= $t ? $nf($t) : '' ?></td>
-                    <td><?= $esc($item['비고'] ?? $item['remarks'] ?? '') ?></td>
+                    <!-- Left: Recipient Info -->
+                    <td class="recipient-cell">
+                        <div class="recipient-name"><?= $esc($contact_name ?: '거래처') ?> 귀하</div>
+                        <div class="order-info">발주일자 : <?= $ymdKorean($issue_date) ?></div>
+                        <div class="order-info">
+                            전화번호 : <?= $esc($formatPhone($phone)) ?> &nbsp;&nbsp; 
+                            <?php if ($fax): ?>팩스번호 : <?= $esc($formatPhone($fax)) ?><?php endif; ?>
+                        </div>
+                        <div class="delivery-note">납기일 내에 인도해 주시기 바랍니다.</div>
+                    </td>
+
+                    <!-- Right: Supplier Info -->
+                    <td style="padding: 0; border: none; width: 60%; vertical-align: top;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td rowspan="5" class="vertical-header">발<br>주<br>자</td>
+                                <td class="supplier-label">등록번호</td>
+                                <td colspan="3" class="text-center"><?= $esc($business_registration_number ?: '722-88-00035') ?></td>
+                            </tr>
+                            <tr>
+                                <td class="supplier-label">상호</td>
+                                <td class="text-center"><?= $esc($supplier_name) ?></td>
+                                <td class="supplier-label" style="width: 40pt;">성명</td>
+                                <td class="text-center" style="position: relative;">
+                                    소현철
+                                    <?php 
+                                    $stampPath = getDocumentRoot() . '/img/miraestamp.png';
+                                    if (file_exists($stampPath)) {
+                                        $base64 = base64_encode(file_get_contents($stampPath));
+                                        echo '<img src="data:image/png;base64,' . $base64 . '" style="width: 7mm; vertical-align: middle; margin-left: 5pt;">';
+                                    }
+                                    ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="supplier-label">주소</td>
+                                <td colspan="3" class="text-center" style="font-size: 8pt;"><?= $esc($supplier_address) ?></td>
+                            </tr>
+                            <tr>
+                                <td class="supplier-label">업태</td>
+                                <td class="text-center"><?= $esc($business_type) ?></td>
+                                <td class="supplier-label">종목</td>
+                                <td class="text-center"><?= $esc($business_item) ?></td>
+                            </tr>
+                            <tr>
+                                <td class="supplier-label">전화번호</td>
+                                <td class="text-center"><?= $esc($supplier_phone) ?></td>
+                                <td class="supplier-label">팩스번호</td>
+                                <td class="text-center"><?= $esc($supplier_fax) ?></td>
+                            </tr>
+                        </table>
+                    </td>
                 </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-        <?php endif; ?>
+                <!-- Bottom Row: Total & Project -->
+                <tr>
+                    <td colspan="2" style="padding: 0; border-top: 2px solid #000;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="width: 60%; padding: 8pt; border-right: 1px solid #000; font-weight: bold;">
+                                    합계금액 : 일금 <?= $numToKorean($grand_total) ?> 원정 (₩ <?= $nf($grand_total) ?>) (부가세포함)
+                                </td>
+                                <td style="padding: 8pt; font-weight: bold;">
+                                    프로젝트/현장 : <?= $esc($project_site) ?>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+
+            <div style="margin-bottom: 5pt; font-size: 9pt; color: #666;">
+                * 아래와 같이 발주하오니 납기일을 준수하여 주시기 바랍니다.
+            </div>
+
+            <?php if (!empty($items)): ?>
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">No</th>
+                        <th style="width: 35%;">품목명</th>
+                        <th style="width: 15%;">규격</th>
+                        <th style="width: 8%;">수량</th>
+                        <th style="width: 12%;">단가</th>
+                        <th style="width: 12%;">공급가액</th>
+                        <th style="width: 13%;">세액</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php $i = 1; foreach ($items as $item): 
+                        $q = (float)str_replace(',', '', $item['수량'] ?? $item['quantity'] ?? 0);
+                        $p = (float)str_replace(',', '', $item['단가'] ?? $item['unit_price'] ?? 0);
+                        $s = $q * $p;
+                        $t = round($s * 0.1);
+                    ?>
+                    <tr>
+                        <td class="text-center"><?= $i++ ?></td>
+                        <td style="padding-left: 5pt;"><?= $esc($item['품목'] ?? $item['item_name'] ?? '') ?></td>
+                        <td class="text-center"><?= $esc($item['규격'] ?? $item['spec'] ?? '') ?></td>
+                        <td class="text-right" style="padding-right: 5pt;"><?= $q ? $nf($q) : '' ?></td>
+                        <td class="text-right" style="padding-right: 5pt;"><?= $p ? $nf($p) : '' ?></td>
+                        <td class="text-right" style="padding-right: 5pt;"><?= $s ? $nf($s) : '' ?></td>
+                        <td class="text-right" style="padding-right: 5pt;"><?= $t ? $nf($t) : '' ?></td>
+                    </tr>
+                    <?php endforeach; ?>
+                    <!-- 빈 줄 채우기 (옵션) -->
+                    <?php for($k=0; $k<max(0, 10 - count($items)); $k++): ?>
+                    <tr>
+                        <td style="height: 18pt;"></td> <!-- 번호 없음 -->
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <?php endfor; ?>
+                </tbody>
+            </table>
+            <?php endif; ?>
+
+            <!-- Bottom Info Table -->
+            <table class="items-table" style="margin-top: 20pt;">
+                <tr>
+                    <th style="width: 15%;">납기일자</th>
+                    <td style="width: 35%;"><?= $ymdKorean($order['delivery_date'] ?? '') ?></td>
+                    <th style="width: 15%;">납품장소</th>
+                    <td style="width: 35%;"><?= $esc($order['delivery_place'] ?? '') ?></td>
+                </tr>
+                <tr>
+                    <th>유효일자</th>
+                    <td><?= $ymdKorean($order['expiry_date'] ?? '') ?></td>
+                    <th>결제조건</th>
+                    <td><?= $esc($order['payment_terms'] ?? '') ?></td>
+                </tr>
+                <tr>
+                    <th style="height: 60pt;">비 고</th>
+                    <td colspan="3" style="vertical-align: top; text-align: left; padding: 5pt;"><?= nl2br($esc($order['remarks'] ?? '')) ?></td>
+                </tr>
+            </table>
+
+            <div style="text-align: right; margin-top: 5pt; font-size: 9pt;">
+                Print Date : <?= date('Y-m-d H:i') ?>
+            </div>
 
         </body>
         </html>

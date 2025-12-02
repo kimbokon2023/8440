@@ -26,7 +26,9 @@ $indate = $_POST['indate'] ?? '';
 $spec = $_POST['spec'] ?? '';
 $steelnum = $_POST['steelnum'] ?? '';
 $supplier = $_POST['supplier'] ?? '';
+$supplier = $_POST['supplier'] ?? '';
 $request_comment = $_POST['request_comment'] ?? '';
+$cart = $_POST['cart'] ?? 0; // 구매카트 담기 여부
 
 // 타입별 필드 매핑
 if ($type === 'main') {
@@ -73,6 +75,12 @@ try {
             ?, ?, ?, ?, ?, 
             ?, ?, ?, ?, ?,
             ?, ?, ?, ?, ?, ?
+            status, e_title, eworks_item, registdate, author_id, author, cart
+        ) VALUES (
+            ?, ?, ?, ?, ?, 
+            ?, ?, ?, ?, ?, 
+            ?, ?, ?, ?, ?,
+            ?, ?, ?, ?, ?, ?, ?
         )";
         
         $stmt = $pdo->prepare($sql);
@@ -80,7 +88,7 @@ try {
             $which, $outdate, $requestdate, $indate, $outworkplace,
             $steel_item, $spec, $steelnum, $company, $request_comment,
             $model, $first_writer, $supplier, $payment, $inventory,
-            $status, $e_title, $eworks_item, $registdate, $user_id, $user_name
+            $status, $e_title, $eworks_item, $registdate, $user_id, $user_name, $cart
         ]);
         
         // 방금 입력한 ID 가져오기
@@ -100,14 +108,14 @@ try {
         $sql = "UPDATE {$DB}.eworks SET 
             which=?, outdate=?, requestdate=?, indate=?, outworkplace=?, 
             steel_item=?, spec=?, steelnum=?, company=?, request_comment=?, 
-            model=?, supplier=?, payment=?, update_log=?
+            model=?, supplier=?, payment=?, update_log=?, cart=?
             WHERE num=?";
             
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
             $which, $outdate, $requestdate, $indate, $outworkplace,
             $steel_item, $spec, $steelnum, $company, $request_comment,
-            $model, $supplier, $payment, $update_log,
+            $model, $supplier, $payment, $update_log, $cart,
             $num
         ]);
     }

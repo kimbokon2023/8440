@@ -322,8 +322,8 @@ th {
 	/* 모바일에서 불필요한 필드 숨기기 */
 	#myTable td:nth-child(1),  /* 체크박스 */
 	#myTable td:nth-child(2),  /* 번호 */
-	#myTable td:nth-child(4),  /* 납기 */
-	#myTable td:nth-child(6),  /* 구매카트 */
+	#myTable td:nth-child(4),  /* 구매카트 */
+	#myTable td:nth-child(5),  /* 납기 */
 	#myTable td:nth-child(7),  /* 완료일 */
 	#myTable td:nth-child(9),  /* 진행상태 */
 	#myTable td:nth-child(10), /* 이관 */
@@ -1046,9 +1046,9 @@ $BigsearchTag = $_REQUEST["BigsearchTag"] ?? '';
 			</th>
             <th class=" text-center" style="width:4%;" >번호</th>
             <th class=" text-center" style="width:6%;" > 접수 </th>    
+            <th class=" text-center" style="width:6%;"> 구매카트 </th>     
             <th class=" text-center" style="width:5%;"> 납기</th>   
             <th class=" text-center" style="width:5%;"> 결재 </th>     
-            <th class=" text-center" style="width:6%;"> 구매카트 </th>     
             <th class=" text-center" style="width:5%;"> 완료일 </th>     <!-- 완료일 -->
             <th class=" text-center" style="width:5%;"> 요청인 </th>     
             <th class=" text-center" style="width:5%;"> 진행상태 </th>     
@@ -1146,6 +1146,16 @@ try {
 	</td>
     <td class="text-center" data-label="번호"><?= $start_num ?></td>
     <td class="<?= $date_font ?> text-center" data-label="접수" data-order="<?= $outdate ?>"><?= iconv_substr($outdate, 0, 15, "utf-8") ?></td>
+    <td class="text-center" data-label="구매카트">
+        <?php
+        $cart_value = $cart ?? 0;
+        if ($cart_value == 1) {
+            echo '<span class="badge bg-primary"><i class="bi bi-cart-check"></i> 담김</span>';
+        } else {
+            echo '&nbsp;';
+        }
+        ?>
+    </td>
     <td class="<?= $date_font ?> text-center" data-label="납기" data-order="<?= $requestdate ?>"><?= iconv_substr($requestdate, 5, 9, "utf-8") ?></td>
     <td class="text-center<?php if ($status === 'ing') echo ' text-primary blink'; ?>" data-label="결재"><?= $statusstr ?> &nbsp;</td>
     <style>
@@ -1158,16 +1168,6 @@ try {
         animation: blink 1s linear infinite;
     }
     </style>
-    <td class="text-center" data-label="구매카트">
-        <?php
-        $cart_value = $cart ?? 0;
-        if ($cart_value == 1) {
-            echo '<span class="badge bg-primary"><i class="bi bi-cart-check"></i> 담김</span>';
-        } else {
-            echo '&nbsp;';
-        }
-        ?>
-    </td>
     <td class="text-center" data-label="완료일" data-order="<?= $indate ?>"><?= iconv_substr($indate, 5, 9, "utf-8") ?></td>
     <td class="text-center" data-label="요청인"><?= $tmpStr ?></td>
     <td class="<?= $font_state ?> text-center" data-label="진행상태"><?= $tmp_word ?></td>

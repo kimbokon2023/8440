@@ -58,7 +58,7 @@ if (!empty($cart_items_param)) {
         $sql = "SELECT * FROM {$DB}.eworks 
                 WHERE num IN ({$placeholders}) 
                 AND is_deleted IS NULL 
-                AND eworks_item = '원자재구매'
+                AND eworks_item IN ('원자재구매', '부자재구매')
                 ORDER BY num ASC";
         
         try {
@@ -617,7 +617,7 @@ body.iframe-mode .btn-primary:hover {
                             } else {
                                 echo $order_data ? htmlspecialchars($order_data['project_site'] ?? '') : '';
                             }
-                        ?>" placeholder="프로젝트/현장명을 입력하세요">
+                        ?>" placeholder="프로젝트/현장명을 입력하세요" autocomplete="off">
                     </div>
                     <div class="info-label colspan-1">거래처명</div>
                     <div class="info-value colspan-3" style="display: flex; gap: 0.5rem; align-items: center;">
@@ -628,14 +628,14 @@ body.iframe-mode .btn-primary:hover {
                             } else {
                                 echo $order_data ? htmlspecialchars($order_data['contact_name'] ?? '') : '';
                             }
-                        ?>" placeholder="거래처명을 입력하세요" style="flex: 1;">
+                        ?>" placeholder="거래처명을 입력하세요" style="flex: 1;" autocomplete="off">
                         <button type="button" class="btn btn-sm btn-primary" id="searchCustomerBtn" style="white-space: nowrap;">
                             <i class="bi bi-search"></i> 검색
                         </button>
                     </div>
                     <div class="info-label">발주일자</div>
                     <div class="info-value">
-                        <input type="date" name="issue_date" value="<?php echo $order_data ? ($order_data['issue_date'] ?? date('Y-m-d')) : date('Y-m-d'); ?>" required>
+                        <input type="date" name="issue_date" value="<?php echo $order_data ? ($order_data['issue_date'] ?? date('Y-m-d')) : date('Y-m-d'); ?>" required autocomplete="off">
                     </div>
                     <div class="info-label">진행상태</div>
                     <div class="info-value">
@@ -649,15 +649,15 @@ body.iframe-mode .btn-primary:hover {
                     </div>
                     <div class="info-label">전화번호</div>
                     <div class="info-value">
-                        <input type="text" name="phone" value="<?php echo $order_data ? htmlspecialchars($order_data['phone'] ?? '') : ''; ?>" placeholder="전화번호">
+                        <input type="text" name="phone" value="<?php echo $order_data ? htmlspecialchars($order_data['phone'] ?? '') : ''; ?>" placeholder="전화번호" autocomplete="off">
                     </div>
                     <div class="info-label">팩스번호</div>
                     <div class="info-value">
-                        <input type="text" name="fax" value="<?php echo $order_data ? htmlspecialchars($order_data['fax'] ?? '') : ''; ?>" placeholder="팩스번호">
+                        <input type="text" name="fax" value="<?php echo $order_data ? htmlspecialchars($order_data['fax'] ?? '') : ''; ?>" placeholder="팩스번호" autocomplete="off">
                     </div>
                     <div class="info-label">사업자번호</div>
                     <div class="info-value">
-                        <input type="text" name="business_registration_number" id="business_registration_number" value="<?php echo $order_data ? htmlspecialchars($order_data['business_registration_number'] ?? '') : ''; ?>" placeholder="사업자등록번호">
+                        <input type="text" name="business_registration_number" id="business_registration_number" value="<?php echo $order_data ? htmlspecialchars($order_data['business_registration_number'] ?? '') : ''; ?>" placeholder="사업자등록번호" autocomplete="off">
                     </div>
                     <div class="info-label" style="border-bottom: none;">합계금액</div>
                     <div class="info-value" style="border-bottom: none;">
@@ -841,9 +841,14 @@ foreach ($cart_items_data as $item):
     $supply_amount = $quantity * $unit_price;
     $tax = round($supply_amount * 0.1);
     
+    $item_name = $item['steel_item'];
+    if ($item['eworks_item'] == '부자재구매' && empty($item_name)) {
+        $item_name = $item['outworkplace'];
+    }
+
     $cart_order_items[] = [
         '순번' => $index,
-        '품목' => $item['steel_item'] ?? '',
+        '품목' => $item_name ?? '',
         '규격' => $item['spec'] ?? '',
         '수량' => $quantity,
         '단가' => $unit_price,
@@ -917,7 +922,20 @@ document.addEventListener('DOMContentLoaded', function() {
                  input.type = "text";
                  input.style.width = "100%";
                  input.style.padding = "4px";
-                 input.value = cell.getValue() || '';
+                 // 초기값 포맷팅
+                 var initialValue = cell.getValue();
+                 input.value = initialValue ? Number(initialValue).toLocaleString() : '';
+                 
+                 // 입력 시 동적 포맷팅
+                 input.addEventListener("input", function() {
+                     var value = input.value.replace(/[^\d]/g, ''); // 숫자만 남김
+                     if (value) {
+                         input.value = Number(value).toLocaleString();
+                     } else {
+                         input.value = '';
+                     }
+                 });
+
                  input.addEventListener("blur", function() {
                      var value = input.value.replace(/,/g, '');
                      var numValue = parseFloat(value) || 0;
@@ -934,7 +952,7 @@ document.addEventListener('DOMContentLoaded', function() {
                  });
                  onRendered(function() {
                      input.focus();
-                     input.select();
+                     // input.select(); // 포맷팅된 상태에서는 select가 불편할 수 있음 (선택사항)
                  });
                  return input;
              },
@@ -1610,7 +1628,7 @@ window.onload = function() {
         // 거래처 선택 함수
         function selectCustomer(customer) {
             document.getElementById('contact_name').value = customer.company_name || '';
-            document.getElementById('business_registration_number').value = customer.business_registration_number || '';
+            document.getElementById('business_registration_number').value = formatBizNumber(customer.business_registration_number || '');
             
             // 거래처 ID 설정 (hidden input)
             var customerIdInput = document.getElementById('customer_id');
@@ -1619,12 +1637,136 @@ window.onload = function() {
             }
 
             var phoneInput = document.querySelector('input[name="phone"]');
-            if (phoneInput) phoneInput.value = customer.phone_number || '';
+            if (phoneInput) phoneInput.value = formatPhoneNumber(customer.phone_number || '');
             
             var faxInput = document.querySelector('input[name="fax"]');
-            if (faxInput) faxInput.value = customer.fax_number || '';
+            if (faxInput) faxInput.value = formatPhoneNumber(customer.fax_number || '');
             
             customerSearchModal.hide();
+        }
+    </script>
+    <script>
+        // 전화번호 포맷팅 함수
+        function formatPhoneNumber(value) {
+            if (!value) return '';
+            value = value.replace(/[^0-9]/g, '');
+            
+            if (value.length < 4) {
+                return value;
+            } else if (value.length < 7) {
+                return value.substr(0, 3) + '-' + value.substr(3);
+            } else if (value.length < 11) {
+                if (value.substr(0, 2) === '02') {
+                    if (value.length < 10) {
+                        return value.substr(0, 2) + '-' + value.substr(2, 3) + '-' + value.substr(5);
+                    } else {
+                        return value.substr(0, 2) + '-' + value.substr(2, 4) + '-' + value.substr(6);
+                    }
+                } else {
+                    return value.substr(0, 3) + '-' + value.substr(3, 3) + '-' + value.substr(6);
+                }
+            } else {
+                if (value.substr(0, 2) === '02') {
+                    return value.substr(0, 2) + '-' + value.substr(2, 4) + '-' + value.substr(6);
+                } else {
+                    return value.substr(0, 3) + '-' + value.substr(3, 4) + '-' + value.substr(7);
+                }
+            }
+        }
+
+        // 사업자번호 포맷팅 함수
+        function formatBizNumber(value) {
+            if (!value) return '';
+            value = value.replace(/[^0-9]/g, '');
+            
+            if (value.length < 4) {
+                return value;
+            } else if (value.length < 6) {
+                return value.substr(0, 3) + '-' + value.substr(3);
+            } else if (value.length < 11) {
+                return value.substr(0, 3) + '-' + value.substr(3, 2) + '-' + value.substr(5);
+            } else {
+                return value.substr(0, 3) + '-' + value.substr(3, 2) + '-' + value.substr(5);
+            }
+        }
+
+        // 입력 필드에 포맷팅 적용
+        document.addEventListener('DOMContentLoaded', function() {
+            const phoneInput = document.querySelector('input[name="phone"]');
+            const faxInput = document.querySelector('input[name="fax"]');
+            const bizNumInput = document.querySelector('input[name="business_registration_number"]');
+
+            function applyPhoneFormat(e) {
+                e.target.value = formatPhoneNumber(e.target.value);
+            }
+
+            function applyBizFormat(e) {
+                e.target.value = formatBizNumber(e.target.value);
+            }
+
+            if (phoneInput) {
+                phoneInput.addEventListener('input', applyPhoneFormat);
+                phoneInput.value = formatPhoneNumber(phoneInput.value); // 초기값 포맷팅
+            }
+            if (faxInput) {
+                faxInput.addEventListener('input', applyPhoneFormat); // 팩스도 전화번호 형식 사용
+                faxInput.value = formatPhoneNumber(faxInput.value); // 초기값 포맷팅
+            }
+            if (bizNumInput) {
+                bizNumInput.addEventListener('input', applyBizFormat);
+                bizNumInput.value = formatBizNumber(bizNumInput.value); // 초기값 포맷팅
+            }
+
+            // 거래처명 입력 후 포커스 아웃 시 자동 검색
+            const contactNameInput = document.getElementById('contact_name');
+            if (contactNameInput) {
+                contactNameInput.addEventListener('blur', function() {
+                    const searchTerm = this.value.trim();
+                    if (searchTerm) {
+                        fetchCustomerInfo(searchTerm);
+                    }
+                });
+
+                // 페이지 로드 1초 후 거래처명이 있으면 자동 검색 (구매카트 연동 시 유용)
+                setTimeout(function() {
+                    const initialSearchTerm = contactNameInput.value.trim();
+                    if (initialSearchTerm) {
+                        fetchCustomerInfo(initialSearchTerm);
+                    }
+                }, 1000);
+            }
+        });
+
+        // 거래처 정보 자동 가져오기
+        function fetchCustomerInfo(searchTerm) {
+            fetch('/corp/search_customers.php?q=' + encodeURIComponent(searchTerm))
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.customers && data.customers.length > 0) {
+                        // 정확히 일치하는 거래처 찾기
+                        const exactMatch = data.customers.find(customer => customer.company_name === searchTerm);
+                        
+                        if (exactMatch) {
+                            // 정확히 일치하는 거래처가 있으면 자동 선택
+                            selectCustomer(exactMatch);
+                            
+                            // 알림 표시 (선택사항)
+                            Toastify({
+                                text: "거래처 정보를 불러왔습니다.",
+                                duration: 2000,
+                                close: true,
+                                gravity: "top",
+                                position: "center",
+                                style: {
+                                    background: "linear-gradient(to right, #00b09b, #96c93d)",
+                                }
+                            }).showToast();
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('거래처 정보 가져오기 오류:', error);
+                });
         }
     </script>
 </body>

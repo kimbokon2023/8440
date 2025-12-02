@@ -430,6 +430,7 @@ require_once getDocumentRoot() . '/load_GoogleDriveSecond.php'; // attached, ima
 		<div class="col-sm-9">		   
 			<div class="d-flex  mb-1 justify-content-start  align-items-center"> 		   
 				<button id="saveBtn" type="button" class="btn btn-dark  btn-sm me-2"  > <i class="bi bi-floppy"></i> 저장  </button> 
+				<button id="cartBtn" type="button" class="btn btn-primary btn-sm me-2"> <i class="bi bi-cart-plus"></i> 구매카트 담기 </button>
 			</div> 			
 		</div> 	
 		<div class="col-sm-3">	
@@ -690,6 +691,34 @@ $(document).ready(function(){
 		}
 	});
 
+	$("#cartBtn").click(function(){ 
+		// 필요한 값 설정
+		$('#steelitem').val($('#steel_item').val());
+		$('#steelspec').val($('#spec').val());
+		$('#steeltake').val($('#company').val());
+		
+		// 조건 확인
+		if($("#outworkplace").val() === '' || $("#steelnum").val()  === '' ) {
+			showWarningModal();
+		} else {
+		   showMsgModal(2); // 파일저장중
+			Toastify({
+				text: "구매카트에 담는 중...",
+				duration: 2000,
+				close:true,
+				gravity:"top",
+				position: "center",
+				style: {
+					background: "linear-gradient(to right, #00b09b, #96c93d)"
+				},
+			}).showToast();	
+			setTimeout(function(){
+					 saveData(true); // isCart = true
+			}, 1000);
+		  
+		}
+	});
+
 	function showWarningModal() {
 		Swal.fire({                                    
 			title: '등록 오류 알림',
@@ -703,7 +732,7 @@ $(document).ready(function(){
 		});
 	}
 
-	function saveData() {
+	function saveData(isCart = false) {
 		
 		var num = $("#num").val();  
 		
@@ -715,6 +744,10 @@ $(document).ready(function(){
 		// 폼데이터 전송시 사용함 Get form         
 		var form = $('#board_form')[0];  	    	
 		var datasource = new FormData(form); 
+		
+		if (isCart) {
+			datasource.append('cart', 1);
+		} 
 
 		// console.log(data);
 		if (ajaxRequest !== null) {
@@ -732,9 +765,10 @@ $(document).ready(function(){
 			dataType: "json", 
 			success : function(data){
 				  // console.log('data :' , data);
+				  var msg = isCart ? '구매카트에 담겼습니다.' : '데이터가 성공적으로 등록되었습니다.';
 				  Swal.fire(
-					  '자료등록 완료',
-					  '데이터가 성공적으로 등록되었습니다.',
+					  '완료',
+					  msg,
 					  'success'
 					);
 				setTimeout(function(){									

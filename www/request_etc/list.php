@@ -837,6 +837,9 @@ $dateCon =" AND between date('$fromdate') and date('$Transtodate') " ;
 				<button type="button" id="searchBtn" class="btn btn-dark  btn-sm mx-1 "  > <i class="bi bi-search"></i>  </button>
 				<button type="button" class="btn btn-dark  btn-sm mx-1" id="writeBtn"> <i class="bi bi-pencil-fill"></i> 신규  </button> 	     
 				<button  type="button" id="rawmaterialBtn"  class="btn btn-dark btn-sm mx-1" > <i class="bi bi-list"></i> 재고 </button>
+				<button type="button" class="btn btn-primary btn-sm mx-1" onclick="addToCart()">
+					<i class="bi bi-cart-plus"></i> 구매카트 담기
+				</button>
 			</div>
 		</div>
       </div>	
@@ -844,18 +847,46 @@ $dateCon =" AND between date('$fromdate') and date('$Transtodate') " ;
 	th {
 		white-space: nowrap;
 	}
+	/* 체크박스 스타일 */
+	.row-checkbox {
+		cursor: pointer;
+	}
 	</style>		  
+<!-- 발주서 작성 모달 -->
+<div class="modal fade" id="orderWriteModal" tabindex="-1" aria-labelledby="orderWriteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width: 95%; height: 95%;">
+        <div class="modal-content" style="height: 100%;">
+            <div class="modal-header bg-primary text-white py-2">
+                <h5 class="modal-title fs-6" id="orderWriteModalLabel">
+                    <i class="bi bi-cart-check"></i> 구매카트에서 발주서 작성
+                </h5>
+                <div>
+                    <button type="button" class="btn btn-success btn-sm me-1" onclick="iframeSaveOrderFromCart()">저장</button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="iframeCancelOrderFromCart()">취소</button>
+                    <button type="button" class="btn-close btn-close-white ms-2" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+            </div>
+            <div class="modal-body p-0" style="height: calc(100% - 50px); overflow: hidden;">
+                <iframe id="orderWriteIframe" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>		  
 <div class="card mb-2">
 <div class="card-body">	  	  
    <div class="table-responsive"> 	
    <table class="table table-hover " id="myTable">
     <thead class="table-primary">
       <tr>
+        <th class="text-center" scope="col" style="width:40px;">
+            <input type="checkbox" id="checkAll" onclick="toggleAll(this)">
+        </th>
         <th class="text-center" scope="col" style="width:4%;">번호</th>
         <th class="text-center" scope="col" style="width:80px;">접수 </th>
 		<th class=" text-center" style="width:4%;">  납기</th>   
 		<th class=" text-center" style="width:4%;">  완료 </th>     <!-- 완료일 -->		
         <th class="text-center" scope="col"> 진행상태 </th>
+        <th class="text-center" scope="col"> 구매카트 </th>
         <th class="text-center" scope="col"> 요청인</th>
         <th class="text-center" scope="col"> 구매 물품명</th>
         <th class="text-center" scope="col"> 규격</th>        
@@ -885,6 +916,9 @@ $dateCon =" AND between date('$fromdate') and date('$Transtodate') " ;
 		
 		echo '<tr style="cursor:pointer;" data-id="'.  $num . '" onclick="redirectToView(' . $num . ')">';
       ?>
+          <td class="text-center" onclick="event.stopPropagation()">
+              <input type="checkbox" class="row-checkbox" value="<?= $num ?>">
+          </td>
 		  <td class="text-center" data-label="번호"><?= $start_num ?></td>
             <?php				
 				// DateTime 객체 생성
@@ -941,6 +975,12 @@ $dateCon =" AND between date('$fromdate') and date('$Transtodate') " ;
 			
 		  <td class="text-center <?= $font_state ?>" data-label="진행상태"><?= $tmp_word ?></td>
 		  
+          <td class="text-center" data-label="구매카트">
+              <?php if (isset($cart) && $cart == 1): ?>
+                  <span class="badge bg-primary"><i class="bi bi-cart-check"></i> 담김</span>
+              <?php endif; ?>
+          </td>
+
           <td class="text-center" data-label="요청인">
 		   <?php
 				$pattern = "/^[가-힣]+/";
@@ -997,6 +1037,10 @@ var requestetcpageNumber; // 현재 페이지 번호 저장을 위한 전역 변
 $(document).ready(function() {			
     // DataTables 초기 설정
     dataTable = $('#myTable').DataTable({
+        "order": [], // 초기 정렬 비활성화 (서버 정렬 사용)
+        "columnDefs": [
+            { "orderable": false, "targets": 0 } // 체크박스 컬럼 정렬 비활성화
+        ],
         "paging": true,
         "ordering": true,
         "searching": true,
@@ -1176,6 +1220,155 @@ function redirectToView(num) {
 $(document).ready(function(){
 	saveLogData('부자재 구매'); // 다른 페이지에 맞는 menuName을 전달
 });
+
+// 전체 선택/해제
+function toggleAll(source) {
+    var checkboxes = document.querySelectorAll('.row-checkbox');
+    for(var i=0; i<checkboxes.length; i++) {
+        checkboxes[i].checked = source.checked;
+    }
+}
+
+// 구매카트 담기 (모달 열기)
+function addToCart() {
+    var checkboxes = document.querySelectorAll('.row-checkbox:checked');
+    var nums = [];
+    
+    if(checkboxes.length === 0) {
+        Swal.fire('알림', '선택된 항목이 없습니다.', 'warning');
+        return;
+    }
+
+    checkboxes.forEach(function(checkbox) {
+        nums.push(checkbox.value);
+    });
+
+    // 모달 열기 (발주서 작성 화면)
+    openOrderWriteModal(nums);
+}
+
+// 발주서 작성 모달 열기
+function openOrderWriteModal(itemNums) {
+    var modalElement = document.getElementById('orderWriteModal');
+    if (!modalElement) {
+        console.error('orderWriteModal 요소를 찾을 수 없습니다.');
+        return;
+    }
+
+    var orderWriteModal = new bootstrap.Modal(modalElement, {
+        backdrop: 'static',
+        keyboard: true
+    });
+
+    var iframe = document.getElementById('orderWriteIframe');
+    if (!iframe) {
+        console.error('orderWriteIframe 요소를 찾을 수 없습니다.');
+        return;
+    }
+
+    // 체크된 항목의 num을 콤마로 구분하여 전달
+    var cartItems = itemNums.join(',');
+    var iframeUrl = '../orders/write_form.php?iframe=1&cart_items=' + encodeURIComponent(cartItems);
+
+    iframe.src = iframeUrl;
+    
+    // 모달 메시지 리스너 설정
+    ensureIframeMessageListenerForCart();
+    
+    orderWriteModal.show();
+}
+
+// iframe에서 메시지를 받는 리스너 (구매카트 모달용)
+function ensureIframeMessageListenerForCart() {
+    if (window.iframeMessageListenerForCartRegistered) {
+        return;
+    }
+    
+    window.addEventListener('message', function(event) {
+        // 보안: 같은 출처에서 온 메시지만 처리
+        if (event.origin !== window.location.origin) {
+            return;
+        }
+        
+        var message = event.data;
+        if (message && message.scope === 'orderModule') {
+            if (message.type === 'orderSaved') {
+                // 발주서 저장 완료
+                Swal.fire('성공', message.payload.message || '발주서가 저장되었습니다.', 'success').then(() => {
+                    var modalElement = document.getElementById('orderWriteModal');
+                    if (modalElement) {
+                        var modal = bootstrap.Modal.getInstance(modalElement);
+                        if (modal) {
+                            modal.hide();
+                        }
+                    }
+                    location.reload();
+                });
+            } else if (message.type === 'orderCanceled') {
+                // 발주서 작성 취소
+                var modalElement = document.getElementById('orderWriteModal');
+                if (modalElement) {
+                    var modal = bootstrap.Modal.getInstance(modalElement);
+                    if (modal) {
+                        modal.hide();
+                    }
+                }
+            }
+        }
+    });
+    
+    window.iframeMessageListenerForCartRegistered = true;
+}
+
+// iframe 내부의 저장 함수 호출
+window.iframeSaveOrderFromCart = function() {
+    var iframe = document.getElementById('orderWriteIframe');
+    if (iframe && iframe.contentWindow) {
+        try {
+            // iframe 내부의 saveOrder 함수 호출
+            if (typeof iframe.contentWindow.saveOrder === 'function') {
+                iframe.contentWindow.saveOrder();
+            } else {
+                alert('저장 기능을 사용할 수 없습니다.');
+            }
+        } catch (e) {
+            console.error('저장 함수 호출 오류:', e);
+            alert('저장 중 오류가 발생했습니다.');
+        }
+    }
+};
+
+// iframe 내부의 취소 함수 호출
+window.iframeCancelOrderFromCart = function() {
+    var iframe = document.getElementById('orderWriteIframe');
+    if (iframe && iframe.contentWindow) {
+        try {
+            // iframe 내부의 cancelOrder 함수 호출
+            if (typeof iframe.contentWindow.cancelOrder === 'function') {
+                iframe.contentWindow.cancelOrder();
+            } else {
+                // 함수가 없으면 모달만 닫기
+                var modalElement = document.getElementById('orderWriteModal');
+                if (modalElement) {
+                    var modal = bootstrap.Modal.getInstance(modalElement);
+                    if (modal) {
+                        modal.hide();
+                    }
+                }
+            }
+        } catch (e) {
+            console.error('취소 함수 호출 오류:', e);
+            // 오류 발생 시에도 모달 닫기
+            var modalElement = document.getElementById('orderWriteModal');
+            if (modalElement) {
+                var modal = bootstrap.Modal.getInstance(modalElement);
+                if (modal) {
+                    modal.hide();
+                }
+            }
+        }
+    }
+};
 </script> 
 </body>
 </html>

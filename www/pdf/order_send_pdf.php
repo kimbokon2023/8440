@@ -8,7 +8,13 @@ require_once __DIR__ . '/../lib/OrderPdfGenerator.php';
 // ------------------------- 입력값 -------------------------
 $id = $_GET['id'] ?? 0;
 $id = (int)$id;
+$id = (int)$id;
 $download = $_GET['download'] ?? 1;
+$preview = $_GET['preview'] ?? 0;
+
+if ($preview) {
+    $download = 0;
+}
 $download = (int)$download;
 
 if ($id <= 0) {

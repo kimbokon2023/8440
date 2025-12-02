@@ -1367,6 +1367,7 @@ a:hover {
                 <button type="button" class="btn btn-info text-white" id="modalEmailBtn">
                     <i class="fas fa-envelope"></i> Email 전송
                 </button>
+                <button type="button" class="btn btn-success" id="modalPdfPreviewBtn"><i class="fas fa-eye"></i> PDF 미리보기</button>
                 <button type="button" class="btn btn-success" id="modalPdfBtn">
                     <i class="fas fa-file-pdf"></i> PDF 저장
                 </button>
@@ -2014,6 +2015,24 @@ a:hover {
             e.stopPropagation();
             console.log('수정하기 버튼 클릭');
             editOrder();
+        });
+    }
+
+    // PDF 미리보기 버튼 이벤트 리스너
+    var modalPdfPreviewBtn = document.getElementById('modalPdfPreviewBtn');
+    if (modalPdfPreviewBtn) {
+        modalPdfPreviewBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('PDF 미리보기 버튼 클릭');
+            
+            if (!currentOrderId) {
+                alert('발주서 ID를 찾을 수 없습니다.');
+                return;
+            }
+            
+            // PDF 미리보기 (새 창)
+            window.open('../pdf/order_send_pdf.php?id=' + encodeURIComponent(currentOrderId) + '&preview=1', '_blank');
         });
     }
 

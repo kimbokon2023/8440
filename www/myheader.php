@@ -91,7 +91,7 @@ if (!isset($chkMobile)) {
 	<?php } ?>	
   
 <div class="row d-flex align-items-center header-row" style="margin: 0; padding: 8px 0;">
-    <div class="col-4 col-sm-2 d-flex flex-column align-items-center header-logo-col" style="padding: 0 8px;">
+<div class="col-4 col-sm-2 d-flex align-items-center justify-content-start header-logo-col" style="padding-left: 25px; padding-right: 8px;">
 		<a href="<?= $root_dir ?>/index.php" class="d-flex align-items-center header-logo-link" style="height: 100%;">
 			<?php //<img class="img-fluid" src="<?$root_dir /img/companylogo.jpg"> ?>
 			<img src="<?= $root_dir ?>/img/mirae_logo.png" class="header-logo-img" style="width:100%; max-width: 120px; height: auto; object-fit: contain;">
@@ -336,10 +336,13 @@ if (!isset($chkMobile)) {
                 </a>								
 				<div class="dropdown-menu">
 					<a class="dropdown-item" href="<?=$root_dir?>/integratedordering/list.php">
-						<i class="bi bi-clipboard-check"></i> 구매(통합형 개발중)
+						<i class="bi bi-clipboard-check"></i> 구매(통합)
 					</a>    										
 					<a class="dropdown-item" href="<?=$root_dir?>/orders/index.php">
 						<i class="bi bi-clipboard-check"></i> 발주 리스트
+					</a>    										
+					<a class="dropdown-item" href="<?=$root_dir?>/send_email_list/index.php">
+						<i class="bi bi-clipboard-check"></i> 이메일전송 리스트 
 					</a>    										
 					<a class="dropdown-item" href="<?=$root_dir?>/corp/index.php">
 						<i class="bi bi-building"></i> 거래처 관리
@@ -849,8 +852,10 @@ if (!isset($chkMobile)) {
 				</h2>
 				<div id="collapsePurchase" class="accordion-collapse collapse" data-bs-parent="#mobileMenuAccordion">
 					<div class="accordion-body p-0">
+						<a href="<?=$root_dir?>/integratedordering/list.php" class="mobile-sub-link"><i class="bi bi-clipboard-check"></i> 구매(통합)</a>
 						<a href="<?=$root_dir?>/orders/index.php" class="mobile-sub-link"><i class="bi bi-clipboard-check"></i> 발주 리스트</a>
 						<a href="<?=$root_dir?>/corp/index.php" class="mobile-sub-link"><i class="bi bi-building"></i> 거래처 관리</a>
+						<a href="<?=$root_dir?>/send_email_list/index.php" class="mobile-sub-link"><i class="bi bi-clipboard-check"></i> 이메일전송 리스트 </a>						
 						<a href="<?=$root_dir?>/askitem/list.php" class="mobile-sub-link"><i class="bi bi-basket3"></i> 품의서</a>
 						<a href="<?=$root_dir?>/request/list.php" class="mobile-sub-link"><i class="bi bi-cart-check"></i> 원자재 구매/입출고</a>
 						<a href="<?=$root_dir?>/steel/list.php" class="mobile-sub-link"><i class="bi bi-box-arrow-up-right"></i> 원자재 출고</a>
@@ -861,6 +866,7 @@ if (!isset($chkMobile)) {
 						<a href="<?=$root_dir?>/make/list.php" class="mobile-sub-link"><i class="bi bi-bag-check"></i> 도장발주</a>
 						<a href="<?=$root_dir?>/delivery/list.php" class="mobile-sub-link"><i class="bi bi-truck"></i> 화물/택배 배송</a>
 						<a href="<?=$root_dir?>/afterorder/index.php" class="mobile-sub-link"><i class="bi bi-cup-straw"></i> 중식석식 주문</a>
+						<a href="<?=$root_dir?>/oem/list.php" class="mobile-sub-link"><i class="bi bi-exclamation-triangle-fill"></i> 구 서한(NP)-이전메뉴</a>
 					</div>
 				</div>
 			</div>
@@ -908,7 +914,7 @@ if (!isset($chkMobile)) {
 						<a href="<?=$root_dir?>/safety/sif/list.php" class="mobile-sub-link"><i class="bi bi-qr-code-scan"></i> 핵심위험요인SIF 평가표</a>
 					</div>
 				</div>
-			</div>
+			</div> 
 
 			<!-- 연구소/개발 -->
 			<div class="accordion-item">
