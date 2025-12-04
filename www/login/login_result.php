@@ -71,7 +71,8 @@ history.back();
     $_SESSION["eworks_level"]=$row["eworks_level"];	
     $_SESSION["position"]=$row["position"];	
     $_SESSION["hp"]=$row["hp"];	
-    $_SESSION["DB"]=$DB ;
+    $_SESSION["DB"]=$DB;
+    $_SESSION["LAST_ACTIVITY"]=time();  // 로그인 시 마지막 활동 시간 설정
 	
  	
 $data=date("Y-m-d H:i:s") . " - " . $_SESSION["userid"] . " - " . $_SESSION["name"] ;	

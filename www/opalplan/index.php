@@ -123,7 +123,7 @@
     <nav class="bg-white border-b border-stone-200 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
-                <div class="flex items-center">
+                <div class="flex items-center cursor-pointer" onclick="window.location.href='../index2.php'" title="홈 이동">
                     <span class="text-2xl mr-2">🏗️</span>
                     <span class="font-bold text-base md:text-xl tracking-tight text-stone-800">Opal Elevator Research</span>
                 </div>

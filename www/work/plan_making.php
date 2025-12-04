@@ -28,10 +28,8 @@ include getDocumentRoot() . '/load_header.php';
  </head>
  
 
- <?php 
- 
-  // 기간을 정하는 구간
- 
+ <?php  
+  // 기간을 정하는 구간 
 $todate=date("Y-m-d");   // 현재일자 변수지정   
 
 $common=" where  (date(endworkday)>=date(now())) and (deadline='') order by endworkday asc, work_order asc ";  // 생산예정일이 현재일보다 클때 조건

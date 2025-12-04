@@ -1,6 +1,6 @@
 <?php
 // 로컬/서버 환경 설정
-$is_local = (isset($_SERVER['HTTP_HOST']) && (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false));
+$is_local = (isset($_SERVER['HTTP_HOST']) && (strpos($_SERVER['HTTP_HOST']) !== false || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false));
 $base_url = $is_local ? 'http://localhost/mirae8440/www' : 'http://8440.co.kr';
 
 // 메모리 & 타임아웃 (최상단)
@@ -8,11 +8,11 @@ $base_url = $is_local ? 'http://localhost/mirae8440/www' : 'http://8440.co.kr';
 @set_time_limit(120);
 
 // /pdf/estimate_pdf.php (PHP 7.3)
-require_once getDocumentRoot() . '/session.php';
-require_once getDocumentRoot() . '/lib/mydb.php';
+require_once dirname(__DIR__) . '/session.php';
+require_once dirname(__DIR__) . '/lib/mydb.php';
 
 // Dompdf 오토로드 (_dompdf 격리 설치)
-$dompdfAutoload = getDocumentRoot() . '/_dompdf/vendor/autoload.php';
+$dompdfAutoload = dirname(__DIR__) . '/_dompdf/vendor/autoload.php';
 if (!is_file($dompdfAutoload)) {
     http_response_code(500);
     exit('Dompdf autoload를 찾을 수 없습니다. _dompdf/vendor/autoload.php 경로를 확인하세요.');
@@ -54,6 +54,7 @@ if (!$estimate) {
 // JSON 파싱
 $items = !empty($estimate['items']) ? json_decode($estimate['items'], true) : [];
 $other_costs = !empty($estimate['other_costs']) ? json_decode($estimate['other_costs'], true) : [];
+$notices = !empty($estimate['notices']) ? json_decode($estimate['notices'], true) : [];
 
 // 기본 정보
 $recipient = $estimate['recipient'] ?? '';
@@ -114,6 +115,7 @@ foreach ($other_costs as $c) {
 }
 
 // 할인(상품)
+$discount_items = $discount_items ?? [];
 foreach ($discount_items as $it) {
     $supply = (float)str_replace(',', '', $it['supply_amount'] ?? 0);
     $tax = (float)str_replace(',', '', $it['tax_amount'] ?? 0);
@@ -121,6 +123,7 @@ foreach ($discount_items as $it) {
     $discount_tax -= $tax;
 }
 // 할인(기타비용)
+$discount_other_costs = $discount_other_costs ?? [];
 foreach ($discount_other_costs as $c) {
     $supply = (float)str_replace(',', '', $c['supply_amount'] ?? 0);
     $tax = (float)str_replace(',', '', $c['tax_amount'] ?? 0);
@@ -196,13 +199,14 @@ ob_start();
     font-family: 'NotoSansKR', DejaVu Sans, sans-serif;
     font-size: 10.2pt;           /* 본문 크기 */
     color: #111;
-    line-height: 1.25;           /* 더 촘촘한 행간 */
+    line-height: 1.15;           /* 더 촘촘한 행간 (1.25 -> 1.15) */
   }
 
   .small { font-size: 9pt; }
   .xs    { font-size: 8.6pt; }
   .muted { color:#555; }
 
+  .mb1 { margin-bottom: 1pt; }
   .mb2 { margin-bottom: 2pt; }
   .mb4 { margin-bottom: 4pt; }
   .mb6 { margin-bottom: 6pt; }
@@ -277,13 +281,13 @@ ob_start();
   }
   .grid-cell {
     border: 1px solid #000;
-    padding: 5pt 5pt;
+    padding: 2pt 2pt;
     vertical-align: top;
   }
 
   /* 테이블: 얇은 검은 테두리, 아주 은은한 헤더 음영 */
   table.tbl { width:100%; border-collapse: collapse; font-size: 8.5pt; }
-  .tbl th, .tbl td { border: 1px solid #000; padding: 2pt 2pt; font-size: 8.5pt; }
+  .tbl th, .tbl td { border: 1px solid #000; padding: 0.5pt 2pt; font-size: 8.5pt; }
   .tbl thead th { background: #f2f2f2; font-weight:700; font-size: 8.5pt; }
   .tbl tfoot td { background: #f7f7f7; font-weight:700; font-size: 8.5pt; }
 
@@ -598,14 +602,26 @@ ob_start();
 <?php endif; ?>
 
 
+<!-- 주요 안내 -->
+<?php if (!empty($notices)): ?>
+<div class="fw-700 mb4">주요 안내</div>
+<div class="small mb4" style="border:1px solid #000; padding:2pt 3pt;">
+    <ol style="margin:0; padding-left:15pt; line-height: 1.1;">
+    <?php foreach ($notices as $notice): ?>
+        <li class="mb1"><?= $esc($notice) ?></li>
+    <?php endforeach; ?>
+    </ol>
+</div>
+<?php endif; ?>
+
 <!-- 면책 조항 -->
-<div class="small text-muted" style="line-height:0.9;">
-    <p style="font-weight: bold; font-size: 1.15em;">계좌 : <?= $esc($payment_account) ?></p>
-    <p>1. 상기 견적의 금액은 이후 확정 시 금액이 변동될 수 있습니다.</p>
-    <p>2. 제품 현장 도착 후 즉시 현장 검수를 원칙으로 하며, 반품·교환 시 추가 운송비가 발생할 수 있습니다.</p>
-    <p>3. 견적서 내역 검토는 구매자의 의무이며, 미검토로 인한 배송 오류에 대한 책임은 구매자에게 있습니다.</p>
-    <p>4. 양중 시 찍힘이 발생할 수 있으니 취급에 주의하시기 바랍니다.</p>
-    <p>5. 본 견적서로 계약서를 갈음하며, 납기 확정 시 견적 내용에 동의하는 것으로 간주합니다.</p>
+<div class="small text-muted" style="line-height:1.0; font-size: 8pt;">
+    <p style="font-weight: bold; font-size: 1.1em; margin: 0 0 2pt 0; color: #000;">계좌 : <?= $esc($payment_account) ?></p>
+    <p style="margin:0;">1. 상기 견적의 금액은 이후 확정 시 금액이 변동될 수 있습니다.</p>
+    <p style="margin:0;">2. 제품 현장 도착 후 즉시 현장 검수를 원칙으로 하며, 반품·교환 시 추가 운송비가 발생할 수 있습니다.</p>
+    <p style="margin:0;">3. 견적서 내역 검토는 구매자의 의무이며, 미검토로 인한 배송 오류에 대한 책임은 구매자에게 있습니다.</p>
+    <p style="margin:0;">4. 양중 시 찍힘이 발생할 수 있으니 취급에 주의하시기 바랍니다.</p>
+    <p style="margin:0;">5. 본 견적서로 계약서를 갈음하며, 납기 확정 시 견적 내용에 동의하는 것으로 간주합니다.</p>
 </div>
 
 </body>

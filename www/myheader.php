@@ -253,6 +253,23 @@ if (!isset($chkMobile)) {
             <div class="nav-item dropdown ">			 			 
                 <!-- 드롭다운 메뉴-->
                 <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
+                    견적
+                </a>
+				<div class="dropdown-menu">
+					<a class="dropdown-item" href="<?=$root_dir?>/estimate/index.php">
+						<i class="bi bi-receipt"></i> 견적서
+					</a>
+					<a class="dropdown-item" href="<?=$root_dir?>/estimate/send_email_list/index.php">
+						<i class="bi bi-envelope-paper"></i> 이메일 전송리스트
+					</a>
+					<a class="dropdown-item" href="<?=$root_dir?>/estimate_book/index.php">
+						<i class="bi bi-person-lines-fill"></i> 거래처 주소록 관리
+					</a>
+				</div>
+            </div>
+            <div class="nav-item dropdown ">			 			 
+                <!-- 드롭다운 메뉴-->
+                <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
                     JAMB
                 </a>
 				<div class="dropdown-menu">
@@ -524,6 +541,9 @@ if (!isset($chkMobile)) {
 					<hr style="margin:7px!important; border-color:#007bff;">
 					<a class="dropdown-item" href="<?=$root_dir?>/ad/index.php">
 						<i class="bi bi-robot"></i> 미래기업 IT 사업 메뉴얼
+					</a>
+					<a class="dropdown-item" href="<?=$root_dir?>/opalplan/index.php">
+						<i class="bi bi-robot"></i> 구글 opal 계획서
 					</a>
 					<hr style="margin:7px!important; border-color:#007bff;">
 						<a class="dropdown-item" href="https://8440.co.kr/school" target="_blank">
@@ -802,6 +822,22 @@ if (!isset($chkMobile)) {
 				</a>
 			</div>
 
+			<!-- 견적 -->
+			<div class="accordion-item">
+				<h2 class="accordion-header">
+					<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEstimate">
+						<i class="bi bi-receipt"></i> 견적
+					</button>
+				</h2>
+				<div id="collapseEstimate" class="accordion-collapse collapse" data-bs-parent="#mobileMenuAccordion">
+					<div class="accordion-body p-0">
+						<a href="<?=$root_dir?>/estimate/index.php" class="mobile-sub-link"><i class="bi bi-receipt"></i> 견적서</a>
+						<a href="<?=$root_dir?>/estimate/send_email_list/index.php" class="mobile-sub-link"><i class="bi bi-envelope-paper"></i> 이메일 전송리스트</a>
+						<a href="<?=$root_dir?>/estimate_book/index.php" class="mobile-sub-link"><i class="bi bi-person-lines-fill"></i> 거래처 주소록 관리</a>
+					</div>
+				</div>
+			</div>
+
 			<!-- JAMB -->
 			<div class="accordion-item">
 				<h2 class="accordion-header">
@@ -939,6 +975,7 @@ if (!isset($chkMobile)) {
 						<a href="<?=$root_dir?>/AIprompt/list.php" class="mobile-sub-link"><i class="bi bi-robot"></i> AI prompt</a>
 						<a href="<?=$root_dir?>/channel/list.php" class="mobile-sub-link"><i class="bi bi-robot"></i> 연구 유튜브 채널분석</a>
 						<a href="<?=$root_dir?>/ad/index.php" class="mobile-sub-link"><i class="bi bi-robot"></i> 미래기업 IT 사업 메뉴얼</a>
+						<a href="<?=$root_dir?>/opalplan/index.php" class="mobile-sub-link"><i class="bi bi-robot"></i> 구글 opal 계획서</a>
 						<a href="https://8440.co.kr/school" target="_blank" class="mobile-sub-link"><i class="bi bi-laptop"></i> 코딩강의</a>
 						<a href="https://8440.co.kr/quiz" target="_blank" class="mobile-sub-link"><i class="bi bi-question-circle"></i> 코딩퀴즈</a>
 					</div>
