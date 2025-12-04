@@ -7,12 +7,12 @@ $level = $_SESSION["level"] ?? 99;
 $id_name = $_SESSION["name"] ?? '';
 $user_name = $_SESSION["name"] ?? '';
 
-// 권한 체크
-if (!isset($_SESSION["level"]) || $level > 8) {
-    sleep(2);
-    header("Location:" . getBaseUrl() . "/login/logout.php");
-    exit;
-}
+// // 권한 체크
+// if (!isset($_SESSION["level"]) || $level > 8) {
+//     sleep(2);
+//     header("Location:" . getBaseUrl() . "/login/logout.php");
+//     exit;
+// }
 
 // 작업자명 처리
 $workername = $_REQUEST["workername"] ?? '';

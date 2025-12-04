@@ -7,12 +7,12 @@ $level = $_SESSION["level"] ?? null;
 $id_name = $_SESSION["name"] ?? null;   
 $user_name = $_SESSION["name"] ?? null;   
    
-if(!isset($_SESSION["level"]) || $level > 10) {
-    /*   alert("관리자 승인이 필요합니다."); */
-    sleep(2);
-    header("Location:" . getBaseUrl() . "/login/logout.php");
-    exit;
-}  
+// if(!isset($_SESSION["level"]) || $level > 10) {
+//     /*   alert("관리자 승인이 필요합니다."); */
+//     sleep(2);
+//     header("Location:" . getBaseUrl() . "/login/logout.php");
+//     exit;
+// }  
 
 $workername = $_REQUEST["workername"] ?? '';
 

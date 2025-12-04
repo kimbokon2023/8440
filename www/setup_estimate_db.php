@@ -46,6 +46,7 @@ try {
         `customer_id` INT(11) DEFAULT NULL COMMENT '거래처 ID',
         `project_site` VARCHAR(255) DEFAULT NULL COMMENT '프로젝트/현장',
         `valid_date` DATE DEFAULT NULL COMMENT '유효일자',
+        `email` VARCHAR(100) DEFAULT NULL COMMENT '이메일',
         PRIMARY KEY (`id`),
         KEY `idx_estimate_no` (`estimate_no`),
         KEY `idx_issue_date` (`issue_date`),
@@ -56,6 +57,14 @@ try {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='견적서 테이블';";
     $pdo->exec($sql);
     echo "Table 'estimates' created successfully.\n";
+
+    // Add email column if not exists
+    try {
+        $pdo->exec("ALTER TABLE `estimates` ADD COLUMN `email` VARCHAR(100) DEFAULT NULL COMMENT '이메일'");
+        echo "Column 'email' added to 'estimates' table.\n";
+    } catch (PDOException $e) {
+        // Column likely exists
+    }
 
     // 2. estimate_customer table
     $sql = "CREATE TABLE IF NOT EXISTS `estimate_customer` (

@@ -22,7 +22,8 @@ $is_ajax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTT
 
 // 디버그 로깅 함수
 function debug_log($message, $data = null) {
-    error_log("[ORDER_DEBUG] " . $message . ($data ? " - Data: " . print_r($data, true) : ""));
+    $log_msg = "[ORDER_DEBUG] " . $message . ($data ? " - Data: " . print_r($data, true) : "") . "\n";
+    file_put_contents(__DIR__ . '/insert_debug.log', $log_msg, FILE_APPEND);
 }
 
 debug_log("=== INSERT.PHP 시작 ===");
@@ -69,7 +70,27 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 // 데이터베이스 연결
 try {
     $pdo = db_connect();
-    debug_log("데이터베이스 연결 성공");
+    $current_db = $pdo->query('SELECT DATABASE()')->fetchColumn();
+    debug_log("데이터베이스 연결 성공. Connected DB: " . $current_db);
+    
+    // Debug: Check columns
+    try {
+        $stmt = $pdo->query("SHOW COLUMNS FROM estimates");
+        $cols = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        debug_log("Columns in estimates table: " . implode(", ", $cols));
+        
+        // Debug: Session DB
+        debug_log("Session DB: " . ($_SESSION['DB'] ?? 'Not set'));
+        
+        // Force add if missing (Emergency fix)
+        if (!in_array('email', $cols)) {
+            debug_log("Email column missing! Attempting to add...");
+            $pdo->exec("ALTER TABLE `estimates` ADD COLUMN `email` VARCHAR(100) DEFAULT NULL COMMENT '이메일'");
+            debug_log("Email column added via insert.php");
+        }
+    } catch (Exception $e) {
+        debug_log("Schema check failed: " . $e->getMessage());
+    }
 } catch (Exception $e) {
     debug_log("데이터베이스 연결 실패: " . $e->getMessage());
     
@@ -236,7 +257,8 @@ try {
                 note = :note,
                 status = :status,
                 updated_at = CURRENT_TIMESTAMP,
-                valid_date = :valid_date
+                valid_date = :valid_date,
+                email = :email
                 WHERE id = :id";
 
         $stmt = $pdo->prepare($sql);
@@ -264,6 +286,7 @@ try {
             ':note' => $note ?: null,
             ':status' => $status,
             ':valid_date' => !empty($_POST['valid_date']) ? $_POST['valid_date'] : null,
+            ':email' => !empty($_POST['email']) ? $_POST['email'] : null,
             ':id' => $id
         ];
 
@@ -295,12 +318,12 @@ try {
                 estimate_no, issue_date, customer_id, supplier_code, supplier_name, supplier_address,
                 business_type, business_item, supplier_phone, supplier_fax, contact_name,
                 business_registration_number, phone, fax, project_site, estimate_items, subtotal, delivery_date, delivery_location,
-                payment_terms, note, status, created_at, updated_at, is_deleted, valid_date
+                payment_terms, note, status, created_at, updated_at, is_deleted, valid_date, email
                 ) VALUES (
                 :estimate_no, :issue_date, :customer_id, :supplier_code, :supplier_name, :supplier_address,
                 :business_type, :business_item, :supplier_phone, :supplier_fax, :contact_name,
                 :business_registration_number, :phone, :fax, :project_site, :estimate_items, :subtotal, :delivery_date, :delivery_location,
-                :payment_terms, :note, :status, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0, :valid_date
+                :payment_terms, :note, :status, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0, :valid_date, :email
                 )";
 
         $stmt = $pdo->prepare($sql);
@@ -327,7 +350,8 @@ try {
             ':payment_terms' => $payment_terms ?: null,
             ':note' => $note ?: null,
             ':status' => $status,
-            ':valid_date' => !empty($_POST['valid_date']) ? $_POST['valid_date'] : null
+            ':valid_date' => !empty($_POST['valid_date']) ? $_POST['valid_date'] : null,
+            ':email' => !empty($_POST['email']) ? $_POST['email'] : null
         ];
 
         if ($stmt->execute($params)) {

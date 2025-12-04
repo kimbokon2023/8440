@@ -1540,6 +1540,18 @@ window.onload = function() {
 
         // 검색 버튼 클릭
         document.getElementById('searchCustomerBtn').addEventListener('click', function() {
+            openCustomerSearchModal();
+        });
+
+        // 거래처명 입력 필드에서 엔터 키 입력 시 검색 모달 열기
+        document.getElementById('contact_name').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // 폼 제출 방지
+                openCustomerSearchModal();
+            }
+        });
+
+        function openCustomerSearchModal() {
             // 현재 거래처명 필드의 값을 검색창에 기본값으로 설정
             var currentContactName = document.getElementById('contact_name').value.trim();
             var searchInput = document.getElementById('customerSearchInput');
@@ -1562,7 +1574,7 @@ window.onload = function() {
             }, { once: true });
             
             customerSearchModal.show();
-        });
+        }
 
         // 검색 입력 이벤트
         document.getElementById('customerSearchInput').addEventListener('input', function() {

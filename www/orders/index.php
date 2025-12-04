@@ -1425,6 +1425,14 @@ a:hover {
                         <label for="emailRecipientAddress" class="form-label">이메일 주소</label>
                         <input type="email" class="form-control" id="emailRecipientAddress" placeholder="example@domain.com">
                     </div>
+                    <div class="mb-3">
+                        <label for="emailSubject" class="form-label">제목</label>
+                        <input type="text" class="form-control" id="emailSubject">
+                    </div>
+                    <div class="mb-3">
+                        <label for="emailBody" class="form-label">내용</label>
+                        <textarea class="form-control" id="emailBody" rows="5"></textarea>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
@@ -1757,6 +1765,7 @@ a:hover {
     var currentOrderId = null;
     var currentOrderEmail = ''; // 거래처 이메일 저장 변수
     var currentOrderContactName = ''; // 거래처명 저장 변수
+    var currentOrderProjectSite = ''; // 현장명 저장 변수
     var orderModal = null;
     var orderEditModal = null;
     var iframeMessageListenerRegistered = false;
@@ -2070,6 +2079,17 @@ a:hover {
             document.getElementById('emailRecipientName').value = currentOrderContactName;
             document.getElementById('emailRecipientAddress').value = currentOrderEmail;
             
+            // 제목 및 내용 기본값 설정
+            var subject = '[미래기업] ';
+            if (currentOrderProjectSite) {
+                subject += currentOrderProjectSite + ' ';
+            }
+            subject += '발주 드립니다.';
+            document.getElementById('emailSubject').value = subject;
+            
+            var body = '발주서 송부드립니다.\n\n안녕하세요, 미래기업입니다.\n첨부된 발주서를 확인 부탁드립니다.\n\n감사합니다.';
+            document.getElementById('emailBody').value = body;
+            
             // 모달 열기
             var emailModal = new bootstrap.Modal(document.getElementById('emailSendModal'));
             emailModal.show();
@@ -2103,10 +2123,21 @@ a:hover {
             this.disabled = true;
             var btn = this;
             
+            var subject = document.getElementById('emailSubject').value.trim();
+            var body = document.getElementById('emailBody').value.trim();
+            
+            if (!subject) {
+                alert('제목을 입력해주세요.');
+                document.getElementById('emailSubject').focus();
+                return;
+            }
+            
             // AJAX 요청
             var formData = new FormData();
             formData.append('order_id', currentOrderId);
             formData.append('email', email);
+            formData.append('subject', subject);
+            formData.append('content', body);
             
             fetch('send_email.php', {
                 method: 'POST',
@@ -2329,6 +2360,7 @@ a:hover {
         // 이메일 저장
         currentOrderEmail = order.email || '';
         currentOrderContactName = order.contact_name || order.supplier_name || '';
+        currentOrderProjectSite = order.project_site || '';
 
         var statusLabels = {
             'draft': '임시저장',

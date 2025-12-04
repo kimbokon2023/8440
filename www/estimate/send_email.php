@@ -108,25 +108,39 @@ try {
     // 내용
     $mail->isHTML(true);
     
-    // 제목 수정: [미래기업] (현장명) 견적 드립니다.
-    $subject = '[미래기업] ';
-    if (!empty($projectSite)) {
-        $subject .= $projectSite . ' ';
+    // 제목 및 본문 설정 (클라이언트에서 전달받은 값 사용)
+    $subject = $_POST['subject'] ?? '';
+    $content = $_POST['content'] ?? '';
+    
+    // 제목이 없으면 기본값 생성 (하위 호환성)
+    if (empty($subject)) {
+        $subject = '[미래기업] ';
+        if (!empty($projectSite)) {
+            $subject .= $projectSite . ' ';
+        }
+        $subject .= '견적 드립니다.';
     }
-    $subject .= '견적 드립니다.';
+    
+    // 본문이 없으면 기본값 생성
+    if (empty($content)) {
+        $content = "견적서 송부드립니다.\n\n안녕하세요, 미래기업입니다.\n첨부된 견적서를 확인 부탁드립니다.\n\n감사합니다.";
+    }
     
     $mail->Subject = $subject;
+    
+    // 줄바꿈을 <br>로 변환하여 HTML 본문 생성
+    $htmlContent = nl2br(htmlspecialchars($content));
+    
     $mail->Body    = "
         <html>
         <body>
-            <h3>견적서 송부드립니다.</h3>
-            <p>안녕하세요, 미래기업입니다.</p>
-            <p>첨부된 견적서를 확인 부탁드립니다.</p>
-            <p>감사합니다.</p>
+            <div style='font-family: Arial, sans-serif; line-height: 1.6;'>
+                $htmlContent
+            </div>
         </body>
         </html>
     ";
-    $mail->AltBody = "견적서 송부드립니다.\n첨부된 견적서를 확인 부탁드립니다.\n감사합니다.";
+    $mail->AltBody = $content;
 
     $mail->send();
 

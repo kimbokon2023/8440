@@ -72,7 +72,7 @@ if (!in_array(strtolower($sort_direction), ['asc', 'desc'])) {
 
 $sort_direction = strtoupper($sort_direction);
 
-$allowed_status = ['all', 'draft', 'sent', 'completed'];
+$allowed_status = ['all', 'draft', 'sent'];
 if (!in_array($search_status, $allowed_status, true)) {
     $search_status = 'all';
 }
@@ -1027,10 +1027,7 @@ a:hover {
             <h3>발송완료</h3>
             <div class="number"><?php echo number_format($stats['sent_count']); ?></div>
         </div>
-        <div class="stat-card completed">
-            <h3>완료</h3>
-            <div class="number"><?php echo number_format($stats['completed_count']); ?></div>
-        </div>
+
     </div>
 
     <!-- 액션 버튼 -->
@@ -1074,8 +1071,7 @@ a:hover {
                 $status_buttons = [
                     'all' => '전체',
                     'draft' => '임시저장',
-                    'sent' => '발송완료',
-                    'completed' => '완료'
+                    'sent' => '발송완료'
                 ];
                 foreach ($status_buttons as $value => $label):
                     $active_class = $search_status === $value ? 'active' : '';
@@ -1183,8 +1179,8 @@ a:hover {
                         <?php
                         // JSON 데이터에서 품목+규격 정보 추출
                         $items_display = '';
-                        if (!empty($order['order_items'])) {
-                            $items = json_decode($order['order_items'], true);
+                        if (!empty($order['estimate_items'])) {
+                            $items = json_decode($order['estimate_items'], true);
                             if (is_array($items)) {
                                 $item_spec_pairs = [];
                                 foreach ($items as $item) {
@@ -1424,6 +1420,14 @@ a:hover {
                     <div class="mb-3">
                         <label for="emailRecipientAddress" class="form-label">이메일 주소</label>
                         <input type="email" class="form-control" id="emailRecipientAddress" placeholder="example@domain.com">
+                    </div>
+                    <div class="mb-3">
+                        <label for="emailSubject" class="form-label">제목</label>
+                        <input type="text" class="form-control" id="emailSubject">
+                    </div>
+                    <div class="mb-3">
+                        <label for="emailBody" class="form-label">내용</label>
+                        <textarea class="form-control" id="emailBody" rows="5"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -1757,6 +1761,7 @@ a:hover {
     var currentOrderId = null;
     var currentOrderEmail = ''; // 거래처 이메일 저장 변수
     var currentOrderContactName = ''; // 거래처명 저장 변수
+    var currentOrderProjectSite = ''; // 현장명 저장 변수
     var orderModal = null;
     var orderEditModal = null;
     var iframeMessageListenerRegistered = false;
@@ -2037,7 +2042,7 @@ a:hover {
             }
             
             // PDF 미리보기 (새 창)
-            window.open('../pdf/order_send_pdf.php?id=' + encodeURIComponent(currentOrderId) + '&preview=1', '_blank');
+            window.open('../pdf/estimate_download.php?id=' + encodeURIComponent(currentOrderId) + '&download=0', '_blank');
         });
     }
 
@@ -2055,7 +2060,7 @@ a:hover {
             }
             
             // PDF 다운로드
-            location.href = '../pdf/order_send_pdf.php?id=' + encodeURIComponent(currentOrderId) + '&download=1';
+            location.href = '../pdf/estimate_download.php?id=' + encodeURIComponent(currentOrderId) + '&download=1';
         });
     }
 
@@ -2074,6 +2079,17 @@ a:hover {
             // 모달 필드 채우기
             document.getElementById('emailRecipientName').value = currentOrderContactName;
             document.getElementById('emailRecipientAddress').value = currentOrderEmail;
+            
+            // 제목 및 내용 기본값 설정
+            var subject = '[미래기업] ';
+            if (currentOrderProjectSite) {
+                subject += currentOrderProjectSite + ' ';
+            }
+            subject += '견적 드립니다.';
+            document.getElementById('emailSubject').value = subject;
+            
+            var body = '견적서 송부드립니다.\n\n안녕하세요, 미래기업입니다.\n첨부된 견적서를 확인 부탁드립니다.\n\n감사합니다.';
+            document.getElementById('emailBody').value = body;
             
             // 모달 열기
             var emailModal = new bootstrap.Modal(document.getElementById('emailSendModal'));
@@ -2108,10 +2124,21 @@ a:hover {
             this.disabled = true;
             var btn = this;
             
+            var subject = document.getElementById('emailSubject').value.trim();
+            var body = document.getElementById('emailBody').value.trim();
+            
+            if (!subject) {
+                alert('제목을 입력해주세요.');
+                document.getElementById('emailSubject').focus();
+                return;
+            }
+            
             // AJAX 요청
             var formData = new FormData();
-            formData.append('order_id', currentOrderId);
+            formData.append('estimate_id', currentOrderId);
             formData.append('email', email);
+            formData.append('subject', subject);
+            formData.append('content', body);
             
             fetch('send_email.php', {
                 method: 'POST',
@@ -2325,7 +2352,7 @@ a:hover {
      */
     function displayOrderDetail(order) {
         var contentDiv = document.getElementById('orderDetailContent');
-        var normalizedItems = normalizeOrderItems(order.order_items);
+        var normalizedItems = normalizeOrderItems(order.estimate_items);
         var hasItems = normalizedItems.rows.length > 0;
         var subtotal = hasItems ? normalizedItems.totals.supply : toNumber(order.subtotal);
         var tax = hasItems ? normalizedItems.totals.tax : Math.round(subtotal * 0.1);
@@ -2334,6 +2361,7 @@ a:hover {
         // 이메일 저장
         currentOrderEmail = order.email || '';
         currentOrderContactName = order.contact_name || order.supplier_name || '';
+        currentOrderProjectSite = order.project_site || '';
 
         var statusLabels = {
             'draft': '임시저장',
@@ -2347,22 +2375,13 @@ a:hover {
         html += '<div class="detail-section">';
         html += '<div class="detail-section-title">📋 기본 정보</div>';
         html += '<div class="detail-grid">';
-        html += '<div class="detail-item"><div class="detail-label">발행일</div><div class="detail-value">' + (order.issue_date || '-') + '</div></div>';
+        html += '<div class="detail-item"><div class="detail-label">견적일</div><div class="detail-value">' + (order.issue_date || '-') + '</div></div>';
         var partnerName = order.contact_name || order.supplier_name || '-';
         html += '<div class="detail-item"><div class="detail-label">거래처</div><div class="detail-value">' + partnerName + '</div></div>';
+        html += '<div class="detail-item"><div class="detail-label">이메일</div><div class="detail-value">' + (order.email || '-') + '</div></div>';
         html += '<div class="detail-item"><div class="detail-label">상태</div><div class="detail-value">' + (statusLabels[order.status] || '알 수 없음') + '</div></div>';
         // 납기일자 처리 (빈 값이나 유효하지 않은 날짜는 공백)
-        var deliveryDate = '';
-        if (order.delivery_date && 
-            order.delivery_date !== '0000-00-00' && 
-            order.delivery_date.indexOf('0000-00-00') === -1 &&
-            order.delivery_date.indexOf('-0001-') === -1) {
-            var dateObj = new Date(order.delivery_date);
-            if (dateObj && !isNaN(dateObj.getTime()) && dateObj.getFullYear() > 1900) {
-                deliveryDate = order.delivery_date.substring(0, 10); // YYYY-MM-DD 형식
-            }
-        }
-        html += '<div class="detail-item"><div class="detail-label">납기일자</div><div class="detail-value">' + (deliveryDate || '') + '</div></div>';
+
         html += '</div>';
         html += '</div>';
         
@@ -2377,30 +2396,43 @@ a:hover {
         html += '</div>';
         
         // 품목 정보
-        if (hasItems) {
-                html += '<div class="detail-section">';
-                html += '<div class="detail-section-title">📦 품목 내역</div>';
-                html += '<table class="detail-table">';
-                html += '<thead><tr><th width="5%">번호</th><th width="23%">품목</th><th width="18%">규격</th><th width="10%">수량</th><th width="10%">단위</th><th width="12%">단가</th><th width="12%">세액</th><th width="15%">금액</th></tr></thead>';
-                html += '<tbody>';
-                
-                normalizedItems.rows.forEach(function(row) {
-                    html += '<tr>';
-                    html += '<td class="text-center">' + row.index + '</td>';
-                    html += '<td>' + row.itemName + '</td>';
-                    html += '<td>' + row.spec + '</td>';
-                    html += '<td class="text-center">' + formatNumber(row.quantity) + '</td>';
-                    html += '<td class="text-center">' + (row.unit || 'EA') + '</td>';
-                    html += '<td style="text-align: right;">' + formatNumber(row.unitPrice) + '</td>';
-                    html += '<td style="text-align: right;">' + formatNumber(row.taxAmount) + '</td>';
-                    html += '<td style="text-align: right;">' + formatNumber(row.totalAmount) + '</td>';
-                    html += '</tr>';
-                });
-                
-                html += '</tbody>';
-                html += '</table>';
-                html += '</div>';
+        html += '<div class="detail-section">';
+        html += '<div class="detail-section-title">📦 품목 내역</div>';
+        html += '<table class="detail-table">';
+        html += '<thead><tr><th width="5%">번호</th><th width="23%">품목</th><th width="18%">규격</th><th width="10%">수량</th><th width="10%">단위</th><th width="12%">단가</th><th width="12%">세액</th><th width="15%">금액</th></tr></thead>';
+        html += '<tbody>';
+        
+        var rowCount = Math.max(normalizedItems.rows.length, 5); // 최소 5줄 표시
+
+        for (var i = 0; i < rowCount; i++) {
+            var row = normalizedItems.rows[i];
+            html += '<tr>';
+            if (row) {
+                html += '<td class="text-center">' + row.index + '</td>';
+                html += '<td>' + row.itemName + '</td>';
+                html += '<td>' + row.spec + '</td>';
+                html += '<td class="text-center">' + formatNumber(row.quantity) + '</td>';
+                html += '<td class="text-center">' + (row.unit || 'EA') + '</td>';
+                html += '<td style="text-align: right;">' + formatNumber(row.unitPrice) + '</td>';
+                html += '<td style="text-align: right;">' + formatNumber(row.taxAmount) + '</td>';
+                html += '<td style="text-align: right;">' + formatNumber(row.totalAmount) + '</td>';
+            } else {
+                // 빈 줄 표시
+                html += '<td class="text-center">' + (i + 1) + '</td>';
+                html += '<td></td>';
+                html += '<td></td>';
+                html += '<td></td>';
+                html += '<td></td>';
+                html += '<td></td>';
+                html += '<td></td>';
+                html += '<td></td>';
+            }
+            html += '</tr>';
         }
+        
+        html += '</tbody>';
+        html += '</table>';
+        html += '</div>';
         
         // 비고
         if (order.note) {

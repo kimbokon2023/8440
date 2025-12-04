@@ -622,6 +622,16 @@ body.iframe-mode .btn-primary:hover {
                                     <i class="bi bi-search"></i> 검색
                                 </button>
                             </div>
+                            <!-- 이메일 정보 표시 및 저장 -->
+                            <div class="col-sm-9 offset-sm-3 mt-1" style="margin-left: 25%; width: 75%;">
+                                <input type="hidden" name="email" id="email" value="<?php echo $order_data ? ($order_data['email'] ?? '') : ''; ?>">
+                                <span id="email_display" style="font-size: 11px; color: #adb5bd;">
+                                    <?php 
+                                    $email = $order_data['email'] ?? '';
+                                    echo $email ? '<i class="bi bi-envelope-check"></i> ' . htmlspecialchars($email) : ''; 
+                                    ?>
+                                </span>
+                            </div>
                         </div>
 
                         <div class="mb-2 row align-items-center" style="margin-bottom: 8px; display: flex; align-items: center;">
@@ -1503,7 +1513,7 @@ window.onload = function() {
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="customerSearchModalLabel">거래처 검색</h5>
+                    <h5 class="modal-title" id="customerSearchModalLabel">주소록 검색</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -1647,6 +1657,21 @@ window.onload = function() {
             // 휴대폰 우선, 없으면 근무처 전화
             var phoneToUse = customer.mobile_phone || customer.work_phone || '';
             if (phoneInput) phoneInput.value = formatPhoneNumber(phoneToUse);
+            
+            // 이메일 설정 및 표시
+            var emailInput = document.getElementById('email');
+            var emailDisplay = document.getElementById('email_display');
+            if (emailInput) {
+                emailInput.value = customer.email || '';
+                if (emailDisplay) {
+                    if (customer.email) {
+                        emailDisplay.innerHTML = '<i class="bi bi-envelope-check"></i> ' + customer.email;
+                        emailDisplay.style.color = '#adb5bd'; // 흐린 색상
+                    } else {
+                        emailDisplay.innerHTML = '';
+                    }
+                }
+            }
             
             // 팩스는 주소록에 없으므로 유지하거나 비움
             // var faxInput = document.querySelector('input[name="fax"]');

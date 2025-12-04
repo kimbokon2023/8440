@@ -58,7 +58,9 @@ try {
     }
 
     // 거래처 이메일 조회
-    $order['email'] = '';
+    // 이미 저장된 이메일이 있으면 그것을 사용하고, 없으면 조회
+    if (empty($order['email'])) {
+        $order['email'] = '';
     
     // 1. customer_id가 있으면 우선 사용
     if (!empty($order['customer_id'])) {
@@ -109,6 +111,29 @@ try {
             error_log("거래처 이메일 조회(사업자번호) 오류: " . $e->getMessage());
         }
     }
+
+    // 3. 이메일을 못 찾았고 거래처명(상호)이 있으면 상호로 조회
+    if (empty($order['email']) && !empty($order['contact_name'])) {
+        try {
+            // estimate_customer 테이블에서 company_name 또는 display_name으로 조회
+            // estimate_book/setup_db.php에 따르면 email 컬럼이 존재함
+            $custSql = "SELECT email FROM estimate_customer 
+                        WHERE (company_name = :name OR display_name = :name) 
+                        AND is_deleted = 'N' 
+                        LIMIT 1";
+            $custStmt = $pdo->prepare($custSql);
+            $custStmt->bindValue(':name', $order['contact_name']);
+            $custStmt->execute();
+            $customer = $custStmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($customer && !empty($customer['email'])) {
+                $order['email'] = $customer['email'];
+            }
+        } catch (Exception $e) {
+            error_log("거래처 이메일 조회(상호) 오류: " . $e->getMessage());
+        }
+    }
+    } // End of if (empty($order['email']))
     
     // 성공 응답
     echo json_encode([
