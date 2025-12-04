@@ -386,6 +386,7 @@ $pdo = db_connect();
 // 배열로 장비점검리스트 불러옴
 include "load_DB.php";
 
+echo $user_name;
 
 $nowday=date("Y-m-d");   // 현재일자 변수지정   
 try{  
@@ -738,11 +739,7 @@ if ($index !== false) {
 <input type="hidden" id="fieldarr" name="fieldarr[]" >
 <input type="hidden" id="arr" name="arr[]" > 
 	
-<?php if($chkMobile) { ?>	
 <div class="container-fluid mt-2 mb-2"  >
-<?php } if(!$chkMobile) { ?>	
-<div class="container mt-2 mb-2"  >   
-<?php  } ?>		
 	
 <div class="card mt-3">    		
 	<div class="card-body">    		
@@ -751,7 +748,7 @@ if ($index !== false) {
 					  <label class="form-check-label text-primary" for="leftchar">
 							 &nbsp;&nbsp; ' <?= htmlspecialchars($itemstr) ?> ' &nbsp;
 					  </label>		
-							 담당 (정) <?= htmlspecialchars($writer) ?> , (부) <?= htmlspecialchars($writer2) ?> &nbsp;&nbsp; 	&nbsp;&nbsp; 	
+							 담당 (정) ddfsadfsa <?= htmlspecialchars($writer) ?> , (부) <?= htmlspecialchars($writer2) ?> &nbsp;&nbsp; 	&nbsp;&nbsp; 	
 					  <button type="button" id="closeBtn" class="btn btn-dark btn-sm"> <ion-icon name="close-outline"> </ion-icon> 창닫기 </button>
 						<?php 
 							if($user_name=='김보곤' || $user_name=='이경묵')

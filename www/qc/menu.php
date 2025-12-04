@@ -420,7 +420,7 @@ require_once(includePath('lib/mydb.php'));
 $pdo = db_connect(); 
 
 // 배열로 장비점검리스트 불러옴
-include includePath("QC/load_DB.php");
+include includePath("qc/load_DB.php");
 
 // // 배열로 미점검 장비점검리스트 불러옴
 // include "load_nocheck.php";
@@ -438,7 +438,7 @@ include includePath("QC/load_DB.php");
 				    $img_url = str_replace('http://', 'https://', $img_url);
 				}
 				?>
-				<img src="<?= htmlspecialchars($img_url) ?>" style="width:100%;" alt="QC Background">
+				<img src="<?= htmlspecialchars($img_url) ?>" style="width:100%;" alt="qc Background">
  </div>
 	<h5 class="fw-bolder mb-4"> 점검 장비 </h5>
 	<div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
@@ -497,14 +497,28 @@ $qrcode_arr=array();
 	          }
 	      } else {
 	          // 상대 경로인 경우 base URL 추가
-	          $qrcode = $base_url . (strpos($qrcode_tmp, '/') === 0 ? $qrcode_tmp : '/' . $qrcode_tmp);
+	          // DB 값이 'laser01' 같은 형태라면 '/img/laser01.png'로 변환
+	          $img_path = $qrcode_tmp;
+	          
+	          // 경로가 /로 시작하지 않으면 /img/ 추가하고 .png 확장자 추가
+	          if (strpos($img_path, '/') !== 0) {
+	              // 확장자가 없으면 .png 추가
+	              if (strpos($img_path, '.') === false) {
+	                  $img_path = '/img/' . $img_path . '.png';
+	              } else {
+	                  $img_path = '/img/' . $img_path;
+	              }
+	          }
+	          
+	          $qrcode = $base_url . $img_path;
 	      }
 	  } else {
 	      $qrcode = '';
 	  }
 	  
 	  $qrcode_arr[$counter] = $qrcode;
-	  // print $qrcode;
+	  // 디버깅: QR 코드 경로 확인
+	  // error_log("QR Code for {$mcname}: Original={$qrcode_tmp}, Final={$qrcode}");
    
       $counter++;	
 	 		
@@ -529,7 +543,10 @@ $qrcode_arr=array();
 				<div class="text-center ">                                    
 				   <span class="fw-bolder">
 				   <?php if (!empty($qrcode)): ?>
-				       <img src="<?= htmlspecialchars($qrcode) ?>" style="width:100%;height:100%;" alt="QR Code" onerror="this.style.display='none'">
+				       <img src="<?= htmlspecialchars($qrcode) ?>" 
+				            style="width:100%;height:100%;" 
+				            alt="QR Code" 
+				            onerror="this.style.display='none'; console.log('Image load failed: <?= htmlspecialchars($qrcode) ?>');">
 				   <?php else: ?>
 				       <div class="text-muted" style="padding: 20px;">QR 코드 없음</div>
 				   <?php endif; ?>
@@ -557,6 +574,7 @@ $qrcode_arr=array();
 <?php include includePath('shop/footer.php'); ?>  					
 
 <script>
+
 function choiceMC(num, mcmain, mcsub, mcno) {
     var mcMap = {
         1: 'laser01',
@@ -588,8 +606,13 @@ function choiceMC(num, mcmain, mcsub, mcno) {
         link = baseUrl + '?mcno=' + mcMap[num] + '&mcname=' + mcMap[num];
     }
 
-    if (num > 0 && link)
+    console.log('Link:', link);
+    console.log('Num:', num);
+    console.log('MC Name:', mcMap[num]);
+    
+    if (num > 0 && link) {
         popupCenter(link, '장비 정검', 1200, 900);
+    }
 }
 
 // 서버에 작업 기록

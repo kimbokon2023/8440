@@ -2319,7 +2319,7 @@ $kakao_map_url = "https://map.kakao.com/link/search/" . $company_address_encoded
                     <div class="mb-4 text-center">                        
                         <h5 class="fs-4 fw-bold mt-3">  <?=date("Y")?>년도 제조통계 </h5>
                     </div>                    
-					<?php  include $root_dir . '/QC/prod_jamb_sub.php';  ?>
+					<?php  include $root_dir . '/qc/prod_jamb_sub.php';  ?>
                 </div>
             </div>	
             <div class="col-lg-6 col-md-6 align-self-center mb-30 ">            
@@ -2327,27 +2327,27 @@ $kakao_map_url = "https://map.kakao.com/link/search/" . $company_address_encoded
                     <div class="mb-4 text-center">                        
                         <h5 class="fs-4 fw-bold mt-3">  <?=date("Y")?>년도 제조통계 </h5>
                     </div>                    
-					<?php  include $root_dir . '/QC/prod_ceiling.php';  ?>
+					<?php  include $root_dir . '/qc/prod_ceiling.php';  ?>
                 </div>
             </div>
             <div class="col-lg-6 col-md-6 align-self-top mb-30 ">            
                 <div class="d-flex flex-column mt-3 mb-1 justify-content-center align-items-top">                                        
-					<?php include getDocumentRoot() . '/QC/rate_badAllexcept.php' ?>  					                
-					<?php include getDocumentRoot() . '/QC/rate_badDetailexcept.php' ?>   
+					<?php include getDocumentRoot() . '/qc/rate_badAllexcept.php' ?>  					                
+					<?php include getDocumentRoot() . '/qc/rate_badDetailexcept.php' ?>   
                 </div>
             </div>
             <div class="col-lg-6 col-md-6 align-self-center mb-30 ">    
 					<h5 class="fs-4 fw-bold text-center"> (모델구분 : 쟘) 불량율 </h5>  			
                 <div class="d-flex flex-column mt-3 mb-1 justify-content-center align-items-center">                                        
-					<?php include getDocumentRoot() . '/QC/rate_badAllJamb.php' ?>   
-					 <?php include getDocumentRoot() . '/QC/rate_badDetailJamb.php' ?>   
+					<?php include getDocumentRoot() . '/qc/rate_badAllJamb.php' ?>   
+					 <?php include getDocumentRoot() . '/qc/rate_badDetailJamb.php' ?>   
 					</div>
             </div>
             <div class="col-lg-6 col-md-6 align-self-center mb-30 ">    
 					<h5 class="fs-4 fw-bold text-center"> (모델구분 : 천장) 불량율  </h5>  			
                 <div class="d-flex flex-column mt-3 mb-1 justify-content-center align-items-center">                                        
-					<?php include getDocumentRoot() . '/QC/rate_badAllJamb.php' ?>  
-					<?php include getDocumentRoot() . '/QC/rate_badDetailCeiling.php' ?>   					
+					<?php include getDocumentRoot() . '/qc/rate_badAllJamb.php' ?>  
+					<?php include getDocumentRoot() . '/qc/rate_badDetailCeiling.php' ?>   					
 				</div>
             </div>
             <div class="col-lg-6 col-md-6 align-self-center mb-30 ">    

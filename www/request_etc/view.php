@@ -378,6 +378,8 @@ $picData_json = json_encode($picData);
 					else $indate="";	 
 			 if($outdate!="0000-00-00") $outdate = date("Y-m-d", strtotime( $outdate) );
 					else $outdate="";	 		
+			 if($requestdate!="0000-00-00") $requestdate = date("Y-m-d", strtotime( $requestdate) );
+					else $requestdate="";	 		
 					
       }
      }catch (PDOException $Exception) {
@@ -625,21 +627,11 @@ if($steelnum=='' or $steelnum==null )
           <td>
             <label for="outdate">접수</label>
           </td>          
-            <?php
-				// 예시: $registdate = '2024-01-25 16:28:23';
-
-				// DateTime 객체 생성
-				$dateTime = new DateTime($registdate);
-
-				// 날짜 형식을 YYYY-MM-DD로 변환
-				$formattedDate = $dateTime->format('Y-m-d');
-				?>
-
 				<td>
 				<?php if($chkMobile) { ?>	
-					<input type="date" class="form-control" id="registdate" name="registdate" value="<?=$formattedDate?>" style="width:200px;" >
+					<input type="date" class="form-control" id="outdate" name="outdate" value="<?=$outdate?>" style="width:200px;" >
 				<?php } if(!$chkMobile) { ?>	
-					<input type="date" class="form-control" id="registdate" name="registdate" value="<?=$formattedDate?>" style="width:100px;" >
+					<input type="date" class="form-control" id="outdate" name="outdate" value="<?=$outdate?>" style="width:100px;" >
 				<?php  } ?>	
 			
 				</td>
@@ -647,13 +639,13 @@ if($steelnum=='' or $steelnum==null )
         </tr>
         <tr>
           <td>
-            <label for="outdate">납기(필요)</label>
+            <label for="requestdate">납기(필요)</label>
           </td>
           <td>
 				<?php if($chkMobile) { ?>	
-					<input type="date" class="form-control" id="outdate" name="outdate" value="<?=$outdate?>" style="width:200px;" >
+					<input type="date" class="form-control" id="requestdate" name="requestdate" value="<?=$requestdate?>" style="width:200px;" >
 				<?php } if(!$chkMobile) { ?>	
-					<input type="date" class="form-control" id="outdate" name="outdate" value="<?=$outdate?>" style="width:100px;" >
+					<input type="date" class="form-control" id="requestdate" name="requestdate" value="<?=$requestdate?>" style="width:100px;" >
 				<?php  } ?>	
           </td>
         </tr>

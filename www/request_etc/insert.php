@@ -65,26 +65,27 @@ if ($mode == "modify") {
 
     try {
         $pdo->beginTransaction();
-        $sql = "update {$DB}.eworks set which=?, outdate=?, indate=?, outworkplace=?, steel_item=?, spec=?, steelnum=?, company=?, request_comment=?, payment=?, first_writer=?, update_log=?, supplier=?, contents=?, cart=?";
+        $sql = "update {$DB}.eworks set which=?, outdate=?, requestdate=?, indate=?, outworkplace=?, steel_item=?, spec=?, steelnum=?, company=?, request_comment=?, payment=?, first_writer=?, update_log=?, supplier=?, contents=?, cart=?";
         $sql .= " where num=? LIMIT 1";		
 
         $stmh = $pdo->prepare($sql);
         $stmh->bindValue(1, $which, PDO::PARAM_STR);
         $stmh->bindValue(2, $outdate, PDO::PARAM_STR);
-        $stmh->bindValue(3, $indate, PDO::PARAM_STR);
-        $stmh->bindValue(4, $outworkplace, PDO::PARAM_STR);
-        $stmh->bindValue(5, $steel_item, PDO::PARAM_STR);
-        $stmh->bindValue(6, $spec, PDO::PARAM_STR);
-        $stmh->bindValue(7, $steelnum, PDO::PARAM_STR);
-        $stmh->bindValue(8, $company, PDO::PARAM_STR);
-        $stmh->bindValue(9, $request_comment, PDO::PARAM_STR);
-        $stmh->bindValue(10, $payment, PDO::PARAM_STR);
-        $stmh->bindValue(11, $first_writer, PDO::PARAM_STR);
-        $stmh->bindValue(12, $update_log, PDO::PARAM_STR);
-        $stmh->bindValue(13, $supplier, PDO::PARAM_STR);
-        $stmh->bindValue(14, $contents, PDO::PARAM_STR);
-        $stmh->bindValue(15, $cart, PDO::PARAM_INT);
-        $stmh->bindValue(16, $num, PDO::PARAM_STR);
+        $stmh->bindValue(3, $requestdate, PDO::PARAM_STR);
+        $stmh->bindValue(4, $indate, PDO::PARAM_STR);
+        $stmh->bindValue(5, $outworkplace, PDO::PARAM_STR);
+        $stmh->bindValue(6, $steel_item, PDO::PARAM_STR);
+        $stmh->bindValue(7, $spec, PDO::PARAM_STR);
+        $stmh->bindValue(8, $steelnum, PDO::PARAM_STR);
+        $stmh->bindValue(9, $company, PDO::PARAM_STR);
+        $stmh->bindValue(10, $request_comment, PDO::PARAM_STR);
+        $stmh->bindValue(11, $payment, PDO::PARAM_STR);
+        $stmh->bindValue(12, $first_writer, PDO::PARAM_STR);
+        $stmh->bindValue(13, $update_log, PDO::PARAM_STR);
+        $stmh->bindValue(14, $supplier, PDO::PARAM_STR);
+        $stmh->bindValue(15, $contents, PDO::PARAM_STR);
+        $stmh->bindValue(16, $cart, PDO::PARAM_INT);
+        $stmh->bindValue(17, $num, PDO::PARAM_STR);
 
         $stmh->execute();
         $pdo->commit();
@@ -149,41 +150,42 @@ if ($mode == "modify") {
     $eworks_item = '부자재구매';
     $author_id = $user_id;
     $author = $user_name; 
-
+    
     $first_writer = $user_name . " _" . date("Y-m-d H:i:s");  // 최초등록자 기록
 
     try {
         $pdo->beginTransaction();
 
-        $sql = "insert into {$DB}.eworks(which, outdate, indate, outworkplace, steel_item, spec, steelnum, company, request_comment, payment, first_writer, update_log, supplier, status, e_line_id, e_line, e_title, contents, eworks_item, registdate, author_id, author, cart)";
-        $sql .= " values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "insert into {$DB}.eworks(which, outdate, requestdate, indate, outworkplace, steel_item, spec, steelnum, company, request_comment, payment, first_writer, update_log, supplier, status, e_line_id, e_line, e_title, contents, eworks_item, registdate, author_id, author, cart)";
+        $sql .= " values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         $stmh = $pdo->prepare($sql);
         $stmh->bindValue(1, $which, PDO::PARAM_STR);
         $stmh->bindValue(2, $outdate, PDO::PARAM_STR);
-        $stmh->bindValue(3, $indate, PDO::PARAM_STR);
-        $stmh->bindValue(4, $outworkplace, PDO::PARAM_STR);
-        $stmh->bindValue(5, $steel_item, PDO::PARAM_STR);
-        $stmh->bindValue(6, $spec, PDO::PARAM_STR);
-        $stmh->bindValue(7, $steelnum, PDO::PARAM_STR);
-        $stmh->bindValue(8, $company, PDO::PARAM_STR);
-        $stmh->bindValue(9, $request_comment, PDO::PARAM_STR);
-        $stmh->bindValue(10, $payment, PDO::PARAM_STR);
-        $stmh->bindValue(11, $first_writer, PDO::PARAM_STR);
-        $stmh->bindValue(12, $update_log, PDO::PARAM_STR);
-        $stmh->bindValue(13, $supplier, PDO::PARAM_STR);
+        $stmh->bindValue(3, $requestdate, PDO::PARAM_STR);
+        $stmh->bindValue(4, $indate, PDO::PARAM_STR);
+        $stmh->bindValue(5, $outworkplace, PDO::PARAM_STR);
+        $stmh->bindValue(6, $steel_item, PDO::PARAM_STR);
+        $stmh->bindValue(7, $spec, PDO::PARAM_STR);
+        $stmh->bindValue(8, $steelnum, PDO::PARAM_STR);
+        $stmh->bindValue(9, $company, PDO::PARAM_STR);
+        $stmh->bindValue(10, $request_comment, PDO::PARAM_STR);
+        $stmh->bindValue(11, $payment, PDO::PARAM_STR);
+        $stmh->bindValue(12, $first_writer, PDO::PARAM_STR);
+        $stmh->bindValue(13, $update_log, PDO::PARAM_STR);
+        $stmh->bindValue(14, $supplier, PDO::PARAM_STR);
 
         // eworks 내용에 따른 추가
-        $stmh->bindValue(14, $status, PDO::PARAM_STR);
-        $stmh->bindValue(15, rtrim($e_line_id, '!'), PDO::PARAM_STR);
-        $stmh->bindValue(16, rtrim($e_line, '!'), PDO::PARAM_STR);
-        $stmh->bindValue(17, $e_title, PDO::PARAM_STR);
-        $stmh->bindValue(18, $contents, PDO::PARAM_STR);
-        $stmh->bindValue(19, $eworks_item, PDO::PARAM_STR);
-        $stmh->bindValue(20, $registdate, PDO::PARAM_STR);
-        $stmh->bindValue(21, $author_id, PDO::PARAM_STR);
-        $stmh->bindValue(22, $author, PDO::PARAM_STR);
-        $stmh->bindValue(23, $cart, PDO::PARAM_INT);
+        $stmh->bindValue(15, $status, PDO::PARAM_STR);
+        $stmh->bindValue(16, rtrim($e_line_id, '!'), PDO::PARAM_STR);
+        $stmh->bindValue(17, rtrim($e_line, '!'), PDO::PARAM_STR);
+        $stmh->bindValue(18, $e_title, PDO::PARAM_STR);
+        $stmh->bindValue(19, $contents, PDO::PARAM_STR);
+        $stmh->bindValue(20, $eworks_item, PDO::PARAM_STR);
+        $stmh->bindValue(21, $registdate, PDO::PARAM_STR);
+        $stmh->bindValue(22, $author_id, PDO::PARAM_STR);
+        $stmh->bindValue(23, $author, PDO::PARAM_STR);
+        $stmh->bindValue(24, $cart, PDO::PARAM_INT);
 
         $stmh->execute();
         $pdo->commit();

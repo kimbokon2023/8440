@@ -174,7 +174,7 @@ if (!isset($chkMobile)) {
 				</div>
 				<div class="col">
 				   <b> <a class="text-primary" href="../iso/list.php">품질ISO,EQ</a> </b>				   
-				   <a class="dropdown-item " href="../QC/goal.php">품질방침/품질목표</a>
+				   <a class="dropdown-item " href="../qc/goal.php">품질방침/품질목표</a>
 				   <a class="dropdown-item " href="../iso/list.php">ISO 9001/14001</a>
 				   <a class="dropdown-item " href="../errors/qc_method.php">품질불량 관리기법/교육 </a>
 				   <a class="dropdown-item " href="../idea/index.php">직원 제안제도 운영</a>
@@ -365,6 +365,10 @@ if (!isset($chkMobile)) {
 						<i class="bi bi-building"></i> 발주 거래처 관리
 					</a>    			
 					<hr style="margin:7px!important; border-color:#007bff;">							
+					<a class="dropdown-item" href="<?=$root_dir?>/managed_material/list.php">
+						<i class="bi bi-box-seam"></i> <span style="color:#007bff; font-weight:bold;">관리대상 자재 입출고 관리</span>
+					</a>
+					<hr style="margin:7px!important; border-color:#007bff;">							
 					<a class="dropdown-item" href="<?=$root_dir?>/askitem/list.php">
 						<i class="bi bi-basket3"></i> 품의서
 					</a>    		
@@ -411,7 +415,7 @@ if (!isset($chkMobile)) {
                     품질(EQ/ISO)
                 </a>
 				<div class="dropdown-menu">
-					<a class="dropdown-item" href="<?=$root_dir?>/QC/goal.php">
+					<a class="dropdown-item" href="<?=$root_dir?>/qc/goal.php">
 						<i class="bi bi-1-circle-fill"></i> 품질방침/품질목표
 					</a>				
 					<a class="dropdown-item" href="<?=$root_dir?>/iso/list.php">
@@ -895,7 +899,11 @@ if (!isset($chkMobile)) {
 						<a href="<?=$root_dir?>/orders/index.php" class="mobile-sub-link"><i class="bi bi-clipboard-check"></i> 발주 리스트</a>
 						<a href="<?=$root_dir?>/corp/index.php" class="mobile-sub-link"><i class="bi bi-building"></i> 거래처 관리</a>
 						<a href="<?=$root_dir?>/send_email_list/index.php" class="mobile-sub-link"><i class="bi bi-clipboard-check"></i> 이메일전송 리스트 </a>						
+						<hr style="margin:7px!important; border-color:#007bff;">							
+						<a href="<?=$root_dir?>/managed_material/list.php" class="mobile-sub-link"><i class="bi bi-box-seam"></i> <span style="color:#007bff; font-weight:bold;">관리대상 자재 입출고 관리</span></a>
+						<hr style="margin:7px!important; border-color:#007bff;">							
 						<a href="<?=$root_dir?>/askitem/list.php" class="mobile-sub-link"><i class="bi bi-basket3"></i> 품의서</a>
+						<hr style="margin:7px!important; border-color:#007bff;">							
 						<a href="<?=$root_dir?>/request/list.php" class="mobile-sub-link"><i class="bi bi-cart-check"></i> 원자재 구매신청</a>
 						<a href="<?=$root_dir?>/steel/list.php" class="mobile-sub-link"><i class="bi bi-box-arrow-up-right"></i> 원자재 출고</a>
 						<a href="<?=$root_dir?>/steel/rawmaterial.php" class="mobile-sub-link"><i class="bi bi-box-seam"></i> 원자재 재고현황</a>
@@ -919,7 +927,7 @@ if (!isset($chkMobile)) {
 				</h2>
 				<div id="collapseQuality" class="accordion-collapse collapse" data-bs-parent="#mobileMenuAccordion">
 					<div class="accordion-body p-0">
-						<a href="<?=$root_dir?>/QC/goal.php" class="mobile-sub-link"><i class="bi bi-1-circle-fill"></i> 품질방침/품질목표</a>
+						<a href="<?=$root_dir?>/qc/goal.php" class="mobile-sub-link"><i class="bi bi-1-circle-fill"></i> 품질방침/품질목표</a>
 						<a href="<?=$root_dir?>/iso/list.php" class="mobile-sub-link"><i class="bi bi-globe2"></i> ISO 9001/14001 인증</a>
 						<a href="<?=$root_dir?>/errors/qc_method.php" class="mobile-sub-link"><i class="bi bi-sliders2-vertical"></i> 품질불량 관리기법/교육</a>
 						<a href="<?=$root_dir?>/idea/index.php" class="mobile-sub-link"><i class="bi bi-person-plus-fill"></i> 직원 제안제도 운영</a>

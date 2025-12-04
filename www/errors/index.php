@@ -117,6 +117,57 @@ $order_alert = $_REQUEST["order_alert"] ?? '';
 <title>부적합 품질경영</title> 
 
 <style>
+/* PC 화면 최적화 - 전체 화면 사용 */
+@media (min-width: 769px) {
+	/* 컨테이너 전체 너비 사용 */
+	.container-fluid {
+		max-width: 100% !important;
+		width: 100% !important;
+		padding-left: 0 !important;
+		padding-right: 0 !important;
+		margin-left: 0 !important;
+		margin-right: 0 !important;
+	}
+	
+	/* 카드 여백 제거 */
+	.card {
+		border-radius: 0 !important;
+		margin: 0 !important;
+		border-left: none !important;
+		border-right: none !important;
+	}
+	
+	/* 카드 바디 패딩 제거 */
+	.card-body {
+		padding: 0 !important;
+	}
+	
+	/* 검색 영역 패딩 최소화 */
+	.d-flex.mb-2 {
+		padding-left: 0.5rem !important;
+		padding-right: 0.5rem !important;
+	}
+	
+	/* 테이블 영역 완전히 꽉 차게 */
+	.table-responsive {
+		padding: 0 !important;
+		margin: 0 !important;
+		width: 100% !important;
+	}
+	
+	/* 테이블 자체도 100% */
+	#myTable {
+		width: 100% !important;
+		margin: 0 !important;
+	}
+	
+	/* DataTables 래퍼 여백 제거 */
+	.dataTables_wrapper {
+		padding: 0 !important;
+		margin: 0 !important;
+	}
+}
+
 /* 모바일 반응형 스타일 */
 @media (max-width: 768px) {
 	/* body와 html의 width 제한 */
@@ -432,9 +483,9 @@ $order_alert = $_REQUEST["order_alert"] ?? '';
 
 <form name="board_form" id="board_form" method="post">
     <!-- container-fluid에 p-0를 적용하여 화면 꽉 차게 설정 -->
-    <div class="container-fluid p-0">
+    <div class="container-fluid p-0" style="max-width: 100%;">
         <div class="card border-0 rounded-0" style="width: 100%; margin: 0;">
-            <div class="card-body p-0">
+            <div class="card-body" style="padding: 0.5rem;">
                 <div class="row">
                     <div class="col-sm-12">
                         <div class="card">
@@ -531,8 +582,8 @@ $order_alert = $_REQUEST["order_alert"] ?? '';
         <input type="hidden" id="ma_alert" name="ma_alert" value="<?= htmlspecialchars($ma_alert) ?>" size="5">
         <input type="hidden" id="order_alert" name="order_alert" value="<?= htmlspecialchars($order_alert) ?>" size="5">
         
-    <div class="container-fluid p-0">		
-        <div class="d-flex mb-2 px-5 px-lg-2 mt-2 justify-content-center align-items-center">
+    <div class="container-fluid" style="max-width: 100%; width: 100%; padding: 0; margin: 0;">		
+        <div class="d-flex mb-2 px-1 mt-2 justify-content-center align-items-center">
             ▷ <?= $total_row ?> 건 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <input type="text" class="form-control me-2" style="width:150px;height:32px;" 
                    name="search" id="search" value="<?= htmlspecialchars($search) ?>" 
@@ -545,9 +596,9 @@ $order_alert = $_REQUEST["order_alert"] ?? '';
             </button>
             &nbsp;&nbsp;&nbsp;
         </div>
-        <div class="card">
-            <div class="card-body p-0">
-                <div class="table-responsive">
+        <div class="card" style="margin: 0; border-left: none; border-right: none;">
+            <div class="card-body" style="padding: 0;">
+                <div class="table-responsive" style="margin: 0; padding: 0; width: 100%;">
                     <table class="table table-hover w-100" id="myTable">
                     <thead class="table-primary">
                     <tr class="middle-align">

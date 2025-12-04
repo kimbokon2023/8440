@@ -2857,7 +2857,7 @@ $tablename = 'popupwindow';
 			<div class="d-flex justify-content-center align-items-center mb-1">
 				<button type="button"
 						class="modern-quality-goal-btn"
-						onclick="popupCenter('./QC/goal.php?header=header', '미래기업 품질방침/품질목표', 1400, 900); return false;"
+						onclick="popupCenter('./qc/goal.php?header=header', '미래기업 품질방침/품질목표', 1400, 900); return false;"
 						title="미래기업 품질방침/품질목표">
 					<i class="bi bi-gear-fill"></i>
 					미래기업 품질방침/품질목표
@@ -2879,8 +2879,8 @@ $tablename = 'popupwindow';
 			</div>
 		<div class="modern-card-body">		   
 				<?php $option = "option";
-					include getDocumentRoot() . '/QC/rate_badAll.php';?>   
-				<?php include getDocumentRoot() . '/QC/rate_badDetail.php'; ?>   			        
+					include getDocumentRoot() . '/qc/rate_badAll.php';?>   
+				<?php include getDocumentRoot() . '/qc/rate_badDetail.php'; ?>   			        
 		</div>   
 		</div>               
 		

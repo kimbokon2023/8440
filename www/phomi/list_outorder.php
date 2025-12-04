@@ -273,7 +273,6 @@ try{
 				<?php } ?>&nbsp;				
 			<div class="inputWrap">
 				<input type="text" id="search" name="search" value="<?=$search?>" autocomplete="off"  class="form-control w-auto mx-1" placeholder="출고일자, 발주처, 담당자, 주소, 연락처 검색..." > &nbsp;			
-				<button class="btnClear" type="button"></button>
 				<button type="button" id="searchBtnMobile" class="btn-search-icon">
 					<i class="bi bi-search"></i>
 				</button>
@@ -304,33 +303,13 @@ th {
 .inputWrap input {
 	width: 100% !important;
 	max-width: 100% !important;
-	padding: 0.5rem 80px 0.5rem 0.75rem !important;
+	padding: 0.5rem 50px 0.5rem 0.75rem !important;
 	font-size: 0.9rem !important;
 	border: 2px solid #28a745 !important;
 	border-radius: 0.5rem !important;
 	background-color: #fff !important;
 	margin: 0 !important;
 	box-sizing: border-box !important;
-}
-
-.btnClear {
-	position: absolute !important;
-	right: 50px !important;
-	top: 50% !important;
-	transform: translateY(-50%) !important;
-	width: 24px !important;
-	height: 24px !important;
-	background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/></svg>') no-repeat center !important;
-	background-size: 16px 16px !important;
-	border: none !important;
-	cursor: pointer !important;
-	z-index: 10 !important;
-	opacity: 0.6 !important;
-	transition: opacity 0.2s ease !important;
-}
-
-.btnClear:hover {
-	opacity: 1 !important;
 }
 
 .btn-search-icon {

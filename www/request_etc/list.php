@@ -605,7 +605,7 @@ if ($fromdate === "" || $fromdate === null || $todate === "" || $todate === null
 }
 			  
  
-$SettingDate="registdate";
+$SettingDate="outdate";
 
 $Andis_deleted =  " AND (is_deleted IS NULL or is_deleted='0')  AND eworks_item='부자재구매' ";
 $Whereis_deleted =  " Where  (is_deleted IS NULL or is_deleted='0')  AND eworks_item='부자재구매' ";	
@@ -932,16 +932,16 @@ $dateCon =" AND between date('$fromdate') and date('$Transtodate') " ;
 		  <td class="text-center" data-label="번호"><?= $start_num ?></td>
             <?php				
 				// DateTime 객체 생성
-				$dateTime1 = new DateTime($registdate);
+				$dateTime1 = new DateTime($outdate);
 				// 날짜 형식을 YYYY-MM-DD로 변환
 				$formattedDate = $dateTime1->format('Y-m-d');
 				
-				$formattedDate_outdate ='';
-				if(isNotNull($outdate))
+				$formattedDate_requestdate ='';
+				if(isNotNull($requestdate))
 				{
-					$dateTime2 = new DateTime($outdate);
+					$dateTime2 = new DateTime($requestdate);
 					// 날짜 형식을 YYYY-MM-DD로 변환
-					$formattedDate_outdate = $dateTime2->format('m-d');
+					$formattedDate_requestdate = $dateTime2->format('m-d');
 				}
 				$formattedDate_indate ='';
 				if(isNotNull($indate))
@@ -952,12 +952,12 @@ $dateCon =" AND between date('$fromdate') and date('$Transtodate') " ;
 				}
 		  ?>
 
-		<td class="text-center" data-order="<?= $registdate ?>" data-label="접수">
+		<td class="text-center" data-order="<?= $outdate ?>" data-label="접수">
 			<?=$formattedDate?>
 		</td>
 
-		<td class="text-center" data-order="<?= $outdate ?>" data-label="납기">
-		<?= $formattedDate_outdate ?>
+		<td class="text-center" data-order="<?= $requestdate ?>" data-label="납기">
+		<?= $formattedDate_requestdate ?>
 		</td>          
 
 		<td class="text-center" data-order="<?= $indate ?>" data-label="완료">

@@ -40,14 +40,12 @@ if ($fromdate === "" || $todate === "") {
 $Transtodate = $todate;
 
 // SQL 기본 조건
-// 원자재는 outdate, 부자재는 registdate 기준
+// 원자재, 부자재 모두 outdate(접수일) 기준
 $Andis_deleted = " AND (is_deleted IS NULL OR is_deleted='0')";
 
 // 검색 쿼리 구성
 $order_sql_common = " FROM " . $DB . ".eworks WHERE (
-    (eworks_item='원자재구매' AND outdate BETWEEN '$fromdate' AND '$Transtodate')
-    OR 
-    (eworks_item='부자재구매' AND DATE(registdate) BETWEEN '$fromdate' AND '$Transtodate')
+    outdate BETWEEN '$fromdate' AND '$Transtodate'
 ) " . $Andis_deleted;
 
 if ($mode === "search" && $search !== "") {
@@ -84,8 +82,8 @@ $next_sort_order = $sort_order === 'asc' ? 'desc' : 'asc';
 
 // 정렬 쿼리 구성
 if ($sort_column === 'outdate') {
-    // 접수일: 원자재는 outdate, 부자재는 registdate
-    $order_sql_order = " ORDER BY CASE WHEN eworks_item='원자재구매' THEN outdate ELSE registdate END $sort_order, num DESC";
+    // 접수일: 모두 outdate 기준
+    $order_sql_order = " ORDER BY outdate $sort_order, num DESC";
 } else {
     $order_sql_order = " ORDER BY $sort_column $sort_order, num DESC";
 }
