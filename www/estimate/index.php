@@ -53,7 +53,7 @@ $sort_direction = $_GET['dir'] ?? 'desc';
 $allowed_sort_columns = [
     'issue_date' => '견적일자',
     'contact_name' => '거래처명',
-    'subtotal' => '견적가액',
+    'subtotal' => '공급가액',
     'business_registration_number' => '사업자번호',
     'status' => '상태',
     'delivery_date' => '납기일자',
@@ -1116,7 +1116,7 @@ a:hover {
                     </th>
                     <th width="20%">품목/규격</th>
                     <th width="8%" class="text-right sortable" data-sort="subtotal">
-                        견적가액
+                        공급가액
                         <?php if ($sort_column === 'subtotal'): ?>
                             <i class="fas fa-sort-<?php echo strtolower($sort_direction) === 'asc' ? 'up' : 'down'; ?>"></i>
                         <?php else: ?>
@@ -1691,7 +1691,7 @@ a:hover {
             headers.forEach(function(header, index) {
                 var text = header.textContent.trim();
                 // 아이콘 제거
-                text = text.replace(/[\s\S]*?(발행일|거래처명|품목\/규격|견적가액|세액|사업자번호|합계금액|상태|납기일자|비고)/, '$1');
+                text = text.replace(/[\s\S]*?(발행일|거래처명|품목\/규격|공급가액|세액|사업자번호|합계금액|상태|납기일자|비고)/, '$1');
                 if (text && !text.match(/^[\s\S]*?$/)) {
                     columnMap.push({
                         index: index,
@@ -1750,7 +1750,7 @@ a:hover {
                     if (cellIndex < headers.length) {
                         var headerText = headers[cellIndex].textContent.trim();
                         // 정렬 아이콘 제거
-                        headerText = headerText.replace(/[\s\S]*?(발행일|거래처명|품목\/규격|견적가액|세액|사업자번호|합계금액|상태|납기일자|비고)/, '$1');
+                        headerText = headerText.replace(/[\s\S]*?(발행일|거래처명|품목\/규격|공급가액|세액|사업자번호|합계금액|상태|납기일자|비고)/, '$1');
                         label = headerText || '항목' + cellIndex;
                     }
                     
@@ -2318,7 +2318,7 @@ a:hover {
             var quantity = toNumber(item['수량'] ?? item.quantity);
             var unit = (item['단위'] ?? item.unit ?? 'EA') || 'EA';
             var unitPrice = toNumber(item['단가'] ?? item.unit_price);
-            var supply = toNumber(item['견적가액'] ?? item.amount ?? 0);
+            var supply = toNumber(item['공급가액'] ?? item.amount ?? 0);
 
             if (!supply && quantity && unitPrice) {
                 supply = Math.round(quantity * unitPrice);
@@ -2422,6 +2422,8 @@ a:hover {
         html += '<div class="detail-item"><div class="detail-label">거래처</div><div class="detail-value">' + partnerName + '</div></div>';
         html += '<div class="detail-item"><div class="detail-label">이메일</div><div class="detail-value">' + (order.email || '-') + '</div></div>';
         html += '<div class="detail-item"><div class="detail-label">상태</div><div class="detail-value">' + (statusLabels[order.status] || '알 수 없음') + '</div></div>';
+        html += '<div class="detail-item"><div class="detail-label">참조</div><div class="detail-value">' + (order.reference || '-') + '</div></div>';
+        html += '<div class="detail-item"><div class="detail-label">현장명</div><div class="detail-value">' + (order.project_site || '-') + '</div></div>';
         // 납기일자 처리 (빈 값이나 유효하지 않은 날짜는 공백)
 
         html += '</div>';
@@ -2431,7 +2433,7 @@ a:hover {
         html += '<div class="detail-section">';
         html += '<div class="detail-section-title">💰 금액 정보</div>';
         html += '<div class="detail-grid">';
-        html += '<div class="detail-item"><div class="detail-label">견적가액</div><div class="detail-value">' + formatNumber(subtotal) + '원</div></div>';
+        html += '<div class="detail-item"><div class="detail-label">공급가액</div><div class="detail-value">' + formatNumber(subtotal) + '원</div></div>';
         html += '<div class="detail-item"><div class="detail-label">세액 (10%)</div><div class="detail-value">' + formatNumber(tax) + '원</div></div>';
         html += '<div class="detail-item"><div class="detail-label">합계금액</div><div class="detail-value" style="color: #6c757d; font-size: 18px;">' + formatNumber(total) + '원</div></div>';
         html += '</div>';

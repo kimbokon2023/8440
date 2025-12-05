@@ -532,6 +532,9 @@ $title_message = '품의서';
                             <button type="button" class="btn btn-dark btn-sm mx-3" onclick='location.reload();' title="새로고침">
                                 <i class="bi bi-arrow-clockwise"></i>
                             </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="openHelpModal()" title="도움말">
+                                <i class="bi bi-question-circle"></i> 도움말
+                            </button>
                         </div>
                         <div class="d-flex mb-1 mt-1 justify-content-center align-items-center">
                             <!-- 기간부터 검색까지 연결 묶음 start -->
@@ -628,6 +631,49 @@ $title_message = '품의서';
             </div>
 
         </form>
+
+    <!-- 도움말 모달 -->
+    <div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-secondary text-white py-3">
+                    <h5 class="modal-title fs-5" id="helpModalLabel">
+                        <i class="bi bi-info-circle"></i> 품의서 관리 사용법
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="max-height: 70vh; overflow-y: auto; font-size: 1.15rem;">
+                    <div class="p-2">
+                        <h6 class="fw-bold text-primary mb-2"><i class="bi bi-search"></i> 조회 및 검색</h6>
+                        <p class="text-muted mb-4">
+                            <strong>기간 설정</strong> 버튼을 통해 원하는 기간의 품의서를 조회할 수 있습니다.<br>
+                            검색창에 <strong>제목, 기안인, 구매처</strong> 등을 입력하여 빠르게 찾을 수 있습니다.
+                        </p>
+
+                        <h6 class="fw-bold text-success mb-2"><i class="bi bi-pencil-fill"></i> 신규 작성</h6>
+                        <p class="text-muted mb-4">
+                            우측 하단의 <strong>'신규'</strong> 버튼을 클릭하여 새로운 품의서를 작성할 수 있습니다.<br>
+                            필요한 정보를 입력하고 결재 라인을 지정하여 상신하세요.
+                        </p>
+
+                        <h6 class="fw-bold text-dark mb-2"><i class="bi bi-file-text"></i> 상세 보기</h6>
+                        <p class="text-muted mb-4">
+                            목록에서 원하는 항목을 클릭하면 <strong>상세 내용</strong>을 확인할 수 있습니다.<br>
+                            결재 진행 상황 및 첨부 파일을 확인할 수 있습니다.
+                        </p>
+                        
+                        <h6 class="fw-bold text-warning mb-2"><i class="bi bi-arrow-clockwise"></i> 새로고침</h6>
+                        <p class="text-muted mb-0">
+                            상단의 <strong>새로고침</strong> 아이콘을 클릭하여 최신 목록을 불러올 수 있습니다.
+                        </p>
+                    </div>
+                </div>
+                <div class="modal-footer py-2 bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="container-fluid">
         <?php include '../footer_sub.php'; ?>
@@ -781,6 +827,11 @@ $title_message = '품의서';
 
             var url = "write_form.php?mode=view&num=" + num + "&tablename=" + tablename;
             customPopup(url, '', 800, 800);
+        }
+
+        function openHelpModal() {
+            var modal = new bootstrap.Modal(document.getElementById('helpModal'));
+            modal.show();
         }
     </script>
 

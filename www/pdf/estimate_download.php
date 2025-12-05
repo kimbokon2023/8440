@@ -1,6 +1,9 @@
 <?php
 // 로컬/서버 환경 설정
-$is_local = (isset($_SERVER['HTTP_HOST']) && (strpos($_SERVER['HTTP_HOST']) !== false || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false));
+$is_local = (
+    isset($_SERVER['HTTP_HOST']) &&
+    (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false)
+);
 $base_url = $is_local ? 'http://localhost/mirae8440/www' : 'http://8440.co.kr';
 
 // 메모리 & 타임아웃 (최상단)
@@ -55,11 +58,44 @@ $items = !empty($estimate['estimate_items']) ? json_decode($estimate['estimate_i
 // 기본 정보 매핑
 $recipient = $estimate['contact_name'] ?? $estimate['supplier_name'] ?? '';
 $site_name = $estimate['project_site'] ?? '';
+$reference = $estimate['reference'] ?? '';
 $quote_date = $estimate['issue_date'] ?? date('Y-m-d');
 $signed_by = '소현철'; // 고정값 또는 설정에서 가져오기
 $payment_account = '중소기업은행 339-084210-01-012 ㈜ 미래기업'; // 고정값
 $estimate_no = $estimate['estimate_no'] ?? '';
 $note = $estimate['note'] ?? '';
+
+// 문서번호 자동 생성 (형식: YYYYMM-NN)
+if (empty($estimate_no)) {
+    // 견적서 생성일을 기준으로 연도와 월 추출
+    $issue_date = $estimate['issue_date'] ?? date('Y-m-d');
+    $date_parts = explode('-', $issue_date);
+    $year = isset($date_parts[0]) ? $date_parts[0] : date('Y');
+    $month = isset($date_parts[1]) ? $date_parts[1] : date('m');
+    
+    // 해당 연도/월에 생성된 견적서 중에서 현재 견적서의 순서 찾기
+    // issue_date와 id를 기준으로 정렬하여 순서 결정
+    $year_month = $year . '-' . $month;
+    $sql_seq = "SELECT COUNT(*) + 1 as seq 
+                FROM `estimates` 
+                WHERE DATE_FORMAT(issue_date, '%Y-%m') = :year_month 
+                AND is_deleted = 0
+                AND (
+                    issue_date < :issue_date 
+                    OR (issue_date = :issue_date2 AND id <= :current_id)
+                )";
+    $stmt_seq = $pdo->prepare($sql_seq);
+    $stmt_seq->bindValue(':year_month', $year_month, PDO::PARAM_STR);
+    $stmt_seq->bindValue(':issue_date', $issue_date, PDO::PARAM_STR);
+    $stmt_seq->bindValue(':issue_date2', $issue_date, PDO::PARAM_STR);
+    $stmt_seq->bindValue(':current_id', $id, PDO::PARAM_INT);
+    $stmt_seq->execute();
+    $seq_result = $stmt_seq->fetch(PDO::FETCH_ASSOC);
+    $sequence = $seq_result['seq'] ?? 1;
+    
+    // 문서번호 생성 (YYYYMM-NN 형식)
+    $estimate_no = $year . $month . '-' . str_pad($sequence, 2, '0', STR_PAD_LEFT);
+}
 
 // 헬퍼 (PHP 7.3)
 $esc = function ($s) { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); };
@@ -68,13 +104,82 @@ $nf = function ($v, $dec = 0) {
     return number_format($n, $dec);
 };
 
+// 숫자를 한글로 변환하는 함수 (일금 형식)
+$numToKorean = function($number) {
+    $num = (int)round((float)str_replace(',', '', (string)$number));
+    if ($num == 0) return '영';
+    
+    $han = ['', '일', '이', '삼', '사', '오', '육', '칠', '팔', '구'];
+    $unit = ['', '십', '백', '천'];
+    $unit2 = ['', '만', '억', '조'];
+    
+    $numStr = (string)$num;
+    $len = strlen($numStr);
+    $result = '';
+    
+    // 4자리씩 그룹으로 나누기 (뒤에서부터)
+    $groupCount = (int)ceil($len / 4);
+    for ($g = 0; $g < $groupCount; $g++) {
+        $start = max(0, $len - ($g + 1) * 4);
+        $end = $len - $g * 4;
+        $groupStr = substr($numStr, $start, $end - $start);
+        $groupNum = (int)$groupStr;
+        
+        if ($groupNum == 0) continue;
+        
+        $groupStr = str_pad($groupStr, 4, '0', STR_PAD_LEFT);
+        $partResult = '';
+        
+        // 천, 백, 십, 일 자리 처리
+        for ($i = 0; $i < 4; $i++) {
+            $digit = (int)$groupStr[$i];
+            if ($digit == 0) continue;
+            
+            if ($i == 0) {
+                // 천의 자리
+                if ($digit == 1) {
+                    $partResult .= '천';
+                } else {
+                    $partResult .= $han[$digit] . '천';
+                }
+            } else if ($i == 1) {
+                // 백의 자리
+                if ($digit == 1) {
+                    $partResult .= '백';
+                } else {
+                    $partResult .= $han[$digit] . '백';
+                }
+            } else if ($i == 2) {
+                // 십의 자리
+                if ($digit == 1) {
+                    $partResult .= '십';
+                } else {
+                    $partResult .= $han[$digit] . '십';
+                }
+            } else {
+                // 일의 자리
+                $partResult .= $han[$digit];
+            }
+        }
+        
+        // 만, 억, 조 단위 추가
+        if ($g > 0 && $partResult) {
+            $result = $partResult . $unit2[$g] . $result;
+        } else {
+            $result = $partResult . $result;
+        }
+    }
+    
+    return $result ?: '영';
+};
+
 // ------------------------- 합계 계산 -------------------------
 $total_supply = 0;
 $total_tax = 0;
 
 // 상품 합계
 foreach ($items as $it) {
-    $supply = (float)str_replace(',', '', $it['견적가액'] ?? $it['amount'] ?? 0);
+    $supply = (float)str_replace(',', '', $it['공급가액'] ?? $it['견적가액'] ?? $it['amount'] ?? 0);
     $tax = (float)str_replace(',', '', $it['세액'] ?? $it['tax_amount'] ?? 0);
     
     // 값이 없으면 계산
@@ -271,7 +376,7 @@ ob_start();
   <table style="width:100%; border-collapse:collapse;">
     <tr>
       <td class="small muted">문서번호: <?= $esc($estimate_no) ?></td>
-      <td class="text-right small muted">생성일: <?= date('Y-m-d') ?></td>
+      <td class="text-right small muted">생성일: <?= $esc($quote_date) ?></td>
     </tr>
   </table>
   <div class="hr"></div>
@@ -292,14 +397,15 @@ ob_start();
 </div>
 
 <!-- 제목 -->
-<div class="doc-title mb2">견      적      서</div>
-<div class="doc-title2 ">ESTIMATE</div>
+<div class="doc-title mb2">견    적    서</div>
+<div class="doc-title2 ">E S T I M A T E</div>
 <hr>
-<div class="mb2" style="display:flex; justify-content:space-between; align-items:center; width:100%;">
-  <span class="doc-title3 mb6" style="flex:0 1 auto;">
+<div class="mb2" style="display: flex; align-items: center; width: 100%;">
+  <span class="doc-title3 mb6" style="flex: 1 1 auto;">
     <?= $esc($recipient) ?> 貴下
   </span>
-  <span class="mb2" style="white-space:nowrap; font-size:12pt;">
+  <span style="white-space: nowrap; font-size: 11pt; flex: 0 0 auto; margin-left: auto; text-align: right;">
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     <?= date('Y년 n월 j일', strtotime($quote_date)) ?>
   </span>
 </div>
@@ -321,30 +427,37 @@ ob_start();
 <table class="mb8" style="border:none; table-layout:fixed; width:100%;">
   <tr>
     <td class="grid-cell-half" style="border:none; padding-right:10px;">
-      <span class="fw-700"> 현장명 :  <?= $esc($site_name) ?: '-' ?> </span>
+      <span class="fw-700"> 참조 :  <?= $esc($reference) ?: '-' ?> </span>
       <br>
+      <span class="fw-700"> 현장명 :  <?= $esc($site_name) ?: '-' ?> </span>
       <br>
       <br>
       <span> 별첨과 같이 견적합니다. </span>
     </td>
     <td class="grid-cell-half" style="border:none; ">
-      <table style="border:none; font-size:9pt; ">
+      <table style="border:none;">
         <tbody>
-        <tr>
+        <tr >
         <td>
-          <div style="position: relative; display: inline-block;">
+          <div style="position: absolute; display: inline-block; top: 130px; right: 170px;">
               <!-- 로고 영역 공란 -->
+              <img src="https://8440.co.kr/img/mirae_logo.png" style="width: 100%; max-width: 120px; height: auto; object-fit: contain;">
           </div>
         </td>
         </tr>
         <tr>
-          <td colspan="4" style="font-size:8pt;">
+          <td  style="font-size:9pt; text-align:right; padding-right: 0;">
            <br>
-             본사: 경기도 김포시 양촌읍 흥신로 220-27
-            <br>
+            <div style="text-align:right; width:100%;">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+             주소 : 경기도 김포시 양촌읍 흥신로 220-27
+            </div>
+            <div style="text-align:right; width:100%;">
                 T E L : 031 ) 983 - 8440 &nbsp;&nbsp;|&nbsp;&nbsp;
                 F A X : 031 ) 982 - 8449
-            <br>
+            </div>
             <?php
                 // 이미지 파일 경로 확인 및 처리
                 $stamp_paths = [
@@ -362,8 +475,8 @@ ob_start();
                             // PNG 파일을 Base64로 인코딩하여 임베딩
                             $png_content = file_get_contents($path);
                             $base64_png = base64_encode($png_content);
-                            // 도장 위치 조정 (top: 245px -> 225px)
-                            $stamp_html = '<img src="data:image/png;base64,' . $base64_png . '" style="width: 45px; height: 45px; position: absolute; top: 225px; left: 82%; transform: translateX(-50%); z-index: 10;" alt="미래기업도장">';
+                            // 도장 위치 조정 (우측 끝에 붙도록)
+                            $stamp_html = '<img src="data:image/png;base64,' . $base64_png . '" style="width: 40px; height: 40px; position: absolute; top: 230px; right: 0; z-index: 10;" alt="미래기업도장">';
                         }
                         break;
                     }
@@ -372,11 +485,11 @@ ob_start();
                 if ($stamp_found && $stamp_html) {
                     echo $stamp_html;
                 } else {
-                    // 기본 SVG 도장 생성
-                    echo '<svg width="50" height="50" viewBox="0 0 50 50" style="position: absolute; top: -5px; left: 50%; transform: translateX(-50%); z-index: 10;"><circle cx="25" cy="25" r="23" fill="#D32F2F" stroke="#8B0000" stroke-width="2"/><text x="25" y="30" font-family="serif" font-size="10" fill="#8B0000" text-anchor="middle" font-weight="bold">도장</text></svg>';
+                    // 기본 SVG 도장 생성 (우측 끝에 붙도록)
+                    echo '<svg width="50" height="50" viewBox="0 0 50 50" style="position: absolute; top: -5px; right: 0; z-index: 10;"><circle cx="25" cy="25" r="23" fill="#D32F2F" stroke="#8B0000" stroke-width="2"/><text x="25" y="30" font-family="serif" font-size="10" fill="#8B0000" text-anchor="middle" font-weight="bold">도장</text></svg>';
                 }
               ?>
-            <div style="width:100%; margin-top: 5px; letter-spacing:0.1em; text-align:left; display:block; white-space: nowrap; font-size: 10pt;">
+            <div style="width:100%; margin-top: 5px; letter-spacing:0.1em; text-align:right; display:block; white-space: nowrap; font-size: 10pt;">
                 <b>(주)미래기업</b> &nbsp;대표&nbsp; <?= $esc($signed_by) ?> &nbsp;(인)
             </div>
         </td>
@@ -388,12 +501,11 @@ ob_start();
 </table>
 
 <!-- 합계 -->
-<table class="totals mb12">
+<table class="totals mb12" style="width: 100%; border: 1px solid #000; border-collapse: collapse;">
   <tr>
-    <td class="label">합계금액 (공급가액)</td>
-    <td class="value num">₩ <?= $nf($grand_supply) ?></td>
-    <td class="label">합계금액 (부가세포함)</td>
-    <td class="value num">₩ <?= $nf($grand_total) ?></td>
+    <td style="padding: 8px 12px; text-align: left; font-size: 11pt; font-weight: bold; border: 1px solid #000; background: #f7f7f7;">
+      합계금액 : 일금 <?= $esc($numToKorean($grand_total)) ?> 원정 (₩<?= $nf($grand_total) ?>) (부가세포함)
+    </td>
   </tr>
 </table>
 
@@ -402,14 +514,14 @@ ob_start();
 <table class="tbl mb12">
   <thead>
     <tr>
-      <th style="width:5%;">No.</th>
-      <th style="width:30%;">품목</th>
-      <th style="width:15%;">규격</th>
-      <th style="width:10%;" class="num">수량</th>
-      <th style="width:10%;" class="num">단위</th>
-      <th style="width:10%;" class="num">단가</th>
-      <th style="width:10%;" class="num">공급가액</th>
-      <th style="width:10%;" class="num">세액</th>
+      <th style="width:5%;" >No.</th>
+      <th style="width:30%;" >품목</th>
+      <th style="width:15%;" >규격</th>
+      <th style="width:10%;" >수량</th>
+      <th style="width:10%;" >단위</th>
+      <th style="width:10%;" >단가</th>
+      <th style="width:10%;" >공급가액</th>
+      <th style="width:10%;" >세액</th>
     </tr>
   </thead>
   <tbody>
@@ -448,7 +560,7 @@ ob_start();
   </tbody>
   <tfoot>
     <tr>
-      <td colspan="6" class="text-right">소계</td>
+      <td colspan="6" class="text-center">소계</td>
       <td class="num"><?= $nf($total_supply) ?></td>
       <td class="num"><?= $nf($total_tax) ?></td>
     </tr>

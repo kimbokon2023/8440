@@ -520,17 +520,37 @@ body.iframe-mode .btn-primary:hover {
 }
 
 /* Tabulator 자동 계산 필드 스타일 */
-.tabulator-cell[tabulator-field="견적가액"],
+.tabulator-cell[tabulator-field="공급가액"],
 .tabulator-cell[tabulator-field="세액"] {
     background-color: var(--dashboard-primary) !important;
     color: var(--dashboard-text);
     font-weight: 500;
 }
 
-.tabulator-cell[tabulator-field="견적가액"]:hover,
+.tabulator-cell[tabulator-field="공급가액"]:hover,
 .tabulator-cell[tabulator-field="세액"]:hover {
     background-color: var(--dashboard-secondary) !important;
     cursor: not-allowed;
+}
+
+/* 합계 행 스타일 */
+.tabulator .tabulator-calcs {
+    background-color: #f8f9fa !important;
+    border-top: 2px solid #6c757d !important;
+    font-weight: bold !important;
+}
+
+.tabulator .tabulator-calcs .tabulator-cell {
+    background-color: #f8f9fa !important;
+    font-weight: bold !important;
+    color: #333 !important;
+}
+
+.tabulator .tabulator-calcs .tabulator-cell[tabulator-field="공급가액"],
+.tabulator .tabulator-calcs .tabulator-cell[tabulator-field="세액"] {
+    background-color: #e9ecef !important;
+    color: #333 !important;
+    font-weight: bold !important;
 }
 
 .tabulator .tabulator-row {
@@ -635,6 +655,13 @@ body.iframe-mode .btn-primary:hover {
                         </div>
 
                         <div class="mb-2 row align-items-center" style="margin-bottom: 8px; display: flex; align-items: center;">
+                            <label class="col-sm-3 col-form-label fw-bold" style="font-weight: bold; width: 25%;">참조</label>
+                            <div class="col-sm-9" style="width: 75%;">
+                                <input type="text" class="form-control form-control-sm" name="reference" value="<?php echo $order_data ? htmlspecialchars($order_data['reference'] ?? '') : ''; ?>" placeholder="참조 입력" style="width: 100%; padding: 4px 8px; border: 1px solid #ced4da; border-radius: 4px;">
+                            </div>
+                        </div>
+
+                        <div class="mb-2 row align-items-center" style="margin-bottom: 8px; display: flex; align-items: center;">
                             <label class="col-sm-3 col-form-label fw-bold" style="font-weight: bold; width: 25%;">현장명</label>
                             <div class="col-sm-9" style="width: 75%;">
                                 <input type="text" class="form-control form-control-sm" name="project_site" id="project_site" value="<?php 
@@ -644,13 +671,6 @@ body.iframe-mode .btn-primary:hover {
                                         echo $order_data ? htmlspecialchars($order_data['project_site'] ?? '') : '';
                                     }
                                 ?>" placeholder="현장명 입력" style="width: 100%; padding: 4px 8px; border: 1px solid #ced4da; border-radius: 4px;">
-                            </div>
-                        </div>
-
-                        <div class="mb-2 row align-items-center" style="margin-bottom: 8px; display: flex; align-items: center;">
-                            <label class="col-sm-3 col-form-label fw-bold" style="font-weight: bold; width: 25%;">전화번호</label>
-                            <div class="col-sm-9" style="width: 75%;">
-                                <input type="text" class="form-control form-control-sm" name="phone" value="<?php echo $order_data ? htmlspecialchars($order_data['phone'] ?? '') : ''; ?>" placeholder="연락처 입력" style="width: 100%; padding: 4px 8px; border: 1px solid #ced4da; border-radius: 4px;">
                             </div>
                         </div>
 
@@ -798,7 +818,7 @@ function createEmptyRowData(index) {
         규격: '',
         수량: '',
         단가: '',
-        견적가액: '',
+        공급가액: '',
         세액: '',
         비고: ''
     };
@@ -863,7 +883,7 @@ foreach ($cart_items_data as $item):
         '규격' => $item['spec'] ?? '',
         '수량' => $quantity,
         '단가' => $unit_price,
-        '견적가액' => $supply_amount,
+        '공급가액' => $supply_amount,
         '세액' => $tax,
         '비고' => $item['request_comment'] ?? ''
     ];
@@ -875,14 +895,22 @@ orderItems = <?php echo json_encode($cart_order_items, JSON_UNESCAPED_UNICODE); 
 orderItems = <?php 
     $items = json_decode($order_data['estimate_items'] ?? '[]', true);
     if (!is_array($items)) $items = [];
+    // 기존 데이터의 "견적가액" 필드를 "공급가액"으로 변환
+    foreach ($items as &$item) {
+        if (isset($item['견적가액']) && !isset($item['공급가액'])) {
+            $item['공급가액'] = $item['견적가액'];
+            unset($item['견적가액']);
+        }
+    }
+    unset($item);
     echo json_encode($items, JSON_UNESCAPED_UNICODE); 
 ?>;
 <?php else: ?>
 orderItems = [
-    {순번: 1, 품목: '', 규격: '', 수량: '', 단가: '', 견적가액: '', 세액: '', 비고: ''},
-    {순번: 2, 품목: '', 규격: '', 수량: '', 단가: '', 견적가액: '', 세액: '', 비고: ''},
-    {순번: 3, 품목: '', 규격: '', 수량: '', 단가: '', 견적가액: '', 세액: '', 비고: ''},
-    {순번: 4, 품목: '', 규격: '', 수량: '', 단가: '', 견적가액: '', 세액: '', 비고: ''}
+    {순번: 1, 품목: '', 규격: '', 수량: '', 단가: '', 공급가액: '', 세액: '', 비고: ''},
+    {순번: 2, 품목: '', 규격: '', 수량: '', 단가: '', 공급가액: '', 세액: '', 비고: ''},
+    {순번: 3, 품목: '', 규격: '', 수량: '', 단가: '', 공급가액: '', 세액: '', 비고: ''},
+    {순번: 4, 품목: '', 규격: '', 수량: '', 단가: '', 공급가액: '', 세액: '', 비고: ''}
 ];
 <?php endif; ?>
 
@@ -924,9 +952,9 @@ document.addEventListener('DOMContentLoaded', function() {
                  var 수량 = parseFloat(String(data.수량).replace(/,/g, '')) || 0;
                  var 단가 = parseFloat(String(data.단가).replace(/,/g, '')) || 0;
                  if (수량 && 단가) {
-                     var 견적가액 = Math.round(수량 * 단가);
-                     var 세액 = Math.round(견적가액 * 0.1);
-                     row.update({견적가액: 견적가액, 세액: 세액});
+                     var 공급가액 = Math.round(수량 * 단가);
+                     var 세액 = Math.round(공급가액 * 0.1);
+                     row.update({공급가액: 공급가액, 세액: 세액});
                      setTimeout(updateTotalAmount, 50);
                  }
              },
@@ -981,20 +1009,33 @@ document.addEventListener('DOMContentLoaded', function() {
                  var 수량 = parseFloat(String(data.수량).replace(/,/g, '')) || 0;
                  var 단가 = parseFloat(String(data.단가).replace(/,/g, '')) || 0;
                  if (수량 && 단가) {
-                     var 견적가액 = Math.round(수량 * 단가);
-                     var 세액 = Math.round(견적가액 * 0.1);
-                     row.update({견적가액: 견적가액, 세액: 세액});
+                     var 공급가액 = Math.round(수량 * 단가);
+                     var 세액 = Math.round(공급가액 * 0.1);
+                     row.update({공급가액: 공급가액, 세액: 세액});
                      setTimeout(updateTotalAmount, 50);
                  }
              },
              cellClick: function() { return true; }},
-            {title: "견적가액", field: "견적가액", width: 120, hozAlign: "right", headerHozAlign: "center", editor: false, validator: "numeric", resizable: true,
+            {title: "공급가액", field: "공급가액", width: 120, hozAlign: "right", headerHozAlign: "center", editor: false, validator: "numeric", resizable: true,
              formatter: function(cell) {
                  var value = cell.getValue();
-                 return value ? Number(value).toLocaleString() : '';
+                 if (value === null || value === undefined || value === '') {
+                     return '';
+                 }
+                 var numValue = typeof value === 'string' ? parseFloat(value.replace(/,/g, '')) : Number(value);
+                 return !isNaN(numValue) && numValue !== 0 ? numValue.toLocaleString() : '';
+             },
+             bottomCalc: "sum",
+             bottomCalcFormatter: function(cell) {
+                 var value = cell.getValue();
+                 if (value === null || value === undefined || value === '') {
+                     return '';
+                 }
+                 var numValue = typeof value === 'string' ? parseFloat(value.replace(/,/g, '')) : Number(value);
+                 return !isNaN(numValue) && numValue !== 0 ? numValue.toLocaleString() : '';
              },
              cellClick: function(e, cell) {
-                 console.log('견적가액은 자동 계산됩니다 (수량 × 단가)');
+                 console.log('공급가액은 자동 계산됩니다 (수량 × 단가)');
                  return false;
              }},
             {title: "세액", field: "세액", width: 100, hozAlign: "right", headerHozAlign: "center", editor: false, validator: "numeric", resizable: true,
@@ -1002,8 +1043,17 @@ document.addEventListener('DOMContentLoaded', function() {
                  var value = cell.getValue();
                  return value ? Number(value).toLocaleString() : '';
              },
+             bottomCalc: "sum",
+             bottomCalcFormatter: function(cell) {
+                 var value = cell.getValue();
+                 if (value === null || value === undefined || value === '') {
+                     return '';
+                 }
+                 var numValue = typeof value === 'string' ? parseFloat(value.replace(/,/g, '')) : Number(value);
+                 return !isNaN(numValue) && numValue !== 0 ? numValue.toLocaleString() : '';
+             },
              cellClick: function(e, cell) {
-                 console.log('세액은 자동 계산됩니다 (견적가액의 10%)');
+                 console.log('세액은 자동 계산됩니다 (공급가액의 10%)');
                  return false;
              }},
             {title: "비고", field: "비고", widthGrow: 1, hozAlign: "left", headerHozAlign: "center", editor: "input", resizable: true}
@@ -1011,7 +1061,7 @@ document.addEventListener('DOMContentLoaded', function() {
         cellEdited: function(cell) {
             console.log(`📝 [DEBUG] 셀 편집: ${cell.getField()} = ${cell.getValue()}`);
             // 컬럼별 cellEdited에서 계산하므로 여기서는 전체 합계만 업데이트
-            if (cell.getField() !== '견적가액' && cell.getField() !== '세액') {
+            if (cell.getField() !== '공급가액' && cell.getField() !== '세액') {
                 setTimeout(updateTotalAmount, 100);
             }
         },
@@ -1020,10 +1070,39 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // 초기 로드 시 합계 계산
+    // 초기 로드 시 공급가액 재계산 및 합계 계산
     setTimeout(function() {
+        // 기존 데이터의 공급가액이 없거나 잘못된 경우 재계산
+        var rows = orderTable.getRows();
+        rows.forEach(function(row) {
+            var data = row.getData();
+            var 수량 = parseFloat(String(data.수량 || '').replace(/,/g, '')) || 0;
+            var 단가 = parseFloat(String(data.단가 || '').replace(/,/g, '')) || 0;
+            var 공급가액 = parseFloat(String(data.공급가액 || '').replace(/,/g, '')) || 0;
+            var 세액 = parseFloat(String(data.세액 || '').replace(/,/g, '')) || 0;
+            
+            // 수량과 단가가 모두 있는 경우
+            if (수량 > 0 && 단가 > 0) {
+                var 예상공급가액 = Math.round(수량 * 단가);
+                var 예상세액 = Math.round(예상공급가액 * 0.1);
+                
+                // 공급가액이 없거나 잘못된 경우 재계산
+                if (!공급가액 || 공급가액 !== 예상공급가액) {
+                    row.update({
+                        공급가액: 예상공급가액,
+                        세액: 예상세액
+                    });
+                } else if (공급가액 && (!세액 || 세액 !== 예상세액)) {
+                    // 공급가액은 맞지만 세액이 잘못된 경우 세액만 업데이트
+                    row.update({
+                        세액: 예상세액
+                    });
+                }
+            }
+        });
+        
         updateTotalAmount();
-    }, 100);
+    }, 200);
 });
 
 // 계산 업데이트
@@ -1049,21 +1128,21 @@ function updateCalculations(cell) {
             단가 = parseFloat(단가) || 0;
         }
         
-        // 견적가액 = 수량 × 단가 (정확한 계산)
-        var 견적가액 = Math.round(수량 * 단가);
+        // 공급가액 = 수량 × 단가 (정확한 계산)
+        var 공급가액 = Math.round(수량 * 단가);
         
-        // 세액 = 견적가액 × 10% (부가세, 소수점 반올림)
-        var 세액 = Math.round(견적가액 * 0.1);
+        // 세액 = 공급가액 × 10% (부가세, 소수점 반올림)
+        var 세액 = Math.round(공급가액 * 0.1);
         
         console.log('📊 [DEBUG] 자동 계산 상세:');
         console.log('   - 수량: ' + 수량 + ' (원본: ' + data.수량 + ')');
         console.log('   - 단가: ' + 단가.toLocaleString() + ' (원본: ' + data.단가 + ')');
-        console.log('   - 견적가액: ' + 견적가액.toLocaleString() + ' (' + 수량 + ' × ' + 단가 + ')');
-        console.log('   - 세액: ' + 세액.toLocaleString() + ' (견적가액의 10%)');
+        console.log('   - 공급가액: ' + 공급가액.toLocaleString() + ' (' + 수량 + ' × ' + 단가 + ')');
+        console.log('   - 세액: ' + 세액.toLocaleString() + ' (공급가액의 10%)');
         
         // 한 번에 업데이트 (이벤트 루프 방지)
         row.update({
-            견적가액: 견적가액,
+            공급가액: 공급가액,
             세액: 세액
         });
         
@@ -1082,15 +1161,15 @@ function updateCalculations(cell) {
 // 전체 합계 업데이트
 function updateTotalAmount() {
     var data = orderTable.getData();
-    var totalSupply = 0; // 견적가액 합계
+    var totalSupply = 0; // 공급가액 합계
     var totalTax = 0;    // 세액 합계
     var grandTotal = 0;  // 총 합계
     
     data.forEach(function(row) {
-        var 견적가액 = parseFloat(row.견적가액) || 0;
+        var 공급가액 = parseFloat(row.공급가액) || 0;
         var 세액 = parseFloat(row.세액) || 0;
         
-        totalSupply += 견적가액;
+        totalSupply += 공급가액;
         totalTax += 세액;
     });
     
@@ -1099,7 +1178,7 @@ function updateTotalAmount() {
     // 합계금액 필드 업데이트
     document.getElementById('totalAmount').value = '₩' + grandTotal.toLocaleString();
     
-    console.log('💰 [DEBUG] 합계 계산: 견적가액(' + totalSupply.toLocaleString() + ') + 세액(' + totalTax.toLocaleString() + ') = 총액(' + grandTotal.toLocaleString() + ')');
+    console.log('💰 [DEBUG] 합계 계산: 공급가액(' + totalSupply.toLocaleString() + ') + 세액(' + totalTax.toLocaleString() + ') = 총액(' + grandTotal.toLocaleString() + ')');
 }
 
 // 행 추가
@@ -1189,7 +1268,7 @@ function collectFormData() {
         'action', 'id', 'order_no', 'issue_date', 'supplier_code',
         'supplier_name', 'supplier_address', 'business_type', 'business_item',
         'supplier_phone', 'supplier_fax', 'contact_name', 'business_registration_number',
-        'phone', 'fax', 'project_site', 'note', 'status'
+        'reference', 'fax', 'project_site', 'note', 'status'
     ];
     
     basicFields.forEach(function(fieldName) {
@@ -1653,10 +1732,8 @@ window.onload = function() {
                 customerIdInput.value = customer.num || ''; 
             }
 
-            var phoneInput = document.querySelector('input[name="phone"]');
-            // 휴대폰 우선, 없으면 근무처 전화
-            var phoneToUse = customer.mobile_phone || customer.work_phone || '';
-            if (phoneInput) phoneInput.value = formatPhoneNumber(phoneToUse);
+            // 참조 필드는 거래처 검색 시 자동 입력하지 않음 (사용자 직접 입력)
+            // var referenceInput = document.querySelector('input[name="reference"]');
             
             // 이메일 설정 및 표시
             var emailInput = document.getElementById('email');
@@ -1727,7 +1804,7 @@ window.onload = function() {
 
         // 입력 필드에 포맷팅 적용
         document.addEventListener('DOMContentLoaded', function() {
-            const phoneInput = document.querySelector('input[name="phone"]');
+            // 참조 필드는 포맷팅 불필요 (자유 텍스트 입력)
             const faxInput = document.querySelector('input[name="fax"]');
             const bizNumInput = document.querySelector('input[name="business_registration_number"]');
 
@@ -1737,11 +1814,6 @@ window.onload = function() {
 
             function applyBizFormat(e) {
                 e.target.value = formatBizNumber(e.target.value);
-            }
-
-            if (phoneInput) {
-                phoneInput.addEventListener('input', applyPhoneFormat);
-                phoneInput.value = formatPhoneNumber(phoneInput.value); // 초기값 포맷팅
             }
             if (faxInput) {
                 faxInput.addEventListener('input', applyPhoneFormat); // 팩스도 전화번호 형식 사용

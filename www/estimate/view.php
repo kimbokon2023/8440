@@ -77,7 +77,7 @@ $items = json_decode($estimate['estimate_items'] ?? '[]', true) ?? [];
 $total_supply = 0;
 $total_tax = 0;
 foreach ($items as $item) {
-    $s_amt = isset($item['견적가액']) ? str_replace(',', '', $item['견적가액']) : ($item['supply_amount'] ?? 0);
+    $s_amt = isset($item['공급가액']) ? str_replace(',', '', $item['공급가액']) : ($item['supply_amount'] ?? 0);
     $t_amt = isset($item['세액']) ? str_replace(',', '', $item['세액']) : ($item['tax_amount'] ?? 0);
     
     $total_supply += (float)$s_amt;
@@ -214,7 +214,7 @@ $total_amount = $total_supply + $total_tax;
                             <th style="width: 8%;">수량</th>
                             <th style="width: 8%;">단위</th>
                             <th style="width: 12%;">단가</th>
-                            <th style="width: 12%;">견적가액</th>
+                            <th style="width: 12%;">공급가액</th>
                             <th style="width: 10%;">세액</th>
                             <th style="width: 15%;">비고</th>
                         </tr>
@@ -228,7 +228,7 @@ $total_amount = $total_supply + $total_tax;
                             $qty = $item['quantity'] ?? $item['수량'] ?? 0;
                             $unit = $item['unit'] ?? $item['단위'] ?? 'EA';
                             $price = $item['unit_price'] ?? $item['단가'] ?? 0;
-                            $amt = $item['supply_amount'] ?? $item['견적가액'] ?? 0;
+                            $amt = $item['supply_amount'] ?? $item['공급가액'] ?? 0;
                             $tax = $item['tax_amount'] ?? $item['세액'] ?? 0;
                             $rem = $item['remarks'] ?? $item['비고'] ?? '';
                         ?>

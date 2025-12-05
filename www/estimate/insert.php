@@ -150,7 +150,7 @@ $supplier_phone = trim($_POST['supplier_phone'] ?? '');
 $supplier_fax = trim($_POST['supplier_fax'] ?? '');
 $contact_name = trim($_POST['contact_name'] ?? '');
 $business_registration_number = trim($_POST['business_registration_number'] ?? '');
-$phone = trim($_POST['phone'] ?? '');
+$reference = trim($_POST['reference'] ?? '');
 $fax = trim($_POST['fax'] ?? '');
 $project_site = trim($_POST['project_site'] ?? '');
 $delivery_date = $_POST['delivery_date'] ?? null;
@@ -187,8 +187,8 @@ debug_log("파싱된 품목 데이터", $order_items);
 $subtotal = 0;
 if (is_array($order_items)) {
     foreach ($order_items as $item) {
-        if (isset($item['견적가액']) && is_numeric($item['견적가액'])) {
-            $subtotal += floatval($item['견적가액']);
+        if (isset($item['공급가액']) && is_numeric($item['공급가액'])) {
+            $subtotal += floatval($item['공급가액']);
         }
     }
 }
@@ -246,7 +246,7 @@ try {
                 supplier_fax = :supplier_fax,
                 contact_name = :contact_name,
                 business_registration_number = :business_registration_number,
-                phone = :phone,
+                reference = :reference,
                 fax = :fax,
                 project_site = :project_site,
                 estimate_items = :estimate_items,
@@ -275,7 +275,7 @@ try {
             ':supplier_fax' => $supplier_fax ?: null,
             ':contact_name' => $contact_name ?: null,
             ':business_registration_number' => $business_registration_number ?: null,
-            ':phone' => $phone ?: null,
+            ':reference' => $reference ?: null,
             ':fax' => $fax ?: null,
             ':project_site' => $project_site ?: null,
             ':estimate_items' => $order_items_json,
@@ -317,12 +317,12 @@ try {
         $sql = "INSERT INTO `estimates` (
                 estimate_no, issue_date, customer_id, supplier_code, supplier_name, supplier_address,
                 business_type, business_item, supplier_phone, supplier_fax, contact_name,
-                business_registration_number, phone, fax, project_site, estimate_items, subtotal, delivery_date, delivery_location,
+                business_registration_number, reference, fax, project_site, estimate_items, subtotal, delivery_date, delivery_location,
                 payment_terms, note, status, created_at, updated_at, is_deleted, valid_date, email
                 ) VALUES (
                 :estimate_no, :issue_date, :customer_id, :supplier_code, :supplier_name, :supplier_address,
                 :business_type, :business_item, :supplier_phone, :supplier_fax, :contact_name,
-                :business_registration_number, :phone, :fax, :project_site, :estimate_items, :subtotal, :delivery_date, :delivery_location,
+                :business_registration_number, :reference, :fax, :project_site, :estimate_items, :subtotal, :delivery_date, :delivery_location,
                 :payment_terms, :note, :status, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0, :valid_date, :email
                 )";
 
@@ -340,7 +340,7 @@ try {
             ':supplier_fax' => $supplier_fax ?: null,
             ':contact_name' => $contact_name ?: null,
             ':business_registration_number' => $business_registration_number ?: null,
-            ':phone' => $phone ?: null,
+            ':reference' => $reference ?: null,
             ':fax' => $fax ?: null,
             ':project_site' => $project_site ?: null,
             ':estimate_items' => $order_items_json,

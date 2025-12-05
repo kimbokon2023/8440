@@ -12,7 +12,7 @@ var originalOrderData = null;
 function toggleEditMode() {
     isEditMode = !isEditMode;
 
-    var modal EditBtn = document.getElementById('modalEditBtn');
+    var modalEditBtn = document.getElementById('modalEditBtn');
     var modalSaveBtn = document.getElementById('modalSaveBtn');
     var modalCancelBtn = document.getElementById('modalCancelBtn');
 

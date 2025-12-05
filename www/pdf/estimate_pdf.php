@@ -1,6 +1,9 @@
 <?php
 // 로컬/서버 환경 설정
-$is_local = (isset($_SERVER['HTTP_HOST']) && (strpos($_SERVER['HTTP_HOST']) !== false || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false));
+$is_local = (
+    isset($_SERVER['HTTP_HOST']) &&
+    (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false)
+);
 $base_url = $is_local ? 'http://localhost/mirae8440/www' : 'http://8440.co.kr';
 
 // 메모리 & 타임아웃 (최상단)
@@ -529,7 +532,7 @@ ob_start();
   </tbody>
   <tfoot>
     <tr>
-      <td colspan="7" class="text-right">소계</td>
+      <td colspan="7" class="text-center">소계</td>
       <td class="num"><?= $nf($total_supply) ?></td>
       <td class="num"><?= $nf($total_tax) ?></td>
       <td ></td>
@@ -587,7 +590,7 @@ ob_start();
   </tbody>
   <tfoot>
     <tr>
-      <td colspan="5" class="text-right">소계</td>
+      <td colspan="5" class="text-center">소계</td>
       <td class="num"><?= $nf($os) ?></td>
       <td class="num"><?= $nf($ot) ?></td>
       <td ></td>

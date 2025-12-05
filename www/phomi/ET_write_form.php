@@ -1184,7 +1184,15 @@ if($mode == 'view') {
                 <div class="d-flex align-items-center">
                     <button type="button" id="mobileCalculateBtn" class="btn btn-success btn-sm me-2 mobile-only-btn" onclick="recalculateAllMobile()">계산하기</button>
                     <button type="button" id="saveBtn" class="btn btn-primary btn-sm me-2">저장</button>
-                    <button type="button" class="btn btn-dark btn-sm me-2" onclick="generatePDF()">PDF 저장</button>
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-dark btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            PDF
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="javascript:void(0)" onclick="previewPDF()">미리보기</a></li>
+                            <li><a class="dropdown-item" href="javascript:void(0)" onclick="generatePDF()">저장</a></li>
+                        </ul>
+                    </div>
                     <button type="button" class="btn btn-secondary btn-sm" onclick="window.close()">닫기</button>
                 </div>
             </div>
@@ -1208,8 +1216,15 @@ if($mode == 'view') {
                     <button type="button" class="btn btn-primary btn-sm me-2" onclick="copyEstimate()">복사</button>
                     <button type="button" class="btn btn-danger btn-sm me-2" onclick="deleteEstimate()">삭제</button>      
                     <button type="button" class="btn btn-info btn-sm me-2" onclick="convertToOutorder()">수주서로 변환</button>
-                    <button type="button" class="btn btn-primary btn-sm me-2" onclick="openEstimatePDF()">PDF 저장</button>
-                    <!-- <button type="button" class="btn btn-dark me-2" onclick="generatePDF()">PDF 저장</button> -->
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            PDF
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="javascript:void(0)" onclick="previewEstimatePDF()">미리보기</a></li>
+                            <li><a class="dropdown-item" href="javascript:void(0)" onclick="openEstimatePDF()">저장</a></li>
+                        </ul>
+                    </div>
                     <button type="button" class="btn btn-secondary btn-sm" onclick="window.close()">닫기</button>
                 </div>
             </div>
@@ -4851,6 +4866,178 @@ function generatePDF() {
     });
 }
 
+// PDF 미리보기 함수 (작성 모드)
+function previewPDF() {
+    var recipient = '<?= htmlspecialchars($recipient) ?>';
+    var site_name = '<?= htmlspecialchars($site_name) ?>';
+    var quote_date = '<?= $quote_date ?>';
+    
+    // 파일명 생성
+    var today = new Date();
+    var formattedDate = "(" + String(today.getFullYear()).slice(-2) + "." + ("0" + (today.getMonth() + 1)).slice(-2) + "." + ("0" + today.getDate()).slice(-2) + ")";
+    // 파일명에서 특수문자 제거
+    var sanitizedRecipient = recipient.replace(/[\\/:*?"<>|]/g, '');
+    var sanitizedSiteName = site_name.replace(/[\\/:*?"<>|]/g, '');
+    var result = '포미스톤견적서_' + sanitizedRecipient + '_' + sanitizedSiteName + formattedDate + '.pdf';        
+    
+    var element = document.getElementById('content-to-print');
+    
+    // PDF 생성 전에 작은 글씨 크기 적용
+    element.style.fontSize = '10px';
+    element.querySelectorAll('.table th, .table td').forEach(function(el) {
+        el.style.fontSize = '10px';
+        el.style.padding = '2px 4px';
+        el.style.border = '0.1px solid #000';
+        el.style.borderCollapse = 'collapse';
+        el.style.borderWidth = '0.1px';
+    });
+    element.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(function(el) {
+        el.style.fontSize = '14px';
+    });
+    element.querySelectorAll('.small').forEach(function(el) {
+        el.style.fontSize = '8px';
+    });
+    
+    // 테이블 테두리 강제 적용
+    element.querySelectorAll('.table').forEach(function(table) {
+        table.style.borderCollapse = 'collapse';
+        table.style.border = '0.1px solid #000';
+        table.style.borderSpacing = '0';
+        table.style.width = '100%';
+        table.style.borderWidth = '0.1px';
+    });
+    
+    // 모든 테이블 셀에 매우 얇은 테두리 적용
+    element.querySelectorAll('.table th, .table td').forEach(function(el) {
+        el.style.border = '0.1px solid #000';
+        el.style.borderCollapse = 'collapse';
+        el.style.borderSpacing = '0';
+        el.style.borderWidth = '0.1px';
+    });
+    
+    // rowspan 셀 테두리 강제 적용
+    element.querySelectorAll('td[rowspan]').forEach(function(cell) {
+        cell.style.border = '0.1px solid #000';
+        cell.style.borderCollapse = 'collapse';
+        cell.style.borderRight = '0.1px solid #000';
+        cell.style.borderLeft = '0.1px solid #000';
+        cell.style.borderTop = '0.1px solid #000';
+        cell.style.borderBottom = '0.1px solid #000';
+        cell.style.borderWidth = '0.1px';
+        cell.style.verticalAlign = 'middle';
+    });
+    
+    // rowspan이 있는 행의 모든 셀에 테두리 강제 적용
+    element.querySelectorAll('tr').forEach(function(row) {
+        if (row.querySelector('td[rowspan]')) {
+            row.querySelectorAll('td').forEach(function(cell) {
+                cell.style.border = '0.1px solid #000';
+                cell.style.borderCollapse = 'collapse';
+                cell.style.borderWidth = '0.1px';
+            });
+        }
+    });
+    
+    var opt = {
+        margin: [8, 2, 10, 2], // 더 작은 여백
+        filename: result,
+        image: { type: 'jpeg', quality: 1 },
+        html2canvas: {
+            scale: 4,   // 해상도를 2로 낮춤 (더 작은 글씨)
+            useCORS: true,
+            scrollY: 0,
+            scrollX: 0,
+            windowWidth: document.body.scrollWidth,
+            windowHeight: document.body.scrollHeight        
+        }, 
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: {
+            mode: ['css', 'legacy'],
+            avoid: ['tr', '.avoid-break'] // 페이지 나누기 방지
+        }
+    };
+    
+    // 미리보기: output()을 사용하여 Blob 생성 후 새 창에서 열기
+    html2pdf().from(element).set(opt).output('blob').then(function(blob) {
+        // Blob URL 생성
+        var url = URL.createObjectURL(blob);
+        
+        // 새 창에서 PDF 열기
+        var newWindow = window.open(url, '_blank');
+        if (!newWindow) {
+            alert('팝업이 차단되었습니다. 브라우저 설정에서 팝업을 허용해주세요.');
+        }
+        
+        // PDF 생성 후 원래 스타일로 복원
+        element.style.fontSize = '';
+        element.querySelectorAll('.table th, .table td').forEach(function(el) {
+            el.style.fontSize = '';
+            el.style.padding = '';
+            el.style.border = '';
+            el.style.borderCollapse = '';
+        });
+        element.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(function(el) {
+            el.style.fontSize = '';
+        });
+        element.querySelectorAll('.small').forEach(function(el) {
+            el.style.fontSize = '';
+        });
+        
+        // 테이블 테두리 스타일 복원
+        element.querySelectorAll('.table').forEach(function(table) {
+            table.style.borderCollapse = '';
+            table.style.border = '';
+            table.style.borderSpacing = '';
+            table.style.width = '';
+        });
+        
+        // 모든 테이블 셀 스타일 복원
+        element.querySelectorAll('.table th, .table td').forEach(function(el) {
+            el.style.border = '';
+            el.style.borderCollapse = '';
+            el.style.borderSpacing = '';
+        });
+        
+        // rowspan 셀 테두리 스타일 복원
+        element.querySelectorAll('td[rowspan]').forEach(function(cell) {
+            cell.style.border = '';
+            cell.style.borderCollapse = '';
+            cell.style.borderRight = '';
+            cell.style.borderLeft = '';
+            cell.style.borderTop = '';
+            cell.style.borderBottom = '';
+            cell.style.verticalAlign = '';
+        });
+        
+        // rowspan이 있는 행의 모든 셀 스타일 복원
+        element.querySelectorAll('tr').forEach(function(row) {
+            if (row.querySelector('td[rowspan]')) {
+                row.querySelectorAll('td').forEach(function(cell) {
+                    cell.style.border = '';
+                    cell.style.borderCollapse = '';
+                });
+            }
+        });
+        
+        // 메모리 정리 (선택사항)
+        setTimeout(function() {
+            URL.revokeObjectURL(url);
+        }, 1000);
+    }).catch(function(error) {
+        console.error('PDF 미리보기 생성 오류:', error);
+        alert('PDF 미리보기 생성 중 오류가 발생했습니다.');
+        
+        // 오류 발생 시에도 스타일 복원
+        element.style.fontSize = '';
+        element.querySelectorAll('.table th, .table td').forEach(function(el) {
+            el.style.fontSize = '';
+            el.style.padding = '';
+            el.style.border = '';
+            el.style.borderCollapse = '';
+        });
+    });
+}
+
 // 알파벳과 숫자가 혼합된 문자열을 자연스럽게 정렬하는 함수 (전역 함수)
 function naturalSort(a, b) {
     // 문자열을 알파벳과 숫자 부분으로 분리
@@ -5186,6 +5373,13 @@ function openEstimatePDF() {
   var num = document.getElementById('num').value;
   // 팝업창(현재창)에서 바로 다운로드가 되도록 location.href 사용
   location.href = '/pdf/estimate_pdf.php?num=' + encodeURIComponent(num) + '&download=1';
+}
+
+// PDF 미리보기 함수 (보기 모드)
+function previewEstimatePDF() {
+  var num = document.getElementById('num').value;
+  // 새 창에서 미리보기 (download=0)
+  window.open('/pdf/estimate_pdf.php?num=' + encodeURIComponent(num) + '&download=0', '_blank');
 }
 
 // 모바일 전용 전체 재계산 함수
