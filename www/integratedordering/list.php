@@ -438,6 +438,55 @@ function getSortLink($column, $label, $current_column, $current_order, $next_ord
     </div>
 </div>
 
+<!-- 도움말 모달 -->
+<div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-secondary text-white py-3">
+                <h5 class="modal-title fs-5" id="helpModalLabel">
+                    <i class="fas fa-info-circle"></i> 통합 발주 관리 사용법
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto; font-size: 1.15rem;">
+                <div class="p-2">
+                    <h6 class="fw-bold text-primary mb-2"><i class="fas fa-search"></i> 조회 및 검색</h6>
+                    <p class="text-muted mb-4">
+                        <strong>기간, 검색어</strong>를 설정하여 원하는 발주 내역을 조회할 수 있습니다.<br>
+                        검색어로는 현장명, 모델, 자재명 등을 검색할 수 있습니다.
+                    </p>
+
+                    <h6 class="fw-bold text-success mb-2"><i class="fas fa-cart-plus"></i> 구매카트 담기</h6>
+                    <p class="text-muted mb-4">
+                        목록에서 원하는 항목을 체크한 후 <strong>'구매카트'</strong> 버튼을 클릭하면<br>
+                        선택한 항목들로 <strong>일괄 발주서</strong>를 작성할 수 있습니다.
+                    </p>
+
+                    <h6 class="fw-bold text-dark mb-2"><i class="fas fa-pencil-alt"></i> 신규 등록</h6>
+                    <p class="text-muted mb-4">
+                        <strong>'신규등록'</strong> 버튼을 클릭하여 새로운 발주 요청을 등록할 수 있습니다.<br>
+                        원자재 또는 부자재를 선택하여 등록합니다.
+                    </p>
+
+                    <h6 class="fw-bold text-warning mb-2"><i class="fas fa-list"></i> 목록 및 상세</h6>
+                    <p class="text-muted mb-4">
+                        목록의 행을 클릭하면 해당 건의 <strong>상세 정보</strong>를 확인하고 수정할 수 있습니다.<br>
+                        <strong>진행상태</strong>(요청, 발주, 완료)와 <strong>결재상태</strong>를 한눈에 확인할 수 있습니다.
+                    </p>
+                    
+                    <h6 class="fw-bold text-info mb-2"><i class="fas fa-sort"></i> 정렬</h6>
+                    <p class="text-muted mb-0">
+                        각 컬럼의 헤더를 클릭하여 <strong>오름차순/내림차순</strong>으로 정렬할 수 있습니다.
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer py-2 bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     // 전체 선택/해제
     function toggleAll(source) {
@@ -626,6 +675,9 @@ function getSortLink($column, $label, $current_column, $current_order, $next_ord
                 </button>
                 <button type="button" class="btn btn-primary" onclick="addToCart()">
                     <i class="fas fa-cart-plus"></i> 구매카트
+                </button>
+                <button type="button" class="btn btn-outline-secondary" onclick="openHelpModal()">
+                    <i class="fas fa-info-circle"></i> 도움말
                 </button>
                 <button type="button" class="btn btn-dark" onclick="openWriteForm()">
                     <i class="fas fa-pencil-alt"></i> 신규등록
@@ -843,6 +895,11 @@ function getSortLink($column, $label, $current_column, $current_order, $next_ord
             }
         });
     });
+
+    function openHelpModal() {
+        var modal = new bootstrap.Modal(document.getElementById('helpModal'));
+        modal.show();
+    }
 </script>
 </body>
 </html>

@@ -1,12 +1,11 @@
-<?php
-require_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session.php'));
-require_once(includePath('lib/mydb.php'));
+<?php require_once __DIR__ . '/../bootstrap.php';
 
 // 세션 변수 초기화
-$userid = $_SESSION["userid"] ?? '';
-$level = $_SESSION["level"] ?? 5;
 $DB = $_SESSION["DB"] ?? 'mirae8440';
+$level = $_SESSION["level"] ?? 0;
+$user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["userid"] ?? '';
+$WebSite = $_SESSION["WebSite"] ?? '';
 
 // 요청 파라미터 초기화
 $e_num = $_REQUEST["e_num"] ?? '';

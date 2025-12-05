@@ -436,17 +436,17 @@ body {
     <div class="filter-section">
         <form method="GET" action="index.php" class="filter-form">
             <div class="filter-group">
-                <label><i class="fas fa-search"></i> 검색어</label>
-                <input type="text" name="search_keyword" value="<?php echo htmlspecialchars($search_keyword); ?>" placeholder="수신자, 제목 검색">
-            </div>
-            
-            <div class="filter-group">
                 <label><i class="far fa-calendar-alt"></i> 기간</label>
                 <div style="display: flex; gap: 5px; align-items: center;">
                     <input type="date" name="search_date_from" value="<?php echo htmlspecialchars($search_date_from); ?>">
                     <span>~</span>
                     <input type="date" name="search_date_to" value="<?php echo htmlspecialchars($search_date_to); ?>">
                 </div>
+            </div>
+
+            <div class="filter-group">
+                <label><i class="fas fa-search"></i> 검색어</label>
+                <input type="text" name="search_keyword" value="<?php echo htmlspecialchars($search_keyword); ?>" placeholder="수신자, 제목 검색">
             </div>
             
             <div class="filter-group">
@@ -465,6 +465,9 @@ body {
                 <a href="index.php" class="btn btn-secondary">
                     <i class="fas fa-sync-alt"></i> 초기화
                 </a>
+                <button type="button" class="btn btn-outline-secondary" onclick="openHelpModal()" style="margin-left: 5px;">
+                    <i class="fas fa-question-circle"></i> 도움말
+                </button>
             </div>
         </form>
     </div>
@@ -593,6 +596,44 @@ body {
 
 </div>
 
+<!-- 도움말 모달 -->
+<div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-secondary text-white py-3">
+                <h5 class="modal-title fs-5" id="helpModalLabel">
+                    <i class="fas fa-question-circle"></i> 견적서 이메일 발송 내역 사용법
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto; font-size: 1.15rem;">
+                <div class="p-2">
+                    <h6 class="fw-bold text-primary mb-2"><i class="fas fa-search"></i> 조회 및 검색</h6>
+                    <p class="text-muted mb-4">
+                        <strong>검색어</strong>(수신자, 제목), <strong>기간</strong>, <strong>상태</strong>(전체, 성공, 실패)를 이용하여<br>
+                        발송된 견적서 이메일 내역을 조회할 수 있습니다.
+                    </p>
+
+                    <h6 class="fw-bold text-success mb-2"><i class="fas fa-list"></i> 목록 확인</h6>
+                    <p class="text-muted mb-4">
+                        발송 일시, 견적서 ID, 수신자, 제목, 전송 상태를 한눈에 확인할 수 있습니다.<br>
+                        <strong>견적서 ID</strong>를 클릭하면 해당 견적서 목록으로 이동합니다.
+                    </p>
+
+                    <h6 class="fw-bold text-danger mb-2"><i class="fas fa-trash-alt"></i> 로그 삭제</h6>
+                    <p class="text-muted mb-4">
+                        더 이상 필요하지 않은 발송 로그는 우측의 <strong>삭제</strong> 버튼을 통해<br>
+                        영구적으로 삭제할 수 있습니다.
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer py-2 bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 function deleteLog(id) {
     if (!confirm('정말로 이 로그를 삭제하시겠습니까?')) {
@@ -619,6 +660,12 @@ function deleteLog(id) {
         console.error('Error:', error);
         alert('오류가 발생했습니다.');
     });
+}
+
+
+function openHelpModal() {
+    var modal = new bootstrap.Modal(document.getElementById('helpModal'));
+    modal.show();
 }
 </script>
 

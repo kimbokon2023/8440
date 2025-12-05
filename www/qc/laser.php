@@ -1,31 +1,29 @@
-<?php require_once __DIR__ . '/../bootstrap.php';
-// if(!isset($_SESSION)) {
-//     session_start();
-// }
+<?php
+require_once __DIR__ . '/../bootstrap.php';
 
-if(isset($_SESSION["DB"])) {
-    $DB = $_SESSION["DB"];
-}
-$level = $_SESSION["level"] ?? null;
-$user_name = $_SESSION["name"] ?? null;
-$user_id = $_SESSION["userid"] ?? null;
+// 세션 변수 초기화
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+$level = $_SESSION["level"] ?? 0;
+$user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["userid"] ?? '';
+$WebSite = $_SESSION["WebSite"] ?? getBaseUrl() . '/';
 
-$mcno = $_REQUEST["mcno"] ?? $_REQUEST["mcname"] ?? null;
-$selnum = $_REQUEST["selnum"] ?? 1;
+$title_message = '본천장&조명천장 출고증 일괄';
 
-$WebSite = "https://8440.co.kr/";
-
-if(!isset($level) || $level > 8) {
-    // 세션에 이동할 URL 저장
-    $_SESSION["url"] = $WebSite . "qc/laser.php?mcno=" . urlencode($mcno);
-    header("Location: " . $WebSite . "login/login_form.php");
+// 권한 체크 (level 5 이하만 접근 가능)
+if (!isset($_SESSION["level"]) || $level > 8) {
+    // 세션에 원래 URL 저장
+    $current_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+    $_SESSION["url"] = $current_url;
+    sleep(1);
+    header("Location:" . $WebSite . "login/login_form.php");
     exit;
-} 
+}
   
   // 첫 화면 표시 문구
  $title_message = '장비 (주간,정기) 점검표';     
    
-   ?>
+ ?>
    
 <?php include includePath('load_header.php') ?>
  
@@ -132,6 +130,24 @@ if(!isset($level) || $level > 8) {
             word-wrap: break-word !important;
             overflow-wrap: break-word !important;
             box-sizing: border-box !important;
+        }
+        
+        /* 디버그 버튼은 너비 자동 */
+        #toggleDebugBtn {
+            width: auto !important;
+            max-width: fit-content !important;
+            flex-shrink: 0 !important;
+        }
+        
+        /* 제목과 디버그 버튼을 포함한 컨테이너는 가로 방향 유지 */
+        .d-flex.justify-content-between.align-items-center {
+            flex-direction: row !important;
+            align-items: center !important;
+        }
+        
+        .spantitle {
+            flex: 1 !important;
+            margin: 0 !important;
         }
         
         .btn-sm {
@@ -367,7 +383,65 @@ require_once(includePath('lib/mydb.php'));
 $pdo = db_connect(); 
 
 // 배열로 장비점검리스트 불러옴
-include includePath("load_DB.php");   
+$load_db_path = includePath("qc/load_DB.php");
+if (!file_exists($load_db_path)) {
+    die("ERROR: load_DB.php 파일을 찾을 수 없습니다: " . $load_db_path);
+}
+include $load_db_path;
+
+// 디버깅 모드 체크 (URL 파라미터 debug=1로 활성화)
+$debug_mode = isset($_GET['debug']) && $_GET['debug'] == '1';
+
+// 디버깅: 배열이 제대로 로드되었는지 화면에 표시
+$debug_output = '';
+if ($debug_mode) {
+    $debug_output .= '<div id="debug-info" style="background: #f0f0f0; padding: 10px; margin: 10px 0; border: 2px solid #333;">';
+    $debug_output .= '<h4>🔍 load_DB.php 디버깅 정보</h4>';
+    $debug_output .= '<p><strong>load_DB.php 경로:</strong> ' . htmlspecialchars($load_db_path) . '</p>';
+    $debug_output .= '<p><strong>파일 존재:</strong> ' . (file_exists($load_db_path) ? '✅ Yes' : '❌ No') . '</p>';
+
+    if (isset($mcno_arr)) {
+        $debug_output .= '<p><strong>mcno_arr 개수:</strong> ' . count($mcno_arr) . '</p>';
+        $debug_output .= '<p><strong>mcno_arr 내용:</strong> ' . htmlspecialchars(implode(', ', $mcno_arr)) . '</p>';
+    } else {
+        $debug_output .= '<p><strong>mcno_arr:</strong> ❌ 정의되지 않음</p>';
+    }
+
+    if (isset($mcname_arr)) {
+        $debug_output .= '<p><strong>mcname_arr 개수:</strong> ' . count($mcname_arr) . '</p>';
+        $debug_output .= '<p><strong>mcname_arr 내용:</strong> ' . htmlspecialchars(implode(', ', $mcname_arr)) . '</p>';
+    } else {
+        $debug_output .= '<p><strong>mcname_arr:</strong> ❌ 정의되지 않음</p>';
+    }
+
+    if (isset($mcmain_arr)) {
+        $debug_output .= '<p><strong>mcmain_arr 개수:</strong> ' . count($mcmain_arr) . '</p>';
+    } else {
+        $debug_output .= '<p><strong>mcmain_arr:</strong> ❌ 정의되지 않음</p>';
+    }
+
+    if (isset($mcsub_arr)) {
+        $debug_output .= '<p><strong>mcsub_arr 개수:</strong> ' . count($mcsub_arr) . '</p>';
+    } else {
+        $debug_output .= '<p><strong>mcsub_arr:</strong> ❌ 정의되지 않음</p>';
+    }
+
+    $debug_output .= '<p><strong>현재 mcno 파라미터:</strong> ' . htmlspecialchars($mcno ?? 'null') . '</p>';
+    $debug_output .= '<p><strong>현재 selnum 파라미터:</strong> ' . htmlspecialchars($selnum ?? 'null') . '</p>';
+    $debug_output .= '</div>';
+}
+
+// 디버깅: 배열이 제대로 로드되지 않았을 경우 초기화
+if (!isset($mcno_arr) || empty($mcno_arr)) {
+    if ($debug_mode) {
+        error_log("laser.php: mcno_arr is empty or not set after load_DB.php");
+    }
+    // 임시로 배열 초기화
+    $mcno_arr = array();
+    $mcname_arr = array();
+    $mcmain_arr = array();
+    $mcsub_arr = array();
+}   
 
  // $find="firstord";	    //검색할때 고정시킬 부분 저장 ex) 전체/공사담당/건설사 등
  if(isset($_REQUEST["page"])) // $_REQUEST["page"]값이 없을 때에는 1로 지정 
@@ -376,7 +450,7 @@ include includePath("load_DB.php");
  }
   else
   {
-    $page=1;	 
+    $page=1;	  
   }
  
 if(isset($_REQUEST["scale"])) // $_REQUEST["scale"]값이 없을 때에는 20로 지정 
@@ -568,29 +642,54 @@ try{
 <?php  } ?>		
 
 <div class="card mt-2 mb-4">  
-<div class="card-body">   
- <div class="d-flex mt-3 mb-1 justify-content-start">  
-   <h3 class="spantitle ">
+<div class="card-body">
+ <?php echo $debug_output; ?>
+ <div class="d-flex mt-3 mb-1 justify-content-between align-items-center">  
+   <h3 class="spantitle mb-0">
 		장비 점검
 	</h3>
+	<?php if (isset($_SESSION["level"]) && $_SESSION["level"] <= 3) : ?>
+	<button type="button" class="btn btn-sm <?php echo $debug_mode ? 'btn-warning' : 'btn-outline-secondary'; ?>" id="toggleDebugBtn" onclick="toggleDebug()" style="flex-shrink: 0;">
+		<i class="fas fa-bug"></i> <?php echo $debug_mode ? '디버그 ON' : '디버그'; ?>
+	</button>
+	<?php endif; ?>
  </div>
  <div class="d-flex mt-3 mb-1 justify-content-end">  
 <?php
-    if(!isset($_SESSION["userid"]))
-	{
-?>
-          <a href="../login/login_form.php">로그인</a> | <a href="../member/insertForm.php">회원가입</a>
-<?php
-	}
-	else
-	 {
-?>
-
-	<?=$_SESSION["name"]?> | 
-		<a href="../login/logout.php">로그아웃</a> | <a href="../member/updateForm.php?id=<?=$_SESSION["userid"]?>">정보수정</a>
-		
-<?php
-	 }
+    // 모바일 환경에서는 한 줄로, PC에서는 기존 방식 유지
+    if(!isset($_SESSION["userid"])) {
+        if ($chkMobile) {
+            // 모바일: 세로 한 줄 배치
+            ?>
+            <div class="d-flex flex-column align-items-start">
+                <a href="../login/login_form.php">로그인</a>
+                <a href="../member/insertForm.php">회원가입</a>
+            </div>
+            <?php
+        } else {
+            // PC: 기존 가로 배치
+            ?>
+            <a href="../login/login_form.php">로그인</a> | <a href="../member/insertForm.php">회원가입</a>
+            <?php
+        }
+    } else {
+        if ($chkMobile) {
+            // 모바일: 세로 한 줄 배치
+            ?>
+            <div class="d-flex flex-column align-items-start">
+                <span><?=$_SESSION["name"]?></span>
+                <a href="../login/logout.php">로그아웃</a>
+                <a href="../member/updateForm.php?id=<?=$_SESSION["userid"]?>">정보수정</a>
+            </div>
+            <?php
+        } else {
+            // PC: 기존 가로 배치
+            ?>
+            <?=$_SESSION["name"]?> | 
+            <a href="../login/logout.php">로그아웃</a> | <a href="../member/updateForm.php?id=<?=$_SESSION["userid"]?>">정보수정</a>
+            <?php
+        }
+    }
 ?>
 
 </div>   
@@ -602,12 +701,20 @@ try{
 						<select class="form-control me-2" name="mcno" id="mcno" style="width:12%;" >		  
 				<?php } ?>		
 		   <?php
-		   for($i = 0; $i < count($mcno_arr); $i++) {
-			   if($mcno == $mcno_arr[$i])
-				   print "<option selected value='" . $mcno_arr[$i] . "'> " . $mcno_arr[$i] . "</option>";
-			   else   
-				   print "<option value='" . $mcno_arr[$i] . "'> " . $mcno_arr[$i] . "</option>";
-		   }        
+		   $arr_count = count($mcno_arr);
+		   
+		   if ($arr_count == 0) {
+		       // 배열이 비어있으면 기본 옵션 표시
+		       echo '<option value="">장비를 선택하세요</option>';
+		   } else {
+		       for($i = 0; $i < $arr_count; $i++) {
+		           $mcno_value = htmlspecialchars($mcno_arr[$i], ENT_QUOTES, 'UTF-8');
+		           if($mcno == $mcno_arr[$i])
+		               echo "<option selected value='" . $mcno_value . "'>" . $mcno_value . "</option>";
+		           else   
+		               echo "<option value='" . $mcno_value . "'>" . $mcno_value . "</option>";
+		       }
+		   }
 		   ?>      
 		</select>						 
    				<?php if($chkMobile) { ?>
@@ -774,6 +881,22 @@ for($j=0;$j<count($mcno_arr);$j++)
 
 var dataTable; // DataTables 인스턴스 전역 변수
 var mcpageNumber; // 현재 페이지 번호 저장을 위한 전역 변수
+
+// 디버그 모드 토글 함수
+function toggleDebug() {
+    var currentUrl = new URL(window.location.href);
+    var debugParam = currentUrl.searchParams.get('debug');
+    
+    if (debugParam === '1') {
+        // 디버그 모드 끄기
+        currentUrl.searchParams.delete('debug');
+    } else {
+        // 디버그 모드 켜기
+        currentUrl.searchParams.set('debug', '1');
+    }
+    
+    window.location.href = currentUrl.toString();
+}
 
 // 모바일 카드 렌더링 함수
 function renderMobileCards() {

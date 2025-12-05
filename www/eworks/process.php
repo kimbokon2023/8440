@@ -1,13 +1,11 @@
-<?php
-// 로컬과 서버 호환성을 위한 설정
-if (file_exists(__DIR__ . '/../common/functions.php')) {
-    require_once __DIR__ . '/../common/functions.php';
-}
+<?php require_once __DIR__ . '/../bootstrap.php';
 
-// 세션 시작
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
+// 세션 변수 초기화
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+$level = $_SESSION["level"] ?? 0;
+$user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["userid"] ?? '';
+$WebSite = $_SESSION["WebSite"] ?? '';
 
 // Return JSON for AJAX requests
 header('Content-Type: application/json; charset=utf-8');
@@ -22,11 +20,6 @@ $e_confirm = $_REQUEST["e_confirm"] ?? '';
 $eworks_item = $_REQUEST["eworks_item"] ?? '';
 $author = $_REQUEST["author"] ?? '';
 $author_id = $_REQUEST["author_id"] ?? '';
-
-// 세션 변수들 초기화
-$user_name = $_SESSION['name'] ?? '';
-$user_id = $_SESSION['userid'] ?? '';
-$DB = $_SESSION['DB'] ?? 'mirae8440';
 
 // 기타 변수들 초기화
 $recent_num = $e_num;

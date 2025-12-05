@@ -1,24 +1,11 @@
-<?php
-/**
- * 참조라인 지정 페이지
- * 사용자가 참조라인을 설정하고 관리합니다.
- */
-
-// 로컬과 서버 호환성을 위한 설정
-if (file_exists(__DIR__ . '/../common/functions.php')) {
-    require_once __DIR__ . '/../common/functions.php';
-}
-
-// 세션 시작
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
+<?php require_once __DIR__ . '/../bootstrap.php';
 
 // 세션 변수 초기화
 $DB = $_SESSION["DB"] ?? 'mirae8440';
-$level = $_SESSION["level"] ?? '';
+$level = $_SESSION["level"] ?? 0;
 $user_name = $_SESSION["name"] ?? '';
 $user_id = $_SESSION["userid"] ?? '';
+$WebSite = $_SESSION["WebSite"] ?? '';
 
 // GET 파라미터 초기화
 $r_line_id = $_GET['r_line_id'] ?? '';

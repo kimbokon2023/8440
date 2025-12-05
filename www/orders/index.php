@@ -422,6 +422,7 @@ body {
     gap: 12px;
     align-items: center;
     flex-wrap: wrap;
+    justify-content: center;
 }
 
 .filter-group {
@@ -1041,6 +1042,9 @@ a:hover {
             </button>
         </div>
         <div class="btn-group">
+            <button type="button" class="btn btn-outline-secondary" onclick="openHelpModal()" style="margin-right: 5px;">
+                <i class="fas fa-info-circle"></i> 도움말
+            </button>
             <button type="button" class="btn btn-primary" id="createOrderBtn">
                 <i class="fas fa-plus"></i> 신규 발주서 작성
             </button>
@@ -1114,7 +1118,7 @@ a:hover {
                             <i class="fas fa-sort text-muted" style="opacity: 0.3;"></i>
                         <?php endif; ?>
                     </th>
-                    <th width="20%">품목/규격</th>
+                    <th width="20%">현장명/품목/규격</th>
                     <th width="8%" class="text-right sortable" data-sort="subtotal">
                         공급가액
                         <?php if ($sort_column === 'subtotal'): ?>
@@ -1181,6 +1185,11 @@ a:hover {
                     </td>
                     <td style="max-width: 300px; word-wrap: break-word; white-space: normal;">
                         <?php
+                        // 현장명 표시
+                        if (!empty($order['project_site'])) {
+                            echo '<div style="font-weight: bold; color: #0d6efd; margin-bottom: 4px;">[' . htmlspecialchars($order['project_site']) . ']</div>';
+                        }
+
                         // JSON 데이터에서 품목+규격 정보 추출
                         $items_display = '';
                         if (!empty($order['order_items'])) {
@@ -1439,6 +1448,56 @@ a:hover {
                     <button type="button" class="btn btn-primary" id="btnSendEmailAction">
                         <i class="fas fa-paper-plane"></i> 전송
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 도움말 모달 -->
+    <div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-secondary text-white py-3">
+                    <h5 class="modal-title fs-5" id="helpModalLabel">
+                        <i class="fas fa-info-circle"></i> 구매발주서 관리 사용법
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="max-height: 70vh; overflow-y: auto; font-size: 1.15rem;">
+                    <div class="p-2">
+                        <h6 class="fw-bold text-primary mb-2"><i class="fas fa-plus-circle"></i> 신규 발주서 작성</h6>
+                        <p class="text-muted mb-4">
+                            <strong>'신규 발주서 작성'</strong> 버튼을 클릭하여 새로운 발주서를 작성합니다.<br>
+                            거래처, 현장명, 품목, 수량, 단가 등을 입력하고 저장하면 <strong>'임시저장'</strong> 상태로 생성됩니다.
+                        </p>
+
+                        <h6 class="fw-bold text-secondary mb-2"><i class="fas fa-search"></i> 조회 및 검색</h6>
+                        <p class="text-muted mb-4">
+                            <strong>발행일, 검색어, 상태</strong> 필터를 사용하여 원하는 발주서를 찾을 수 있습니다.<br>
+                            검색어로는 공급업체명, 품목, 규격 등을 검색할 수 있습니다.
+                        </p>
+
+                        <h6 class="fw-bold text-success mb-2"><i class="fas fa-list"></i> 발주서 목록 및 상세</h6>
+                        <p class="text-muted mb-4">
+                            목록에서 발주서를 클릭하면 <strong>상세 정보</strong>를 확인할 수 있습니다.<br>
+                            상세 화면에서 <strong>수정, 삭제, PDF 저장/미리보기, 이메일 전송</strong> 기능을 사용할 수 있습니다.
+                        </p>
+
+                        <h6 class="fw-bold text-warning mb-2"><i class="fas fa-check-circle"></i> 상태 관리</h6>
+                        <p class="text-muted mb-4">
+                            <strong>임시저장</strong>: 작성 중이거나 아직 발송하지 않은 상태입니다.<br>
+                            <strong>발송완료</strong>: 거래처에 발주서를 전송한 상태입니다.<br>
+                            <strong>완료</strong>: 발주가 완료되어 입고 대기 또는 종결된 상태입니다.
+                        </p>
+                        
+                        <h6 class="fw-bold text-info mb-2"><i class="fas fa-envelope"></i> 이메일 전송</h6>
+                        <p class="text-muted mb-0">
+                            상세 화면의 <strong>'Email 전송'</strong> 버튼을 통해 거래처 담당자에게 발주서를 바로 이메일로 보낼 수 있습니다.
+                        </p>
+                    </div>
+                </div>
+                <div class="modal-footer py-2 bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
                 </div>
             </div>
         </div>
@@ -2374,6 +2433,10 @@ a:hover {
         html += '<div class="detail-section">';
         html += '<div class="detail-section-title">📋 기본 정보</div>';
         html += '<div class="detail-grid">';
+        // 현장명/프로젝트 (강조 표시)
+        if (order.project_site) {
+            html += '<div class="detail-item"><div class="detail-label">현장명/프로젝트</div><div class="detail-value" style="font-weight: bold; color: #0d6efd;">' + order.project_site + '</div></div>';
+        }
         html += '<div class="detail-item"><div class="detail-label">발행일</div><div class="detail-value">' + (order.issue_date || '-') + '</div></div>';
         var partnerName = order.contact_name || order.supplier_name || '-';
         html += '<div class="detail-item"><div class="detail-label">거래처</div><div class="detail-value">' + partnerName + '</div></div>';
@@ -2440,6 +2503,11 @@ a:hover {
         contentDiv.innerHTML = html;
     }
     
+    window.openHelpModal = function() {
+        var modal = new bootstrap.Modal(document.getElementById('helpModal'));
+        modal.show();
+    };
+
 })();
 </script>
 

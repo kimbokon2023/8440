@@ -553,6 +553,19 @@ try {
     /**
      * 모바일 카드 렌더링 함수
      */
+    // HTML 이스케이프 함수 - XSS 방지
+    function escapeHtml(text) {
+        if (!text) return '';
+        var map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
+    }
+    
     function renderMobileCards() {
         if (window.innerWidth > 768) {
             return;
@@ -604,12 +617,13 @@ try {
                 return;
             }
             
-            var cardHtml = '<div class="mobile-card" onclick="redirectToView(\'' + num + '\', \'' + tablename + '\')">';
-            cardHtml += '<div class="mobile-card-item"><span class="mobile-card-label">번호:</span><span class="mobile-card-value">' + tds.eq(0).text().trim() + '</span></div>';
-            cardHtml += '<div class="mobile-card-item"><span class="mobile-card-label">구분:</span><span class="mobile-card-value">' + tds.eq(1).text().trim() + '</span></div>';
-            cardHtml += '<div class="mobile-card-item"><span class="mobile-card-label">글제목:</span><span class="mobile-card-value">' + tds.eq(2).html().trim() + '</span></div>';
-            cardHtml += '<div class="mobile-card-item"><span class="mobile-card-label">작성:</span><span class="mobile-card-value">' + tds.eq(3).text().trim() + '</span></div>';
-            cardHtml += '<div class="mobile-card-item"><span class="mobile-card-label">등록일:</span><span class="mobile-card-value">' + tds.eq(4).text().trim() + '</span></div>';
+            // XSS 방지: 모든 사용자 입력 데이터를 이스케이프 처리
+            var cardHtml = '<div class="mobile-card" onclick="redirectToView(\'' + escapeHtml(num) + '\', \'' + escapeHtml(tablename) + '\')">';
+            cardHtml += '<div class="mobile-card-item"><span class="mobile-card-label">번호:</span><span class="mobile-card-value">' + escapeHtml(tds.eq(0).text().trim()) + '</span></div>';
+            cardHtml += '<div class="mobile-card-item"><span class="mobile-card-label">구분:</span><span class="mobile-card-value">' + escapeHtml(tds.eq(1).text().trim()) + '</span></div>';
+            cardHtml += '<div class="mobile-card-item"><span class="mobile-card-label">글제목:</span><span class="mobile-card-value">' + escapeHtml(tds.eq(2).text().trim()) + '</span></div>';
+            cardHtml += '<div class="mobile-card-item"><span class="mobile-card-label">작성:</span><span class="mobile-card-value">' + escapeHtml(tds.eq(3).text().trim()) + '</span></div>';
+            cardHtml += '<div class="mobile-card-item"><span class="mobile-card-label">등록일:</span><span class="mobile-card-value">' + escapeHtml(tds.eq(4).text().trim()) + '</span></div>';
             cardHtml += '</div>';
             
             container.append(cardHtml);

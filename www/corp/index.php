@@ -1073,7 +1073,10 @@ body {
         <div class="btn-group">
             <button type="button" class="btn btn-outline-secondary" onclick="openColumnSettings()">
                 <i class="bi bi-gear"></i> 컬럼 설정
-                    </button>
+            </button>
+            <button type="button" class="btn btn-outline-secondary" onclick="openHelpModal()">
+                <i class="bi bi-question-circle"></i> 도움말
+            </button>
         </div>
         <div class="btn-group">
             <!-- <button type="button" class="btn btn-success" onclick="importExcel()">
@@ -1235,6 +1238,49 @@ body {
                     <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
                         <i class="bi bi-check-lg"></i> 확인
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 도움말 모달 -->
+    <div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-secondary text-white py-3">
+                    <h5 class="modal-title fs-5" id="helpModalLabel">
+                        <i class="bi bi-question-circle"></i> 거래처 관리 사용법
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="max-height: 70vh; overflow-y: auto; font-size: 1.15rem;">
+                    <div class="p-2">
+                        <h6 class="fw-bold text-primary mb-2"><i class="bi bi-search"></i> 조회 및 검색</h6>
+                        <p class="text-muted mb-4">
+                            <strong>검색어</strong>를 입력하거나 <strong>빠른 필터</strong>(전체, 매출, 매입)를 사용하여<br>
+                            원하는 거래처를 빠르게 찾을 수 있습니다.
+                        </p>
+
+                        <h6 class="fw-bold text-success mb-2"><i class="bi bi-plus-circle"></i> 거래처 등록</h6>
+                        <p class="text-muted mb-4">
+                            우측 상단의 <strong>'거래처 등록'</strong> 버튼을 클릭하여<br>
+                            새로운 거래처 정보를 등록할 수 있습니다.
+                        </p>
+
+                        <h6 class="fw-bold text-dark mb-2"><i class="bi bi-card-list"></i> 상세 정보 및 수정</h6>
+                        <p class="text-muted mb-4">
+                            목록에서 거래처를 클릭하면 <strong>상세 정보</strong>를 확인할 수 있으며,<br>
+                            상세 창에서 <strong>수정</strong> 또는 <strong>삭제</strong>가 가능합니다.
+                        </p>
+
+                        <h6 class="fw-bold text-warning mb-2"><i class="bi bi-gear"></i> 컬럼 설정</h6>
+                        <p class="text-muted mb-0">
+                            <strong>'컬럼 설정'</strong> 버튼을 통해 목록에 표시할 항목을<br>
+                            자유롭게 선택하여 보거나 숨길 수 있습니다.
+                        </p>
+                    </div>
+                </div>
+                <div class="modal-footer py-2 bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
                 </div>
             </div>
         </div>
@@ -2933,6 +2979,11 @@ try {
             setTimeout(function() {
                 openColumnSettings();
             }, 300);
+        }
+
+        function openHelpModal() {
+            var modal = new bootstrap.Modal(document.getElementById('helpModal'));
+            modal.show();
         }
     </script>
 

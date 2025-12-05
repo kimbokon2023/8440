@@ -533,7 +533,7 @@ $qrcode_arr=array();
 				</div>
 				<div class="text-center ">                                    
 					<span class="fw-bolder"> <?=$row["mcspec"]?> </span>
-				</div>
+				</div> 
 				<div class="text-center ">                                    
 					<span class="fw-bolder"> 점검(정) <?=$row["mcmain"]?> </span>
 				</div>

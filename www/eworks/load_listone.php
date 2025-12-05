@@ -1,8 +1,11 @@
-<?php
-// 로컬과 서버 호환성을 위한 설정
-if (file_exists(__DIR__ . '/../common/functions.php')) {
-    require_once __DIR__ . '/../common/functions.php';
-}
+<?php require_once __DIR__ . '/../bootstrap.php';
+
+// 세션 변수 초기화
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+$level = $_SESSION["level"] ?? 0;
+$user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["userid"] ?? '';
+$WebSite = $_SESSION["WebSite"] ?? '';
 
 // JSON 헤더 설정
 header("Content-Type: application/json; charset=utf-8");
@@ -14,7 +17,6 @@ if (session_status() == PHP_SESSION_NONE) {
 
 // 변수 초기화
 $e_num = $_REQUEST["e_num"] ?? "";
-$DB = $_SESSION['DB'] ?? 'mirae8440';
 $pdo = null;
 
 // 데이터베이스 연결

@@ -841,14 +841,22 @@ foreach ($cart_items_data as $item):
     $supply_amount = $quantity * $unit_price;
     $tax = round($supply_amount * 0.1);
     
-    $item_name = $item['steel_item'];
-    if ($item['eworks_item'] == '부자재구매' && empty($item_name)) {
-        $item_name = $item['outworkplace'];
+    // 품목명 생성: 현장명/품목명
+    $item_name = '';
+    $outworkplace = $item['outworkplace'] ?? '';
+    $steel_item = $item['steel_item'] ?? '';
+    
+    if (!empty($outworkplace) && !empty($steel_item)) {
+        $item_name = $outworkplace . '/' . $steel_item;
+    } elseif (!empty($outworkplace)) {
+        $item_name = $outworkplace;
+    } else {
+        $item_name = $steel_item;
     }
 
     $cart_order_items[] = [
         '순번' => $index,
-        '품목' => $item_name ?? '',
+        '품목' => $item_name,
         '규격' => $item['spec'] ?? '',
         '수량' => $quantity,
         '단가' => $unit_price,

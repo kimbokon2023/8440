@@ -1,12 +1,13 @@
-<?php
-require_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session.php'));
-
-// JSON 헤더 설정
-header("Content-Type: application/json; charset=utf-8");
+<?php require_once __DIR__ . '/../bootstrap.php';
 
 // 세션 변수 초기화
-$userid = $_SESSION['userid'] ?? '';
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+$level = $_SESSION["level"] ?? 0;
+$user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["userid"] ?? '';
+$WebSite = $_SESSION["WebSite"] ?? '';
+// JSON 헤더 설정
+header("Content-Type: application/json; charset=utf-8");
 
 // 요청 파라미터 초기화
 $savedName = $_POST['savedName'] ?? '';

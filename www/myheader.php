@@ -798,11 +798,7 @@ if (!isset($chkMobile)) {
 	include getDocumentRoot() .  "/eworks/write_form.php" ;   
 ?>
 	<div class="d-flex" >
-		<div class="sideEworksBanner" style="display:none;">
-			<span class="text-center text-dark">
-				<img src="<?=getBaseUrl()?>/img/eworks_reach.png" >
-			</span>
-		</div>
+
 	</div>
 </div>
 

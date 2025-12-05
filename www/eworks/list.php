@@ -1,12 +1,13 @@
-<?php
-require_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session.php'));
-require_once(includePath('lib/mydb.php'));
-require_once __DIR__ . '/helpers.php';
+<?php require_once __DIR__ . '/../bootstrap.php';
 
 // 세션 변수 초기화
-$user_id = $_SESSION["userid"] ?? '';
 $DB = $_SESSION["DB"] ?? 'mirae8440';
+$level = $_SESSION["level"] ?? 0;
+$user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["userid"] ?? '';
+$WebSite = $_SESSION["WebSite"] ?? '';
+
+require_once __DIR__ . '/helpers.php';
 
 // 데이터베이스 연결
 $pdo = db_connect();

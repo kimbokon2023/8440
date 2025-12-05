@@ -3163,33 +3163,53 @@ function load_eworkslist() {
 
 					// badge1 = 작성(draft) = val0
 					if ($('#badge1').length > 0) {
-						var val = (data["val0"] && data["val0"] !== 0) ? data["val0"] : '';
+						var val = (data["val0"] !== undefined && data["val0"] !== null && data["val0"] !== 0) ? data["val0"] : '';
 						// console.log('badge1에 설정할 값:', val);
-						$('#badge1').text(val);
+						if (val !== '') {
+							$('#badge1').text(val).show();
+						} else {
+							$('#badge1').text('').hide();
+						}
 					}
 					// badge2 = 상신(send) = val1
 					if ($('#badge2').length > 0) {
-						var val = (data["val1"] && data["val1"] !== 0) ? data["val1"] : '';
+						var val = (data["val1"] !== undefined && data["val1"] !== null && data["val1"] !== 0) ? data["val1"] : '';
 						// console.log('badge2에 설정할 값:', val);
-						$('#badge2').text(val);
+						if (val !== '') {
+							$('#badge2').text(val).show();
+						} else {
+							$('#badge2').text('').hide();
+						}
 					}
 					// badge3 = 미결(noend) = val2
 					if ($('#badge3').length > 0) {
-						var val = (data["val2"] && data["val2"] !== 0) ? data["val2"] : '';
+						var val = (data["val2"] !== undefined && data["val2"] !== null && data["val2"] !== 0) ? data["val2"] : '';
 						// console.log('badge3에 설정할 값:', val);
-						$('#badge3').text(val);
+						if (val !== '') {
+							$('#badge3').text(val).show();
+						} else {
+							$('#badge3').text('').hide();
+						}
 					}
 					// badge4 = 진행(ing) = val3
 					if ($('#badge4').length > 0) {
-						var val = (data["val3"] && data["val3"] !== 0) ? data["val3"] : '';
+						var val = (data["val3"] !== undefined && data["val3"] !== null && data["val3"] !== 0) ? data["val3"] : '';
 						// console.log('badge4에 설정할 값:', val);
-						$('#badge4').text(val);
+						if (val !== '') {
+							$('#badge4').text(val).show();
+						} else {
+							$('#badge4').text('').hide();
+						}
 					}
 					// badge5 = 결재(end) = val4
 					if ($('#badge5').length > 0) {
-						var val = (data["val4"] && data["val4"] !== 0) ? data["val4"] : '';
+						var val = (data["val4"] !== undefined && data["val4"] !== null && data["val4"] !== 0) ? data["val4"] : '';
 						// console.log('badge5에 설정할 값:', val);
-						$('#badge5').text(val);
+						if (val !== '') {
+							$('#badge5').text(val).show();
+						} else {
+							$('#badge5').text('').hide();
+						}
 					}
 					// badge6 = 반려(reject) = val5
 					if ($('#badge6').length > 0) {
@@ -3209,39 +3229,55 @@ function load_eworkslist() {
 
 					// console.log('=== badge 업데이트 완료 ===');
 
+					// 배지 업데이트 후 총합 배지도 업데이트
+					if (typeof updateEworksTotalBadge === 'function') {
+						updateEworksTotalBadge();
+					}
 
 					// 종 아이콘 및 "알림" 버튼 처리
 					var bellIcon = document.getElementById('bellIcon');
 					var alertEworks = document.getElementById('alert_eworks_bell');
 					var badgeElement = document.getElementById('badge3');
-					if (badgeElement && bellIcon && alertEworks) {
+					const ework_approval = $("#ework_approval").val() || 0;
+					
+					// badge3 (미결) 숫자 가져오기
+					var badgeCount = 0;
+					if (badgeElement) {
 						var badgeText = badgeElement.innerText || badgeElement.textContent || '0';
-						var badgeCount = parseInt(badgeText.trim());
-						const ework_approval = $("#ework_approval").val();
+						badgeCount = parseInt(badgeText.trim()) || 0;
+					}
 
-						// badgeCount가 NaN이면 0으로 설정
-						if (isNaN(badgeCount)) {
-							badgeCount = 0;
-						}
+					// console.log('badgeCount :', badgeCount);								  
+					// console.log('ework_approval :', ework_approval);
 
-						// console.log('badgeCount :', badgeCount);								  
-						// console.log('ework_approval :', $("#ework_approval").val());
-
+					// 사이드바의 bellIcon 처리
+					if (bellIcon) {
 						if (parseInt(ework_approval) > 0 && badgeCount > 0) {
 							bellIcon.style.display = 'inline';
 							bellIcon.classList.add('blink');
+						} else {
+							bellIcon.style.display = 'none';
+							bellIcon.classList.remove('blink');
+						}
+					}
+
+					// 헤더의 alert_eworks_bell 처리
+					if (alertEworks) {
+						if (parseInt(ework_approval) > 0 && badgeCount > 0) {
 							alertEworks.style.display = 'inline';
 							alertEworks.classList.add('blink');
+							// PC에서만 자동으로 보여줌 (모바일은 토글로 제어)
+							if (window.innerWidth > 768 && $('.sideEworksBanner').length > 0) {
+								$('.sideEworksBanner').css('display', 'block');
+							}
 						} else {
-							if (bellIcon && parseInt(ework_approval) > 0) {
-								bellIcon.style.display = 'none';
-								bellIcon.classList.remove('blink');
-								alertEworks.style.display = 'none';
-								alertEworks.classList.remove('blink');
+							alertEworks.style.display = 'none';
+							alertEworks.classList.remove('blink');
+							// PC에서만 자동으로 숨김
+							if (window.innerWidth > 768 && $('.sideEworksBanner').length > 0) {
+								$('.sideEworksBanner').css('display', 'none');
 							}
 						}
-
-
 					}
 
 

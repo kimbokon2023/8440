@@ -422,6 +422,7 @@ body {
     gap: 12px;
     align-items: center;
     flex-wrap: wrap;
+    justify-content: center;
 }
 
 .filter-group {
@@ -1038,6 +1039,9 @@ a:hover {
             </button>
         </div>
         <div class="btn-group">
+            <button type="button" class="btn btn-outline-secondary" onclick="openHelpModal()" style="margin-right: 5px;">
+                <i class="fas fa-question-circle"></i> 도움말
+            </button>
             <button type="button" class="btn btn-primary" id="createOrderBtn">
                 <i class="fas fa-plus"></i> 신규 견적서 작성
             </button>
@@ -1435,6 +1439,44 @@ a:hover {
                     <button type="button" class="btn btn-primary" id="btnSendEmailAction">
                         <i class="fas fa-paper-plane"></i> 전송
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 도움말 모달 -->
+    <div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-secondary text-white py-3">
+                    <h5 class="modal-title fs-5" id="helpModalLabel">
+                        <i class="fas fa-question-circle"></i> 견적서 관리 사용법
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="max-height: 70vh; overflow-y: auto; font-size: 1.15rem;">
+                    <div class="p-2">
+                        <h6 class="fw-bold text-primary mb-2"><i class="fas fa-search"></i> 조회 및 검색</h6>
+                        <p class="text-muted mb-4">
+                            <strong>견적일</strong>, <strong>검색어</strong>(거래처, 품목), <strong>상태</strong>(전체, 임시저장, 발송완료)를 이용하여<br>
+                            원하는 견적서를 빠르게 찾을 수 있습니다.
+                        </p>
+
+                        <h6 class="fw-bold text-success mb-2"><i class="fas fa-plus"></i> 견적서 작성</h6>
+                        <p class="text-muted mb-4">
+                            우측 상단의 <strong>'신규 견적서 작성'</strong> 버튼을 클릭하여<br>
+                            새로운 견적서를 작성하고 저장할 수 있습니다.
+                        </p>
+
+                        <h6 class="fw-bold text-dark mb-2"><i class="fas fa-file-alt"></i> 상세 정보 및 관리</h6>
+                        <p class="text-muted mb-4">
+                            목록에서 견적서를 클릭하면 <strong>상세 정보</strong>를 확인할 수 있으며,<br>
+                            <strong>수정</strong>, <strong>삭제</strong>, <strong>PDF 저장</strong>, <strong>이메일 전송</strong>이 가능합니다.
+                        </p>
+                    </div>
+                </div>
+                <div class="modal-footer py-2 bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
                 </div>
             </div>
         </div>
@@ -2444,6 +2486,11 @@ a:hover {
         
         contentDiv.innerHTML = html;
     }
+    
+    window.openHelpModal = function() {
+        var modal = new bootstrap.Modal(document.getElementById('helpModal'));
+        modal.show();
+    };
     
 })();
 </script>

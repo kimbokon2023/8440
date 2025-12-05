@@ -1,17 +1,13 @@
-<?php
-// 선택해서 결재하는 기능에 대한 처리는 여기서 한다.
-// 다중 선택결재 처리 기능
-require_once __DIR__ . '/../common/functions.php';
-require_once(includePath('session.php'));
-require_once(includePath('lib/mydb.php'));
-
-// JSON 헤더 설정
-header("Content-Type: application/json; charset=utf-8");
+<?php require_once __DIR__ . '/../bootstrap.php';
 
 // 세션 변수 초기화
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+$level = $_SESSION["level"] ?? 0;
 $user_name = $_SESSION["name"] ?? '';
 $user_id = $_SESSION["userid"] ?? '';
-$DB = $_SESSION["DB"] ?? 'mirae8440';
+$WebSite = $_SESSION["WebSite"] ?? '';
+// JSON 헤더 설정
+header("Content-Type: application/json; charset=utf-8");
 
 // 요청 파라미터 초기화
 $selectedIds = $_REQUEST["selectedIds"] ?? array();

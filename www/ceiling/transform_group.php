@@ -1,38 +1,24 @@
 <?php
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 
-if (!isset($_SESSION)) {
-    session_start();
-}
-
-if (isset($_SESSION["DB"])) {
-    $DB = $_SESSION["DB"];
-}
-
-$level = isset($_SESSION["level"]) ? $_SESSION["level"] : 0;
-$user_name = isset($_SESSION["name"]) ? $_SESSION["name"] : "";
-$user_id = isset($_SESSION["userid"]) ? $_SESSION["userid"] : "";
-$WebSite = "https://8440.co.kr/";
+// 세션 변수 초기화
+$DB = $_SESSION["DB"] ?? 'mirae8440';
+$level = $_SESSION["level"] ?? 0;
+$user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["userid"] ?? '';
+$WebSite = $_SESSION["WebSite"] ?? getBaseUrl() . '/';
 
 $title_message = '본천장&조명천장 출고증 일괄';
 
-?>
-
-<?php
-include getDocumentRoot() . '/load_header.php';
-
-if (!isset($_SESSION["level"]) || $_SESSION["level"] > 5) {
+// 권한 체크 (level 5 이하만 접근 가능)
+if (!isset($_SESSION["level"]) || $level > 5) {
+    // 세션에 원래 URL 저장
+    $current_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+    $_SESSION["url"] = $current_url;
     sleep(1);
     header("Location:" . $WebSite . "login/login_form.php");
     exit;
 }
-?>
-
-</head>
-
-<body>
-
-<?php
 
 // 변수 초기화
 $num = isset($_REQUEST["num"]) ? $_REQUEST["num"] : "";
@@ -86,10 +72,10 @@ for ($i = 0; $i < count($numarr); $i++) {
         $count = $stmh->rowCount();
         
         if ($count < 1) {
-            print "검색결과가 없습니다.<br>";
-        } else {
-            $row = $stmh->fetch(PDO::FETCH_ASSOC);
+            continue;
         }
+        
+        $row = $stmh->fetch(PDO::FETCH_ASSOC);
         
         include '_rowDB.php';
         
@@ -142,7 +128,7 @@ for ($i = 0; $i < count($numarr); $i++) {
         $text[$i] = $workplacename . "  " . $type . "  " . $text[$i] . " " . $car_insize;
         
     } catch (PDOException $Exception) {
-        print "오류: " . $Exception->getMessage();
+        error_log("transform_group.php DB Error: " . $Exception->getMessage());
     }
 }
 
@@ -151,6 +137,8 @@ if (count($numarr) > 1) {
 }
 
 ?>
+
+<?php include getDocumentRoot() . '/load_header.php'; ?>
 
 <title><?=$title_message?></title>
 
@@ -163,6 +151,7 @@ if (count($numarr) > 1) {
 </head>
 
 <body>
+
     <form id="board_form" name="board_form" onkeydown="return captureReturnKey(event)" method="post" action="invoice.php?num=<?=$num?>" enctype="multipart/form-data">
         <input type="hidden" name="workday" id="workday" value="<?=$workday?>">
         

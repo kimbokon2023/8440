@@ -20,6 +20,9 @@ $delivery_count_today = 0;
 <title> 미래기업 업무포탈</title> 
   
 <!--head 태그 내 추가-->
+<!-- Content Security Policy: YouTube iframe 허용 -->
+<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http: https://www.youtube.com https://www.gstatic.com https://s.ytimg.com; frame-src 'self' https://www.youtube.com; child-src 'self' https://www.youtube.com;">
+
 <!-- Favicon-->	
 <link rel="icon" type="image/x-icon" href="favicon.ico">   <!-- 33 x 33 -->
 <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">    <!-- 144 x 144 -->
@@ -451,13 +454,23 @@ $tablename = 'popupwindow';
 					{
 					  print '<button type="button" class="btn btn-dark rounded-pill eworks-mobile-btn" onclick="seltab(' . $tabId . '); closeEworksSidebarOnClick();"> ';
 					  echo $label;
-					  print '<span class="badge badge-pill badge-dark" id="' . $badgeId . '"></span>';
+					  print '<span class="badge badge-pill badge-dark ms-2" id="' . $badgeId . '"></span>';
+					  print '</button>';
 					}
 					else if (!$eworks_level)  // 일반결재 상신하는 그룹
 					{
 					  print '<button type="button" class="btn btn-dark rounded-pill eworks-mobile-btn" onclick="seltab(' . $tabId . '); closeEworksSidebarOnClick();"> ';
 					  echo $label;
-					  print '<span class="badge badge-pill badge-dark" id="' . $badgeId . '"></span>';
+					  print '<span class="badge badge-pill badge-dark ms-2" id="' . $badgeId . '"></span>';
+					  print '</button>';
+					}
+					else
+					{
+					  // 결재권자가 있지만 tabId < 3인 경우 (작성, 상신)
+					  print '<button type="button" class="btn btn-dark rounded-pill eworks-mobile-btn" onclick="seltab(' . $tabId . '); closeEworksSidebarOnClick();"> ';
+					  echo $label;
+					  print '<span class="badge badge-pill badge-dark ms-2" id="' . $badgeId . '"></span>';
+					  print '</button>';
 					}
 
 				}
@@ -466,7 +479,6 @@ $tablename = 'popupwindow';
 					   print '<div id="bellIcon"> 🔔결재 </div>';
 				}
 			?>
-		</button>
 	</div>
     <?php
     }
@@ -702,6 +714,21 @@ $tablename = 'popupwindow';
         font-weight: 700;
         padding: 4px 8px;
         border-radius: 10px;
+        min-width: 20px;
+        display: inline-block;
+        text-align: center;
+    }
+    
+    /* 배지가 비어있거나 숨겨진 상태일 때 처리 */
+    .sideBanner .badge:empty,
+    .sideEworksBanner .badge:empty {
+        display: none !important;
+    }
+    
+    /* 배지에 숫자가 있을 때만 표시 */
+    .sideBanner .badge:not(:empty),
+    .sideEworksBanner .badge:not(:empty) {
+        display: inline-block !important;
     }
     
     /* 모바일에서 버튼 간격 조정 */
@@ -2013,6 +2040,9 @@ $tablename = 'popupwindow';
 <form id="eworks_board_form" name="eworks_board_form" method="post">
 	<input type="hidden" id="eworks_user_id" name="user_id" value="<?=$user_id?>" >
 	<input type="hidden" id="eworks_user_name" name="user_name" value="<?=$user_name?>" >
+	<input type="hidden" id="ework_approval" name="ework_approval" value="<?=$ework_approval ?? 0?>" >
+	<input type="hidden" id="choice" name="choice" value="0" >
+	<input type="hidden" id="eworksel" name="eworksel" value="" >
 </form>
 
 <!-- 전자결재 로딩 인디케이터 -->
@@ -3150,7 +3180,7 @@ $tablename = 'popupwindow';
 				<span class="fw-bold shop-header fs-6">2025년 카페 자투라</span>
 			</div>
 				<div class="d-flex justify-content-center align-items-center mb-1">		
-				<iframe width="240" height="135" src="https://www.youtube.com/embed/KEXDABu2_9Q" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> &nbsp;&nbsp;&nbsp;	
+				<iframe width="240" height="135" src="https://www.youtube.com/embed/KEXDABu2_9Q" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen referrerpolicy="no-referrer-when-downgrade" loading="lazy"></iframe> &nbsp;&nbsp;&nbsp;	
 				</div>
 				<div class="d-flex justify-content-center align-items-center">		
 					<div class="photo-frame justify-content-center text-center">
@@ -3634,7 +3664,7 @@ $tablename = 'popupwindow';
 				<span class="fw-bold shop-header fs-6">2025년 카페 자투라</span>
 			</div>
 				<div class="d-flex justify-content-center align-items-center mb-1">		
-				<iframe width="240" height="135" src="https://www.youtube.com/embed/KEXDABu2_9Q" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> &nbsp;&nbsp;&nbsp;	
+				<iframe width="240" height="135" src="https://www.youtube.com/embed/KEXDABu2_9Q" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen referrerpolicy="no-referrer-when-downgrade" loading="lazy"></iframe> &nbsp;&nbsp;&nbsp;
 				</div>
 				<!-- <div class="d-flex justify-content-center align-items-center">		
 					<div class="photo-frame justify-content-center text-center">
@@ -3649,7 +3679,7 @@ $tablename = 'popupwindow';
 					</div>
 				</div> -->
 		</div>
-	</div>
+		</div>
 	
 </div>	<!-- end of col-sm-4 -->
 
@@ -4930,6 +4960,34 @@ $(document).ready(function() {
 
     // 주기적으로 배지 업데이트 (10초마다)
     setInterval(updateEworksTotalBadge, 10000);
+    
+    // 전자결재 상태 주기적으로 가져오기 (load_eworkslist 호출)
+    // index.js의 load_eworkslist 함수가 존재하는지 확인 후 호출
+    if (typeof load_eworkslist === 'function') {
+        // 초기 로드 (1초 후)
+        setTimeout(function() {
+            load_eworkslist();
+        }, 1000);
+        
+        // 주기적으로 호출 (30초마다)
+        setInterval(function() {
+            load_eworkslist();
+        }, 30000); // 30초마다 전자결재 상태 업데이트
+    }
+    
+    // 전자결재 알람 기능 (alert_eworkslist 호출)
+    // index.js의 alert_eworkslist 함수가 존재하는지 확인 후 호출
+    if (typeof alert_eworkslist === 'function') {
+        // 초기 로드 (1.5초 후)
+        setTimeout(function() {
+            alert_eworkslist();
+        }, 1500);
+        
+        // 주기적으로 호출 (30초마다)
+        setInterval(function() {
+            alert_eworkslist();
+        }, 30000); // 30초마다 전자결재 알람 상태 업데이트
+    }
 
     // 모바일 전자결재 사이드바 초기화
     if (isMobileDevice()) {

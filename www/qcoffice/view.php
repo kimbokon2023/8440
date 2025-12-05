@@ -1,16 +1,10 @@
 <?php
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 
-if (!isset($_SESSION)) {
-    session_start();
-}
-
-// 세션 변수 초기화
-$user_name = $_SESSION["name"] ?? '';
-$user_id = $_SESSION["userid"] ?? '';
-
-// 요청 변수 초기화
-$num = $_REQUEST["num"] ?? '';
+$user_name= $_SESSION["name"];
+$user_id= $_SESSION["userid"];
+	
+isset($_REQUEST["num"])  ? $num=$_REQUEST["num"] :   $num=''; 
 
 // 첫 화면 표시 문구
 $title_message = '사무실 점검';
