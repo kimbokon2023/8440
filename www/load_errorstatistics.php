@@ -1,10 +1,16 @@
 <?php
 require_once __DIR__ . '/bootstrap.php';
+ini_set('memory_limit', '512M'); // Increase memory limit for heavy statistics
 
 $sum=array();
 
 $fromdate=date("Y",time()) ;
 $fromdate=$fromdate . "-01-01";
+
+if(!isset($todate)) {
+	$todate = date("Y") . "-12-31";
+}
+
 $Transtodate=strtotime($todate);
 $Transtodate=date("Y-m-d",$Transtodate);
 

@@ -47,8 +47,68 @@ $rnd = rand(1, 10);
 $imgsrc = 'img/homepage/' . $rnd . '.png';
 
 $root_dir = getDocumentRoot() ;
-$version = time(); // 매번 다른 값으로 캐시 방지
-$time = time(); // 스크립트 캐시 방지용
+
+// 로그아웃 URL 생성 (절대 경로)
+$logout_url = '/login/logout.php';
+if (function_exists('getBaseUrl')) {
+    $baseUrl = getBaseUrl();
+    $logout_url = $baseUrl . '/login/logout.php';
+} else {
+    // getBaseUrl 함수가 없으면 상대 경로 사용
+    $logout_url = './login/logout.php';
+}
+
+// 파일 수정 시간 기반 버전 관리 함수
+function getFileVersion($filePath) {
+    $fullPath = __DIR__ . '/' . ltrim($filePath, '/');
+    if (file_exists($fullPath)) {
+        return filemtime($fullPath);
+    }
+    // 파일이 없으면 현재 시간 사용 (개발 중일 때)
+    return time();
+}
+
+// CSS 파일들의 최신 수정 시간을 기반으로 버전 생성
+$cssFiles = [
+    'assets/css/fontawesome.css',
+    'assets/css/templatemo-scholar.css',
+    'assets/css/owl.css',
+    'assets/css/animate.css',
+    'css/portfolio.css'
+];
+
+$version = 0;
+foreach ($cssFiles as $file) {
+    $fileVersion = getFileVersion($file);
+    if ($fileVersion > $version) {
+        $version = $fileVersion;
+    }
+}
+// 버전이 없으면 (모든 파일이 없으면) 현재 시간 사용
+if ($version === 0) {
+    $version = time();
+}
+
+// JS 파일들의 최신 수정 시간을 기반으로 버전 생성
+$jsFiles = [
+    'assets/js/isotope.min.js',
+    'assets/js/owl-carousel.js',
+    'assets/js/counter.js',
+    'assets/js/custom.js',
+    'js/portfolio.js'
+];
+
+$time = 0;
+foreach ($jsFiles as $file) {
+    $fileVersion = getFileVersion($file);
+    if ($fileVersion > $time) {
+        $time = $fileVersion;
+    }
+}
+// 버전이 없으면 (모든 파일이 없으면) 현재 시간 사용
+if ($time === 0) {
+    $time = time();
+}
 ?>
 <!DOCTYPE html>
 <html lang="ko">
@@ -65,7 +125,9 @@ $time = time(); // 스크립트 캐시 방지용
 <meta property="og:image" content="https://8440.co.kr/img/mirae.png"/>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<!-- 폰트 비동기 로드 -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet"></noscript>
 
 <!-- Bootstrap core CSS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -75,15 +137,165 @@ $time = time(); // 스크립트 캐시 방지용
 <link rel="stylesheet" href="assets/css/templatemo-scholar.css?v=<?php echo $version; ?>">
 <link rel="stylesheet" href="assets/css/owl.css?v=<?php echo $version; ?>">
 <link rel="stylesheet" href="assets/css/animate.css?v=<?php echo $version; ?>">
-<link rel="stylesheet"href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
+<!-- Swiper CSS 비동기 로드 -->
+<link rel="preload" href="https://unpkg.com/swiper@7/swiper-bundle.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css"></noscript>
+<!-- Swiper JS는 페이지 하단에서 로드 -->
 <link rel="stylesheet" href="css/portfolio.css?v=<?php echo $version; ?>">
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
-<script src="https://code.highcharts.com/highcharts.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.js" ></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js" ></script>
+<!-- 전역 변수 및 함수 즉시 정의 (jQuery 로드 직후, 다른 스크립트보다 먼저) -->
+<script>
+// 전역 변수 선언
+var ajaxRequest = null;
 
+// popupCenter 함수를 전역 스코프에 정의하여 onclick 속성에서 사용 가능하도록
+window.popupCenter = function(href, pop_name, w, h) {
+    // 고유한 팝업 창 이름을 생성하기 위해 현재 시간을 이용
+    var uniqueName = pop_name + '_' + new Date().getTime();
+
+    // 화면 가로 위치
+    var xPos = (window.innerWidth / 2) - (w / 2) + window.screenX;
+    // 화면 세로 위치
+    var yPos = (window.innerHeight / 2) - (h / 2) + window.screenY;
+
+    window.open(href, uniqueName, "width=" + w + ", height=" + h + ", left=" + xPos + ", top=" + yPos + ", target=_blank, menubar=yes, status=yes, titlebar=yes, resizable=yes");
+};
+
+// performLogin 함수를 즉시 정의 (페이지 로드 전에 사용 가능하도록)
+window.performLogin = function() {
+	console.log('=== performLogin 함수 시작 ===');
+	var home = '<?php echo isset($home) ? $home : ""; ?>';			
+	console.log('home 값:', home);
+	
+	// jQuery가 로드되었는지 확인
+	if (typeof $ === 'undefined' || typeof $.ajax === 'undefined') {
+		console.error('jQuery가 로드되지 않았습니다.');
+		alert('페이지가 완전히 로드되지 않았습니다. 잠시 후 다시 시도해주세요.');
+		return;
+	}
+	console.log('jQuery 확인 완료');
+	
+	if (ajaxRequest !== null) {
+		console.log('기존 AJAX 요청 취소');
+		ajaxRequest.abort();
+	}
+
+	// 로그인 폼 데이터 수집 (PC용 또는 모바일용)
+	var loginData = {};
+	var uid = $("#uid").val() || $("#mobile_uid").val();
+	var upw = $("#upw").val() || $("#mobile_upw").val();
+	
+	console.log('입력값 확인 - uid:', uid ? '입력됨' : '없음', ', upw:', upw ? '입력됨' : '없음');
+	
+	if (!uid || !upw) {
+		console.warn('ID 또는 비밀번호가 입력되지 않았습니다.');
+		if (typeof Swal !== 'undefined') {
+			Swal.fire({
+				title: '입력 오류',
+				text: 'ID와 비밀번호를 입력해주세요.',
+				icon: 'warning',
+				confirmButtonText: '확인'
+			});
+		} else {
+			alert('ID와 비밀번호를 입력해주세요.');
+		}
+		return;
+	}
+	
+	loginData.uid = uid;
+	loginData.upw = upw;
+	console.log('로그인 데이터 준비 완료:', {uid: uid, upw: '***'});
+
+	// data 전송해서 php 값을 넣기 위해 필요한 구문
+	console.log('AJAX 요청 시작:', '/login/login_confirm.php');
+	ajaxRequest = $.ajax({
+		url: '/login/login_confirm.php',
+		type: "post",		
+		data: loginData,
+		dataType:"json",
+		beforeSend: function() {
+			console.log('AJAX 요청 전송 중...');
+		},
+		success : function( data ){			
+		
+			console.log('=== 로그인 응답 받음 ===');
+			console.log('응답 데이터:', data);
+			
+			if( data["error"] ==='' || data["error"] === null || !data["error"])
+			{					
+				if(Number(data["level"]) ===9)
+					location.href = '/partner/index.php';	  // 우성스틸 파트너
+				else if(Number(data["level"]) ===8)
+					location.href = '/p/index.php';	  // 소장
+				else if (Number(data["level"]) ===7)  
+					location.href = '/outorder/list.php';		  // 협력사(덴크리, 다온텍)
+				else if (Number(data["level"]) ===20)
+					location.href = '/phomi/list.php';		  // 포미스톤
+				else 
+					location.href = '/index2.php';		  // 통합사이트로 이동										
+			}
+			   else
+			   {
+					if (typeof Swal !== 'undefined') {
+						Swal.fire({
+						  title: '오류알림',
+						  text: data["error"] || '로그인에 실패했습니다.',
+						  icon: 'error',
+						  confirmButtonText: '확인'
+						});
+					} else {
+						alert(data["error"] || '로그인에 실패했습니다.');
+					}
+			   }
+
+			},
+		error : function( jqxhr , status , error ){
+			console.error('로그인 AJAX 오류:', jqxhr, status, error);
+			if (typeof Swal !== 'undefined') {
+				Swal.fire({
+					title: '오류',
+					text: '서버와의 통신 중 문제가 발생했습니다. 다시 시도해주세요.',
+					icon: 'error',
+					confirmButtonText: '확인'
+				});
+			} else {
+				alert('서버와의 통신 중 문제가 발생했습니다. 다시 시도해주세요.');
+			}
+		} 			      		
+	   });
+};
+
+console.log('performLogin 함수 정의 완료');
+
+// 로그아웃 함수를 전역 스코프에 정의
+window.performLogout = function() {
+	console.log('=== performLogout 함수 시작 ===');
+	var logoutUrl = '<?php echo htmlspecialchars($logout_url, ENT_QUOTES, 'UTF-8'); ?>';
+	console.log('로그아웃 URL:', logoutUrl);
+	
+	try {
+		if (logoutUrl && logoutUrl !== '') {
+			console.log('로그아웃 페이지로 이동:', logoutUrl);
+			window.location.href = logoutUrl;
+		} else {
+			console.warn('로그아웃 URL이 없습니다. 기본 경로 사용');
+			window.location.href = './login/logout.php';
+		}
+	} catch (error) {
+		console.error('로그아웃 오류:', error);
+		// 폴백: 직접 경로 시도
+		window.location.href = './login/logout.php';
+	}
+};
+
+console.log('performLogout 함수 정의 완료');
+</script>
+
+<!-- 차트 라이브러리 즉시 로드 (페이지에 포함된 차트가 있으므로) -->
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.12.0/toastify.min.css" rel="stylesheet">
 <script src="https://unpkg.com/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
@@ -132,6 +344,9 @@ $time = time(); // 스크립트 캐시 방지용
         flex-wrap: nowrap !important;
         white-space: nowrap !important;
         width: 100%;
+        overflow: visible !important; /* 오버플로우로 인한 숨김 방지 */
+        justify-content: flex-start !important; /* 왼쪽 정렬 */
+        gap: 0 !important; /* logo-sns-container와 nav 사이 간격 제거 */
     }
     
     .header-area .main-nav .nav {
@@ -143,6 +358,14 @@ $time = time(); // 스크립트 캐시 방지용
         flex-shrink: 0;
         margin: 0 !important;
         padding: 0 !important;
+        overflow: visible !important; /* 오버플로우로 인한 숨김 방지 */
+        position: relative !important;
+    }
+    
+    /* 메뉴 항목들 간격 최소화 */
+    .header-area .main-nav .nav li {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
     }
     
     .header-area .main-nav .nav li {
@@ -154,9 +377,9 @@ $time = time(); // 스크립트 캐시 방지용
     }
     
     .header-area .main-nav .nav li a {
-        padding-left: 12px !important;
-        padding-right: 12px !important;
-        font-size: 21px !important;
+        padding-left: 8px !important; /* 12px에서 8px로 감소 */
+        padding-right: 8px !important; /* 12px에서 8px로 감소 */
+        font-size: 15px !important; /* 17.85px에서 15px로 추가 감소 */
         white-space: nowrap !important;
         height: 50px !important;
         line-height: 50px !important;
@@ -208,29 +431,111 @@ $time = time(); // 스크립트 캐시 방지용
         white-space: nowrap;
     }
     
+    /* 로그인 폼이 있는 li 스타일 (호환성을 위해 클래스 기반으로 변경) */
+    .header-area .main-nav .nav li.scroll-to-section.login-form-item {
+        display: flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+    }
+    
     .login-input {
         width: 80px !important;
         height: 30px !important;
-        font-size: 11px !important;
+        font-size: 9.35px !important; /* 11px의 85% (15% 감소) */
         padding: 3px 6px !important;
         display: inline-block !important;
-    }
+    }   
     
     .login-btn {
-        font-size: 11px !important;
+        font-size: 9.35px !important; /* 11px의 85% (15% 감소) */
         padding: 3px 10px !important;
         height: 30px !important;
         white-space: nowrap !important;
     }
     
     .user-name {
-        font-size: 12px !important;
+        font-size: 10.2px !important; /* 12px의 85% (15% 감소) */
         white-space: nowrap !important;
     }
     
-    /* 관리자 버튼 크기 조정 */
+    /* 관리자 아이콘 버튼 스타일 (견적문의 옆에 작은 아이콘) */
+    .admin-icon-btn {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 24px !important; /* 28px에서 24px로 감소 */
+        height: 24px !important; /* 28px에서 24px로 감소 */
+        border-radius: 4px !important;
+        background: transparent !important; /* 배경 제거하여 음영 효과 제거 */
+        color: white !important;
+        text-decoration: none !important;
+        transition: all 0.3s !important;
+        flex-shrink: 0 !important;
+        box-shadow: none !important; /* 음영 제거 */
+        text-shadow: none !important; /* 텍스트 음영 제거 */
+        filter: none !important; /* 필터 효과 제거 */
+        outline: none !important; /* 아웃라인 제거 */
+        border: none !important; /* 테두리 제거 */
+    }
+    
+    .admin-icon-btn:hover {
+        background: transparent !important; /* hover 시에도 배경 없음 */
+        transform: translateY(-1px);
+        box-shadow: none !important; /* hover 시에도 음영 제거 */
+        text-shadow: none !important; /* hover 시에도 텍스트 음영 제거 */
+        filter: none !important; /* hover 시에도 필터 효과 제거 */
+        outline: none !important; /* hover 시에도 아웃라인 제거 */
+    }
+    
+    .admin-icon-btn i {
+        font-size: 12px !important; /* 14px에서 12px로 감소 */
+        margin: 0 !important;
+        text-shadow: none !important; /* 아이콘 텍스트 음영 제거 */
+        filter: none !important; /* 아이콘 필터 효과 제거 */
+    }
+    
+    /* 견적문의와 관리자 아이콘이 함께 있는 li 스타일 */
+    .header-area .main-nav .nav li.contact-admin-item {
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        flex-shrink: 0 !important;
+        position: relative !important;
+        z-index: 5 !important; /* 로그인 폼보다 앞에 표시 */
+        visibility: visible !important;
+        opacity: 1 !important;
+        margin-right: 120px !important; /* 로그인 폼 공간 확보 */
+    }
+    
+    .contact-admin-item .contact-link {
+        flex-shrink: 0 !important;
+        white-space: nowrap !important;
+        display: inline-block !important;
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+        font-size: 15px !important;
+        height: 50px !important;
+        line-height: 50px !important;
+        color: white !important;
+        text-decoration: none !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    .contact-admin-item .contact-link:hover {
+        opacity: 0.8;
+    }
+    
+    /* 관리자 아이콘 버튼이 보이도록 */
+    .contact-admin-item .admin-icon-btn {
+        visibility: visible !important;
+        opacity: 1 !important;
+        display: inline-flex !important;
+    }
+    
+    /* 기존 관리자 버튼 스타일 (사용 안 함) */
     .admin-btn {
-        font-size: 11px !important;
+        font-size: 9.35px !important; /* 11px의 85% (15% 감소) */
         padding: 3px 8px !important;
         height: 30px !important;
         display: flex !important;
@@ -244,15 +549,26 @@ $time = time(); // 스크립트 캐시 방지용
     
     /* 로고와 메뉴 사이 간격 조정 */
     .logo-sns-container {
-        flex-shrink: 0;
-        max-width: 300px;
+        flex-shrink: 0 !important;
+        flex-grow: 0 !important; /* 확대 방지 */
+        max-width: none !important; /* max-width 제거 */
+        width: auto !important; /* 필요한 만큼만 차지 */
     }
     
     .logo h1 {
-        font-size: 26px !important;
-        margin-right: 8px !important;
-        padding-right: 8px !important;
-        border-right: 1px solid rgba(250, 250, 250, 0.3) !important;
+        font-size: 20px !important; /* 22.1px에서 20px로 추가 감소 */
+        margin-right: 0 !important; /* 간격 제거 */
+        margin-left: 0 !important; /* 왼쪽 간격 제거 */
+        padding-right: 0 !important; /* 간격 제거 */
+        padding-left: 0 !important; /* 왼쪽 패딩 제거 */
+        border-right: none !important; /* 구분선 제거 */
+    }
+    
+    .logo {
+        margin-right: 0 !important; /* 로고 오른쪽 간격 제거 */
+        margin-left: 0 !important; /* 로고 왼쪽 간격 제거 */
+        padding-right: 0 !important; /* 로고 오른쪽 패딩 제거 */
+        padding-left: 0 !important; /* 로고 왼쪽 패딩 제거 */
     }
     
     /* 컨테이너 최적화 */
@@ -275,8 +591,8 @@ $time = time(); // 스크립트 캐시 방지용
     
     /* 로고를 왼쪽에 배치 */
     .logo-sns-container {
-        position: absolute !important;
-        left: 15px !important;
+        position: relative !important; /* absolute에서 relative로 변경하여 일반 flow로 배치 */
+        left: 0 !important; /* 10px에서 0으로 변경하여 왼쪽 끝에 배치 */
         z-index: 10;
     }
     
@@ -291,6 +607,21 @@ $time = time(); // 스크립트 캐시 방지용
         align-items: center !important;
         gap: 8px !important;
         margin-right: 10px !important;
+        margin-left: 0 !important; /* 로고와의 간격 제거 */
+        padding-left: 0 !important; /* 로고와의 간격 제거 */
+    }
+    
+    /* nav를 로고 바로 옆에 배치 */
+    .header-area .main-nav .nav {
+        margin-left: 0 !important;
+        padding-left: 0 !important;
+    }
+    
+    /* main-nav와 logo-sns-container 사이 간격 제거 */
+    .header-area .main-nav {
+        gap: 0 !important; /* 로고와 nav 사이 간격 제거 */
+        margin-left: 0 !important;
+        padding-left: 0 !important;
     }
     
     /* SNS 아이콘 크기 조정 */
@@ -305,18 +636,48 @@ $time = time(); // 스크립트 캐시 방지용
         height: 26px !important;
     }
     
+    /* 홈 아이콘 버튼 스타일 - 테두리 제거 */
+    .home-icon-btn {
+        background-color: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+    }
+    
+    .home-icon-btn:hover {
+        background-color: transparent !important;
+        border: none !important;
+        transform: translateY(-2px);
+        opacity: 0.8;
+    }
+    
+    .home-icon-btn:focus {
+        box-shadow: none !important;
+        outline: none !important;
+    }
+    
+    .home-icon-btn i {
+        color: white !important;
+    }
+    
     /* 로그인 폼을 오른쪽에 배치 */
-    .header-area .main-nav .nav li:last-child,
-    .header-area .main-nav .nav li:nth-last-child(2) {
+    .header-area .main-nav .nav li.login-form-item {
         position: absolute !important;
-        right: 15px !important;
+        right: 10px !important; /* 15px에서 10px로 감소 */
         z-index: 10;
     }
     
-    /* 메뉴 항목들 간격 조정 */
+    /* 견적문의와 관리자 아이콘이 로그인 폼과 겹치지 않도록 */
+    .header-area .main-nav .nav li.contact-admin-item {
+        position: relative !important;
+        z-index: 5 !important;
+        margin-right: 0 !important;
+    }
+    
+    /* 메뉴 항목들 간격 최소화 */
     .header-area .main-nav .nav li {
-        padding-left: 3px !important;
-        padding-right: 3px !important;
+        padding-left: 2px !important; /* 3px에서 2px로 감소 */
+        padding-right: 2px !important; /* 3px에서 2px로 감소 */
     }
     
     /* 메뉴만 중앙에 정렬되도록 */
@@ -349,6 +710,18 @@ $time = time(); // 스크립트 캐시 방지용
         height: 70px !important;
         min-height: 70px !important;
         max-height: 70px !important;
+        background-color: #7a6ad8 !important; /* 톤앤매너에 맞는 배경색 추가 */
+    }
+    
+    /* 모바일 sticky 상태에서 배경 유지 */
+    .header-area.header-sticky {
+        background-color: #7a6ad8 !important; /* sticky 상태에서도 배경 유지 */
+        box-shadow: 0px 2px 8px rgba(0,0,0,0.15) !important; /* 약간의 그림자 추가 */
+    }
+    
+    /* 모바일 nav 배경 설정 */
+    .header-area .main-nav {
+        background-color: #7a6ad8 !important; /* nav 배경색 설정 */
     }
     
     .header-area .main-nav {
@@ -364,6 +737,7 @@ $time = time(); // 스크립트 캐시 방지용
     
     .header-area .container {
         padding: 0 !important;
+        padding-left: 0 !important; /* 왼쪽 패딩 완전 제거 */
         margin: 0 !important;
         height: 70px !important;
         min-height: 70px !important;
@@ -383,8 +757,8 @@ $time = time(); // 스크립트 캐시 방지용
     /* 로고 컨테이너 오버플로우 방지 */
     .logo-sns-container {
         overflow: visible;
-        max-width: 100%;
-        width: 100%;
+        max-width: none !important; /* max-width 제거 */
+        width: auto !important; /* 필요한 만큼만 차지 */
         display: flex !important;
         align-items: center !important;
         justify-content: flex-start !important;
@@ -393,9 +767,14 @@ $time = time(); // 스크립트 캐시 방지용
         vertical-align: middle !important;
         position: relative;
         z-index: 1000;
-        padding: 0 10px !important;
+        padding: 0 !important; /* 모든 패딩 제거 */
+        padding-left: 0 !important; /* 왼쪽 패딩 완전 제거 */
+        padding-right: 0 !important; /* 오른쪽 패딩 완전 제거 */
         margin: 0 !important;
-        gap: 12px;
+        margin-right: 0 !important; /* 오른쪽 마진 제거 */
+        gap: 0 !important; /* 12px에서 0으로 변경하여 로고와 nav 사이 간격 제거 */
+        flex-shrink: 0 !important; /* 축소 방지 */
+        flex-grow: 0 !important; /* 확대 방지 */
     }
     
     /* 헤더 내 모든 요소 세로 중앙 정렬 */
@@ -411,12 +790,14 @@ $time = time(); // 스크립트 캐시 방지용
     .logo-sns-inner {
         display: flex !important;
         align-items: center !important;
-        gap: 12px;
+        gap: 0 !important; /* 12px에서 0으로 변경하여 간격 제거 */
         flex-wrap: nowrap;
         flex: 1;
         min-width: 0;
         overflow: hidden;
         height: 100% !important;
+        margin-right: 0 !important; /* 오른쪽 마진 제거 */
+        padding-right: 0 !important; /* 오른쪽 패딩 제거 */
     }
     
     /* 로고 텍스트 중앙 정렬 */
@@ -781,7 +1162,7 @@ $time = time(); // 스크립트 캐시 방지용
 <link rel="stylesheet" href="assets/css/templatemo-scholar.css?v=<?php echo $version; ?>">
 <link rel="stylesheet" href="assets/css/owl.css?v=<?php echo $version; ?>">
 <link rel="stylesheet" href="assets/css/animate.css?v=<?php echo $version; ?>">
-<link rel="stylesheet"href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
+<!-- Swiper CSS는 이미 위에서 로드됨 -->
 <style>
     .screen_out {display:block;overflow:hidden;position:absolute;left:-9999px;width:1px;height:1px;font-size:0;line-height:0;text-indent:-9999px}
     .wrap_content {overflow:hidden;height:330px}
@@ -934,6 +1315,289 @@ $time = time(); // 스크립트 캐시 방지용
             min-height: 300px;
         }
     }
+    
+    /* 헤더 하단 슬라이더 스타일 */
+    .header-slider-section {
+        border-top: 1px solid #e0e0e0;
+        padding: 30px 0 !important;
+    }
+    
+    /* 이미지 컨테이너 (16:9 비율 유지) */
+    .carousel-image-container {
+        position: relative;
+        width: 100%;
+        padding-bottom: 56.25%; /* 16:9 비율 */
+        background: #f0f0f0;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    
+    .carousel-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    
+    .image-swiper {
+        width: 100%;
+    }
+    
+    .image-swiper .swiper-slide {
+        position: relative;
+    }
+
+    .image-swiper .swiper-slide:hover .carousel-image {
+        transform: scale(1.05);
+    }
+    
+    /* 유튜브 링크 오버레이 스타일 (하단) */
+    .youtube-overlay-bottom {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        padding: 20px 30px;
+        background: linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0.5), transparent);
+        border-radius: 0 0 12px 12px;
+        z-index: 2;
+        pointer-events: none; /* 오버레이 자체는 클릭 불가, 링크만 클릭 가능 */
+    }
+    
+    .youtube-link-overlay {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 20px;
+        background: rgba(255,255,255,0.95);
+        border-radius: 8px;
+        text-decoration: none;
+        color: #333;
+        font-weight: 600;
+        font-size: 15px;
+        transition: all 0.3s ease;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        white-space: nowrap;
+        pointer-events: auto !important; /* 링크는 클릭 가능 */
+        border: 2px solid transparent;
+    }
+    
+    .youtube-link-overlay i {
+        font-size: 20px;
+        color: #FF0000;
+        margin-right: 10px;
+        transition: transform 0.3s ease;
+    }
+    
+    .youtube-link-overlay:hover {
+        background: rgba(255,255,255,1) !important;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.3) !important;
+        border-color: #FF0000;
+    }
+    
+    .youtube-link-overlay:hover i {
+        transform: scale(1.2);
+    }
+    
+    /* Swiper 버튼이 오버레이 위에 표시되도록 */
+    .image-swiper .swiper-button-next,
+    .image-swiper .swiper-button-prev {
+        z-index: 10 !important;
+        width: 45px !important;
+        height: 45px !important;
+        background: rgba(255,255,255,0.95) !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+    }
+    
+    .image-swiper .swiper-button-next:after,
+    .image-swiper .swiper-button-prev:after {
+        font-size: 18px !important;
+        font-weight: bold !important;
+        color: #7a6ad8 !important;
+    }
+    
+    .image-swiper .swiper-button-next:hover,
+    .image-swiper .swiper-button-prev:hover {
+        background: rgba(255,255,255,1) !important;
+        transform: scale(1.1);
+    }
+    
+    .image-swiper .swiper-pagination {
+        z-index: 10 !important;
+        bottom: 80px !important; /* 유튜브 링크 위에 표시 */
+    }
+    
+    .image-swiper .swiper-pagination-bullet {
+        width: 12px !important;
+        height: 12px !important;
+        background: rgba(255,255,255,0.8) !important;
+        opacity: 1 !important;
+    }
+    
+    .image-swiper .swiper-pagination-bullet-active {
+        background: #7a6ad8 !important;
+        width: 30px !important;
+        border-radius: 6px !important;
+    }
+    
+    .image-swiper .swiper-button-next,
+    .image-swiper .swiper-button-prev {
+        color: #7a6ad8;
+        background: rgba(255,255,255,0.9);
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        z-index: 10 !important; /* 버튼이 다른 요소 위에 표시되도록 */
+        cursor: pointer !important;
+        pointer-events: auto !important;
+    }
+    
+    .image-swiper .swiper-button-next:after,
+    .image-swiper .swiper-button-prev:after {
+        font-size: 16px;
+        font-weight: bold;
+    }
+    
+    @media (max-width: 767px) {
+        .header-slider-section {
+            padding: 20px 0 !important;
+            margin-top: 40px !important; /* nav와 캐러셀 사이 간격 증가 */
+        }
+        
+        .carousel-image-container {
+            border-radius: 8px;
+        }
+        
+        .youtube-overlay-bottom {
+            gap: 8px !important;
+            padding: 15px 10px !important;
+            flex-wrap: wrap;
+            background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.6), transparent) !important;
+        }
+        
+        .youtube-link-overlay {
+            padding: 8px 14px !important;
+            font-size: 12px !important;
+            flex: 1 1 auto;
+            min-width: calc(33.333% - 6px);
+            max-width: 100%;
+        }
+        
+        .youtube-link-overlay i {
+            font-size: 16px !important;
+            margin-right: 6px !important;
+        }
+        
+        .youtube-link-overlay span {
+            font-size: 11px !important;
+        }
+        
+        .image-swiper .swiper-button-next,
+        .image-swiper .swiper-button-prev {
+            width: 35px !important;
+            height: 35px !important;
+        }
+        
+        .image-swiper .swiper-button-next:after,
+        .image-swiper .swiper-button-prev:after {
+            font-size: 14px !important;
+        }
+        
+        .image-swiper .swiper-pagination {
+            bottom: 70px !important;
+    }
+}
+
+/* main-banner 높이 최소화 */
+.main-banner {
+    min-height: 0 !important;
+    height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+}
+
+.main-banner .container,
+.main-banner .row,
+.main-banner .col-lg-12 {
+    display: none !important;
+}
+
+/* 섹션들이 화면에 표시되도록 보장 */
+section#RiskAssessement,
+section#gallery,
+div#contact,
+.contact-us#contact,
+footer {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+section#RiskAssessement.section,
+section#gallery.section,
+div#contact.section,
+.contact-us.section#contact {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 80px 0 !important;
+    margin: 0 !important;
+}
+
+footer {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 40px 0 !important;
+    margin: 0 !important;
+    background-color: #2a2a2a !important;
+    color: #fff !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+/* 섹션 내부 컨테이너도 표시되도록 보장 */
+#RiskAssessement .container,
+#gallery .container,
+#contact .container,
+footer .container {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+#RiskAssessement .row,
+#gallery .row,
+#contact .row,
+footer .row {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
 </style>
 </head>  
 <body>
@@ -956,6 +1620,41 @@ $time = time(); // 스크립트 캐시 방지용
     </div>
   </div>
   <!-- ***** Preloader End ***** -->
+  <!-- Preloader 즉시 숨김 스크립트 (인라인으로 최우선 실행) -->
+  <script>
+  (function() {
+    // 즉시 실행하여 Preloader를 최대한 빨리 숨김
+    function forceHidePreloader() {
+      var preloader = document.getElementById('js-preloader');
+      if (preloader) {
+        preloader.classList.add('loaded');
+        preloader.style.opacity = '0';
+        preloader.style.visibility = 'hidden';
+        preloader.style.display = 'none';
+        preloader.style.pointerEvents = 'none';
+      }
+      var oldPreloader = document.getElementById('preloader');
+      if (oldPreloader) {
+        oldPreloader.style.opacity = '0';
+        oldPreloader.style.visibility = 'hidden';
+        oldPreloader.style.display = 'none';
+      }
+    }
+    
+    // 즉시 실행
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', forceHidePreloader);
+    } else {
+      forceHidePreloader();
+    }
+    
+    // 추가 안전장치
+    setTimeout(forceHidePreloader, 100);
+    setTimeout(forceHidePreloader, 500);
+    setTimeout(forceHidePreloader, 1000);
+    window.addEventListener('load', forceHidePreloader);
+  })();
+  </script>
 <!-- ***** Header Area Start ***** -->
 <header class="header-area header-sticky">
     <div class="container">        
@@ -967,14 +1666,11 @@ $time = time(); // 스크립트 캐시 방지용
                             <i class="fa fa-bars"></i>
                         </button>
                         
-                        <div class="logo-sns-inner">
-                            <a href="index.php" class="logo">
-                                <h1>미래기업</h1>
-                            </a>
-                            <!-- ***** Logo End ***** -->
-                            
+                        <div class="logo-sns-inner"> 
+                            <!-- ***** Logo End ***** -->                            
                             <!-- PC용 SNS 아이콘 (로고 옆에 표시) -->
                             <div class="desktop-sns-icons-wrapper d-none d-md-flex">
+                            <span class="mx-1 text-white fs-5"> 미래기업</span>
                                 <button type="button" class="btn btn-outline-danger btn-sm desktop-sns-btn" onclick="popupCenter('https://youtube.com/@miraecorp', 'YouTube', 1920, 1080); return false;" title="미래기업 유튜브">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 26" width="22" height="22">
                                     <rect width="34" height="26" rx="5" ry="5" fill="#FF0000"/>					
@@ -989,10 +1685,16 @@ $time = time(); // 스크립트 캐시 방지용
                                         height="22" 
                                         alt="Instagram">
                                 </button>
+                                <button type="button" class="btn desktop-sns-btn home-icon-btn"
+                                    onclick="window.location.href='index2.php'; return false;"
+                                    title="홈으로 이동">
+                                    <i class="fa fa-home" style="font-size: 18px; color: white;"></i>
+                                </button>
                             </div>
                             
                             <!-- 모바일 SNS 아이콘 (로고 옆에 표시) -->
                             <div class="mobile-sns-icons d-md-none">
+                            <span class="mx-1 text-white fs-5"> 미래기업</span>
                                 <button type="button" class="btn btn-outline-danger btn-sm" onclick="popupCenter('https://youtube.com/@miraecorp', 'YouTube', 1920, 1080); return false;" title="미래기업 유튜브">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 26" width="18" height="18">
                                     <rect width="34" height="26" rx="5" ry="5" fill="#FF0000"/>					
@@ -1007,12 +1709,18 @@ $time = time(); // 스크립트 캐시 방지용
                                       height="18" 
                                       alt="Instagram">
                                 </button>
+                                <button type="button" class="btn home-icon-btn"
+                                    onclick="window.location.href='index2.php'; return false;"
+                                    title="홈으로 이동">
+                                    <i class="fa fa-home" style="font-size: 16px; color: white;"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
 					
-            <!-- ***** Menu Start ***** -->
-            <ul class="nav align-items-center d-none d-md-flex">
+            <!-- ***** PC용 Menu Start ***** -->
+        <ul class="nav align-items-center d-none d-md-flex">
+        <span class="mx-1 text-white fs-5"> 미래기업</span>
 					<li class="scroll-to-section desktop-sns-icons">						
 						<button type="button" class="btn btn-outline-danger btn-sm desktop-sns-btn" onclick="popupCenter('https://youtube.com/@miraecorp', 'YouTube', 1920, 1080); return false;" title="미래기업 유튜브">
 						  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 26" width="22" height="22">
@@ -1029,6 +1737,11 @@ $time = time(); // 스크립트 캐시 방지용
 								width="22" 
 								height="22" 
 								alt="Instagram">
+						</button>
+						<button type="button" class="btn desktop-sns-btn home-icon-btn"
+							onclick="window.location.href='index2.php'; return false;"
+							title="홈으로 이동">
+							<i class="fa fa-home" style="font-size: 18px; color: white;"></i>
 						</button>
 					</li>					
 					<!-- <li class="scroll-to-section"><a href="#top" class="active">H</a></li>					  -->
@@ -1068,50 +1781,130 @@ $time = time(); // 스크립트 캐시 방지용
 						</div>
 					</li>
 					<li class="scroll-to-section"><a href="#gallery">제품/시공 갤러리</a></li>
-					<li class="scroll-to-section">
-						<a href="#contact" >견적문의</a>
-					</li>					
-					<li class="scroll-to-section">
-						<a href="login_manager.php" class="btn btn-sm btn-outline-warning admin-btn">
-							<i class="fa fa-lock" aria-hidden="true"></i>관리자
+					<li class="scroll-to-section contact-admin-item">
+						<a href="#contact" class="contact-link">견적문의</a>
+						<a href="login_manager.php" class="admin-icon-btn" title="관리자 페이지">
+							<i class="fa fa-lock" aria-hidden="true"></i>
 						</a>
 					</li>
 
             <li class="scroll-to-section">							
               <?php if (!$chkMobile): ?>
                 <?php if (!isset($_SESSION["name"])): ?>
-                <form id="login_form" name="login_form" method="post" class="desktop-login-form">
-                  <input type="text" id="uid" name="uid" class="form-control login-input" placeholder="ID" required autofocus>
-                  <input type="password" id="upw" name="upw" class="form-control login-input" placeholder="Password" required>
-                  <button id="loginBtn" class="btn btn-dark btn-sm login-btn" type="button">로그인</button>
+                <form id="login_form" name="login_form" method="post" class="desktop-login-form" style="display: flex; align-items: center; gap: 4px;">
+                  <input type="text" id="uid" name="uid" class="form-control login-input" placeholder="ID" required autofocus autocomplete="username" onkeypress="if(event.key==='Enter'||event.keyCode===13){event.preventDefault();if(typeof window.performLogin==='function'){window.performLogin();}return false;}">
+                  <input type="password" id="upw" name="upw" class="form-control login-input" placeholder="Password" required autocomplete="current-password" onkeypress="if(event.key==='Enter'||event.keyCode===13){event.preventDefault();if(typeof window.performLogin==='function'){window.performLogin();}return false;}">
+                  <button id="loginBtn" class="btn btn-dark btn-sm login-btn" type="button" onclick="if(typeof window.performLogin==='function'){window.performLogin();}else{console.error('performLogin 함수 없음');}return false;">로그인</button>
                 </form>
-                <?php else: ?>									
-                <form id="login_form" name="login_form" method="post" class="desktop-login-form">											
+                <?php else: ?>
+                <form id="login_form" name="login_form" method="post" class="desktop-login-form" style="display: flex; align-items: center; gap: 4px;">											
                   <span class="text-white user-name"><?php echo $_SESSION["name"]; ?> 님</span>
-                  <button id="logoutBtn" class="btn btn-dark btn-sm login-btn" type="button">로그아웃</button>
+                  <button id="logoutBtn" class="btn btn-dark btn-sm login-btn" type="button" onclick="if(typeof window.performLogout==='function'){window.performLogout();}else{console.error('performLogout 함수 없음');window.location.href='./login/logout.php';}return false;">로그아웃</button>
                 </form>									
                 <?php endif; ?>
-              <?php else: ?>							
+              <?php else: ?>
+                <!-- 모바일: 관리자 버튼은 모바일 메뉴에만 표시 -->
                 <?php if (!isset($_SESSION["name"])): ?>
                   <form id="login_form" name="login_form" method="post">
-                    <input type="text"  id="uid" name="uid" class="form-control me-1" style="width: 120px; display: inline-block;" placeholder="Your ID" required autofocus>
-                    <input type="password" id="upw" name="upw" class="form-control me-1" style="width: 120px; display: inline-block;" placeholder="Password" required>
-                    <button id="loginBtn"  class="btn btn-dark btn-sm" type="button">로그인</button>
+                    <input type="text"  id="uid" name="uid" class="form-control me-1" style="width: 120px; display: inline-block;" placeholder="Your ID" required autofocus autocomplete="username" onkeypress="if(event.key==='Enter'||event.keyCode===13){event.preventDefault();if(typeof window.performLogin==='function'){window.performLogin();}return false;}">
+                    <input type="password" id="upw" name="upw" class="form-control me-1" style="width: 120px; display: inline-block;" placeholder="Password" required autocomplete="current-password" onkeypress="if(event.key==='Enter'||event.keyCode===13){event.preventDefault();if(typeof window.performLogin==='function'){window.performLogin();}return false;}">
+                    <button id="loginBtn"  class="btn btn-dark btn-sm" type="button" onclick="if(typeof window.performLogin==='function'){window.performLogin();}else{console.error('performLogin 함수 없음');}return false;">로그인</button>
                   </form>
                 <?php else: ?>
                   <form id="login_form" name="login_form" method="post">
                     <span class="text-white" ><?php echo $_SESSION["name"]; ?> 님 </span>
-                    <button id="logoutBtn" class="btn btn-secondary btn-sm" type="button">로그아웃</button>
+                    <button id="logoutBtn" class="btn btn-secondary btn-sm" type="button" onclick="if(typeof window.performLogout==='function'){window.performLogout();}else{console.error('performLogout 함수 없음');window.location.href='./login/logout.php';}return false;">로그아웃</button>
                   </form>
                 <?php endif; ?>							
               <?php endif; ?>
             </li>
               </ul>
                     <!-- ***** Menu End ***** -->
-                </nav>
-          </div>
+          </nav>
+      </div>
 </header>
 <!-- ***** Header Area End ***** -->
+
+<!-- 헤더 하단 슬라이더 (3개 이미지 + 각 이미지 하단에 유튜브 링크) -->
+<div class="header-slider-section mt-5" style="background-color: #f8f9fa; padding: 20px 0; margin-top: 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <!-- 이미지 슬라이더 (3개 이미지, 각 이미지 하단에 유튜브 링크) -->
+                <div class="swiper image-swiper" style="width: 100%;">
+                    <div class="swiper-wrapper">
+                        <!-- 첫 번째 이미지 슬라이드 -->
+                        <div class="swiper-slide" style="position: relative;">
+                            <div class="carousel-image-container">
+                                <img src="img/homepage/1.png" alt="미래기업 이미지 1" class="carousel-image">
+                            </div>
+                            <!-- 유튜브 링크 오버레이 (하단) -->
+                            <div class="youtube-overlay-bottom">
+                                <a href="#" class="youtube-link-overlay" data-video-url="https://www.youtube.com/embed/Tv7p06VOvq8?autoplay=1" data-video-title="엘리베이터 조명천장">
+                                    <i class="fa fa-youtube-play"></i>
+                                    <span>엘리베이터 조명천장</span>
+                                </a>
+                                <a href="#" class="youtube-link-overlay" data-video-url="https://www.youtube.com/embed/WAuC0ELSfgs?autoplay=1" data-video-title="엘리베이터 쟘(JAMB)">
+                                    <i class="fa fa-youtube-play"></i>
+                                    <span>엘리베이터 쟘(JAMB)</span>
+                                </a>
+                                <a href="#" class="youtube-link-overlay" data-video-url="https://www.youtube.com/embed/B2Aufa2409c?autoplay=1" data-video-title="재료분리대(SILL cover)">
+                                    <i class="fa fa-youtube-play"></i>
+                                    <span>재료분리대(SILL cover)</span>
+                                </a>
+                            </div>
+                        </div>
+                        <!-- 두 번째 이미지 슬라이드 -->
+                        <div class="swiper-slide" style="position: relative;">
+                            <div class="carousel-image-container">
+                                <img src="img/homepage/2.png" alt="미래기업 이미지 2" class="carousel-image">
+                            </div>
+                            <!-- 유튜브 링크 오버레이 (하단) -->
+                            <div class="youtube-overlay-bottom">
+                                <a href="#" class="youtube-link-overlay" data-video-url="https://www.youtube.com/embed/Tv7p06VOvq8?autoplay=1" data-video-title="엘리베이터 조명천장">
+                                    <i class="fa fa-youtube-play"></i>
+                                    <span>엘리베이터 조명천장</span>
+                                </a>
+                                <a href="#" class="youtube-link-overlay" data-video-url="https://www.youtube.com/embed/WAuC0ELSfgs?autoplay=1" data-video-title="엘리베이터 쟘(JAMB)">
+                                    <i class="fa fa-youtube-play"></i>
+                                    <span>엘리베이터 쟘(JAMB)</span>
+                                </a>
+                                <a href="#" class="youtube-link-overlay" data-video-url="https://www.youtube.com/embed/B2Aufa2409c?autoplay=1" data-video-title="재료분리대(SILL cover)">
+                                    <i class="fa fa-youtube-play"></i>
+                                    <span>재료분리대(SILL cover)</span>
+                                </a>
+                            </div>
+                        </div>
+                        <!-- 세 번째 이미지 슬라이드 -->
+                        <div class="swiper-slide" style="position: relative;">
+                            <div class="carousel-image-container">
+                                <img src="img/homepage/3.png" alt="미래기업 이미지 3" class="carousel-image">
+                            </div>
+                            <!-- 유튜브 링크 오버레이 (하단) -->
+                            <div class="youtube-overlay-bottom">
+                                <a href="#" class="youtube-link-overlay" data-video-url="https://www.youtube.com/embed/Tv7p06VOvq8?autoplay=1" data-video-title="엘리베이터 조명천장">
+                                    <i class="fa fa-youtube-play"></i>
+                                    <span>엘리베이터 조명천장</span>
+                                </a>
+                                <a href="#" class="youtube-link-overlay" data-video-url="https://www.youtube.com/embed/WAuC0ELSfgs?autoplay=1" data-video-title="엘리베이터 쟘(JAMB)">
+                                    <i class="fa fa-youtube-play"></i>
+                                    <span>엘리베이터 쟘(JAMB)</span>
+                                </a>
+                                <a href="#" class="youtube-link-overlay" data-video-url="https://www.youtube.com/embed/B2Aufa2409c?autoplay=1" data-video-title="재료분리대(SILL cover)">
+                                    <i class="fa fa-youtube-play"></i>
+                                    <span>재료분리대(SILL cover)</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="swiper-pagination"></div>
+                    <div class="swiper-button-next"></div>
+                    <div class="swiper-button-prev"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- 모바일 오프캔버스 메뉴 -->
 <div class="offcanvas offcanvas-end" tabindex="-1" id="mobileNavMenu" aria-labelledby="mobileNavMenuLabel" style="width: 85%; max-width: 360px;">
@@ -1236,7 +2029,7 @@ $time = time(); // 스크립트 캐시 방지용
 
 			<!-- 로그아웃 -->
 			<div class="mobile-menu-item">
-				<a href="javascript:void(0);" id="mobileLogoutBtn" class="mobile-menu-link">
+				<a href="javascript:void(0);" id="mobileLogoutBtn" class="mobile-menu-link" onclick="if(typeof window.performLogout==='function'){window.performLogout();}else{console.error('performLogout 함수 없음');window.location.href='./login/logout.php';}return false;">
 					<i class="fa fa-sign-out"></i>
 					<span>로그아웃</span>
 					<i class="fa fa-chevron-right" style="margin-left: auto; font-size: 0.9rem; opacity: 0.6;"></i>
@@ -1247,10 +2040,10 @@ $time = time(); // 스크립트 캐시 방지용
 			<div class="mobile-menu-item" style="margin-top: 10px; border-top: 2px solid #e9ecef; padding: 15px 20px;">
 				<form id="mobile_login_form" name="mobile_login_form" method="post" style="display: flex; flex-direction: column; gap: 10px;">
 					<div style="display: flex; flex-direction: column; gap: 8px;">
-						<input type="text" id="mobile_uid" name="uid" class="form-control" placeholder="ID" required autofocus style="height: 40px; font-size: 14px;">
-						<input type="password" id="mobile_upw" name="upw" class="form-control" placeholder="Password" required style="height: 40px; font-size: 14px;">
+						<input type="text" id="mobile_uid" name="uid" class="form-control" placeholder="ID" required autofocus autocomplete="username" style="height: 40px; font-size: 14px;" onkeypress="if(event.key==='Enter'||event.keyCode===13){event.preventDefault();if(typeof window.performLogin==='function'){window.performLogin();}return false;}">
+						<input type="password" id="mobile_upw" name="upw" class="form-control" placeholder="Password" required autocomplete="current-password" style="height: 40px; font-size: 14px;" onkeypress="if(event.key==='Enter'||event.keyCode===13){event.preventDefault();if(typeof window.performLogin==='function'){window.performLogin();}return false;}">
 					</div>
-					<button id="mobileLoginBtn" class="btn btn-dark" type="button" style="width: 100%; height: 40px; font-size: 14px; font-weight: 600;">로그인</button>
+					<button id="mobileLoginBtn" class="btn btn-dark" type="button" style="width: 100%; height: 40px; font-size: 14px; font-weight: 600;" onclick="if(typeof window.performLogin==='function'){window.performLogin();}else{console.error('performLogin 함수 없음');}return false;">로그인</button>
 				</form>
 			</div>
 			<?php endif; ?>
@@ -1260,14 +2053,15 @@ $time = time(); // 스크립트 캐시 방지용
 
 <!-- 모달 창 -->
 <div class="modal fade" id="youtubeModal" tabindex="-1" aria-labelledby="youtubeModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content bg-black text-white">
             <div class="modal-header border-0">
+                <h5 class="modal-title" id="youtubeModalLabel">유튜브 영상</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-0">
                 <div class="ratio ratio-16x9">
-                    <iframe id="youtubeVideo" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                    <iframe id="youtubeVideo" src="" allow="autoplay; encrypted-media" allowfullscreen style="border: none;"></iframe>
                 </div>
             </div>
         </div>
@@ -2303,7 +3097,7 @@ $kakao_map_url = "https://map.kakao.com/link/search/" . $company_address_encoded
 <?php endif; ?>
 
 <!-- 품질불량  -->
-<section class="section " id="NG">
+<section class="section" id="NG">
     <div class="container">
         <div class="row">
             <div class="col-lg-12 text-center">
@@ -2346,7 +3140,7 @@ $kakao_map_url = "https://map.kakao.com/link/search/" . $company_address_encoded
             <div class="col-lg-6 col-md-6 align-self-center mb-30 ">    
 					<h5 class="fs-4 fw-bold text-center"> (모델구분 : 천장) 불량율  </h5>  			
                 <div class="d-flex flex-column mt-3 mb-1 justify-content-center align-items-center">                                        
-					<?php include getDocumentRoot() . '/qc/rate_badAllJamb.php' ?>  
+					<?php include getDocumentRoot() . '/qc/rate_badAllCeiling.php' ?>  
 					<?php include getDocumentRoot() . '/qc/rate_badDetailCeiling.php' ?>   					
 				</div>
             </div>
@@ -2362,7 +3156,7 @@ $kakao_map_url = "https://map.kakao.com/link/search/" . $company_address_encoded
 </section >
 
 <!-- 위험성평가  -->
-<section class="section " id="RiskAssessement">
+<section class="section" id="RiskAssessement">
     <div class="container">
         <div class="row">
             <div class="col-lg-12 text-center">
@@ -2732,8 +3526,64 @@ $kakao_map_url = "https://map.kakao.com/link/search/" . $company_address_encoded
   <script src="assets/js/counter.js?v=<?php echo $time; ?>"></script>
   <script src="assets/js/custom.js?v=<?php echo $time; ?>"></script>
   
-  
 <script>
+// Preloader 빠른 숨김 처리 - DOMContentLoaded 이벤트에서 실행
+// custom.js와의 충돌을 방지하기 위해 더 안전하게 처리
+(function() {
+    var preloaderHidden = false;
+    
+    function hidePreloader() {
+        if (preloaderHidden) return;
+        preloaderHidden = true;
+        
+        // js-preloader 처리 - loaded 클래스 추가 (custom.js와 호환)
+        var preloader = document.getElementById('js-preloader');
+        if (preloader && !preloader.classList.contains('loaded')) {
+            preloader.classList.add('loaded');
+            // 추가 안전장치: 직접 스타일도 변경
+            setTimeout(function() {
+                if (preloader) {
+                    preloader.style.display = 'none';
+                }
+            }, 600);
+        }
+        
+        // preloader ID도 처리 (custom.js 호환성)
+        var oldPreloader = document.getElementById('preloader');
+        if (oldPreloader) {
+            oldPreloader.style.opacity = '0';
+            oldPreloader.style.transition = 'opacity 0.6s ease';
+            setTimeout(function() {
+                if (oldPreloader) {
+                    oldPreloader.style.visibility = 'hidden';
+                    oldPreloader.style.display = 'none';
+                }
+            }, 600);
+        }
+    }
+    
+    // 즉시 실행 (스크립트가 로드되자마자)
+    if (document.readyState === 'complete') {
+        // 이미 완전히 로드된 경우 즉시 숨김
+        hidePreloader();
+    } else if (document.readyState === 'interactive') {
+        // DOM이 준비된 경우 짧은 지연 후 숨김
+        setTimeout(hidePreloader, 100);
+    } else {
+        // DOMContentLoaded 이벤트 - HTML 파싱 완료 시 실행
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(hidePreloader, 100);
+        });
+    }
+    
+    // window.load 이벤트 - 모든 리소스 로드 완료 시 실행 (백업)
+    window.addEventListener('load', function() {
+        setTimeout(hidePreloader, 50);
+    });
+    
+    // 최대 2초 후에는 무조건 숨김 (안전장치)
+    setTimeout(hidePreloader, 2000);
+})();
 
 $(document).ready(function(){
 	
@@ -2799,119 +3649,293 @@ $("#form-submit").click(function () {
             console.error("에러 발생:", textStatus, errorThrown);
         }
     });
-});
-	
-});	
+}); // $("#form-submit").click 함수 닫기
+}); // $(document).ready 함수 닫기
    
-ajaxRequest = null;	 
-  
+// performLogin 함수는 이미 위에서 정의됨 (jQuery 로드 직후)
+
 $(document).ready(function(){  
-	// 로그인 처리 함수
-	function performLogin() {
-		const home = '<?php echo $home; ?>';			
-		
-		if (ajaxRequest !== null) {
-			ajaxRequest.abort();
+	// 로그인 함수 호출 래퍼 (안전하게)
+	function handleLogin(e) {
+		if (e) {
+			e.preventDefault();
+			e.stopPropagation();
 		}
-
-		// data 전송해서 php 값을 넣기 위해 필요한 구문
-		ajaxRequest = $.ajax({
-			url: '/login/login_confirm.php',
-			type: "post",		
-			data: $("#login_form").serialize(),
-			dataType:"json",
-			success : function( data ){			
-			
-				console.log(data);
-				
-				if( data["error"] ==='' || data["error"] === null)
-				{					
-					if(Number(data["level"]) ===9)
-						location.href = '/partner/index.php';	  // 우성스틸 파트너
-					else if(Number(data["level"]) ===8)
-						location.href = '/p/index.php';	  // 소장
-					else if (Number(data["level"]) ===7)  
-						location.href = '/outorder/list.php';		  // 협력사(덴크리, 다온텍)
-					else if (Number(data["level"]) ===20)
-						location.href = '/phomi/list.php';		  // 포미스톤
-					else 
-						location.href = '/index2.php';		  // 통합사이트로 이동										
-				}
-				   else
-				   {
-						Swal.fire(
-						  '오류알림',
-						  data["error"] ,
-						  'fail'
-						)  
-				   }
-
-				},
-			error : function( jqxhr , status , error ){
-				console.log( jqxhr , status , error );
-						} 			      		
-		   });
+		console.log('로그인 시도 - handleLogin 호출됨');
+		
+		// window.performLogin을 직접 호출 (더 확실하게)
+		if (typeof window.performLogin === 'function') {
+			console.log('window.performLogin 호출');
+			window.performLogin();
+		} else if (typeof performLogin === 'function') {
+			console.log('performLogin 호출');
+			performLogin();
+		} else {
+			console.error('performLogin 함수를 찾을 수 없습니다.');
+			alert('로그인 기능을 초기화하는 중입니다. 잠시 후 다시 시도해주세요.');
+		}
+		return false;
 	}
 	
-	// 로그인 버튼 클릭 이벤트
-	$("#loginBtn").click(function(){ 
-		performLogin();
+	// 로그인 버튼 클릭 이벤트 (이벤트 위임 - 가장 먼저 실행)
+	$(document).on('click', '#loginBtn, #mobileLoginBtn', function(e){ 
+		console.log('로그인 버튼 클릭 감지 (이벤트 위임)');
+		handleLogin(e);
 	});
 	
-	// 모바일 로그인 버튼 클릭 이벤트
-	$("#mobileLoginBtn").click(function(){ 
-		// 모바일 폼의 값을 메인 폼에 복사
-		$("#uid").val($("#mobile_uid").val());
-		$("#upw").val($("#mobile_upw").val());
-		performLogin();
-	});
+	// 직접 바인딩 (기존 요소에 즉시 적용)
+	setTimeout(function() {
+		var loginBtn = $("#loginBtn");
+		var mobileLoginBtn = $("#mobileLoginBtn");
+		
+		if (loginBtn.length > 0) {
+			console.log('PC 로그인 버튼 직접 바인딩');
+			loginBtn.off('click').on('click', function(e) {
+				console.log('PC 로그인 버튼 직접 클릭');
+				handleLogin(e);
+			});
+		}
+		
+		if (mobileLoginBtn.length > 0) {
+			console.log('모바일 로그인 버튼 직접 바인딩');
+			mobileLoginBtn.off('click').on('click', function(e) {
+				console.log('모바일 로그인 버튼 직접 클릭');
+				handleLogin(e);
+			});
+		}
+	}, 100);
 	
 	// 폼 제출 이벤트 (엔터키 처리)
-	$("#login_form").on('submit', function(e){
-		e.preventDefault(); // 기본 폼 제출 방지
-		performLogin();
-		return false;
+	$(document).on('submit', '#login_form, #mobile_login_form', function(e){
+		handleLogin(e);
 	});
 	
-	// 모바일 폼 제출 이벤트 (엔터키 처리)
-	$("#mobile_login_form").on('submit', function(e){
-		e.preventDefault(); // 기본 폼 제출 방지
-		// 모바일 폼의 값을 메인 폼에 복사
-		$("#uid").val($("#mobile_uid").val());
-		$("#upw").val($("#mobile_upw").val());
-		performLogin();
-		return false;
-	});
+	// 직접 바인딩
+	setTimeout(function() {
+		$("#login_form").off('submit').on('submit', handleLogin);
+		$("#mobile_login_form").off('submit').on('submit', handleLogin);
+	}, 100);
 	
-	// ID, Password 입력창에서 엔터키 처리
-	$("#uid, #upw").on('keypress', function(e){
-		if(e.which === 13) { // 엔터키 코드
+	// ID, Password 입력창에서 엔터키 처리 (이벤트 위임)
+	$(document).on('keypress', '#uid, #upw, #mobile_uid, #mobile_upw', function(e){
+		if(e.which === 13 || e.keyCode === 13) { // 엔터키 코드
 			e.preventDefault();
-			performLogin();
+			e.stopPropagation();
+			console.log('엔터키 감지 - 로그인 시도');
+			handleLogin(e);
 			return false;
 		}
 	});
 	
-	// 모바일 ID, Password 입력창에서 엔터키 처리
-	$("#mobile_uid, #mobile_upw").on('keypress', function(e){
-		if(e.which === 13) { // 엔터키 코드
+	// 직접 바인딩 (엔터키)
+	setTimeout(function() {
+		var inputs = $("#uid, #upw, #mobile_uid, #mobile_upw");
+		if (inputs.length > 0) {
+			console.log('입력 필드 직접 바인딩:', inputs.length, '개');
+			inputs.off('keypress').on('keypress', function(e){
+				if(e.which === 13 || e.keyCode === 13) {
+					e.preventDefault();
+					e.stopPropagation();
+					console.log('엔터키 직접 감지 - 로그인 시도');
+					handleLogin(e);
+					return false;
+				}
+			});
+		}
+	}, 100);
+	
+	// 추가 안전장치: keydown 이벤트도 처리
+	$(document).on('keydown', '#uid, #upw, #mobile_uid, #mobile_upw', function(e){
+		if(e.which === 13 || e.keyCode === 13) {
 			e.preventDefault();
-			// 모바일 폼의 값을 메인 폼에 복사
-			$("#uid").val($("#mobile_uid").val());
-			$("#upw").val($("#mobile_upw").val());
-			performLogin();
+			e.stopPropagation();
+			console.log('엔터키 keydown 감지 - 로그인 시도');
+			handleLogin(e);
 			return false;
 		}
-	});		
+	});
+	
+	// 네이티브 이벤트 리스너 추가 (jQuery와 독립적)
+	setTimeout(function() {
+		var uidInput = document.getElementById('uid');
+		var upwInput = document.getElementById('upw');
+		var mobileUidInput = document.getElementById('mobile_uid');
+		var mobileUpwInput = document.getElementById('mobile_upw');
 		
-	$("#logoutBtn").click(function(){ 	
-			location.href = './login/logout.php';		  // log out
-	});		
+		function addNativeEnterListener(input, name) {
+			if (input) {
+				input.addEventListener('keydown', function(e) {
+					if (e.key === 'Enter' || e.keyCode === 13) {
+						e.preventDefault();
+						e.stopPropagation();
+						console.log('네이티브 엔터키 감지 (' + name + ') - 로그인 시도');
+						handleLogin(e);
+						return false;
+					}
+				}, true);
+				console.log('네이티브 엔터키 리스너 추가:', name);
+			}
+		}
+		
+		addNativeEnterListener(uidInput, 'uid');
+		addNativeEnterListener(upwInput, 'upw');
+		addNativeEnterListener(mobileUidInput, 'mobile_uid');
+		addNativeEnterListener(mobileUpwInput, 'mobile_upw');
+		
+		// 로그인 버튼 네이티브 클릭 리스너 추가
+		var loginBtn = document.getElementById('loginBtn');
+		var mobileLoginBtn = document.getElementById('mobileLoginBtn');
+		
+		if (loginBtn) {
+			loginBtn.addEventListener('click', function(e) {
+				console.log('네이티브 로그인 버튼 클릭 감지 (PC)');
+				handleLogin(e);
+			}, true);
+			console.log('네이티브 로그인 버튼 리스너 추가 (PC)');
+		}
+		
+		if (mobileLoginBtn) {
+			mobileLoginBtn.addEventListener('click', function(e) {
+				console.log('네이티브 로그인 버튼 클릭 감지 (모바일)');
+				handleLogin(e);
+			}, true);
+			console.log('네이티브 로그인 버튼 리스너 추가 (모바일)');
+		}
+		
+		// 초기화 완료 로그
+		console.log('=== 로그인 이벤트 초기화 완료 ===');
+		console.log('PC 로그인 버튼:', loginBtn ? '존재' : '없음');
+		console.log('모바일 로그인 버튼:', mobileLoginBtn ? '존재' : '없음');
+		console.log('입력 필드 - uid:', uidInput ? '존재' : '없음', ', upw:', upwInput ? '존재' : '없음');
+	}, 200);		
+		
+	// 로그아웃 버튼 클릭 이벤트 (이벤트 위임 + 직접 바인딩)
+	// performLogout 함수는 이미 위에서 전역 스코프에 정의됨
 	
-	// 모바일 로그아웃 버튼
-	$("#mobileLogoutBtn").click(function(){ 	
-			location.href = './login/logout.php';		  // log out
-	});		
+	// 로그아웃 함수 호출 래퍼
+	function handleLogout(e) {
+		if (e) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
+		console.log('로그아웃 시도 - handleLogout 호출됨');
+		
+		// window.performLogout을 직접 호출
+		if (typeof window.performLogout === 'function') {
+			console.log('window.performLogout 호출');
+			window.performLogout();
+		} else {
+			console.error('performLogout 함수를 찾을 수 없습니다.');
+			window.location.href = './login/logout.php';
+		}
+		return false;
+	}
+	
+	// 이벤트 위임 (동적으로 추가된 요소에도 작동)
+	$(document).on('click', '#logoutBtn, #mobileLogoutBtn', function(e){ 	
+		handleLogout(e);
+	});
+	
+	// 직접 바인딩 (기존 요소에 즉시 적용)
+	setTimeout(function() {
+		var logoutBtn = $("#logoutBtn");
+		var mobileLogoutBtn = $("#mobileLogoutBtn");
+		
+		if (logoutBtn.length > 0) {
+			console.log('PC 로그아웃 버튼 직접 바인딩');
+			logoutBtn.off('click').on('click', function(e) {
+				console.log('PC 로그아웃 버튼 직접 클릭');
+				handleLogout(e);
+			});
+		}
+		
+		if (mobileLogoutBtn.length > 0) {
+			console.log('모바일 로그아웃 버튼 직접 바인딩');
+			mobileLogoutBtn.off('click').on('click', function(e) {
+				console.log('모바일 로그아웃 버튼 직접 클릭');
+				handleLogout(e);
+			});
+		}
+	}, 100);
+	
+	// 네이티브 이벤트 리스너 추가 (jQuery와 독립적)
+	setTimeout(function() {
+		var logoutBtn = document.getElementById('logoutBtn');
+		var mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
+		
+		if (logoutBtn) {
+			logoutBtn.addEventListener('click', function(e) {
+				console.log('네이티브 로그아웃 버튼 클릭 감지 (PC)');
+				handleLogout(e);
+			}, true);
+			console.log('네이티브 로그아웃 버튼 리스너 추가 (PC)');
+		}
+		
+		if (mobileLogoutBtn) {
+			mobileLogoutBtn.addEventListener('click', function(e) {
+				console.log('네이티브 로그아웃 버튼 클릭 감지 (모바일)');
+				handleLogout(e);
+			}, true);
+			console.log('네이티브 로그아웃 버튼 리스너 추가 (모바일)');
+		}
+	}, 200);
+	
+	// 로고 클릭 이벤트 - index2.php로 이동 (간단하고 확실한 방법)
+	// href 속성이 이미 index2.php로 설정되어 있으므로, 기본 동작을 허용하되
+	// JavaScript로도 확실히 처리
+	
+	// 홈 아이콘 클릭 이벤트 처리 함수
+	function handleHomeClick(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		console.log('홈 아이콘 클릭 - index2.php로 이동');
+		window.location.href = 'index2.php';
+		return false;
+	}
+	
+	// 홈 아이콘 클릭 이벤트 (이벤트 위임)
+	$(document).on('click', '.home-icon-btn, button[title="홈으로 이동"]', handleHomeClick);
+	
+	// 홈 아이콘 직접 바인딩
+	setTimeout(function() {
+		$('.home-icon-btn, button[title="홈으로 이동"]').off('click').on('click', handleHomeClick);
+	}, 100);
+	
+	// 이벤트 위임으로 모든 로고 관련 요소 클릭 처리
+	$(document).on('click', '#logoLink, .logo, .logo h1', function(e) {
+		console.log('로고 클릭 감지 - index2.php로 이동');
+		window.location.href = 'index2.php';
+		return false;
+	});
+	
+	// 직접 바인딩 (DOM 로드 후)
+	setTimeout(function() {
+		$("#logoLink, .logo, .logo h1").off('click').on('click', function(e) {
+			console.log('로고 직접 클릭 - index2.php로 이동');
+			window.location.href = 'index2.php';
+			return false;
+		});
+	}, 100);
+	
+	// 네이티브 이벤트 리스너 (jQuery와 독립적, capture phase에서 실행)
+	setTimeout(function() {
+		var logoElement = document.getElementById('logoLink');
+		if (logoElement) {
+			logoElement.addEventListener('click', function(e) {
+				console.log('로고 네이티브 클릭 - index2.php로 이동');
+				window.location.href = 'index2.php';
+			}, true);
+		}
+		// h1 요소도 처리
+		var logoH1 = document.querySelector('.logo h1');
+		if (logoH1) {
+			logoH1.addEventListener('click', function(e) {
+				e.preventDefault();
+				console.log('로고 h1 네이티브 클릭 - index2.php로 이동');
+				window.location.href = 'index2.php';
+			}, true);
+		}
+	}, 200);		
 	
 	$("#loginIconBtn").click(function(){		
 		const home = '<?php echo $home; ?>';	
@@ -2924,74 +3948,488 @@ $(document).ready(function(){
 			   $('#loginModal').modal('show');
     
 	});
-	
+});
+</script>
 
-	
-});
-	
-  	  
-// SweetAlert2로 개인정보 보호정책 팝업 표시
-document.getElementById('privacyPolicyLink').addEventListener('click', function () {
-    Swal.fire({
-        title: '개인정보 보호정책 안내',
-        html: `
-            <p><strong>수집항목:</strong> 휴대폰 번호</p>
-            <p><strong>수집이용목적:</strong> 고객문의사항 접수 및 회신</p>
-            <p><strong>보유기간:</strong> 3년</p>
-        `,
-        icon: 'info',
-        confirmButtonText: '확인'
+<script>
+$(document).ready(function () {
+	// SweetAlert2로 개인정보 보호정책 팝업 표시
+	var privacyLink = document.getElementById('privacyPolicyLink');
+	if (privacyLink) {
+		privacyLink.addEventListener('click', function () {
+			Swal.fire({
+				title: '개인정보 보호정책 안내',
+				html: `
+					<p><strong>수집항목:</strong> 휴대폰 번호</p>
+					<p><strong>수집이용목적:</strong> 고객문의사항 접수 및 회신</p>
+					<p><strong>보유기간:</strong> 3년</p>
+				`,
+				icon: 'info',
+				confirmButtonText: '확인'
+			});
+		});
+	}
+    // 캐러셀 유튜브 링크 클릭 이벤트
+    $(document).on('click', '.youtube-link-overlay', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        var videoUrl = $(this).data('video-url');
+        var videoTitle = $(this).data('video-title') || '유튜브 영상';
+        
+        console.log('유튜브 링크 클릭:', videoUrl, videoTitle);
+        
+        if (videoUrl) {
+            $('#youtubeVideo').attr('src', videoUrl);
+            $('#youtubeModalLabel').text(videoTitle);
+            $('#youtubeModal').modal('show');
+        } else {
+            console.warn('비디오 URL이 없습니다.');
+        }
+        
+        return false;
     });
-});
-  
-$(document).ready(function () {    
-	// 천장
+    
+    // 기존 icon-button 이벤트 (다른 곳에서 사용 중일 수 있음)
     $('.icon-button .video1').on('click', function (event) {
-        event.preventDefault(); // 기본 동작(페이지 이동) 방지
-        console.log('click youtube');		
+        event.preventDefault();
         const videoUrl = "https://www.youtube.com/embed/Tv7p06VOvq8?autoplay=1";
-		$("#youtubeModal").modal('show');
+        $("#youtubeModal").modal('show');
         $('#youtubeVideo').attr('src', videoUrl);
     });
 
-    // jamb 유튜브 URL 설정
     $('.icon-button .video2').on('click', function (event) {
-        event.preventDefault(); // 기본 동작(페이지 이동) 방지
-        console.log('click youtube');				
+        event.preventDefault();
         const videoUrl = "https://www.youtube.com/embed/WAuC0ELSfgs?autoplay=1";
-		$("#youtubeModal").modal('show');
+        $("#youtubeModal").modal('show');
         $('#youtubeVideo').attr('src', videoUrl);
     });
 
-    // 재료분리대 유튜브 URL 설정
     $('.icon-button .video3').on('click', function (event) {
-        event.preventDefault(); // 기본 동작(페이지 이동) 방지
-        console.log('click youtube');				
+        event.preventDefault();
         const videoUrl = "https://www.youtube.com/embed/B2Aufa2409c?autoplay=1";
-		$("#youtubeModal").modal('show');
+        $("#youtubeModal").modal('show');
         $('#youtubeVideo').attr('src', videoUrl);
     });
 
     // 모달 닫을 때 유튜브 영상 정지
     $('#youtubeModal').on('hidden.bs.modal', function () {
         $('#youtubeVideo').attr('src', ''); // src를 초기화하여 재생 중지
-       	$("#youtubeModal").modal('hide');
     });
 });
-
-function popupCenter(href, pop_name, w, h) {
-    // 고유한 팝업 창 이름을 생성하기 위해 현재 시간을 이용
-    var uniqueName = pop_name + '_' + new Date().getTime();
-
-    // 화면 가로 위치
-    var xPos = (window.innerWidth / 2) - (w / 2) + window.screenX;
-    // 화면 세로 위치
-    var yPos = (window.innerHeight / 2) - (h / 2) + window.screenY;
-
-    window.open(href, uniqueName, "width=" + w + ", height=" + h + ", left=" + xPos + ", top=" + yPos + ", target=_blank, menubar=yes, status=yes, titlebar=yes, resizable=yes");
-}
-  
 </script>
+
+<!-- 헤더 하단 슬라이더 초기화 -->
+<script>
+// Swiper 인스턴스를 전역 변수로 저장
+var imageSwiperInstance = null;
+var youtubeSwiperInstance = null;
+
+// 버튼 클릭 핸들러 함수 (전역)
+function handleImageSwiperNext(e) {
+    console.log('=== handleImageSwiperNext 함수 호출됨 ===');
+    if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+    }
+    console.log('imageSwiperInstance 상태:', imageSwiperInstance);
+    if (imageSwiperInstance) {
+        console.log('slideNext() 실행 시작');
+        imageSwiperInstance.slideNext();
+        console.log('slideNext() 실행 완료');
+    } else {
+        console.error('imageSwiperInstance가 없습니다!');
+        // 전역 변수에서 다시 찾기
+        if (window.imageSwiperInstance) {
+            console.log('window.imageSwiperInstance에서 찾음');
+            window.imageSwiperInstance.slideNext();
+        } else {
+            console.error('window.imageSwiperInstance도 없습니다!');
+        }
+    }
+    return false;
+}
+
+function handleImageSwiperPrev(e) {
+    console.log('=== handleImageSwiperPrev 함수 호출됨 ===');
+    if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+    }
+    console.log('imageSwiperInstance 상태:', imageSwiperInstance);
+    if (imageSwiperInstance) {
+        console.log('slidePrev() 실행 시작');
+        imageSwiperInstance.slidePrev();
+        console.log('slidePrev() 실행 완료');
+    } else {
+        console.error('imageSwiperInstance가 없습니다!');
+        // 전역 변수에서 다시 찾기
+        if (window.imageSwiperInstance) {
+            console.log('window.imageSwiperInstance에서 찾음');
+            window.imageSwiperInstance.slidePrev();
+        } else {
+            console.error('window.imageSwiperInstance도 없습니다!');
+        }
+    }
+    return false;
+}
+
+// 전역으로도 등록
+window.handleImageSwiperNext = handleImageSwiperNext;
+window.handleImageSwiperPrev = handleImageSwiperPrev;
+
+// document 레벨에서 이벤트 위임으로 버튼 클릭 감지 (가장 강력한 방법)
+document.addEventListener('click', function(e) {
+    var target = e.target;
+    var clickedElement = target.closest('.swiper-button-next, .swiper-button-prev');
+    
+    if (clickedElement) {
+        console.log('=== document 레벨에서 버튼 클릭 감지됨 ===');
+        console.log('클릭된 요소:', clickedElement);
+        console.log('클래스:', clickedElement.className);
+        
+        // image-swiper 내부의 버튼인지 확인
+        var imageSwiper = clickedElement.closest('.image-swiper');
+        if (imageSwiper) {
+            console.log('image-swiper 내부 버튼 확인됨');
+            e.preventDefault();
+            e.stopPropagation();
+            
+            if (clickedElement.classList.contains('swiper-button-next')) {
+                console.log('Next 버튼 클릭 감지 - slideNext() 실행');
+                if (imageSwiperInstance) {
+                    imageSwiperInstance.slideNext();
+                } else if (window.imageSwiperInstance) {
+                    window.imageSwiperInstance.slideNext();
+                } else {
+                    console.error('Swiper 인스턴스를 찾을 수 없습니다!');
+                }
+            } else if (clickedElement.classList.contains('swiper-button-prev')) {
+                console.log('Prev 버튼 클릭 감지 - slidePrev() 실행');
+                if (imageSwiperInstance) {
+                    imageSwiperInstance.slidePrev();
+                } else if (window.imageSwiperInstance) {
+                    window.imageSwiperInstance.slidePrev();
+                } else {
+                    console.error('Swiper 인스턴스를 찾을 수 없습니다!');
+                }
+            }
+            return false;
+        }
+    }
+}, true); // capture phase에서 실행
+
+// Swiper 초기화 함수
+function initHeaderSliders() {
+    console.log('initHeaderSliders 호출됨');
+    console.log('Swiper 타입:', typeof Swiper);
+    
+    if (typeof Swiper === 'undefined') {
+        console.warn('Swiper 라이브러리가 로드되지 않았습니다. 재시도 중...');
+        setTimeout(initHeaderSliders, 100);
+        return;
+    }
+    
+    console.log('Swiper 라이브러리 확인됨, 초기화 시작');
+    
+    // 이미지 슬라이더 초기화 (3개 이미지가 순환)
+    var imageSwiperElement = document.querySelector('.image-swiper');
+    console.log('imageSwiperElement:', imageSwiperElement);
+    console.log('imageSwiperInstance:', imageSwiperInstance);
+    
+    if (imageSwiperElement && !imageSwiperInstance) {
+        try {
+            imageSwiperInstance = new Swiper('.image-swiper', {
+                slidesPerView: 1,
+                spaceBetween: 0,
+                loop: true,
+                autoplay: {
+                    delay: 4000, // 4초마다 자동 전환
+                    disableOnInteraction: false,
+                    pauseOnMouseEnter: false, // 마우스 오버해도 자동재생 계속
+                    waitForTransition: false, // 전환 대기 없이 즉시 재생
+                },
+                pagination: {
+                    el: '.image-swiper .swiper-pagination',
+                    clickable: true,
+                    dynamicBullets: true,
+                },
+                navigation: {
+                    nextEl: '.image-swiper .swiper-button-next',
+                    prevEl: '.image-swiper .swiper-button-prev',
+                },
+                effect: 'slide',
+                speed: 800, // 전환 속도 증가
+                observer: true,
+                observeParents: true,
+                allowTouchMove: true,
+                grabCursor: true,
+                keyboard: {
+                    enabled: true,
+                },
+                on: {
+                    init: function() {
+                        console.log('=== Swiper 초기화 완료 - init 이벤트 ===');
+                        var self = this;
+                        // 초기화 직후 자동재생 시작
+                        setTimeout(function() {
+                            if (self.autoplay) {
+                                self.autoplay.start();
+                                console.log('자동재생 시작 (init 이벤트)');
+                            } else {
+                                console.error('autoplay 객체가 없습니다!');
+                            }
+                        }, 100);
+                    },
+                    slideChange: function() {
+                        console.log('슬라이드 변경됨:', this.realIndex);
+                    },
+                    autoplayStart: function() {
+                        console.log('✅ 자동재생 시작 이벤트 발생');
+                    },
+                    autoplayStop: function() {
+                        console.log('⚠️ 자동재생 중지 이벤트 발생 - 다시 시작');
+                        var self = this;
+                        setTimeout(function() {
+                            if (self.autoplay) {
+                                self.autoplay.start();
+                                console.log('자동재생 재시작');
+                            }
+                        }, 100);
+                    },
+                },
+            });
+            
+            // 전역 변수로도 저장
+            window.imageSwiperInstance = imageSwiperInstance;
+            console.log('이미지 슬라이더 초기화 완료', imageSwiperInstance);
+            console.log('autoplay 객체:', imageSwiperInstance.autoplay);
+            
+            // 자동재생 강제 시작 (여러 번 시도)
+            function startAutoplay() {
+                if (imageSwiperInstance) {
+                    console.log('자동재생 시작 시도...');
+                    console.log('autoplay 존재:', !!imageSwiperInstance.autoplay);
+                    
+                    if (imageSwiperInstance.autoplay) {
+                        try {
+                            imageSwiperInstance.autoplay.start();
+                            console.log('✅ 자동재생 시작 성공');
+                        } catch (error) {
+                            console.error('자동재생 시작 오류:', error);
+                        }
+                    } else {
+                        console.error('autoplay 객체가 없습니다!');
+                    }
+                } else {
+                    console.error('imageSwiperInstance가 없습니다!');
+                }
+            }
+            
+            // 즉시 시도
+            startAutoplay();
+            
+            // 여러 시점에 시도
+            setTimeout(startAutoplay, 200);
+            setTimeout(startAutoplay, 500);
+            setTimeout(startAutoplay, 1000);
+            setTimeout(startAutoplay, 2000);
+            // 전역 변수로도 저장
+            window.imageSwiperInstance = imageSwiperInstance;
+            console.log('이미지 슬라이더 초기화 완료', imageSwiperInstance);
+            console.log('window.imageSwiperInstance도 설정됨:', window.imageSwiperInstance);
+            
+            // 버튼 클릭 이벤트 직접 추가 (백업 및 강화)
+            // 여러 번 시도하여 버튼이 생성될 때까지 대기
+            var retryCount = 0;
+            var maxRetries = 20;
+            
+            function bindButtonEvents() {
+                var nextBtn = imageSwiperElement.querySelector('.swiper-button-next');
+                var prevBtn = imageSwiperElement.querySelector('.swiper-button-prev');
+                
+                console.log('버튼 찾기 시도:', { 
+                    nextBtn: nextBtn ? '존재' : '없음', 
+                    prevBtn: prevBtn ? '존재' : '없음', 
+                    retryCount: retryCount,
+                    imageSwiperElement: imageSwiperElement ? '존재' : '없음'
+                });
+                
+                if (nextBtn) {
+                    console.log('Next 버튼 발견:', nextBtn);
+                    console.log('Next 버튼 클래스:', nextBtn.className);
+                    console.log('Next 버튼 부모:', nextBtn.parentElement);
+                    
+                    // 네이티브 이벤트 추가 (여러 방법)
+                    nextBtn.addEventListener('click', function(e) {
+                        console.log('=== Next 버튼 네이티브 클릭 이벤트 발생 ===');
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                        handleImageSwiperNext(e);
+                        return false;
+                    }, true);
+                    
+                    // jQuery 이벤트 추가
+                    $(nextBtn).off('click').on('click', function(e) {
+                        console.log('=== Next 버튼 jQuery 클릭 이벤트 발생 ===');
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleImageSwiperNext(e);
+                        return false;
+                    });
+                    
+                    // 직접 onclick 속성 추가
+                    nextBtn.setAttribute('onclick', 'console.log("onclick 속성 실행"); handleImageSwiperNext(event); return false;');
+                    
+                    // mousedown 이벤트도 추가
+                    nextBtn.addEventListener('mousedown', function(e) {
+                        console.log('=== Next 버튼 mousedown 이벤트 발생 ===');
+                    }, true);
+                    
+                    console.log('Next 버튼 이벤트 등록 완료', nextBtn);
+                } else {
+                    console.warn('Next 버튼을 찾을 수 없습니다. 재시도 중...', retryCount);
+                    if (retryCount < maxRetries) {
+                        retryCount++;
+                        setTimeout(bindButtonEvents, 200);
+                    } else {
+                        console.error('Next 버튼을 찾지 못했습니다. 최대 재시도 횟수 초과.');
+                    }
+                }
+                
+                if (prevBtn) {
+                    console.log('Prev 버튼 발견:', prevBtn);
+                    console.log('Prev 버튼 클래스:', prevBtn.className);
+                    
+                    // 네이티브 이벤트 추가
+                    prevBtn.addEventListener('click', function(e) {
+                        console.log('=== Prev 버튼 네이티브 클릭 이벤트 발생 ===');
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                        handleImageSwiperPrev(e);
+                        return false;
+                    }, true);
+                    
+                    // jQuery 이벤트 추가
+                    $(prevBtn).off('click').on('click', function(e) {
+                        console.log('=== Prev 버튼 jQuery 클릭 이벤트 발생 ===');
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleImageSwiperPrev(e);
+                        return false;
+                    });
+                    
+                    // 직접 onclick 속성 추가
+                    prevBtn.setAttribute('onclick', 'console.log("onclick 속성 실행"); handleImageSwiperPrev(event); return false;');
+                    
+                    // mousedown 이벤트도 추가
+                    prevBtn.addEventListener('mousedown', function(e) {
+                        console.log('=== Prev 버튼 mousedown 이벤트 발생 ===');
+                    }, true);
+                    
+                    console.log('Prev 버튼 이벤트 등록 완료', prevBtn);
+                } else {
+                    console.warn('Prev 버튼을 찾을 수 없습니다. 재시도 중...', retryCount);
+                    if (retryCount < maxRetries) {
+                        // retryCount는 이미 증가했으므로 여기서는 증가시키지 않음
+                        setTimeout(bindButtonEvents, 200);
+                    } else {
+                        console.error('Prev 버튼을 찾지 못했습니다. 최대 재시도 횟수 초과.');
+                    }
+                }
+            }
+            
+            // 즉시 시도 및 지연 시도
+            setTimeout(bindButtonEvents, 100);
+            setTimeout(bindButtonEvents, 300);
+            setTimeout(bindButtonEvents, 500);
+            setTimeout(bindButtonEvents, 1000);
+            setTimeout(bindButtonEvents, 2000);
+        } catch (error) {
+            console.error('이미지 슬라이더 초기화 오류:', error);
+        }
+    }
+    
+    // 유튜브 캐러셀은 더 이상 필요 없음 (각 이미지 위에 오버레이로 표시됨)
+    
+    console.log('헤더 하단 슬라이더 초기화 완료');
+}
+
+// Swiper 로드 완료 콜백
+window.onSwiperLoaded = function() {
+    console.log('onSwiperLoaded 콜백 실행');
+    setTimeout(function() {
+        if (typeof Swiper !== 'undefined') {
+            console.log('Swiper 로드 확인 - 즉시 초기화 시도');
+            initHeaderSliders();
+        }
+    }, 100);
+};
+
+// DOM 로드 후 초기화
+$(document).ready(function() {
+    console.log('DOM ready - Swiper 초기화 시작');
+    
+    // Swiper 라이브러리 로드 대기
+    var checkSwiper = setInterval(function() {
+        if (typeof Swiper !== 'undefined') {
+            console.log('Swiper 라이브러리 발견됨 (setInterval)');
+            clearInterval(checkSwiper);
+            setTimeout(function() {
+                initHeaderSliders();
+            }, 200);
+        }
+    }, 50);
+    
+    // 최대 5초 대기
+    setTimeout(function() {
+        clearInterval(checkSwiper);
+        if (typeof Swiper === 'undefined') {
+            console.error('Swiper 라이브러리를 찾을 수 없습니다!');
+        } else {
+            console.log('최대 대기 시간 후 Swiper 초기화');
+            initHeaderSliders();
+        }
+    }, 5000);
+});
+
+// window.load 이벤트에서도 초기화 (Swiper 라이브러리 로드 지연 대비)
+window.addEventListener('load', function() {
+    console.log('Window load - Swiper 초기화 재시도');
+    setTimeout(function() {
+        if (typeof Swiper !== 'undefined' && !imageSwiperInstance) {
+            console.log('Window load에서 Swiper 초기화');
+            initHeaderSliders();
+        }
+    }, 300);
+});
+
+// DOMContentLoaded 이벤트에서도 초기화
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOMContentLoaded - Swiper 초기화 시도');
+    setTimeout(function() {
+        if (typeof Swiper !== 'undefined' && !imageSwiperInstance) {
+            console.log('DOMContentLoaded에서 Swiper 초기화');
+            initHeaderSliders();
+        }
+    }, 500);
+});
+
+// Swiper 스크립트가 이미 로드된 경우 즉시 초기화
+if (typeof Swiper !== 'undefined') {
+    console.log('Swiper가 이미 로드되어 있음 - 즉시 초기화');
+    setTimeout(function() {
+        initHeaderSliders();
+    }, 100);
+}
+</script>
+
+<!-- Swiper JS 로드 (페이지 하단에서 로드하여 초기화 보장) -->
+<script src="https://unpkg.com/swiper@7/swiper-bundle.min.js" onload="console.log('Swiper 스크립트 로드 완료'); if(typeof window.onSwiperLoaded === 'function'){window.onSwiperLoaded();}"></script>
 
 <!-- Portfolio JavaScript -->
 <script src="js/portfolio.js?v=<?php echo $version; ?>"></script>
@@ -3035,6 +4473,148 @@ $(document).ready(function() {
             $('.dropdown-toggle').attr('data-bs-toggle', 'dropdown');
         } else {
             $('.dropdown-toggle').removeAttr('data-bs-toggle');
+        }
+    });
+    
+    // "제품/시공 갤러리" 메뉴 스크롤 기능 복구
+    // custom.js의 스크롤 기능이 작동하지 않을 경우를 대비한 백업
+    $(document).on('click', '.scroll-to-section a[href="#gallery"]', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        console.log('갤러리 메뉴 클릭됨');
+        
+        var target = $('#gallery');
+        if (target.length) {
+            var headerHeight = $('.header-area').outerHeight() || 80;
+            var targetPosition = target.offset().top - headerHeight;
+            
+            $('html, body').animate({
+                scrollTop: targetPosition
+            }, 700, 'swing', function() {
+                console.log('갤러리 섹션으로 스크롤 완료');
+            });
+        } else {
+            console.error('갤러리 섹션을 찾을 수 없습니다');
+        }
+        
+        // 모바일에서 메뉴 닫기
+        if (isMobile()) {
+            $('.menu-trigger').removeClass('active');
+            $('.header-area .nav').removeClass('nav-open');
+            $('.header-area .nav').stop(true, true).slideUp(200);
+        }
+        
+        return false;
+    });
+    
+    // 모든 scroll-to-section 링크에 대한 강화된 스크롤 기능
+    $(document).on('click', '.scroll-to-section a[href^="#"]:not([href="#"])', function(e) {
+        var href = $(this).attr('href');
+        if (!href || href === '#' || href.length <= 1) {
+            return;
+        }
+        
+        var target = $(href);
+        if (target.length) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            var headerHeight = $('.header-area').outerHeight() || 80;
+            var targetPosition = target.offset().top - headerHeight;
+            
+            $('html, body').animate({
+                scrollTop: targetPosition
+            }, 700, 'swing');
+            
+            // 모바일에서 메뉴 닫기
+            if (isMobile()) {
+                $('.menu-trigger').removeClass('active');
+                $('.header-area .nav').removeClass('nav-open');
+                $('.header-area .nav').stop(true, true).slideUp(200);
+            }
+            
+            return false;
+        }
+    });
+    
+    // 드롭다운 메뉴 항목 스크롤 기능 복구 (위험성평가 등)
+    $(document).on('click', '.dropdown-item[href^="#"]:not([href="#"])', function(e) {
+        var href = $(this).attr('href');
+        if (!href || href === '#' || href.length <= 1) {
+            return;
+        }
+        
+        console.log('드롭다운 메뉴 항목 클릭됨:', href);
+        
+        var target = $(href);
+        if (target.length) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // 드롭다운 메뉴 닫기
+            var dropdown = $(this).closest('.dropdown');
+            if (dropdown.length) {
+                var dropdownMenu = dropdown.find('.dropdown-menu');
+                dropdownMenu.removeClass('show');
+                dropdown.find('.dropdown-toggle').removeClass('show').attr('aria-expanded', 'false');
+            }
+            
+            var headerHeight = $('.header-area').outerHeight() || 80;
+            var targetPosition = target.offset().top - headerHeight;
+            
+            $('html, body').animate({
+                scrollTop: targetPosition
+            }, 700, 'swing', function() {
+                console.log('스크롤 완료:', href);
+            });
+            
+            // 모바일에서 메뉴 닫기
+            if (isMobile()) {
+                $('.menu-trigger').removeClass('active');
+                $('.header-area .nav').removeClass('nav-open');
+                $('.header-area .nav').stop(true, true).slideUp(200);
+            }
+            
+            return false;
+        } else {
+            console.error('대상 섹션을 찾을 수 없습니다:', href);
+        }
+    });
+    
+    // 모바일 서브 링크 스크롤 기능 복구
+    $(document).on('click', '.mobile-sub-link[href^="#"]:not([href="#"])', function(e) {
+        var href = $(this).attr('href');
+        if (!href || href === '#' || href.length <= 1) {
+            return;
+        }
+        
+        console.log('모바일 서브 링크 클릭됨:', href);
+        
+        var target = $(href);
+        if (target.length) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            var headerHeight = $('.header-area').outerHeight() || 80;
+            var targetPosition = target.offset().top - headerHeight;
+            
+            $('html, body').animate({
+                scrollTop: targetPosition
+            }, 700, 'swing');
+            
+            // 모바일 오프캔버스 메뉴 닫기
+            setTimeout(function() {
+                var offcanvasElement = document.getElementById('mobileNavMenu');
+                if (offcanvasElement) {
+                    var bsOffcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
+                    if (bsOffcanvas) {
+                        bsOffcanvas.hide();
+                    }
+                }
+            }, 150);
+            
+            return false;
         }
     });
 });

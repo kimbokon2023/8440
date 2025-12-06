@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../bootstrap.php';
-include includePath('load_header.php'); 
+// require_once __DIR__ . '/../bootstrap.php';
+include '../load_header.php'; 
 ?>
 <!DOCTYPE html>
 <html lang="ko">

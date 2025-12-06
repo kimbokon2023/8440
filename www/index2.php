@@ -408,6 +408,131 @@ $tablename = 'popupwindow';
     <span class="close-btn" onclick="closeLunchReminder()">×</span>
 </div>
 
+<?php
+// 포미스톤 관리자 알림 체크
+$phomi_reminder_display = 'none';
+$phomi_latest_orders = [];
+try {
+    // 1. 현재 사용자가 관리자 알람 설정에 포함되어 있는지 확인
+    $sql_check_admin = "SELECT count(*) FROM admin_phomi WHERE member_id = '{$_SESSION['userid']}'";
+    $stmt_check = $pdo->query($sql_check_admin);
+    if ($stmt_check->fetchColumn() > 0) {
+        // 2. 최근 7일 이내에 들어온 주문이 있는지 확인 (수주일자 기준)
+        $seven_days_ago = date("Y-m-d", strtotime("-7 days"));
+        $today_date = date("Y-m-d");
+        
+        // 최신 2건만 가져오기
+        $sql_check_order = "SELECT order_date, site_name FROM phomi_order WHERE order_date >= '{$seven_days_ago}' AND order_date <= '{$today_date}' AND (is_deleted IS NULL OR is_deleted = 'N') ORDER BY order_date DESC, num DESC LIMIT 2";
+        $stmt_order = $pdo->query($sql_check_order);
+        $phomi_latest_orders = $stmt_order->fetchAll(PDO::FETCH_ASSOC);
+
+        if (count($phomi_latest_orders) > 0) {
+            $phomi_reminder_display = 'block';
+        }
+    }
+} catch (Exception $e) {
+    // 테이블이 없거나 에러 발생 시 무시
+}
+?>
+
+<!-- 포미스톤 수주 알림 말풍선 -->
+<div class="phomi-reminder" id="phomiReminder" style="display: <?= $phomi_reminder_display ?>;">
+    <div style="margin-bottom: 5px;">
+        <span class="icon">💎</span>
+        포미스톤 수주가 들어왔어요!
+        <span class="close-btn" onclick="closePhomiReminder()">×</span>
+    </div>
+    <?php foreach ($phomi_latest_orders as $order): 
+        $display_text = $order['order_date'] . ' ' . $order['site_name'];
+        // 최대 15자 제한 (한글 고려하여 mb_substr 사용)
+        if (mb_strlen($display_text, 'utf-8') > 15) {
+            $display_text = mb_substr($display_text, 0, 15, 'utf-8') . '...';
+        }
+    ?>
+    <div style="font-size: 12px; text-align: left; padding-left: 5px;">
+        <?= $display_text ?>
+    </div>
+    <?php endforeach; ?>
+</div>
+
+<script>
+function closePhomiReminder() {
+    document.getElementById('phomiReminder').style.display = 'none';
+}
+</script>
+
+<style>
+/* 포미스톤 알림 말풍선 (보라색 계열) */
+.phomi-reminder {
+    position: fixed;
+    background: linear-gradient(135deg, #a855f7 0%, #d946ef 100%);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
+    z-index: 1000;
+    cursor: pointer;
+    max-width: 250px;
+    text-align: center;
+    /* PC 기본 위치 - 점심 알림 아래 */
+    top: 140px; 
+    right: 20px;
+    animation: float 3s ease-in-out infinite;
+}
+
+@media (max-width: 768px) {
+    .phomi-reminder {
+        top: auto;
+        bottom: 240px; /* 점심 알림 위 */
+        left: 50%;
+        transform: translateX(-50%);
+        max-width: calc(100% - 40px);
+        width: auto;
+        animation: float-mobile 3s ease-in-out infinite;
+    }
+}
+
+.phomi-reminder::before {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    bottom: -8px;
+    right: 20px;
+    border-top: 8px solid #d946ef;
+    border-bottom: none;
+}
+
+@media (max-width: 768px) {
+    .phomi-reminder::before {
+        bottom: auto;
+        top: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-top: none;
+        border-bottom: 8px solid #a855f7;
+    }
+}
+
+.phomi-reminder:hover {
+    transform: scale(1.05);
+}
+
+.phomi-reminder .icon {
+    margin-right: 5px;
+}
+
+.phomi-reminder .close-btn {
+    margin-left: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+</style>
+
  <?php if($chkMobile==false) { ?>
 	<div class="container">     
  <?php } else { ?>

@@ -52,11 +52,10 @@ $sort_direction = $_GET['dir'] ?? 'desc';
 // 허용된 정렬 컬럼
 $allowed_sort_columns = [
     'issue_date' => '견적일자',
+    'project_site' => '현장명',
     'contact_name' => '거래처명',
     'subtotal' => '공급가액',
-    'business_registration_number' => '사업자번호',
     'status' => '상태',
-    'delivery_date' => '납기일자',
     'created_at' => '등록일'
 ];
 
@@ -1106,6 +1105,14 @@ a:hover {
                             <i class="fas fa-sort text-muted" style="opacity: 0.3;"></i>
                         <?php endif; ?>
                     </th>
+                    <th width="10%" class="sortable" data-sort="project_site">
+                        현장명
+                        <?php if ($sort_column === 'project_site'): ?>
+                            <i class="fas fa-sort-<?php echo strtolower($sort_direction) === 'asc' ? 'up' : 'down'; ?>"></i>
+                        <?php else: ?>
+                            <i class="fas fa-sort text-muted" style="opacity: 0.3;"></i>
+                        <?php endif; ?>
+                    </th>
                     <th width="12%" class="sortable" data-sort="contact_name">
                         거래처명
                         <?php if ($sort_column === 'contact_name'): ?>
@@ -1114,6 +1121,7 @@ a:hover {
                             <i class="fas fa-sort text-muted" style="opacity: 0.3;"></i>
                         <?php endif; ?>
                     </th>
+                    <th width="12%">이메일</th>
                     <th width="20%">품목/규격</th>
                     <th width="8%" class="text-right sortable" data-sort="subtotal">
                         공급가액
@@ -1124,14 +1132,6 @@ a:hover {
                         <?php endif; ?>
                     </th>
                     <th width="6%" class="text-right">세액</th>
-                    <th width="10%" class="text-center sortable" data-sort="business_registration_number">
-                        사업자번호
-                        <?php if ($sort_column === 'business_registration_number'): ?>
-                            <i class="fas fa-sort-<?php echo strtolower($sort_direction) === 'asc' ? 'up' : 'down'; ?>"></i>
-                        <?php else: ?>
-                            <i class="fas fa-sort text-muted" style="opacity: 0.3;"></i>
-                        <?php endif; ?>
-                    </th>
                     <th width="8%" class="text-right">합계금액</th>
                     <th width="6%" class="text-center sortable" data-sort="status">
                         상태
@@ -1141,21 +1141,14 @@ a:hover {
                             <i class="fas fa-sort text-muted" style="opacity: 0.3;"></i>
                         <?php endif; ?>
                     </th>
-                    <th width="8%" class="text-center sortable" data-sort="delivery_date" style="white-space: nowrap;">
-                        납기일자
-                        <?php if ($sort_column === 'delivery_date'): ?>
-                            <i class="fas fa-sort-<?php echo strtolower($sort_direction) === 'asc' ? 'up' : 'down'; ?>"></i>
-                        <?php else: ?>
-                            <i class="fas fa-sort text-muted" style="opacity: 0.3;"></i>
-                        <?php endif; ?>
-                    </th>
                     <th width="10%">비고</th>
+                    <th style="white-space: nowrap;">회사 내부 메모</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (empty($orders)): ?>
                 <tr>
-                    <td colspan="11">
+                    <td colspan="10">
                         <div class="empty-state">
                             <i class="fas fa-inbox"></i>
                             <h3>등록된 견적서가 없습니다</h3>
@@ -1174,10 +1167,16 @@ a:hover {
                         <?php echo date('Y-m-d', strtotime($order['issue_date'])); ?>
                     </td>
                     <td>
+                        <?php echo htmlspecialchars($order['project_site'] ?? '-'); ?>
+                    </td>
+                    <td>
                         <?php
                         $partner_name = $order['contact_name'] ?? $order['supplier_name'] ?? '';
                         ?>
                         <strong><?php echo htmlspecialchars($partner_name); ?></strong>
+                    </td>
+                    <td>
+                        <?php echo htmlspecialchars($order['email'] ?? '-'); ?>
                     </td>
                     <td style="max-width: 300px; word-wrap: break-word; white-space: normal;">
                         <?php
@@ -1240,9 +1239,6 @@ a:hover {
                     <td class="amount-cell">
                         <?php echo $order['subtotal'] ? number_format($order['subtotal'] * 0.1) : '0'; ?>
                     </td>
-                    <td class="text-center">
-                        <?php echo htmlspecialchars($order['business_registration_number'] ?? '-'); ?>
-                    </td>
                     <td class="amount-cell">
                         <?php echo $order['subtotal'] ? number_format($order['subtotal'] * 1.1) : '0'; ?>
                     </td>
@@ -1258,35 +1254,13 @@ a:hover {
                         echo '<span class="status-badge ' . $status_class . '">' . ($status_labels[$status] ?? '알 수 없음') . '</span>';
                         ?>
                     </td>
-                    <td class="text-center" style="white-space: nowrap;">
-                        <?php
-                        $delivery_date = $order['delivery_date'] ?? '';
-                        // 빈 값이거나 '0000-00-00' 형식의 날짜는 공백으로 표시
-                        if (empty($delivery_date) || 
-                            $delivery_date === '0000-00-00' || 
-                            strpos($delivery_date, '0000-00-00') !== false ||
-                            strpos($delivery_date, '-0001-') !== false) {
-                            echo '';
-                        } else {
-                            // 날짜 유효성 검사
-                            $timestamp = strtotime($delivery_date);
-                            if ($timestamp !== false) {
-                                $year = date('Y', $timestamp);
-                                // 연도가 1900년 이후인 경우만 표시
-                                if ($year > 1900 && $year < 2100) {
-                                    echo date('Y-m-d', $timestamp);
-                                } else {
-                                    echo '';
-                                }
-                            } else {
-                                echo '';
-                            }
-                        }
-                        ?>
-                    </td>
                     <td>
                         <?php echo htmlspecialchars(mb_substr($order['note'] ?? '', 0, 10)); ?>
                         <?php if (mb_strlen($order['note'] ?? '') > 10) echo '...'; ?>
+                    </td>
+                    <td>
+                        <?php echo htmlspecialchars(mb_substr($order['internalmemo'] ?? '', 0, 10)); ?>
+                        <?php if (mb_strlen($order['internalmemo'] ?? '') > 10) echo '...'; ?>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -1485,7 +1459,8 @@ a:hover {
 <style>
 /* 부트스트랩 모달 커스터마이징 */
 .modal-xl {
-    max-width: 1400px;
+    width: 98% !important;
+    max-width: 98% !important;
 }
 
 /* 상세 정보 스타일 */
@@ -1691,7 +1666,7 @@ a:hover {
             headers.forEach(function(header, index) {
                 var text = header.textContent.trim();
                 // 아이콘 제거
-                text = text.replace(/[\s\S]*?(발행일|거래처명|품목\/규격|공급가액|세액|사업자번호|합계금액|상태|납기일자|비고)/, '$1');
+                text = text.replace(/[\s\S]*?(견적일|현장명|거래처명|이메일|품목\/규격|공급가액|세액|합계금액|상태|비고)/, '$1');
                 if (text && !text.match(/^[\s\S]*?$/)) {
                     columnMap.push({
                         index: index,
@@ -1750,7 +1725,7 @@ a:hover {
                     if (cellIndex < headers.length) {
                         var headerText = headers[cellIndex].textContent.trim();
                         // 정렬 아이콘 제거
-                        headerText = headerText.replace(/[\s\S]*?(발행일|거래처명|품목\/규격|공급가액|세액|사업자번호|합계금액|상태|납기일자|비고)/, '$1');
+                        headerText = headerText.replace(/[\s\S]*?(견적일|현장명|거래처명|이메일|품목\/규격|공급가액|세액|합계금액|상태|비고)/, '$1');
                         label = headerText || '항목' + cellIndex;
                     }
                     
@@ -1824,6 +1799,40 @@ a:hover {
             orderModal = new bootstrap.Modal(modalElement, {
                 backdrop: 'static',
                 keyboard: true
+            });
+            
+            // 모달이 열리기 전에 현재 포커스 저장
+            var previousActiveElement = null;
+            modalElement.addEventListener('show.bs.modal', function() {
+                previousActiveElement = document.activeElement;
+                // 모달이 열리기 전에 외부 요소의 포커스 제거
+                if (previousActiveElement && !modalElement.contains(previousActiveElement)) {
+                    previousActiveElement.blur();
+                }
+            });
+            
+            // 모달이 완전히 표시된 후 포커스 처리 (접근성 개선)
+            modalElement.addEventListener('shown.bs.modal', function() {
+                // 모달 내부의 첫 번째 포커스 가능한 요소로 포커스 이동
+                var firstFocusable = modalElement.querySelector('button:not([disabled]), [href]:not([tabindex="-1"]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])');
+                if (firstFocusable) {
+                    setTimeout(function() {
+                        firstFocusable.focus();
+                    }, 50);
+                }
+            });
+            
+            // 모달이 닫힐 때 포커스 복원
+            modalElement.addEventListener('hidden.bs.modal', function() {
+                // 모달이 완전히 닫힌 후 이전 포커스 복원 (가능한 경우)
+                if (previousActiveElement && document.body.contains(previousActiveElement)) {
+                    try {
+                        previousActiveElement.focus();
+                    } catch (e) {
+                        // 포커스 복원 실패 시 무시
+                    }
+                }
+                previousActiveElement = null;
             });
         }
 
@@ -2392,7 +2401,8 @@ a:hover {
     /**
      * 발주서 상세 정보 표시
      */
-    function displayOrderDetail(order) {
+    function displayOrderDetail(order, orderId) {
+        orderId = orderId || order.id;
         var contentDiv = document.getElementById('orderDetailContent');
         var normalizedItems = normalizeOrderItems(order.estimate_items);
         var hasItems = normalizedItems.rows.length > 0;
@@ -2416,6 +2426,8 @@ a:hover {
         // 기본 정보
         html += '<div class="detail-section">';
         html += '<div class="detail-section-title">📋 기본 정보</div>';
+        
+        // 첫 번째 줄 그리드
         html += '<div class="detail-grid">';
         html += '<div class="detail-item"><div class="detail-label">견적일</div><div class="detail-value">' + (order.issue_date || '-') + '</div></div>';
         var partnerName = order.contact_name || order.supplier_name || '-';
@@ -2423,11 +2435,24 @@ a:hover {
         html += '<div class="detail-item"><div class="detail-label">이메일</div><div class="detail-value">' + (order.email || '-') + '</div></div>';
         html += '<div class="detail-item"><div class="detail-label">상태</div><div class="detail-value">' + (statusLabels[order.status] || '알 수 없음') + '</div></div>';
         html += '<div class="detail-item"><div class="detail-label">참조</div><div class="detail-value">' + (order.reference || '-') + '</div></div>';
-        html += '<div class="detail-item"><div class="detail-label">현장명</div><div class="detail-value">' + (order.project_site || '-') + '</div></div>';
-        // 납기일자 처리 (빈 값이나 유효하지 않은 날짜는 공백)
+        html += '</div>';
 
-        html += '</div>';
-        html += '</div>';
+        // 두 번째 줄 (현장명 + 회사 내부 메모)
+        html += '<div style="display: flex; gap: 15px; margin-top: 15px;">';
+        
+        // 현장명 (고정 너비 또는 내용에 맞게)
+        html += '<div class="detail-item" style="min-width: 200px;"><div class="detail-label">현장명</div><div class="detail-value">' + (order.project_site || '-') + '</div></div>';
+        
+        // 회사 내부 메모 (나머지 공간 채우기)
+        if (order.internalmemo) {
+            html += '<div class="detail-item" style="flex: 1; display: flex; flex-direction: column;">';
+            html += '<div class="detail-label">회사 내부 메모</div>';
+            html += '<div class="detail-value" style="color: #007bff; white-space: pre-wrap;">' + order.internalmemo + '</div>';
+            html += '</div>';
+        }
+        
+        html += '</div>'; // End flex row
+        html += '</div>'; // End detail-section
         
         // 금액 정보
         html += '<div class="detail-section">';
@@ -2486,7 +2511,203 @@ a:hover {
             html += '</div>';
         }
         
+        // 첨부 문서 섹션 (항상 표시, 파일이 없으면 빈 상태로)
+        html += '<div class="detail-section">';
+        html += '<div class="detail-section-title"><i class="bi bi-paperclip"></i> 내부 참고 문서 첨부</div>';
+        html += '<div id="detailFilePreview" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-top: 16px; padding: 0;"></div>';
+        html += '</div>';
+        
         contentDiv.innerHTML = html;
+        
+        // 첨부 파일 로드 (DOM이 완전히 렌더링된 후 실행)
+        if (orderId) {
+            // DOM 업데이트 후 약간의 지연을 두고 파일 로드
+            setTimeout(function() {
+                loadDetailFiles(orderId);
+            }, 100);
+        }
+    }
+    
+    /**
+     * 상세 정보 모달에서 첨부 파일 목록 로드
+     */
+    function loadDetailFiles(estimateId) {
+        console.log('[loadDetailFiles] 함수 호출됨, estimateId:', estimateId);
+        
+        if (!estimateId) {
+            console.error('[loadDetailFiles] estimateId가 없습니다.');
+            return;
+        }
+        
+        var preview = document.getElementById('detailFilePreview');
+        if (!preview) {
+            console.error('[loadDetailFiles] detailFilePreview 요소를 찾을 수 없습니다. DOM이 준비되지 않았을 수 있습니다.');
+            // 재시도
+            setTimeout(function() {
+                var retryPreview = document.getElementById('detailFilePreview');
+                if (retryPreview) {
+                    console.log('[loadDetailFiles] 재시도 성공: detailFilePreview 요소를 찾았습니다.');
+                    loadDetailFiles(estimateId);
+                } else {
+                    console.error('[loadDetailFiles] 재시도 실패: detailFilePreview 요소를 여전히 찾을 수 없습니다.');
+                }
+            }, 300);
+            return;
+        }
+        
+        console.log('[loadDetailFiles] 파일 목록 조회 시작, estimateId:', estimateId);
+        
+        // 파일 목록 조회 (write_form.php와 동일한 형식)
+        var url = '/filedrive/fileprocess.php?num=' + encodeURIComponent(estimateId) + 
+                  '&tablename=estimate&item=attached&folderPath=' + encodeURIComponent('미래기업/uploads/estimate');
+        
+        console.log('[loadDetailFiles] 요청 URL:', url);
+        
+        // 로딩 표시
+        preview.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 20px; color: #6c757d; font-size: 14px;">파일 목록을 불러오는 중...</div>';
+        preview.style.display = 'block';
+        
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        })
+        .then(function(response) {
+            console.log('[loadDetailFiles] 응답 상태:', response.status, response.statusText);
+            if (!response.ok) {
+                throw new Error('HTTP Error: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(function(data) {
+            console.log('[loadDetailFiles] 상세 정보 파일 목록 조회 결과:', data);
+            console.log('[loadDetailFiles] 데이터 타입:', typeof data, '배열 여부:', Array.isArray(data));
+            if (data && typeof data === 'object') {
+                console.log('[loadDetailFiles] 데이터 키:', Object.keys(data));
+            }
+            
+            // 응답 형식 확인: 배열 또는 data.files 또는 data가 배열인 경우
+            var files = [];
+            if (Array.isArray(data)) {
+                files = data;
+            } else if (data && data.files && Array.isArray(data.files)) {
+                files = data.files;
+            } else if (data && typeof data === 'object' && !data.error) {
+                // 단일 객체인 경우 배열로 변환
+                files = [data];
+            }
+            
+            console.log('[loadDetailFiles] 추출된 파일 배열:', files, '파일 개수:', files ? files.length : 0);
+            
+            if (files && Array.isArray(files) && files.length > 0) {
+                console.log('[loadDetailFiles] 파일 목록 표시 시작, 파일 개수:', files.length);
+                preview.innerHTML = '';
+                preview.style.display = 'grid';
+                
+                files.forEach(function(file) {
+                    // 파일 정보 정규화 (write_form.php와 동일한 방식)
+                    var fileInfo = {
+                        fileId: file.fileId || file.picname || file.id || '',
+                        realname: file.realname || file.name || 'Unknown',
+                        link: file.link || file.webViewLink || '',
+                        thumbnail: file.thumbnail || file.thumbnailLink || file.link || ''
+                    };
+                    
+                    // link가 없으면 fileId로 다운로드 링크 생성
+                    if (!fileInfo.link && fileInfo.fileId) {
+                        fileInfo.link = '/filedrive/fileprocess.php?action=download&fileId=' + encodeURIComponent(fileInfo.fileId);
+                    }
+                    
+                    // thumbnail이 없으면 link 사용 (이미지인 경우)
+                    if (!fileInfo.thumbnail && fileInfo.link) {
+                        // 이미지 파일인 경우 Google Drive 썸네일 링크 사용
+                        if (fileInfo.realname && /\.(jpg|jpeg|png|gif|webp)$/i.test(fileInfo.realname)) {
+                            if (fileInfo.fileId) {
+                                fileInfo.thumbnail = 'https://drive.google.com/uc?id=' + fileInfo.fileId;
+                            } else {
+                                fileInfo.thumbnail = fileInfo.link;
+                            }
+                        } else {
+                            fileInfo.thumbnail = fileInfo.link;
+                        }
+                    }
+                    
+                    // 이미지 여부 확인
+                    var isImage = false;
+                    if (fileInfo.realname) {
+                        isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(fileInfo.realname);
+                    }
+                    
+                    var fileItem = document.createElement('div');
+                    fileItem.style.cssText = 'position: relative; border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden; background: white; cursor: pointer; transition: all 0.3s ease;';
+                    fileItem.onmouseover = function() {
+                        this.style.transform = 'translateY(-4px)';
+                        this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                    };
+                    fileItem.onmouseout = function() {
+                        this.style.transform = 'translateY(0)';
+                        this.style.boxShadow = 'none';
+                    };
+                    
+                    fileItem.onclick = function(e) {
+                        if (e.target.closest('.file-delete-btn')) {
+                            return; // 삭제 버튼 클릭은 무시 (상세 보기에서는 삭제 불가)
+                        }
+                        if (fileInfo.link) {
+                            window.open(fileInfo.link, '_blank');
+                        }
+                    };
+                    
+                    var imgContainer = document.createElement('div');
+                    imgContainer.style.cssText = 'width: 100%; height: 120px; overflow: hidden; background: #f8f9fa; display: flex; align-items: center; justify-content: center;';
+                    
+                    if (isImage && fileInfo.thumbnail) {
+                        var img = document.createElement('img');
+                        img.src = fileInfo.thumbnail;
+                        img.style.cssText = 'max-width: 100%; max-height: 100%; object-fit: cover;';
+                        img.alt = fileInfo.realname;
+                        img.onerror = function() {
+                            // 썸네일 로드 실패 시 아이콘 표시
+                            this.parentElement.innerHTML = '<div style="font-size: 48px; color: #6c757d;">📄</div>';
+                        };
+                        imgContainer.appendChild(img);
+                    } else {
+                        var icon = document.createElement('div');
+                        icon.style.cssText = 'font-size: 48px; color: #6c757d;';
+                        icon.innerHTML = '📄';
+                        imgContainer.appendChild(icon);
+                    }
+                    
+                    var fileName = document.createElement('div');
+                    fileName.style.cssText = 'padding: 8px; font-size: 12px; color: #495057; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: white;';
+                    fileName.textContent = fileInfo.realname;
+                    fileName.title = fileInfo.realname;
+                    
+                    fileItem.appendChild(imgContainer);
+                    fileItem.appendChild(fileName);
+                    
+                    preview.appendChild(fileItem);
+                });
+                console.log('[loadDetailFiles] 파일 목록 표시 완료');
+            } else {
+                console.log('[loadDetailFiles] 파일이 없거나 빈 배열입니다. files:', files);
+                if (preview) {
+                    preview.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 20px; color: #6c757d; font-size: 14px;">첨부된 문서가 없습니다.</div>';
+                    preview.style.display = 'block';
+                }
+            }
+        })
+        .catch(function(error) {
+            console.error('[loadDetailFiles] 파일 목록 로드 오류:', error);
+            console.error('[loadDetailFiles] 오류 스택:', error.stack);
+            if (preview) {
+                preview.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 20px; color: #dc3545; font-size: 14px;">파일 목록을 불러올 수 없습니다: ' + (error.message || '알 수 없는 오류') + '</div>';
+                preview.style.display = 'block';
+            } else {
+                console.error('[loadDetailFiles] preview 요소가 없어서 에러 메시지를 표시할 수 없습니다.');
+            }
+        });
     }
     
     window.openHelpModal = function() {

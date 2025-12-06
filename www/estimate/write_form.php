@@ -782,7 +782,62 @@ body.iframe-mode .btn-primary:hover {
             </div>
         </div>
 
+        <!-- 내부 메모 및 파일 업로드 섹션 -->
+        <div class="row mb-3 p-3" style="margin: 20px 0;">
+            <div class="col-12">
+                <!-- 내부 메모 카드 -->
+                <div class="card mb-3" style="border: 1px solid #dee2e6; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <div class="card-header" style="background: linear-gradient(135deg, #6c757d 0%, #495057 100%); color: white; padding: 12px 16px; border-bottom: none; border-radius: 8px 8px 0 0;">
+                        <h6 class="mb-0 fw-bold" style="margin: 0; font-weight: bold;">
+                            <i class="bi bi-sticky"></i> 회사 내부 메모
+                        </h6>
+                    </div>
+                    <div class="card-body" style="padding: 16px;">
+                        <textarea name="internalmemo" id="internalmemo" class="form-control auto-resize-textarea" rows="3" placeholder="회사 내부에서만 볼 수 있는 메모를 입력하세요." style="width: 100%; border: 1px solid #ced4da; border-radius: 4px; padding: 8px; resize: none; overflow-y: hidden; min-height: 80px;"><?php echo $order_data ? htmlspecialchars($order_data['internalmemo'] ?? '') : ''; ?></textarea>
+                    </div>
+                </div>
+
+                <!-- 파일 업로드 섹션 -->
+                <div class="card" style="border: 1px solid #dee2e6; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <div class="card-header" style="background: linear-gradient(135deg, #6c757d 0%, #495057 100%); color: white; padding: 12px 16px; border-bottom: none; border-radius: 8px 8px 0 0;">
+                        <h6 class="mb-0 fw-bold" style="margin: 0; font-weight: bold;">
+                            <i class="bi bi-paperclip"></i> 내부 참고 문서 첨부
+                        </h6>
+                    </div>
+                    <div class="card-body" style="padding: 16px;">
+                        <div class="file-upload-area" id="fileUploadArea" style="border: 2px dashed #ced4da; border-radius: 8px; padding: 40px; text-align: center; background: #f8f9fa; cursor: pointer; transition: all 0.3s ease; min-height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <div style="font-size: 48px; margin-bottom: 16px; color: #6c757d;">📎</div>
+                            <div style="color: #495057; font-size: 14px; line-height: 1.6;">
+                                <strong>클릭</strong>하거나 <strong>드래그앤드롭</strong>으로<br>
+                                파일을 업로드하세요 (여러 개 선택 가능)
+                            </div>
+                            <input type="file" id="fileInput" name="attached_files[]" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt" multiple style="display: none;">
+                        </div>
+                        <div class="file-preview mt-3" id="filePreview" style="display: none; min-height: 0;"></div>
+                        <div class="form-note mt-2" style="font-size: 12px; color: #6c757d;">
+                            ※ 견적서 관련 문서를 첨부합니다 (파일당 최대 10MB)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </form>
+</div>
+
+<!-- 업로드 진행 중 모달 -->
+<div class="modal fade" id="uploadProgressModal" tabindex="-1" aria-labelledby="uploadProgressModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center py-4">
+                <div class="spinner-border text-secondary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <h5 class="mb-2">업로드 중입니다.</h5>
+                <p class="text-muted mb-0">잠시 기다려주세요...</p>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script type="text/javascript">
@@ -1268,7 +1323,7 @@ function collectFormData() {
         'action', 'id', 'order_no', 'issue_date', 'supplier_code',
         'supplier_name', 'supplier_address', 'business_type', 'business_item',
         'supplier_phone', 'supplier_fax', 'contact_name', 'business_registration_number',
-        'reference', 'fax', 'project_site', 'note', 'status'
+        'reference', 'fax', 'project_site', 'note', 'status', 'internalmemo', 'email', 'customer_id'
     ];
     
     basicFields.forEach(function(fieldName) {
@@ -1579,9 +1634,547 @@ function validateForm() {
     return true;
 }
 
+// textarea 자동 크기 조절 함수
+function autoResizeTextarea(textarea) {
+    if (!textarea) return;
+    
+    // 높이를 초기화하여 정확한 scrollHeight 계산
+    textarea.style.height = 'auto';
+    
+    // scrollHeight 계산 (padding 포함)
+    var scrollHeight = textarea.scrollHeight;
+    
+    // 최소 높이 80px, 최대 높이는 제한 없음 (또는 필요시 설정)
+    var newHeight = Math.max(80, scrollHeight);
+    
+    // 높이 설정
+    textarea.style.height = newHeight + 'px';
+    
+    // overflow-y를 hidden으로 유지하여 스크롤바 숨김
+    if (textarea.scrollHeight > newHeight) {
+        textarea.style.overflowY = 'hidden';
+    }
+}
+
+// textarea 자동 크기 조절 초기화
+function initializeAutoResizeTextarea() {
+    var textarea = document.getElementById('internalmemo');
+    if (!textarea) {
+        // textarea가 아직 로드되지 않았으면 재시도
+        setTimeout(initializeAutoResizeTextarea, 100);
+        return;
+    }
+    
+    // 초기 로드 시 크기 조절 (약간의 지연을 두어 CSS 적용 대기)
+    setTimeout(function() {
+        autoResizeTextarea(textarea);
+    }, 50);
+    
+    // 입력 시마다 크기 조절
+    textarea.addEventListener('input', function() {
+        autoResizeTextarea(this);
+    });
+    
+    // 포커스 시에도 크기 조절 (복사/붙여넣기 대응)
+    textarea.addEventListener('paste', function() {
+        var self = this;
+        setTimeout(function() {
+            autoResizeTextarea(self);
+        }, 10);
+    });
+    
+    // 키보드 이벤트도 처리 (Enter 키 등)
+    textarea.addEventListener('keydown', function(e) {
+        var self = this;
+        setTimeout(function() {
+            autoResizeTextarea(self);
+        }, 10);
+    });
+    
+    // 내용이 변경될 때마다 크기 조절 (프로그래밍 방식으로 값이 변경되는 경우 대응)
+    var observer = new MutationObserver(function() {
+        autoResizeTextarea(textarea);
+    });
+    
+    // textarea의 속성 변경 감지
+    observer.observe(textarea, {
+        attributes: true,
+        attributeFilter: ['value']
+    });
+}
+
+// DOMContentLoaded 이벤트에서도 textarea 초기화 (빠른 초기화)
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+        // textarea 자동 크기 조절 초기화
+        initializeAutoResizeTextarea();
+    });
+} else {
+    // DOM이 이미 로드된 경우 즉시 실행
+    initializeAutoResizeTextarea();
+}
+
 // 페이지 로드 시 합계 계산
 window.onload = function() {
     setTimeout(updateTotalAmount, 500);
+    // 파일 업로드 초기화
+    initializeFileUpload();
+    // textarea 자동 크기 조절 재초기화 (CSS 적용 후)
+    setTimeout(function() {
+        var textarea = document.getElementById('internalmemo');
+        if (textarea) {
+            autoResizeTextarea(textarea);
+        }
+    }, 200);
+    // 기존 파일 로드 (수정 모드일 경우)
+    <?php if ($id > 0): ?>
+    // 파일 목록 로드 (약간의 지연을 두어 DOM이 완전히 준비된 후 실행)
+    setTimeout(function() {
+        loadExistingFiles();
+    }, 500);
+    <?php endif; ?>
+};
+
+// 파일 업로드 관련 변수
+var uploadedFiles = [];
+var currentEstimateId = <?php echo $id > 0 ? $id : 'null'; ?>;
+
+// 파일 업로드 초기화
+function initializeFileUpload() {
+    var fileUploadArea = document.getElementById('fileUploadArea');
+    var fileInput = document.getElementById('fileInput');
+    
+    if (!fileUploadArea || !fileInput) return;
+    
+    // 클릭 이벤트
+    fileUploadArea.addEventListener('click', function(e) {
+        if (e.target === fileInput) return;
+        fileInput.click();
+    });
+    
+    // 드래그 앤 드롭 이벤트
+    fileUploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        fileUploadArea.style.borderColor = '#6c757d';
+        fileUploadArea.style.background = '#e9ecef';
+    });
+    
+    fileUploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        fileUploadArea.style.borderColor = '#ced4da';
+        fileUploadArea.style.background = '#f8f9fa';
+    });
+    
+    fileUploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        fileUploadArea.style.borderColor = '#ced4da';
+        fileUploadArea.style.background = '#f8f9fa';
+        
+        var files = e.dataTransfer.files;
+        if (files.length > 0) {
+            handleFileUpload(files);
+        }
+    });
+    
+    // 파일 선택 이벤트
+    fileInput.addEventListener('change', function(e) {
+        if (this.files.length > 0) {
+            handleFileUpload(this.files);
+        }
+    });
+}
+
+// 파일 업로드 처리
+function handleFileUpload(files) {
+    // 견적서 ID가 없으면 먼저 저장해야 함
+    if (!currentEstimateId) {
+        alert('먼저 견적서를 저장해주세요.');
+        return;
+    }
+    
+    // 파일 검증
+    var validFiles = [];
+    var maxSize = 10 * 1024 * 1024; // 10MB
+    
+    for (var i = 0; i < files.length; i++) {
+        var file = files[i];
+        
+        // 파일 크기 검증
+        if (file.size > maxSize) {
+            alert(file.name + ' 파일 크기는 10MB를 초과할 수 없습니다.');
+            continue;
+        }
+        
+        validFiles.push(file);
+    }
+    
+    if (validFiles.length === 0) {
+        return;
+    }
+    
+    // 업로드 진행 모달 표시
+    showUploadModal();
+    
+    // FormData 생성
+    var formData = new FormData();
+    
+    for (var i = 0; i < validFiles.length; i++) {
+        formData.append('attached_files[]', validFiles[i]);
+    }
+    
+    // 추가 데이터 설정
+    formData.append('tablename', 'estimate');
+    formData.append('item', 'attached');
+    formData.append('upfilename', 'attached_files');
+    formData.append('folderPath', '미래기업/uploads/estimate');
+    formData.append('DBtable', 'picuploads');
+    formData.append('num', currentEstimateId);
+    
+    // AJAX 요청
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/filedrive/fileprocess.php', true);
+    
+    xhr.onload = function() {
+        hideUploadModal();
+        
+        if (xhr.status === 200) {
+            try {
+                var response = JSON.parse(xhr.responseText);
+                console.log('업로드 응답:', response);
+                
+                var successCount = 0;
+                var errorCount = 0;
+                
+                if (Array.isArray(response)) {
+                    response.forEach(function(item) {
+                        if (item.status === 'success') {
+                            successCount++;
+                        } else if (item.status === 'error') {
+                            errorCount++;
+                        }
+                    });
+                }
+                
+                if (successCount > 0) {
+                    // 업로드 완료 후 파일 목록 다시 로드
+                    setTimeout(function() {
+                        loadExistingFiles();
+                    }, 800);
+                    alert(successCount + '개의 파일이 성공적으로 업로드되었습니다.');
+                }
+                
+                if (errorCount > 0) {
+                    alert('오류 발생: ' + errorCount + '개의 파일 업로드 실패');
+                }
+                
+                // 파일 입력 초기화
+                document.getElementById('fileInput').value = '';
+            } catch (e) {
+                console.error('응답 파싱 오류:', e);
+                alert('파일 업로드 응답 처리 중 오류가 발생했습니다.');
+            }
+        } else {
+            alert('파일 업로드 중 오류가 발생했습니다.');
+        }
+    };
+    
+    xhr.onerror = function() {
+        hideUploadModal();
+        alert('파일 업로드 중 네트워크 오류가 발생했습니다.');
+    };
+    
+    xhr.send(formData);
+}
+
+// 업로드 모달 표시/숨김
+function showUploadModal() {
+    var modal = document.getElementById('uploadProgressModal');
+    if (modal) {
+        var bsModal = new bootstrap.Modal(modal);
+        bsModal.show();
+    }
+}
+
+function hideUploadModal() {
+    var modal = document.getElementById('uploadProgressModal');
+    if (modal) {
+        var bsModal = bootstrap.Modal.getInstance(modal);
+        if (bsModal) {
+            bsModal.hide();
+        }
+    }
+}
+
+// 기존 파일 로드
+function loadExistingFiles() {
+    if (!currentEstimateId) {
+        console.log('견적서 ID가 없어 파일을 불러올 수 없습니다.');
+        return;
+    }
+    
+    console.log('파일 목록 조회 시작, estimate ID:', currentEstimateId);
+    
+    // GET 요청으로 파일 목록 조회 (corp와 동일한 방식)
+    var url = '/filedrive/fileprocess.php?num=' + encodeURIComponent(currentEstimateId) + 
+              '&tablename=estimate&item=attached&folderPath=' + encodeURIComponent('미래기업/uploads/estimate');
+    
+    fetch(url, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json'
+        }
+    })
+    .then(function(response) {
+        if (!response.ok) {
+            throw new Error('HTTP Error: ' + response.status);
+        }
+        return response.json();
+    })
+    .then(function(data) {
+        console.log('파일 목록 조회 결과:', data);
+        
+        if (Array.isArray(data) && data.length > 0) {
+            // 응답 데이터를 uploadedFiles 형식으로 변환
+            uploadedFiles = data.map(function(file) {
+                var fileInfo = {
+                    fileId: file.fileId || file.picname || '',
+                    realname: file.realname || 'Unknown',
+                    link: file.link || file.webViewLink || '',
+                    thumbnail: file.thumbnail || file.thumbnailLink || file.link || ''
+                };
+                
+                // link가 없으면 fileId로 다운로드 링크 생성
+                if (!fileInfo.link && fileInfo.fileId) {
+                    fileInfo.link = '/filedrive/fileprocess.php?action=download&fileId=' + encodeURIComponent(fileInfo.fileId);
+                }
+                
+                // thumbnail이 없으면 link 사용 (이미지인 경우)
+                if (!fileInfo.thumbnail && fileInfo.link) {
+                    // 이미지 파일인 경우 Google Drive 썸네일 링크 사용
+                    if (fileInfo.realname && /\.(jpg|jpeg|png|gif|webp)$/i.test(fileInfo.realname)) {
+                        if (fileInfo.fileId) {
+                            fileInfo.thumbnail = 'https://drive.google.com/uc?id=' + fileInfo.fileId;
+                        } else {
+                            fileInfo.thumbnail = fileInfo.link;
+                        }
+                    } else {
+                        fileInfo.thumbnail = fileInfo.link;
+                    }
+                }
+                
+                console.log('파일 정보 처리:', fileInfo);
+                return fileInfo;
+            });
+            
+            console.log('최종 uploadedFiles:', uploadedFiles);
+            displayFiles();
+        } else {
+            console.log('파일 목록이 비어있습니다.');
+            uploadedFiles = [];
+            displayFiles();
+        }
+    })
+    .catch(function(error) {
+        console.error('파일 목록 로드 오류:', error);
+        uploadedFiles = [];
+        displayFiles();
+    });
+}
+
+// 파일 목록 표시
+function displayFiles() {
+    var preview = document.getElementById('filePreview');
+    if (!preview) {
+        console.warn('filePreview 요소를 찾을 수 없습니다.');
+        return;
+    }
+    
+    preview.innerHTML = '';
+    
+    if (uploadedFiles.length === 0) {
+        preview.style.display = 'none';
+        return;
+    }
+    
+    // 그리드 레이아웃을 위한 컨테이너 스타일
+    preview.style.display = 'grid';
+    preview.style.gridTemplateColumns = 'repeat(auto-fill, minmax(150px, 1fr))';
+    preview.style.gap = '12px';
+    preview.style.marginTop = '16px';
+    preview.style.padding = '0';
+    
+    uploadedFiles.forEach(function(file, index) {
+        var fileId = file.fileId || '';
+        var realname = file.realname || 'Unknown';
+        var link = file.link || '/filedrive/fileprocess.php?action=download&fileId=' + encodeURIComponent(fileId);
+        var thumbnail = file.thumbnail || link;
+        
+        // 이미지 여부 확인
+        var isImage = false;
+        if (realname) {
+            isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(realname);
+        }
+        if (!isImage && thumbnail) {
+            isImage = thumbnail.match(/\.(jpg|jpeg|png|gif|webp)$/i) || thumbnail.startsWith('http');
+        }
+        
+        var itemHtml = '<div class="file-preview-item" data-index="' + index + '" data-file-id="' + fileId + '" style="position: relative; border: 1px solid #dee2e6; border-radius: 8px; background: white; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform=\'translateY(-2px)\'; this.style.boxShadow=\'0 4px 8px rgba(0,0,0,0.1)\';" onmouseout="this.style.transform=\'\'; this.style.boxShadow=\'\';">';
+        
+        // 파일 클릭 가능하게 만들기
+        var fileClickHandler = 'viewFile(' + index + ')';
+        var cursorStyle = 'cursor: pointer;';
+        
+        if (isImage) {
+            itemHtml += '<div class="file-image-wrapper" style="position:relative; ' + cursorStyle + '; width: 100%; height: 150px; overflow: hidden;" onclick="' + fileClickHandler + '">';
+            itemHtml += '<img src="' + thumbnail + '" alt="' + realname + '" onerror="this.src=\'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'%3E%3Crect width=\'100\' height=\'100\' fill=\'%23f8f9fa\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\' fill=\'%23999\'%3E이미지%3C/text%3E%3C/svg%3E\';" style="width:100%; height:100%; object-fit:cover;">';
+            itemHtml += '<div class="file-overlay" style="position:absolute; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.3); display:none; align-items:center; justify-content:center; color:white; font-size:1.2rem;">👁️</div>';
+            itemHtml += '</div>';
+        } else {
+            itemHtml += '<div class="file-icon-wrapper" style="' + cursorStyle + '; width: 100%; height: 150px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; position: relative;" onclick="' + fileClickHandler + '">';
+            itemHtml += '<div style="font-size: 48px;">📄</div>';
+            itemHtml += '<div class="file-overlay" style="position:absolute; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.3); display:none; align-items:center; justify-content:center; color:white; font-size:1.2rem;">⬇️</div>';
+            itemHtml += '</div>';
+        }
+        
+        itemHtml += '<div class="file-info" style="padding: 8px; font-size: 12px; word-break: break-all; cursor: pointer; border-top: 1px solid #f0f0f0;" onclick="' + fileClickHandler + '">' + realname + '</div>';
+        itemHtml += '<button type="button" onclick="event.stopPropagation(); removeFile(' + index + ', \'' + fileId + '\')" style="position: absolute; top: 4px; right: 4px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 16px; line-height: 1; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2);" title="삭제">×</button>';
+        itemHtml += '</div>';
+        
+        var itemElement = document.createElement('div');
+        itemElement.innerHTML = itemHtml;
+        var fileItem = itemElement.firstElementChild;
+        
+        // 호버 효과 추가
+        var imageWrapper = fileItem.querySelector('.file-image-wrapper');
+        var iconWrapper = fileItem.querySelector('.file-icon-wrapper');
+        var fileInfo = fileItem.querySelector('.file-info');
+        
+        function showOverlay() {
+            var overlay = fileItem.querySelector('.file-overlay');
+            if (overlay) overlay.style.display = 'flex';
+        }
+        
+        function hideOverlay() {
+            var overlay = fileItem.querySelector('.file-overlay');
+            if (overlay) overlay.style.display = 'none';
+        }
+        
+        if (imageWrapper) {
+            imageWrapper.addEventListener('mouseenter', showOverlay);
+            imageWrapper.addEventListener('mouseleave', hideOverlay);
+        }
+        if (iconWrapper) {
+            iconWrapper.addEventListener('mouseenter', showOverlay);
+            iconWrapper.addEventListener('mouseleave', hideOverlay);
+        }
+        if (fileInfo) {
+            fileInfo.addEventListener('mouseenter', showOverlay);
+            fileInfo.addEventListener('mouseleave', hideOverlay);
+        }
+        
+        preview.appendChild(fileItem);
+    });
+}
+
+// 파일 보기 (전역 함수로 등록)
+window.viewFile = function(index) {
+    if (!uploadedFiles[index]) {
+        console.error('파일 정보를 찾을 수 없습니다. index:', index);
+        return;
+    }
+    
+    var file = uploadedFiles[index];
+    var link = file.link || '/filedrive/fileprocess.php?action=download&fileId=' + encodeURIComponent(file.fileId || '');
+    
+    if (!link) {
+        alert('파일 링크를 가져올 수 없습니다.');
+        return;
+    }
+    
+    // 이미지 여부 확인
+    var isImage = false;
+    if (file.realname) {
+        isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(file.realname);
+    }
+    
+    if (isImage) {
+        // 이미지인 경우: 새 창에서 열기
+        var width = 1000;
+        var height = 700;
+        var left = (window.innerWidth / 2) - (width / 2) + window.screenX;
+        var top = (window.innerHeight / 2) - (height / 2) + window.screenY;
+        window.open(link, 'imageViewer_' + Date.now(), 'width=' + width + ', height=' + height + ', left=' + left + ', top=' + top + ', scrollbars=yes, resizable=yes');
+    } else {
+        // PDF나 기타 파일은 새 창에서 열기 또는 다운로드
+        var isPdf = file.realname && file.realname.toLowerCase().match(/\.pdf$/i);
+        if (isPdf) {
+            window.open(link, '_blank');
+        } else {
+            // 다운로드 링크 생성
+            var a = document.createElement('a');
+            a.href = link;
+            a.download = file.realname || 'download';
+            a.target = '_blank';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+    }
+};
+
+// 파일 삭제 (전역 함수로 등록)
+window.removeFile = function(index, fileId) {
+    if (!confirm('이 파일을 삭제하시겠습니까?')) {
+        return;
+    }
+    
+    fetch('/filedrive/fileprocess.php', {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            fileId: fileId,
+            tablename: 'estimate',
+            item: 'attached',
+            folderPath: '미래기업/uploads/estimate',
+            DBtable: 'picuploads'
+        })
+    })
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+        if (data.status === 'success' || data.success) {
+            uploadedFiles.splice(index, 1);
+            displayFiles();
+            alert('파일이 삭제되었습니다.');
+        } else {
+            alert('파일 삭제 중 오류가 발생했습니다: ' + (data.message || '알 수 없는 오류'));
+        }
+    })
+    .catch(function(error) {
+        console.error('파일 삭제 오류:', error);
+        alert('파일 삭제 중 오류가 발생했습니다.');
+    });
+};
+
+// 저장 성공 시 파일 업로드 영역 활성화 및 파일 목록 로드
+var originalHandleJsonResponse = handleJsonResponse;
+handleJsonResponse = function(data) {
+    originalHandleJsonResponse(data);
+    
+    // 저장 성공 시 견적서 ID 업데이트 및 파일 목록 로드
+    if (data.success && data.id) {
+        currentEstimateId = data.id;
+        // 파일 목록 다시 로드
+        setTimeout(function() {
+            loadExistingFiles();
+        }, 300);
+    }
 };
 
 })();

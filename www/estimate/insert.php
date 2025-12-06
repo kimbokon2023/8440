@@ -157,6 +157,7 @@ $delivery_date = $_POST['delivery_date'] ?? null;
 $delivery_location = trim($_POST['delivery_location'] ?? '');
 $payment_terms = trim($_POST['payment_terms'] ?? '');
 $note = trim($_POST['note'] ?? '');
+$internalmemo = trim($_POST['internalmemo'] ?? '');
 $status = $_POST['status'] ?? 'draft';
 
 // JSON 데이터 처리
@@ -255,6 +256,7 @@ try {
                 delivery_location = :delivery_location,
                 payment_terms = :payment_terms,
                 note = :note,
+                internalmemo = :internalmemo,
                 status = :status,
                 updated_at = CURRENT_TIMESTAMP,
                 valid_date = :valid_date,
@@ -284,6 +286,7 @@ try {
             ':delivery_location' => $delivery_location ?: null,
             ':payment_terms' => $payment_terms ?: null,
             ':note' => $note ?: null,
+            ':internalmemo' => $internalmemo ?: null,
             ':status' => $status,
             ':valid_date' => !empty($_POST['valid_date']) ? $_POST['valid_date'] : null,
             ':email' => !empty($_POST['email']) ? $_POST['email'] : null,
@@ -318,12 +321,12 @@ try {
                 estimate_no, issue_date, customer_id, supplier_code, supplier_name, supplier_address,
                 business_type, business_item, supplier_phone, supplier_fax, contact_name,
                 business_registration_number, reference, fax, project_site, estimate_items, subtotal, delivery_date, delivery_location,
-                payment_terms, note, status, created_at, updated_at, is_deleted, valid_date, email
+                payment_terms, note, internalmemo, status, created_at, updated_at, is_deleted, valid_date, email
                 ) VALUES (
                 :estimate_no, :issue_date, :customer_id, :supplier_code, :supplier_name, :supplier_address,
                 :business_type, :business_item, :supplier_phone, :supplier_fax, :contact_name,
                 :business_registration_number, :reference, :fax, :project_site, :estimate_items, :subtotal, :delivery_date, :delivery_location,
-                :payment_terms, :note, :status, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0, :valid_date, :email
+                :payment_terms, :note, :internalmemo, :status, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0, :valid_date, :email
                 )";
 
         $stmt = $pdo->prepare($sql);
@@ -349,6 +352,7 @@ try {
             ':delivery_location' => $delivery_location ?: null,
             ':payment_terms' => $payment_terms ?: null,
             ':note' => $note ?: null,
+            ':internalmemo' => $internalmemo ?: null,
             ':status' => $status,
             ':valid_date' => !empty($_POST['valid_date']) ? $_POST['valid_date'] : null,
             ':email' => !empty($_POST['email']) ? $_POST['email'] : null

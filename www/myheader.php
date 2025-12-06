@@ -688,6 +688,9 @@ if (!isset($chkMobile)) {
 					<a class="dropdown-item" href="https://phomi.co.kr/default/index.php" target="_blank">
 						<i class="bi bi-globe"></i> 본사 포미스톤 웹사이트
 					</a>					
+					<a class="dropdown-item" href="<?=$root_dir?>/phomi/admin_alarm_setting.php">
+						<i class="bi bi-bell"></i> 포미스톤 관리자 알람 설정
+					</a>					
 				</div>
             </div>
 			<?php endif; ?>								

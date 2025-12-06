@@ -436,17 +436,17 @@ body {
     <div class="filter-section">
         <form method="GET" action="index.php" class="filter-form">
             <div class="filter-group">
-                <label><i class="fas fa-search"></i> 검색어</label>
-                <input type="text" name="search_keyword" value="<?php echo htmlspecialchars($search_keyword); ?>" placeholder="수신자, 제목 검색">
-            </div>
-            
-            <div class="filter-group">
                 <label><i class="far fa-calendar-alt"></i> 기간</label>
                 <div style="display: flex; gap: 5px; align-items: center;">
                     <input type="date" name="search_date_from" value="<?php echo htmlspecialchars($search_date_from); ?>">
                     <span>~</span>
                     <input type="date" name="search_date_to" value="<?php echo htmlspecialchars($search_date_to); ?>">
                 </div>
+            </div>
+
+            <div class="filter-group">
+                <label><i class="fas fa-search"></i> 검색어</label>
+                <input type="text" name="search_keyword" value="<?php echo htmlspecialchars($search_keyword); ?>" placeholder="수신자, 제목 검색">
             </div>
             
             <div class="filter-group">

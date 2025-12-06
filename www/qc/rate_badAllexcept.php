@@ -1,5 +1,5 @@
 <?php
-require_once includePath('QC/func_badAllexcept.php');
+require_once includePath('qc/func_badAllexcept.php');
 ?>
 
 <?php $option = isset($option) ? $option : ''; ?>
