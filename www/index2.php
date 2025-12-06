@@ -413,25 +413,62 @@ $tablename = 'popupwindow';
 $phomi_reminder_display = 'none';
 $phomi_latest_orders = [];
 try {
-    // 1. 현재 사용자가 관리자 알람 설정에 포함되어 있는지 확인
-    $sql_check_admin = "SELECT count(*) FROM admin_phomi WHERE member_id = '{$_SESSION['userid']}'";
-    $stmt_check = $pdo->query($sql_check_admin);
-    if ($stmt_check->fetchColumn() > 0) {
-        // 2. 최근 7일 이내에 들어온 주문이 있는지 확인 (수주일자 기준)
-        $seven_days_ago = date("Y-m-d", strtotime("-7 days"));
-        $today_date = date("Y-m-d");
-        
-        // 최신 2건만 가져오기
-        $sql_check_order = "SELECT order_date, site_name FROM phomi_order WHERE order_date >= '{$seven_days_ago}' AND order_date <= '{$today_date}' AND (is_deleted IS NULL OR is_deleted = 'N') ORDER BY order_date DESC, num DESC LIMIT 2";
-        $stmt_order = $pdo->query($sql_check_order);
-        $phomi_latest_orders = $stmt_order->fetchAll(PDO::FETCH_ASSOC);
+    // 0. 쿠키 확인 (오늘 하루 안보기)
+    if (!isset($_COOKIE['hidePhomiReminder'])) {
+        // 1. 현재 사용자가 관리자 알람 설정에 포함되어 있는지 확인
+        $sql_check_admin = "SELECT count(*) FROM admin_phomi WHERE member_id = '{$_SESSION['userid']}'";
+        $stmt_check = $pdo->query($sql_check_admin);
+        if ($stmt_check->fetchColumn() > 0) {
+            // 2. 최근 7일 이내에 들어온 주문이 있는지 확인 (수주일자 기준)
+            $seven_days_ago = date("Y-m-d", strtotime("-7 days"));
+            $today_date = date("Y-m-d");
+            
+            // 최신 2건만 가져오기
+            $sql_check_order = "SELECT order_date, site_name FROM phomi_order WHERE order_date >= '{$seven_days_ago}' AND order_date <= '{$today_date}' AND (is_deleted IS NULL OR is_deleted = 'N') ORDER BY order_date DESC, num DESC LIMIT 2";
+            $stmt_order = $pdo->query($sql_check_order);
+            $phomi_latest_orders = $stmt_order->fetchAll(PDO::FETCH_ASSOC);
 
-        if (count($phomi_latest_orders) > 0) {
-            $phomi_reminder_display = 'block';
+            if (count($phomi_latest_orders) > 0) {
+                $phomi_reminder_display = 'block';
+            }
         }
     }
 } catch (Exception $e) {
     // 테이블이 없거나 에러 발생 시 무시
+}
+
+// 부적합 매칭 알림 체크
+$defect_reminder_display = 'none';
+$unmatched_defect_count = 0;
+try {
+    if (!isset($_COOKIE['hideDefectReminder'])) {
+        // 관리자 권한 체크 (이미 위에서 했지만, $sql_check_admin 재사용 가능 여부 확인 필요. 안전하게 다시 체크하거나 위 변수 활용)
+        // 위에서 $stmt_check->fetchColumn() > 0 했으면 관리자임.
+        // 하지만 $stmt_check 커서는 이미 끝났으므로 다시 쿼리하거나, 위 로직을 구조화해야 함.
+        // 간단하게 다시 체크 (오버헤드 적음)
+        $sql_check_admin_defect = "SELECT count(*) FROM admin_phomi WHERE member_id = '{$_SESSION['userid']}'";
+        $is_admin = $pdo->query($sql_check_admin_defect)->fetchColumn();
+
+        if ($is_admin > 0) {
+             $sql_unmatched_cnt = "
+                SELECT COUNT(*) 
+                FROM mirae8440.steel s
+                LEFT JOIN mirae8440.error_match m ON s.num = m.steel_num
+                WHERE s.which = '2' 
+                  AND (s.bad_choice IS NOT NULL AND s.bad_choice != '')
+                  AND s.bad_choice NOT IN ('소재', '기타', '해당없음', '소장', '개발품', '업체', '운반중')
+                  AND s.outdate >= '2025-01-01'
+                  AND m.id IS NULL
+            ";
+            $unmatched_defect_count = $pdo->query($sql_unmatched_cnt)->fetchColumn();
+
+            if ($unmatched_defect_count > 0) {
+                $defect_reminder_display = 'block';
+            }
+        }
+    }
+} catch (Exception $e) {
+    // 에러 무시
 }
 ?>
 
@@ -455,9 +492,33 @@ try {
     <?php endforeach; ?>
 </div>
 
+<!-- 부적합 매칭 알림 말풍선 -->
+<div class="defect-reminder" id="defectReminder" style="display: <?= $defect_reminder_display ?>;" onclick="location.href='errors/match_check.php'">
+    <div>
+        <span class="icon">🚨</span>
+        부적합 매칭 대기 (<?= $unmatched_defect_count ?>건)
+        <span class="close-btn" onclick="event.stopPropagation(); closeDefectReminder();">×</span>
+    </div>
+</div>
+
 <script>
 function closePhomiReminder() {
     document.getElementById('phomiReminder').style.display = 'none';
+    
+    // 오늘 하루 보지 않기 쿠키 설정 (자정까지 유효)
+    var date = new Date();
+    date.setHours(23, 59, 59, 999); // 오늘 자정 설정
+    var expires = "expires=" + date.toUTCString();
+    document.cookie = "hidePhomiReminder=true; " + expires + "; path=/";
+}
+
+function closeDefectReminder() {
+    document.getElementById('defectReminder').style.display = 'none';
+    
+    var date = new Date();
+    date.setHours(23, 59, 59, 999);
+    var expires = "expires=" + date.toUTCString();
+    document.cookie = "hideDefectReminder=true; " + expires + "; path=/";
 }
 </script>
 
@@ -531,6 +592,67 @@ function closePhomiReminder() {
     cursor: pointer;
     font-weight: bold;
 }
+/* 부적합 매칭 알림 (빨강) */
+.defect-reminder {
+    position: fixed;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
+    z-index: 1000;
+    cursor: pointer;
+    min-width: 200px;
+    text-align: center;
+    /* PC 위치 - 포미스톤 알림 아래 */
+    top: 220px; 
+    right: 20px;
+    animation: float 3s ease-in-out infinite;
+}
+
+@media (max-width: 768px) {
+    .defect-reminder {
+        top: auto;
+        bottom: 310px; /* 포미스톤 알림 위 */
+        left: 50%;
+        transform: translateX(-50%);
+        width: auto;
+        max-width: calc(100% - 40px);
+        animation: float-mobile 3s ease-in-out infinite;
+    }
+}
+
+.defect-reminder::before {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    bottom: -8px;
+    right: 20px;
+    border-top: 8px solid #ef4444;
+    border-bottom: none;
+}
+
+@media (max-width: 768px) {
+    .defect-reminder::before {
+        bottom: auto;
+        top: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-top: none;
+        border-bottom: 8px solid #f97316;
+    }
+}
+
+.defect-reminder:hover {
+    transform: scale(1.05);
+}
+.defect-reminder .icon { margin-right: 5px; }
+.defect-reminder .close-btn { margin-left: 8px; font-weight: bold; cursor: pointer; }
 </style>
 
  <?php if($chkMobile==false) { ?>

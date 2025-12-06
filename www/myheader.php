@@ -428,6 +428,9 @@ if (!isset($chkMobile)) {
 						<i class="bi bi-person-plus-fill"></i> 직원 제안제도 운영
 					</a>				
 					<hr style="margin:7px!important; border-color:#007bff;">
+					<a class="dropdown-item" href="<?=$root_dir?>/errors/match_check.php">
+						<i class="bi bi-node-plus-fill"></i> 부적합 매칭확인
+					</a>
 					<a class="dropdown-item" href="<?=$root_dir?>/errors/index.php">
 						<i class="bi bi-file-earmark-text-fill"></i> 부적합 보고
 					</a>					

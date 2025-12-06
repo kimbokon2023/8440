@@ -1741,20 +1741,28 @@ window.onload = function() {
                 bizNumInput.value = formatBizNumber(bizNumInput.value); // 초기값 포맷팅
             }
 
-            // 거래처명 입력 후 포커스 아웃 시 자동 검색
+                // 거래처명 입력 후 포커스 아웃 시 자동 검색
             const contactNameInput = document.getElementById('contact_name');
             if (contactNameInput) {
                 contactNameInput.addEventListener('blur', function() {
                     const searchTerm = this.value.trim();
-                    if (searchTerm) {
+                    // 이미 사업자번호나 전화번호가 입력되어 있다면 자동 검색 하지 않음 (기존 정보 보존)
+                    const bizNum = document.getElementById('business_registration_number').value.trim();
+                    const phone = document.querySelector('input[name="phone"]').value.trim();
+                    
+                    if (searchTerm && !bizNum && !phone) {
                         fetchCustomerInfo(searchTerm);
                     }
                 });
 
-                // 페이지 로드 1초 후 거래처명이 있으면 자동 검색 (구매카트 연동 시 유용)
+                // 페이지 로드 1초 후 거래처명이 있고 기타 정보가 없을 때만 자동 검색 (구매카트 연동 시 유용)
                 setTimeout(function() {
                     const initialSearchTerm = contactNameInput.value.trim();
-                    if (initialSearchTerm) {
+                    // 이미 사업자번호나 전화번호가 입력되어 있다면 자동 검색 하지 않음
+                    const bizNum = document.getElementById('business_registration_number').value.trim();
+                    const phone = document.querySelector('input[name="phone"]').value.trim();
+
+                    if (initialSearchTerm && !bizNum && !phone) {
                         fetchCustomerInfo(initialSearchTerm);
                     }
                 }, 1000);
