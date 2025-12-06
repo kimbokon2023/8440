@@ -4,15 +4,7 @@
  * fund 테이블의 레코드를 삭제합니다.
  */
 
-// 로컬과 서버 호환성을 위한 설정
-if (file_exists(__DIR__ . '/../common/functions.php')) {
-    require_once __DIR__ . '/../common/functions.php';
-}
-
-// 세션 시작
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
+ require_once __DIR__ . '/../bootstrap.php';
 
 // JSON 헤더 설정
 header('Content-Type: application/json; charset=utf-8');

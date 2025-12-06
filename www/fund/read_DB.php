@@ -1,8 +1,7 @@
 <meta charset="utf-8">
  
  <?php
- session_start(); 
-
+ 
  $num = $_REQUEST["num"] ?? '';
  $search = $_REQUEST["search"] ?? '';      // 검색어
  $find = $_REQUEST["find"] ?? '';          // 검색항목

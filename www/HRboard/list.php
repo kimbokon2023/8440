@@ -5,12 +5,7 @@
  */
 
 // 로컬과 서버 호환성을 위한 설정
-if (file_exists(__DIR__ . '/../common/functions.php')) {
-    require_once __DIR__ . '/../common/functions.php';
-}
-
-// 세션 시작
-require_once(includePath('session.php'));
+require_once __DIR__ . '/../bootstrap.php';
 
 // 세션 변수 초기화
 $DB = $_SESSION["DB"] ?? 'mirae8440';
@@ -322,7 +317,7 @@ include getDocumentRoot() . '/load_header.php';
         #myTable {
             visibility: visible !important;
             position: relative !important;
-            width: auto !important;
+            width: 100% !important;
             height: auto !important;
             overflow: visible !important;
         }
@@ -390,7 +385,6 @@ try {
                 </div>
                 
                 <div class="table-responsive">
-                <div class="d-flex justify-content-center">
                     <table class="table table-hover" id="myTable">
                         <thead class="table-success">
                             <tr>
@@ -429,7 +423,6 @@ try {
                             ?>
                         </tbody>
                     </table>
-                </div>
                 </div>
                 
                 <!-- 모바일 카드 컨테이너 -->

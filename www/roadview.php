@@ -12,6 +12,26 @@ $APIKEY = "2ddb841648d38606331320046099cf67";
  isset($_REQUEST["Lng"]) ? $Lng=$_REQUEST["Lng"] : $Lng='';	 
  isset($_REQUEST["HomeAddress"]) ? $HomeAddress=$_REQUEST["HomeAddress"] : $HomeAddress='';	 
 
+ // CRUD Logic
+ if (isset($_POST['mode']) && $_POST['mode'] === 'save_roadview') {
+    $json_data = $_POST['data'];
+    // Validate JSON if needed, for now just save
+    if (file_put_contents(__DIR__ . '/roadview_data.json', $json_data)) {
+        echo "success";
+    } else {
+        echo "error";
+    }
+    exit;
+ }
+
+ // Load Data
+ $json_file = __DIR__ . '/roadview_data.json';
+ if (file_exists($json_file)) {
+     $employees = json_decode(file_get_contents($json_file), true);
+ } else {
+     $employees = []; 
+ }	 
+
  ?>
  
 <?php include __DIR__ . '/load_header.php' ?>
@@ -258,7 +278,14 @@ $APIKEY = "2ddb841648d38606331320046099cf67";
             font-size: 1rem !important;
         }
     }
-</style>
+    /* 모바일 환경 최적화 */
+   /* ... existing mobile styles ... */
+   /* Skipping mostly unchanged styles for brevity but keeping them implicitly via context if not targeting them directly. 
+      However, I need to add styles for the editable table buttons. */
+    .btn-action { margin: 0 2px; font-size: 0.8em; padding: 2px 5px; }
+    .editable { background-color: #fafafa; }
+    .editable:focus { background-color: #fff; outline: 2px solid #007bff; }
+    </style>
 
 </head>
 
@@ -275,54 +302,43 @@ $APIKEY = "2ddb841648d38606331320046099cf67";
 	
 	    <div class="d-flex mb-1 mt-2 justify-content-center align-items-center">  
             <span class="fs-5">		     전직원 연락처 </span>
+            <button class="btn btn-sm btn-primary ms-3" onclick="saveData()">저장</button>
+            <button class="btn btn-sm btn-success ms-1" onclick="addRow()">추가</button>
 		</div>	
 		
     <div class="table-responsive">
         <table class="table table-bordered">
             <thead class="table-primary">
                 <tr class="text-center">
-                    <th>번호</th>
+                    <th>관리</th>
                     <th>직급</th>
                     <th>성명</th>
                     <th>연락처</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="staffTableBody">
                 <?php
-                $employees = [
-                    ["대표", "소현철", "010-3784-5438"],                    
-                    ["공장장", "이경묵", "010-8925-7473"],                    
-					["관리이사", "최장중", "010-8875-9622"],                    
-                    ["전산실장", "김보곤", "010-5123-8210"],                    
-                    ["부장", "조성원", "010-2476-2562"],
-                    ["부장", "조경임", "010-2811-5342"],										
-                    ["부장", "권영철", "010-5559-7179"],
-                    ["차장", "안현섭", "010-9414-5123"],                    
-                    ["과장", "김영무", "010-3488-7067"],					
-                    ["과장", "이미래", "010-2637-3060"],					
-                    ["과장", "라나", "010-5926-9992"],					
-                    ["대리", "김수로", "010-2556-5702"],
-                    ["사원", "샤집", "010-6665-0615"],
-                    ["사원", "까심", "010-5943-7210"],
-					["사원", "소민지", "010-2580-5438"],
-					["사원", "이소정", "010-3341-5448"],
-					["사원", "볼한", "010-5185-6056"],
-					["사원", "딥", "010-2893-7845"],
-					["실장", "안병길", "010-9846-9000"],
-					["사원", "이도훈", "010-2031-5446"]
-                ];
-
-                foreach ($employees as $key => $employee) {
-                    $number = $key + 1;
-                    list($position, $name, $contact) = $employee;
+                if (!empty($employees)) {
+                    foreach ($employees as $key => $employee) {
+                        // Assuming structure is [position, name, contact] based on previous code
+                        // But json_decode might return array if saved as such. 
+                        // The original was ["대표", "소현철", "010-3784-5438"]
+                        $position = isset($employee[0]) ? $employee[0] : '';
+                        $name = isset($employee[1]) ? $employee[1] : '';
+                        $contact = isset($employee[2]) ? $employee[2] : '';
                 ?>
                     <tr class="text-center">
-                        <td><?php echo $number; ?></td>
-                        <td><?php echo $position; ?></td>
-                        <td><?php echo $name; ?></td>
-                        <td><?php echo $contact; ?></td>
+                        <td>
+                            <button class="btn btn-success btn-action" onclick="insertRow(this)"><i class="bi bi-plus-lg"></i></button>
+                            <button class="btn btn-secondary btn-action" onclick="copyRow(this)"><i class="bi bi-files"></i></button>
+                            <button class="btn btn-danger btn-action" onclick="removeRow(this)"><i class="bi bi-trash"></i></button>
+                        </td>
+                        <td contenteditable="true" class="editable"><?php echo $position; ?></td>
+                        <td contenteditable="true" class="editable"><?php echo $name; ?></td>
+                        <td contenteditable="true" class="editable"><?php echo $contact; ?></td>
                     </tr>
                 <?php
+                    }
                 }
                 ?>
             </tbody>
@@ -496,7 +512,7 @@ function resetRoadview(){
 		
 		
 	
-function moveto(sel){ 	
+ function moveto(sel){ 	
 	 switch (sel){
        case '1' :
 			Lat = '37.676328924477936';
@@ -527,6 +543,78 @@ function moveto(sel){
  
  }		
 
+ // CRUD Functions
+ function getRowId() {
+    return Math.random().toString(36).substr(2, 9);
+ }
+
+ function getRowHtml() {
+     return '<tr class="text-center">' +
+              '<td>' +
+              '<button class="btn btn-success btn-action" onclick="insertRow(this)"><i class="bi bi-plus-lg"></i></button> ' +
+              '<button class="btn btn-secondary btn-action" onclick="copyRow(this)"><i class="bi bi-files"></i></button> ' +
+              '<button class="btn btn-danger btn-action" onclick="removeRow(this)"><i class="bi bi-trash"></i></button>' +
+              '</td>' +
+              '<td contenteditable="true" class="editable"></td>' +
+              '<td contenteditable="true" class="editable"></td>' +
+              '<td contenteditable="true" class="editable"></td>' +
+              '</tr>';
+ }
+
+ function addRow() {
+     $('#staffTableBody').append(getRowHtml());
+ }
+
+ function insertRow(btn) {
+     $(btn).closest('tr').after(getRowHtml());
+ }
+
+ function removeRow(btn) {
+     if(confirm('정말 삭제하시겠습니까?')) {
+         $(btn).closest('tr').remove();
+     }
+ }
+
+ function copyRow(btn) {
+     var row = $(btn).closest('tr');
+     var newRow = row.clone();
+     row.after(newRow);
+ }
+
+ function saveData() {
+     var data = [];
+     $('#staffTableBody tr').each(function() {
+         var row = [];
+         $(this).find('td.editable').each(function() {
+             row.push($(this).text().trim()); // .trim() to remove leading/trailing whitespace
+         });
+         // Only add rows that have at least one non-empty editable cell
+         if(row.some(cell => cell !== '')) { // Check if any cell is not empty
+             data.push(row);
+         }
+     });
+
+     $.ajax({
+         url: 'roadview.php', // Assuming this is the current file or the target for saving
+         type: 'POST',
+         data: {
+             mode: 'save_roadview',
+             data: JSON.stringify(data)
+         },
+         success: function(response) {
+             if($.trim(response) == 'success') {
+                 alert('저장되었습니다.');
+             } else {
+                 alert('저장 실패: ' + response);
+             }
+         },
+         error: function() {
+             alert('통신 오류가 발생했습니다.');
+         }
+     });
+ }
+
 </script>
 </body>
 </html>
+```

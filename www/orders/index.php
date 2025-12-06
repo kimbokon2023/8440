@@ -54,7 +54,7 @@ $allowed_sort_columns = [
     'issue_date' => '발행일',
     'contact_name' => '거래처명',
     'subtotal' => '공급가액',
-    'business_registration_number' => '사업자번호',
+
     'status' => '상태',
     'delivery_date' => '납기일자',
     'created_at' => '등록일'
@@ -1128,14 +1128,7 @@ a:hover {
                         <?php endif; ?>
                     </th>
                     <th width="6%" class="text-right">세액</th>
-                    <th width="10%" class="text-center sortable" data-sort="business_registration_number">
-                        사업자번호
-                        <?php if ($sort_column === 'business_registration_number'): ?>
-                            <i class="fas fa-sort-<?php echo strtolower($sort_direction) === 'asc' ? 'up' : 'down'; ?>"></i>
-                        <?php else: ?>
-                            <i class="fas fa-sort text-muted" style="opacity: 0.3;"></i>
-                        <?php endif; ?>
-                    </th>
+
                     <th width="8%" class="text-right">합계금액</th>
                     <th width="6%" class="text-center sortable" data-sort="status">
                         상태
@@ -1249,9 +1242,7 @@ a:hover {
                     <td class="amount-cell">
                         <?php echo $order['subtotal'] ? number_format($order['subtotal'] * 0.1) : '0'; ?>
                     </td>
-                    <td class="text-center">
-                        <?php echo htmlspecialchars($order['business_registration_number'] ?? '-'); ?>
-                    </td>
+
                     <td class="amount-cell">
                         <?php echo $order['subtotal'] ? number_format($order['subtotal'] * 1.1) : '0'; ?>
                     </td>

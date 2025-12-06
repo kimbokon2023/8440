@@ -711,6 +711,8 @@ $index = array_search($item, $mcno_arr);
 // If a match is found, set $itemstr to the corresponding value in $mcname_arr
 if ($index !== false) {
     $itemstr = $mcname_arr[$index];
+    $mcmain = $mcmain_arr[$index];
+    $mcsub = $mcsub_arr[$index];
 }	
       	
 ?>
@@ -748,7 +750,7 @@ if ($index !== false) {
 					  <label class="form-check-label text-primary" for="leftchar">
 							 &nbsp;&nbsp; ' <?= htmlspecialchars($itemstr) ?> ' &nbsp;
 					  </label>		
-							 담당 (정) <?= htmlspecialchars($writer) ?> , (부) <?= htmlspecialchars($writer2) ?> &nbsp;&nbsp; 	&nbsp;&nbsp; 	
+							 담당 (정) <?= htmlspecialchars($mcmain) ?> , (부) <?= htmlspecialchars($mcsub) ?> &nbsp;&nbsp; 	&nbsp;&nbsp; 	
 					  <button type="button" id="closeBtn" class="btn btn-dark btn-sm"> <ion-icon name="close-outline"> </ion-icon> 창닫기 </button>
 						<?php 
 							if($user_name=='김보곤' || $user_name=='이경묵')

@@ -157,7 +157,11 @@ $order_alert = $_REQUEST["order_alert"] ?? '';
 	
 	/* 테이블 자체도 100% */
 	#myTable {
+        visibility: visible !important;
+        position: relative !important;
 		width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
 		margin: 0 !important;
 	}
 	

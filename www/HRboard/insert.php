@@ -5,12 +5,7 @@
  */
 
 // 로컬과 서버 호환성을 위한 설정
-if (file_exists(__DIR__ . '/../common/functions.php')) {
-    require_once __DIR__ . '/../common/functions.php';
-}
-
-// 세션 시작
-require_once getDocumentRoot() . '/session.php';
+require_once __DIR__ . '/../bootstrap.php';
 
 // JSON 응답 헤더 설정
 header("Content-Type: application/json; charset=utf-8");

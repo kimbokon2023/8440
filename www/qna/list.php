@@ -362,7 +362,7 @@ include includePath('load_header.php');
         #myTable {
             visibility: visible !important;
             position: relative !important;
-            width: auto !important;
+            width: 100% !important;
             height: auto !important;
             overflow: visible !important;
         }
@@ -446,7 +446,6 @@ try {
             </div>
 
             <div class="table-responsive">
-            <div class="d-flex justify-content-center">
                 <table class="table table-hover" id="myTable">
                     <thead class="table-primary">
                         <tr>
@@ -498,7 +497,6 @@ try {
                     
                     </tbody>
                 </table>
-            </div>
             </div>
             
             <!-- 모바일 카드 컨테이너 -->

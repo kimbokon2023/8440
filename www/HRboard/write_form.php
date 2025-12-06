@@ -5,9 +5,7 @@
  */
 
 // 로컬과 서버 호환성을 위한 설정
-if (file_exists(__DIR__ . '/../common/functions.php')) {
-    require_once __DIR__ . '/../common/functions.php';
-}
+require_once __DIR__ . '/../bootstrap.php';
 
 // Google Drive 로드 (세션 등 포함)
 require_once getDocumentRoot() . '/load_GoogleDrive.php';

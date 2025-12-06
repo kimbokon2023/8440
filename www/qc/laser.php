@@ -497,6 +497,15 @@ $b= " order by checkdate desc ";    //내림차순 전체
  isset($_REQUEST["mcno"])  ? $mcno=$_REQUEST["mcno"] :   $mcno=$_REQUEST["mcname"]; 
  isset($_REQUEST["selnum"])  ? $selnum=$_REQUEST["selnum"] :   $selnum=1; 
 
+ // 선택된 장비의 담당자(정/부) 찾기
+ for($i=0; $i<count($mcno_arr); $i++) {
+     if($mcno_arr[$i] == $mcno) {
+         $mcmain = $mcmain_arr[$i];
+         $mcsub = $mcsub_arr[$i];
+         break;
+     }
+ } 
+
 // var_dump($mcno);
 // var_dump($selnum);
  

@@ -365,10 +365,10 @@ $currentYear = date("Y");
 </div>  
 <div class="row mt-3 mb-1 justify-content-center align-items-top">
 		<div class="col-sm-6">
-	        <?php include includePath('QC/prod_jamb.php') ?>   
+	        <?php include includePath('qc/prod_jamb.php') ?>   
 		</div>
 		<div class="col-sm-6">
-	        <?php include includePath('QC/prod_ceiling.php') ?>   
+	        <?php include includePath('qc/prod_ceiling.php') ?>   
 		</div>
 </div>
 
@@ -377,10 +377,10 @@ $currentYear = date("Y");
 </div>  
 <div class="row mt-3 mb-1 justify-content-center align-items-top">
 		<div class="col-sm-6">
-			<?php include includePath('QC/rate_badAll.php') ?>   
+			<?php include includePath('qc/rate_badAll.php') ?>   
 		</div>
 		<div class="col-sm-6">		
-	        <?php include includePath('QC/rate_badDetail.php') ?>   
+	        <?php include includePath('qc/rate_badDetail.php') ?>   
 		</div>
 </div>
 
@@ -389,10 +389,10 @@ $currentYear = date("Y");
 </div>  
 <div class="row mt-3 mb-1 justify-content-center align-items-top">
 		<div class="col-sm-6">
-			<?php include includePath('QC/rate_badAllexcept.php') ?>   
+			<?php include includePath('qc/rate_badAllexcept.php') ?>   
 		</div>
 		<div class="col-sm-6">		
-	        <?php include includePath('QC/rate_badDetailexcept.php') ?>   
+	        <?php include includePath('qc/rate_badDetailexcept.php') ?>   
 		</div>
 </div>
 
@@ -401,10 +401,10 @@ $currentYear = date("Y");
 </div>  
 <div class="row mt-3 mb-1 justify-content-center align-items-top">
 		<div class="col-sm-6">
-			<?php include includePath('QC/rate_badAllJamb.php') ?>   
+			<?php include includePath('qc/rate_badAllJamb.php') ?>   
 		</div>
 		<div class="col-sm-6">		
-	        <?php include includePath('QC/rate_badDetailJamb.php') ?>   
+	        <?php include includePath('qc/rate_badDetailJamb.php') ?>   
 		</div>
 </div>
 
@@ -413,10 +413,10 @@ $currentYear = date("Y");
 </div>  
 <div class="row mt-3 mb-1 justify-content-center align-items-top">
 		<div class="col-sm-6">
-            <?php include includePath('QC/rate_badAllCeiling.php') ?>   
+            <?php include includePath('qc/rate_badAllCeiling.php') ?>   
 		</div>
 		<div class="col-sm-6">		
-	        <?php include includePath('QC/rate_badDetailCeiling.php') ?>   
+	        <?php include includePath('qc/rate_badDetailCeiling.php') ?>   
 		</div>
 </div>
 
@@ -437,7 +437,7 @@ $currentYear = date("Y");
 		  </div>
 	<div id="NGlist">	  
 		<div class="col-sm-12"> 
-			<?php include includePath('QC/rate_badList.php') ?>    
+			<?php include includePath('qc/rate_badList.php') ?>    
 		</div>
 	</div>
 
@@ -450,7 +450,7 @@ $currentYear = date("Y");
 		  </div>
 	<div id="NGreportlist">	  
 		<div class="col-sm-12"> 
-			<?php include includePath('QC/NGreport.php') ?>    
+			<?php include includePath('qc/NGreport.php') ?>    
 		</div>
 	</div>
 
@@ -463,7 +463,7 @@ $currentYear = date("Y");
 		  </div>
 	<div id="FixNGList">	  
 		<div class="col-sm-12"> 
-			<?php include includePath('QC/FixNGactivity.php') ?>    
+			<?php include includePath('qc/FixNGactivity.php') ?>    
 		</div>
 	</div>
 
@@ -476,7 +476,7 @@ $currentYear = date("Y");
 		  </div>
 	<div id="MCactivity">	  
 		<div class="col-sm-12"> 
-			<?php include includePath('QC/MCactivity.php') ?>    
+			<?php include includePath('qc/MCactivity.php') ?>    
 		</div>
 	</div>
 
@@ -488,7 +488,7 @@ $currentYear = date("Y");
 		  </div>
 	<div id="MCquestion">	  
 		<div class="col-sm-12"> 
-			<?php include includePath('QC/MCquestion.php') ?>    
+			<?php include includePath('qc/MCquestion.php') ?>    
 		</div>
 	</div>
 

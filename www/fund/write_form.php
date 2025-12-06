@@ -5,9 +5,7 @@
  */
 
 // 로컬과 서버 호환성을 위한 설정
-if (file_exists(__DIR__ . '/../common/functions.php')) {
-    require_once __DIR__ . '/../common/functions.php';
-}
+require_once __DIR__ . '/../bootstrap.php';
 
 // 세션 시작
 if (session_status() == PHP_SESSION_NONE) {
