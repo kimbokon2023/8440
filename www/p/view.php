@@ -1,6 +1,26 @@
  <?php
 // 현장 상세보기 페이지 - 로컬/서버 환경 호환
-require_once __DIR__ . '/../bootstrap.php';
+require_once __DIR__ . '/../common/functions.php';
+
+// Ensure all date/time functions use Korea Standard Time
+date_default_timezone_set('Asia/Seoul');
+
+// Session and globals
+require_once includePath('session.php');
+
+// Database (make $pdo available to included scripts)
+require_once includePath('lib/mydb.php');
+if (!isset($pdo) || !$pdo) {
+    try {
+        $pdo = db_connect();
+    } catch (Exception $e) {
+        // Defer to pages; prevent fatal at bootstrap
+        $pdo = null;
+    }
+}
+
+
+
 include includePath('load_header.php');
 
 $file_dir = '../uploads/'; 

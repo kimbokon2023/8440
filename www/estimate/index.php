@@ -3,7 +3,6 @@
  * 견적서 관리 메인 페이지
  * 로컬 및 서버 환경 모두 지원
  */
-
 require_once __DIR__ . '/../bootstrap.php';
 
 // 세션 변수 초기화
@@ -1338,6 +1337,9 @@ a:hover {
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <i class="fas fa-times"></i> 닫기
                 </button>
+                <button type="button" class="btn btn-warning text-white" id="modalCopyBtn">
+                    <i class="fas fa-copy"></i> 데이터 복사
+                </button>
                 <button type="button" class="btn btn-info text-white" id="modalEmailBtn">
                     <i class="fas fa-envelope"></i> Email 전송
                 </button>
@@ -1779,6 +1781,7 @@ a:hover {
     var currentOrderEmail = ''; // 거래처 이메일 저장 변수
     var currentOrderContactName = ''; // 거래처명 저장 변수
     var currentOrderProjectSite = ''; // 현장명 저장 변수
+    var currentEstimateData = null; // 현재 견적서 데이터 저장 변수 (복사 기능용)
     var orderModal = null;
     var orderEditModal = null;
     var iframeMessageListenerRegistered = false;
@@ -2068,6 +2071,17 @@ a:hover {
         });
     }
 
+    // 데이터 복사 버튼 이벤트 리스너
+    var modalCopyBtn = document.getElementById('modalCopyBtn');
+    if (modalCopyBtn) {
+        modalCopyBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('데이터 복사 버튼 클릭');
+            copyEstimateData();
+        });
+    }
+
     // 수정하기 버튼 이벤트 리스너
     var modalEditBtn = document.getElementById('modalEditBtn');
     if (modalEditBtn) {
@@ -2295,6 +2309,16 @@ a:hover {
     function formatNumber(value) {
         return toNumber(value).toLocaleString('ko-KR');
     }
+    
+    // HTML 이스케이프 함수
+    function escapeHtml(text) {
+        if (text === null || text === undefined) {
+            return '';
+        }
+        var div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
 
     function normalizeOrderItems(rawItems) {
         var result = {
@@ -2325,7 +2349,7 @@ a:hover {
             if (!item) return;
 
             var quantity = toNumber(item['수량'] ?? item.quantity);
-            var unit = (item['단위'] ?? item.unit ?? 'EA') || 'EA';
+            var unit = item['단위'] ?? item.unit ?? '';
             var unitPrice = toNumber(item['단가'] ?? item.unit_price);
             var supply = toNumber(item['공급가액'] ?? item.amount ?? 0);
 
@@ -2348,7 +2372,7 @@ a:hover {
                 itemName: item['품목'] || item.item_name || '-',
                 spec: item['규격'] || item.spec || '-',
                 quantity: quantity,
-                unit: unit || 'EA',
+                unit: unit || '',
                 unitPrice: unitPrice,
                 taxAmount: tax,
                 totalAmount: total
@@ -2414,6 +2438,9 @@ a:hover {
         currentOrderEmail = order.email || '';
         currentOrderContactName = order.contact_name || order.supplier_name || '';
         currentOrderProjectSite = order.project_site || '';
+        
+        // 견적서 데이터 저장 (복사 기능용)
+        currentEstimateData = order;
 
         var statusLabels = {
             'draft': '임시저장',
@@ -2468,7 +2495,7 @@ a:hover {
         html += '<div class="detail-section">';
         html += '<div class="detail-section-title">📦 품목 내역</div>';
         html += '<table class="detail-table">';
-        html += '<thead><tr><th width="5%">번호</th><th width="23%">품목</th><th width="18%">규격</th><th width="10%">수량</th><th width="10%">단위</th><th width="12%">단가</th><th width="12%">세액</th><th width="15%">금액</th></tr></thead>';
+        html += '<thead><tr><th width="5%">번호</th><th width="20%">품목</th><th width="15%">규격</th><th width="8%">수량</th><th width="8%">단위</th><th width="10%">단가</th><th width="10%">공급가액</th><th width="10%">세액</th><th width="14%">금액</th></tr></thead>';
         html += '<tbody>';
         
         var rowCount = Math.max(normalizedItems.rows.length, 5); // 최소 5줄 표시
@@ -2480,14 +2507,22 @@ a:hover {
                 html += '<td class="text-center">' + row.index + '</td>';
                 html += '<td>' + row.itemName + '</td>';
                 html += '<td>' + row.spec + '</td>';
-                html += '<td class="text-center">' + formatNumber(row.quantity) + '</td>';
-                html += '<td class="text-center">' + (row.unit || 'EA') + '</td>';
-                html += '<td style="text-align: right;">' + formatNumber(row.unitPrice) + '</td>';
+                // 수량이 0이면 공백 표시
+                var quantityValue = toNumber(row.quantity);
+                var quantityDisplay = (quantityValue !== 0) ? formatNumber(quantityValue) : '';
+                html += '<td class="text-center">' + quantityDisplay + '</td>';
+                html += '<td class="text-center">' + (row.unit || '') + '</td>';
+                // 단가가 0이면 공백 표시
+                var unitPriceValue = toNumber(row.unitPrice);
+                var unitPriceDisplay = (unitPriceValue !== 0) ? formatNumber(unitPriceValue) : '';
+                html += '<td style="text-align: right;">' + unitPriceDisplay + '</td>';
+                html += '<td style="text-align: right;">' + formatNumber(row.supplyAmount || 0) + '</td>';
                 html += '<td style="text-align: right;">' + formatNumber(row.taxAmount) + '</td>';
                 html += '<td style="text-align: right;">' + formatNumber(row.totalAmount) + '</td>';
             } else {
                 // 빈 줄 표시
                 html += '<td class="text-center">' + (i + 1) + '</td>';
+                html += '<td></td>';
                 html += '<td></td>';
                 html += '<td></td>';
                 html += '<td></td>';
@@ -2510,6 +2545,20 @@ a:hover {
             html += '<div class="detail-item"><div class="detail-value">' + (order.note || '-') + '</div></div>';
             html += '</div>';
         }
+        
+        // PDF 안내 문구
+        var disclaimerText = order.disclaimer_text || '';
+        var defaultDisclaimer = '1. 상기 견적의 금액은 이후 확정 시 금액이 변동될 수 있습니다.\n2. 제품 현장 도착 후 즉시 현장 검수를 원칙으로 하며, 반품·교환 시 추가 운송비가 발생할 수 있습니다.\n3. 견적서 내역 검토는 구매자의 의무이며, 미검토로 인한 배송 오류에 대한 책임은 구매자에게 있습니다.\n4. 본 견적서로 계약서를 갈음하며, 납기 확정 시 견적 내용에 동의하는 것으로 간주합니다.';
+        
+        var displayDisclaimer = disclaimerText || defaultDisclaimer;
+        
+        html += '<div class="detail-section">';
+        html += '<div class="detail-section-title">📄 PDF 안내 문구</div>';
+        html += '<div class="detail-item">';
+        // HTML 이스케이프 처리 후 줄바꿈을 <br>로 변환
+        html += '<div class="detail-value" style="white-space: pre-line; line-height: 1.6; color: #495057;">' + escapeHtml(displayDisclaimer).replace(/\n/g, '<br>') + '</div>';
+        html += '</div>';
+        html += '</div>';
         
         // 첨부 문서 섹션 (항상 표시, 파일이 없으면 빈 상태로)
         html += '<div class="detail-section">';
@@ -2707,6 +2756,73 @@ a:hover {
             } else {
                 console.error('[loadDetailFiles] preview 요소가 없어서 에러 메시지를 표시할 수 없습니다.');
             }
+        });
+    }
+    
+    /**
+     * 견적서 데이터 복사 함수 (새 견적서 생성)
+     */
+    function copyEstimateData() {
+        if (!currentOrderId) {
+            alert('복사할 견적서가 선택되지 않았습니다.');
+            return;
+        }
+        
+        // 복제 확인
+        if (!confirm('이 견적서를 복제하여 새로운 견적서를 생성하시겠습니까?\n\n복제된 견적서는 "임시저장" 상태로 생성되며, 발행일은 오늘 날짜로 설정됩니다.\n\n※ 첨부파일은 복제되지 않습니다.')) {
+            return;
+        }
+        
+        // 로딩 표시
+        var copyBtn = document.getElementById('modalCopyBtn');
+        var originalHtml = copyBtn.innerHTML;
+        copyBtn.disabled = true;
+        copyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 복사 중...';
+        
+        // 복제 요청
+        fetch('copy_estimate.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: 'id=' + encodeURIComponent(currentOrderId)
+        })
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(data) {
+            copyBtn.disabled = false;
+            copyBtn.innerHTML = originalHtml;
+            
+            if (data.success) {
+                alert('견적서가 성공적으로 복제되었습니다.\n\n새 견적서 상세 정보를 표시합니다.');
+                
+                // 새 견적서 상세 페이지로 이동
+                if (data.id) {
+                    // currentOrderId 업데이트
+                    currentOrderId = data.id;
+                    
+                    // 상세 정보 모달 다시 열기 (모달이 이미 열려있으면 그대로 유지)
+                    setTimeout(function() {
+                        loadOrderDetail(data.id);
+                        if (orderModal) {
+                            orderModal.show();
+                        }
+                    }, 500);
+                } else {
+                    // 목록 새로고침
+                    location.reload();
+                }
+            } else {
+                alert('견적서 복제 실패: ' + (data.message || '알 수 없는 오류가 발생했습니다.'));
+            }
+        })
+        .catch(function(error) {
+            console.error('견적서 복제 오류:', error);
+            copyBtn.disabled = false;
+            copyBtn.innerHTML = originalHtml;
+            alert('견적서 복제 중 오류가 발생했습니다: ' + error.message);
         });
     }
     

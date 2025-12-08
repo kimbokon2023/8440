@@ -58,3 +58,6 @@ secret/
 *.key
 *.crt
 *.csr
+
+# Windows special files
+nul

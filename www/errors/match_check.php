@@ -152,6 +152,44 @@ if ($mode === 'exclude' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
     echo json_encode(['success' => false, 'message' => '잘못된 요청입니다.']);
+    exit;    
+}
+
+if ($mode === 'exclude_report' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    header('Content-Type: application/json');
+    $error_num = $_POST['error_num'] ?? 0;
+
+    if ($error_num) {
+        try {
+            $pdo->beginTransaction();
+            // steel_num = 0 indicates report exclusion
+            $stmt = $pdo->prepare("INSERT INTO mirae8440.error_match (steel_num, error_num) VALUES (0, ?)");
+            $stmt->execute([$error_num]);
+            $match_id = $pdo->lastInsertId();
+            
+            // Return data for the table row
+            $stmt_error = $pdo->prepare("SELECT place FROM mirae8440.error WHERE num = ?");
+            $stmt_error->execute([$error_num]);
+            $error_info = $stmt_error->fetch(PDO::FETCH_ASSOC);
+            $place = $error_info['place'] ?? '-';
+            
+            $item_data = [
+                'match_id' => $match_id,
+                'error_num' => $error_num,
+                'place' => $place,
+                'created_at' => date('Y-m-d H:i:s')
+            ];
+            
+            $pdo->commit();
+            echo json_encode(['success' => true, 'message' => '보고서가 제외되었습니다.', 'data' => $item_data]);
+            exit;
+        } catch (Exception $e) {
+            $pdo->rollBack();
+            echo json_encode(['success' => false, 'message' => '오류 발생: ' . $e->getMessage()]);
+            exit;
+        }
+    }
+    echo json_encode(['success' => false, 'message' => '잘못된 요청입니다.']);
     exit;
 }
 
@@ -402,6 +440,9 @@ include getDocumentRoot() . '/load_header.php';
         $where_conditions[] = "(place LIKE '%$search_error%' OR reporter LIKE '%$search_error%')";
     }
     
+    // 이미 연결된 보고서는 제외
+    $where_conditions[] = "NOT EXISTS (SELECT 1 FROM mirae8440.error_match m WHERE m.error_num = mirae8440.error.num)";
+    
     $where_clause = "WHERE " . implode(' AND ', $where_conditions);
     $sql_error = "SELECT * FROM mirae8440.error $where_clause ORDER BY num DESC LIMIT 50";
     $error_reports = [];
@@ -486,7 +527,10 @@ include getDocumentRoot() . '/load_header.php';
                         <div class="report-card" onclick="selectReport(this, <?= $report['num'] ?>)">
                             <div class="d-flex justify-content-between">
                                 <span class="badge bg-info text-dark">No. <?= $report['num'] ?></span>
-                                <span class="badge bg-<?= $report['approve'] == '처리완료' ? 'success' : 'warning' ?>"><?= $report['approve'] ?></span>
+                                <div>
+                                    <button class="btn btn-xs btn-outline-secondary py-0 me-1" onclick="viewReport(<?= $report['num'] ?>, event)" style="font-size: 0.75rem;">자세히 보기</button>
+                                    <button class="btn btn-xs btn-outline-danger py-0" onclick="excludeReport(<?= $report['num'] ?>, event)" style="font-size: 0.75rem;">제외</button>
+                                </div>
                             </div>
                             <div class="fw-bold mt-1"><?= htmlspecialchars($report['place']) ?></div>
                             <div class="small text-muted text-truncate"><?= htmlspecialchars($report['content']) ?></div>
@@ -541,17 +585,22 @@ include getDocumentRoot() . '/load_header.php';
                                 e.place,
                                 s.item, s.spec, s.bad_choice, s.outdate, s.outworkplace
                             FROM mirae8440.error_match m
-                            JOIN mirae8440.steel s ON m.steel_num = s.num
+                            LEFT JOIN mirae8440.steel s ON m.steel_num = s.num
                             LEFT JOIN mirae8440.error e ON m.error_num = e.num
-                            ORDER BY s.outdate DESC LIMIT 100
+                            ORDER BY m.created_at DESC LIMIT 100
                         ";
                         try {
                             $stmt = $pdo->query($sql_matched);
                             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                                 $isExcluded = ($row['error_num'] == 0);
+                                $isReportExcluded = ($row['item'] === null); // If steel join is null, it's a report exclusion (assuming steel_num=0)
+                                
                                 $displayErrorNum = $isExcluded ? '-' : $row['error_num'];
                                 $displayPlace = $isExcluded ? '-' : $row['place'];
-                                $remark = $isExcluded ? '<span class="badge bg-danger">제외</span>' : '';
+                                
+                                $remark = '';
+                                if ($isExcluded) $remark = '<span class="badge bg-danger">보고서 없음</span>';
+                                if ($isReportExcluded) $remark = '<span class="badge bg-warning text-dark">보고서</span>';
                                 
                                 // 말줄임 처리 (15자)
                                 $outworkplace_short = mb_strlen($row['outworkplace'] ?? '', 'utf-8') > 15 
@@ -567,8 +616,8 @@ include getDocumentRoot() . '/load_header.php';
                                 echo "<td>{$row['outdate']}</td>";
                                 echo "<td title='{$row['outworkplace']}'>{$outworkplace_short}</td>";
                                 echo "<td title='{$displayPlace}'>{$place_short}</td>";
-                                echo "<td>{$row['item']} ({$row['spec']})</td>";
-                                echo "<td class='text-danger'>{$row['bad_choice']}</td>";
+                                echo "<td>" . ($row['item'] ? "{$row['item']} ({$row['spec']})" : "-") . "</td>";
+                                echo "<td class='text-danger'>" . ($row['bad_choice'] ?? "-") . "</td>";
                                 echo "<td>{$remark}</td>";
                                 echo "<td>{$row['created_at']}</td>";
                                 echo "<td><form method='post' onsubmit='return confirm(\"매칭/제외를 해제하시겠습니까?\");' style='margin:0;'>
@@ -916,6 +965,49 @@ include getDocumentRoot() . '/load_header.php';
         document.body.appendChild(form);
         form.submit();
     }
+
+    function viewReport(num, event) {
+        event.stopPropagation(); // 카드 선택 방지
+        let url = 'write_form.php?num=' + num;
+        let name = 'DefectiveReportView';
+        let option = 'width=1200,height=800,top=100,left=100,scrollbars=yes';
+        window.open(url, name, option);
+    }
+
+    function excludeReport(num, event) {
+        event.stopPropagation();
+        if (!confirm('이 부적합 보고서를 매칭 대상에서 제외하시겠습니까?')) return;
+        
+        let formData = new FormData();
+        formData.append('mode', 'exclude_report');
+        formData.append('error_num', num);
+        
+        fetch('match_check.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                showToast(data.message);
+                
+                // 1. Remove from right panel
+                // Find all cards with this error number (though usually one)
+                // We don't have IDs on report cards, but we can reload or find parent
+                // Ideally add ID to report card. For now, reload is safest but slow. 
+                // Let's reload to be safe or just hide it if we can find it.
+                // Actually selectReport pass 'this'. We don't have reference here.
+                // Let's reload for simplicity or try to find elements.
+                location.reload(); 
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('오류가 발생했습니다.');
+        });
+    }
 </script>
 
 <!-- 도움말 모달 -->
@@ -948,6 +1040,12 @@ include getDocumentRoot() . '/load_header.php';
                     <h6 class="fw-bold text-dark mb-2"><i class="bi bi-link"></i> 매칭 해제</h6>
                     <p class="text-muted mb-4">
                         하단의 <strong>[최근 매칭 현황]</strong> 테이블에서 잘못 연결된 항목의 <strong>[해제]</strong> 버튼을 눌러 매칭을 취소할 수 있습니다.
+                    </p>
+
+                    <h6 class="fw-bold text-info mb-2"><i class="bi bi-eye"></i> 보고서 및 매칭 제외</h6>
+                    <p class="text-muted mb-4">
+                        - <strong>이미 연결된 자재</strong>가 있는 부적합 보고서는 우측 리스트에서 <strong>자동으로 제외</strong>됩니다.<br> (단, 하단의 최근 매칭 현황에서는 계속 확인할 수 있습니다.)<br>
+                        - 보고서 리스트의 <span class="badge bg-outline-secondary text-dark border">자세히 보기</span> 버튼을 누르면 해당 부적합 보고서의 상세 내용을 팝업으로 확인할 수 있습니다.
                     </p>
                     
                 </div>

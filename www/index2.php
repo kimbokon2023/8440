@@ -2688,18 +2688,18 @@ function closeDefectReminder() {
 		</div> 
 
 	<!-- 12개월 jamb 매출추이  -->	
-	<div class="card justify-content-center" style="cursor:pointer;" onclick="window.location.href='./work/output_statis.php'">		
+	<!-- <div class="card justify-content-center" style="cursor:pointer;" onclick="window.location.href='./work/output_statis.php'">		
 		<div class="card-body my-card-padding">	
-			<?php include "./load_statistics_jamb.php"; ?>
+			<?php // include "./load_statistics_jamb.php"; ?>
 		</div>   
-	</div>   
+	</div>    -->
 		
 	<!-- 12개월 ceiling 매출추이  -->	
-	<div class="card justify-content-center" style="cursor:pointer;" onclick="window.location.href='./ceiling/output_statis.php'">		
+	<!-- <div class="card justify-content-center" style="cursor:pointer;" onclick="window.location.href='./ceiling/output_statis.php'">		
 		<div class="card-body my-card-padding">	
-			<?php include "./load_statistics_ceiling.php"; ?>
+			<?php // include "./load_statistics_ceiling.php"; ?>
 		</div>   
-	</div>   
+	</div>    -->
 		
 	</div>  <!-- end of col-sm-4 -->
 
@@ -2988,7 +2988,7 @@ function closeDefectReminder() {
 				
 			
 	<!-- 직원 제안제도 현황 -->
-	<div class="modern-management-card">
+	<!-- <div class="modern-management-card">
 		<div class="modern-dashboard-header">
 			<a href='./idea/index.php' style="color: white; text-decoration: none;">
 				💡 직원 제안제도 현황 <span style="font-size: 0.7rem; opacity: 0.9;">(아이디어 현황)</span>
@@ -3066,10 +3066,10 @@ function closeDefectReminder() {
 			// echo 'Error: ' . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
 		}
 		?>
-	</div>
+	</div> -->
 	
 	<!-- 품질분임조활동 자료 -->
-	<div class="modern-management-card">
+	<!-- <div class="modern-management-card">
 		<div class="modern-dashboard-header">
 			<a href='./errormeeting/index.php' style="color: white; text-decoration: none;">
 				📋 품질분임조 개선활동 <span style="font-size: 0.7rem; opacity: 0.9;">(개선 활동)</span>
@@ -3132,7 +3132,8 @@ function closeDefectReminder() {
 			// echo 'Error: ' . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
 		}
 		?>
-	</div>
+	</div> -->
+
 	</div>
 
 	<!-- 품질/위험성평가 -->	
@@ -3437,18 +3438,18 @@ function closeDefectReminder() {
 				<div class="d-flex justify-content-center align-items-center mb-1">		
 				<iframe width="240" height="135" src="https://www.youtube.com/embed/KEXDABu2_9Q" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen referrerpolicy="no-referrer-when-downgrade" loading="lazy"></iframe> &nbsp;&nbsp;&nbsp;	
 				</div>
-				<div class="d-flex justify-content-center align-items-center">		
+				<!-- <div class="d-flex justify-content-center align-items-center">		
 					<div class="photo-frame justify-content-center text-center">
 						<?php
-						for ($i = 1; $i <= 6; $i++) {
-							// 사진 파일 경로 생성
-							$photoPath = "img/trip/20251113_trip" . sprintf("%02d", $i) . ".jpg";
-							// 사진 태그 출력
-							echo '<img src="' . $photoPath . '" class="framed-photo">';
-						}
+						// for ($i = 1; $i <= 6; $i++) {
+						// 	// 사진 파일 경로 생성
+						// 	$photoPath = "img/trip/20251113_trip" . sprintf("%02d", $i) . ".jpg";
+						// 	// 사진 태그 출력
+						// 	echo '<img src="' . $photoPath . '" class="framed-photo">';
+						// }
 						?>
 					</div>
-				</div>
+				</div> -->
 			</div>
 		</div>
 

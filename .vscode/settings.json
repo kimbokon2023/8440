@@ -4,6 +4,14 @@
         "www/vendor"
     ],
     "files.exclude": {
+        "**/node_modules": true,
+        "**/.cursor": true
+    },
+    "search.exclude": {
+        "**/.cursor": true,
         "**/node_modules": true
+    },
+    "files.watcherExclude": {
+        "**/.cursor/**": true
     }
 }

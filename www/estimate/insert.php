@@ -88,6 +88,13 @@ try {
             $pdo->exec("ALTER TABLE `estimates` ADD COLUMN `email` VARCHAR(100) DEFAULT NULL COMMENT '이메일'");
             debug_log("Email column added via insert.php");
         }
+        
+        // Force add disclaimer_text column if missing
+        if (!in_array('disclaimer_text', $cols)) {
+            debug_log("Disclaimer_text column missing! Attempting to add...");
+            $pdo->exec("ALTER TABLE `estimates` ADD COLUMN `disclaimer_text` TEXT DEFAULT NULL COMMENT 'PDF 안내 문구 (면책 조항)'");
+            debug_log("Disclaimer_text column added via insert.php");
+        }
     } catch (Exception $e) {
         debug_log("Schema check failed: " . $e->getMessage());
     }
@@ -158,6 +165,7 @@ $delivery_location = trim($_POST['delivery_location'] ?? '');
 $payment_terms = trim($_POST['payment_terms'] ?? '');
 $note = trim($_POST['note'] ?? '');
 $internalmemo = trim($_POST['internalmemo'] ?? '');
+$disclaimer_text = trim($_POST['disclaimer_text'] ?? '');
 $status = $_POST['status'] ?? 'draft';
 
 // JSON 데이터 처리
@@ -257,6 +265,7 @@ try {
                 payment_terms = :payment_terms,
                 note = :note,
                 internalmemo = :internalmemo,
+                disclaimer_text = :disclaimer_text,
                 status = :status,
                 updated_at = CURRENT_TIMESTAMP,
                 valid_date = :valid_date,
@@ -287,6 +296,7 @@ try {
             ':payment_terms' => $payment_terms ?: null,
             ':note' => $note ?: null,
             ':internalmemo' => $internalmemo ?: null,
+            ':disclaimer_text' => $disclaimer_text ?: null,
             ':status' => $status,
             ':valid_date' => !empty($_POST['valid_date']) ? $_POST['valid_date'] : null,
             ':email' => !empty($_POST['email']) ? $_POST['email'] : null,
@@ -321,12 +331,12 @@ try {
                 estimate_no, issue_date, customer_id, supplier_code, supplier_name, supplier_address,
                 business_type, business_item, supplier_phone, supplier_fax, contact_name,
                 business_registration_number, reference, fax, project_site, estimate_items, subtotal, delivery_date, delivery_location,
-                payment_terms, note, internalmemo, status, created_at, updated_at, is_deleted, valid_date, email
+                payment_terms, note, internalmemo, disclaimer_text, status, created_at, updated_at, is_deleted, valid_date, email
                 ) VALUES (
                 :estimate_no, :issue_date, :customer_id, :supplier_code, :supplier_name, :supplier_address,
                 :business_type, :business_item, :supplier_phone, :supplier_fax, :contact_name,
                 :business_registration_number, :reference, :fax, :project_site, :estimate_items, :subtotal, :delivery_date, :delivery_location,
-                :payment_terms, :note, :internalmemo, :status, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0, :valid_date, :email
+                :payment_terms, :note, :internalmemo, :disclaimer_text, :status, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0, :valid_date, :email
                 )";
 
         $stmt = $pdo->prepare($sql);
@@ -353,6 +363,7 @@ try {
             ':payment_terms' => $payment_terms ?: null,
             ':note' => $note ?: null,
             ':internalmemo' => $internalmemo ?: null,
+            ':disclaimer_text' => $disclaimer_text ?: null,
             ':status' => $status,
             ':valid_date' => !empty($_POST['valid_date']) ? $_POST['valid_date'] : null,
             ':email' => !empty($_POST['email']) ? $_POST['email'] : null

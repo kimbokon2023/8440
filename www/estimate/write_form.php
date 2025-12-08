@@ -782,6 +782,29 @@ body.iframe-mode .btn-primary:hover {
             </div>
         </div>
 
+        <!-- PDF 안내 문구 -->
+        <div class="note-section">
+            <div class="note-header">PDF 안내 문구</div>
+            <div class="note-content">
+                <?php
+                // 기본 안내 문구
+                $default_disclaimer = "1. 상기 견적의 금액은 이후 확정 시 금액이 변동될 수 있습니다.\n2. 제품 현장 도착 후 즉시 현장 검수를 원칙으로 하며, 반품·교환 시 추가 운송비가 발생할 수 있습니다.\n3. 견적서 내역 검토는 구매자의 의무이며, 미검토로 인한 배송 오류에 대한 책임은 구매자에게 있습니다.\n4. 본 견적서로 계약서를 갈음하며, 납기 확정 시 견적 내용에 동의하는 것으로 간주합니다.";
+                
+                // 기존 데이터가 있으면 사용, 없으면 기본값 사용
+                $disclaimer_text = '';
+                if ($order_data && !empty($order_data['disclaimer_text'])) {
+                    $disclaimer_text = $order_data['disclaimer_text'];
+                } else {
+                    $disclaimer_text = $default_disclaimer;
+                }
+                ?>
+                <textarea name="disclaimer_text" id="disclaimer_text" placeholder="PDF에 표시될 안내 문구를 입력합니다. (각 항목은 줄바꿈으로 구분됩니다)" style="min-height: 150px;"><?php echo htmlspecialchars($disclaimer_text); ?></textarea>
+                <div style="font-size: 12px; color: #6c757d; margin-top: 8px;">
+                    ※ PDF 하단에 표시되는 안내 문구입니다. 각 항목은 줄바꿈으로 구분됩니다.
+                </div>
+            </div>
+        </div>
+
         <!-- 내부 메모 및 파일 업로드 섹션 -->
         <div class="row mb-3 p-3" style="margin: 20px 0;">
             <div class="col-12">
@@ -872,6 +895,7 @@ function createEmptyRowData(index) {
         품목: '',
         규격: '',
         수량: '',
+        단위: '',
         단가: '',
         공급가액: '',
         세액: '',
@@ -937,6 +961,7 @@ foreach ($cart_items_data as $item):
         '품목' => $item_name ?? '',
         '규격' => $item['spec'] ?? '',
         '수량' => $quantity,
+        '단위' => $item['단위'] ?? $item['unit'] ?? '',
         '단가' => $unit_price,
         '공급가액' => $supply_amount,
         '세액' => $tax,
@@ -950,11 +975,17 @@ orderItems = <?php echo json_encode($cart_order_items, JSON_UNESCAPED_UNICODE); 
 orderItems = <?php 
     $items = json_decode($order_data['estimate_items'] ?? '[]', true);
     if (!is_array($items)) $items = [];
-    // 기존 데이터의 "견적가액" 필드를 "공급가액"으로 변환
+    // 기존 데이터의 "견적가액" 필드를 "공급가액"으로 변환 및 단위 필드 추가
     foreach ($items as &$item) {
         if (isset($item['견적가액']) && !isset($item['공급가액'])) {
             $item['공급가액'] = $item['견적가액'];
             unset($item['견적가액']);
+        }
+        // 단위 필드가 없으면 기본값 '' 설정
+        if (!isset($item['단위']) && !isset($item['unit'])) {
+            $item['단위'] = '';
+        } elseif (isset($item['unit']) && !isset($item['단위'])) {
+            $item['단위'] = $item['unit'];
         }
     }
     unset($item);
@@ -962,10 +993,10 @@ orderItems = <?php
 ?>;
 <?php else: ?>
 orderItems = [
-    {순번: 1, 품목: '', 규격: '', 수량: '', 단가: '', 공급가액: '', 세액: '', 비고: ''},
-    {순번: 2, 품목: '', 규격: '', 수량: '', 단가: '', 공급가액: '', 세액: '', 비고: ''},
-    {순번: 3, 품목: '', 규격: '', 수량: '', 단가: '', 공급가액: '', 세액: '', 비고: ''},
-    {순번: 4, 품목: '', 규격: '', 수량: '', 단가: '', 공급가액: '', 세액: '', 비고: ''}
+    {순번: 1, 품목: '', 규격: '', 수량: '', 단위: '', 단가: '', 공급가액: '', 세액: '', 비고: ''},
+    {순번: 2, 품목: '', 규격: '', 수량: '', 단위: '', 단가: '', 공급가액: '', 세액: '', 비고: ''},
+    {순번: 3, 품목: '', 규격: '', 수량: '', 단위: '', 단가: '', 공급가액: '', 세액: '', 비고: ''},
+    {순번: 4, 품목: '', 규격: '', 수량: '', 단위: '', 단가: '', 공급가액: '', 세액: '', 비고: ''}
 ];
 <?php endif; ?>
 
@@ -1004,14 +1035,75 @@ document.addEventListener('DOMContentLoaded', function() {
              cellEdited: function(cell) {
                  var row = cell.getRow();
                  var data = row.getData();
-                 var 수량 = parseFloat(String(data.수량).replace(/,/g, '')) || 0;
-                 var 단가 = parseFloat(String(data.단가).replace(/,/g, '')) || 0;
-                 if (수량 && 단가) {
+                 var 수량 = parseFloat(String(data.수량 || '').replace(/,/g, '')) || 0;
+                 var 단가 = parseFloat(String(data.단가 || '').replace(/,/g, '')) || 0;
+                 
+                 // 수량과 단가가 모두 있으면 공급가액과 세액 자동 계산
+                 if (수량 > 0 && 단가 > 0) {
                      var 공급가액 = Math.round(수량 * 단가);
                      var 세액 = Math.round(공급가액 * 0.1);
                      row.update({공급가액: 공급가액, 세액: 세액});
-                     setTimeout(updateTotalAmount, 50);
                  }
+                 setTimeout(updateTotalAmount, 50);
+             },
+             cellClick: function() { return true; }},
+            {title: "단위", field: "단위", width: 80, hozAlign: "center", headerHozAlign: "center", 
+             editor: function(cell, onRendered, success, cancel) {
+                 var select = document.createElement("select");
+                 select.style.width = "100%";
+                 select.style.height = "100%";
+                 select.style.padding = "4px";
+                 select.style.boxSizing = "border-box";
+                 
+                 // 옵션 목록
+                 var options = [
+                     {value: "", label: ""},
+                     {value: "EA", label: "EA"},
+                     {value: "SET", label: "SET"},
+                     {value: "대", label: "대"},
+                     {value: "식", label: "식"}
+                 ];
+                 
+                 // 현재 값
+                 var currentValue = cell.getValue() || '';
+                 
+                 // 옵션 추가
+                 options.forEach(function(opt) {
+                     var option = document.createElement("option");
+                     option.value = opt.value;
+                     option.textContent = opt.label;
+                     if (opt.value === currentValue) {
+                         option.selected = true;
+                     }
+                     select.appendChild(option);
+                 });
+                 
+                 // 이벤트 핸들러
+                 select.addEventListener("change", function() {
+                     success(select.value);
+                 });
+                 
+                 select.addEventListener("blur", function() {
+                     success(select.value);
+                 });
+                 
+                 select.addEventListener("keydown", function(e) {
+                     if (e.key === "Enter") {
+                         success(select.value);
+                     } else if (e.key === "Escape") {
+                         cancel();
+                     }
+                 });
+                 
+                 onRendered(function() {
+                     select.focus();
+                 });
+                 
+                 return select;
+             },
+             formatter: function(cell) {
+                 var value = cell.getValue();
+                 return value || '';
              },
              cellClick: function() { return true; }},
             {title: "단가", field: "단가", width: 100, hozAlign: "right", headerHozAlign: "center", 
@@ -1061,17 +1153,62 @@ document.addEventListener('DOMContentLoaded', function() {
              cellEdited: function(cell) {
                  var row = cell.getRow();
                  var data = row.getData();
-                 var 수량 = parseFloat(String(data.수량).replace(/,/g, '')) || 0;
-                 var 단가 = parseFloat(String(data.단가).replace(/,/g, '')) || 0;
-                 if (수량 && 단가) {
+                 var 수량 = parseFloat(String(data.수량 || '').replace(/,/g, '')) || 0;
+                 var 단가 = parseFloat(String(data.단가 || '').replace(/,/g, '')) || 0;
+                 
+                 // 수량과 단가가 모두 있으면 공급가액과 세액 자동 계산
+                 if (수량 > 0 && 단가 > 0) {
                      var 공급가액 = Math.round(수량 * 단가);
                      var 세액 = Math.round(공급가액 * 0.1);
                      row.update({공급가액: 공급가액, 세액: 세액});
-                     setTimeout(updateTotalAmount, 50);
                  }
+                 setTimeout(updateTotalAmount, 50);
              },
              cellClick: function() { return true; }},
-            {title: "공급가액", field: "공급가액", width: 120, hozAlign: "right", headerHozAlign: "center", editor: false, validator: "numeric", resizable: true,
+            {title: "공급가액", field: "공급가액", width: 120, hozAlign: "right", headerHozAlign: "center", 
+             editor: function(cell, onRendered, success, cancel) {
+                 var input = document.createElement("input");
+                 input.type = "text";
+                 input.style.width = "100%";
+                 input.style.padding = "4px";
+                 input.style.boxSizing = "border-box";
+                 
+                 // 초기값 포맷팅
+                 var initialValue = cell.getValue();
+                 input.value = initialValue ? Number(initialValue).toLocaleString() : '';
+                 
+                 // 입력 시 동적 포맷팅
+                 input.addEventListener("input", function() {
+                     var value = input.value.replace(/[^\d]/g, ''); // 숫자만 남김
+                     if (value) {
+                         input.value = Number(value).toLocaleString();
+                     } else {
+                         input.value = '';
+                     }
+                 });
+
+                 input.addEventListener("blur", function() {
+                     var value = input.value.replace(/,/g, '');
+                     var numValue = parseFloat(value) || 0;
+                     success(numValue);
+                 });
+                 
+                 input.addEventListener("keydown", function(e) {
+                     if (e.key === "Enter") {
+                         var value = input.value.replace(/,/g, '');
+                         var numValue = parseFloat(value) || 0;
+                         success(numValue);
+                     } else if (e.key === "Escape") {
+                         cancel();
+                     }
+                 });
+                 
+                 onRendered(function() {
+                     input.focus();
+                 });
+                 
+                 return input;
+             },
              formatter: function(cell) {
                  var value = cell.getValue();
                  if (value === null || value === undefined || value === '') {
@@ -1079,6 +1216,18 @@ document.addEventListener('DOMContentLoaded', function() {
                  }
                  var numValue = typeof value === 'string' ? parseFloat(value.replace(/,/g, '')) : Number(value);
                  return !isNaN(numValue) && numValue !== 0 ? numValue.toLocaleString() : '';
+             },
+             cellEdited: function(cell) {
+                 var row = cell.getRow();
+                 var data = row.getData();
+                 var 공급가액 = parseFloat(String(data.공급가액 || '').replace(/,/g, '')) || 0;
+                 
+                 // 공급가액이 입력되면 세액 자동 계산 (공급가액의 10%)
+                 if (공급가액 > 0) {
+                     var 세액 = Math.round(공급가액 * 0.1);
+                     row.update({세액: 세액});
+                 }
+                 setTimeout(updateTotalAmount, 50);
              },
              bottomCalc: "sum",
              bottomCalcFormatter: function(cell) {
@@ -1089,15 +1238,59 @@ document.addEventListener('DOMContentLoaded', function() {
                  var numValue = typeof value === 'string' ? parseFloat(value.replace(/,/g, '')) : Number(value);
                  return !isNaN(numValue) && numValue !== 0 ? numValue.toLocaleString() : '';
              },
-             cellClick: function(e, cell) {
-                 console.log('공급가액은 자동 계산됩니다 (수량 × 단가)');
-                 return false;
-             }},
-            {title: "세액", field: "세액", width: 100, hozAlign: "right", headerHozAlign: "center", editor: false, validator: "numeric", resizable: true,
+             cellClick: function() { return true; }},
+            {title: "세액", field: "세액", width: 100, hozAlign: "right", headerHozAlign: "center", 
+             editor: function(cell, onRendered, success, cancel) {
+                 var input = document.createElement("input");
+                 input.type = "text";
+                 input.style.width = "100%";
+                 input.style.padding = "4px";
+                 input.style.boxSizing = "border-box";
+                 
+                 // 초기값 포맷팅
+                 var initialValue = cell.getValue();
+                 input.value = initialValue ? Number(initialValue).toLocaleString() : '';
+                 
+                 // 입력 시 동적 포맷팅
+                 input.addEventListener("input", function() {
+                     var value = input.value.replace(/[^\d]/g, ''); // 숫자만 남김
+                     if (value) {
+                         input.value = Number(value).toLocaleString();
+                     } else {
+                         input.value = '';
+                     }
+                 });
+
+                 input.addEventListener("blur", function() {
+                     var value = input.value.replace(/,/g, '');
+                     var numValue = parseFloat(value) || 0;
+                     success(numValue);
+                 });
+                 
+                 input.addEventListener("keydown", function(e) {
+                     if (e.key === "Enter") {
+                         var value = input.value.replace(/,/g, '');
+                         var numValue = parseFloat(value) || 0;
+                         success(numValue);
+                     } else if (e.key === "Escape") {
+                         cancel();
+                     }
+                 });
+                 
+                 onRendered(function() {
+                     input.focus();
+                 });
+                 
+                 return input;
+             },
              formatter: function(cell) {
                  var value = cell.getValue();
                  return value ? Number(value).toLocaleString() : '';
              },
+             cellEdited: function(cell) {
+                 // 세액은 직접 입력 가능, 합계만 업데이트
+                 setTimeout(updateTotalAmount, 50);
+             },
              bottomCalc: "sum",
              bottomCalcFormatter: function(cell) {
                  var value = cell.getValue();
@@ -1107,18 +1300,14 @@ document.addEventListener('DOMContentLoaded', function() {
                  var numValue = typeof value === 'string' ? parseFloat(value.replace(/,/g, '')) : Number(value);
                  return !isNaN(numValue) && numValue !== 0 ? numValue.toLocaleString() : '';
              },
-             cellClick: function(e, cell) {
-                 console.log('세액은 자동 계산됩니다 (공급가액의 10%)');
-                 return false;
-             }},
+             cellClick: function() { return true; }},
             {title: "비고", field: "비고", widthGrow: 1, hozAlign: "left", headerHozAlign: "center", editor: "input", resizable: true}
         ],
         cellEdited: function(cell) {
             console.log(`📝 [DEBUG] 셀 편집: ${cell.getField()} = ${cell.getValue()}`);
-            // 컬럼별 cellEdited에서 계산하므로 여기서는 전체 합계만 업데이트
-            if (cell.getField() !== '공급가액' && cell.getField() !== '세액') {
-                setTimeout(updateTotalAmount, 100);
-            }
+            // 각 컬럼의 cellEdited에서 계산하므로 여기서는 전체 합계만 업데이트
+            // (수량, 단가, 공급가액, 세액은 각 컬럼의 cellEdited에서 처리)
+            setTimeout(updateTotalAmount, 100);
         },
         rowAdded: function(row) {
             console.log('📋 [DEBUG] 새 행 추가됨');
@@ -1136,7 +1325,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var 공급가액 = parseFloat(String(data.공급가액 || '').replace(/,/g, '')) || 0;
             var 세액 = parseFloat(String(data.세액 || '').replace(/,/g, '')) || 0;
             
-            // 수량과 단가가 모두 있는 경우
+            // 수량과 단가가 모두 있는 경우: 공급가액과 세액 계산
             if (수량 > 0 && 단가 > 0) {
                 var 예상공급가액 = Math.round(수량 * 단가);
                 var 예상세액 = Math.round(예상공급가액 * 0.1);
@@ -1154,63 +1343,25 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                 }
             }
+            // 수량과 단가가 없지만 공급가액이 있는 경우: 세액만 계산
+            else if (공급가액 > 0 && (!세액 || 세액 === 0)) {
+                var 예상세액 = Math.round(공급가액 * 0.1);
+                row.update({
+                    세액: 예상세액
+                });
+            }
         });
         
         updateTotalAmount();
     }, 200);
 });
 
-// 계산 업데이트
+// 계산 업데이트 (레거시 함수, cellEdited에서 처리하므로 사용 안 함)
 function updateCalculations(cell) {
-    var row = cell.getRow();
-    var data = row.getData();
-    
-    // 수량 또는 단가가 변경된 경우 자동 계산
-    if (cell.getField() === '수량' || cell.getField() === '단가') {
-        // 입력값 정리 (쉼표 제거 후 숫자 변환)
-        var 수량 = data.수량;
-        var 단가 = data.단가;
-        
-        if (typeof 수량 === 'string') {
-            수량 = parseFloat(수량.replace(/,/g, '')) || 0;
-        } else {
-            수량 = parseFloat(수량) || 0;
-        }
-        
-        if (typeof 단가 === 'string') {
-            단가 = parseFloat(단가.replace(/,/g, '')) || 0;
-        } else {
-            단가 = parseFloat(단가) || 0;
-        }
-        
-        // 공급가액 = 수량 × 단가 (정확한 계산)
-        var 공급가액 = Math.round(수량 * 단가);
-        
-        // 세액 = 공급가액 × 10% (부가세, 소수점 반올림)
-        var 세액 = Math.round(공급가액 * 0.1);
-        
-        console.log('📊 [DEBUG] 자동 계산 상세:');
-        console.log('   - 수량: ' + 수량 + ' (원본: ' + data.수량 + ')');
-        console.log('   - 단가: ' + 단가.toLocaleString() + ' (원본: ' + data.단가 + ')');
-        console.log('   - 공급가액: ' + 공급가액.toLocaleString() + ' (' + 수량 + ' × ' + 단가 + ')');
-        console.log('   - 세액: ' + 세액.toLocaleString() + ' (공급가액의 10%)');
-        
-        // 한 번에 업데이트 (이벤트 루프 방지)
-        row.update({
-            공급가액: 공급가액,
-            세액: 세액
-        });
-        
-        // 행 별 계산 완료 후 전체 합계 업데이트
-        setTimeout(function() {
-            updateTotalAmount();
-        }, 10);
-    } else {
-        // 다른 필드 변경 시에도 합계 업데이트
-        setTimeout(function() {
-            updateTotalAmount();
-        }, 10);
-    }
+    // cellEdited에서 직접 처리하므로 이 함수는 사용하지 않음
+    setTimeout(function() {
+        updateTotalAmount();
+    }, 10);
 }
 
 // 전체 합계 업데이트
@@ -1323,7 +1474,7 @@ function collectFormData() {
         'action', 'id', 'order_no', 'issue_date', 'supplier_code',
         'supplier_name', 'supplier_address', 'business_type', 'business_item',
         'supplier_phone', 'supplier_fax', 'contact_name', 'business_registration_number',
-        'reference', 'fax', 'project_site', 'note', 'status', 'internalmemo', 'email', 'customer_id'
+        'reference', 'fax', 'project_site', 'note', 'status', 'internalmemo', 'email', 'customer_id', 'disclaimer_text'
     ];
     
     basicFields.forEach(function(fieldName) {

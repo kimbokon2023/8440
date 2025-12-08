@@ -1364,6 +1364,9 @@ a:hover {
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <i class="fas fa-times"></i> 닫기
                 </button>
+                <button type="button" class="btn btn-warning text-white" id="modalCopyBtn">
+                    <i class="fas fa-copy"></i> 데이터 복사
+                </button>
                 <button type="button" class="btn btn-info text-white" id="modalEmailBtn">
                     <i class="fas fa-envelope"></i> Email 전송
                 </button>
@@ -1816,6 +1819,7 @@ a:hover {
     var currentOrderEmail = ''; // 거래처 이메일 저장 변수
     var currentOrderContactName = ''; // 거래처명 저장 변수
     var currentOrderProjectSite = ''; // 현장명 저장 변수
+    var currentOrderData = null; // 현재 발주서 데이터 저장 변수
     var orderModal = null;
     var orderEditModal = null;
     var iframeMessageListenerRegistered = false;
@@ -2063,6 +2067,17 @@ a:hover {
         .catch(function(error) {
             console.error('삭제 오류:', error);
             alert('삭제 중 오류가 발생했습니다.');
+        });
+    }
+
+    // 데이터 복사 버튼 이벤트 리스너
+    var modalCopyBtn = document.getElementById('modalCopyBtn');
+    if (modalCopyBtn) {
+        modalCopyBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('데이터 복사 버튼 클릭');
+            copyOrderData();
         });
     }
 
@@ -2411,6 +2426,9 @@ a:hover {
         currentOrderEmail = order.email || '';
         currentOrderContactName = order.contact_name || order.supplier_name || '';
         currentOrderProjectSite = order.project_site || '';
+        
+        // 발주서 데이터 저장 (복사 기능용)
+        currentOrderData = order;
 
         var statusLabels = {
             'draft': '임시저장',
@@ -2492,6 +2510,73 @@ a:hover {
         }
         
         contentDiv.innerHTML = html;
+    }
+    
+    /**
+     * 발주서 데이터 복사 함수 (새 발주서 생성)
+     */
+    function copyOrderData() {
+        if (!currentOrderId) {
+            alert('복사할 발주서가 선택되지 않았습니다.');
+            return;
+        }
+        
+        // 복제 확인
+        if (!confirm('이 발주서를 복제하여 새로운 발주서를 생성하시겠습니까?\n\n복제된 발주서는 "임시저장" 상태로 생성되며, 발행일은 오늘 날짜로 설정됩니다.')) {
+            return;
+        }
+        
+        // 로딩 표시
+        var copyBtn = document.getElementById('modalCopyBtn');
+        var originalHtml = copyBtn.innerHTML;
+        copyBtn.disabled = true;
+        copyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 복사 중...';
+        
+        // 복제 요청
+        fetch('copy_order.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: 'id=' + encodeURIComponent(currentOrderId)
+        })
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(data) {
+            copyBtn.disabled = false;
+            copyBtn.innerHTML = originalHtml;
+            
+            if (data.success) {
+                alert('발주서가 성공적으로 복제되었습니다.\n\n새 발주서 번호: ' + (data.order_no || '') + '\n\n새 발주서 상세 정보를 표시합니다.');
+                
+                // 새 발주서 상세 페이지로 이동
+                if (data.id) {
+                    // currentOrderId 업데이트
+                    currentOrderId = data.id;
+                    
+                    // 상세 정보 모달 다시 열기 (모달이 이미 열려있으면 그대로 유지)
+                    setTimeout(function() {
+                        loadOrderDetail(data.id);
+                        if (orderModal) {
+                            orderModal.show();
+                        }
+                    }, 500);
+                } else {
+                    // 목록 새로고침
+                    location.reload();
+                }
+            } else {
+                alert('발주서 복제 실패: ' + (data.message || '알 수 없는 오류가 발생했습니다.'));
+            }
+        })
+        .catch(function(error) {
+            console.error('발주서 복제 오류:', error);
+            copyBtn.disabled = false;
+            copyBtn.innerHTML = originalHtml;
+            alert('발주서 복제 중 오류가 발생했습니다: ' + error.message);
+        });
     }
     
     window.openHelpModal = function() {
