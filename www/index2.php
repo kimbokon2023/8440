@@ -402,10 +402,10 @@ $tablename = 'popupwindow';
 </div>
 
 <!-- 식사주문 알림 말풍선 -->
-<div class="lunch-reminder" id="lunchReminder" style="display: none;">
+<div class="lunch-reminder" id="lunchReminder" style="display: none;" onclick="goToLunchOrderPage(event);">
     <span class="icon">🍽️</span>
     식사주문해 주세요!
-    <span class="close-btn" onclick="closeLunchReminder()">×</span>
+    <span class="close-btn" onclick="event.stopPropagation(); closeLunchReminder();">×</span>
 </div>
 
 <?php
@@ -419,12 +419,12 @@ try {
         $sql_check_admin = "SELECT count(*) FROM admin_phomi WHERE member_id = '{$_SESSION['userid']}'";
         $stmt_check = $pdo->query($sql_check_admin);
         if ($stmt_check->fetchColumn() > 0) {
-            // 2. 최근 7일 이내에 들어온 주문이 있는지 확인 (수주일자 기준)
-            $seven_days_ago = date("Y-m-d", strtotime("-7 days"));
+            // 2. 최근 4일 이내에 들어온 주문이 있는지 확인 (수주일자 기준)
+            $four_days_ago = date("Y-m-d", strtotime("-4 days"));
             $today_date = date("Y-m-d");
             
             // 최신 2건만 가져오기
-            $sql_check_order = "SELECT order_date, site_name FROM phomi_order WHERE order_date >= '{$seven_days_ago}' AND order_date <= '{$today_date}' AND (is_deleted IS NULL OR is_deleted = 'N') ORDER BY order_date DESC, num DESC LIMIT 2";
+            $sql_check_order = "SELECT order_date, site_name FROM phomi_order WHERE order_date >= '{$four_days_ago}' AND order_date <= '{$today_date}' AND (is_deleted IS NULL OR is_deleted = 'N') ORDER BY order_date DESC, num DESC LIMIT 2";
             $stmt_order = $pdo->query($sql_check_order);
             $phomi_latest_orders = $stmt_order->fetchAll(PDO::FETCH_ASSOC);
 
@@ -473,11 +473,11 @@ try {
 ?>
 
 <!-- 포미스톤 수주 알림 말풍선 -->
-<div class="phomi-reminder" id="phomiReminder" style="display: <?= $phomi_reminder_display ?>;">
+<div class="phomi-reminder" id="phomiReminder" style="display: <?= $phomi_reminder_display ?>;" onclick="goToPhomiOrderPage(event);">
     <div style="margin-bottom: 5px;">
         <span class="icon">💎</span>
         포미스톤 수주가 들어왔어요!
-        <span class="close-btn" onclick="closePhomiReminder()">×</span>
+        <span class="close-btn" onclick="event.stopPropagation(); closePhomiReminder();">×</span>
     </div>
     <?php foreach ($phomi_latest_orders as $order): 
         $display_text = $order['order_date'] . ' ' . $order['site_name'];
@@ -502,6 +502,14 @@ try {
 </div>
 
 <script>
+// 포미스톤 수주 알림 풍선 클릭 시 포미스톤 수주 화면으로 이동
+function goToPhomiOrderPage(event) {
+    // close-btn 클릭 시에는 이벤트 전파가 이미 막혔으므로, 여기서는 페이지 이동만 처리
+    event.preventDefault();
+    event.stopPropagation();
+    window.location.href = './phomi/list.php';
+}
+
 function closePhomiReminder() {
     document.getElementById('phomiReminder').style.display = 'none';
     
@@ -5058,6 +5066,14 @@ function closeDeliveryReminder() {
     $('#deliveryReminder').fadeOut(300);
     // 하이라이트도 제거
     $('.delivery-table-highlight').removeClass('delivery-table-highlight');
+}
+
+// 식사주문 말풍선 클릭 시 식자주문 페이지로 이동
+function goToLunchOrderPage(event) {
+    // close-btn 클릭 시에는 이벤트 전파가 이미 막혔으므로, 여기서는 페이지 이동만 처리
+    event.preventDefault();
+    event.stopPropagation();
+    window.location.href = './afterorder/index.php';
 }
 
 // 식사주문 말풍선 닫기 함수

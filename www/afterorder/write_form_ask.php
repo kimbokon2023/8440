@@ -23,7 +23,7 @@ $pdo = db_connect();
 
 // 관리자 권한 확인
 $admin = 0;
-if ($user_name == '소현철' || $user_name == '김보곤' || $user_name == '최장중' || $user_name == '이경묵' || $user_name == '소민지') {
+if ($user_name == '소현철' || $user_name == '김보곤' || $user_name == '최장중' || $user_name == '이경묵' || $user_name == '소민지' || $user_name == '조경임') {
     $admin = 1;
 }
 
