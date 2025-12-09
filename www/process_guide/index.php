@@ -277,6 +277,14 @@ include getDocumentRoot() . '/load_header.php';
         font-size: 1.8rem;
         transition: all 0.3s ease;
         box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        overflow: hidden; /* Ensure image stays within circle */
+        position: relative;
+    }
+
+    .step-icon-circle img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 
     .process-step-item:hover .step-icon-circle {
@@ -468,6 +476,113 @@ include getDocumentRoot() . '/load_header.php';
         .process-step-item {
             width: 100%;
         }
+    }
+    
+    /* Process Card Grid Styles */
+    .process-card-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 30px;
+        margin-top: 20px;
+        max-width: 1200px; /* Constrain width */
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .process-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid var(--border-light);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .process-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+
+    .process-card-img {
+        width: 100%;
+        height: 200px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .process-card-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .process-card:hover .process-card-img img {
+        transform: scale(1.1);
+    }
+
+    .process-card-icon {
+        position: absolute;
+        bottom: -30px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 60px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        z-index: 2;
+        color: #3b82f6;
+        font-size: 1.5rem;
+    }
+
+    .process-card-body {
+        padding: 40px 20px 25px; /* Top padding clears the icon */
+        text-align: center;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .process-card-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: var(--text-primary);
+    }
+
+    .process-card-desc {
+        font-size: 0.95rem;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin-bottom: 20px;
+        flex-grow: 1;
+    }
+    
+    @media (max-width: 992px) {
+        .process-card-grid {
+            /* Keep 3 columns on tablet landscape if possible, or maybe 2 is better? 
+               User asks for 3, but if it's too small it breaks. 
+               Let's set min-width for cards? 
+               actually, let's keep it responsive but maybe user's screen is large enough.
+               I will comment out the 2-column step for 992px to favor 3 columns if user insists,
+               BUT 3 columns on 768-992px might be tight. 
+               Let's Try to keep 3 columns until 768px.
+            */
+             grid-template-columns: repeat(3, 1fr); 
+        }
+    }
+
+    @media (max-width: 768px) {
+        .process-card-grid {
+            grid-template-columns: 1fr;
+        }
     }</style>
 
 <?php include getDocumentRoot() . '/myheader.php'; ?>
@@ -482,10 +597,7 @@ include getDocumentRoot() . '/load_header.php';
     <!-- Section 1: Ceiling -->
     <div class="process-section fade-in-up">
         <div class="process-content">
-            <div class="process-image">
-                <img src="<?= $root_dir ?>/img/process/ceiling.png" alt="조명천장/본천장 제조 공정">
-            </div>
-            <div class="process-text">
+            <div class="process-text" style="text-align:center;">
                 <span class="process-number">01</span>
                 <h2 class="process-title">조명천장 / 본천장 제조</h2>
                 <p class="process-desc">
@@ -493,77 +605,127 @@ include getDocumentRoot() . '/load_header.php';
                     고객의 요구사항에 맞춘 맞춤형 설계부터 정밀 가공까지, 
                     공간의 가치를 높이는 최상의 천장 솔루션을 제공합니다.
                 </p>
-                <ul class="feature-list">
-                    <li>정밀 레이저 커팅 및 절곡</li>
-                    <li>고품질 분체 도장 마감</li>
-                    <li>내진 설계 및 안전성 확보</li>
-                    <li>다양한 디자인 패턴 구현 가능</li>
-                </ul>
+                <div style="display:inline-block; text-align:left;">
+                    <ul class="feature-list">
+                        <li>정밀 레이저 커팅 및 절곡</li>
+                        <li>고품질 분체 도장 마감</li>
+                        <li>내진 설계 및 안전성 확보</li>
+                        <li>다양한 디자인 패턴 구현 가능</li>
+                    </ul>
+                </div>
             </div>
         </div>
 
         <!-- Added Process Flow Visualization (6 Steps) -->
         <div class="process-flow-container">
-            <h4 class="text-center mb-4" style="color:var(--text-secondary); font-weight:600;">Total Manufacturing Process</h4>
+            <h4 class="text-center mb-5" style="color:var(--text-secondary); font-weight:600; letter-spacing:1px;">TOTAL MANUFACTURING PROCESS</h4>
             
-            <div class="process-steps-wrapper" style="flex-wrap: wrap; justify-content: center; gap: 30px;">
-                <!-- Row 1 Wrapper -->
-                <div style="display:flex; justify-content:space-between; width:100%; position:relative;">
-                    <!-- Step 1: Laser -->
-                    <div class="process-step-item">
-                        <div class="step-icon-circle">
+            <div class="process-card-grid">
+                <!-- Step 1: Laser -->
+                <div class="process-card">
+                    <div class="process-card-img">
+                        <img src="img/laser_process.png" alt="Laser Process">
+                        <div class="process-card-icon">
                             <i class="fas fa-crosshairs"></i>
                         </div>
-                        <h3 class="step-title">1. 레이저 (Laser)</h3>
-                        <button class="btn-view-qc" onclick="openQcModal('laser')">QC 확인</button>
                     </div>
-
-                    <!-- Step 2: V-Cut -->
-                    <div class="process-step-item">
-                        <div class="step-icon-circle">
-                            <i class="fas fa-layer-group"></i>
-                        </div>
-                        <h3 class="step-title">2. V-커팅 (V-Cut)</h3>
-                        <button class="btn-view-qc" onclick="openQcModal('vcut')">QC 확인</button>
-                    </div>
-
-                    <!-- Step 3: Bending -->
-                    <div class="process-step-item">
-                        <div class="step-icon-circle">
-                            <i class="fas fa-bezier-curve"></i>
-                        </div>
-                        <h3 class="step-title">3. 절곡 (Bending)</h3>
-                        <button class="btn-view-qc" onclick="openQcModal('bending')">QC 확인</button>
+                    <div class="process-card-body">
+                        <h3 class="process-card-title">1. 레이저 (Laser)</h3>
+                        <p class="process-card-desc">
+                            최첨단 CNC 레이저 설비를 이용한 정밀 절단 가공으로<br>
+                            오차 없는 완벽한 품질을 구현합니다.
+                        </p>
+                        <button class="btn-view-qc" onclick="openQcModal('laser')">QC 공정확인</button>
                     </div>
                 </div>
 
-                <!-- Row 2 Wrapper -->
-                <div style="display:flex; justify-content:space-between; width:100%; position:relative; margin-top:20px;">
-                    <!-- Step 4: Painting -->
-                    <div class="process-step-item">
-                        <div class="step-icon-circle">
+                <!-- Step 2: V-Cut -->
+                <div class="process-card">
+                    <div class="process-card-img">
+                        <img src="img/vcut_process.png" alt="V-Cut Process">
+                        <div class="process-card-icon">
+                            <i class="fas fa-layer-group"></i>
+                        </div>
+                    </div>
+                    <div class="process-card-body">
+                        <h3 class="process-card-title">2. V-커팅 (V-Cut)</h3>
+                        <p class="process-card-desc">
+                            날카롭고 정교한 모서리 마감을 위해<br>
+                            정밀 V-홈 가공 공정을 거칩니다.
+                        </p>
+                        <button class="btn-view-qc" onclick="openQcModal('vcut')">QC 공정확인</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Bending -->
+                <div class="process-card">
+                    <div class="process-card-img">
+                        <img src="img/bending_process.png" alt="Bending Process">
+                        <div class="process-card-icon">
+                            <i class="fas fa-bezier-curve"></i>
+                        </div>
+                    </div>
+                    <div class="process-card-body">
+                        <h3 class="process-card-title">3. 절곡 (Bending)</h3>
+                        <p class="process-card-desc">
+                            설계 도면에 맞춘 정확한 각도와 치수로<br>
+                            빈틈없는 절곡 성형을 수행합니다.
+                        </p>
+                        <button class="btn-view-qc" onclick="openQcModal('bending')">QC 공정확인</button>
+                    </div>
+                </div>
+
+                <!-- Step 4: Painting -->
+                <div class="process-card">
+                    <div class="process-card-img">
+                        <img src="img/painting_process.png" alt="Painting Process">
+                        <div class="process-card-icon">
                             <i class="fas fa-fill-drip"></i>
                         </div>
-                        <h3 class="step-title">4. 분체도장 (Painting)</h3>
-                        <button class="btn-view-qc" onclick="openQcModal('painting')">QC 확인</button>
                     </div>
+                    <div class="process-card-body">
+                        <h3 class="process-card-title">4. 분체도장 (Painting)</h3>
+                        <p class="process-card-desc">
+                            내구성과 심미성을 모두 잡은 고품질 분체 도장으로<br>
+                            최상의 표면 마감을 제공합니다.
+                        </p>
+                        <button class="btn-view-qc" onclick="openQcModal('painting')">QC 공정확인</button>
+                    </div>
+                </div>
 
-                    <!-- Step 5: Assembly -->
-                    <div class="process-step-item">
-                        <div class="step-icon-circle">
+                <!-- Step 5: Assembly -->
+                <div class="process-card">
+                    <div class="process-card-img">
+                        <img src="img/assembly_process.png" alt="Assembly Process">
+                        <div class="process-card-icon">
                             <i class="fas fa-tools"></i>
                         </div>
-                        <h3 class="step-title">5. 조립 (Assembly)</h3>
-                        <button class="btn-view-qc" onclick="openQcModal('assembly')">QC 확인</button>
                     </div>
+                    <div class="process-card-body">
+                        <h3 class="process-card-title">5. 조립 (Assembly)</h3>
+                        <p class="process-card-desc">
+                            숙련된 전문가의 꼼꼼한 조립 과정을 통해<br>
+                            결점 없는 완벽한 제품을 완성합니다.
+                        </p>
+                        <button class="btn-view-qc" onclick="openQcModal('assembly')">QC 공정확인</button>
+                    </div>
+                </div>
 
-                    <!-- Step 6: Shipment -->
-                    <div class="process-step-item">
-                        <div class="step-icon-circle">
+                <!-- Step 6: Shipment -->
+                <div class="process-card">
+                    <div class="process-card-img">
+                        <img src="img/shipment_process.png" alt="Shipment Process">
+                        <div class="process-card-icon">
                             <i class="fas fa-truck-loading"></i>
                         </div>
-                        <h3 class="step-title">6. 출하 (Shipment)</h3>
-                        <button class="btn-view-qc" onclick="openQcModal('shipment')">QC 확인</button>
+                    </div>
+                    <div class="process-card-body">
+                        <h3 class="process-card-title">6. 출하 (Shipment)</h3>
+                        <p class="process-card-desc">
+                            철저한 최종 검수와 안전한 패킹 시스템으로<br>
+                            현장까지 완벽하게 배송합니다.
+                        </p>
+                        <button class="btn-view-qc" onclick="openQcModal('shipment')">QC 공정확인</button>
                     </div>
                 </div>
             </div>
@@ -573,7 +735,7 @@ include getDocumentRoot() . '/load_header.php';
     <!-- Section 2: Jamb -->
     <div class="process-section fade-in-up">
         <div class="process-content reverse">
-            <div class="process-text">
+            <div class="process-text" style="text-align:center;">
                 <span class="process-number">02</span>
                 <h2 class="process-title">쟘(Jamb) 제조</h2>
                 <p class="process-desc">
@@ -581,15 +743,14 @@ include getDocumentRoot() . '/load_header.php';
                     견고한 내구성과 완벽한 마감 처리를 통해 
                     도어와 창호의 품격을 한 단계 높여드립니다.
                 </p>
-                <ul class="feature-list">
-                    <li>자동화 라인을 통한 균일한 품질</li>
-                    <li>다양한 규격 및 형상 대응</li>
-                    <li>신속한 납기 준수</li>
-                    <li>현장 맞춤형 솔루션 제공</li>
-                </ul>
-            </div>
-            <div class="process-image">
-                <img src="<?= $root_dir ?>/img/process/jamb.png" alt="쟘 제조 공정">
+                <div style="display:inline-block; text-align:left;">
+                    <ul class="feature-list">
+                        <li>자동화 라인을 통한 균일한 품질</li>
+                        <li>다양한 규격 및 형상 대응</li>
+                        <li>신속한 납기 준수</li>
+                        <li>현장 맞춤형 솔루션 제공</li>
+                    </ul>
+                </div>
             </div>
         </div>
 
@@ -597,68 +758,144 @@ include getDocumentRoot() . '/load_header.php';
         <div class="process-flow-container">
             <h4 class="text-center mb-4" style="color:var(--text-secondary); font-weight:600;">Process Detail & Quality Control</h4>
             
-            <div class="process-steps-wrapper">
+            <div class="process-card-grid">
                 <!-- Step 1: Laser -->
-                <div class="process-step-item">
-                    <div class="step-icon-circle">
-                        <i class="fas fa-crosshairs"></i>
+                <div class="process-card">
+                    <div class="process-card-img">
+                        <img src="img/jamb_laser_process.png" alt="Jamb Laser Process">
+                        <div class="process-card-icon">
+                            <i class="fas fa-crosshairs"></i>
+                        </div>
                     </div>
-                    <h3 class="step-title">레이저 커팅 (Laser)</h3>
-                    <p class="step-desc">최첨단 레이저 설비를 이용한<br>정밀 절단 가공</p>
-                    <button class="btn-view-qc" onclick="openQcModal('laser')">
-                        <i class="fas fa-clipboard-check"></i> QC 공정확인
-                    </button>
+                    <div class="process-card-body">
+                        <h3 class="process-card-title">1. 레이저 커팅 (Laser)</h3>
+                        <p class="process-card-desc">
+                            최첨단 레이저 설비를 이용한 정밀 절단 가공으로<br>
+                            복잡한 형상도 오차 없이 완벽하게 구현합니다.
+                        </p>
+                        <button class="btn-view-qc" onclick="openQcModal('laser')">QC 공정확인</button>
+                    </div>
                 </div>
 
                 <!-- Step 2: V-Cut -->
-                <div class="process-step-item">
-                    <div class="step-icon-circle">
-                        <i class="fas fa-layer-group"></i>
+                <div class="process-card">
+                    <div class="process-card-img">
+                        <img src="img/jamb_vcut_process.png" alt="Jamb V-Cut Process">
+                        <div class="process-card-icon">
+                            <i class="fas fa-layer-group"></i>
+                        </div>
                     </div>
-                    <h3 class="step-title">V-커팅 (V-Cut)</h3>
-                    <p class="step-desc">날카롭고 정교한 모서리를 위한<br>V-홈 가공 공정</p>
-                    <button class="btn-view-qc" onclick="openQcModal('vcut')">
-                        <i class="fas fa-clipboard-check"></i> QC 공정확인
-                    </button>
+                    <div class="process-card-body">
+                        <h3 class="process-card-title">2. V-커팅 (V-Cut)</h3>
+                        <p class="process-card-desc">
+                            날카롭고 정교한 모서리 마감을 위해<br>
+                            전용 V-홈 가공 장비로 정밀 가공합니다.
+                        </p>
+                        <button class="btn-view-qc" onclick="openQcModal('vcut')">QC 공정확인</button>
+                    </div>
                 </div>
 
                 <!-- Step 3: Bending -->
-                <div class="process-step-item">
-                    <div class="step-icon-circle">
-                        <i class="fas fa-bezier-curve"></i>
+                <div class="process-card">
+                    <div class="process-card-img">
+                        <img src="img/jamb_bending_process.png" alt="Jamb Bending Process">
+                        <div class="process-card-icon">
+                            <i class="fas fa-bezier-curve"></i>
+                        </div>
                     </div>
-                    <h3 class="step-title">절곡 (Bending)</h3>
-                    <p class="step-desc">설계 도면에 맞춘 정확한 각도의<br>절곡 성형</p>
-                    <button class="btn-view-qc" onclick="openQcModal('bending')">
-                        <i class="fas fa-clipboard-check"></i> QC 공정확인
-                    </button>
+                    <div class="process-card-body">
+                        <h3 class="process-card-title">3. 절곡 (Bending)</h3>
+                        <p class="process-card-desc">
+                            설계 도면에 맞춘 정확한 각도와 치수로<br>
+                            고정밀 절곡 성형을 수행하여 내구성을 높입니다.
+                        </p>
+                        <button class="btn-view-qc" onclick="openQcModal('bending')">QC 공정확인</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Section 3: Separator -->
+    <!-- Section 3: Separator (Elevator Sill) -->
     <div class="process-section fade-in-up">
         <div class="process-content">
-            <div class="process-image">
-                <img src="<?= $root_dir ?>/img/process/separator.png" alt="재료분리대 제조 공정">
-            </div>
-            <div class="process-text">
+            <div class="process-text" style="text-align:center;">
                 <span class="process-number">03</span>
-                <h2 class="process-title">재료분리대 제조</h2>
+                <h2 class="process-title">재료분리대 (Elevator Sill) 제조</h2>
                 <p class="process-desc">
-                    서로 다른 마감재의 경계를 깔끔하게 정리하는 재료분리대를 제작합니다. 
-                    기능성과 심미성을 동시에 고려한 디자인으로 
-                    공간의 완성도를 높이는 필수 건축 자재입니다.
+                    서로 다른 바닥 마감재를 깔끔하게 분리해주는 엘리베이터 SILL을 제작합니다.<br>
+                    정밀한 조립과 견고한 체결 방식을 통해 최상의 내구성을 보장합니다.
                 </p>
-                <ul class="feature-list">
-                    <li>스테인리스, 알루미늄 등 다양한 소재</li>
-                    <li>미려한 표면 처리 (헤어라인, 미러 등)</li>
-                    <li>시공 편의성을 고려한 설계</li>
-                    <li>특수 규격 주문 제작 가능</li>
-                </ul>
+                <div style="display:inline-block; text-align:left;">
+                    <ul class="feature-list">
+                        <li>스테인리스/알루미늄 하이브리드 조립</li>
+                        <li>전동 공구를 이용한 정밀 체결</li>
+                        <li>카운터 가공을 통한 완벽한 마감</li>
+                        <li>안전한 포장 및 출고</li>
+                    </ul>
+                </div>
             </div>
         </div>
+        </div>
+
+        <div class="process-flow-container">
+            <h4 class="text-center mb-4" style="color:var(--text-secondary); font-weight:600;">Process Detail & Quality Control</h4>
+            
+            <div class="process-card-grid">
+                <!-- Step 1: Material Prep -->
+                <div class="process-card">
+                    <div class="process-card-img">
+                        <img src="img/sill_material_prep.png" alt="Material Preparation">
+                        <div class="process-card-icon">
+                            <i class="fas fa-tools"></i>
+                        </div>
+                    </div>
+                    <div class="process-card-body">
+                        <h3 class="process-card-title">1. 자재 준비 (Preparation)</h3>
+                        <p class="process-card-desc">
+                            스텐레스와 알루미늄 바디 등<br>
+                            조립에 필요한 자재를 정렬하고 검수합니다.
+                        </p>
+                        <button class="btn-view-qc" onclick="openQcModal('sill_prep')">QC 공정확인</button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Assembly -->
+                <div class="process-card">
+                    <div class="process-card-img">
+                        <img src="img/sill_assembly_process.png" alt="Sill Assembly">
+                        <div class="process-card-icon">
+                            <i class="fas fa-screwdriver"></i>
+                        </div>
+                    </div>
+                    <div class="process-card-body">
+                        <h3 class="process-card-title">2. 조립 및 체결 (Assembly)</h3>
+                        <p class="process-card-desc">
+                            전동공구와 카운터 가공을 통해<br>
+                            스텐레스와 알루미늄 바디를 견고하게 결합합니다.
+                        </p>
+                        <button class="btn-view-qc" onclick="openQcModal('sill_assembly')">QC 공정확인</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Packaging -->
+                <div class="process-card">
+                    <div class="process-card-img">
+                        <img src="img/sill_packaging_process.png" alt="Packaging">
+                        <div class="process-card-icon">
+                            <i class="fas fa-box-open"></i>
+                        </div>
+                    </div>
+                    <div class="process-card-body">
+                        <h3 class="process-card-title">3. 포장 및 출고 (Packaging)</h3>
+                        <p class="process-card-desc">
+                            완성된 SILL 제품을 안전하게 보호하기 위해<br>
+                            꼼꼼하게 포장하여 출고합니다.
+                        </p>
+                        <button class="btn-view-qc" onclick="openQcModal('sill_packing')">QC 공정확인</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -767,6 +1004,29 @@ include getDocumentRoot() . '/load_header.php';
                 { point: "구성품 수량", criteria: "출하 명세서와 일치", method: "카운팅", freq: "전수 검사", badge: "badge-primary" },
                 { point: "라벨 부착", criteria: "식별표 부착 및 내용 일치", method: "육안 대조", freq: "전수 검사", badge: "badge-success" },
                 { point: "파레트 적재", criteria: "견고하게 밴딩 처리됨", method: "육안 검사", freq: "전수 검사", badge: "badge-purple" }
+            ]
+        },
+        'sill_prep': {
+            title: "자재 준비 및 검수 (Material QC)",
+            items: [
+                { point: "원자재 규격", criteria: "STS/AL 재질 및 두께 확인", method: "버니어 캘리퍼스", freq: "입고 시", badge: "badge-primary" },
+                { point: "자재 외관", criteria: "찍힘, 휨, 부식 등 결함 없을 것", method: "육안 검사", freq: "전수 검사", badge: "badge-success" },
+                { point: "부속품 확인", criteria: "스크류 및 체결 부품 수량/규격", method: "육안 / 카운팅", freq: "작업 전", badge: "badge-purple" }
+            ]
+        },
+        'sill_assembly': {
+             title: "조립 및 체결 품질관리 (Assembly QC)",
+             items: [
+                 { point: "체결 상태", criteria: "스크류 체결 견고성, 유격 없음", method: "드라이버 / 육안", freq: "전수 검사", badge: "badge-primary" },
+                 { point: "카운터 가공", criteria: "나사 머리가 돌출되지 않을 것", method: "육안 / 촉수", freq: "전수 검사", badge: "badge-success" },
+                 { point: "조립 단차", criteria: "이종 소재 간 단차 최소화", method: "틈새 게이지", freq: "샘플링", badge: "badge-purple" }
+             ]
+        },
+        'sill_packing': {
+            title: "포장 및 출고 검사 (Packing QC)",
+            items: [
+                { point: "포장 상태", criteria: "보호재 밀착 및 외관 손상 방지", method: "육안 검사", freq: "전수 검사", badge: "badge-success" },
+                { point: "제품 표시", criteria: "규격 및 수량 표기 정확성", method: "육안 검사", freq: "전수 검사", badge: "badge-primary" }
             ]
         }
     };
