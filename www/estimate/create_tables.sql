@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS `estimates` (
     `note` TEXT DEFAULT NULL COMMENT '비고',
     `status` VARCHAR(50) DEFAULT 'draft' COMMENT '상태 (draft, sent, completed)',
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '최초저장시간',
+    `author` VARCHAR(50) DEFAULT NULL COMMENT '작성자 이름',
     `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '업데이트시간',
     `is_deleted` TINYINT(1) DEFAULT 0 COMMENT '삭제여부 (0:정상, 1:삭제)',
     `customer_id` INT(11) DEFAULT NULL COMMENT '거래처 ID',
@@ -33,7 +34,8 @@ CREATE TABLE IF NOT EXISTS `estimates` (
     KEY `idx_supplier_name` (`supplier_name`),
     KEY `idx_status` (`status`),
     KEY `idx_is_deleted` (`is_deleted`),
-    KEY `idx_created_at` (`created_at`)
+    KEY `idx_created_at` (`created_at`),
+    KEY `idx_author` (`author`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='견적서 테이블';
 
 -- 2. estimate_customer table

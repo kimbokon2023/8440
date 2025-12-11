@@ -49,6 +49,8 @@ $sort_direction = $_GET['dir'] ?? 'desc';
 // 허용된 정렬 컬럼
 $allowed_sort_columns = [
     'sent_at' => '발송일시',
+    'estimate_id' => '견적서ID',
+    'contact_name' => '거래처명',
     'recipient_email' => '수신자',
     'subject' => '제목',
     'status' => '상태'
@@ -68,25 +70,26 @@ $where_conditions = ["1=1"];
 $params = [];
 
 if ($search_keyword) {
-    $where_conditions[] = "(recipient_email LIKE :search1 OR subject LIKE :search2 OR sender_email LIKE :search3)";
+    $where_conditions[] = "(l.recipient_email LIKE :search1 OR l.subject LIKE :search2 OR l.sender_email LIKE :search3 OR e.contact_name LIKE :search4)";
     $searchTerm = '%' . $search_keyword . '%';
     $params[':search1'] = $searchTerm;
     $params[':search2'] = $searchTerm;
     $params[':search3'] = $searchTerm;
+    $params[':search4'] = $searchTerm;
 }
 
 if ($search_date_from) {
-    $where_conditions[] = "DATE(sent_at) >= :search_date_from";
+    $where_conditions[] = "DATE(l.sent_at) >= :search_date_from";
     $params[':search_date_from'] = $search_date_from;
 }
 
 if ($search_date_to) {
-    $where_conditions[] = "DATE(sent_at) <= :search_date_to";
+    $where_conditions[] = "DATE(l.sent_at) <= :search_date_to";
     $params[':search_date_to'] = $search_date_to;
 }
 
 if ($search_status !== 'all') {
-    $where_conditions[] = "status = :search_status";
+    $where_conditions[] = "l.status = :search_status";
     $params[':search_status'] = $search_status;
 }
 
@@ -100,7 +103,11 @@ try {
         $total_records = 0;
         $logs = [];
     } else {
-        $count_sql = "SELECT COUNT(*) FROM `estimate_email_logs` WHERE $where_clause";
+        // COUNT 쿼리도 JOIN 포함 (거래처명 검색을 위해)
+        $count_sql = "SELECT COUNT(*) 
+                      FROM `estimate_email_logs` l 
+                      LEFT JOIN `estimates` e ON l.estimate_id = e.id 
+                      WHERE $where_clause";
         $count_stmt = $pdo->prepare($count_sql);
         foreach ($params as $key => $value) {
             $count_stmt->bindValue($key, $value);
@@ -108,8 +115,16 @@ try {
         $count_stmt->execute();
         $total_records = $count_stmt->fetchColumn();
 
-        // 데이터 조회
-        $sql = "SELECT * FROM `estimate_email_logs` WHERE $where_clause ORDER BY $sort_column $sort_direction LIMIT :offset, :per_page";
+        // 데이터 조회 (estimates 테이블과 JOIN하여 거래처명 가져오기)
+        // 정렬 컬럼도 테이블 별칭 추가
+        $sort_column_with_alias = $sort_column;
+        if (in_array($sort_column, ['sent_at', 'recipient_email', 'subject', 'status'])) {
+            $sort_column_with_alias = 'l.' . $sort_column;
+        }
+        $sql = "SELECT l.*, COALESCE(e.contact_name, '') as contact_name 
+                FROM `estimate_email_logs` l 
+                LEFT JOIN `estimates` e ON l.estimate_id = e.id 
+                WHERE $where_clause ORDER BY $sort_column_with_alias $sort_direction LIMIT :offset, :per_page";
         $stmt = $pdo->prepare($sql);
         foreach ($params as $key => $value) {
             $stmt->bindValue($key, $value);
@@ -478,18 +493,19 @@ body {
             <thead>
                 <tr>
                     <th width="5%" class="text-center">No</th>
-                    <th width="15%" class="sortable" onclick="location.href='?sort=sent_at&dir=<?php echo ($sort_column == 'sent_at' && $sort_direction == 'DESC') ? 'asc' : 'desc'; ?>&<?php echo http_build_query(array_merge($_GET, ['sort' => null, 'dir' => null])); ?>'">
+                    <th width="10%" class="sortable" onclick="location.href='?sort=sent_at&dir=<?php echo ($sort_column == 'sent_at' && $sort_direction == 'DESC') ? 'asc' : 'desc'; ?>&<?php echo http_build_query(array_merge($_GET, ['sort' => null, 'dir' => null])); ?>'">
                         발송일시
                         <?php if ($sort_column == 'sent_at'): ?>
                             <i class="fas fa-sort-<?php echo $sort_direction == 'ASC' ? 'up' : 'down'; ?>"></i>
                         <?php endif; ?>
                     </th>
-                    <th width="10%" class="text-center">견적서ID</th>
-                    <th width="20%">수신자</th>
-                    <th width="35%">제목</th>
-                    <th width="10%" class="text-center">상태</th>
-                    <th width="5%" class="text-center">상세</th>
-                    <th width="5%" class="text-center">삭제</th>
+                    <th width="5%" class="text-center">견적서ID</th>
+                    <th width="15%">거래처명</th>
+                    <th width="15%">수신자</th>
+                    <th width="30%">제목</th>
+                    <th width="10%" class="text-center">상태</th>                    
+                    <th width="10%" class="text-center">상세</th>
+                    <th width="10%" class="text-center">삭제</th>
                 </tr>
             </thead>
             <tbody>
@@ -507,6 +523,7 @@ body {
                                     -
                                 <?php endif; ?>
                             </td>
+                            <td><?php echo htmlspecialchars($log['contact_name'] ?? '-'); ?></td>
                             <td><?php echo htmlspecialchars($log['recipient_email']); ?></td>
                             <td><?php echo htmlspecialchars($log['subject']); ?></td>
                             <td class="text-center">
@@ -532,7 +549,7 @@ body {
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="7">
+                        <td colspan="8">
                             <div class="empty-state">
                                 <i class="far fa-folder-open"></i>
                                 <h3>발송된 이메일 내역이 없습니다.</h3>

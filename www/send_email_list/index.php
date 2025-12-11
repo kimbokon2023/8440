@@ -93,31 +93,91 @@ if ($search_status !== 'all') {
 $where_clause = implode(' AND ', $where_conditions);
 
 // 전체 레코드 수 조회
-// sent_email_logs 테이블이 존재하는지 먼저 확인 (없으면 0)
+// sent_email_logs와 estimate_email_logs 두 테이블 모두 확인
 try {
-    $checkTable = $pdo->query("SHOW TABLES LIKE 'sent_email_logs'");
-    if ($checkTable->rowCount() == 0) {
+    $checkTable1 = $pdo->query("SHOW TABLES LIKE 'sent_email_logs'");
+    $checkTable2 = $pdo->query("SHOW TABLES LIKE 'estimate_email_logs'");
+    $hasOrderLogs = $checkTable1->rowCount() > 0;
+    $hasEstimateLogs = $checkTable2->rowCount() > 0;
+    
+    if (!$hasOrderLogs && !$hasEstimateLogs) {
         $total_records = 0;
         $logs = [];
     } else {
-        $count_sql = "SELECT COUNT(*) FROM `sent_email_logs` WHERE $where_clause";
-        $count_stmt = $pdo->prepare($count_sql);
-        foreach ($params as $key => $value) {
-            $count_stmt->bindValue($key, $value);
+        // 두 테이블의 레코드 수 합산
+        $count_parts = [];
+        if ($hasOrderLogs) {
+            $count_parts[] = "(SELECT COUNT(*) FROM `sent_email_logs` WHERE $where_clause)";
         }
-        $count_stmt->execute();
-        $total_records = $count_stmt->fetchColumn();
+        if ($hasEstimateLogs) {
+            $count_parts[] = "(SELECT COUNT(*) FROM `estimate_email_logs` WHERE $where_clause)";
+        }
+        
+        if (count($count_parts) > 0) {
+            $count_sql = "SELECT (" . implode(" + ", $count_parts) . ") as total";
+            $count_stmt = $pdo->prepare($count_sql);
+            foreach ($params as $key => $value) {
+                $count_stmt->bindValue($key, $value);
+            }
+            $count_stmt->execute();
+            $total_records = $count_stmt->fetchColumn();
+        } else {
+            $total_records = 0;
+        }
 
-        // 데이터 조회
-        $sql = "SELECT * FROM `sent_email_logs` WHERE $where_clause ORDER BY $sort_column $sort_direction LIMIT :offset, :per_page";
-        $stmt = $pdo->prepare($sql);
-        foreach ($params as $key => $value) {
-            $stmt->bindValue($key, $value);
+        // 데이터 조회 (발주서와 견적서 이메일 로그를 UNION하여 조회)
+        $union_parts = [];
+        
+        if ($hasOrderLogs) {
+            $union_parts[] = "SELECT 
+                l.id,
+                l.order_id as related_id,
+                NULL as estimate_id,
+                'order' as log_type,
+                l.sender_email,
+                l.recipient_email,
+                l.subject,
+                l.sent_at,
+                l.status,
+                l.error_message,
+                COALESCE(o.contact_name, o.supplier_name, '') as contact_name
+                FROM `sent_email_logs` l 
+                LEFT JOIN `orders` o ON l.order_id = o.id 
+                WHERE $where_clause";
         }
-        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-        $stmt->bindValue(':per_page', $per_page, PDO::PARAM_INT);
-        $stmt->execute();
-        $logs = $stmt->fetchAll();
+        
+        if ($hasEstimateLogs) {
+            $union_parts[] = "SELECT 
+                l.id,
+                NULL as related_id,
+                l.estimate_id,
+                'estimate' as log_type,
+                l.sender_email,
+                l.recipient_email,
+                l.subject,
+                l.sent_at,
+                l.status,
+                l.error_message,
+                COALESCE(e.contact_name, '') as contact_name
+                FROM `estimate_email_logs` l 
+                LEFT JOIN `estimates` e ON l.estimate_id = e.id 
+                WHERE $where_clause";
+        }
+        
+        if (count($union_parts) > 0) {
+            $sql = "(" . implode(") UNION ALL (", $union_parts) . ") ORDER BY $sort_column $sort_direction LIMIT :offset, :per_page";
+            $stmt = $pdo->prepare($sql);
+            // 파라미터 바인딩 (PDO는 동일한 파라미터를 여러 번 바인딩할 수 있음)
+            foreach ($params as $key => $value) {
+                $stmt->bindValue($key, $value);
+            }
+            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            $stmt->bindValue(':per_page', $per_page, PDO::PARAM_INT);
+            $stmt->execute();
+            $logs = $stmt->fetchAll();
+        } else {
+            $logs = [];
+        }
     }
 } catch (Exception $e) {
     $total_records = 0;
@@ -485,6 +545,8 @@ body {
                         <?php endif; ?>
                     </th>
                     <th width="10%" class="text-center">발주서ID</th>
+                    <th width="10%" class="text-center">견적서ID</th>
+                    <th width="15%">거래처명</th>
                     <th width="20%">수신자</th>
                     <th width="35%">제목</th>
                     <th width="10%" class="text-center">상태</th>
@@ -499,14 +561,25 @@ body {
                             <td class="text-center"><?php echo $log['id']; ?></td>
                             <td><?php echo $log['sent_at']; ?></td>
                             <td class="text-center">
-                                <?php if ($log['order_id']): ?>
-                                    <a href="../orders/index.php?search_keyword=<?php echo $log['order_id']; ?>" target="_blank">
-                                        #<?php echo $log['order_id']; ?>
+                                <?php if (!empty($log['related_id']) || !empty($log['order_id'])): ?>
+                                    <?php $orderId = $log['related_id'] ?? $log['order_id']; ?>
+                                    <a href="../orders/index.php?search_keyword=<?php echo $orderId; ?>" target="_blank">
+                                        #<?php echo $orderId; ?>
                                     </a>
                                 <?php else: ?>
                                     -
                                 <?php endif; ?>
                             </td>
+                            <td class="text-center">
+                                <?php if (!empty($log['estimate_id'])): ?>
+                                    <a href="../estimate/index.php?search_keyword=<?php echo $log['estimate_id']; ?>" target="_blank">
+                                        #<?php echo $log['estimate_id']; ?>
+                                    </a>
+                                <?php else: ?>
+                                    -
+                                <?php endif; ?>
+                            </td>
+                            <td><?php echo htmlspecialchars($log['contact_name'] ?? '-'); ?></td>
                             <td><?php echo htmlspecialchars($log['recipient_email']); ?></td>
                             <td><?php echo htmlspecialchars($log['subject']); ?></td>
                             <td class="text-center">
@@ -532,11 +605,11 @@ body {
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="7">
+                        <td colspan="9">
                             <div class="empty-state">
                                 <i class="far fa-folder-open"></i>
                                 <h3>발송된 이메일 내역이 없습니다.</h3>
-                                <p>발주서 관리에서 이메일을 발송하면 이곳에 기록됩니다.</p>
+                                <p>발주서 또는 견적서 관리에서 이메일을 발송하면 이곳에 기록됩니다.</p>
                             </div>
                         </td>
                     </tr>

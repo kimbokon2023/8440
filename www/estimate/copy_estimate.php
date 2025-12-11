@@ -12,6 +12,7 @@ header('Content-Type: application/json; charset=utf-8');
 
 // 권한 체크
 $level = $_SESSION["level"] ?? 999;
+$user_name = $_SESSION["name"] ?? '';
 if (!isset($_SESSION["level"]) || $level > 5) {
     echo json_encode([
         'success' => false,
@@ -103,6 +104,11 @@ try {
     $fields[] = 'is_deleted';
     $placeholders[] = ':is_deleted';
     $values[':is_deleted'] = 0;
+    
+    // author는 현재 사용자 이름으로 설정
+    $fields[] = 'author';
+    $placeholders[] = ':author';
+    $values[':author'] = !empty($user_name) ? $user_name : null;
     
     $sql = "INSERT INTO `estimates` (" . implode(', ', $fields) . ", created_at, updated_at) 
             VALUES (" . implode(', ', $placeholders) . ", CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";

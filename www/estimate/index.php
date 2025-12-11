@@ -130,6 +130,22 @@ $count_stmt->execute();
 $total_records = $count_stmt->fetchColumn();
 $total_pages = ceil($total_records / $per_page);
 
+// author 컬럼이 있는지 확인하고 없으면 추가
+try {
+    $check_column = $pdo->query("SHOW COLUMNS FROM `estimates` LIKE 'author'");
+    if ($check_column->rowCount() == 0) {
+        $pdo->exec("ALTER TABLE `estimates` ADD COLUMN `author` VARCHAR(50) DEFAULT NULL COMMENT '작성자 이름' AFTER `created_at`");
+        // 인덱스 추가
+        try {
+            $pdo->exec("ALTER TABLE `estimates` ADD INDEX `idx_author` (`author`)");
+        } catch (Exception $e) {
+            // 인덱스가 이미 존재할 수 있음
+        }
+    }
+} catch (Exception $e) {
+    error_log("author 컬럼 확인/추가 오류: " . $e->getMessage());
+}
+
 // 데이터 조회
 // 정렬 컬럼이 contact_name인 경우 COALESCE로 처리
 $order_by_clause = '';
@@ -139,7 +155,10 @@ if ($sort_column === 'contact_name') {
     $order_by_clause = "ORDER BY $sort_column $sort_direction, created_at DESC";
 }
 
-$sql = "SELECT * FROM `estimates` WHERE $where_clause $order_by_clause LIMIT :offset, :per_page";
+// 작성자 정보 조회 (author 필드에 이름이 직접 저장되므로 JOIN 불필요)
+$sql = "SELECT e.*, COALESCE(e.author, '') as creator_name 
+        FROM `estimates` e 
+        WHERE $where_clause $order_by_clause LIMIT :offset, :per_page";
 $stmt = $pdo->prepare($sql);
 
 // 파라미터 바인딩
@@ -488,6 +507,13 @@ body {
     width: 100%;
     border-collapse: collapse;
     font-size: 13px;
+    table-layout: auto;
+}
+
+.order-table th,
+.order-table td {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .order-table thead {
@@ -1093,10 +1119,10 @@ a:hover {
         <table class="order-table">
             <thead>
                 <tr>
-                    <th width="3%" class="text-center">
+                    <th class="text-center" style="width: 3%;">
                         <input type="checkbox" id="selectAll" class="form-check-input">
                     </th>
-                    <th width="9%" class="text-center sortable" data-sort="issue_date">
+                    <th class="text-center sortable" data-sort="issue_date" style="min-width: 90px;">
                         견적일
                         <?php if ($sort_column === 'issue_date'): ?>
                             <i class="fas fa-sort-<?php echo strtolower($sort_direction) === 'asc' ? 'up' : 'down'; ?>"></i>
@@ -1104,7 +1130,7 @@ a:hover {
                             <i class="fas fa-sort text-muted" style="opacity: 0.3;"></i>
                         <?php endif; ?>
                     </th>
-                    <th width="10%" class="sortable" data-sort="project_site">
+                    <th class="sortable" data-sort="project_site" style="min-width: 100px;">
                         현장명
                         <?php if ($sort_column === 'project_site'): ?>
                             <i class="fas fa-sort-<?php echo strtolower($sort_direction) === 'asc' ? 'up' : 'down'; ?>"></i>
@@ -1112,7 +1138,7 @@ a:hover {
                             <i class="fas fa-sort text-muted" style="opacity: 0.3;"></i>
                         <?php endif; ?>
                     </th>
-                    <th width="12%" class="sortable" data-sort="contact_name">
+                    <th class="sortable" data-sort="contact_name" style="min-width: 120px;">
                         거래처명
                         <?php if ($sort_column === 'contact_name'): ?>
                             <i class="fas fa-sort-<?php echo strtolower($sort_direction) === 'asc' ? 'up' : 'down'; ?>"></i>
@@ -1120,9 +1146,10 @@ a:hover {
                             <i class="fas fa-sort text-muted" style="opacity: 0.3;"></i>
                         <?php endif; ?>
                     </th>
-                    <th width="12%">이메일</th>
-                    <th width="20%">품목/규격</th>
-                    <th width="8%" class="text-right sortable" data-sort="subtotal">
+                    <th style="min-width: 150px;">이메일</th>
+                    <th style="min-width: 80px;">작성자</th>
+                    <th style="min-width: 200px; max-width: 300px;">품목/규격</th>
+                    <th class="text-right sortable" data-sort="subtotal" style="min-width: 100px;">
                         공급가액
                         <?php if ($sort_column === 'subtotal'): ?>
                             <i class="fas fa-sort-<?php echo strtolower($sort_direction) === 'asc' ? 'up' : 'down'; ?>"></i>
@@ -1130,9 +1157,9 @@ a:hover {
                             <i class="fas fa-sort text-muted" style="opacity: 0.3;"></i>
                         <?php endif; ?>
                     </th>
-                    <th width="6%" class="text-right">세액</th>
-                    <th width="8%" class="text-right">합계금액</th>
-                    <th width="6%" class="text-center sortable" data-sort="status">
+                    <th class="text-right" style="min-width: 80px;">세액</th>
+                    <th class="text-right" style="min-width: 100px;">합계금액</th>
+                    <th class="text-center sortable" data-sort="status" style="min-width: 100px;">
                         상태
                         <?php if ($sort_column === 'status'): ?>
                             <i class="fas fa-sort-<?php echo strtolower($sort_direction) === 'asc' ? 'up' : 'down'; ?>"></i>
@@ -1140,14 +1167,14 @@ a:hover {
                             <i class="fas fa-sort text-muted" style="opacity: 0.3;"></i>
                         <?php endif; ?>
                     </th>
-                    <th width="10%">비고</th>
-                    <th style="white-space: nowrap;">회사 내부 메모</th>
+                    <th style="min-width: 100px;">비고</th>
+                    <th style="min-width: 150px;">회사 내부 메모</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (empty($orders)): ?>
                 <tr>
-                    <td colspan="10">
+                    <td colspan="13">
                         <div class="empty-state">
                             <i class="fas fa-inbox"></i>
                             <h3>등록된 견적서가 없습니다</h3>
@@ -1177,7 +1204,10 @@ a:hover {
                     <td>
                         <?php echo htmlspecialchars($order['email'] ?? '-'); ?>
                     </td>
-                    <td style="max-width: 300px; word-wrap: break-word; white-space: normal;">
+                    <td>
+                        <?php echo htmlspecialchars($order['creator_name'] ?? $order['author'] ?? '-'); ?>
+                    </td>
+                    <td style="max-width: 300px; word-wrap: break-word; word-break: break-word; white-space: normal; line-height: 1.4; overflow-wrap: break-word;">
                         <?php
                         // JSON 데이터에서 품목+규격 정보 추출
                         $items_display = '';
@@ -1202,34 +1232,30 @@ a:hover {
                                 }
                                 
                                 if (!empty($item_spec_pairs)) {
-                                    // 열의 폭을 고려하여 최대한 많은 항목 표시
-                                    $max_length = 100; // 최대 표시 길이
-                                    $display_items = [];
-                                    $current_length = 0;
-                                    
+                                    // 각 항목을 20자 단위로 줄바꿈하여 표시
+                                    $display_lines = [];
                                     foreach ($item_spec_pairs as $pair) {
+                                        // 20자 단위로 자르기 (20자까지 표시하고 더 길면 다음 행)
                                         $pair_length = mb_strlen($pair, 'UTF-8');
-                                        $separator_length = count($display_items) > 0 ? 2 : 0; // ', ' 길이
-                                        
-                                        if ($current_length + $separator_length + $pair_length <= $max_length) {
-                                            $display_items[] = $pair;
-                                            $current_length += $separator_length + $pair_length;
+                                        if ($pair_length > 20) {
+                                            $chunks = [];
+                                            $offset = 0;
+                                            while ($offset < $pair_length) {
+                                                $chunk = mb_substr($pair, $offset, 20, 'UTF-8');
+                                                $chunks[] = htmlspecialchars($chunk);
+                                                $offset += 20;
+                                            }
+                                            $display_lines[] = implode('<br>', $chunks);
                                         } else {
-                                            // 더 이상 추가할 수 없으면 중단
-                                            break;
+                                            $display_lines[] = htmlspecialchars($pair);
                                         }
                                     }
                                     
-                                    $items_display = implode(', ', $display_items);
-                                    
-                                    // 표시하지 못한 항목이 있으면 말줄임표 추가
-                                    if (count($item_spec_pairs) > count($display_items)) {
-                                        $items_display .= '...';
-                                    }
+                                    $items_display = implode(', ', $display_lines);
                                 }
                             }
                         }
-                        echo htmlspecialchars($items_display ?: '품목 없음');
+                        echo $items_display ?: '품목 없음';
                         ?>
                     </td>
                     <td class="amount-cell">
@@ -2464,21 +2490,26 @@ a:hover {
         html += '<div class="detail-item"><div class="detail-label">참조</div><div class="detail-value">' + (order.reference || '-') + '</div></div>';
         html += '</div>';
 
-        // 두 번째 줄 (현장명 + 회사 내부 메모)
+        // 두 번째 줄 (현장명 2배 + 작성자 1배)
         html += '<div style="display: flex; gap: 15px; margin-top: 15px;">';
         
-        // 현장명 (고정 너비 또는 내용에 맞게)
-        html += '<div class="detail-item" style="min-width: 200px;"><div class="detail-label">현장명</div><div class="detail-value">' + (order.project_site || '-') + '</div></div>';
+        // 현장명 (기존 카드 width의 2배 크기)
+        html += '<div class="detail-item" style="flex: 2; min-width: 0;"><div class="detail-label">현장명</div><div class="detail-value">' + (order.project_site || '-') + '</div></div>';
         
-        // 회사 내부 메모 (나머지 공간 채우기)
+        // 작성자 (기존 카드 width의 1배 크기)
+        html += '<div class="detail-item" style="flex: 1; min-width: 0;"><div class="detail-label">작성자</div><div class="detail-value">' + (order.author || '-') + '</div></div>';
+        
+        html += '</div>'; // End flex row
+        
+        // 세 번째 줄 (회사 내부 메모)
         if (order.internalmemo) {
+            html += '<div style="display: flex; gap: 15px; margin-top: 15px;">';
             html += '<div class="detail-item" style="flex: 1; display: flex; flex-direction: column;">';
             html += '<div class="detail-label">회사 내부 메모</div>';
             html += '<div class="detail-value" style="color: #007bff; white-space: pre-wrap;">' + order.internalmemo + '</div>';
             html += '</div>';
+            html += '</div>'; // End flex row
         }
-        
-        html += '</div>'; // End flex row
         html += '</div>'; // End detail-section
         
         // 금액 정보

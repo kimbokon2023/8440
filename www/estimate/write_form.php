@@ -676,8 +676,19 @@ body.iframe-mode .btn-primary:hover {
 
                         <div class="mb-2 row align-items-center" style="margin-bottom: 8px; display: flex; align-items: center;">
                             <label class="col-sm-3 col-form-label fw-bold" style="font-weight: bold; width: 25%;">견적일자</label>
-                            <div class="col-sm-9" style="width: 75%;">
-                                <input type="date" class="form-control form-control-sm" name="issue_date" value="<?php echo $order_data ? ($order_data['issue_date'] ?? date('Y-m-d')) : date('Y-m-d'); ?>" style="width: 100%; padding: 4px 8px; border: 1px solid #ced4da; border-radius: 4px;">
+                            <div class="col-sm-9" style="width: 75%; display: flex; gap: 10px; align-items: center;">
+                                <input type="date" class="form-control form-control-sm" name="issue_date" value="<?php echo $order_data ? ($order_data['issue_date'] ?? date('Y-m-d')) : date('Y-m-d'); ?>" style="flex: 1; min-width: 0; padding: 4px 8px; border: 1px solid #ced4da; border-radius: 4px;">
+                                <div style="display: flex; align-items: center; gap: 5px; flex-shrink: 0;">
+                                    <label style="font-weight: bold; margin: 0; white-space: nowrap; font-size: 14px;">작성자:</label>
+                                    <input type="text" class="form-control form-control-sm" name="author" value="<?php 
+                                        // 작성자 값: 수정 모드일 경우 기존 작성자, 신규일 경우 현재 사용자
+                                        if ($id > 0 && !empty($order_data['author'])) {
+                                            echo htmlspecialchars($order_data['author']);
+                                        } else {
+                                            echo htmlspecialchars($user_name);
+                                        }
+                                    ?>" placeholder="작성자 입력" style="width: 80px; padding: 4px 8px; border: 1px solid #ced4da; border-radius: 4px; font-size: 14px;">
+                                </div>
                             </div>
                         </div>
 
@@ -1541,7 +1552,7 @@ function collectFormData() {
         'action', 'id', 'order_no', 'issue_date', 'supplier_code',
         'supplier_name', 'supplier_address', 'business_type', 'business_item',
         'supplier_phone', 'supplier_fax', 'contact_name', 'business_registration_number',
-        'reference', 'fax', 'project_site', 'note', 'status', 'internalmemo', 'email', 'customer_id', 'disclaimer_text'
+        'reference', 'fax', 'project_site', 'note', 'status', 'internalmemo', 'email', 'customer_id', 'disclaimer_text', 'author'
     ];
     
     basicFields.forEach(function(fieldName) {

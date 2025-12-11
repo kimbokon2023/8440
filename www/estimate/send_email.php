@@ -150,6 +150,7 @@ try {
         $createTableSql = "CREATE TABLE IF NOT EXISTS `estimate_email_logs` (
             `id` INT(11) NOT NULL AUTO_INCREMENT,
             `estimate_id` INT(11) NOT NULL COMMENT '견적서 ID',
+            `contact_name` VARCHAR(255) DEFAULT NULL COMMENT '거래처명',
             `sender_email` VARCHAR(255) NOT NULL COMMENT '발신자 이메일',
             `recipient_email` VARCHAR(255) NOT NULL COMMENT '수신자 이메일',
             `subject` VARCHAR(255) NOT NULL COMMENT '메일 제목',
@@ -158,14 +159,34 @@ try {
             `error_message` TEXT DEFAULT NULL COMMENT '에러 메시지 (실패 시)',
             PRIMARY KEY (`id`),
             KEY `idx_estimate_id` (`estimate_id`),
-            KEY `idx_sent_at` (`sent_at`)
+            KEY `idx_sent_at` (`sent_at`),
+            KEY `idx_contact_name` (`contact_name`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='견적서 이메일 발송 로그'";
         
         $pdo->exec($createTableSql);
 
-        // 로그 저장
-        $logStmt = $pdo->prepare("INSERT INTO estimate_email_logs (estimate_id, sender_email, recipient_email, subject, status) VALUES (?, ?, ?, ?, 'success')");
-        $logStmt->execute([$estimateId, $fullEmail, $targetEmail, $subject]);
+        // contact_name 컬럼이 없으면 추가
+        try {
+            $checkColumn = $pdo->query("SHOW COLUMNS FROM `estimate_email_logs` LIKE 'contact_name'");
+            if ($checkColumn->rowCount() == 0) {
+                $pdo->exec("ALTER TABLE `estimate_email_logs` ADD COLUMN `contact_name` VARCHAR(255) DEFAULT NULL COMMENT '거래처명' AFTER `estimate_id`");
+                // 인덱스 추가
+                try {
+                    $pdo->exec("ALTER TABLE `estimate_email_logs` ADD INDEX `idx_contact_name` (`contact_name`)");
+                } catch (Exception $e) {
+                    // 인덱스가 이미 존재할 수 있음
+                }
+            }
+        } catch (Exception $e) {
+            error_log("contact_name 컬럼 확인/추가 오류: " . $e->getMessage());
+        }
+
+        // 거래처명 가져오기 (이미 조회한 $estimate 사용)
+        $contactName = $estimate['contact_name'] ?? '';
+
+        // 로그 저장 (거래처명 포함)
+        $logStmt = $pdo->prepare("INSERT INTO estimate_email_logs (estimate_id, contact_name, sender_email, recipient_email, subject, status) VALUES (?, ?, ?, ?, ?, 'success')");
+        $logStmt->execute([$estimateId, $contactName, $fullEmail, $targetEmail, $subject]);
 
     } catch (Throwable $e) {
         error_log("발송 로그 저장 실패: " . $e->getMessage());

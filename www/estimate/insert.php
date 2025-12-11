@@ -9,7 +9,15 @@ require_once __DIR__ . '/../bootstrap.php';
 // 세션 변수 초기화 (?? '' 형태)
 $level = $_SESSION["level"] ?? 999;
 $user_name = $_SESSION["name"] ?? '';
+$user_id = $_SESSION["userid"] ?? '';
 $DB = $_SESSION["DB"] ?? 'mirae8440';
+
+// 세션 디버그 로그
+debug_log("=== 세션 정보 ===");
+debug_log("userid: " . var_export($user_id, true));
+debug_log("name: " . var_export($user_name, true));
+debug_log("level: " . var_export($level, true));
+debug_log("전체 세션: " . print_r($_SESSION, true));
 
 // 동적 URL 생성
 $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
@@ -95,6 +103,19 @@ try {
             $pdo->exec("ALTER TABLE `estimates` ADD COLUMN `disclaimer_text` TEXT DEFAULT NULL COMMENT 'PDF 안내 문구 (면책 조항)'");
             debug_log("Disclaimer_text column added via insert.php");
         }
+        
+        // Force add author column if missing
+        if (!in_array('author', $cols)) {
+            debug_log("Author column missing! Attempting to add...");
+            $pdo->exec("ALTER TABLE `estimates` ADD COLUMN `author` VARCHAR(50) DEFAULT NULL COMMENT '작성자 이름' AFTER `created_at`");
+            debug_log("Author column added via insert.php");
+            // 인덱스 추가
+            try {
+                $pdo->exec("ALTER TABLE `estimates` ADD INDEX `idx_author` (`author`)");
+            } catch (Exception $e) {
+                debug_log("인덱스 추가 오류 (이미 존재할 수 있음): " . $e->getMessage());
+            }
+        }
     } catch (Exception $e) {
         debug_log("Schema check failed: " . $e->getMessage());
     }
@@ -167,6 +188,7 @@ $note = trim($_POST['note'] ?? '');
 $internalmemo = trim($_POST['internalmemo'] ?? '');
 $disclaimer_text = trim($_POST['disclaimer_text'] ?? '');
 $status = $_POST['status'] ?? 'draft';
+$author = trim($_POST['author'] ?? '');
 
 // JSON 데이터 처리
 $order_items_json = $_POST['order_items'] ?? '[]';
@@ -267,6 +289,7 @@ try {
                 internalmemo = :internalmemo,
                 disclaimer_text = :disclaimer_text,
                 status = :status,
+                author = :author,
                 updated_at = CURRENT_TIMESTAMP,
                 valid_date = :valid_date,
                 email = :email
@@ -298,6 +321,7 @@ try {
             ':internalmemo' => $internalmemo ?: null,
             ':disclaimer_text' => $disclaimer_text ?: null,
             ':status' => $status,
+            ':author' => !empty($author) ? $author : null,
             ':valid_date' => !empty($_POST['valid_date']) ? $_POST['valid_date'] : null,
             ':email' => !empty($_POST['email']) ? $_POST['email'] : null,
             ':id' => $id
@@ -331,14 +355,18 @@ try {
                 estimate_no, issue_date, customer_id, supplier_code, supplier_name, supplier_address,
                 business_type, business_item, supplier_phone, supplier_fax, contact_name,
                 business_registration_number, reference, fax, project_site, estimate_items, subtotal, delivery_date, delivery_location,
-                payment_terms, note, internalmemo, disclaimer_text, status, created_at, updated_at, is_deleted, valid_date, email
+                payment_terms, note, internalmemo, disclaimer_text, status, created_at, author, updated_at, is_deleted, valid_date, email
                 ) VALUES (
                 :estimate_no, :issue_date, :customer_id, :supplier_code, :supplier_name, :supplier_address,
                 :business_type, :business_item, :supplier_phone, :supplier_fax, :contact_name,
                 :business_registration_number, :reference, :fax, :project_site, :estimate_items, :subtotal, :delivery_date, :delivery_location,
-                :payment_terms, :note, :internalmemo, :disclaimer_text, :status, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0, :valid_date, :email
+                :payment_terms, :note, :internalmemo, :disclaimer_text, :status, CURRENT_TIMESTAMP, :author, CURRENT_TIMESTAMP, 0, :valid_date, :email
                 )";
 
+        // author 값 확인 및 디버그 (POST에서 받은 값이 있으면 사용, 없으면 user_name 사용)
+        $author_value = !empty($author) ? $author : (!empty($user_name) ? $user_name : null);
+        debug_log("작성자 정보 - POST author: " . var_export($author, true) . ", user_name: " . var_export($user_name, true) . ", 최종 author: " . var_export($author_value, true));
+        
         $stmt = $pdo->prepare($sql);
         $params = [
             ':estimate_no' => $order_no ?: null,
@@ -366,12 +394,25 @@ try {
             ':disclaimer_text' => $disclaimer_text ?: null,
             ':status' => $status,
             ':valid_date' => !empty($_POST['valid_date']) ? $_POST['valid_date'] : null,
-            ':email' => !empty($_POST['email']) ? $_POST['email'] : null
+            ':email' => !empty($_POST['email']) ? $_POST['email'] : null,
+            ':author' => $author_value
         ];
 
         if ($stmt->execute($params)) {
             $new_id = $pdo->lastInsertId();
-            debug_log("등록 완료 - 새 ID: " . $new_id);
+            debug_log("등록 완료 - 새 ID: " . $new_id . ", author: " . var_export($author_value, true));
+            
+            // 저장된 데이터 확인
+            try {
+                $check_sql = "SELECT author FROM `estimates` WHERE id = :id";
+                $check_stmt = $pdo->prepare($check_sql);
+                $check_stmt->bindValue(':id', $new_id, PDO::PARAM_INT);
+                $check_stmt->execute();
+                $saved_data = $check_stmt->fetch(PDO::FETCH_ASSOC);
+                debug_log("저장 확인 - 실제 DB의 author 값: " . var_export($saved_data['author'] ?? 'NULL', true));
+            } catch (Exception $e) {
+                debug_log("저장 확인 오류: " . $e->getMessage());
+            }
             
             if ($is_ajax) {
                 header('Content-Type: application/json; charset=utf-8');
