@@ -573,7 +573,7 @@ include getDocumentRoot() . '/load_header.php';
                     </label>
                 </div>
                 <button type="button" class="btn btn-dark btn-sm me-2" onclick="popupCenter('write_form.php?id=null', '회원 등록', 800, 500);return false;">등록</button>
-                <button type="button" class="btn btn-dark btn-sm me-2" onclick="popupCenter('setline.php?id=null', '결재라인 등록', 600, 400);return false;">결재라인 등록</button>
+                <button type="button" class="btn btn-dark btn-sm me-2" onclick="popupCenter('setline.php?id=null', '결재라인 등록', 600, 800);return false;">결재라인 등록</button>
                 <div class="inputWrap">
 					<input type="text" name="search" id="search" value="<?= htmlspecialchars($search, ENT_QUOTES, 'UTF-8') ?>" size="30" autocomplete="off" onkeydown="SearchEnter();" placeholder="ID, 이름, 닉네임 검색...">
 					<button class="btnClear" type="button"></button>

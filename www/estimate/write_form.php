@@ -1055,14 +1055,15 @@ document.addEventListener('DOMContentLoaded', function() {
                  select.style.padding = "4px";
                  select.style.boxSizing = "border-box";
                  
-                 // 옵션 목록
-                 var options = [
-                     {value: "", label: ""},
-                     {value: "EA", label: "EA"},
-                     {value: "SET", label: "SET"},
-                     {value: "대", label: "대"},
-                     {value: "식", label: "식"}
-                 ];
+                // 옵션 목록
+                var options = [
+                    {value: "", label: ""},
+                    {value: "EA", label: "EA"},
+                    {value: "SET", label: "SET"},
+                    {value: "대", label: "대"},
+                    {value: "식", label: "식"},
+                    {value: "%", label: "%"}
+                ];
                  
                  // 현재 값
                  var currentValue = cell.getValue() || '';
@@ -1112,15 +1113,52 @@ document.addEventListener('DOMContentLoaded', function() {
                  input.type = "text";
                  input.style.width = "100%";
                  input.style.padding = "4px";
-                 // 초기값 포맷팅
+                 // 초기값 포맷팅 (음수 허용)
                  var initialValue = cell.getValue();
-                 input.value = initialValue ? Number(initialValue).toLocaleString() : '';
+                 var numValue = parseFloat(initialValue) || 0;
+                 input.value = numValue !== 0 ? Number(numValue).toLocaleString() : '';
                  
-                 // 입력 시 동적 포맷팅
+                 // keydown: 음수 기호는 맨 앞에만 허용
+                 input.addEventListener("keydown", function(e) {
+                     // 음수 기호(-)는 커서가 맨 앞일 때만 허용
+                     if (e.key === '-' || e.key === 'Minus') {
+                         var cursorPos = input.selectionStart;
+                         if (cursorPos !== 0 || input.value.indexOf('-') !== -1) {
+                             e.preventDefault();
+                             return false;
+                         }
+                     }
+                     if (e.key === "Enter") {
+                         var value = input.value.replace(/,/g, '');
+                         var numValue = parseFloat(value) || 0;
+                         success(numValue);
+                     } else if (e.key === "Escape") {
+                         cancel();
+                     }
+                 });
+                 
+                 // 입력 시 동적 포맷팅 (음수 기호 허용)
                  input.addEventListener("input", function() {
-                     var value = input.value.replace(/[^\d]/g, ''); // 숫자만 남김
-                     if (value) {
-                         input.value = Number(value).toLocaleString();
+                     var rawValue = input.value;
+                     var isNegative = rawValue.startsWith('-');
+                     // 숫자와 음수 기호만 남김
+                     var value = rawValue.replace(/[^\d-]/g, '');
+                     // 음수 기호는 맨 앞에만 허용
+                     if (value.indexOf('-') > 0) {
+                         value = value.replace(/-/g, '');
+                     }
+                     // 음수 기호가 맨 앞이 아니면 제거
+                     if (value.startsWith('-')) {
+                         value = '-' + value.replace(/-/g, '').replace(/[^\d]/g, '');
+                     } else {
+                         value = value.replace(/[^\d]/g, '');
+                     }
+                     
+                     if (value && value !== '-') {
+                         var numValue = parseFloat(value) || 0;
+                         input.value = numValue.toLocaleString();
+                     } else if (value === '-') {
+                         input.value = '-';
                      } else {
                          input.value = '';
                      }
@@ -1131,15 +1169,6 @@ document.addEventListener('DOMContentLoaded', function() {
                      var numValue = parseFloat(value) || 0;
                      success(numValue);
                  });
-                 input.addEventListener("keydown", function(e) {
-                     if (e.key === "Enter") {
-                         var value = input.value.replace(/,/g, '');
-                         var numValue = parseFloat(value) || 0;
-                         success(numValue);
-                     } else if (e.key === "Escape") {
-                         cancel();
-                     }
-                 });
                  onRendered(function() {
                      input.focus();
                      // input.select(); // 포맷팅된 상태에서는 select가 불편할 수 있음 (선택사항)
@@ -1148,7 +1177,11 @@ document.addEventListener('DOMContentLoaded', function() {
              },
              formatter: function(cell) {
                  var value = cell.getValue();
-                 return value ? Number(value).toLocaleString() : '';
+                 if (value === null || value === undefined || value === '') {
+                     return '';
+                 }
+                 var numValue = typeof value === 'string' ? parseFloat(value.replace(/,/g, '')) : Number(value);
+                 return !isNaN(numValue) && numValue !== 0 ? numValue.toLocaleString() : '';
              },
              cellEdited: function(cell) {
                  var row = cell.getRow();
@@ -1156,8 +1189,8 @@ document.addEventListener('DOMContentLoaded', function() {
                  var 수량 = parseFloat(String(data.수량 || '').replace(/,/g, '')) || 0;
                  var 단가 = parseFloat(String(data.단가 || '').replace(/,/g, '')) || 0;
                  
-                 // 수량과 단가가 모두 있으면 공급가액과 세액 자동 계산
-                 if (수량 > 0 && 단가 > 0) {
+                 // 수량과 단가가 모두 있으면 공급가액과 세액 자동 계산 (음수 허용)
+                 if (수량 !== 0 && 단가 !== 0) {
                      var 공급가액 = Math.round(수량 * 단가);
                      var 세액 = Math.round(공급가액 * 0.1);
                      row.update({공급가액: 공급가액, 세액: 세액});
@@ -1173,15 +1206,52 @@ document.addEventListener('DOMContentLoaded', function() {
                  input.style.padding = "4px";
                  input.style.boxSizing = "border-box";
                  
-                 // 초기값 포맷팅
+                 // 초기값 포맷팅 (음수 허용)
                  var initialValue = cell.getValue();
-                 input.value = initialValue ? Number(initialValue).toLocaleString() : '';
+                 var numValue = parseFloat(initialValue) || 0;
+                 input.value = numValue !== 0 ? Number(numValue).toLocaleString() : '';
                  
-                 // 입력 시 동적 포맷팅
+                 // keydown: 음수 기호는 맨 앞에만 허용
+                 input.addEventListener("keydown", function(e) {
+                     // 음수 기호(-)는 커서가 맨 앞일 때만 허용
+                     if (e.key === '-' || e.key === 'Minus') {
+                         var cursorPos = input.selectionStart;
+                         if (cursorPos !== 0 || input.value.indexOf('-') !== -1) {
+                             e.preventDefault();
+                             return false;
+                         }
+                     }
+                     if (e.key === "Enter") {
+                         var value = input.value.replace(/,/g, '');
+                         var numValue = parseFloat(value) || 0;
+                         success(numValue);
+                     } else if (e.key === "Escape") {
+                         cancel();
+                     }
+                 });
+                 
+                 // 입력 시 동적 포맷팅 (음수 기호 허용)
                  input.addEventListener("input", function() {
-                     var value = input.value.replace(/[^\d]/g, ''); // 숫자만 남김
-                     if (value) {
-                         input.value = Number(value).toLocaleString();
+                     var rawValue = input.value;
+                     var isNegative = rawValue.startsWith('-');
+                     // 숫자와 음수 기호만 남김
+                     var value = rawValue.replace(/[^\d-]/g, '');
+                     // 음수 기호는 맨 앞에만 허용
+                     if (value.indexOf('-') > 0) {
+                         value = value.replace(/-/g, '');
+                     }
+                     // 음수 기호가 맨 앞이 아니면 제거
+                     if (value.startsWith('-')) {
+                         value = '-' + value.replace(/-/g, '').replace(/[^\d]/g, '');
+                     } else {
+                         value = value.replace(/[^\d]/g, '');
+                     }
+                     
+                     if (value && value !== '-') {
+                         var numValue = parseFloat(value) || 0;
+                         input.value = numValue.toLocaleString();
+                     } else if (value === '-') {
+                         input.value = '-';
                      } else {
                          input.value = '';
                      }
@@ -1191,16 +1261,6 @@ document.addEventListener('DOMContentLoaded', function() {
                      var value = input.value.replace(/,/g, '');
                      var numValue = parseFloat(value) || 0;
                      success(numValue);
-                 });
-                 
-                 input.addEventListener("keydown", function(e) {
-                     if (e.key === "Enter") {
-                         var value = input.value.replace(/,/g, '');
-                         var numValue = parseFloat(value) || 0;
-                         success(numValue);
-                     } else if (e.key === "Escape") {
-                         cancel();
-                     }
                  });
                  
                  onRendered(function() {
@@ -1222,8 +1282,8 @@ document.addEventListener('DOMContentLoaded', function() {
                  var data = row.getData();
                  var 공급가액 = parseFloat(String(data.공급가액 || '').replace(/,/g, '')) || 0;
                  
-                 // 공급가액이 입력되면 세액 자동 계산 (공급가액의 10%)
-                 if (공급가액 > 0) {
+                 // 공급가액이 입력되면 세액 자동 계산 (공급가액의 10%, 음수 허용)
+                 if (공급가액 !== 0) {
                      var 세액 = Math.round(공급가액 * 0.1);
                      row.update({세액: 세액});
                  }
@@ -1247,13 +1307,30 @@ document.addEventListener('DOMContentLoaded', function() {
                  input.style.padding = "4px";
                  input.style.boxSizing = "border-box";
                  
-                 // 초기값 포맷팅
+                 // 초기값 포맷팅 (음수 방지)
                  var initialValue = cell.getValue();
-                 input.value = initialValue ? Number(initialValue).toLocaleString() : '';
+                 var safeValue = Math.max(0, parseFloat(initialValue) || 0);
+                 input.value = safeValue ? Number(safeValue).toLocaleString() : '';
                  
-                 // 입력 시 동적 포맷팅
+                 // keydown: 음수 기호 입력 차단
+                 input.addEventListener("keydown", function(e) {
+                     // 음수 기호(-) 입력 차단
+                     if (e.key === '-' || e.key === 'Minus') {
+                         e.preventDefault();
+                         return false;
+                     }
+                     if (e.key === "Enter") {
+                         var value = input.value.replace(/,/g, '').replace(/-/g, '');
+                         var numValue = Math.max(0, parseFloat(value) || 0);
+                         success(numValue);
+                     } else if (e.key === "Escape") {
+                         cancel();
+                     }
+                 });
+                 
+                 // 입력 시 동적 포맷팅 (음수 기호 제거)
                  input.addEventListener("input", function() {
-                     var value = input.value.replace(/[^\d]/g, ''); // 숫자만 남김
+                     var value = input.value.replace(/[^\d]/g, ''); // 숫자만 남김 (음수 기호 포함 제거)
                      if (value) {
                          input.value = Number(value).toLocaleString();
                      } else {
@@ -1262,19 +1339,9 @@ document.addEventListener('DOMContentLoaded', function() {
                  });
 
                  input.addEventListener("blur", function() {
-                     var value = input.value.replace(/,/g, '');
-                     var numValue = parseFloat(value) || 0;
+                     var value = input.value.replace(/,/g, '').replace(/-/g, '');
+                     var numValue = Math.max(0, parseFloat(value) || 0);
                      success(numValue);
-                 });
-                 
-                 input.addEventListener("keydown", function(e) {
-                     if (e.key === "Enter") {
-                         var value = input.value.replace(/,/g, '');
-                         var numValue = parseFloat(value) || 0;
-                         success(numValue);
-                     } else if (e.key === "Escape") {
-                         cancel();
-                     }
                  });
                  
                  onRendered(function() {

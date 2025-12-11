@@ -783,32 +783,63 @@ function checkdate(input) {
 }
 
 function setCookie (cookie_name, value, minutes) {
-    const exdate = new Date();
-    exdate.setMinutes(exdate.getMinutes() + minutes);
-    // const cookie_value = escape(value) + ((minutes == null) ? '' : '; expires=' + exdate.toUTCString());
-    const cookie_value = value + ((minutes == null) ? '' : '; expires=' + exdate.toUTCString()); // 암호화 끔
-    // path=/ 추가하여 전체 사이트에서 쿠키 사용 가능하게 설정 (로컬/서버 환경 모두 지원)
-    document.cookie = cookie_name + '=' + cookie_value + '; path=/';
+    try {
+        // 쿠키 접근 가능 여부 확인
+        if (typeof document === 'undefined' || !document.cookie) {
+            console.warn('Cookie access not available');
+            return false;
+        }
+        const exdate = new Date();
+        exdate.setMinutes(exdate.getMinutes() + minutes);
+        // const cookie_value = escape(value) + ((minutes == null) ? '' : '; expires=' + exdate.toUTCString());
+        const cookie_value = value + ((minutes == null) ? '' : '; expires=' + exdate.toUTCString()); // 암호화 끔
+        // path=/ 추가하여 전체 사이트에서 쿠키 사용 가능하게 설정 (로컬/서버 환경 모두 지원)
+        document.cookie = cookie_name + '=' + cookie_value + '; path=/';
+        return true;
+    } catch (error) {
+        console.warn('Failed to set cookie:', error);
+        return false;
+    }
 }
 
 function getCookie(cookie_name) {
-    var x, y;
-    var val = document.cookie.split(';');
-  
-    for (var i = 0; i < val.length; i++) {
-      x = val[i].substr(0, val[i].indexOf('='));
-      y = val[i].substr(val[i].indexOf('=') + 1);
-      x = x.replace(/^\s+|\s+$/g, ''); // 앞과 뒤의 공백 제거하기
-      if (x == cookie_name) {
-        // return unescape(y); // unescape로 디코딩 후 값 리턴
-        return y; // 암호화 끔
-      }
+    try {
+        // 쿠키 접근 가능 여부 확인
+        if (typeof document === 'undefined' || !document.cookie) {
+            return null;
+        }
+        var x, y;
+        var val = document.cookie.split(';');
+      
+        for (var i = 0; i < val.length; i++) {
+          x = val[i].substr(0, val[i].indexOf('='));
+          y = val[i].substr(val[i].indexOf('=') + 1);
+          x = x.replace(/^\s+|\s+$/g, ''); // 앞과 뒤의 공백 제거하기
+          if (x == cookie_name) {
+            // return unescape(y); // unescape로 디코딩 후 값 리턴
+            return y; // 암호화 끔
+          }
+        }
+        return null;
+    } catch (error) {
+        console.warn('Failed to get cookie:', error);
+        return null;
     }
   }
 
 function deleteCookie(name) {
-    // path=/ 추가하여 쿠키 삭제가 전체 사이트에 적용되도록 설정
-    document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT; path=/';
+    try {
+        // 쿠키 접근 가능 여부 확인
+        if (typeof document === 'undefined' || !document.cookie) {
+            return false;
+        }
+        // path=/ 추가하여 쿠키 삭제가 전체 사이트에 적용되도록 설정
+        document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT; path=/';
+        return true;
+    } catch (error) {
+        console.warn('Failed to delete cookie:', error);
+        return false;
+    }
 }
 
 // 월, 일 날짜값 두자리( 00 )로 변경

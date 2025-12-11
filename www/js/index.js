@@ -3150,9 +3150,34 @@ function load_eworkslist() {
 				dataType: "json",
 				success: function (data) {
 
-					// console.log('=== 전자결재 데이터 로드 성공 ===');
-					// console.log('받은 데이터:', data);
-					// console.log('데이터 타입:', typeof data);
+					console.log('=== 전자결재 데이터 로드 성공 ===');
+					console.log('받은 데이터:', data);
+					console.log('데이터 타입:', typeof data);
+					
+					// 디버깅 정보 출력
+					if (data.debug) {
+						console.log('=== load_eworkslist.php 디버깅 정보 ===');
+						console.log('사용자 ID:', data.debug.user_id);
+						console.log('사용자 이름:', data.debug.user_name);
+						console.log('workLevel:', data.debug.workLevel, '(0=일반, 1=1차결재권자, 2=2차결재권자)');
+						console.log('is_final_approver:', data.debug.is_final_approver);
+						console.log('타임스탬프:', data.debug.timestamp);
+					}
+					
+					// 각 상태별 값 출력
+					console.log('=== 상태별 카운트 ===');
+					console.log('val0 (draft/작성):', data.val0);
+					console.log('val1 (send/상신):', data.val1);
+					console.log('val2 (noend/미결 또는 결재대기):', data.val2);
+					console.log('val3 (ing/진행):', data.val3);
+					console.log('val4 (end/결재):', data.val4);
+					
+					// 2차 결재권자의 경우 추가 정보 출력
+					if (data.debug && data.debug.is_final_approver) {
+						console.log('=== 2차 결재권자 정보 ===');
+						console.log('결재대기(noend) 카운트:', data.val2);
+						console.log('badge3에 설정될 값:', data.val2);
+					}
 
 					// 각 badge 요소 존재 여부 확인
 					// console.log('badge1 존재:', $('#badge1').length);
@@ -3174,17 +3199,18 @@ function load_eworkslist() {
 					// badge2 = 상신(send) = val1
 					if ($('#badge2').length > 0) {
 						var val = (data["val1"] !== undefined && data["val1"] !== null && data["val1"] !== 0) ? data["val1"] : '';
-						// console.log('badge2에 설정할 값:', val);
+						console.log('badge2 (상신)에 설정할 값:', val, '(원본 val1:', data["val1"], ')');
 						if (val !== '') {
 							$('#badge2').text(val).show();
 						} else {
 							$('#badge2').text('').hide();
 						}
 					}
-					// badge3 = 미결(noend) = val2
+					// badge3 = 미결(noend) 또는 결재대기(2차 결재권자) = val2
 					if ($('#badge3').length > 0) {
 						var val = (data["val2"] !== undefined && data["val2"] !== null && data["val2"] !== 0) ? data["val2"] : '';
-						// console.log('badge3에 설정할 값:', val);
+						var label = data.debug && data.debug.is_final_approver ? '결재대기' : '미결';
+						console.log('badge3 (' + label + ')에 설정할 값:', val, '(원본 val2:', data["val2"], ')');
 						if (val !== '') {
 							$('#badge3').text(val).show();
 						} else {

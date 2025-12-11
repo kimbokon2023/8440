@@ -37,13 +37,106 @@ try {
 // 현재 사용자가 결재권자인지 확인
 $eworks_level = in_array($user_id, $firstStepID);
 
+// 현재 사용자의 실제 eworks_level 값 확인
+$user_eworks_level = 0;
+$user_part = '';
+try {
+    // part 조건 제거: 모든 사용자의 eworks_level을 확인할 수 있도록 수정
+    $loadSQL = "SELECT eworks_level, part FROM mirae8440.member WHERE id = ?";
+    $stmh = $pdo->prepare($loadSQL);
+    $stmh->execute([$user_id]);
+    $row = $stmh->fetch(PDO::FETCH_ASSOC);
+    if ($row) {
+        $user_eworks_level = (int)$row["eworks_level"];
+        $user_part = $row["part"] ?? '';
+        // 디버깅: eworks_level이 0이 아닌데도 0으로 나오는 경우를 확인
+        if ($user_eworks_level > 0) {
+            error_log("User {$user_id} eworks_level: {$user_eworks_level}, part: {$user_part}");
+        }
+    } else {
+        error_log("User {$user_id} not found in member table");
+    }
+} catch (PDOException $Exception) {
+    error_log("Error getting user eworks_level: " . $Exception->getMessage());
+}
+
+// Company_approvalLine_.json 파일에서 결재권자 정보 확인
+$approvalLineFile = __DIR__ . '/member/Company_approvalLine_.json';
+if (file_exists($approvalLineFile) && !empty($user_part)) {
+    try {
+        $jsonContent = file_get_contents($approvalLineFile);
+        $approvalData = json_decode($jsonContent, true);
+        
+        if (is_array($approvalData)) {
+            // 사용자의 part에 해당하는 결재라인 찾기
+            $userPartKey = '';
+            if (strpos($user_part, '제조') !== false) {
+                $userPartKey = '제조파트';
+            } elseif (strpos($user_part, '지원') !== false) {
+                $userPartKey = '지원파트';
+            }
+            
+            if (!empty($userPartKey)) {
+                foreach ($approvalData as $approvalLine) {
+                    if (isset($approvalLine['savedName']) && $approvalLine['savedName'] === $userPartKey) {
+                        if (isset($approvalLine['approvalOrder']) && is_array($approvalLine['approvalOrder'])) {
+                            foreach ($approvalLine['approvalOrder'] as $approver) {
+                                // user-id가 숫자일 수도 있고 문자열일 수도 있으므로 둘 다 확인
+                                $approverId = isset($approver['user-id']) ? $approver['user-id'] : '';
+                                if ($approverId == $user_id || (string)$approverId === (string)$user_id) {
+                                    $order = isset($approver['order']) ? (int)$approver['order'] : 0;
+                                    if ($order == 1) {
+                                        // 1차 결재권자
+                                        $user_eworks_level = 1;
+                                        error_log("User {$user_id} found in Company_approvalLine_.json as 1차 결재권자 (order: {$order})");
+                                    } elseif ($order == 2) {
+                                        // 2차 결재권자
+                                        $user_eworks_level = 2;
+                                        error_log("User {$user_id} found in Company_approvalLine_.json as 2차 결재권자 (order: {$order})");
+                                    }
+                                    break 2; // 두 개의 foreach 루프 모두 종료
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    } catch (Exception $ex) {
+        error_log("Error reading Company_approvalLine_.json: " . $ex->getMessage());
+    }
+}
+
+// mirae 사용자는 사장님이므로 2차 결재권자(eworks_level = 2)로 명시적 처리
+if ($user_id === 'mirae') {
+    if ($user_eworks_level == 0) {
+        // 데이터베이스에 값이 없거나 0인 경우, 2차 결재권자로 설정
+        error_log("mirae user detected, setting eworks_level to 2 (final approver)");
+        $user_eworks_level = 2;
+    } else if ($user_eworks_level != 2) {
+        // 데이터베이스에 다른 값이 있지만, 사장님은 2차 결재권자여야 함
+        error_log("mirae user eworks_level is {$user_eworks_level}, but should be 2. Overriding to 2.");
+        $user_eworks_level = 2;
+    }
+}
 
 $_SESSION["eworks_level"] = $eworks_level ;
+$_SESSION["user_eworks_level"] = $user_eworks_level; // 실제 eworks_level 값 저장
 
-if($user_name=='소현철' || $user_name=='김보곤' || $user_name=='이경묵' || $user_name=='최장중' || $user_name=='조경임' || $user_name=='소민지' )
+// mirae 사용자(사장님)는 2차 결재권자로 명시적 처리
+if ($user_id === 'mirae') {
+    $admin = 1;
+    $ework_approval = 1;
+    // firstStepID 배열에도 추가 (결재권자 목록에 포함)
+    if (!in_array($user_id, $firstStepID)) {
+        $firstStepID[] = $user_id;
+        $firstStep[] = $user_name . " 대표";
+    }
+} else if($user_name=='소현철' || $user_name=='김보곤' || $user_name=='이경묵' || $user_name=='조경임' || $user_name=='소민지' )
 {
 	 $admin = 1;	
-   if($user_name=='소현철' || $user_name=='최장중')
+   // eworks_level == 2인 사람이 2차 결재권자, eworks_level == 1인 사람이 1차 결재권자
+   if($user_eworks_level == 2 || $user_eworks_level == 1)
         $ework_approval = 1;   
 }
   else
@@ -51,7 +144,9 @@ if($user_name=='소현철' || $user_name=='김보곤' || $user_name=='이경묵'
 	for($i = 0; $i < count($firstStepID); $i++) {
 		if($user_id === $firstStepID[$i]) {
 			$admin = 1;
-			$ework_approval = 1;
+			// eworks_level == 2인 사람이 2차 결재권자, eworks_level == 1인 사람이 1차 결재권자
+			if($user_eworks_level == 2 || $user_eworks_level == 1)
+				$ework_approval = 1;
 			break; // 일치하는 경우가 발견되면 루프를 종료
 		}
 	}

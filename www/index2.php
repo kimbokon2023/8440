@@ -511,22 +511,40 @@ function goToPhomiOrderPage(event) {
 }
 
 function closePhomiReminder() {
-    document.getElementById('phomiReminder').style.display = 'none';
-    
-    // 오늘 하루 보지 않기 쿠키 설정 (자정까지 유효)
-    var date = new Date();
-    date.setHours(23, 59, 59, 999); // 오늘 자정 설정
-    var expires = "expires=" + date.toUTCString();
-    document.cookie = "hidePhomiReminder=true; " + expires + "; path=/";
+    try {
+        document.getElementById('phomiReminder').style.display = 'none';
+        
+        // 오늘 하루 보지 않기 쿠키 설정 (자정까지 유효)
+        if (typeof document !== 'undefined' && document.cookie) {
+            var date = new Date();
+            date.setHours(23, 59, 59, 999); // 오늘 자정 설정
+            var expires = "expires=" + date.toUTCString();
+            document.cookie = "hidePhomiReminder=true; " + expires + "; path=/";
+        }
+    } catch (error) {
+        console.warn('Failed to close phomi reminder:', error);
+        // 쿠키 설정 실패해도 UI는 업데이트
+        var element = document.getElementById('phomiReminder');
+        if (element) element.style.display = 'none';
+    }
 }
 
 function closeDefectReminder() {
-    document.getElementById('defectReminder').style.display = 'none';
-    
-    var date = new Date();
-    date.setHours(23, 59, 59, 999);
-    var expires = "expires=" + date.toUTCString();
-    document.cookie = "hideDefectReminder=true; " + expires + "; path=/";
+    try {
+        document.getElementById('defectReminder').style.display = 'none';
+        
+        if (typeof document !== 'undefined' && document.cookie) {
+            var date = new Date();
+            date.setHours(23, 59, 59, 999);
+            var expires = "expires=" + date.toUTCString();
+            document.cookie = "hideDefectReminder=true; " + expires + "; path=/";
+        }
+    } catch (error) {
+        console.warn('Failed to close defect reminder:', error);
+        // 쿠키 설정 실패해도 UI는 업데이트
+        var element = document.getElementById('defectReminder');
+        if (element) element.style.display = 'none';
+    }
 }
 </script>
 
@@ -670,14 +688,33 @@ function closeDefectReminder() {
 	<?php } ?>	 
 
 <?php
-    $tabs = array(
-		"알림" => 0,
-		"작성" => 1,
-		"상신" => 2,
-		"미결" => 3,
-		"진행" => 4,
-		"결재" => 5
-    );
+    // 현재 사용자의 eworks_level 확인 (세션에서 가져오기)
+    $user_eworks_level = $_SESSION["user_eworks_level"] ?? 0;
+    
+    // 2차 결재권자 여부 확인: eworks_level == 2인 사람이 2차 결재권자
+    $is_final_approver_tabs = ($user_eworks_level == 2);
+    
+    // 2차 결재권자는 다른 탭 구조 사용
+    if ($is_final_approver_tabs) {
+        // 2차 결재권자는 5개 탭 표시: 결재대기, 결재, 반려, 보류, 삭제
+        $tabs = array(
+            "알림" => 0,
+            "결재대기" => 3,  // noend (미결 대신 결재대기)
+            "결재" => 5,      // end (결재)
+            "반려" => 6,      // reject (반려)
+            "보류" => 7,      // wait (보류)
+            "삭제" => 9       // trash (삭제)
+        );
+    } else {
+        $tabs = array(
+            "알림" => 0,
+            "작성" => 1,
+            "상신" => 2,
+            "미결" => 3,
+            "진행" => 4,
+            "결재" => 5
+        );
+    }
 ?>
  
 <!-- 모바일 전자결재 토글 버튼 -->
@@ -697,6 +734,10 @@ function closeDefectReminder() {
 
     <div class="eworks-sidebar-content">
 	<?php
+		// 최종결재권자 여부 확인: eworks_level == 2인 사람이 2차 결재권자(최종결재권자)
+		$is_final_approver = ($user_eworks_level == 2);
+		// 1차 결재권자 여부 확인: eworks_level == 1인 사람이 1차 결재권자
+		$is_first_approver = ($user_eworks_level == 1);
 		// print $eworks_level  ;
 		foreach ($tabs as $label => $tabId) {
 			$badgeId = "badge" . $tabId;
@@ -705,27 +746,38 @@ function closeDefectReminder() {
 	<div class="mb-2">
 		 <?php if ($label !== "알림")
 			{
-					if($eworks_level && ($tabId>=3) )
+					// 최종결재권자(2차 결재권자)는 결재대기(3), 결재(5), 반려(6), 보류(7), 삭제(9) 탭만 표시
+					if($is_final_approver)
+					{
+					  // 2차 결재권자는 tabId가 3, 5, 6, 7, 9인 탭만 표시 (진행 탭 제거)
+					  if($tabId == 3 || $tabId == 5 || $tabId == 6 || $tabId == 7 || $tabId == 9)
+					  {
+						print '<button type="button" class="btn btn-dark rounded-pill eworks-mobile-btn" onclick="seltab(' . $tabId . '); closeEworksSidebarOnClick();"> ';
+						echo $label;
+						print '<span class="badge badge-pill badge-dark ms-2" id="' . $badgeId . '"></span>';
+						print '</button>';
+					  }
+					}
+					// 1차 결재권자는 모든 탭 표시 (작성, 상신, 미결, 진행, 결재)
+					else if($is_first_approver)
 					{
 					  print '<button type="button" class="btn btn-dark rounded-pill eworks-mobile-btn" onclick="seltab(' . $tabId . '); closeEworksSidebarOnClick();"> ';
 					  echo $label;
 					  print '<span class="badge badge-pill badge-dark ms-2" id="' . $badgeId . '"></span>';
 					  print '</button>';
 					}
-					else if (!$eworks_level)  // 일반결재 상신하는 그룹
+					// 일반결재 상신하는 그룹은 작성(1), 상신(2) 탭만 표시
+					else if (!$eworks_level)  
 					{
 					  print '<button type="button" class="btn btn-dark rounded-pill eworks-mobile-btn" onclick="seltab(' . $tabId . '); closeEworksSidebarOnClick();"> ';
 					  echo $label;
 					  print '<span class="badge badge-pill badge-dark ms-2" id="' . $badgeId . '"></span>';
 					  print '</button>';
 					}
+					// 기타 경우 (이전 로직과의 호환성을 위해 유지)
 					else
 					{
-					  // 결재권자가 있지만 tabId < 3인 경우 (작성, 상신)
-					  print '<button type="button" class="btn btn-dark rounded-pill eworks-mobile-btn" onclick="seltab(' . $tabId . '); closeEworksSidebarOnClick();"> ';
-					  echo $label;
-					  print '<span class="badge badge-pill badge-dark ms-2" id="' . $badgeId . '"></span>';
-					  print '</button>';
+					  // 표시하지 않음
 					}
 
 				}
@@ -4506,6 +4558,45 @@ var user_id = $('#user_id').val();
 var user_name = $('#user_name').val();
 var approvalarr = <?php echo json_encode($approvalarr);?> ;
 
+// 결재권자 정보 콘솔 출력
+// 세션에서 직접 가져오기 (디버깅용)
+var session_user_eworks_level = <?php echo json_encode($_SESSION["user_eworks_level"] ?? 'not set'); ?>;
+var user_eworks_level = <?php echo json_encode($user_eworks_level ?? 0); ?>;
+var eworks_level = <?php echo json_encode($eworks_level ?? false); ?>;
+var is_final_approver = <?php echo json_encode($is_final_approver ?? false); ?>;
+var ework_approval = <?php echo json_encode($ework_approval ?? 0); ?>;
+
+console.log('=== 결재권자 정보 ===');
+console.log('사용자 ID:', user_id);
+console.log('사용자 이름:', user_name);
+console.log('세션 user_eworks_level:', session_user_eworks_level);
+console.log('변수 user_eworks_level:', user_eworks_level);
+console.log('eworks_level (boolean):', eworks_level);
+console.log('ework_approval:', ework_approval);
+           console.log('2차 결재권자 여부 (is_final_approver):', is_final_approver);
+
+// 세션 값과 변수 값 비교
+if (session_user_eworks_level !== user_eworks_level) {
+    console.warn('⚠️ 세션 값과 변수 값이 다릅니다!');
+    console.warn('세션:', session_user_eworks_level, '변수:', user_eworks_level);
+}
+
+if (user_eworks_level === 0) {
+    console.log('결재권자 등급: 일반 사용자');
+    if (session_user_eworks_level !== 0 && session_user_eworks_level !== 'not set') {
+        console.warn('⚠️ 세션에는 값이 있지만 변수는 0입니다. load_header.php를 확인하세요.');
+    }
+} else if (user_eworks_level === 1) {
+    console.log('결재권자 등급: 1차 결재권자');
+} else if (user_eworks_level === 2) {
+               console.log('결재권자 등급: 2차 결재권자');
+} else {
+    console.log('결재권자 등급: 알 수 없음 (값:', user_eworks_level, ')');
+}
+
+console.log('결재권자 배열:', approvalarr);
+console.log('==================');
+
 // console.log('결재권자');
 // console.log(approvalarr);
 
@@ -5004,17 +5095,34 @@ window.closeEworksModal = closeEworksModal;
 // common.js의 setCookie는 분 단위로 작동: setCookie(name, value, minutes)
 // 팝업용 일 단위 쿠키 함수
 function setCookieForDays(cname, cvalue, exdays) {
-  var d = new Date();
-  d.setTime(d.getTime() + (exdays*24*60*60*1000));
-  var expires = "expires="+ d.toUTCString();
-  document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+  try {
+    // 쿠키 접근 가능 여부 확인
+    if (typeof document === 'undefined' || !document.cookie) {
+      console.warn('Cookie access not available');
+      return false;
+    }
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    var expires = "expires="+ d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    return true;
+  } catch (error) {
+    console.warn('Failed to set cookie for days:', error);
+    return false;
+  }
 }
 
 $(document).ready(function(){
     // division 컬럼 값이 "표시"인 경우에만 팝업창을 보여줌(쿠키가 설정되어 있지 않은 경우)
     <?php if($popupDisplay){ ?>
-      if(getCookie('dailyPopupShown') !== 'true'){
-          $('#dailyPopup').show();
+      try {
+        var cookieValue = getCookie('dailyPopupShown');
+        if(cookieValue !== 'true'){
+            $('#dailyPopup').show();
+        }
+      } catch (error) {
+        console.warn('Failed to check cookie, showing popup:', error);
+        $('#dailyPopup').show();
       }
     <?php } ?>
 

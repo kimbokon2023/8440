@@ -75,7 +75,7 @@ if (!function_exists('fetchPendingApprovalIds')) {
                "WHERE is_deleted IS NULL " .
                " AND CONCAT('!', COALESCE(e_viewexcept_id, ''), '!') NOT LIKE :viewPattern " .
                " AND CONCAT('!', COALESCE(e_line_id, ''), '!') LIKE :linePattern " .
-               " AND status IN ('send', 'noend', 'ing')";
+               " AND status IN ('send', '상신', 'noend', 'ing')";
 
         $pending = [];
 

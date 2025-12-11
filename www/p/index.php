@@ -3,16 +3,20 @@
 // 소장들 선택할때 관리자도 선택가능하게 제작함.
 require_once __DIR__ . '/../bootstrap.php';
 
+// 로그인 체크: 로그인이 되어 있지 않으면 로그인 페이지로 리다이렉트
+if (!isset($_SESSION["userid"]) || empty($_SESSION["userid"])) {
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'];
+    $base_url = "{$protocol}://{$host}";
+    $_SESSION["url"] = "{$base_url}/p/index.php";
+    sleep(1);
+    header("Location: {$base_url}/login/login_form.php");
+    exit;
+}
+
 $level = $_SESSION["level"] ?? null;
 $id_name = $_SESSION["name"] ?? null;   
-$user_name = $_SESSION["name"] ?? null;   
-   
-// if(!isset($_SESSION["level"]) || $level > 10) {
-//     /*   alert("관리자 승인이 필요합니다."); */
-//     sleep(2);
-//     header("Location:" . getBaseUrl() . "/login/logout.php");
-//     exit;
-// }  
+$user_name = $_SESSION["name"] ?? null;  
 
 $workername = $_REQUEST["workername"] ?? '';
 
@@ -40,9 +44,103 @@ if($workername != '서영선') {
  
  <style> 
  th {
-	 
 	 font-size:22px;
  } 
+
+/* 모바일 최적화 스타일 - 글씨 크기 1.5배 확대 */
+@media (max-width: 768px) {
+    body {
+        font-size: 21px; /* 14px * 1.5 */
+    }
+    
+    h1, h2, h3, h4, h5 {
+        font-size: 1.8rem !important; /* 1.2rem * 1.5 */
+    }
+    
+    .btn {
+        font-size: 1.275rem !important; /* 0.85rem * 1.5 */
+        padding: 0.4rem 0.6rem !important;
+    }
+    
+    .btn-lg {
+        font-size: 1.35rem !important; /* 0.9rem * 1.5 */
+        padding: 0.5rem 0.7rem !important;
+    }
+    
+    th {
+        font-size: 21px !important; /* 14px * 1.5 */
+        padding: 8px 4px !important;
+    }
+    
+    td {
+        font-size: 19.5px !important; /* 13px * 1.5 */
+        padding: 8px 4px !important;
+    }
+    
+    .table {
+        font-size: 19.5px; /* 13px * 1.5 */
+    }
+    
+    .badge {
+        font-size: 1.2rem !important; /* 0.8rem * 1.5 */
+    }
+    
+    .fs-4 {
+        font-size: 1.35rem !important; /* 0.9rem * 1.5 */
+    }
+    
+    /* 현장명 말줄임표 처리 */
+    .workplace-name {
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: inline-block;
+    }
+    
+    /* 컨테이너 최적화 */
+    .container-fluid {
+        padding: 0.5rem !important;
+    }
+    
+    /* 검색창 최적화 */
+    .form-control {
+        font-size: 21px !important; /* 14px * 1.5 */
+    }
+    
+    /* 카드 최적화 */
+    .card {
+        margin-bottom: 0.5rem !important;
+    }
+    
+    .card-body {
+        padding: 0.75rem !important;
+    }
+    
+    /* 추가 텍스트 요소들 1.5배 확대 */
+    span, p, a, label, input, select, textarea {
+        font-size: 1.5em !important;
+    }
+    
+    /* 로그인/로그아웃 링크 */
+    #top-menu a {
+        font-size: 1.5em !important;
+    }
+    
+    /* 메뉴 텍스트 */
+    #top-menu h3 {
+        font-size: 1.5em !important;
+    }
+}
+
+/* 데스크톱에서도 현장명 말줄임표 처리 (12자 이상) */
+.workplace-name {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+}
  </style>
  </head> 
 <body>
@@ -239,10 +337,10 @@ if($workername!='서영선')
 							 <div class="d-flex justify-content-start align-items-center mt-1">   						
 															
 							<?php
-							// 한글 문자열을 30자로 제한
-							$limitedWorkplaceName = mb_substr($workplacenameArr[$i], 0, 35, 'UTF-8');
+							// 글자 제한 없이 전체 출력
+							$workplaceName = $workplacenameArr[$i];
 							?>
-							<span class="badge bg-secondary text-white fs-4"> <?=$limitedWorkplaceName?> </span>
+							<span class="badge bg-secondary text-white fs-4" title="<?=htmlspecialchars($workplaceName)?>"> <?=htmlspecialchars($workplaceName)?> </span>
 
 								&nbsp;&nbsp;
 								<button type="button" class="btn btn-dark " onclick="donecheck('<?=$numArr[$i]?>')"> 확인 </button> 
@@ -485,7 +583,9 @@ else{
         <td class="text-center" > <?=$doneday?>  </td>
         <td class="text-center text-primary " > <?=$pic_done?>  </td>
         <td class="text-center text-danger " ><?=$confirmsig?>  </td>
-        <td class="text-start" > <?=$workplacename?>  </td>
+        <td class="text-start" > 
+            <span class="workplace-name" title="<?=htmlspecialchars($workplacename)?>"><?=htmlspecialchars($workplacename)?></span>
+        </td>
         
         </tr>	
             

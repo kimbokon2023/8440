@@ -110,11 +110,108 @@ for ($i = 0; $i < count($firstStepID); $i++) {
     }
 }
 
+// 2차 결재권자 여부 확인: eworks_level == 2인 사람이 2차 결재권자
+// 세션에서 user_eworks_level을 먼저 확인 (load_header.php에서 Company_approvalLine_.json 기반으로 설정됨)
+$session_eworks_level = $_SESSION["user_eworks_level"] ?? 0;
+$user_eworks_level = 0;
+
+if ($session_eworks_level > 0) {
+    // 세션에 값이 있으면 우선 사용 (Company_approvalLine_.json 기반)
+    $user_eworks_level = (int)$session_eworks_level;
+    error_log("list.php: 세션에서 user_eworks_level 설정 - user_id: {$user_id}, user_eworks_level: {$user_eworks_level}");
+} else {
+    // 세션에 값이 없으면 기존 로직대로 데이터베이스에서 조회
+    for ($i = 0; $i < count($eworks_level_arr); $i++) {
+        if ($user_id === $id_arr[$i]) {
+            $user_eworks_level = (int)$eworks_level_arr[$i];
+            break;
+        }
+    }
+}
+
+$is_final_approver = ($user_eworks_level == 2);
+
 // 숨김 조건 설정
 $viewcon = " AND CONCAT('!', COALESCE(e_viewexcept_id, ''), '!') NOT LIKE '%!{$user_id}!%' ";
 $viewconNone = " AND CONCAT('!', COALESCE(e_viewexcept_id, ''), '!') LIKE '%!{$user_id}!%' ";
 
-if($admin)
+// 2차 결재권자는 별도 처리
+if($is_final_approver)
+{
+// 2차 결재권자인 경우
+// 상태별 조건 설정
+switch($eworksel) {		
+	case 'draft':
+		$where = "WHERE author_id = '$user_id' AND status = '$eworksel' AND is_deleted IS NULL" . $viewcon ;
+		$andwhere = "AND author_id = '$user_id' AND status = '$eworksel' AND is_deleted IS NULL" . $viewcon ;
+		break;			
+	case 'send':
+		// 2차 결재권자는 상신 문서도 볼 수 있음 (하지만 2차 결재권자는 send 탭을 사용하지 않음)
+		$all = "CONCAT('!', e_line_id, '!') LIKE '%!{$user_id}!%' " .
+			   "AND status = 'send' " .
+			   "AND is_deleted IS NULL " . $viewcon;
+		$where = "WHERE " . $all;
+		$andwhere = "AND " . $all;
+		break;
+	case 'noend': // 미결인 경우 - 결재 대기 문서
+		// 결재 대기: 
+		// 1. status='ing' (진행 중)
+		// 2. 결재라인에 2차 결재권자가 포함되어 있음
+		// 3. 2차 결재권자는 아직 결재하지 않음 (e_confirm_id에 포함되지 않음)
+		// 4. 1차 결재권자가 이미 결재했음 (e_confirm_id가 비어있지 않음)
+		$all = "status = 'ing' " .
+			   "AND CONCAT('!', e_line_id, '!') LIKE '%!{$user_id}!%' " .
+			   "AND CONCAT('!', COALESCE(e_confirm_id, ''), '!') NOT LIKE '%!{$user_id}!%' " .
+			   "AND COALESCE(e_confirm_id, '') != '' " . // 1차 결재권자가 이미 결재했음
+			   "AND is_deleted IS NULL " . $viewcon;
+		$where = "WHERE " . $all;
+		$andwhere = "AND " . $all;
+		break;
+
+	case 'ing': // 진행중인 경우
+		$all = "(author_id = '$user_id' OR CONCAT('!', e_line_id, '!') LIKE '%!{$user_id}!%') " .
+			   "AND CONCAT('!', e_confirm_id, '!') LIKE '%!{$user_id}!%' " .
+			   "AND is_deleted IS NULL AND status != 'end' AND status != 'reject' AND status != 'wait' AND status != 'noend'" . $viewcon;
+		$where = "WHERE " . $all;
+		$andwhere = "AND " . $all;
+		break;
+
+	case 'end': // 결재 탭 - 결재 대기 문서 및 결재완료 문서
+		// 결재 대기: status='ing'이고, done='done'이고, 결재라인에 포함되어 있고, 2차 결재권자는 아직 결재하지 않음
+		// 결재 완료: 결재라인에 포함되어 있고, 이미 결재했고, status='end'
+		$all = "((status = 'ing' AND done = 'done' AND CONCAT('!', e_line_id, '!') LIKE '%!{$user_id}!%' AND CONCAT('!', COALESCE(e_confirm_id, ''), '!') NOT LIKE '%!{$user_id}!%') " .
+			   "OR (CONCAT('!', e_line_id, '!') LIKE '%!{$user_id}!%' AND CONCAT('!', e_confirm_id, '!') LIKE '%!{$user_id}!%' AND status = 'end')) " .
+			   "AND is_deleted IS NULL " . $viewcon;
+		$where = "WHERE " . $all;
+		$andwhere = "AND " . $all;
+		break;
+
+	case 'reject': // 반려인 경우
+		$all = "CONCAT('!', e_line_id, '!') LIKE '%!{$user_id}!%' AND status = 'reject' AND is_deleted IS NULL" . $viewcon ;
+		$where = "WHERE " . $all;
+		$andwhere = "AND " . $all;
+		break;
+
+	case 'wait': // 보류인 경우
+		$all = "CONCAT('!', e_line_id, '!') LIKE '%!{$user_id}!%' AND status = 'wait' AND is_deleted IS NULL" . $viewcon ;
+		$where = "WHERE " . $all;
+		$andwhere = "AND " . $all;
+		break;
+
+	case 'refer': // 참조인 경우
+		$all = "CONCAT('!', e_line_id, '!') LIKE '%!{$user_id}!%' AND status = 'refer' AND is_deleted IS NULL" . $viewcon ;
+		$where = "WHERE " . $all;
+		$andwhere = "AND " . $all;
+		break;
+
+	case 'trash': // trash 
+		$all = " is_deleted IS NULL" . $viewconNone ;
+		$where = "WHERE " . $all;
+		$andwhere = "AND " . $all;
+		break;
+}
+}
+else if($admin)
 {
 // 결재권자인 경우
 // 상태별 조건 설정
@@ -124,14 +221,32 @@ switch($eworksel) {
 		$andwhere = "AND author_id = '$user_id' AND status = '$eworksel' AND is_deleted IS NULL" . $viewcon ;
 		break;			
 	case 'send':
-		// 첫 번째 결재권자이며, 문서 상태가 '상신'인 경우
-		$all = "CONCAT('!', e_line_id, '!') LIKE '%!{$user_id}!%' " .
-			   "AND CONCAT('!', e_confirm_id, '!') = '!'" . // 아직 아무도 결재하지 않았음
-			   "AND LOCATE('{$user_id}', e_line_id) = 1 " . // e_line_id의 첫 번째 결재권자임
-			   "AND status = '상신' " . // 문서 상태가 '상신'
-			   "AND is_deleted IS NULL " . $viewcon;
-		$where = "WHERE " . $all;
-		$andwhere = "AND " . $all;
+		// 1차 결재권자는 상신 탭에 자신이 작성한 문서만 표시
+		// 다른 사람이 작성한 send 상태의 문서는 미결 탭에 표시됨
+		if ($user_eworks_level == 1) {
+			// 1차 결재권자는 자신이 작성한 상신 문서만 표시
+			// status는 'send' 또는 '상신' 둘 다 확인 (데이터베이스에 둘 다 있을 수 있음)
+			$all = "author_id = '{$user_id}' " .
+				   "AND (status = 'send' OR status = '상신') " . // 문서 상태가 'send' 또는 '상신'
+				   "AND is_deleted IS NULL " . $viewcon;
+			$where = "WHERE " . $all;
+			$andwhere = "AND " . $all;
+			
+			// 디버깅: 1차 결재권자의 상신 탭 SQL 로그
+			error_log("=== list.php send 케이스 (1차 결재권자) ===");
+			error_log("user_id: {$user_id}");
+			error_log("user_eworks_level: {$user_eworks_level}");
+			error_log("WHERE 조건: {$where}");
+		} else {
+			// 2차 결재권자 또는 기타 경우
+			$all = "CONCAT('!', e_line_id, '!') LIKE '%!{$user_id}!%' " .
+				   "AND CONCAT('!', e_confirm_id, '!') = '!'" . // 아직 아무도 결재하지 않았음
+				   "AND LOCATE('{$user_id}', e_line_id) = 1 " . // e_line_id의 첫 번째 결재권자임
+				   "AND status = 'send' " . // 문서 상태가 'send' (데이터베이스에는 'send'로 저장됨)
+				   "AND is_deleted IS NULL " . $viewcon;
+			$where = "WHERE " . $all;
+			$andwhere = "AND " . $all;
+		}
 		break;
 	case 'noend': // 미결인 경우
 		$pendingIds = fetchPendingApprovalIds($pdo, $DB, $user_id);
@@ -340,7 +455,36 @@ try {
     } else {
         $start_num = 0;
         
+        // 디버깅: 실행된 SQL과 결과를 JavaScript 콘솔에 출력하기 위한 스크립트
+        echo '<script>';
+        echo 'console.log("=== list.php 실행 정보 ===");';
+        echo 'console.log("eworksel: ' . htmlspecialchars($eworksel, ENT_QUOTES) . '");';
+        echo 'console.log("user_id: ' . htmlspecialchars($user_id, ENT_QUOTES) . '");';
+        if (isset($user_eworks_level)) {
+            echo 'console.log("user_eworks_level: ' . $user_eworks_level . '");';
+        }
+        echo 'console.log("WHERE 조건: ' . htmlspecialchars($where, ENT_QUOTES) . '");';
+        echo 'console.log("실행된 COUNT SQL: ' . htmlspecialchars($sqlcon, ENT_QUOTES) . '");';
+        echo 'console.log("실행된 LIST SQL: ' . htmlspecialchars($sql, ENT_QUOTES) . '");';
+        echo 'console.log("total_row: ' . $total_row . '");';
+        echo 'console.log("count: ' . $count . '");';
+        echo '</script>';
+        
+        $row_count = 0;
         while ($row = $stmh->fetch(PDO::FETCH_ASSOC)) {
+            $row_count++;
+            // 디버깅: 각 행의 정보 출력 (처음 5개 행만)
+            if ($row_count <= 5) {
+                echo '<script>';
+                echo 'console.log("--- 행 ' . $row_count . ' ---");';
+                echo 'console.log("num: ' . htmlspecialchars($row['num'] ?? '', ENT_QUOTES) . '");';
+                echo 'console.log("author_id: ' . htmlspecialchars($row['author_id'] ?? '', ENT_QUOTES) . '");';
+                echo 'console.log("status: ' . htmlspecialchars($row['status'] ?? '', ENT_QUOTES) . '");';
+                echo 'console.log("e_line_id: ' . htmlspecialchars($row['e_line_id'] ?? '', ENT_QUOTES) . '");';
+                echo 'console.log("e_confirm_id: ' . htmlspecialchars($row['e_confirm_id'] ?? '', ENT_QUOTES) . '");';
+                echo '</script>';
+            }
+            
             include getDocumentRoot() . "/eworks/_row.php";
             
             // 상태 문자열 변환

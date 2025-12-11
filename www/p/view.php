@@ -247,7 +247,7 @@ if (!isset($pdo) || !$pdo) {
 		  실측서 이미지		 </button> &nbsp;	  	
 		  <button type="button" class="btn btn-danger  fw-bold " onclick="javascript:popup('<?= getBaseUrl() ?>/p/customer_input.php?num=<?=$num?>');">
 		  TKE 공사완료 확인서 </button>
-		  <button type="button" class="btn btn-outline-dark mx-1 " onclick="self.close();"> 
+		  <button type="button" class="btn btn-outline-dark mx-1 " onclick="closeWindow();"> 
 		  닫기 </button> 
 		</div>
 		<?php
@@ -257,7 +257,7 @@ if (!isset($pdo) || !$pdo) {
 		 <button type="button" class="btn btn-success   " onclick="javascript:move_url('<?= getBaseUrl() ?>/p/process_done.php?num=<?=$num?>&check=<?=$check?>&doneday=<?=$todate?>&workername=<?=$workername?>&from_view=1');">시공완료 </button> &nbsp;
 		  <button type="button" class="btn btn-secondary   " onclick="javascript:move_url('<?= getBaseUrl() ?>/p/reg_pic.php?num=<?=$num?>&check=<?=$check?>&workername=<?=$workername ?>');"> 전후 사진 </button> &nbsp;	
 		  <button type="button" class="btn btn-danger  fw-bold " onclick="javascript:popup('<?= getBaseUrl() ?>/p/customer_input_newone.php?num=<?=$num?>');">  공사완료 확인서 </button> 
-		  <button type="button" class="btn btn-outline-dark mx-1 " onclick="self.close();"> 닫기 </button> 
+		  <button type="button" class="btn btn-outline-dark mx-1 " onclick="closeWindow();"> 닫기 </button> 
 		<?php
 		}
 		?>
@@ -712,6 +712,26 @@ function move_url(href)
 function popup(href)
 {
 	  popupCenter(href,'공사완료확인서', 1000, 1000); 
+}
+
+// 창 닫기 함수 (모바일 호환)
+function closeWindow() {
+    // 팝업 창인 경우 닫기 시도
+    try {
+        if (window.opener || window.history.length <= 1) {
+            window.close();
+            // 닫기가 실패하면 목록 페이지로 이동
+            setTimeout(function() {
+                move_url('<?= getBaseUrl() ?>/p/index.php?check=<?=$check?>&workername=<?=$workername ?>');
+            }, 100);
+        } else {
+            // 일반 창인 경우 목록 페이지로 이동
+            move_url('<?= getBaseUrl() ?>/p/index.php?check=<?=$check?>&workername=<?=$workername ?>');
+        }
+    } catch(e) {
+        // 오류 발생 시 목록 페이지로 이동
+        move_url('<?= getBaseUrl() ?>/p/index.php?check=<?=$check?>&workername=<?=$workername ?>');
+    }
 }
 
 // 사진 회전하기
