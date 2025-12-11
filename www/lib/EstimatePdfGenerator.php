@@ -346,13 +346,14 @@ class EstimatePdfGenerator {
         </div>
 
         <div class="doc-title mb2">견      적      서</div>
-        <div class="doc-title2 ">ESTIMATE</div>
+        <div class="doc-title2 ">E S T I M A T E</div>
         <hr>
         <div class="mb2" style="display:flex; justify-content:space-between; align-items:center; width:100%;">
           <span class="doc-title3 mb6" style="flex:0 1 auto;">
             <?= $esc($recipient) ?> 貴下
           </span>
-          <span class="mb2" style="white-space:nowrap; font-size:12pt;">
+          <br>
+          <span class="mb2" style="font-size:12pt; margin-left: 5px;">
             <?= date('Y년 n월 j일', strtotime($quote_date)) ?>
           </span>
         </div>
@@ -374,7 +375,7 @@ class EstimatePdfGenerator {
                 <tbody>
                 <tr>
                 <td>
-                  <div style="position: absolute; display: inline-block; top: 115px; right: 70px;">
+                  <div style="position: absolute; display: inline-block; top: 130px; right: 70px;">
                     <?php
                     // 로고 이미지 경로 확인 및 처리
                     $logo_paths = [
@@ -394,7 +395,7 @@ class EstimatePdfGenerator {
                                 $png_content = file_get_contents($path);
                                 $base64_png = base64_encode($png_content);
                                 // 로고 위치 조정 (estimate_download.php와 동일한 위치)
-                                $logo_html = '<img src="data:image/png;base64,' . $base64_png . '" style="width: 100%; max-width: 180px; height: auto; object-fit: contain;" alt="미래기업 로고">';
+                                $logo_html = '<img src="data:image/png;base64,' . $base64_png . '" style="width: 100%; max-width: 170px; height: auto; object-fit: contain;" alt="미래기업 로고">';
                             }
                             break;
                         }
@@ -452,7 +453,7 @@ class EstimatePdfGenerator {
                         }
                       ?>
                     <div style="width:100%; margin-top: 5px; letter-spacing:0.1em; text-align:right; display:block; white-space: nowrap; font-size: 10pt;">
-                        <b>(주)미래기업</b> &nbsp;대표&nbsp; <?= $esc($signed_by) ?> &nbsp;(인)
+                         &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 대표&nbsp; <?= $esc($signed_by) ?> &nbsp;(인)
                     </div>
                 </td>
                 </tr>

@@ -79,6 +79,9 @@ try {
         'status'
     ];
     
+    // 작성자 정보 (현재 사용자 이름)
+    $user_name = $_SESSION["name"] ?? '';
+    
     // INSERT 쿼리 구성
     $fields = [];
     $placeholders = [];
@@ -100,6 +103,11 @@ try {
     
     // 발행일은 오늘 날짜로 변경
     $values[':issue_date'] = date('Y-m-d');
+    
+    // author 추가 (현재 사용자 이름)
+    $fields[] = 'author';
+    $placeholders[] = ':author';
+    $values[':author'] = !empty($user_name) ? $user_name : null;
     
     $sql = "INSERT INTO `orders` (" . implode(', ', $fields) . ", created_at, updated_at) 
             VALUES (" . implode(', ', $placeholders) . ", CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";

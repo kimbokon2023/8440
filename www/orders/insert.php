@@ -137,6 +137,7 @@ $delivery_location = trim($_POST['delivery_location'] ?? '');
 $payment_terms = trim($_POST['payment_terms'] ?? '');
 $note = trim($_POST['note'] ?? '');
 $status = $_POST['status'] ?? 'draft';
+$author = trim($_POST['author'] ?? '');
 
 // JSON 데이터 처리
 $order_items_json = $_POST['order_items'] ?? '[]';
@@ -212,6 +213,22 @@ try {
             exit;
         }
 
+        // author 컬럼이 있는지 확인하고 없으면 추가
+        try {
+            $check_column = $pdo->query("SHOW COLUMNS FROM `orders` LIKE 'author'");
+            if ($check_column->rowCount() == 0) {
+                $pdo->exec("ALTER TABLE `orders` ADD COLUMN `author` VARCHAR(50) DEFAULT NULL COMMENT '작성자 이름' AFTER `created_at`");
+                // 인덱스 추가
+                try {
+                    $pdo->exec("ALTER TABLE `orders` ADD INDEX `idx_author` (`author`)");
+                } catch (Exception $e) {
+                    // 인덱스가 이미 존재할 수 있음
+                }
+            }
+        } catch (Exception $e) {
+            error_log("author 컬럼 확인/추가 오류: " . $e->getMessage());
+        }
+
         $sql = "UPDATE `orders` SET
                 order_no = :order_no,
                 issue_date = :issue_date,
@@ -235,10 +252,16 @@ try {
                 payment_terms = :payment_terms,
                 note = :note,
                 status = :status,
+                author = :author,
                 updated_at = CURRENT_TIMESTAMP
                 WHERE id = :id";
 
         $stmt = $pdo->prepare($sql);
+        
+        // author 값 설정 (POST에서 받은 값이 있으면 사용, 없으면 user_name 사용)
+        $author_value = !empty($author) ? $author : (!empty($user_name) ? $user_name : null);
+        debug_log("작성자 정보 - POST author: " . var_export($author, true) . ", user_name: " . var_export($user_name, true) . ", 최종 author: " . var_export($author_value, true));
+        
         $params = [
             ':order_no' => $order_no ?: null,
             ':issue_date' => $issue_date,
@@ -262,6 +285,7 @@ try {
             ':payment_terms' => $payment_terms ?: null,
             ':note' => $note ?: null,
             ':status' => $status,
+            ':author' => $author_value,
             ':id' => $id
         ];
 
@@ -289,19 +313,40 @@ try {
 
     } else {
         // 새로 추가 작업
+        // author 컬럼이 있는지 확인하고 없으면 추가
+        try {
+            $check_column = $pdo->query("SHOW COLUMNS FROM `orders` LIKE 'author'");
+            if ($check_column->rowCount() == 0) {
+                $pdo->exec("ALTER TABLE `orders` ADD COLUMN `author` VARCHAR(50) DEFAULT NULL COMMENT '작성자 이름' AFTER `created_at`");
+                // 인덱스 추가
+                try {
+                    $pdo->exec("ALTER TABLE `orders` ADD INDEX `idx_author` (`author`)");
+                } catch (Exception $e) {
+                    // 인덱스가 이미 존재할 수 있음
+                }
+            }
+        } catch (Exception $e) {
+            error_log("author 컬럼 확인/추가 오류: " . $e->getMessage());
+        }
+
         $sql = "INSERT INTO `orders` (
                 order_no, issue_date, customer_id, supplier_code, supplier_name, supplier_address,
                 business_type, business_item, supplier_phone, supplier_fax, contact_name,
                 business_registration_number, phone, fax, project_site, order_items, subtotal, delivery_date, delivery_location,
-                payment_terms, note, status, created_at, updated_at, is_deleted
+                payment_terms, note, status, created_at, author, updated_at, is_deleted
                 ) VALUES (
                 :order_no, :issue_date, :customer_id, :supplier_code, :supplier_name, :supplier_address,
                 :business_type, :business_item, :supplier_phone, :supplier_fax, :contact_name,
                 :business_registration_number, :phone, :fax, :project_site, :order_items, :subtotal, :delivery_date, :delivery_location,
-                :payment_terms, :note, :status, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0
+                :payment_terms, :note, :status, CURRENT_TIMESTAMP, :author, CURRENT_TIMESTAMP, 0
                 )";
 
         $stmt = $pdo->prepare($sql);
+        
+        // author 값 설정 (POST에서 받은 값이 있으면 사용, 없으면 user_name 사용)
+        $author_value = !empty($author) ? $author : (!empty($user_name) ? $user_name : null);
+        debug_log("작성자 정보 - POST author: " . var_export($author, true) . ", user_name: " . var_export($user_name, true) . ", 최종 author: " . var_export($author_value, true));
+        
         $params = [
             ':order_no' => $order_no ?: null,
             ':issue_date' => $issue_date,
@@ -324,7 +369,8 @@ try {
             ':delivery_location' => $delivery_location ?: null,
             ':payment_terms' => $payment_terms ?: null,
             ':note' => $note ?: null,
-            ':status' => $status
+            ':status' => $status,
+            ':author' => $author_value
         ];
 
         if ($stmt->execute($params)) {

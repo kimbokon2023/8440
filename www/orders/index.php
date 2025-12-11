@@ -132,6 +132,22 @@ $count_stmt->execute();
 $total_records = $count_stmt->fetchColumn();
 $total_pages = ceil($total_records / $per_page);
 
+// author 컬럼이 있는지 확인하고 없으면 추가
+try {
+    $check_column = $pdo->query("SHOW COLUMNS FROM `orders` LIKE 'author'");
+    if ($check_column->rowCount() == 0) {
+        $pdo->exec("ALTER TABLE `orders` ADD COLUMN `author` VARCHAR(50) DEFAULT NULL COMMENT '작성자 이름' AFTER `created_at`");
+        // 인덱스 추가
+        try {
+            $pdo->exec("ALTER TABLE `orders` ADD INDEX `idx_author` (`author`)");
+        } catch (Exception $e) {
+            // 인덱스가 이미 존재할 수 있음
+        }
+    }
+} catch (Exception $e) {
+    error_log("author 컬럼 확인/추가 오류: " . $e->getMessage());
+}
+
 // 데이터 조회
 // 정렬 컬럼이 contact_name인 경우 COALESCE로 처리
 $order_by_clause = '';
@@ -1118,6 +1134,7 @@ a:hover {
                             <i class="fas fa-sort text-muted" style="opacity: 0.3;"></i>
                         <?php endif; ?>
                     </th>
+                    <th width="8%">작성자</th>
                     <th width="20%">현장명/품목/규격</th>
                     <th width="8%" class="text-right sortable" data-sort="subtotal">
                         공급가액
@@ -1152,7 +1169,7 @@ a:hover {
             <tbody>
                 <?php if (empty($orders)): ?>
                 <tr>
-                    <td colspan="11">
+                    <td colspan="12">
                         <div class="empty-state">
                             <i class="fas fa-inbox"></i>
                             <h3>등록된 발주서가 없습니다</h3>
@@ -1175,6 +1192,9 @@ a:hover {
                         $partner_name = $order['contact_name'] ?? $order['supplier_name'] ?? '';
                         ?>
                         <strong><?php echo htmlspecialchars($partner_name); ?></strong>
+                    </td>
+                    <td>
+                        <?php echo htmlspecialchars($order['author'] ?? '-'); ?>
                     </td>
                     <td style="max-width: 300px; word-wrap: break-word; white-space: normal;">
                         <?php
@@ -2442,14 +2462,18 @@ a:hover {
         html += '<div class="detail-section">';
         html += '<div class="detail-section-title">📋 기본 정보</div>';
         html += '<div class="detail-grid">';
-        // 현장명/프로젝트 (강조 표시)
-        if (order.project_site) {
-            html += '<div class="detail-item"><div class="detail-label">현장명/프로젝트</div><div class="detail-value" style="font-weight: bold; color: #0d6efd;">' + order.project_site + '</div></div>';
-        }
         html += '<div class="detail-item"><div class="detail-label">발행일</div><div class="detail-value">' + (order.issue_date || '-') + '</div></div>';
         var partnerName = order.contact_name || order.supplier_name || '-';
         html += '<div class="detail-item"><div class="detail-label">거래처</div><div class="detail-value">' + partnerName + '</div></div>';
         html += '<div class="detail-item"><div class="detail-label">상태</div><div class="detail-value">' + (statusLabels[order.status] || '알 수 없음') + '</div></div>';
+        html += '</div>';
+        
+        // 현장명과 작성자를 같은 줄에 배치 (현장명 2배, 작성자 1배)
+        html += '<div style="display: flex; gap: 15px; margin-top: 15px;">';
+        html += '<div class="detail-item" style="flex: 2; min-width: 0;"><div class="detail-label">현장명</div><div class="detail-value" style="font-weight: bold; color: #0d6efd;">' + (order.project_site || '-') + '</div></div>';
+        html += '<div class="detail-item" style="flex: 1; min-width: 0;"><div class="detail-label">작성자</div><div class="detail-value">' + (order.author || '-') + '</div></div>';
+        html += '</div>';
+        
         // 납기일자 처리 (빈 값이나 유효하지 않은 날짜는 공백)
         var deliveryDate = '';
         if (order.delivery_date && 

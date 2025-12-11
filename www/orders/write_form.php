@@ -630,8 +630,10 @@ body.iframe-mode .btn-primary:hover {
                             }
                         ?>" placeholder="거래처명을 입력하세요" style="flex: 1;" autocomplete="off">
                         <button type="button" class="btn btn-sm btn-primary" id="searchCustomerBtn" style="white-space: nowrap;">
-                            <i class="bi bi-search"></i> 검색
+                            <i class="bi bi-search"></i> 
                         </button>
+                        <label style="white-space: nowrap; font-size: 14px; margin: 0; padding-right: 5px;">작성자:</label>
+                        <input type="text" name="author" id="author" value="<?php echo $order_data ? htmlspecialchars($order_data['author'] ?? $user_name) : htmlspecialchars($user_name); ?>" placeholder="작성자" style="width: 80px; flex-shrink: 0;" autocomplete="off">
                     </div>
                     <div class="info-label">발주일자</div>
                     <div class="info-value">
@@ -1183,7 +1185,7 @@ function collectFormData() {
     
     // 기본 필드들
     var basicFields = [
-        'action', 'id', 'order_no', 'issue_date', 'supplier_code',
+        'action', 'id', 'order_no', 'issue_date', 'author', 'supplier_code',
         'supplier_name', 'supplier_address', 'business_type', 'business_item',
         'supplier_phone', 'supplier_fax', 'contact_name', 'business_registration_number',
         'phone', 'fax', 'project_site', 'delivery_date', 'delivery_location',

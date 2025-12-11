@@ -232,10 +232,10 @@ class OrderPdfGenerator {
                     <td class="recipient-cell">
                         <div class="recipient-name"><?= $esc($contact_name ?: '거래처') ?> 귀하</div>
                         <div class="order-info">발주일자 : <?= $ymdKorean($issue_date) ?></div>
-                        <div class="order-info">
-                            전화번호 : <?= $esc($formatPhone($phone)) ?> &nbsp;&nbsp; 
-                            <?php if ($fax): ?>팩스번호 : <?= $esc($formatPhone($fax)) ?><?php endif; ?>
-                        </div>
+                        <div class="order-info">전화번호 : <?= $esc($formatPhone($phone)) ?></div>
+                        <?php if ($fax): ?>
+                        <div class="order-info">팩스번호 : <?= $esc($formatPhone($fax)) ?></div>
+                        <?php endif; ?>
                         <div class="delivery-note">납기일 내에 인도해 주시기 바랍니다.</div>
                     </td>
 

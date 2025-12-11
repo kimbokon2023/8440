@@ -68,116 +68,80 @@ $where_conditions = ["1=1"];
 $params = [];
 
 if ($search_keyword) {
-    $where_conditions[] = "(recipient_email LIKE :search1 OR subject LIKE :search2 OR sender_email LIKE :search3)";
+    // 거래처명도 검색에 포함 (orders 테이블과 JOIN하므로)
+    $where_conditions[] = "(l.recipient_email LIKE :search1 OR l.subject LIKE :search2 OR l.sender_email LIKE :search3 OR COALESCE(o.contact_name, o.supplier_name, '') LIKE :search4)";
     $searchTerm = '%' . $search_keyword . '%';
     $params[':search1'] = $searchTerm;
     $params[':search2'] = $searchTerm;
     $params[':search3'] = $searchTerm;
+    $params[':search4'] = $searchTerm;
 }
 
 if ($search_date_from) {
-    $where_conditions[] = "DATE(sent_at) >= :search_date_from";
+    $where_conditions[] = "DATE(l.sent_at) >= :search_date_from";
     $params[':search_date_from'] = $search_date_from;
 }
 
 if ($search_date_to) {
-    $where_conditions[] = "DATE(sent_at) <= :search_date_to";
+    $where_conditions[] = "DATE(l.sent_at) <= :search_date_to";
     $params[':search_date_to'] = $search_date_to;
 }
 
 if ($search_status !== 'all') {
-    $where_conditions[] = "status = :search_status";
+    $where_conditions[] = "l.status = :search_status";
     $params[':search_status'] = $search_status;
 }
 
 $where_clause = implode(' AND ', $where_conditions);
 
 // 전체 레코드 수 조회
-// sent_email_logs와 estimate_email_logs 두 테이블 모두 확인
+// sent_email_logs 테이블만 사용 (발주서 이메일 로그)
 try {
-    $checkTable1 = $pdo->query("SHOW TABLES LIKE 'sent_email_logs'");
-    $checkTable2 = $pdo->query("SHOW TABLES LIKE 'estimate_email_logs'");
-    $hasOrderLogs = $checkTable1->rowCount() > 0;
-    $hasEstimateLogs = $checkTable2->rowCount() > 0;
+    $checkTable = $pdo->query("SHOW TABLES LIKE 'sent_email_logs'");
+    $hasOrderLogs = $checkTable->rowCount() > 0;
     
-    if (!$hasOrderLogs && !$hasEstimateLogs) {
+    if (!$hasOrderLogs) {
         $total_records = 0;
         $logs = [];
     } else {
-        // 두 테이블의 레코드 수 합산
-        $count_parts = [];
-        if ($hasOrderLogs) {
-            $count_parts[] = "(SELECT COUNT(*) FROM `sent_email_logs` WHERE $where_clause)";
+        // sent_email_logs와 orders 테이블 JOIN하여 거래처명 포함 검색
+        $count_sql = "SELECT COUNT(*) 
+                      FROM `sent_email_logs` l 
+                      LEFT JOIN `orders` o ON l.order_id = o.id 
+                      WHERE $where_clause";
+        $count_stmt = $pdo->prepare($count_sql);
+        foreach ($params as $key => $value) {
+            $count_stmt->bindValue($key, $value);
         }
-        if ($hasEstimateLogs) {
-            $count_parts[] = "(SELECT COUNT(*) FROM `estimate_email_logs` WHERE $where_clause)";
-        }
-        
-        if (count($count_parts) > 0) {
-            $count_sql = "SELECT (" . implode(" + ", $count_parts) . ") as total";
-            $count_stmt = $pdo->prepare($count_sql);
-            foreach ($params as $key => $value) {
-                $count_stmt->bindValue($key, $value);
-            }
-            $count_stmt->execute();
-            $total_records = $count_stmt->fetchColumn();
-        } else {
-            $total_records = 0;
-        }
+        $count_stmt->execute();
+        $total_records = $count_stmt->fetchColumn();
 
-        // 데이터 조회 (발주서와 견적서 이메일 로그를 UNION하여 조회)
-        $union_parts = [];
-        
-        if ($hasOrderLogs) {
-            $union_parts[] = "SELECT 
-                l.id,
-                l.order_id as related_id,
-                NULL as estimate_id,
-                'order' as log_type,
-                l.sender_email,
-                l.recipient_email,
-                l.subject,
-                l.sent_at,
-                l.status,
-                l.error_message,
-                COALESCE(o.contact_name, o.supplier_name, '') as contact_name
+        // 데이터 조회 (발주서 이메일 로그만 조회)
+        // 정렬 컬럼에 테이블 별칭 추가
+        $order_by_column = 'l.' . $sort_column;
+        $sql = "SELECT 
+                    l.id,
+                    l.order_id,
+                    l.sender_email,
+                    l.recipient_email,
+                    l.subject,
+                    l.sent_at,
+                    l.status,
+                    l.error_message,
+                    COALESCE(o.contact_name, o.supplier_name, '') as contact_name
                 FROM `sent_email_logs` l 
                 LEFT JOIN `orders` o ON l.order_id = o.id 
-                WHERE $where_clause";
+                WHERE $where_clause
+                ORDER BY $order_by_column $sort_direction 
+                LIMIT :offset, :per_page";
+        $stmt = $pdo->prepare($sql);
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
         }
-        
-        if ($hasEstimateLogs) {
-            $union_parts[] = "SELECT 
-                l.id,
-                NULL as related_id,
-                l.estimate_id,
-                'estimate' as log_type,
-                l.sender_email,
-                l.recipient_email,
-                l.subject,
-                l.sent_at,
-                l.status,
-                l.error_message,
-                COALESCE(e.contact_name, '') as contact_name
-                FROM `estimate_email_logs` l 
-                LEFT JOIN `estimates` e ON l.estimate_id = e.id 
-                WHERE $where_clause";
-        }
-        
-        if (count($union_parts) > 0) {
-            $sql = "(" . implode(") UNION ALL (", $union_parts) . ") ORDER BY $sort_column $sort_direction LIMIT :offset, :per_page";
-            $stmt = $pdo->prepare($sql);
-            // 파라미터 바인딩 (PDO는 동일한 파라미터를 여러 번 바인딩할 수 있음)
-            foreach ($params as $key => $value) {
-                $stmt->bindValue($key, $value);
-            }
-            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-            $stmt->bindValue(':per_page', $per_page, PDO::PARAM_INT);
-            $stmt->execute();
-            $logs = $stmt->fetchAll();
-        } else {
-            $logs = [];
-        }
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->bindValue(':per_page', $per_page, PDO::PARAM_INT);
+        $stmt->execute();
+        $logs = $stmt->fetchAll();
     }
 } catch (Exception $e) {
     $total_records = 0;
@@ -545,7 +509,6 @@ body {
                         <?php endif; ?>
                     </th>
                     <th width="10%" class="text-center">발주서ID</th>
-                    <th width="10%" class="text-center">견적서ID</th>
                     <th width="15%">거래처명</th>
                     <th width="20%">수신자</th>
                     <th width="35%">제목</th>
@@ -561,19 +524,9 @@ body {
                             <td class="text-center"><?php echo $log['id']; ?></td>
                             <td><?php echo $log['sent_at']; ?></td>
                             <td class="text-center">
-                                <?php if (!empty($log['related_id']) || !empty($log['order_id'])): ?>
-                                    <?php $orderId = $log['related_id'] ?? $log['order_id']; ?>
-                                    <a href="../orders/index.php?search_keyword=<?php echo $orderId; ?>" target="_blank">
-                                        #<?php echo $orderId; ?>
-                                    </a>
-                                <?php else: ?>
-                                    -
-                                <?php endif; ?>
-                            </td>
-                            <td class="text-center">
-                                <?php if (!empty($log['estimate_id'])): ?>
-                                    <a href="../estimate/index.php?search_keyword=<?php echo $log['estimate_id']; ?>" target="_blank">
-                                        #<?php echo $log['estimate_id']; ?>
+                                <?php if (!empty($log['order_id'])): ?>
+                                    <a href="../orders/index.php?search_keyword=<?php echo $log['order_id']; ?>" target="_blank">
+                                        #<?php echo $log['order_id']; ?>
                                     </a>
                                 <?php else: ?>
                                     -
@@ -586,11 +539,11 @@ body {
                                 <?php if ($log['status'] === 'success'): ?>
                                     <span class="status-badge status-success">성공</span>
                                 <?php else: ?>
-                                    <span class="status-badge status-fail" title="<?php echo htmlspecialchars($log['error_message']); ?>">실패</span>
+                                    <span class="status-badge status-fail" title="<?php echo htmlspecialchars($log['error_message'] ?? ''); ?>">실패</span>
                                 <?php endif; ?>
                             </td>
                             <td class="text-center">
-                                <?php if ($log['error_message']): ?>
+                                <?php if (!empty($log['error_message'])): ?>
                                     <button type="button" class="btn btn-sm btn-secondary" onclick="alert('<?php echo htmlspecialchars(addslashes($log['error_message'])); ?>')">
                                         <i class="fas fa-exclamation-circle"></i>
                                     </button>
@@ -605,11 +558,11 @@ body {
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="9">
+                        <td colspan="8">
                             <div class="empty-state">
                                 <i class="far fa-folder-open"></i>
                                 <h3>발송된 이메일 내역이 없습니다.</h3>
-                                <p>발주서 또는 견적서 관리에서 이메일을 발송하면 이곳에 기록됩니다.</p>
+                                <p>발주서 관리에서 이메일을 발송하면 이곳에 기록됩니다.</p>
                             </div>
                         </td>
                     </tr>
@@ -689,7 +642,7 @@ body {
 
                     <h6 class="fw-bold text-success mb-2"><i class="fas fa-list"></i> 목록 확인</h6>
                     <p class="text-muted mb-4">
-                        발송 일시, 발주서 ID, 수신자, 제목, 전송 상태를 한눈에 확인할 수 있습니다.<br>
+                        발송 일시, 발주서 ID, 거래처명, 수신자, 제목, 전송 상태를 한눈에 확인할 수 있습니다.<br>
                         <strong>발주서 ID</strong>를 클릭하면 해당 발주서 목록으로 이동합니다.
                     </p>
 
