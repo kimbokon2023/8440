@@ -7,7 +7,7 @@
 
 // common/functions.php 로드
 if (file_exists(__DIR__ . '/../common/functions.php')) {
-    require_once __DIR__ . '/../common/functions.php';
+    require_once __DIR__ . '/../bootstrap.php';
 }
 
 require_once getDocumentRoot() . '/load_GoogleDrive.php';

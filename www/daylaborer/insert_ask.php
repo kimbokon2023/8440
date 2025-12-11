@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 require_once getDocumentRoot() . '/session.php';
 
 // 개별로 신청하는 것에 대한 DB처리 구간

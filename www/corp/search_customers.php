@@ -4,7 +4,7 @@
  * orders/write_form.php에서 사용
  */
 
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 require_once getDocumentRoot() . '/session.php';
 
 // JSON 응답 헤더 설정

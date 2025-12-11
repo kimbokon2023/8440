@@ -7,7 +7,7 @@
 
 // common/functions.php 로드 (필요한 경우)
 if (file_exists(__DIR__ . '/../common/functions.php')) {
-    require_once __DIR__ . '/../common/functions.php';
+    require_once __DIR__ . '/../bootstrap.php';
 }
 
 require_once __DIR__ . '/file_api.php';

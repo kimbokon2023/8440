@@ -3,7 +3,7 @@
  * QC 공정표 게시글 삭제 처리
  * 게시글과 첨부파일을 데이터베이스에서 삭제
  */
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
 
 header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문

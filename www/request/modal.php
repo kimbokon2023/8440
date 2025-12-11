@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 ?>
 
 <!--전자결재 리스트창 -->

@@ -5,7 +5,7 @@
  */
 
 // 공통 함수 로드
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 
 // 공통 변수 초기화 함수
 function getRequestValue($key, $default = '') {

@@ -3,7 +3,7 @@
  * QC 공정표 상세보기 페이지
  * QC 공정표 게시글의 상세 내용을 표시
  */
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
 
 // 첫 화면 표시 문구

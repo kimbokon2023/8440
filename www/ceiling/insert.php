@@ -1,7 +1,5 @@
 <?php
-require_once __DIR__ . '/../common/functions.php';
-
-session_start();
+require_once __DIR__ . '/../bootstrap.php';
 
 // JSON 응답 헤더 설정
 header("Content-Type: application/json");

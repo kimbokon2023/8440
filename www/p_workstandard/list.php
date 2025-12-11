@@ -3,7 +3,7 @@
  * 작업표준서 목록 페이지
  * 작업표준서 게시판의 목록을 표시
  */
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 require_once(includePath('session.php'));
 
 // 첫 화면 표시 문구

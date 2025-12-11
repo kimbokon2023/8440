@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 require_once getDocumentRoot() . '/session.php';
 
 // json을 사용하기 위해 필요한 구문

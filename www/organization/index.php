@@ -4,7 +4,7 @@
  * 로컬 및 서버 환경 모두 지원
  */
 
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 require_once(includePath('session.php'));
 
 // 세션 변수 초기화 (?? '' 형태)

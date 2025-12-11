@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 include getDocumentRoot() . '/session.php';
 
 // 세션 변수는 session.php에서 로드됨

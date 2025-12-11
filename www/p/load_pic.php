@@ -9,7 +9,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 // @see Google_Service_Drive
 
 // 2. 공통 함수 로드
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 
 // 3. 데이터베이스 연결
 require_once __DIR__ . '/../lib/mydb.php';

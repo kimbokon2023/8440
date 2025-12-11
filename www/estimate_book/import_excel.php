@@ -4,7 +4,7 @@
  * corp/거래처리스트.xls 파일을 읽어서 데이터베이스에 저장
  */
 
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 require_once getDocumentRoot() . '/session.php';
 
 // 세션 변수 초기화

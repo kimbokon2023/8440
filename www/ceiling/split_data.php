@@ -4,7 +4,7 @@
  * 천장&조명 수주내역 데이터 분할&복사 페이지
  */
 
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 
 // 세션 시작
 if (!isset($_SESSION)) {

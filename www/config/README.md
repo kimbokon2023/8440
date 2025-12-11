@@ -26,7 +26,7 @@ www/
 
 ```php
 <?php
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 require_once getDocumentRoot() . '/session.php';
 
 // 세션 변수 초기화
@@ -131,7 +131,7 @@ $pdo = db_connect();  // 환경에 맞는 설정으로 자동 연결
 
 ```php
 <?php
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 require_once getDocumentRoot() . '/session.php';
 
 // 세션 변수 초기화
@@ -163,7 +163,7 @@ try {
 
 ```php
 <?php
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 require_once getDocumentRoot() . '/session.php';
 
 $DB = $_SESSION["DB"] ?? '';
@@ -196,7 +196,7 @@ try {
 
 ```php
 <?php
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 
 // 로컬/서버 환경에 따른 동적 리다이렉션
 $host = $_SERVER['HTTP_HOST'] ?? '';
@@ -216,7 +216,7 @@ exit;
 
 ```php
 <?php
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 
 $num = $_REQUEST["num"] ?? '';
 $page = $_REQUEST["page"] ?? 1;

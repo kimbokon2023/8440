@@ -3,7 +3,7 @@
 $is_local = $_SERVER['HTTP_HOST'] === 'localhost' || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false;
 $base_url = $is_local ? 'http://localhost/mirae8440/www' : 'http://8440.co.kr';
 
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 require_once(includePath('session.php'));
 
 header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문

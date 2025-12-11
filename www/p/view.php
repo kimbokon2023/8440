@@ -1,6 +1,6 @@
  <?php
 // 현장 상세보기 페이지 - 로컬/서버 환경 호환
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 
 // Ensure all date/time functions use Korea Standard Time
 date_default_timezone_set('Asia/Seoul');

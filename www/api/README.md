@@ -22,7 +22,7 @@ api/
 ### 1. PHP에서 사용
 ```php
 // common/functions.php 먼저 로드
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 require_once getDocumentRoot() . '/api/file_api.php';
 
 $options = [

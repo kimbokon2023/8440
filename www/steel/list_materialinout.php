@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 
 // Environment detection
 $isLocal = strpos($_SERVER['HTTP_HOST'], 'localhost') !== false ||

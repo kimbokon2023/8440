@@ -6,7 +6,7 @@
 
 // common/functions.php 로드 (getDocumentRoot 함수 사용을 위해)
 if (file_exists(__DIR__ . '/../common/functions.php')) {
-    require_once __DIR__ . '/../common/functions.php';
+    require_once __DIR__ . '/../bootstrap.php';
     $docRoot = getDocumentRoot();
 } else {
     // functions.php가 없으면 현재 디렉토리의 상위 디렉토리를 사용

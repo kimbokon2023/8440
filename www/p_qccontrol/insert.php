@@ -3,7 +3,7 @@
  * QC 공정표 게시글 등록/수정 처리
  * 신규 게시글 등록 또는 기존 게시글 수정 처리
  */
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 require_once getDocumentRoot() . '/session.php'; // 세션 파일 포함
 header("Content-Type: application/json");  //json을 사용하기 위해 필요한 구문 받는측에서 필요한 정보임 ajax로 보내는 쪽에서 type : json
 

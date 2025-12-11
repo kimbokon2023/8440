@@ -3,7 +3,7 @@
 $is_local = $_SERVER['HTTP_HOST'] === 'localhost' || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false;
 $base_url = $is_local ? 'http://localhost/mirae8440/www' : 'http://8440.co.kr';
 
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 require_once(includePath('session.php'));  
 $title_message = '포미스톤 출고증'; 
 $title_message_sub = '출 고 요 청 서 (포미스톤)' ; 

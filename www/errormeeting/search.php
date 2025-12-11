@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 
 // 요청 파라미터 초기화
 $outworkplace = $_REQUEST["outworkplace"] ?? '';

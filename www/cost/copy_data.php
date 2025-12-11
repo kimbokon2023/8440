@@ -1,7 +1,7 @@
 <?php
 // [주의] 기존 write_form과 다른점은 입고일자 초기화 버튼
 
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 require_once getDocumentRoot() . '/session.php';
 
 // 세션 변수 초기화
@@ -18,7 +18,7 @@ if (!isset($_SESSION["level"]) || $level >= 5) {
     if (strpos($host, 'localhost') !== false || strpos($host, '127.0.0.1') !== false) {
         header("Location: http://" . $host . "/login/logout.php");
     } else {
-        header("Location: http://8440.co.kr/login/logout.php");
+        header("Location: https://8440.co.kr/login/logout.php");
     }
     exit;
 }

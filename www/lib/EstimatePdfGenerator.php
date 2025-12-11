@@ -520,7 +520,7 @@ class EstimatePdfGenerator {
           </tbody>
           <tfoot>
             <tr>
-              <td colspan="6" class="text-right">소계</td>
+              <td colspan="6" class="text-center">소계</td>
               <td class="num"><?= $nf($total_supply) ?></td>
               <td class="num"><?= $nf($total_tax) ?></td>
             </tr>

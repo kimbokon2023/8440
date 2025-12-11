@@ -3,7 +3,7 @@
  * 작업표준서 작성/수정 폼 페이지
  * 작업표준서 게시글을 작성하거나 수정하는 폼을 표시
  */
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 require_once getDocumentRoot() . '/load_GoogleDrive.php'; // 세션 등 여러가지 포함됨 파일 포함
 
 $title_message = '작업표준서';

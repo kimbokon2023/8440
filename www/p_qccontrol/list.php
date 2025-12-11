@@ -3,7 +3,7 @@
  * QC 공정표 목록 페이지
  * QC 공정표 게시판의 목록을 표시
  */
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 require_once(includePath('session.php'));
 
 // 첫 화면 표시 문구

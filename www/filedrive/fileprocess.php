@@ -29,7 +29,7 @@ set_error_handler(function($errno, $errstr, $errfile, $errline) {
 
 // 로컬과 서버 호환성을 위한 설정
 if (file_exists(__DIR__ . '/../common/functions.php')) {
-    require_once __DIR__ . '/../common/functions.php';
+    require_once __DIR__ . '/../bootstrap.php';
 }
 
 // 필수 파일 포함 - 직접 경로 사용

@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once __DIR__ . '/../bootstrap.php';
+
 $level = isset($_SESSION["level"]) ? $_SESSION["level"] : "";
 ?>
 

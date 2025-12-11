@@ -15,7 +15,7 @@
 
 ```php
 // PHP 파일 상단에 추가
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 require_once getDocumentRoot() . '/api/file_api.php';
 ```
 
@@ -305,7 +305,7 @@ popupCenter(url, 'filePopup', 800, 600);
 
 ```php
 <?php
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 require_once getDocumentRoot() . '/api/file_api.php';
 
 // 요청 메서드 확인

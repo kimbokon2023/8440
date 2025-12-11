@@ -5,7 +5,7 @@
  */
 
 // 공통 함수 및 세션 로드
-require_once __DIR__ . '/../common/functions.php';
+require_once __DIR__ . '/../bootstrap.php';
 require_once(includePath('session.php'));
 
 // 권한 체크
