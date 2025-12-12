@@ -3227,15 +3227,11 @@ function load_eworkslist() {
 							$('#badge4').text('').hide();
 						}
 					}
-					// badge5 = 결재(end) = val4
+					// badge5 = 결재(end) = val4 (항상 숫자 표시)
 					if ($('#badge5').length > 0) {
-						var val = (data["val4"] !== undefined && data["val4"] !== null && data["val4"] !== 0) ? data["val4"] : '';
+						var val = (data["val4"] !== undefined && data["val4"] !== null) ? (data["val4"] || 0) : 0;
 						// console.log('badge5에 설정할 값:', val);
-						if (val !== '') {
-							$('#badge5').text(val).show();
-						} else {
-							$('#badge5').text('').hide();
-						}
+						$('#badge5').text(val).show();
 					}
 					// badge6 = 반려(reject) = val5
 					if ($('#badge6').length > 0) {

@@ -553,15 +553,19 @@ if (!isset($chkMobile)) {
 						<i class="bi bi-robot"></i> 구글 opal 계획서
 					</a>
 					<hr style="margin:7px!important; border-color:#007bff;">
-						<a class="dropdown-item" href="https://8440.co.kr/school" target="_blank">
-					<i class="bi bi-laptop"></i> 코딩강의
+					<a class="dropdown-item" href="https://8440.co.kr/school" target="_blank">
+						<i class="bi bi-laptop"></i> 코딩강의
 					</a>
 					<a class="dropdown-item" href="https://8440.co.kr/quiz" target="_blank">
-					<i class="bi bi-question-circle"></i> 코딩퀴즈
+						<i class="bi bi-question-circle"></i> 코딩퀴즈
 					</a>
 					<a class="dropdown-item" href="https://www.youtube.com/watch?v=GjawjeSDRM0&list=PLS4D8xUyesvcgvy6d9vFjJpRiUFZblaai" target="_blank">
-					<i class="bi bi-youtube"></i> 코딩팟캐스트
-					</a>					
+						<i class="bi bi-youtube"></i> 코딩팟캐스트
+					</a>						
+					<hr style="margin:7px!important; border-color:#007bff;">
+					<a class="dropdown-item" href="<?=$root_dir?>/rendering/index.php">
+						<i class="bi bi-robot"></i> 판넬 나노바나나 렌더링
+					</a>										
 				</div>
 
 

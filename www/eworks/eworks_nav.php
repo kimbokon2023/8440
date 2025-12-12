@@ -146,11 +146,15 @@ function countEworksStatus($pdo, $user_id, $status, $workLevel, $DB = 'mirae8440
                 $sql = "SELECT COUNT(*) FROM {$dbName}.eworks WHERE CONCAT('!', e_line_id, '!') LIKE '%!{$user_id}!%' AND status = 'refer' AND is_deleted IS NULL" . $viewcon;
                 break;
         }
-    } else if (!$workLevel) { // 일반 사용자의 경우 자신이 작성한 문서만 카운트
+    } else if ($workLevel != 1 && $workLevel != 2) { // 일반 사용자의 경우 (workLevel이 0, 3, 또는 다른 값)
         // 상신인 경우는 send 상신인 경우도 미결도 함께 숫자표시
         if ($status == 'noend') {
             $sql = "SELECT COUNT(*) FROM {$dbName}.eworks WHERE author_id = '{$user_id}' AND status = 'send' AND is_deleted IS NULL " . $viewcon;
+        } else if ($status == 'end') {
+            // 결재 탭: 자신이 작성하고 상신한 문서 중 결재 완료된 문서 (결재를 올린 숫자)
+            $sql = "SELECT COUNT(*) FROM {$dbName}.eworks WHERE author_id = '{$user_id}' AND status = 'end' AND is_deleted IS NULL " . $viewcon;
         } else {
+            // draft, send, ing, reject, wait, refer 등 모든 상태 처리
             $sql = "SELECT COUNT(*) FROM {$dbName}.eworks WHERE author_id = '{$user_id}' AND status = '{$status}' AND is_deleted IS NULL " . $viewcon;
         }
     } else if ($workLevel == 1) { // 1차 결재권자의 경우
@@ -319,7 +323,7 @@ try {
         // 탭 표시 조건
         // 2차 결재권자는 tabId가 3, 5, 6, 7, 9인 탭만 표시 (결재대기, 결재, 반려, 보류, 삭제)
         // 1차 결재권자는 모든 탭 표시 (작성, 상신, 미결, 진행, 결재, 반려, 보류, 참조, 삭제)
-        // 일반 사용자는 작성(1), 상신(2)만 표시
+        // 일반 사용자도 모든 탭 표시 (작성, 상신, 미결, 진행, 결재, 반려, 보류, 참조, 삭제)
         $showTab = false;
         if ($is_final_approver) {
             // 2차 결재권자는 tabId가 3, 5, 6, 7, 9인 탭만 표시 (결재대기, 결재, 반려, 보류, 삭제)
@@ -330,8 +334,8 @@ try {
         } else if ($eworks_level && ($tabId >= 3)) {
             // 기타 결재권자는 미결(3) 이상만 표시 (호환성을 위해 유지)
             $showTab = true;
-        } else if (!$eworks_level && ($tabId <= 2)) {
-            // 일반 사용자는 작성(1), 상신(2)만 표시
+        } else if (!$eworks_level) {
+            // 일반 사용자도 모든 탭 표시
             $showTab = true;
         }
         
@@ -343,7 +347,10 @@ try {
                  onclick="seltab(<?php echo $tabId; ?>);">
                 <i class="bi <?php echo htmlspecialchars($iconClass); ?>"></i> 
                 <?php echo htmlspecialchars($label); ?>&nbsp;
-                <?php if ($count > 0) { ?>
+                <?php if ($tabId == 5) { ?>
+                    <!-- 결재 탭은 항상 숫자 표시 -->
+                    <span class="badge bg-primary"><?php echo $count; ?></span>
+                <?php } else if ($count > 0) { ?>
                     <span class="badge bg-primary"><?php echo $count; ?></span>
                 <?php } ?>
             </div>

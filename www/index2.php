@@ -706,13 +706,17 @@ function closeDefectReminder() {
             "삭제" => 9       // trash (삭제)
         );
     } else {
+        // 일반 사용자와 1차 결재권자는 모든 탭 표시
         $tabs = array(
             "알림" => 0,
             "작성" => 1,
             "상신" => 2,
             "미결" => 3,
             "진행" => 4,
-            "결재" => 5
+            "결재" => 5,
+            "반려" => 6,
+            "보류" => 7,
+            "삭제" => 9
         );
     }
 ?>
@@ -746,11 +750,11 @@ function closeDefectReminder() {
 	<div class="mb-2">
 		 <?php if ($label !== "알림")
 			{
-					// 최종결재권자(2차 결재권자)는 결재대기(3), 결재(5), 반려(6), 보류(7), 삭제(9) 탭만 표시
+					// 최종결재권자(2차 결재권자)는 결재대기(3), 결재(5)만 표시 (sidebar에서는 반려, 보류, 삭제 제외)
 					if($is_final_approver)
 					{
-					  // 2차 결재권자는 tabId가 3, 5, 6, 7, 9인 탭만 표시 (진행 탭 제거)
-					  if($tabId == 3 || $tabId == 5 || $tabId == 6 || $tabId == 7 || $tabId == 9)
+					  // 2차 결재권자는 sidebar에서 tabId가 3, 5인 탭만 표시
+					  if($tabId == 3 || $tabId == 5)
 					  {
 						print '<button type="button" class="btn btn-dark rounded-pill eworks-mobile-btn" onclick="seltab(' . $tabId . '); closeEworksSidebarOnClick();"> ';
 						echo $label;
@@ -758,21 +762,29 @@ function closeDefectReminder() {
 						print '</button>';
 					  }
 					}
-					// 1차 결재권자는 모든 탭 표시 (작성, 상신, 미결, 진행, 결재)
+					// 1차 결재권자는 sidebar에서 반려, 보류, 삭제 제외하고 표시
 					else if($is_first_approver)
 					{
-					  print '<button type="button" class="btn btn-dark rounded-pill eworks-mobile-btn" onclick="seltab(' . $tabId . '); closeEworksSidebarOnClick();"> ';
-					  echo $label;
-					  print '<span class="badge badge-pill badge-dark ms-2" id="' . $badgeId . '"></span>';
-					  print '</button>';
+					  // sidebar에서는 반려(6), 보류(7), 삭제(9) 제외
+					  if($tabId != 6 && $tabId != 7 && $tabId != 9)
+					  {
+						print '<button type="button" class="btn btn-dark rounded-pill eworks-mobile-btn" onclick="seltab(' . $tabId . '); closeEworksSidebarOnClick();"> ';
+						echo $label;
+						print '<span class="badge badge-pill badge-dark ms-2" id="' . $badgeId . '"></span>';
+						print '</button>';
+					  }
 					}
-					// 일반결재 상신하는 그룹은 작성(1), 상신(2) 탭만 표시
+					// 일반 사용자는 sidebar에서 반려, 보류, 삭제 제외하고 표시
 					else if (!$eworks_level)  
 					{
-					  print '<button type="button" class="btn btn-dark rounded-pill eworks-mobile-btn" onclick="seltab(' . $tabId . '); closeEworksSidebarOnClick();"> ';
-					  echo $label;
-					  print '<span class="badge badge-pill badge-dark ms-2" id="' . $badgeId . '"></span>';
-					  print '</button>';
+					  // sidebar에서는 반려(6), 보류(7), 삭제(9) 제외
+					  if($tabId != 6 && $tabId != 7 && $tabId != 9)
+					  {
+						print '<button type="button" class="btn btn-dark rounded-pill eworks-mobile-btn" onclick="seltab(' . $tabId . '); closeEworksSidebarOnClick();"> ';
+						echo $label;
+						print '<span class="badge badge-pill badge-dark ms-2" id="' . $badgeId . '"></span>';
+						print '</button>';
+					  }
 					}
 					// 기타 경우 (이전 로직과의 호환성을 위해 유지)
 					else

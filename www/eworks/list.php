@@ -270,10 +270,11 @@ switch($eworksel) {
 		break;
 
 	case 'end': // 결재완료인 경우
+		// 1차 결재권자가 결재한 완료 문서
 		$all = "CONCAT('!', e_line_id, '!') LIKE '%!{$user_id}!%' AND CONCAT('!', e_confirm_id, '!') LIKE '%!{$user_id}!%' AND is_deleted IS NULL AND status = 'end'" . $viewcon ;
 		$where = "WHERE " . $all;
 		$andwhere = "AND " . $all;
-		error_log("결재완료(end) 조건: " . $all);
+		error_log("결재완료(end) 조건 (1차 결재권자): " . $all);
 		break;
 
 	case 'reject': // 반려인 경우
@@ -343,7 +344,8 @@ else
 			break;
 
 		case 'end': // 결재완료인 경우
-			$all = "CONCAT('!', author_id, '!') LIKE '%!{$user_id}!%' AND is_deleted IS NULL AND status = 'end'" . $viewcon ;
+			// 결재 탭: 자신이 작성하고 상신한 문서 중 결재 완료된 문서 (결재를 올린 숫자)
+			$all = "author_id = '{$user_id}' AND is_deleted IS NULL AND status = 'end'" . $viewcon ;
 			$where = "WHERE " . $all;
 			$andwhere = "AND " . $all;
 			break;
