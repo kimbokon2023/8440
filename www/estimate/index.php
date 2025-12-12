@@ -1475,6 +1475,17 @@ a:hover {
                             목록에서 견적서를 클릭하면 <strong>상세 정보</strong>를 확인할 수 있으며,<br>
                             <strong>수정</strong>, <strong>삭제</strong>, <strong>PDF 저장</strong>, <strong>이메일 전송</strong>이 가능합니다.
                         </p>
+
+                        <h6 class="fw-bold text-info mb-2"><i class="fas fa-envelope"></i> 이메일 주소 관리</h6>
+                        <p class="text-muted mb-4">
+                            <strong>견적서 작성/수정</strong> 시 거래처명 아래에 있는 <strong>이메일 주소</strong> 필드에서<br>
+                            이메일 주소를 직접 입력하거나 수정할 수 있습니다.<br><br>
+                            <strong>💡 여러 이메일 주소 저장:</strong> 콤마(,)로 구분하여 여러 이메일 주소를 저장할 수 있습니다.<br>
+                            예: <code>email1@example.com, email2@example.com</code><br><br>
+                            <strong>📧 이메일 전송:</strong> 저장된 이메일 주소는 이메일 전송 시 자동으로 불러오며,<br>
+                            콤마로 구분된 여러 주소가 있으면 모든 주소로 동시에 전송됩니다.<br>
+                            이메일 주소의 앞뒤 공백은 자동으로 제거되어 저장됩니다.
+                        </p>
                     </div>
                 </div>
                 <div class="modal-footer py-2 bg-light">
@@ -2201,10 +2212,20 @@ a:hover {
                 return;
             }
             
-            // 이메일 형식 검사
+            // 콤마로 구분된 이메일 주소 검사
             var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                alert('유효하지 않은 이메일 주소입니다.');
+            var emailList = email.split(',').map(function(e) { return e.trim(); }).filter(function(e) { return e.length > 0; });
+            
+            // 각 이메일 주소 유효성 검사
+            var invalidEmails = [];
+            for (var i = 0; i < emailList.length; i++) {
+                if (!emailRegex.test(emailList[i])) {
+                    invalidEmails.push(emailList[i]);
+                }
+            }
+            
+            if (invalidEmails.length > 0) {
+                alert('유효하지 않은 이메일 주소가 있습니다:\n' + invalidEmails.join('\n'));
                 emailInput.focus();
                 return;
             }
@@ -2224,10 +2245,10 @@ a:hover {
                 return;
             }
             
-            // AJAX 요청
+            // AJAX 요청 (공백이 제거된 이메일 주소 전송)
             var formData = new FormData();
             formData.append('estimate_id', currentOrderId);
-            formData.append('email', email);
+            formData.append('email', email); // 이미 trim된 이메일 주소 (콤마 포함 가능)
             formData.append('subject', subject);
             formData.append('content', body);
             

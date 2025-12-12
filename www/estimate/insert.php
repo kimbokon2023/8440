@@ -93,8 +93,25 @@ try {
         // Force add if missing (Emergency fix)
         if (!in_array('email', $cols)) {
             debug_log("Email column missing! Attempting to add...");
-            $pdo->exec("ALTER TABLE `estimates` ADD COLUMN `email` VARCHAR(100) DEFAULT NULL COMMENT '이메일'");
+            $pdo->exec("ALTER TABLE `estimates` ADD COLUMN `email` VARCHAR(500) DEFAULT NULL COMMENT '이메일 (콤마로 구분된 여러 주소 가능)'");
             debug_log("Email column added via insert.php");
+        } else {
+            // 기존 컬럼이 있으면 크기 확인 및 확장 (여러 이메일 주소 저장을 위해)
+            try {
+                $colInfo = $pdo->query("SHOW COLUMNS FROM estimates WHERE Field = 'email'")->fetch(PDO::FETCH_ASSOC);
+                if ($colInfo && isset($colInfo['Type'])) {
+                    // VARCHAR 크기 추출 (예: "varchar(100)" -> 100)
+                    preg_match('/varchar\((\d+)\)/i', $colInfo['Type'], $matches);
+                    $currentSize = isset($matches[1]) ? (int)$matches[1] : 0;
+                    if ($currentSize < 500) {
+                        debug_log("Email column size is {$currentSize}, expanding to 500...");
+                        $pdo->exec("ALTER TABLE `estimates` MODIFY COLUMN `email` VARCHAR(500) DEFAULT NULL COMMENT '이메일 (콤마로 구분된 여러 주소 가능)'");
+                        debug_log("Email column size expanded to 500");
+                    }
+                }
+            } catch (Exception $e) {
+                debug_log("Email column size check/update error: " . $e->getMessage());
+            }
         }
         
         // Force add disclaimer_text column if missing
@@ -252,6 +269,42 @@ if (!in_array($status, $valid_statuses)) {
     $status = 'draft';
 }
 
+// 이메일 주소 처리: 공백 제거 및 콤마로 구분된 여러 이메일 주소 정규화
+$email = '';
+if (!empty($_POST['email'])) {
+    $rawEmail = trim($_POST['email']);
+    
+    if (!empty($rawEmail)) {
+        // 콤마로 구분된 여러 이메일 주소 처리
+        if (strpos($rawEmail, ',') !== false) {
+            // 콤마가 있는 경우: 각 이메일 주소의 앞뒤 공백 제거
+            $emailArray = explode(',', $rawEmail);
+            $cleanedEmails = [];
+            foreach ($emailArray as $emailAddr) {
+                $emailAddr = trim($emailAddr);
+                if (!empty($emailAddr)) {
+                    // 기본적인 이메일 형식 검증 (간단한 검증)
+                    if (filter_var($emailAddr, FILTER_VALIDATE_EMAIL)) {
+                        $cleanedEmails[] = $emailAddr;
+                    } else {
+                        // 유효하지 않은 이메일 주소가 있으면 경고하지만 저장은 진행
+                        debug_log("유효하지 않은 이메일 주소 발견: " . $emailAddr);
+                    }
+                }
+            }
+            // 콤마와 공백으로 구분하여 저장 (예: "email1@example.com, email2@example.com")
+            $email = implode(', ', $cleanedEmails);
+        } else {
+            // 단일 이메일 주소: 공백 제거 및 검증
+            $email = trim($rawEmail);
+            if (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                // 유효하지 않은 이메일 주소이지만 저장은 진행 (사용자가 나중에 수정할 수 있도록)
+                debug_log("유효하지 않은 이메일 주소: " . $email);
+            }
+        }
+    }
+}
+
 try {
     if ($action === 'update' && $id > 0) {
         // 수정 작업
@@ -323,7 +376,7 @@ try {
             ':status' => $status,
             ':author' => !empty($author) ? $author : null,
             ':valid_date' => !empty($_POST['valid_date']) ? $_POST['valid_date'] : null,
-            ':email' => !empty($_POST['email']) ? $_POST['email'] : null,
+            ':email' => !empty($email) ? $email : null,
             ':id' => $id
         ];
 
@@ -394,7 +447,7 @@ try {
             ':disclaimer_text' => $disclaimer_text ?: null,
             ':status' => $status,
             ':valid_date' => !empty($_POST['valid_date']) ? $_POST['valid_date'] : null,
-            ':email' => !empty($_POST['email']) ? $_POST['email'] : null,
+            ':email' => !empty($email) ? $email : null,
             ':author' => $author_value
         ];
 

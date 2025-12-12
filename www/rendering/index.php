@@ -1051,6 +1051,29 @@ if (file_exists($apiKeyPath)) {
 
                 const reflectionGlobal = getReflectionContext(state.reflectionIntensity, 'standard');
                 parts.push({text: `GENERATE. Lighting Temperature: ${state.lightingTemp}K. Global Reflection Style: ${reflectionGlobal}. Output High-Res 3D Render.`});
+                
+                // ⚠️ CRITICAL: STRUCTURE MUST NOT BE MODIFIED ⚠️
+                parts.push({text: `
+⚠️⚠️⚠️ ABSOLUTE STRUCTURE REQUIREMENT - DO NOT MODIFY ⚠️⚠️⚠️
+
+CRITICAL WARNING: The structure provided in "REFERENCE LAYOUT STRUCTURE (GROUND TRUTH)" is ABSOLUTE and MUST NOT be changed, modified, or transformed in any way.
+
+YOU MUST:
+- Preserve the EXACT layout structure from the reference image
+- Maintain the EXACT positioning of all panels, doors, and elements
+- Keep the EXACT proportions and spatial relationships
+- Do NOT alter, rotate, resize, or reposition any structural elements
+- Do NOT add or remove any structural components
+- Do NOT change the architectural layout
+
+ONLY apply materials, textures, colors, and lighting to the EXISTING structure.
+The structure itself is GROUND TRUTH and is ABSOLUTELY NON-NEGOTIABLE.
+
+ANY modification to the structure is STRICTLY FORBIDDEN.
+The structure must remain EXACTLY as shown in the reference layout image.
+
+⚠️⚠️⚠️ STRUCTURE MODIFICATION IS ABSOLUTELY PROHIBITED ⚠️⚠️⚠️
+                `});
 
                 // --- DEBUG PROMPT LOGGING ---
                 // Create a readable text version of the prompt

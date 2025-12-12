@@ -642,15 +642,18 @@ body.iframe-mode .btn-primary:hover {
                                     <i class="bi bi-search"></i> 검색
                                 </button>
                             </div>
-                            <!-- 이메일 정보 표시 및 저장 -->
+                            <!-- 이메일 정보 입력 및 저장 -->
                             <div class="col-sm-9 offset-sm-3 mt-1" style="margin-left: 25%; width: 75%;">
-                                <input type="hidden" name="email" id="email" value="<?php echo $order_data ? ($order_data['email'] ?? '') : ''; ?>">
-                                <span id="email_display" style="font-size: 11px; color: #adb5bd;">
-                                    <?php 
-                                    $email = $order_data['email'] ?? '';
-                                    echo $email ? '<i class="bi bi-envelope-check"></i> ' . htmlspecialchars($email) : ''; 
-                                    ?>
-                                </span>
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    <input type="text" class="form-control form-control-sm" name="email" id="email" 
+                                           value="<?php echo $order_data ? htmlspecialchars($order_data['email'] ?? '') : ''; ?>" 
+                                           placeholder="이메일 주소 (콤마로 구분하여 여러 주소 입력 가능)" 
+                                           style="flex: 1; padding: 4px 8px; border: 1px solid #ced4da; border-radius: 4px; font-size: 12px;">
+                                    <i class="bi bi-envelope" style="color: #adb5bd; font-size: 14px;"></i>
+                                </div>
+                                <small style="font-size: 10px; color: #6c757d; margin-top: 2px; display: block;">
+                                    예: email1@example.com, email2@example.com
+                                </small>
                             </div>
                         </div>
 
@@ -2557,19 +2560,10 @@ handleJsonResponse = function(data) {
             // 참조 필드는 거래처 검색 시 자동 입력하지 않음 (사용자 직접 입력)
             // var referenceInput = document.querySelector('input[name="reference"]');
             
-            // 이메일 설정 및 표시
+            // 이메일 설정 (input 필드에 직접 설정)
             var emailInput = document.getElementById('email');
-            var emailDisplay = document.getElementById('email_display');
             if (emailInput) {
                 emailInput.value = customer.email || '';
-                if (emailDisplay) {
-                    if (customer.email) {
-                        emailDisplay.innerHTML = '<i class="bi bi-envelope-check"></i> ' + customer.email;
-                        emailDisplay.style.color = '#adb5bd'; // 흐린 색상
-                    } else {
-                        emailDisplay.innerHTML = '';
-                    }
-                }
             }
             
             // 팩스는 주소록에 없으므로 유지하거나 비움
