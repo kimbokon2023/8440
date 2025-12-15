@@ -1043,6 +1043,13 @@ if (file_exists($apiKeyPath)) {
                 - You MUST apply the image/description of 'MATERIAL Bx' specifically to 'Panel x' in the layout.
                 - Do NOT mix up the panels. If Panel 5 has an etching image, ONLY Panel 5 should show that etching.
                 
+                CRITICAL: VERTICAL PANELS VS HORIZONTAL HANDRAIL
+                - The layout includes a **HORIZONTAL HANDRAIL** (Bar) running across the panels (typically on the Left/Right/Rear walls).
+                - **DO NOT** cover this handrail with the panel material.
+                - The 'Material Bx' you apply to a panel must go **BEHIND** the handrail.
+                - The Handrail itself must remain visible as a distinct 3D object (typically Stainless Steel or Chrome).
+                - **PROTECT THE HANDRAIL GEOMETRY.** Do not flatten it into the wall.
+                
                 CRITICAL VISUAL STRUCTURE DEFINITIONS:
                 The elevator cabin has a specific, fixed layout relative to the Central Doors. You must understand this spatial arrangement:
 
