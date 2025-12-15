@@ -1127,6 +1127,13 @@ if (file_exists($apiKeyPath)) {
                 CRITICAL VISUAL STRUCTURE DEFINITIONS:
                 The elevator cabin has a specific, fixed layout relative to the Central axis. You must understand this spatial arrangement:
 
+                [CAMERA & FRAMING]:
+                - **WIDE ANGLE VIEW**.
+                - **MUST SHOW FULL CEILING AND FULL FLOOR**.
+                - **DO NOT CROP** the top (Ceiling) or bottom (Floor). The entire vertical extent of the provided wireframe must be visible.
+                - **STRUCTURAL FIDELITY**: You MUST trace the **EXACT LINES** of the provided 'REFERENCE LAYOUT STRUCTURE' image.
+                - **CEILING SHAPE**: The ceiling geometry (lighting coves, flat areas) MUST MATCH the reference image EXACTLY. Do not hallucinate a different ceiling design.
+
                 ${currentState.viewMode === 'front' ? 
                 `[CENTER]: Elevator Doors (Material A)
                 
