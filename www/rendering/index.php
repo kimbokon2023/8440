@@ -90,9 +90,6 @@ if (file_exists($apiKeyPath)) {
             <!-- CONTROLS -->
             <div class="w-full lg:w-5/12 space-y-8">
                 
-                <!-- SETTINGS PANEL WRAPPER -->
-                <div class="flex flex-col gap-6">
-
                     <!-- View Toggle -->
                     <div class="bg-slate-900 p-2 rounded-2xl border border-slate-800 shadow-lg flex gap-2">
                         <button id="viewModeFront" class="flex-1 py-3 text-sm font-bold rounded-xl transition-all bg-blue-600 text-white shadow-lg flex items-center justify-center gap-2">
