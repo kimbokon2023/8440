@@ -839,6 +839,10 @@ if (file_exists($apiKeyPath)) {
                 [VERTICAL RULE]:
                 - All panels extend continuously from the Floor to the Ceiling.
                 - The material/texture of a panel MUST be consistent from top to bottom. Do not split a panel vertically.
+
+                CRITICAL: NO WATERMARKS / NO SIGNATURES
+                - Do NOT include any "diamond shape" mark, logo, or signature in the bottom right corner.
+                - The final image must be clean and free of any AI generation watermarks or artist signatures.
                 `
             });
 
@@ -1316,11 +1320,37 @@ The structure must remain EXACTLY as shown in the reference layout image.
             }
         }
 
+        // Initialize Default Layout (Wireframe)
+        async function initDefaultLayout() {
+             try {
+                if (state.layout.file) return;
+
+                const response = await fetch('sourceimg/car_basic_front.jpg');
+                if (!response.ok) throw new Error('Default layout wireframe not found');
+                
+                const blob = await response.blob();
+                const file = new File([blob], "car_basic_front.jpg", { type: blob.type });
+                
+                state.layout.file = file;
+                state.layout.preview = URL.createObjectURL(file);
+                // Assume default aspect ratio or let updateLayoutUI handle it (defaults to 1:1 in state, maybe update if needed)
+                state.layout.aspectRatio = "3:4"; // Assuming portrait for this specific image based on filename "car_basic_front" common verticality
+                updateLayoutUI();
+                console.log("Default layout loaded: car_basic_front.jpg");
+            } catch (e) {
+                console.warn("Could not load default layout:", e);
+            }
+        }
+
         renderPanels();
         updateLayoutUI();
         updateFloorUI();
         updateDoorUI();
-        initDefaultGuide(); // Load default guide
+        
+        // Load Defaults
+        (async () => {
+            await Promise.all([initDefaultGuide(), initDefaultLayout()]);
+        })();
     </script>
     <?php endif; ?>
 </body>
