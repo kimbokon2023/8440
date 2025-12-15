@@ -1143,17 +1143,22 @@ if (file_exists($apiKeyPath)) {
                 - **Panel #8**: Next to Panel #9. Same width as Panel #4.
                 ` : 
                 `[CENTER]: **Panel #6** (REAR WALL CENTER). This is the main central panel of the rear wall.
+                - **CRITICAL**: Panel #6 is a **SINGLE WIDE CONTINUOUS SHEET**. 
+                - **DO NOT SPLIT** Panel #6 into smaller vertical strips.
+                - It must appear as one solid, wide surface in the center.
                 
                 [RIGHT SIDE of Image] (Physical Left Wall):
                 - **Panel #7**: Immediately to the Right of Center Panel #6.
                 - **Panel #8**: Corner/Side Panel. (Corresponds to Front View Panel #2). Narrow.
-                - **Panel #9**: Side Panel. (Corresponds to Front View Panel #3). Wide.
+                - **Panel #9**: Side Panel. (Corresponds to Front View Panel #3). **WIDE SINGLE PANEL**.
+                  - **DO NOT SPLIT** Panel #9. It must be a single wide surface.
                 - **Panel #10**: Side Panel. (Corresponds to Front View Panel #4).
                 
                 [LEFT SIDE of Image] (Physical Right Wall):
                 - **Panel #5**: Immediately to the Left of Center Panel #6.
                 - **Panel #4**: Corner/Side Panel. (Corresponds to Front View Panel #10). Narrow.
-                - **Panel #3**: Side Panel. (Corresponds to Front View Panel #9). Wide.
+                - **Panel #3**: Side Panel. (Corresponds to Front View Panel #9). **WIDE SINGLE PANEL**.
+                  - **DO NOT SPLIT** Panel #3. It must be a single wide surface.
                 - **Panel #2**: Side Panel. (Corresponds to Front View Panel #8).
                 
                 NOTE: Panels #1 and #11 are generally NOT VISIBLE in this Rear View perspective, or are effectively replaced by the corner returns.`
