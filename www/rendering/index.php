@@ -56,8 +56,8 @@ if (file_exists($apiKeyPath)) {
         </div>
         <h1 class="text-4xl font-bold text-white mb-4">ElevatorViz <span class="text-purple-400">Pro</span></h1>
         <p class="text-slate-400 max-w-md mb-8 text-lg">
-          API Key not found in <code>gemini_api.txt</code>.<br>
-          Please ensure the file exists in the <code>rendering/</code> directory.
+          <code>gemini_api.txt</code> 파일에서 API 키를 찾을 수 없습니다.<br>
+          <code>rendering/</code> 디렉토리에 파일이 존재하는지 확인해주세요.
         </p>
     </div>
     <?php else: ?>
@@ -95,7 +95,7 @@ if (file_exists($apiKeyPath)) {
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="text-lg font-semibold text-white flex items-center gap-2">
                             <span class="flex items-center justify-center w-6 h-6 rounded-full bg-blue-600 text-xs font-bold">1</span>
-                            Structural Layout
+                            구조 레이아웃 (Structural Layout)
                         </h2>
                         <div class="flex items-center gap-2">
                             <span id="layoutAspectRatioBadge" class="hidden text-xs text-indigo-400 font-mono bg-indigo-900/30 px-2 py-0.5 rounded border border-indigo-500/30">
@@ -103,7 +103,7 @@ if (file_exists($apiKeyPath)) {
                             </span>
                         </div>
                     </div>
-                    <p class="text-sm text-slate-400 mb-4">Upload the wireframe or line drawing.</p>
+                    <p class="text-sm text-slate-400 mb-4">와이어프레임 또는 라인 드로잉을 업로드하세요.</p>
                     
                     <div class="border-2 border-dashed border-slate-700 rounded-xl p-4 transition-colors hover:border-blue-500/50 hover:bg-slate-800/50 group relative bg-slate-950/30 min-h-[12rem] flex flex-col justify-center">
                         <input type="file" id="layoutInput" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
@@ -112,7 +112,7 @@ if (file_exists($apiKeyPath)) {
                              <div class="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center mb-3 group-hover:bg-slate-700 transition-colors">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                              </div>
-                             <p class="text-sm font-medium text-slate-300">Drop Layout Plan Here</p>
+                             <p class="text-sm font-medium text-slate-300">구조 도면을 여기에 놓으세요</p>
                         </div>
 
                         <div id="layoutPreviewContainer" class="hidden absolute inset-0 rounded-xl overflow-hidden bg-slate-900 z-0">
@@ -124,12 +124,41 @@ if (file_exists($apiKeyPath)) {
                     </div>
                 </section>
 
+                <!-- Panel Number Guide (Optional) -->
+                <section class="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-sm font-semibold text-slate-400 flex items-center gap-2">
+                            <span class="flex items-center justify-center w-5 h-5 rounded-full bg-slate-700 text-[10px] font-bold">Ref</span>
+                            패널 번호 안내도 (선택사항)
+                        </h2>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4">패널 번호가 적힌 안내도가 있다면 업로드하세요. AI가 위치를 더 정확히 인식합니다.</p>
+                    
+                    <div class="border-2 border-dashed border-slate-700 rounded-xl p-4 transition-colors hover:border-blue-500/50 hover:bg-slate-800/50 group relative bg-slate-950/30 h-32 flex flex-col justify-center">
+                        <input type="file" id="guideInput" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                        
+                        <div id="guidePlaceholder" class="flex flex-col items-center justify-center pointer-events-none">
+                             <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center mb-2 group-hover:bg-slate-700 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                             </div>
+                             <p class="text-xs font-medium text-slate-300">안내도 이미지 업로드</p>
+                        </div>
+
+                        <div id="guidePreviewContainer" class="hidden absolute inset-0 rounded-xl overflow-hidden bg-slate-900 z-0">
+                            <img id="guidePreviewImage" src="" class="w-full h-full object-contain p-2" />
+                            <button id="clearGuideBtn" class="absolute top-2 right-2 p-1 bg-red-500/80 text-white rounded-full hover:bg-red-600 z-30 pointer-events-auto">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
                 <!-- Materials -->
                 <section class="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl">
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="text-lg font-semibold text-white flex items-center gap-2">
                             <span class="flex items-center justify-center w-6 h-6 rounded-full bg-purple-600 text-xs font-bold">2</span>
-                            Materials & Lighting
+                            재질 및 조명 (Materials & Lighting)
                         </h2>
                     </div>
                     
@@ -138,14 +167,14 @@ if (file_exists($apiKeyPath)) {
                         <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800 space-y-4">
                             <div>
                                 <div class="flex items-center justify-between mb-2">
-                                    <label class="text-sm font-medium text-slate-300">Lighting Color (Kelvin)</label>
+                                    <label class="text-sm font-medium text-slate-300">조명 색상 (Kelvin)</label>
                                     <span id="lightingTempValueDisplay" class="text-xs font-mono text-amber-300 bg-amber-900/30 px-2 py-0.5 rounded border border-amber-500/30">2000K</span>
                                 </div>
                                 <input type="range" id="lightingTempSlider" min="2000" max="6500" step="100" value="2000" class="w-full h-2 bg-gradient-to-r from-orange-500 via-yellow-100 to-blue-300 rounded-lg appearance-none cursor-pointer" />
                             </div>
                             <div class="pt-2 border-t border-slate-800">
                                 <div class="flex items-center justify-between mb-2">
-                                    <label class="text-sm font-medium text-slate-300">Reflection Intensity</label>
+                                    <label class="text-sm font-medium text-slate-300">반사 강도 (Reflection)</label>
                                     <span id="reflectionValueDisplay" class="text-xs font-mono text-cyan-300 bg-cyan-900/30 px-2 py-0.5 rounded border border-cyan-500/30">50%</span>
                                 </div>
                                 <input type="range" id="reflectionSlider" min="0" max="100" step="10" value="50" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer" />
@@ -155,7 +184,7 @@ if (file_exists($apiKeyPath)) {
                         <!-- Door -->
                         <!-- Door -->
                         <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800">
-                            <label class="text-sm font-medium text-slate-300 mb-2 block">Entrance Door</label>
+                            <label class="text-sm font-medium text-slate-300 mb-2 block">입구 출입문 (Entrance Door)</label>
                             
                             <div class="border-2 border-dashed border-slate-700 rounded-xl p-4 transition-colors hover:border-blue-500/50 hover:bg-slate-800/50 group relative bg-slate-950/30 h-32 flex flex-col justify-center">
                                 <input type="file" id="doorInput" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
@@ -164,7 +193,7 @@ if (file_exists($apiKeyPath)) {
                                      <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center mb-2 group-hover:bg-slate-700 transition-colors">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                                      </div>
-                                     <p class="text-xs font-medium text-slate-300">Drop Door Texture</p>
+                                     <p class="text-xs font-medium text-slate-300">출입문 텍스처를 여기에 놓으세요</p>
                                 </div>
 
                                 <div id="doorPreviewContainer" class="hidden absolute inset-0 rounded-xl overflow-hidden bg-slate-900 z-0">
@@ -179,10 +208,10 @@ if (file_exists($apiKeyPath)) {
                         <!-- Floor -->
                         <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800">
                              <div class="flex items-center justify-between mb-3">
-                                <label class="text-sm font-medium text-slate-300">Floor</label>
+                                <label class="text-sm font-medium text-slate-300">바닥 (Floor)</label>
                                 <div class="flex bg-slate-800 rounded-lg p-1 border border-slate-700">
-                                  <button id="floorModeUpload" class="text-xs px-3 py-1 rounded-md transition-all bg-slate-600 text-white shadow">Image</button>
-                                  <button id="floorModePreset" class="text-xs px-3 py-1 rounded-md transition-all text-slate-400 hover:text-white">Select</button>
+                                  <button id="floorModeUpload" class="text-xs px-3 py-1 rounded-md transition-all bg-slate-600 text-white shadow">이미지</button>
+                                  <button id="floorModePreset" class="text-xs px-3 py-1 rounded-md transition-all text-slate-400 hover:text-white">선택</button>
                                 </div>
                              </div>
                              
@@ -194,7 +223,7 @@ if (file_exists($apiKeyPath)) {
                                          <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center mb-2 group-hover:bg-slate-700 transition-colors">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                                          </div>
-                                         <p class="text-xs font-medium text-slate-300">Drop Floor Texture</p>
+                                         <p class="text-xs font-medium text-slate-300">바닥재 이미지를 여기에 놓으세요</p>
                                     </div>
 
                                     <div id="floorPreviewContainer" class="hidden absolute inset-0 rounded-xl overflow-hidden bg-slate-900 z-0">
@@ -223,9 +252,9 @@ if (file_exists($apiKeyPath)) {
                         <!-- Panels -->
                         <div>
                             <div class="flex items-center justify-between mb-2">
-                                <label class="block text-sm font-medium text-slate-300">Panels (1-11)</label>
+                                <label class="block text-sm font-medium text-slate-300">패널 (1-11)</label>
                                 <button type="button" id="applyPanel1Btn" disabled class="text-xs font-medium px-3 py-1.5 rounded-lg transition-all flex items-center gap-2 border text-slate-500 bg-slate-800/50 border-slate-700 cursor-not-allowed">
-                                    Copy Panel 1 to All
+                                    패널 1을 전체에 복사
                                 </button>
                             </div>
                             <div id="panelsContainer" class="max-h-[500px] overflow-y-auto custom-scrollbar pr-2 space-y-2">
@@ -234,10 +263,14 @@ if (file_exists($apiKeyPath)) {
                     </div>
                 </section>
 
-                <div class="sticky bottom-4 z-10">
+                <div class="sticky bottom-4 z-10 space-y-3">
+                    <button type="button" id="previewPromptBtn" disabled class="w-full py-3 px-6 rounded-xl font-semibold text-slate-300 bg-slate-800/80 border border-slate-700 hover:bg-slate-700 transition-all flex items-center justify-center gap-2 cursor-not-allowed">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                        프롬프트 미리보기 (Prompt Preview)
+                    </button>
                     <button type="button" id="generateBtn" disabled class="w-full py-4 px-6 rounded-xl font-bold text-lg shadow-lg transition-all duration-300 transform flex items-center justify-center gap-3 bg-slate-800 text-slate-500 cursor-not-allowed">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
-                        Generate Visualization
+                        시각화 생성하기
                     </button>
                     <div id="errorMessage" class="hidden mt-3 p-3 bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-lg text-center"></div>
                 </div>
@@ -247,17 +280,17 @@ if (file_exists($apiKeyPath)) {
             <div class="w-full lg:w-7/12">
                 <div class="bg-slate-900 rounded-2xl border border-slate-800 shadow-xl overflow-hidden h-full min-h-[600px] flex flex-col">
                     <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/50 backdrop-blur">
-                        <h3 class="font-semibold text-slate-200">Result (Pro 2K)</h3>
-                        <button id="clearResultBtn" class="hidden text-xs text-slate-400 hover:text-white underline">Clear Result</button>
+                        <h3 class="font-semibold text-slate-200">결과물 (Pro 2K)</h3>
+                        <button id="clearResultBtn" class="hidden text-xs text-slate-400 hover:text-white underline">결과 지우기</button>
                     </div>
                     
                     <!-- Prompt Debug Area -->
                     <div id="promptDebugContainer" class="hidden p-4 bg-slate-950 border-b border-slate-800">
                         <div class="flex items-center justify-between mb-2">
-                             <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Final Prompt (Debug)</label>
+                             <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">최종 프롬프트 (디버그)</label>
                              <button id="copyPromptBtn" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-2 py-1 rounded transition-colors flex items-center gap-1">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                Copy Not included Images
+                                텍스트만 복사 (이미지 제외)
                              </button>
                         </div>
                         <textarea id="promptDebugText" class="w-full h-48 bg-slate-900 border border-slate-800 rounded p-2 text-xs text-slate-400 font-mono custom-scrollbar resize-none outline-none focus:border-slate-600" readonly></textarea>
@@ -269,13 +302,13 @@ if (file_exists($apiKeyPath)) {
                             <div class="w-32 h-32 mx-auto mb-6 rounded-full bg-slate-800 flex items-center justify-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="text-white"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
                             </div>
-                            <h3 class="text-2xl font-light text-slate-400 mb-2">Ready to Render</h3>
-                            <p class="max-w-xs mx-auto text-slate-600">Upload layout and materials.</p>
+                            <h3 class="text-2xl font-light text-slate-400 mb-2">렌더링 준비 완료</h3>
+                            <p class="max-w-xs mx-auto text-slate-600">구조도와 재질을 업로드해주세요.</p>
                         </div>
                         <!-- Loading State -->
                         <div id="loadingOverlay" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-sm z-20 flex flex-col items-center justify-center">
                             <div class="w-24 h-24 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mb-6"></div>
-                            <p class="text-purple-300 font-medium animate-pulse">Processing High-Quality Geometry...</p>
+                            <p class="text-purple-300 font-medium animate-pulse">고품질 지오메트리 처리 중...</p>
                             <p id="timerDisplay" class="text-white text-3xl font-mono mt-4 font-bold tracking-wider">00:00</p>
                         </div>
                         <!-- Result -->
@@ -284,7 +317,7 @@ if (file_exists($apiKeyPath)) {
                             <div class="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <a id="downloadLink" href="#" download="elevator_render.png" class="bg-white text-slate-900 px-4 py-2 rounded-lg font-bold shadow-lg hover:bg-slate-200 flex items-center gap-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                                    Download High-Res
+                                    고해상도 다운로드
                                 </a>
                             </div>
                         </div>
@@ -292,6 +325,63 @@ if (file_exists($apiKeyPath)) {
                 </div>
             </div>
         </div>
+    <!-- Prompt Preview Modal -->
+    <div id="promptModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="document.getElementById('promptModal').classList.add('hidden')"></div>
+        <div class="relative w-full max-w-5xl h-[85vh] bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-[fadeIn_0.2s_ease-out]">
+            
+            <!-- Header -->
+            <div class="flex items-center justify-between p-5 border-b border-slate-700 bg-slate-900">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-white">프롬프트 미리보기 / Prompt Preview</h3>
+                        <p class="text-xs text-slate-400">AI에 전송되는 시스템 프롬프트(영문)와 설정 요약(한글)을 확인하세요.</p>
+                    </div>
+                </div>
+                <button id="closePromptModalBtn" class="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6 bg-slate-950/50">
+                
+                <!-- English Section -->
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-bold text-blue-400 uppercase tracking-wider bg-blue-500/10 px-2 py-1 rounded border border-blue-500/20">System Prompt (English)</label>
+                        <button id="copyPromptEnBtn" onclick="window.copyToClipboard('promptModalEnContent', 'copyPromptEnBtn')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-3 py-1.5 rounded-lg border border-slate-700 transition-all flex items-center gap-2">
+                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                             Copy English
+                        </button>
+                    </div>
+                    <div class="relative group">
+                         <div class="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl opacity-20 blur group-hover:opacity-30 transition duration-1000 group-hover:duration-200"></div>
+                         <pre id="promptModalEnContent" class="relative w-full h-64 bg-slate-900 border border-slate-700 rounded-xl p-4 text-xs text-slate-400 font-mono overflow-auto custom-scrollbar leading-relaxed whitespace-pre-wrap select-text"></pre>
+                    </div>
+                </div>
+
+                <!-- Korean Section -->
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-bold text-emerald-400 uppercase tracking-wider bg-emerald-500/10 px-2 py-1 rounded border border-emerald-500/20">Configuration Summary (한국어)</label>
+                        <button id="copyPromptKoBtn" onclick="window.copyToClipboard('promptModalKoContent', 'copyPromptKoBtn')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-3 py-1.5 rounded-lg border border-slate-700 transition-all flex items-center gap-2">
+                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                             복사 (한국어)
+                        </button>
+                    </div>
+                    <div class="relative group">
+                         <div class="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl opacity-20 blur group-hover:opacity-30 transition duration-1000 group-hover:duration-200"></div>
+                         <pre id="promptModalKoContent" class="relative w-full h-80 bg-slate-900 border border-slate-700 rounded-xl p-4 text-sm text-slate-300 font-sans overflow-auto custom-scrollbar leading-loose whitespace-pre-wrap select-text"></pre>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
     </main>
 
     <script type="module">
@@ -299,7 +389,7 @@ if (file_exists($apiKeyPath)) {
 
         const state = {
             apiKey: "<?php echo htmlspecialchars($apiKey); ?>",
-            layout: { file: null, preview: null, aspectRatio: "1:1" },
+            layout: { file: null, preview: null, aspectRatio: "1:1", guideFile: null, guidePreview: null },
             door: { file: null, preview: null },
             floor: { mode: 'upload', file: null, preview: null, preset: 'deco-tile' },
             panels: Array.from({ length: 11 }, (_, i) => ({
@@ -380,6 +470,37 @@ if (file_exists($apiKeyPath)) {
             }
         }
 
+        function updateGuideUI() {
+            if (state.layout.guideFile) {
+                $('guidePlaceholder').classList.add('hidden');
+                $('guidePreviewContainer').classList.remove('hidden');
+                $('guidePreviewImage').src = state.layout.guidePreview;
+            } else {
+                $('guidePlaceholder').classList.remove('hidden');
+                $('guidePreviewContainer').classList.add('hidden');
+                $('guidePreviewImage').src = "";
+            }
+        }
+
+        // Guide Events
+        $('guideInput').addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                const file = e.target.files[0];
+                state.layout.guideFile = file;
+                state.layout.guidePreview = URL.createObjectURL(file);
+                updateGuideUI();
+            }
+        });
+
+        $('clearGuideBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            state.layout.guideFile = null;
+            state.layout.guidePreview = null;
+            $('guideInput').value = '';
+            updateGuideUI();
+        });
+
         function updateFloorUI() {
             if (state.floor.mode === 'upload') {
                 $('floorModeUpload').classList.replace('text-slate-400', 'bg-slate-600');
@@ -429,10 +550,10 @@ if (file_exists($apiKeyPath)) {
                     <div class="w-10 text-sm font-bold text-slate-500">#${panel.id}</div>
                     <div class="flex-1">
                         <div class="flex items-center gap-2 mb-2">
-                             <span class="text-xs font-medium text-slate-300">Mode:</span>
+                             <span class="text-xs font-medium text-slate-300">모드:</span>
                              <div class="flex bg-slate-700 rounded p-0.5">
-                                 <button class="text-[10px] px-2 py-0.5 rounded ${panel.mode === 'upload' ? 'bg-slate-500 text-white' : 'text-slate-400'}" onclick="window.setPanelMode('${panel.id}', 'upload')">Img</button>
-                                 <button class="text-[10px] px-2 py-0.5 rounded ${panel.mode === 'preset' ? 'bg-slate-500 text-white' : 'text-slate-400'}" onclick="window.setPanelMode('${panel.id}', 'preset')">Set</button>
+                                 <button class="text-[10px] px-2 py-0.5 rounded ${panel.mode === 'upload' ? 'bg-slate-500 text-white' : 'text-slate-400'}" onclick="window.setPanelMode('${panel.id}', 'upload')">이미지</button>
+                                 <button class="text-[10px] px-2 py-0.5 rounded ${panel.mode === 'preset' ? 'bg-slate-500 text-white' : 'text-slate-400'}" onclick="window.setPanelMode('${panel.id}', 'preset')">설정</button>
                              </div>
                         </div>`;
                 if (panel.mode === 'upload') {
@@ -440,7 +561,7 @@ if (file_exists($apiKeyPath)) {
                         content += `
                             <div class="relative w-full h-12 bg-slate-900 rounded overflow-hidden group">
                                 <img src="${panel.previewUrl}" class="w-full h-full object-cover opacity-80" />
-                                <button onclick="window.removePanelFile('${panel.id}')" class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 text-white text-xs">Remove</button>
+                                <button onclick="window.removePanelFile('${panel.id}')" class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 text-white text-xs">삭제</button>
                             </div>
                         `;
                     } else {
@@ -451,7 +572,7 @@ if (file_exists($apiKeyPath)) {
                                 ondragleave="window.handlePanelDragLeave(event)"
                                 ondrop="window.handlePanelDrop('${panel.id}', event)"
                             >
-                                <span class="text-[10px] text-slate-400 pointer-events-none">+ Upload / Drop</span>
+                                <span class="text-[10px] text-slate-400 pointer-events-none">+ 업로드 / 드롭</span>
                                 <input type="file" class="hidden" accept="image/*" onchange="window.handlePanelUpload('${panel.id}', this)" onclick="this.value=null" />
                             </label>
                         `;
@@ -479,10 +600,10 @@ if (file_exists($apiKeyPath)) {
                              
                              <!-- Type Select -->
                              <select onchange="window.setPanelPresetAttr('${panel.id}', 'type', this.value)" class="w-full bg-slate-900 text-white text-[10px] p-1.5 border border-slate-700 rounded text-center">
-                                <option value="hairline" ${panel.presetType === 'hairline' ? 'selected' : ''}>Hairline (Brushed)</option>
-                                <option value="mirror" ${panel.presetType === 'mirror' ? 'selected' : ''}>Mirror (Polished)</option>
-                                <option value="vibration" ${panel.presetType === 'vibration' ? 'selected' : ''}>Vibration (Swirl)</option>
-                                <option value="bead" ${panel.presetType === 'bead' ? 'selected' : ''}>Bead Blast (Matte)</option>
+                                <option value="hairline" ${panel.presetType === 'hairline' ? 'selected' : ''}>헤어라인 (결무늬)</option>
+                                <option value="mirror" ${panel.presetType === 'mirror' ? 'selected' : ''}>미러 (거울면)</option>
+                                <option value="vibration" ${panel.presetType === 'vibration' ? 'selected' : ''}>바이브레이션 (스월)</option>
+                                <option value="bead" ${panel.presetType === 'bead' ? 'selected' : ''}>비드 블라스트 (무광)</option>
                             </select>
                         </div>
                     `;
@@ -510,7 +631,7 @@ if (file_exists($apiKeyPath)) {
         function getColorGradient(color) {
             switch(color) {
                 case 'silver': return 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)';
-                case 'gold': return 'linear-gradient(135deg, #fce38a 0%, #f38181 100%)';
+                case 'gold': return 'linear-gradient(135deg, #FFD700 0%, #FDB931 100%)';
                 case 'bronze': return 'linear-gradient(135deg, #d4a373 0%, #8a5a44 100%)';
                 case 'black': return 'linear-gradient(135deg, #434343 0%, #000000 100%)';
                 default: return '#ccc';
@@ -644,37 +765,9 @@ if (file_exists($apiKeyPath)) {
             });
         });
 
-        // Generation
-        $('generateBtn').addEventListener('click', async () => {
-            if (!state.layout.file) return;
-            state.isGenerating = true;
-            
-            // UI Updates for Generation Start
-            const btn = $('generateBtn');
-            const originalBtnContent = btn.innerHTML;
-            btn.disabled = true;
-            btn.classList.add('cursor-not-allowed', 'opacity-75');
-            
-            $('loadingOverlay').classList.remove('hidden');
-            $('errorMessage').classList.add('hidden');
-            $('promptDebugContainer').classList.add('hidden');
-            
-            let seconds = 0;
-            // Update button text immediately
-            btn.innerHTML = `<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Generating... 00:00`;
-            
-            state.timerId = setInterval(() => { 
-                seconds++; 
-                const timeStr = formatTime(seconds);
-                $('timerDisplay').textContent = timeStr;
-                btn.innerHTML = `<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Generating... ${timeStr}`;
-            }, 1000);
-
-            try {
-                // CRITICAL: gemini-3-pro-image-preview requires PAID tier
-                // This model is specifically for high-quality image generation
-                const genAI = new GoogleGenerativeAI(state.apiKey);
-        // Helper to generate reflection description based on intensity (0-100)
+        // --- NEW: Prompt Preview Logic ---
+        
+        // Helper to generate reflection description
         function getReflectionContext(intensity, type) {
             if (type === 'mirror') {
                if (intensity < 30) return `Use a 'Foggy/Antique Mirror' finish. The reflections should be very blurred and subtle (Intensity: ${intensity}%). Do NOT make it perfectly clear.`;
@@ -688,100 +781,129 @@ if (file_exists($apiKeyPath)) {
             return `Finish: Standard Architectural Satin/Semi-Gloss. Balanced reflections. (Intensity: ${intensity}%)`;
         }
 
-                // REQUIRED: gemini-3-pro-image-preview for 3.0 version image generation
-                // NOTE: This model requires a PAID Google Cloud billing account
-                const model = genAI.getGenerativeModel({ model: "gemini-3-pro-image-preview" });
-
-                const parts = [];
-                // 1. System/Context Instruction - Highly detailed
-                parts.push({
-                    text: `You are an expert 3D architectural visualizer. 
-                    Your task is to generate a high-quality, photorealistic rendering of an elevator interior.
-                    
-                    PRIMARY OBJECTIVE: PRESERVE GEOMETRY
-                    You will be provided with a 'REFERENCE LAYOUT STRUCTURE' image. 
-                    This image is the absolute mask and wireframe for the scene. 
-                    You must NOT change the aspect ratio, the perspective lines, or the relative sizes of the panels defined in this layout.
-                    Even if you have generated images before, disregard them. Treat this layout image as the ONLY truth for geometry.
-
-                    CRITICAL: PANEL SEPARATION AND SEAMS
-                    The layout consists of 11 distinct vertical panels. The lines separating these panels are physical gaps/seams.
-                    - You MUST output these vertical division lines clearly. 
-                    - Do NOT allow separate panel textures to bleed across these lines.
-                    - Do NOT obscure the panel gaps with patterns. Each panel is an individual object.
-
-                    CRITICAL: MATERIAL SCALING AND REALISM
-                    - Apply materials at a 1:1 SCALE based on the provided sample.
-                    - STRICTLY FORBIDDEN: Do NOT magnify, stretch, or zoom in on the pattern image.
-                    - If the provided image is a pattern or texture, you must TILE it to cover the panel surface.
-                    - The density of the pattern in the output must match the density in the provided source image.
-                    - Think of the input image as a 50cm x 50cm sample. Do not stretch this small sample to cover a 2m high door. Repeat it.
-                    CRITICAL: FLAT ETCHING AND PATTERNS
-                    - If a panel has a pattern, design, or "Etching" image:
-                    - Render it as a FLAT surface treatment (like laser etching, silk-screen printing, or a decal).
-                    - Do NOT make the pattern 3D, embossed, or protruding. It must NOT have distinct height or significant bump mapping.
-                    - The surface feel should remain smooth. The pattern is visual only, like a drawing on a sheet, not a physical molding.
-
-                    CRITICAL: EXACT PANEL-MATERIAL MAPPING
-                    - You will receive inputs labeled 'MATERIAL B1 (Panel 1)', 'MATERIAL B2 (Panel 2)', etc.
-                    - You MUST apply the image/description of 'MATERIAL Bx' specifically to 'Panel x' in the layout.
-                    - Do NOT mix up the panels. If Panel 5 has an etching image, ONLY Panel 5 should show that etching.
-                    `
-                });
-
-                // 2. The Layout Image
-                parts.push({text: "REFERENCE LAYOUT STRUCTURE (GROUND TRUTH):"});
-                parts.push(await fileToPart(state.layout.file));
-
-                if (state.door.file) {
-                    parts.push({text: "MATERIAL A (Use for Main Entrance Doors):"});
-                    parts.push(await fileToPart(state.door.file));
-                }
-
-                if (state.floor.mode === 'upload' && state.floor.file) {
-                    parts.push({text: "MATERIAL C (Floor):"});
-                    parts.push(await fileToPart(state.floor.file));
-                } else {
-                     let floorDesc = `FLOOR MATERIAL: ${state.floor.preset}`;
-                     if (state.floor.preset === 'marble') {
-                         floorDesc = "FLOOR MATERIAL: High-gloss luxury MARBLE STONE. White/Grey veining. Reflective polished surface. DISTINCT from the metal doors.";
-                     } else if (state.floor.preset === 'deco') {
-                         floorDesc = "FLOOR MATERIAL: Standard architectural DECO-TILE. Matte/Satin finish. Square tiling pattern. DISTINCT from the metal doors.";
-                     }
-                     // Explicit separation from Door material
-                     if (state.door.file) {
-                         floorDesc += " [CRITICAL: Do NOT use 'MATERIAL A (Door)' for the floor. The floor must use the specific material described here.]";
-                     }
-                     parts.push({text: floorDesc});
-                }
-
-                let matIndex = 1;
-                for (const p of state.panels) {
-                    let posContext = "";
-                    // Explicitly define positions for Panel 1 and 11 as requested
-                    // p.id is a string ("1", "11"), so use string comparison
-                    if (p.id === '1') {
-                        posContext = " [IMPORTANT: This is the panel immediately to the RIGHT of the central elevator doors (Front Wall Right Return/COP area).] ";
-                    } else if (p.id === '11') {
-                        posContext = " [IMPORTANT: This is the panel immediately to the LEFT of the central elevator doors (Front Wall Left Return).] ";
-                    }
-
-                    if (p.mode === 'upload' && p.file) {
-                        parts.push({text: `MATERIAL B${matIndex} (Panel ${p.id}):${posContext}`});
-                        parts.push(await fileToPart(p.file));
-                        matIndex++;
-                    } else if (p.mode === 'preset') {
-                        const reflectionDesc = getReflectionContext(state.reflectionIntensity, p.presetType);
-                        parts.push({text: `MATERIAL B${matIndex} (Panel ${p.id}):${posContext} Color ${p.presetColor}. Type ${p.presetType}. ${reflectionDesc}`});
-                        matIndex++;
-                    }
-                }
-
-                const reflectionGlobal = getReflectionContext(state.reflectionIntensity, 'standard');
-                parts.push({text: `GENERATE. Lighting Temperature: ${state.lightingTemp}K. Global Reflection Style: ${reflectionGlobal}. Output High-Res 3D Render.`});
+        // Reusable Prompt Builder
+        async function buildGeminiPrompt(currentState) {
+            const parts = [];
+            
+            // 1. System/Context Instruction
+            parts.push({
+                text: `You are an expert 3D architectural visualizer. 
+                Your task is to generate a high-quality, photorealistic rendering of an elevator interior.
                 
-                // ⚠️ CRITICAL: STRUCTURE MUST NOT BE MODIFIED ⚠️
-                parts.push({text: `
+                PRIMARY OBJECTIVE: PRESERVE GEOMETRY
+                You will be provided with a 'REFERENCE LAYOUT STRUCTURE' image. 
+                This image is the absolute mask and wireframe for the scene. 
+                You must NOT change the aspect ratio, the perspective lines, or the relative sizes of the panels defined in this layout.
+                Even if you have generated images before, disregard them. Treat this layout image as the ONLY truth for geometry.
+
+                CRITICAL: PANEL SEPARATION AND SEAMS
+                The layout consists of 11 distinct vertical panels. The lines separating these panels are physical gaps/seams.
+                - You MUST output these vertical division lines clearly. 
+                - Do NOT allow separate panel textures to bleed across these lines.
+                - Do NOT obscure the panel gaps with patterns. Each panel is an individual object.
+
+                CRITICAL: MATERIAL SCALING AND REALISM
+                - Apply materials at a 1:1 SCALE based on the provided sample.
+                - STRICTLY FORBIDDEN: Do NOT magnify, stretch, or zoom in on the pattern image.
+                - If the provided image is a pattern or texture, you must TILE it to cover the panel surface.
+                - The density of the pattern in the output must match the density in the provided source image.
+                - Think of the input image as a 50cm x 50cm sample. Do not stretch this small sample to cover a 2m high door. Repeat it.
+                CRITICAL: FLAT ETCHING AND PATTERNS
+                - If a panel has a pattern, design, or "Etching" image:
+                - Render it as a FLAT surface treatment (like laser etching, silk-screen printing, or a decal).
+                - Do NOT make the pattern 3D, embossed, or protruding. It must NOT have distinct height or significant bump mapping.
+                - The surface feel should remain smooth. The pattern is visual only, like a drawing on a sheet, not a physical molding.
+
+                CRITICAL: EXACT PANEL-MATERIAL MAPPING
+                - You will receive inputs labeled 'MATERIAL B1 (Panel 1)', 'MATERIAL B2 (Panel 2)', etc.
+                - You MUST apply the image/description of 'MATERIAL Bx' specifically to 'Panel x' in the layout.
+                - Do NOT mix up the panels. If Panel 5 has an etching image, ONLY Panel 5 should show that etching.
+                
+                CRITICAL VISUAL STRUCTURE DEFINITIONS:
+                The elevator cabin has a specific, fixed layout relative to the Central Doors. You must understand this spatial arrangement:
+
+                [CENTER]: Elevator Doors (Material A)
+                
+                [RIGHT WALL SIDE]:
+                - **Panel #1**: Immediately to the RIGHT of the Door. (Front Wall Right Return)
+                - **Panel #2**: Meets Panel #1 at the corner. This is the **NARROWEST** panel.
+                - **Panel #3**: Next to Panel #2. This is the **WIDEST** panel on this side.
+                - **Panel #4**: Next to Panel #3. Width is approx 2x of Panel #2. Same width as Panel #8.
+                
+                [LEFT WALL SIDE] (Symmetric to Right):
+                - **Panel #11**: Immediately to the LEFT of the Door. (Front Wall Left Return). Symmetric to Panel #1.
+                - **Panel #10**: Meets Panel #11 at the corner. **NARROWEST** panel. Same width as Panel #2.
+                - **Panel #9**: Next to Panel #10. **WIDEST** panel. Same width as Panel #3.
+                - **Panel #8**: Next to Panel #9. Same width as Panel #4.
+
+                [VERTICAL RULE]:
+                - All panels extend continuously from the Floor to the Ceiling.
+                - The material/texture of a panel MUST be consistent from top to bottom. Do not split a panel vertically.
+                `
+            });
+
+            // 2. The Layout Image
+            parts.push({text: "REFERENCE LAYOUT STRUCTURE (GROUND TRUTH):"});
+            parts.push(await fileToPart(currentState.layout.file));
+
+            if (currentState.layout.guideFile) {
+                parts.push({text: "REFERENCE PANEL NUMBER MAP (Use this to identify panel numbers):"});
+                parts.push(await fileToPart(currentState.layout.guideFile));
+                parts.push({text: `INSTRUCTION: The image above explicitly labels the panel numbers (1, 2, 3, etc.). Use this map to correctly apply 'Material Bx' to 'Panel x'. The visual position of the number in this map corresponds to the panel with that ID.
+
+CRITICAL VISIBILITY RULE: 
+- Any panel number NOT explicitly numbered/labeled in this 'Panel Number Map' must be IGNORED.
+- If a panel ID (e.g., #5, #6, #7) is NOT shown in the map, it is considered OUT OF VIEW (invisible).
+- Do NOT render or attempt to apply materials to panels that are not explicitly identified in the structure.
+- Only render the panels whose numbers are explicitly shown.
+`});
+            }
+
+            if (currentState.door.file) {
+                parts.push({text: "MATERIAL A (Use for Main Entrance Doors):"});
+                parts.push(await fileToPart(currentState.door.file));
+            }
+
+            if (currentState.floor.mode === 'upload' && currentState.floor.file) {
+                parts.push({text: "MATERIAL C (Floor):"});
+                parts.push(await fileToPart(currentState.floor.file));
+            } else {
+                 let floorDesc = `FLOOR MATERIAL: ${currentState.floor.preset}`;
+                 if (currentState.floor.preset === 'marble') {
+                     floorDesc = "FLOOR MATERIAL: High-gloss luxury MARBLE STONE. White/Grey veining. Reflective polished surface. DISTINCT from the metal doors.";
+                 } else if (currentState.floor.preset === 'deco') {
+                     floorDesc = "FLOOR MATERIAL: Standard architectural DECO-TILE. Matte/Satin finish. Square tiling pattern. DISTINCT from the metal doors.";
+                 }
+                 if (currentState.door.file) {
+                     floorDesc += " [CRITICAL: Do NOT use 'MATERIAL A (Door)' for the floor. The floor must use the specific material described here.]";
+                 }
+                 parts.push({text: floorDesc});
+            }
+
+            let matIndex = 1;
+            for (const p of currentState.panels) {
+                let posContext = "";
+                if (p.id === '1') {
+                    posContext = " [IMPORTANT: This is the panel immediately to the RIGHT of the central elevator doors (Front Wall Right Return/COP area).] ";
+                } else if (p.id === '11') {
+                    posContext = " [IMPORTANT: This is the panel immediately to the LEFT of the central elevator doors (Front Wall Left Return).] ";
+                }
+
+                if (p.mode === 'upload' && p.file) {
+                    parts.push({text: `MATERIAL B${matIndex} (Panel ${p.id}):${posContext}`});
+                    parts.push(await fileToPart(p.file));
+                    matIndex++;
+                } else if (p.mode === 'preset') {
+                    const reflectionDesc = getReflectionContext(currentState.reflectionIntensity, p.presetType);
+                    parts.push({text: `MATERIAL B${matIndex} (Panel ${p.id}):${posContext} Color ${p.presetColor}. Type ${p.presetType}. ${reflectionDesc}`});
+                    matIndex++;
+                }
+            }
+
+            const reflectionGlobal = getReflectionContext(currentState.reflectionIntensity, 'standard');
+            parts.push({text: `GENERATE. Lighting Temperature: ${currentState.lightingTemp}K. Global Reflection Style: ${reflectionGlobal}. Output High-Res 3D Render.`});
+            
+            parts.push({text: `
 ⚠️⚠️⚠️ ABSOLUTE STRUCTURE REQUIREMENT - DO NOT MODIFY ⚠️⚠️⚠️
 
 CRITICAL WARNING: The structure provided in "REFERENCE LAYOUT STRUCTURE (GROUND TRUTH)" is ABSOLUTE and MUST NOT be changed, modified, or transformed in any way.
@@ -801,7 +923,174 @@ ANY modification to the structure is STRICTLY FORBIDDEN.
 The structure must remain EXACTLY as shown in the reference layout image.
 
 ⚠️⚠️⚠️ STRUCTURE MODIFICATION IS ABSOLUTELY PROHIBITED ⚠️⚠️⚠️
-                `});
+            `});
+
+            return parts;
+        }
+
+        // Korean Summary Generator
+        function generateKoreanSummary(currentState) {
+            let summary = "";
+            summary += "=== 🏗️ 기본 설정 ===\n";
+            summary += `• 구조 레이아웃: ${currentState.layout.file ? currentState.layout.file.name : '없음'}\n`;
+            summary += `• 화면비율 (Aspect Ratio): ${currentState.layout.aspectRatio}\n`;
+            summary += `• 조명 온도: ${currentState.lightingTemp}K\n`;
+            summary += `• 반사 강도: ${currentState.reflectionIntensity}%\n\n`;
+
+            summary += "=== 🚪 출입문 (Entrance) ===\n";
+            if (currentState.door.file) {
+                summary += `• [이미지] ${currentState.door.file.name}\n`;
+            } else {
+                summary += `• 설정되지 않음 (기본 재질)\n`;
+            }
+            summary += "\n";
+
+            summary += "=== 🦶 바닥 (Floor) ===\n";
+            if (currentState.floor.mode === 'upload' && currentState.floor.file) {
+                summary += `• [이미지] ${currentState.floor.file.name}\n`;
+            } else {
+                const presetName = currentState.floor.preset === 'marble' ? '대리석 (Marble)' : '데코타일 (Deco Tile)';
+                summary += `• [프리셋] ${presetName}\n`;
+            }
+            summary += "\n";
+
+            summary += "=== 🧱 벽면 패널 (Panels) ===\n";
+            const panelGroups = [];
+            // Group similar panels for cleaner output
+            let currentGroup = null;
+            
+            currentState.panels.forEach(p => {
+                let desc = "";
+                if (p.mode === 'upload') {
+                     desc = p.file ? `[이미지] ${p.file.name}` : '(이미지 없음)';
+                } else {
+                     const colorMap = { 'silver': '실버', 'gold': '골드', 'bronze': '브론즈', 'black': '블랙' };
+                     const typeMap = { 'hairline': '헤어라인', 'mirror': '미러', 'vibration': '바이브레이션', 'bead': '비드 블라스트' };
+                     desc = `[설정] ${colorMap[p.presetColor]} / ${typeMap[p.presetType]}`;
+                }
+                
+                if (!currentGroup) {
+                    currentGroup = { ids: [p.id], desc: desc };
+                } else {
+                    if (currentGroup.desc === desc) {
+                        currentGroup.ids.push(p.id);
+                    } else {
+                        panelGroups.push(currentGroup);
+                        currentGroup = { ids: [p.id], desc: desc };
+                    }
+                }
+            });
+            if (currentGroup) panelGroups.push(currentGroup);
+
+            panelGroups.forEach(g => {
+                const ids = g.ids.length > 1 ? `${g.ids[0]}~${g.ids[g.ids.length-1]}` : g.ids[0];
+                const idList = g.ids.join(', ');
+                summary += `• 패널 #${idList}: ${g.desc}\n`;
+            });
+
+            return summary;
+        }
+
+        // Preview Handlers
+        $('previewPromptBtn').addEventListener('click', async () => {
+             if (!state.layout.file) return;
+             
+             // Show Modal with Loading
+             $('promptModal').classList.remove('hidden');
+             $('promptModalEnContent').textContent = "Generating prompt...";
+             $('promptModalKoContent').textContent = "한글 요약 생성 중...";
+
+             try {
+                 // 1. Generate English Prompt
+                 const parts = await buildGeminiPrompt(state);
+                 let debugText = "";
+                 parts.forEach(p => {
+                    if (p.text) {
+                        debugText += p.text.trim() + "\n\n";
+                    } else if (p.inlineData) {
+                        debugText += `[IMAGE DATA: ${p.inlineData.mimeType}]\n\n`;
+                    }
+                 });
+                 $('promptModalEnContent').textContent = debugText;
+
+                 // 2. Generate Korean Summary
+                 const koText = generateKoreanSummary(state);
+                 $('promptModalKoContent').textContent = koText;
+
+             } catch (e) {
+                 $('promptModalEnContent').textContent = "Error generating prompt: " + e.message;
+             }
+        });
+
+        $('closePromptModalBtn').addEventListener('click', () => {
+            $('promptModal').classList.add('hidden');
+        });
+        
+        // Copy Handlers for Modal
+        window.copyToClipboard = (elementId, btnId) => {
+            const text = $(elementId).textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = $(btnId);
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = `<span class="text-emerald-400">Copied!</span>`;
+                setTimeout(() => btn.innerHTML = originalHtml, 2000);
+            });
+        };
+
+        // UI Logic to Enable Preview Button
+        const originalUpdateLayoutUI = updateLayoutUI;
+        updateLayoutUI = function() { // Override to hook into updates
+             originalUpdateLayoutUI();
+             const btn = $('previewPromptBtn');
+             if (state.layout.file) {
+                 btn.disabled = false;
+                 btn.classList.remove('text-slate-300', 'bg-slate-800/80', 'cursor-not-allowed');
+                 btn.classList.add('text-white', 'bg-slate-700/80', 'hover:bg-slate-600', 'cursor-pointer', 'border-indigo-500/50', 'ring-1', 'ring-indigo-500/30');
+             } else {
+                 btn.disabled = true;
+                 btn.classList.add('text-slate-300', 'bg-slate-800/80', 'cursor-not-allowed');
+                 btn.classList.remove('text-white', 'bg-slate-700/80', 'hover:bg-slate-600', 'cursor-pointer', 'border-indigo-500/50', 'ring-1', 'ring-indigo-500/30');
+             }
+        };
+
+        // Generation
+        $('generateBtn').addEventListener('click', async () => {
+            if (!state.layout.file) return;
+            state.isGenerating = true;
+            
+            // UI Updates for Generation Start
+            const btn = $('generateBtn');
+            const originalBtnContent = btn.innerHTML;
+            btn.disabled = true;
+            btn.classList.add('cursor-not-allowed', 'opacity-75');
+            
+            // Reset UI for fresh generation
+            $('loadingOverlay').classList.remove('hidden');
+            $('resultContainer').classList.add('hidden'); // HIDDEN during generation
+            $('resultImage').src = ""; // Clear old image
+            $('errorMessage').classList.add('hidden');
+            $('promptDebugContainer').classList.add('hidden');
+            $('promptDebugText').value = ""; // Clear old debug text
+            
+            let seconds = 0;
+            // Update button text immediately
+            btn.innerHTML = `<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> 생성 중... 00:00`;
+            
+            state.timerId = setInterval(() => { 
+                seconds++; 
+                const timeStr = formatTime(seconds);
+                $('timerDisplay').textContent = timeStr;
+                btn.innerHTML = `<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> 생성 중... ${timeStr}`;
+            }, 1000);
+
+            try {
+                // CRITICAL: gemini-3-pro-image-preview requires PAID tier
+                // This model is specifically for high-quality image generation
+                const genAI = new GoogleGenerativeAI(state.apiKey);
+                const model = genAI.getGenerativeModel({ model: "gemini-3-pro-image-preview" });
+                // ⚠️ CRITICAL: STRUCTURE MUST NOT BE MODIFIED ⚠️
+                // (Prompt structure logic moved to buildGeminiPrompt)
+                const parts = await buildGeminiPrompt(state);
 
                 // --- DEBUG PROMPT LOGGING ---
                 // Create a readable text version of the prompt
@@ -818,6 +1107,8 @@ The structure must remain EXACTLY as shown in the reference layout image.
                 $('promptDebugText').value = debugText;
                 $('promptDebugContainer').classList.remove('hidden');
                 // -----------------------------
+
+
 
                 // Retry logic with exponential backoff for quota errors
                 let result;
@@ -1000,13 +1291,36 @@ The structure must remain EXACTLY as shown in the reference layout image.
                 const btn = $('generateBtn');
                 btn.disabled = false;
                 btn.classList.remove('cursor-not-allowed', 'opacity-75');
-                btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg> Generate Visualization`;
+                btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg> 시각화 생성하기`;
             }
         });
+
+        // Initialize Default Guide
+        async function initDefaultGuide() {
+            try {
+                // Check if user already uploaded something (unlikely on reload unless state persisted, but good practice)
+                if (state.layout.guideFile) return;
+
+                const response = await fetch('sourceimg/car_inner.jpg');
+                if (!response.ok) throw new Error('Default guide image not found');
+                
+                const blob = await response.blob();
+                const file = new File([blob], "car_inner.jpg", { type: blob.type });
+                
+                state.layout.guideFile = file;
+                state.layout.guidePreview = URL.createObjectURL(file);
+                updateGuideUI();
+                console.log("Default guide loaded: car_inner.jpg");
+            } catch (e) {
+                console.warn("Could not load default guide:", e);
+            }
+        }
 
         renderPanels();
         updateLayoutUI();
         updateFloorUI();
+        updateDoorUI();
+        initDefaultGuide(); // Load default guide
     </script>
     <?php endif; ?>
 </body>

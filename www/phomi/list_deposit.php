@@ -149,7 +149,7 @@ $search = $_REQUEST["search"] ?? '';
 
 .btnClear {
 	position: absolute !important;
-	right: 50px !important;
+	right: 12px !important;
 	top: 50% !important;
 	transform: translateY(-50%) !important;
 	width: 24px !important;
@@ -677,6 +677,21 @@ try{
 	    $deposit_nums[$date][] = $deposit_row['num']; // 각 날짜별 입금 번호 저장
 	}
 	
+	// 강제 지출 금액 조회 (force_outcome) - phomi_deposit 테이블에서 날짜별로 조회
+	$force_outcomes = [];
+	$force_outcome_nums = []; // 날짜별 첫 번째 입금 레코드의 num 저장
+	$force_outcome_sql = "SELECT deposit_date, force_outcome, MIN(num) as first_num 
+	                      FROM {$DB}.phomi_deposit 
+	                      WHERE deposit_date BETWEEN '$fromdate' AND '$Transtodate'
+	                      AND (is_deleted IS NULL OR is_deleted = 'N')
+	                      GROUP BY deposit_date, force_outcome
+	                      HAVING force_outcome IS NOT NULL AND force_outcome > 0";
+	$force_outcome_stmh = $pdo->query($force_outcome_sql);
+	while ($force_row = $force_outcome_stmh->fetch(PDO::FETCH_ASSOC)) {
+	    $force_outcomes[$force_row['deposit_date']] = floatval($force_row['force_outcome']);
+	    $force_outcome_nums[$force_row['deposit_date']] = $force_row['first_num'];
+	}
+	
 	// 모든 날짜를 합쳐서 정렬
 	$all_dates = array_unique(array_merge(array_keys($deposits), array_keys($expenses)));
 	rsort($all_dates); // 최신 날짜부터 정렬
@@ -692,8 +707,20 @@ try{
 	    $income = $deposits[$date] ?? 0;
 	    $expense = $expenses[$date] ?? 0;
 	    
+	    // 강제 지출 금액이 있으면 그것을 사용, 없으면 계산된 지출액 사용
+	    $force_outcome = $force_outcomes[$date] ?? null;
+	    if ($force_outcome !== null && $force_outcome > 0) {
+	        $expense = $force_outcome;
+	    }
+	    
 	    // 입금액에서 지출액을 뺀 금액을 누적 잔액에 반영
 	    $running_balance += $income - $expense;
+	    
+	    // 해당 날짜의 첫 번째 입금 레코드의 num 찾기 (force_outcome 저장용)
+	    $first_deposit_num = !empty($deposit_nums[$date]) ? $deposit_nums[$date][0] : null;
+	    if ($first_deposit_num === null && isset($force_outcome_nums[$date])) {
+	        $first_deposit_num = $force_outcome_nums[$date];
+	    }
 	    
 	    $balance_data[] = [
 	        'date' => $date,
@@ -703,7 +730,9 @@ try{
 	        'site_names' => $site_names[$date] ?? '',
 	        'recipients' => $recipients[$date] ?? '',
 	        'order_nums' => $order_nums[$date] ?? '',
-	        'deposit_nums' => $deposit_nums[$date] ?? []
+	        'deposit_nums' => $deposit_nums[$date] ?? [],
+	        'force_outcome' => $force_outcome,
+	        'first_deposit_num' => $first_deposit_num
 	    ];
 	}
 	
@@ -769,6 +798,7 @@ try{
 			</div>
 			 &nbsp;												   			   
 				<button type="button" id="searchBtn" class="btn btn-dark btn-sm pc-only-btn"> <i class="bi bi-search"></i>  </button>	&nbsp;&nbsp;
+				<button type="button" class="btn btn-outline-secondary btn-sm me-1" onclick="openHelpModal()"><i class="bi bi-info-circle"></i></button>
 				<button type="button" class="btn btn-dark  btn-sm me-1" id="writeBtn"> <i class="bi bi-pencil-fill"></i> 신규  </button> 	    			 
 		</div>
 	</div>
@@ -791,7 +821,8 @@ th {
          <th class="text-end balance-amount" scope="col" style="width:150px;">잔액</th>		
          <th class="text-start" style="width:300px;">현장명</th>
          <th class="text-start" style="width:300px;">수신처</th>
-         <th class="text-start w300px" > 비고 </th>
+         <th class="text-start w300px" > 입금/지출 구분 </th>
+         <th class="text-center" style="width:100px;">지출 수정</th>
        </tr>
      </thead>	
     <tbody>
@@ -838,7 +869,7 @@ th {
 					$click_data = 'data-type="expense" data-date="'.$date.'" data-order-nums="'.$order_nums.'"';
 				}
 				
-				echo '<tr style="cursor:pointer;" '.$click_data.'>';
+				echo '<tr class="deposit-row" '.$click_data.'>';
 				?>
 					<td class="text-center" data-label="번호"><?= $start_num ?></td>
 					<td class="text-start" data-label="날짜" data-order="<?= $date ?>"> <?=$date?> </td>	  
@@ -853,7 +884,13 @@ th {
 					</td>  <!-- 잔액 -->
 					<td class="text-start" data-label="현장명"> <?= $site_names ? $site_names : '-' ?> </td>  <!-- 현장명 -->
 					<td class="text-start" data-label="수신처"> <?= $recipients ? $recipients : '-' ?> </td>  <!-- 수신처 -->
-					<td class="text-start" data-label="비고"> <?= $note ?> </td>          
+					<td class="text-start" data-label="입금/지출 구분"> <?= $note ?> </td>
+					<td class="text-center edit-expense-cell" data-label="지출 수정">
+						<button type="button" class="btn btn-sm btn-warning"
+						        onclick="return openExpenseModal('<?= $date ?>','<?= $expense ?>','<?= $data['force_outcome'] ?? '' ?>','<?= $data['first_deposit_num'] ?? '' ?>');">
+							<i class="bi bi-pencil"></i> 수정
+						</button>
+					</td>          
 					</tr>
 		<?php
 			$start_num--;  
@@ -870,8 +907,80 @@ th {
 </div>   
 </div>  
 
-</form>	 
+</form>
+
+<!-- 지출 수정 모달 -->
+<div class="modal fade" id="editExpenseModal" tabindex="-1" aria-labelledby="editExpenseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editExpenseModalLabel">지출 금액 수정</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editExpenseForm">
+                    <input type="hidden" id="expense_date" name="expense_date">
+                    <input type="hidden" id="expense_num" name="expense_num">
+                    <div class="mb-3">
+                        <label for="force_outcome" class="form-label">강제 지출 금액 (VAT 포함)</label>
+                        <input type="number" class="form-control" id="force_outcome" name="force_outcome" 
+                               placeholder="지출 금액을 입력하세요" step="0.01" min="0" required>
+                        <small class="form-text text-muted">이 금액이 해당 날짜의 지출액으로 사용됩니다.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">현재 계산된 지출액</label>
+                        <input type="text" class="form-control" id="current_expense" readonly>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                <button type="button" class="btn btn-primary" id="saveExpenseBtn">저장</button>
+            </div>
+        </div>
+    </div>
+</div>
       
+<!-- 도움말 모달 -->
+<div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-secondary text-white py-3">
+                <h5 class="modal-title fs-5" id="helpModalLabel">
+                    <i class="bi bi-question-circle"></i> 지출 수정(강제 지출 금액) 사용법
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto; font-size: 0.95rem;">
+                <div class="p-2">
+                    <h6 class="fw-bold text-primary mb-2"><i class="bi bi-cash-coin"></i> 강제 지출 금액 입력</h6>
+                    <p class="text-muted mb-3">
+                        - ‘지출 수정’ 버튼을 눌러 금액을 입력하면, 해당 날짜의 지출액을 강제로 덮어씁니다.<br>
+                        - 입력한 금액이 화면의 지출액보다 우선하여 사용됩니다.
+                    </p>
+                    <h6 class="fw-bold text-success mb-2"><i class="bi bi-arrow-counterclockwise"></i> 복원(0 입력)</h6>
+                    <p class="text-muted mb-3">
+                        - 강제 지출 금액에 <strong>0</strong>을 입력 후 저장하면 강제값이 제거되고, 원래 계산된 지출액으로 복원됩니다.
+                    </p>
+                    <h6 class="fw-bold text-dark mb-2"><i class="bi bi-lightning-charge"></i> 저장 동작</h6>
+                    <p class="text-muted mb-3">
+                        - 금액 &gt; 0: 해당 날짜의 첫 입금 레코드에 강제 지출 금액을 저장합니다.<br>
+                        - 금액 = 0: 강제 지출 금액 컬럼을 NULL로 설정하여 강제값을 제거합니다.
+                    </p>
+                    <h6 class="fw-bold text-secondary mb-2"><i class="bi bi-shield-check"></i> 주의사항</h6>
+                    <p class="text-muted mb-1">
+                        - 숫자만 입력하세요. (음수 불가)<br>
+                        - 저장 후 페이지가 새로고침되며 적용 결과가 반영됩니다.
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 var dataTable; // DataTables 인스턴스 전역 변수
 var requestetcpageNumber; // 현재 페이지 번호 저장을 위한 전역 변수
@@ -1007,7 +1116,11 @@ function restorePageNumber() {
 
 // 테이블 행 클릭 이벤트 처리
 $(document).ready(function(){
-	$('#myTable tbody').on('click', 'tr', function() {
+	$('#myTable tbody').on('click', 'tr', function(e) {
+		// 행 내부 지출 수정 영역 클릭 시 행 클릭 처리 스킵 (이중 팝업 방지)
+		if ($(e.target).closest('.edit-expense-cell').length) {
+			return;
+		}
 		var type = $(this).data('type');
 		var date = $(this).data('date');
 		var orderNums = $(this).data('order-nums');
@@ -1053,6 +1166,121 @@ $(document).ready(function(){
 // 서버에 작업 기록
 $(document).ready(function(){
 	saveLogData('<?=$title_message?>'); // 다른 페이지에 맞는 menuName을 전달
+});
+
+// 지출 수정 모달 관련
+$(document).ready(function(){
+	// Bootstrap 5 모달 핸들러
+	const modalEl = document.getElementById('editExpenseModal');
+	let editExpenseModal = null;
+	if (modalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+		editExpenseModal = new bootstrap.Modal(modalEl);
+	}
+	// 도움말 모달 핸들러
+	const helpModalEl = document.getElementById('helpModal');
+	let helpModal = null;
+	if (helpModalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+		helpModal = new bootstrap.Modal(helpModalEl);
+	}
+	// Bootstrap이 없을 때를 위한 수동 show/hide 함수
+	const showFallbackModal = () => {
+		if (!modalEl) return;
+		modalEl.style.display = 'block';
+		modalEl.classList.add('show');
+		modalEl.removeAttribute('aria-hidden');
+		modalEl.setAttribute('aria-modal', 'true');
+		document.body.classList.add('modal-open');
+	};
+	const hideFallbackModal = () => {
+		if (!modalEl) return;
+		modalEl.style.display = 'none';
+		modalEl.classList.remove('show');
+		modalEl.setAttribute('aria-hidden', 'true');
+		modalEl.removeAttribute('aria-modal');
+		document.body.classList.remove('modal-open');
+	};
+
+	// 도움말 모달 열기 함수 (estimate/index.php 스타일)
+	window.openHelpModal = function() {
+		if (helpModal) {
+			helpModal.show();
+		} else if (helpModalEl) {
+			helpModalEl.style.display = 'block';
+			helpModalEl.classList.add('show');
+			helpModalEl.removeAttribute('aria-hidden');
+			helpModalEl.setAttribute('aria-modal', 'true');
+			document.body.classList.add('modal-open');
+		}
+		return false;
+	};
+
+	// 전역 함수로 모달 열기 (행 클릭과 충돌 방지, inline onclick 사용)
+	window.openExpenseModal = function(date, expense, forceOutcome, num) {
+		const expVal = parseFloat(expense) || 0;
+		$('#expense_date').val(date);
+		$('#expense_num').val(num || '');
+		$('#current_expense').val(expVal > 0 ? number_format(expVal) + '원' : '-');
+		$('#force_outcome').val(forceOutcome || '');
+		
+		if (editExpenseModal) {
+			editExpenseModal.show();
+		} else {
+			showFallbackModal(); // fallback
+		}
+		return false; // 클릭 이벤트 전파/기본동작 방지
+	};
+	
+	// 저장 버튼 클릭 이벤트
+	$('#saveExpenseBtn').click(function(){
+		const date = $('#expense_date').val();
+		let num = $('#expense_num').val();
+		const forceOutcome = $('#force_outcome').val();
+		
+		if (!date) {
+			alert('날짜 정보가 없습니다.');
+			return;
+		}
+		
+		if (forceOutcome === '' || isNaN(parseFloat(forceOutcome)) || parseFloat(forceOutcome) < 0) {
+			alert('올바른 지출 금액을 입력하세요. (0 입력 시 강제 지출 금액이 제거되어 기존 계산값으로 복원됩니다.)');
+			return;
+		}
+		
+		// AJAX로 저장
+		$.ajax({
+			url: 'process_force_outcome.php',
+			type: 'POST',
+			data: {
+				mode: 'save',
+				expense_date: date,
+				num: num,
+				force_outcome: forceOutcome
+			},
+			dataType: 'json',
+			success: function(response){
+				if (response.success) {
+					alert('지출 금액이 저장되었습니다.');
+					if (editExpenseModal) {
+						editExpenseModal.hide();
+					} else {
+						hideFallbackModal();
+					}
+					location.reload();
+				} else {
+					alert('저장 실패: ' + (response.message || '알 수 없는 오류'));
+				}
+			},
+			error: function(xhr, status, error){
+				console.error('Error:', error);
+				alert('저장 중 오류가 발생했습니다.');
+			}
+		});
+	});
+	
+	// 숫자 포맷팅 함수
+	function number_format(num) {
+		return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	}
 });
 </script> 
 
