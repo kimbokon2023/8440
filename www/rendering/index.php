@@ -1138,13 +1138,15 @@ if (file_exists($apiKeyPath)) {
                 `[CENTER]: Elevator Doors (Material A)
                 
                 [RIGHT WALL SIDE]:
-                - **Panel #1**: Immediately to the RIGHT of the Door. (Front Wall Right Return)
+                - **Panel #1**: (RIGHT DOOR RETURN). The vertical panel immediately to the RIGHT of the Door Frame.
+                  - Visible next to the door. Apply 'Material B1' here.
                 - **Panel #2**: Meets Panel #1 at the corner. This is the **NARROWEST** panel.
                 - **Panel #3**: Next to Panel #2. This is the **WIDEST** panel on this side.
                 - **Panel #4**: Next to Panel #3. Width is approx 2x of Panel #2. Same width as Panel #8.
                 
                 [LEFT WALL SIDE] (Symmetric to Right):
-                - **Panel #11**: Immediately to the LEFT of the Door. (Front Wall Left Return). Symmetric to Panel #1.
+                - **Panel #11**: (LEFT DOOR RETURN). The vertical panel immediately to the LEFT of the Door Frame.
+                  - Visible next to the door. Apply 'Material B11' here.
                 - **Panel #10**: Meets Panel #11 at the corner. **NARROWEST** panel. Same width as Panel #2.
                 - **Panel #9**: Next to Panel #10. **WIDEST** panel. Same width as Panel #3.
                 - **Panel #8**: Next to Panel #9. Same width as Panel #4.
