@@ -90,14 +90,27 @@ if (file_exists($apiKeyPath)) {
             <!-- CONTROLS -->
             <div class="w-full lg:w-5/12 space-y-8">
                 
-                <!-- Layout -->
-                <section class="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl">
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-lg font-semibold text-white flex items-center gap-2">
-                            <span class="flex items-center justify-center w-6 h-6 rounded-full bg-blue-600 text-xs font-bold">1</span>
-                            구조 레이아웃 (Structural Layout)
-                        </h2>
-                        <div class="flex items-center gap-2">
+                <!-- SETTINGS PANEL WRAPPER -->
+                <div class="flex flex-col gap-6">
+
+                    <!-- View Toggle -->
+                    <div class="bg-slate-900 p-2 rounded-2xl border border-slate-800 shadow-lg flex gap-2">
+                        <button id="viewModeFront" class="flex-1 py-3 text-sm font-bold rounded-xl transition-all bg-blue-600 text-white shadow-lg flex items-center justify-center gap-2">
+                            <span>전면 뷰 (Front)</span>
+                        </button>
+                        <button id="viewModeRear" class="flex-1 py-3 text-sm font-bold rounded-xl transition-all text-slate-400 hover:text-white hover:bg-slate-800 flex items-center justify-center gap-2">
+                            <span>후면 뷰 (Rear)</span>
+                        </button>
+                    </div>
+
+                    <!-- Layout -->
+                    <section class="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 id="layoutTitle" class="text-lg font-semibold text-white flex items-center gap-2">
+                                <span class="flex items-center justify-center w-6 h-6 rounded-full bg-blue-600 text-xs font-bold">1</span>
+                                구조 레이아웃 (Structural Layout)
+                            </h2>
+                            <div class="flex items-center gap-2">
                             <span id="layoutAspectRatioBadge" class="hidden text-xs text-indigo-400 font-mono bg-indigo-900/30 px-2 py-0.5 rounded border border-indigo-500/30">
                                 Ratio: <span id="layoutAspectRatioValue">1:1</span>
                             </span>
@@ -235,9 +248,12 @@ if (file_exists($apiKeyPath)) {
 
                         <!-- Door -->
                         <!-- Door -->
-                        <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800">
+                        <div id="doorSection" class="bg-slate-950/50 p-4 rounded-xl border border-slate-800">
                             <div class="flex items-center justify-between mb-3">
-                                <label class="text-sm font-medium text-slate-300">입구 출입문 (Entrance Door)</label>
+                                <label class="text-sm font-medium text-slate-300 flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-yellow-500"><path d="M14 2v20H2V2h12z"/><path d="M14 2v20h8V2h-8z"/><path d="M4 12h2"/><path d="M16 12h2"/></svg>
+                                    입구 출입문 (Entrance Door)
+                                </label>
                                 <div class="flex bg-slate-800 rounded-lg p-1 border border-slate-700">
                                   <button id="doorModeUpload" class="text-xs px-3 py-1 rounded-md transition-all bg-slate-600 text-white shadow">이미지</button>
                                   <button id="doorModePreset" class="text-xs px-3 py-1 rounded-md transition-all text-slate-400 hover:text-white">선택</button>
@@ -478,6 +494,7 @@ if (file_exists($apiKeyPath)) {
 
         const state = {
             apiKey: "<?php echo htmlspecialchars($apiKey); ?>",
+            viewMode: 'front', // 'front' or 'rear'
             layout: { file: null, preview: null, aspectRatio: "1:1", guideFile: null, guidePreview: null },
             door: { file: null, preview: null, mode: 'upload', presetColor: 'silver', presetType: 'hairline' },
             floor: { mode: 'upload', file: null, preview: null, preset: 'deco-tile' },
@@ -843,23 +860,83 @@ if (file_exists($apiKeyPath)) {
         };
 
         // Listeners
+        // View Mode Logic
+        async function loadViewDefaults() {
+            // Clear current Layout/Guide
+            state.layout.file = null;
+            state.layout.preview = null;
+            state.layout.guideFile = null;
+            state.layout.guidePreview = null;
+            $('layoutInput').value = '';
+            $('guideInput').value = '';
+            
+            if (state.viewMode === 'front') {
+                await initDefaultLayout('sourceimg/car_basic_front.jpg');
+                await initDefaultGuide('sourceimg/car_inner.jpg');
+            } else {
+                await initDefaultLayout('sourceimg/car_basic_rear.jpg');
+                await initDefaultGuide('sourceimg/car_inner_rear.jpg');
+            }
+            updateLayoutUI();
+            updateGuideUI();
+        }
+
+        function updateViewModeUI() {
+            if (state.viewMode === 'front') {
+                $('viewModeFront').classList.add('bg-blue-600', 'text-white', 'shadow-lg');
+                $('viewModeFront').classList.remove('text-slate-400', 'hover:text-white');
+                $('viewModeRear').classList.remove('bg-blue-600', 'text-white', 'shadow-lg');
+                $('viewModeRear').classList.add('text-slate-400', 'hover:text-white');
+                
+                $('doorSection').classList.remove('hidden');
+                document.getElementById('layoutTitle').innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                    Structural Layout (Front)
+                `;
+            } else {
+                $('viewModeRear').classList.add('bg-blue-600', 'text-white', 'shadow-lg');
+                $('viewModeRear').classList.remove('text-slate-400', 'hover:text-white');
+                $('viewModeFront').classList.remove('bg-blue-600', 'text-white', 'shadow-lg');
+                $('viewModeFront').classList.add('text-slate-400', 'hover:text-white');
+                
+                $('doorSection').classList.add('hidden');
+                document.getElementById('layoutTitle').innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                    Structural Layout (Rear)
+                `;
+            }
+        }
+
+        $('viewModeFront').addEventListener('click', async () => { 
+            if(state.viewMode === 'front') return;
+            state.viewMode = 'front'; 
+            updateViewModeUI(); 
+            await loadViewDefaults();
+        });
+        $('viewModeRear').addEventListener('click', async () => { 
+            if(state.viewMode === 'rear') return;
+            state.viewMode = 'rear'; 
+            updateViewModeUI(); 
+            await loadViewDefaults();
+        });
+
         $('layoutInput').addEventListener('change', (e) => {
             if (e.target.files[0]) {
-                const file = e.target.files[0];
+                state.layout.file = e.target.files[0];
+                state.layout.preview = URL.createObjectURL(state.layout.file);
+                
+                // Estimate Aspect Ratio (simple)
                 const img = new Image();
                 img.onload = () => {
                     const ratio = img.width / img.height;
-                    const supported = [ {id:"1:1",v:1.0}, {id:"3:4",v:0.75}, {id:"4:3",v:1.333}, {id:"9:16",v:0.5625}, {id:"16:9",v:1.777} ];
-                    state.layout.aspectRatio = supported.reduce((p, c) => Math.abs(c.v - ratio) < Math.abs(p.v - ratio) ? c : p).id;
-                    state.layout.file = file;
-                    state.layout.preview = URL.createObjectURL(file);
+                    state.layout.aspectRatio = ratio > 1 ? "4:3" : "3:4"; 
                     updateLayoutUI();
                 };
-                img.src = URL.createObjectURL(file);
+                img.src = URL.createObjectURL(state.layout.file);
             }
         });
         $('clearLayoutBtn').addEventListener('click', () => { 
-            state.layout = { file: null, preview: null, aspectRatio: "1:1" }; 
+            state.layout = { file: null, preview: null, aspectRatio: "1:1", guideFile: state.layout.guideFile, guidePreview: state.layout.guidePreview }; 
             $('layoutInput').value = ''; 
             updateLayoutUI(); 
         });
@@ -1051,9 +1128,10 @@ if (file_exists($apiKeyPath)) {
                 - **PROTECT THE HANDRAIL GEOMETRY.** Do not flatten it into the wall.
                 
                 CRITICAL VISUAL STRUCTURE DEFINITIONS:
-                The elevator cabin has a specific, fixed layout relative to the Central Doors. You must understand this spatial arrangement:
+                The elevator cabin has a specific, fixed layout relative to the Central axis. You must understand this spatial arrangement:
 
-                [CENTER]: Elevator Doors (Material A)
+                ${currentState.viewMode === 'front' ? 
+                `[CENTER]: Elevator Doors (Material A)
                 
                 [RIGHT WALL SIDE]:
                 - **Panel #1**: Immediately to the RIGHT of the Door. (Front Wall Right Return)
@@ -1066,6 +1144,23 @@ if (file_exists($apiKeyPath)) {
                 - **Panel #10**: Meets Panel #11 at the corner. **NARROWEST** panel. Same width as Panel #2.
                 - **Panel #9**: Next to Panel #10. **WIDEST** panel. Same width as Panel #3.
                 - **Panel #8**: Next to Panel #9. Same width as Panel #4.
+                ` : 
+                `[CENTER]: **Panel #6** (REAR WALL CENTER). This is the main central panel of the rear wall.
+                
+                [RIGHT SIDE of Image] (Physical Left Wall):
+                - **Panel #7**: Immediately to the Right of Center Panel #6.
+                - **Panel #8**: Corner/Side Panel. (Corresponds to Front View Panel #2). Narrow.
+                - **Panel #9**: Side Panel. (Corresponds to Front View Panel #3). Wide.
+                - **Panel #10**: Side Panel. (Corresponds to Front View Panel #4).
+                
+                [LEFT SIDE of Image] (Physical Right Wall):
+                - **Panel #5**: Immediately to the Left of Center Panel #6.
+                - **Panel #4**: Corner/Side Panel. (Corresponds to Front View Panel #10). Narrow.
+                - **Panel #3**: Side Panel. (Corresponds to Front View Panel #9). Wide.
+                - **Panel #2**: Side Panel. (Corresponds to Front View Panel #8).
+                
+                NOTE: Panels #1 and #11 are generally NOT VISIBLE in this Rear View perspective, or are effectively replaced by the corner returns.`
+                }
 
                 [VERTICAL RULE]:
                 - All panels extend continuously from the Floor to the Ceiling.
@@ -1103,20 +1198,22 @@ CRITICAL VISIBILITY RULE:
                 return 50;
             };
 
-            if (currentState.door.mode === 'upload' && currentState.door.file) {
-                parts.push({text: "MATERIAL A (Elevator Doors - Left & Right):"});
-                parts.push(await fileToPart(currentState.door.file));
-                const ref = getReflectionContext(getRefInt('door'), 'standard');
-                parts.push({text: `INSTRUCTION: Apply the material/pattern shown in 'MATERIAL A' to the Center Elevator Doors. ${ref}`});
-            } else if (currentState.door.mode === 'preset') {
-                const color = currentState.door.presetColor;
-                const type = currentState.door.presetType;
-                const ref = getReflectionContext(getRefInt('door'), type);
-                let desc = `Color: ${color}, Finish: ${type}. ${ref}`;
-                if (type === 'mirror') desc += " (Highly Reflective Mirror Finish)";
-                
-                parts.push({text: `MATERIAL A (Elevator Doors - Left & Right): ${desc}`});
-                parts.push({text: "INSTRUCTION: Apply this specific metal finish and color to the Center Elevator Doors."});
+            if (currentState.viewMode === 'front') {
+                if (currentState.door.mode === 'upload' && currentState.door.file) {
+                    parts.push({text: "MATERIAL A (Elevator Doors - Left & Right):"});
+                    parts.push(await fileToPart(currentState.door.file));
+                    const ref = getReflectionContext(getRefInt('door'), 'standard');
+                    parts.push({text: `INSTRUCTION: Apply the material/pattern shown in 'MATERIAL A' to the Center Elevator Doors. ${ref}`});
+                } else if (currentState.door.mode === 'preset') {
+                    const color = currentState.door.presetColor;
+                    const type = currentState.door.presetType;
+                    const ref = getReflectionContext(getRefInt('door'), type);
+                    let desc = `Color: ${color}, Finish: ${type}. ${ref}`;
+                    if (type === 'mirror') desc += " (Highly Reflective Mirror Finish)";
+                    
+                    parts.push({text: `MATERIAL A (Elevator Doors - Left & Right): ${desc}`});
+                    parts.push({text: "INSTRUCTION: Apply this specific metal finish and color to the Center Elevator Doors."});
+                }
             }
 
             if (currentState.floor.mode === 'upload' && currentState.floor.file) {
@@ -1569,43 +1666,45 @@ The structure must remain EXACTLY as shown in the reference layout image.
         });
 
         // Initialize Default Guide
-        async function initDefaultGuide() {
+        async function initDefaultGuide(path = 'sourceimg/car_inner.jpg') {
             try {
-                // Check if user already uploaded something (unlikely on reload unless state persisted, but good practice)
-                if (state.layout.guideFile) return;
+                // If path is passed, force load even if state exists? Or just logic check
+                // For switching views, we cleared state.layout.guideFile so it will load.
+                if (state.layout.guideFile && !path) return;
 
-                const response = await fetch('sourceimg/car_inner.jpg');
-                if (!response.ok) throw new Error('Default guide image not found');
+                const response = await fetch(path);
+                if (!response.ok) throw new Error('Default guide image not found: ' + path);
                 
                 const blob = await response.blob();
-                const file = new File([blob], "car_inner.jpg", { type: blob.type });
+                const filename = path.split('/').pop();
+                const file = new File([blob], filename, { type: blob.type });
                 
                 state.layout.guideFile = file;
                 state.layout.guidePreview = URL.createObjectURL(file);
                 updateGuideUI();
-                console.log("Default guide loaded: car_inner.jpg");
+                console.log("Default guide loaded:", filename);
             } catch (e) {
                 console.warn("Could not load default guide:", e);
             }
         }
 
         // Initialize Default Layout (Wireframe)
-        async function initDefaultLayout() {
+        async function initDefaultLayout(path = 'sourceimg/car_basic_front.jpg') {
              try {
-                if (state.layout.file) return;
+                if (state.layout.file && !path) return;
 
-                const response = await fetch('sourceimg/car_basic_front.jpg');
-                if (!response.ok) throw new Error('Default layout wireframe not found');
+                const response = await fetch(path);
+                if (!response.ok) throw new Error('Default layout wireframe not found: ' + path);
                 
                 const blob = await response.blob();
-                const file = new File([blob], "car_basic_front.jpg", { type: blob.type });
+                const filename = path.split('/').pop();
+                const file = new File([blob], filename, { type: blob.type });
                 
                 state.layout.file = file;
                 state.layout.preview = URL.createObjectURL(file);
-                // Assume default aspect ratio or let updateLayoutUI handle it (defaults to 1:1 in state, maybe update if needed)
-                state.layout.aspectRatio = "3:4"; // Assuming portrait for this specific image based on filename "car_basic_front" common verticality
+                state.layout.aspectRatio = "3:4"; 
                 updateLayoutUI();
-                console.log("Default layout loaded: car_basic_front.jpg");
+                console.log("Default layout loaded:", filename);
             } catch (e) {
                 console.warn("Could not load default layout:", e);
             }
