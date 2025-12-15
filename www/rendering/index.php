@@ -356,7 +356,7 @@ if (file_exists($apiKeyPath)) {
                             <div class="flex items-center justify-between mb-2">
                                 <label class="block text-sm font-medium text-slate-300">패널 (1-11)</label>
                                 <button type="button" id="applyPanel1Btn" disabled class="text-xs font-medium px-3 py-1.5 rounded-lg transition-all flex items-center gap-2 border text-slate-500 bg-slate-800/50 border-slate-700 cursor-not-allowed">
-                                    패널 1을 전체에 복사
+                                    패널 #1 전체 적용
                                 </button>
                             </div>
                             <div id="panelsContainer" class="max-h-[500px] overflow-y-auto custom-scrollbar pr-2 space-y-2">
@@ -1099,6 +1099,12 @@ if (file_exists($apiKeyPath)) {
                 - You MUST output these vertical division lines clearly. 
                 - Do NOT allow separate panel textures to bleed across these lines.
                 - Do NOT obscure the panel gaps with patterns. Each panel is an individual object.
+
+                CRITICAL: MATERIAL ISOLATION (NO BLEEDING)
+                - Materials are assigned PER PANEL ID.
+                - **STRICT SEPARATION**: If Panel #9 is 'Mirror' and Panel #11 is 'Wood', Panel #11 MUST REMAIN WOOD. 
+                - Do NOT let the material of a large panel (like #3 or #9) "bleed" or "spread" onto smaller adjacent panels (like #1 or #11).
+                - Use the panel division lines as strict barriers for materials.
 
                 CRITICAL: MATERIAL SCALING AND REALISM
                 - Apply materials at a 1:1 SCALE based on the provided sample.
