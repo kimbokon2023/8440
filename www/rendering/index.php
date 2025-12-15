@@ -1124,7 +1124,7 @@ CRITICAL VISIBILITY RULE:
             }
 
             // Panels
-            currentState.panels.forEach(async (p, i) => {
+            for (const [i, p] of currentState.panels.entries()) {
                 let posContext = "";
                 if (p.id === '1') posContext = " [IMPORTANT: Right of Doors] ";
                 else if (p.id === '11') posContext = " [IMPORTANT: Left of Doors] ";
@@ -1147,7 +1147,7 @@ CRITICAL VISIBILITY RULE:
                     parts.push({text: `MATERIAL B${p.id} (Panel ${p.id}):${posContext} ${desc}`});
                     parts.push({text: "INSTRUCTION: Apply this metal finish to Panel " + p.id});
                 }
-            });
+            }
 
             // Lighting & Global Context
             const globalRef = (currentState.reflection.mode === 'global') 
