@@ -1005,7 +1005,7 @@ CRITICAL VISIBILITY RULE:
                     parts.push({text: `MATERIAL B${p.id} (Panel ${p.id}):${posContext} ${desc}`});
                     parts.push({text: "INSTRUCTION: Apply this metal finish to Panel " + p.id});
                 }
-            });
+            }
 
             // Lighting & Reflection
             parts.push({text: `LIGHTING: Temperature ${currentState.lightingTemp}K. ${getReflectionContext(currentState.reflectionIntensity, 'standard')}`});
