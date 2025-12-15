@@ -1242,8 +1242,18 @@ CRITICAL VISIBILITY RULE:
             // Panels
             for (const [i, p] of currentState.panels.entries()) {
                 let posContext = "";
-                if (p.id === '1') posContext = " [IMPORTANT: Right of Doors] ";
-                else if (p.id === '11') posContext = " [IMPORTANT: Left of Doors] ";
+                let posInstruction = "";
+                
+                if (currentState.viewMode === 'front') {
+                     if (p.id === '1') {
+                         posContext = " [IMPORTANT: Right of Doors]";
+                         posInstruction = " (Located immediately to the RIGHT of the standard Door)";
+                     }
+                     else if (p.id === '11') {
+                         posContext = " [IMPORTANT: Left of Doors]";
+                         posInstruction = " (Located immediately to the LEFT of the standard Door)";
+                     }
+                }
                 
                 const refInt = getRefInt('panel', i);
 
@@ -1251,7 +1261,7 @@ CRITICAL VISIBILITY RULE:
                     const ref = getReflectionContext(refInt, 'standard');
                     parts.push({text: `MATERIAL B${p.id} (Panel ${p.id}):${posContext}`});
                     parts.push(await fileToPart(p.file));
-                    parts.push({text: `INSTRUCTION: Apply above material to Panel ${p.id}. ${ref}`});
+                    parts.push({text: `INSTRUCTION: Apply above material to Panel ${p.id}${posInstruction}. ${ref}`});
                 } else if (p.mode === 'preset') {
                     const color = p.presetColor;
                     const type = p.presetType;
@@ -1261,7 +1271,7 @@ CRITICAL VISIBILITY RULE:
                     if (type === 'mirror') desc += " (Highly Reflective Mirror Finish)";
                     
                     parts.push({text: `MATERIAL B${p.id} (Panel ${p.id}):${posContext} ${desc}`});
-                    parts.push({text: "INSTRUCTION: Apply this metal finish to Panel " + p.id});
+                    parts.push({text: `INSTRUCTION: Apply this metal finish to Panel ${p.id}${posInstruction}.`});
                 }
             }
 
