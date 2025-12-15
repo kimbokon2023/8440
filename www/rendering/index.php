@@ -172,13 +172,65 @@ if (file_exists($apiKeyPath)) {
                                 </div>
                                 <input type="range" id="lightingTempSlider" min="2000" max="6500" step="100" value="2000" class="w-full h-2 bg-gradient-to-r from-orange-500 via-yellow-100 to-blue-300 rounded-lg appearance-none cursor-pointer" />
                             </div>
-                            <div class="pt-2 border-t border-slate-800">
-                                <div class="flex items-center justify-between mb-2">
-                                    <label class="text-sm font-medium text-slate-300">반사 강도 (Reflection)</label>
-                                    <span id="reflectionValueDisplay" class="text-xs font-mono text-cyan-300 bg-cyan-900/30 px-2 py-0.5 rounded border border-cyan-500/30">50%</span>
+                            <!-- Reflection UI -->
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <label class="text-sm font-medium text-slate-300">반사 강도 (Reflection)</label>
+                                <div class="flex bg-slate-800 rounded-lg p-1 border border-slate-700">
+                                  <button id="refModeGlobal" class="text-xs px-3 py-1 rounded-md transition-all bg-slate-600 text-white shadow">전체</button>
+                                  <button id="refModeIndividual" class="text-xs px-3 py-1 rounded-md transition-all text-slate-400 hover:text-white">개별</button>
                                 </div>
-                                <input type="range" id="reflectionSlider" min="0" max="100" step="10" value="50" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer" />
                             </div>
+                            
+                            <!-- Global Mode -->
+                            <div id="reflectionGlobalArea" class="block bg-slate-900/50 p-3 rounded-lg border border-slate-700">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-xs text-slate-400">전체 반사 (Global Intensity)</span>
+                                    <span id="reflectionValueDisplay" class="text-xs font-mono text-cyan-400">50%</span>
+                                </div>
+                                <input type="range" id="reflectionSlider" min="0" max="100" value="50" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-500">
+                                <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+                                    <span>Matte</span>
+                                    <span>Standard</span>
+                                    <span>Mirror</span>
+                                </div>
+                            </div>
+
+                            <!-- Individual Mode -->
+                            <div id="reflectionIndividualArea" class="hidden space-y-3">
+                                <!-- Door & Floor Wrapper -->
+                                <div class="grid grid-cols-1 gap-3">
+                                    <div class="bg-slate-900/50 p-2 rounded-lg border border-slate-700">
+                                         <div class="flex justify-between items-center mb-1">
+                                            <span class="text-xs text-slate-300">🚪 출입문 (Door)</span>
+                                            <span id="refDoorValue" class="text-xs font-mono text-cyan-400">50%</span>
+                                        </div>
+                                        <input type="range" id="refDoorSlider" min="0" max="100" value="50" class="w-full h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-500">
+                                    </div>
+                                    <div class="bg-slate-900/50 p-2 rounded-lg border border-slate-700">
+                                         <div class="flex justify-between items-center mb-1">
+                                            <span class="text-xs text-slate-300">🦶 바닥 (Floor)</span>
+                                            <span id="refFloorValue" class="text-xs font-mono text-cyan-400">50%</span>
+                                        </div>
+                                        <input type="range" id="refFloorSlider" min="0" max="100" value="50" class="w-full h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-500">
+                                    </div>
+                                </div>
+
+                                <!-- Panels List -->
+                                <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700">
+                                    <div class="mb-2 text-xs font-semibold text-slate-400">🧱 패널 반사 (Panel Reflections)</div>
+                                    <div class="max-h-[200px] overflow-y-auto custom-scrollbar pr-2 space-y-2">
+                                        <?php for($i=1; $i<=11; $i++): ?>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-[10px] text-slate-500 w-8">P#<?php echo $i; ?></span>
+                                            <input type="range" id="refPanel<?php echo $i; ?>Slider" min="0" max="100" value="50" class="flex-1 h-1 bg-slate-800 rounded appearance-none cursor-pointer accent-cyan-500" oninput="document.getElementById('refPanel<?php echo $i; ?>Value').textContent = this.value + '%'">
+                                            <span id="refPanel<?php echo $i; ?>Value" class="text-[10px] font-mono text-cyan-400 w-8 text-right">50%</span>
+                                        </div>
+                                        <?php endfor; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         </div>
 
                         <!-- Door -->
@@ -432,9 +484,15 @@ if (file_exists($apiKeyPath)) {
             panels: Array.from({ length: 11 }, (_, i) => ({
                 id: (i + 1).toString(), mode: 'upload', file: null, previewUrl: null, presetType: 'hairline', presetColor: 'silver'
             })),
-            lightingTemp: 2000,
-            reflectionIntensity: 50,
-            timerId: null
+            lightingTemp: 4500,
+            reflection: {
+                mode: 'global', // 'global' or 'individual'
+                global: 50,
+                door: 50,
+                floor: 50,
+                panels: Array(11).fill(50) 
+            },
+            isGenerating: false,
         };
 
         // Validate API Key on load
@@ -810,10 +868,79 @@ if (file_exists($apiKeyPath)) {
             state.lightingTemp = e.target.value;
             $('lightingTempValueDisplay').textContent = state.lightingTemp + "K";
         });
+
+        // Reflection UI Logic
+        function updateReflectionUI() {
+            if (state.reflection.mode === 'global') {
+                $('refModeGlobal').classList.add('bg-slate-600', 'text-white', 'shadow');
+                $('refModeGlobal').classList.remove('text-slate-400', 'hover:text-white');
+                $('refModeIndividual').classList.remove('bg-slate-600', 'text-white', 'shadow');
+                $('refModeIndividual').classList.add('text-slate-400', 'hover:text-white');
+                
+                $('reflectionGlobalArea').classList.remove('hidden');
+                $('reflectionIndividualArea').classList.add('hidden');
+                
+                // Sync display
+                $('reflectionValueDisplay').textContent = state.reflection.global + "%";
+                $('reflectionSlider').value = state.reflection.global;
+            } else {
+                $('refModeIndividual').classList.add('bg-slate-600', 'text-white', 'shadow');
+                $('refModeIndividual').classList.remove('text-slate-400', 'hover:text-white');
+                $('refModeGlobal').classList.remove('bg-slate-600', 'text-white', 'shadow');
+                $('refModeGlobal').classList.add('text-slate-400', 'hover:text-white');
+                
+                $('reflectionGlobalArea').classList.add('hidden');
+                $('reflectionIndividualArea').classList.remove('hidden');
+                
+                // Sync individual inputs
+                $('refDoorSlider').value = state.reflection.door;
+                $('refDoorValue').textContent = state.reflection.door + "%";
+                
+                $('refFloorSlider').value = state.reflection.floor;
+                $('refFloorValue').textContent = state.reflection.floor + "%";
+                
+                state.reflection.panels.forEach((val, i) => {
+                    const slider = document.getElementById(`refPanel${i+1}Slider`);
+                    if(slider) {
+                        slider.value = val;
+                        document.getElementById(`refPanel${i+1}Value`).textContent = val + "%";
+                    }
+                });
+            }
+        }
+
+        // Reflection Event Listeners
+        $('refModeGlobal').addEventListener('click', () => { state.reflection.mode = 'global'; updateReflectionUI(); });
+        $('refModeIndividual').addEventListener('click', () => { state.reflection.mode = 'individual'; updateReflectionUI(); });
+        
         $('reflectionSlider').addEventListener('input', (e) => {
-            state.reflectionIntensity = parseInt(e.target.value);
-            $('reflectionValueDisplay').textContent = state.reflectionIntensity + "%";
+            state.reflection.global = parseInt(e.target.value);
+            $('reflectionValueDisplay').textContent = state.reflection.global + "%";
         });
+        
+        $('refDoorSlider').addEventListener('input', (e) => {
+            state.reflection.door = parseInt(e.target.value);
+            $('refDoorValue').textContent = state.reflection.door + "%";
+        });
+        
+        $('refFloorSlider').addEventListener('input', (e) => {
+            state.reflection.floor = parseInt(e.target.value);
+            $('refFloorValue').textContent = state.reflection.floor + "%";
+        });
+        
+        // Panel Reflection Sliders
+        for (let i = 1; i <= 11; i++) {
+            const slider = document.getElementById(`refPanel${i}Slider`);
+            if (slider) {
+                slider.addEventListener('input', (e) => {
+                    state.reflection.panels[i-1] = parseInt(e.target.value);
+                    // Value display is updated inline in HTML oninput, but let's ensure consistency
+                    document.getElementById(`refPanel${i}Value`).textContent = state.reflection.panels[i-1] + "%";
+                });
+            }
+        }
+
+        updateReflectionUI(); // Init
 
         $('doorInput').addEventListener('change', (e) => {
             if (e.target.files[0]) {
@@ -960,55 +1087,74 @@ CRITICAL VISIBILITY RULE:
 `});
             }
 
-            if (currentState.door.file) {
-                parts.push({text: "MATERIAL A (Use for Main Entrance Doors):"});
+            // Helper for reflection intensity
+            const getRefInt = (key, idx = -1) => {
+                if (currentState.reflection.mode === 'global') return currentState.reflection.global;
+                if (key === 'door') return currentState.reflection.door;
+                if (key === 'floor') return currentState.reflection.floor;
+                if (key === 'panel' && idx >= 0) return currentState.reflection.panels[idx];
+                return 50;
+            };
+
+            if (currentState.door.mode === 'upload' && currentState.door.file) {
+                parts.push({text: "MATERIAL A (Elevator Doors - Left & Right):"});
                 parts.push(await fileToPart(currentState.door.file));
+                const ref = getReflectionContext(getRefInt('door'), 'standard');
+                parts.push({text: `INSTRUCTION: Apply the material/pattern shown in 'MATERIAL A' to the Center Elevator Doors. ${ref}`});
+            } else if (currentState.door.mode === 'preset') {
+                const color = currentState.door.presetColor;
+                const type = currentState.door.presetType;
+                const ref = getReflectionContext(getRefInt('door'), type);
+                let desc = `Color: ${color}, Finish: ${type}. ${ref}`;
+                if (type === 'mirror') desc += " (Highly Reflective Mirror Finish)";
+                
+                parts.push({text: `MATERIAL A (Elevator Doors - Left & Right): ${desc}`});
+                parts.push({text: "INSTRUCTION: Apply this specific metal finish and color to the Center Elevator Doors."});
             }
 
             if (currentState.floor.mode === 'upload' && currentState.floor.file) {
-                parts.push({text: "MATERIAL C (Floor):"});
-                parts.push(await fileToPart(currentState.floor.file));
-            } else {
-                 let floorDesc = `FLOOR MATERIAL: ${currentState.floor.preset}`;
-                 if (currentState.floor.preset === 'marble') {
-                     floorDesc = "FLOOR MATERIAL: High-gloss luxury MARBLE STONE. White/Grey veining. Reflective polished surface. DISTINCT from the metal doors.";
-                 } else if (currentState.floor.preset === 'deco') {
-                     floorDesc = "FLOOR MATERIAL: Standard architectural DECO-TILE. Matte/Satin finish. Square tiling pattern. DISTINCT from the metal doors.";
-                 }
-                 if (currentState.door.file) {
-                     floorDesc += " [CRITICAL: Do NOT use 'MATERIAL A (Door)' for the floor. The floor must use the specific material described here.]";
-                 }
-                 parts.push({text: floorDesc});
+                 parts.push({text: "MATERIAL FLOOR:"});
+                 parts.push(await fileToPart(currentState.floor.file));
+                 const ref = getReflectionContext(getRefInt('floor'), 'standard');
+                 parts.push({text: `INSTRUCTION: Apply this material to the floor. ${ref}`});
+            } else if (currentState.floor.mode === 'preset') {
+                 const ref = getReflectionContext(getRefInt('floor'), 'standard');
+                 parts.push({text: `MATERIAL FLOOR: ${currentState.floor.preset}. ${ref}`});
+                 parts.push({text: "INSTRUCTION: Apply this specific tiling pattern to the floor."});
             }
 
-            let matIndex = 1;
-            for (const p of currentState.panels) {
+            // Panels
+            currentState.panels.forEach(async (p, i) => {
                 let posContext = "";
-                if (p.id === '1') {
-                    posContext = " [IMPORTANT: This is the panel immediately to the RIGHT of the central elevator doors (Front Wall Right Return/COP area).] ";
-                } else if (p.id === '11') {
-                    posContext = " [IMPORTANT: This is the panel immediately to the LEFT of the central elevator doors (Front Wall Left Return).] ";
-                }
+                if (p.id === '1') posContext = " [IMPORTANT: Right of Doors] ";
+                else if (p.id === '11') posContext = " [IMPORTANT: Left of Doors] ";
+                
+                const refInt = getRefInt('panel', i);
 
                 if (p.mode === 'upload' && p.file) {
+                    const ref = getReflectionContext(refInt, 'standard');
                     parts.push({text: `MATERIAL B${p.id} (Panel ${p.id}):${posContext}`});
                     parts.push(await fileToPart(p.file));
-                    parts.push({text: "INSTRUCTION: Apply above material to Panel " + p.id});
+                    parts.push({text: `INSTRUCTION: Apply above material to Panel ${p.id}. ${ref}`});
                 } else if (p.mode === 'preset') {
                     const color = p.presetColor;
                     const type = p.presetType;
-                    let desc = `Color: ${color}, Finish: ${type}`;
+                    const ref = getReflectionContext(refInt, type);
+                    
+                    let desc = `Color: ${color}, Finish: ${type}. ${ref}`;
                     if (type === 'mirror') desc += " (Highly Reflective Mirror Finish)";
-                    if (type === 'vibration') desc += " (Non-directional Vibration/Swirl Pattern)";
-                    if (type === 'hairline') desc += " (Vertical Hairline Finish)";
                     
                     parts.push({text: `MATERIAL B${p.id} (Panel ${p.id}):${posContext} ${desc}`});
                     parts.push({text: "INSTRUCTION: Apply this metal finish to Panel " + p.id});
                 }
-            }
+            });
 
-            // Lighting & Reflection
-            parts.push({text: `LIGHTING: Temperature ${currentState.lightingTemp}K. ${getReflectionContext(currentState.reflectionIntensity, 'standard')}`});
+            // Lighting & Global Context
+            const globalRef = (currentState.reflection.mode === 'global') 
+                ? getReflectionContext(currentState.reflection.global, 'standard') 
+                : "Reflection intensities are defined individually for each surface.";
+                
+            parts.push({text: `LIGHTING: Temperature ${currentState.lightingTemp}K. Global Context: ${globalRef}`});
             
             parts.push({text: `
 ⚠️⚠️⚠️ ABSOLUTE STRUCTURE REQUIREMENT - DO NOT MODIFY ⚠️⚠️⚠️
@@ -1042,7 +1188,16 @@ The structure must remain EXACTLY as shown in the reference layout image.
             summary += `• 구조 레이아웃: ${currentState.layout.file ? currentState.layout.file.name : '없음'}\n`;
             if (currentState.layout.guideFile) summary += `• 패널 번호 안내도: 포함됨 (${currentState.layout.guideFile.name})\n`;
             summary += `• 조명 온도: ${currentState.lightingTemp}K\n`;
-            summary += `• 반사 강도: ${currentState.reflectionIntensity}%\n\n`;
+            
+            if (currentState.reflection.mode === 'global') {
+                 summary += `• 반사 강도 (전체): ${currentState.reflection.global}%\n`;
+            } else {
+                 summary += `• 반사 강도 (개별 설정):\n`;
+                 summary += `  - 도어: ${currentState.reflection.door}%\n`;
+                 summary += `  - 바닥: ${currentState.reflection.floor}%\n`;
+                 summary += `  - 패널: 개별 설정됨 (${currentState.reflection.panels.join('%, ')}%)\n`;
+            }
+            summary += "\n";
 
             summary += "=== 🚪 도어 (Door) ===\n";
             if (currentState.door.mode === 'upload' && currentState.door.file) {
