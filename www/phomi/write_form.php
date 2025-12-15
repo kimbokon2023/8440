@@ -2850,36 +2850,62 @@ function calculateItemAmount(row) {
     
     var quantity = parseFloat($('input[name="items[' + row + '][quantity]"]').val()) || 0;
     var unitPrice = parseFloat($('input[name="items[' + row + '][unit_price]"]').val().replace(/,/g, '')) || 0;
-    var size = $('input[name="items[' + row + '][size]"]').val();
     
-    // 실제 면적 계산 (규격에서 면적 추출)
-    let actualArea = 0;
-    if (size && size.trim() !== '') {
-        if (size.includes('*')) {
-            const sizeParts = size.split('*');
-            if (sizeParts.length >= 2) {
-                const width = parseFloat(sizeParts[0]) || 0;
-                const height = parseFloat(sizeParts[1]) || 0;
-                actualArea = (width * height) / 1000000; // mm²를 m²로 변환
-            }
-        } else if (size.includes('×')) {
-            const sizeParts = size.split('×');
-            if (sizeParts.length >= 2) {
-                const width = parseFloat(sizeParts[0]) || 0;
-                const height = parseFloat(sizeParts[1]) || 0;
-                actualArea = (width * height) / 1000000; // mm²를 m²로 변환
-            }
+    // 실제 면적 계산 (규격/사이즈 문자열에서 면적 추출)
+    // NOTE: 이 화면에서 `items[][size]`는 "분류(M급/L급)"인 경우가 있어,
+    // 단가 입력 시 m²가 0으로 바뀌는 오류가 발생했음. 면적 계산은 규격(`specification`) 우선.
+    function parseActualAreaFromText(text) {
+        if (!text || typeof text !== 'string') return 0;
+        const clean = text.replace(/\s/g, '');
+        let w = 0, h = 0;
+        if (clean.includes('*')) {
+            const parts = clean.split('*');
+            w = parseFloat(parts[0]) || 0;
+            h = parseFloat(parts[1]) || 0;
+        } else if (clean.includes('×')) {
+            const parts = clean.split('×');
+            w = parseFloat(parts[0]) || 0;
+            h = parseFloat(parts[1]) || 0;
         } else {
             // 단일 숫자인 경우 (가정: 정사각형)
-            const singleSize = parseFloat(size) || 0;
-            actualArea = (singleSize * singleSize) / 1000000; // mm²를 m²로 변환
+            const single = parseFloat(clean) || 0;
+            w = single;
+            h = single;
         }
-    } else {
+        if (w <= 0 || h <= 0) return 0;
+        return (w * h) / 1000000; // mm² -> m²
     }
     
+    const specText = $('input[name="items[' + row + '][specification]"]').val() || '';
+    const sizeText = $('input[name="items[' + row + '][size]"]').val() || '';
+    
+    let actualArea = parseActualAreaFromText(specText);
+    if (actualArea <= 0) {
+        actualArea = parseActualAreaFromText(sizeText);
+    }
+    
+    // 그래도 면적을 못 구하면 단가표의 data-area(1장 면적 m²) 사용
+    if (actualArea <= 0) {
+        const $rowEl = $('.item-row[data-row="' + row + '"]');
+        const $opt = $rowEl.find('.product-select option:selected');
+        const optArea = parseFloat(($opt.data('area') || '').toString().replace(/,/g, '')) || 0;
+        if (optArea > 0) {
+            actualArea = optArea;
+        }
+    }
+    
+    const $areaInput = $('input[name="items[' + row + '][area]"]');
+    const currentArea = parseFloat(($areaInput.val() || '').toString().replace(/,/g, '')) || 0;
+    
     // m² 열 업데이트 (수량 × 실제면적)
-    const totalArea = quantity * actualArea;
-    $('input[name="items[' + row + '][area]"]').val(totalArea.toFixed(2));
+    // 면적을 추출할 수 없을 때는 기존 m²를 0으로 덮어쓰지 않음(사용자 버그 리포트 대응).
+    let totalArea = quantity * actualArea;
+    if (actualArea > 0) {
+        totalArea = parseFloat(totalArea.toFixed(2));
+        $areaInput.val(totalArea.toFixed(2));
+    } else {
+        totalArea = currentArea; // 유지
+    }
     
     var supplyAmount = totalArea * unitPrice;
     var taxAmount = supplyAmount * 0.1;
@@ -4065,114 +4091,10 @@ $(document).ready(function() {
         populateProductOptions($(this));
     });
     
-    // 상품 선택 이벤트
+    // 상품 선택 이벤트 (기존 로직은 handleProductSelectChange로 통합됨)
+    // NOTE: 과거 로직은 규격/분류 매핑이 뒤섞여 m²가 0으로 덮이는 원인이 되었으므로 비활성화.
     $(document).on('change', '.product-select', function() {
-        var row = $(this).data('row');
-        var selectedOption = $(this).find('option:selected');
-        const itemRow = $(this).closest('.item-row');
-        
-        if (selectedOption.val()) {
-            var spec = selectedOption.data('spec');
-            var size = selectedOption.data('size');
-            var area = selectedOption.data('area');
-            var unitPrice = selectedOption.data('unit-price');
-            
-            itemRow.find('.specification-input').val(spec);
-            itemRow.find('.size-input').val(size);
-            
-            // 실제 면적 계산 (규격에서 면적 추출)
-            let actualArea = 0;
-            if (size && size.trim() !== '') {
-                if (size.includes('*')) {
-                    const sizeParts = size.split('*');
-                    if (sizeParts.length >= 2) {
-                        const width = parseFloat(sizeParts[0]) || 0;
-                        const height = parseFloat(sizeParts[1]) || 0;
-                        actualArea = (width * height) / 1000000; // mm²를 m²로 변환
-                    }
-                } else if (size.includes('×')) {
-                    const sizeParts = size.split('×');
-                    if (sizeParts.length >= 2) {
-                        const width = parseFloat(sizeParts[0]) || 0;
-                        const height = parseFloat(sizeParts[1]) || 0;
-                        actualArea = (width * height) / 1000000; // mm²를 m²로 변환
-                    }
-                } else {
-                    // 단일 숫자인 경우 (가정: 정사각형)
-                    const singleSize = parseFloat(size) || 0;
-                    actualArea = (singleSize * singleSize) / 1000000; // mm²를 m²로 변환
-                }
-            } else {
-            }
-            
-            // 상품명 변경 시 단가 처리 로직
-            // 초기 로딩이 아닌 경우 (사용자가 상품을 변경한 경우)에는 단가표의 원래 단가 사용
-            const isInitialLoad = itemRow.data('initial-load') === true;
-            let unitPriceVal = 0;
-            
-            if (isInitialLoad) {
-                // 초기 로딩 시에만 기존 수정된 단가 유지
-                const existingUnitPrice = itemRow.find('.unit-price-input').val();
-                if (existingUnitPrice && existingUnitPrice !== '' && existingUnitPrice !== '0') {
-                    // 기존에 수정된 단가가 있으면 그 값을 유지
-                    unitPriceVal = parseFloat(existingUnitPrice.replace(/,/g, '')) || 0;
-                } else {
-                    // 기존 단가가 없거나 0이면 단가표의 기본값 사용
-                    if (unitPrice && unitPrice !== '' && !isNaN(unitPrice)) {
-                        unitPriceVal = parseFloat(unitPrice) || 0;
-                        itemRow.find('.unit-price-input').val(unitPriceVal.toLocaleString());
-                    } else {
-                        itemRow.find('.unit-price-input').val('');
-                    }
-                }
-                // 초기 로딩 플래그 해제
-                itemRow.data('initial-load', false);
-            } else {
-                // 상품명 변경 시에는 단가표의 원래 단가 사용
-                if (unitPrice && unitPrice !== '' && !isNaN(unitPrice)) {
-                    unitPriceVal = parseFloat(unitPrice) || 0;
-                    itemRow.find('.unit-price-input').val(unitPriceVal.toLocaleString());
-                } else {
-                    itemRow.find('.unit-price-input').val('');
-                }
-            }
-            
-            // 기존 수량 확인 - 수정된 수량이 있으면 유지
-            const existingQuantity = parseFloat(itemRow.find('.quantity-input').val()) || 0;
-            const quantity = existingQuantity > 0 ? existingQuantity : 1;
-            itemRow.find('.quantity-input').val(quantity);
-            
-            // m² 열 업데이트 (수량 × 실제면적)
-            const totalArea = quantity * actualArea;
-            itemRow.find('.area-input').val(totalArea.toFixed(2));
-            
-            // 모바일에서는 입력이 완전히 끝난 후에만 계산
-            if (isMobileDevice()) {
-                setTimeout(function() {
-                    if (!isMobileInputActive || activeMobileInputElement !== itemRow.find('.product-select')[0]) {
-                        calculateItemAmount(row);
-                    }
-                }, 300);
-            } else {
-                calculateItemAmount(row);
-            }
-        } else {
-            // Clear fields if no product is selected
-            itemRow.find('.specification-input').val('');
-            itemRow.find('.size-input').val('');
-            itemRow.find('.area-input').val('');
-            itemRow.find('.unit-price-input').val('');
-            // 모바일에서는 입력이 완전히 끝난 후에만 계산
-            if (isMobileDevice()) {
-                setTimeout(function() {
-                    if (!isMobileInputActive || activeMobileInputElement !== itemRow.find('.product-select')[0]) {
-                        calculateItemAmount(row);
-                    }
-                }, 300);
-            } else {
-                calculateItemAmount(row);
-            }
-        }
+        return;
     });
 
     const etcAutoChecked = $('#etc_autocheck').is(':checked') || $('#etc_autocheck').val() === '1';
@@ -4265,7 +4187,7 @@ $(document).ready(function() {
         }
     }
     
-    $(document).on('input', '.quantity-input, .cost-quantity-input, .cost-unit-price-input, .discount-item-quantity-input, .discount-item-unit-price-input, .discount-cost-quantity-input, .discount-cost-unit-price-input', function() {
+    $(document).on('input', '.quantity-input, .unit-price-input, .cost-quantity-input, .cost-unit-price-input, .discount-item-quantity-input, .discount-item-unit-price-input, .discount-cost-quantity-input, .discount-cost-unit-price-input', function() {
         var $input = $(this);
         var inputId = $input.attr('id') || $input.attr('name') || Math.random().toString(36);
         var row = $input.closest('.item-row, .cost-row, .discount-item-row').data('row');
@@ -6536,43 +6458,27 @@ function executeQuantityUnitPriceCalculation($input) {
 	if (row.length === 0 || !row.hasClass('item-row')) {
 		return;
 	}
-	
-	const quantity = parseFloat(row.find('.quantity-input').val()) || 0;
-	
-	let unitPrice = 0;
-	const unitPriceText = row.find('.unit-price-input').val();
-	if (unitPriceText && unitPriceText !== '') {
-		const cleanUnitPrice = unitPriceText.replace(/,/g, '');
-		unitPrice = parseFloat(cleanUnitPrice) || 0;
-	}
-	const specification = row.find('.specification-input').val() || '';
-	
-	// 실제 면적 계산
-	let actualArea = 0;
-	if (specification.includes('*')) {
-		const sizeParts = specification.split('*');
-		if (sizeParts.length >= 2) {
-			const width = parseFloat(sizeParts[0]) || 0;
-			const height = parseFloat(sizeParts[1]) || 0;
-			actualArea = (width * height) / 1000000;
+	// 공통 계산 함수로 위임: m²/공급가액/세액까지 함께 갱신
+	const rowIndex = row.data('row');
+	if (rowIndex !== undefined && rowIndex !== null) {
+		calculateItemAmount(rowIndex);
+		if (typeof updateItemSubtotals === 'function') {
+			updateItemSubtotals();
 		}
-	} else if (specification.includes('×')) {
-		const sizeParts = specification.split('×');
-		if (sizeParts.length >= 2) {
-			const width = parseFloat(sizeParts[0]) || 0;
-			const height = parseFloat(sizeParts[1]) || 0;
-			actualArea = (width * height) / 1000000;
+		if (typeof updateTotals === 'function') {
+			updateTotals();
 		}
 	}
-	
-	let totalArea = quantity * actualArea;
-	totalArea = parseFloat(totalArea.toFixed(2));
-	row.find('.area-input').val(totalArea.toFixed(2));
 }
 
 $(document).on('input', '.quantity-input, .unit-price-input', function() {
 	const $input = $(this);
 	var inputId = $input.attr('id') || $input.attr('name') || 'quantity-unit-price-input-' + Math.random().toString(36).substr(2, 9);
+	
+	// PC/원본 테이블 입력은 상단 공통 계산 핸들러에서 처리하므로(중복 방지) 모바일 카드만 처리
+	if ($input.closest('tr.item-row').length > 0) {
+		return;
+	}
 	
 	// 모바일 환경인 경우 입력이 끝날 때까지 대기 (800ms)
 	if (isMobileDevice()) {
@@ -6590,6 +6496,11 @@ $(document).on('blur', '.quantity-input, .unit-price-input', function() {
 	if (isMobileDevice()) {
 		const $input = $(this);
 		var inputId = $input.attr('id') || $input.attr('name') || 'quantity-unit-price-input-' + Math.random().toString(36).substr(2, 9);
+		
+		// PC/원본 테이블 입력은 상단 공통 계산 핸들러에서 처리하므로(중복 방지) 모바일 카드만 처리
+		if ($input.closest('tr.item-row').length > 0) {
+			return;
+		}
 		
 		// 해당 input의 대기 중인 계산 즉시 실행
 		if (mobileInputCalculationTimeouts[inputId]) {

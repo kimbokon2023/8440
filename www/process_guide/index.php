@@ -14,7 +14,7 @@ if (!isset($_SESSION["level"])) {
 
 include getDocumentRoot() . '/load_header.php';
 ?>
-<title>작업 공정 안내 - 미래정공</title>
+<title>작업 공정 안내 - 미래기업</title>
 <!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
@@ -616,21 +616,57 @@ include getDocumentRoot() . '/load_header.php';
             </div>
         </div>
 
-        <!-- Added Process Flow Visualization (6 Steps) -->
+        <!-- Added Process Flow Visualization (8 Steps) -->
         <div class="process-flow-container">
             <h4 class="text-center mb-5" style="color:var(--text-secondary); font-weight:600; letter-spacing:1px;">TOTAL MANUFACTURING PROCESS</h4>
             
             <div class="process-card-grid">
-                <!-- Step 1: Laser -->
+                <!-- Step 1: Order Registration -->
                 <div class="process-card">
                     <div class="process-card-img">
-                        <img src="img/laser_process.png" alt="Laser Process">
+                        <img src="img/order_registration_process.jpg" alt="Order Registration Process">
+                        <div class="process-card-icon">
+                            <i class="fas fa-clipboard-check"></i>
+                        </div>
+                    </div>
+                    <div class="process-card-body">
+                        <h3 class="process-card-title">1. 수주서 등록 (Order Registration)</h3>
+                        <p class="process-card-desc">
+                            고객 주문 정보를 정확히 확인하고<br>
+                            시스템에 등록하여 생산 계획을 수립합니다.
+                        </p>
+                        <button class="btn-view-qc" onclick="openQcModal('order_registration')">QC 공정확인</button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Drawing Production -->
+                <div class="process-card">
+                    <div class="process-card-img">
+                        <img src="img/drawing_production_process.jpg" alt="Drawing Production Process">
+                        <div class="process-card-icon">
+                            <i class="fas fa-drafting-compass"></i>
+                        </div>
+                    </div>
+                    <div class="process-card-body">
+                        <h3 class="process-card-title">2. 도면 제작 (Drawing Production)</h3>
+                        <p class="process-card-desc">
+                            수주서 기반으로 정밀한 제작 도면을 작성하고<br>
+                            생산에 필요한 모든 사양을 명확히 정의합니다.
+                        </p>
+                        <button class="btn-view-qc" onclick="openQcModal('drawing_production')">QC 공정확인</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Laser -->
+                <div class="process-card">
+                    <div class="process-card-img">
+                        <img src="img/laser_process.jpg" alt="Laser Process">
                         <div class="process-card-icon">
                             <i class="fas fa-crosshairs"></i>
                         </div>
                     </div>
                     <div class="process-card-body">
-                        <h3 class="process-card-title">1. 레이저 (Laser)</h3>
+                        <h3 class="process-card-title">3. 레이저 (Laser)</h3>
                         <p class="process-card-desc">
                             최첨단 CNC 레이저 설비를 이용한 정밀 절단 가공으로<br>
                             오차 없는 완벽한 품질을 구현합니다.
@@ -639,16 +675,16 @@ include getDocumentRoot() . '/load_header.php';
                     </div>
                 </div>
 
-                <!-- Step 2: V-Cut -->
+                <!-- Step 4: V-Cut -->
                 <div class="process-card">
                     <div class="process-card-img">
-                        <img src="img/vcut_process.png" alt="V-Cut Process">
+                        <img src="img/vcut_process.jpg" alt="V-Cut Process">
                         <div class="process-card-icon">
                             <i class="fas fa-layer-group"></i>
                         </div>
                     </div>
                     <div class="process-card-body">
-                        <h3 class="process-card-title">2. V-커팅 (V-Cut)</h3>
+                        <h3 class="process-card-title">4. V-커팅 (V-Cut)</h3>
                         <p class="process-card-desc">
                             날카롭고 정교한 모서리 마감을 위해<br>
                             정밀 V-홈 가공 공정을 거칩니다.
@@ -657,16 +693,16 @@ include getDocumentRoot() . '/load_header.php';
                     </div>
                 </div>
 
-                <!-- Step 3: Bending -->
+                <!-- Step 5: Bending -->
                 <div class="process-card">
                     <div class="process-card-img">
-                        <img src="img/bending_process.png" alt="Bending Process">
+                        <img src="img/bending_process.jpg" alt="Bending Process">
                         <div class="process-card-icon">
                             <i class="fas fa-bezier-curve"></i>
                         </div>
                     </div>
                     <div class="process-card-body">
-                        <h3 class="process-card-title">3. 절곡 (Bending)</h3>
+                        <h3 class="process-card-title">5. 절곡 (Bending)</h3>
                         <p class="process-card-desc">
                             설계 도면에 맞춘 정확한 각도와 치수로<br>
                             빈틈없는 절곡 성형을 수행합니다.
@@ -675,16 +711,16 @@ include getDocumentRoot() . '/load_header.php';
                     </div>
                 </div>
 
-                <!-- Step 4: Painting -->
+                <!-- Step 6: Painting -->
                 <div class="process-card">
                     <div class="process-card-img">
-                        <img src="img/painting_process.png" alt="Painting Process">
+                        <img src="img/painting_process.jpg" alt="Painting Process">
                         <div class="process-card-icon">
                             <i class="fas fa-fill-drip"></i>
                         </div>
                     </div>
                     <div class="process-card-body">
-                        <h3 class="process-card-title">4. 분체도장 (Painting)</h3>
+                        <h3 class="process-card-title">6. 분체도장 (Painting)</h3>
                         <p class="process-card-desc">
                             내구성과 심미성을 모두 잡은 고품질 분체 도장으로<br>
                             최상의 표면 마감을 제공합니다.
@@ -693,16 +729,16 @@ include getDocumentRoot() . '/load_header.php';
                     </div>
                 </div>
 
-                <!-- Step 5: Assembly -->
+                <!-- Step 7: Assembly -->
                 <div class="process-card">
                     <div class="process-card-img">
-                        <img src="img/assembly_process.png" alt="Assembly Process">
+                        <img src="img/assembly_process.jpg" alt="Assembly Process">
                         <div class="process-card-icon">
                             <i class="fas fa-tools"></i>
                         </div>
                     </div>
                     <div class="process-card-body">
-                        <h3 class="process-card-title">5. 조립 (Assembly)</h3>
+                        <h3 class="process-card-title">7. 조립 (Assembly)</h3>
                         <p class="process-card-desc">
                             숙련된 전문가의 꼼꼼한 조립 과정을 통해<br>
                             결점 없는 완벽한 제품을 완성합니다.
@@ -711,16 +747,16 @@ include getDocumentRoot() . '/load_header.php';
                     </div>
                 </div>
 
-                <!-- Step 6: Shipment -->
+                <!-- Step 8: Shipment -->
                 <div class="process-card">
                     <div class="process-card-img">
-                        <img src="img/shipment_process.png" alt="Shipment Process">
+                        <img src="img/shipment_process.jpg" alt="Shipment Process">
                         <div class="process-card-icon">
                             <i class="fas fa-truck-loading"></i>
                         </div>
                     </div>
                     <div class="process-card-body">
-                        <h3 class="process-card-title">6. 출하 (Shipment)</h3>
+                        <h3 class="process-card-title">8. 출하 (Shipment)</h3>
                         <p class="process-card-desc">
                             철저한 최종 검수와 안전한 패킹 시스템으로<br>
                             현장까지 완벽하게 배송합니다.
@@ -754,21 +790,57 @@ include getDocumentRoot() . '/load_header.php';
             </div>
         </div>
 
-        <!-- Added Process Flow Visualization -->
+        <!-- Added Process Flow Visualization (5 Steps) -->
         <div class="process-flow-container">
             <h4 class="text-center mb-4" style="color:var(--text-secondary); font-weight:600;">Process Detail & Quality Control</h4>
             
             <div class="process-card-grid">
-                <!-- Step 1: Laser -->
+                <!-- Step 1: Order Registration -->
                 <div class="process-card">
                     <div class="process-card-img">
-                        <img src="img/jamb_laser_process.png" alt="Jamb Laser Process">
+                        <img src="img/order_registration_process.jpg" alt="Order Registration Process">
+                        <div class="process-card-icon">
+                            <i class="fas fa-clipboard-check"></i>
+                        </div>
+                    </div>
+                    <div class="process-card-body">
+                        <h3 class="process-card-title">1. 수주서 등록 (Order Registration)</h3>
+                        <p class="process-card-desc">
+                            고객 주문 정보를 정확히 확인하고<br>
+                            시스템에 등록하여 생산 계획을 수립합니다.
+                        </p>
+                        <button class="btn-view-qc" onclick="openQcModal('order_registration')">QC 공정확인</button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Drawing Production -->
+                <div class="process-card">
+                    <div class="process-card-img">
+                        <img src="img/drawing_production_process.jpg" alt="Drawing Production Process">
+                        <div class="process-card-icon">
+                            <i class="fas fa-drafting-compass"></i>
+                        </div>
+                    </div>
+                    <div class="process-card-body">
+                        <h3 class="process-card-title">2. 도면 제작 (Drawing Production)</h3>
+                        <p class="process-card-desc">
+                            수주서 기반으로 정밀한 제작 도면을 작성하고<br>
+                            생산에 필요한 모든 사양을 명확히 정의합니다.
+                        </p>
+                        <button class="btn-view-qc" onclick="openQcModal('drawing_production')">QC 공정확인</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Laser -->
+                <div class="process-card">
+                    <div class="process-card-img">
+                        <img src="img/jamb_laser_process.jpg" alt="Jamb Laser Process">
                         <div class="process-card-icon">
                             <i class="fas fa-crosshairs"></i>
                         </div>
                     </div>
                     <div class="process-card-body">
-                        <h3 class="process-card-title">1. 레이저 커팅 (Laser)</h3>
+                        <h3 class="process-card-title">3. 레이저 커팅 (Laser)</h3>
                         <p class="process-card-desc">
                             최첨단 레이저 설비를 이용한 정밀 절단 가공으로<br>
                             복잡한 형상도 오차 없이 완벽하게 구현합니다.
@@ -777,16 +849,16 @@ include getDocumentRoot() . '/load_header.php';
                     </div>
                 </div>
 
-                <!-- Step 2: V-Cut -->
+                <!-- Step 4: V-Cut -->
                 <div class="process-card">
                     <div class="process-card-img">
-                        <img src="img/jamb_vcut_process.png" alt="Jamb V-Cut Process">
+                        <img src="img/jamb_vcut_process.jpg" alt="Jamb V-Cut Process">
                         <div class="process-card-icon">
                             <i class="fas fa-layer-group"></i>
                         </div>
                     </div>
                     <div class="process-card-body">
-                        <h3 class="process-card-title">2. V-커팅 (V-Cut)</h3>
+                        <h3 class="process-card-title">4. V-커팅 (V-Cut)</h3>
                         <p class="process-card-desc">
                             날카롭고 정교한 모서리 마감을 위해<br>
                             전용 V-홈 가공 장비로 정밀 가공합니다.
@@ -795,16 +867,16 @@ include getDocumentRoot() . '/load_header.php';
                     </div>
                 </div>
 
-                <!-- Step 3: Bending -->
+                <!-- Step 5: Bending -->
                 <div class="process-card">
                     <div class="process-card-img">
-                        <img src="img/jamb_bending_process.png" alt="Jamb Bending Process">
+                        <img src="img/jamb_bending_process.jpg" alt="Jamb Bending Process">
                         <div class="process-card-icon">
                             <i class="fas fa-bezier-curve"></i>
                         </div>
                     </div>
                     <div class="process-card-body">
-                        <h3 class="process-card-title">3. 절곡 (Bending)</h3>
+                        <h3 class="process-card-title">5. 절곡 (Bending)</h3>
                         <p class="process-card-desc">
                             설계 도면에 맞춘 정확한 각도와 치수로<br>
                             고정밀 절곡 성형을 수행하여 내구성을 높입니다.
@@ -842,16 +914,52 @@ include getDocumentRoot() . '/load_header.php';
             <h4 class="text-center mb-4" style="color:var(--text-secondary); font-weight:600;">Process Detail & Quality Control</h4>
             
             <div class="process-card-grid">
-                <!-- Step 1: Material Prep -->
+                <!-- Step 1: Order Registration -->
                 <div class="process-card">
                     <div class="process-card-img">
-                        <img src="img/sill_material_prep.png" alt="Material Preparation">
+                        <img src="img/order_registration_process.jpg" alt="Order Registration Process">
+                        <div class="process-card-icon">
+                            <i class="fas fa-clipboard-check"></i>
+                        </div>
+                    </div>
+                    <div class="process-card-body">
+                        <h3 class="process-card-title">1. 수주서 등록 (Order Registration)</h3>
+                        <p class="process-card-desc">
+                            고객 주문 정보를 정확히 확인하고<br>
+                            시스템에 등록하여 생산 계획을 수립합니다.
+                        </p>
+                        <button class="btn-view-qc" onclick="openQcModal('order_registration')">QC 공정확인</button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Drawing Production -->
+                <div class="process-card">
+                    <div class="process-card-img">
+                        <img src="img/drawing_production_process.jpg" alt="Drawing Production Process">
+                        <div class="process-card-icon">
+                            <i class="fas fa-drafting-compass"></i>
+                        </div>
+                    </div>
+                    <div class="process-card-body">
+                        <h3 class="process-card-title">2. 도면 제작 (Drawing Production)</h3>
+                        <p class="process-card-desc">
+                            수주서 기반으로 정밀한 제작 도면을 작성하고<br>
+                            생산에 필요한 모든 사양을 명확히 정의합니다.
+                        </p>
+                        <button class="btn-view-qc" onclick="openQcModal('drawing_production')">QC 공정확인</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Material Prep -->
+                <div class="process-card">
+                    <div class="process-card-img">
+                        <img src="img/sill_material_prep.jpg" alt="Material Preparation">
                         <div class="process-card-icon">
                             <i class="fas fa-tools"></i>
                         </div>
                     </div>
                     <div class="process-card-body">
-                        <h3 class="process-card-title">1. 자재 준비 (Preparation)</h3>
+                        <h3 class="process-card-title">3. 자재 준비 (Preparation)</h3>
                         <p class="process-card-desc">
                             스텐레스와 알루미늄 바디 등<br>
                             조립에 필요한 자재를 정렬하고 검수합니다.
@@ -860,16 +968,16 @@ include getDocumentRoot() . '/load_header.php';
                     </div>
                 </div>
 
-                <!-- Step 2: Assembly -->
+                <!-- Step 4: Assembly -->
                 <div class="process-card">
                     <div class="process-card-img">
-                        <img src="img/sill_assembly_process.png" alt="Sill Assembly">
+                        <img src="img/sill_assembly_process.jpg" alt="Sill Assembly">
                         <div class="process-card-icon">
                             <i class="fas fa-screwdriver"></i>
                         </div>
                     </div>
                     <div class="process-card-body">
-                        <h3 class="process-card-title">2. 조립 및 체결 (Assembly)</h3>
+                        <h3 class="process-card-title">4. 조립 및 체결 (Assembly)</h3>
                         <p class="process-card-desc">
                             전동공구와 카운터 가공을 통해<br>
                             스텐레스와 알루미늄 바디를 견고하게 결합합니다.
@@ -878,16 +986,16 @@ include getDocumentRoot() . '/load_header.php';
                     </div>
                 </div>
 
-                <!-- Step 3: Packaging -->
+                <!-- Step 5: Packaging -->
                 <div class="process-card">
                     <div class="process-card-img">
-                        <img src="img/sill_packaging_process.png" alt="Packaging">
+                        <img src="img/sill_packaging_process.jpg" alt="Packaging">
                         <div class="process-card-icon">
                             <i class="fas fa-box-open"></i>
                         </div>
                     </div>
                     <div class="process-card-body">
-                        <h3 class="process-card-title">3. 포장 및 출고 (Packaging)</h3>
+                        <h3 class="process-card-title">5. 포장 및 출고 (Packaging)</h3>
                         <p class="process-card-desc">
                             완성된 SILL 제품을 안전하게 보호하기 위해<br>
                             꼼꼼하게 포장하여 출고합니다.
@@ -950,60 +1058,78 @@ include getDocumentRoot() . '/load_header.php';
         });
     });
 
-    // QC Data Structure
+    // QC Data Structure (잘못된 것을 찾는 컨셉)
     const qcData = {
-        'laser': {
-            title: "레이저 커팅 품질관리 기준 (Laser QC)",
+        'order_registration': {
+            title: "수주서 등록 검수 (Order Registration QC)",
             items: [
-                { point: "치수 정밀도", criteria: "도면 치수 ±0.1mm 이내", method: "버니어 캘리퍼스 / 줄자", freq: "초물, 중물, 종물", badge: "badge-primary" },
-                { point: "절단면 상태", criteria: "Burr 발생 없을 것 (< 0.2mm)", method: "육안 검사 / 촉수", freq: "전수 검사", badge: "badge-success" },
-                { point: "스크래치", criteria: "표면 보호 필름 손상 없을 것", method: "육안 검사", freq: "전수 검사", badge: "badge-purple" },
-                { point: "피어싱 상태", criteria: "관통 상태 양호, 똥 튐 없음", method: "육안 검사", freq: "샘플링 (10%)", badge: "badge-primary" },
-                { point: "수량 확인", criteria: "지시 수량과 일치", method: "카운팅", freq: "작업 종료 시", badge: "badge-success" }
+                { point: "❌ 주문 정보 누락", criteria: "고객명, 수량, 규격, 납기일 등 필수 정보 누락 확인", method: "수주서 대조 검토", freq: "등록 시 전수", badge: "badge-primary" },
+                { point: "❌ 수량 불일치", criteria: "수주서 수량과 시스템 입력 수량 불일치", method: "문서 대조", freq: "등록 시 전수", badge: "badge-success" },
+                { point: "❌ 납기일 오기입", criteria: "과거 날짜 또는 불가능한 납기일 입력", method: "날짜 검증", freq: "등록 시 전수", badge: "badge-purple" },
+                { point: "❌ 특수사양 미기재", criteria: "색상, 재질, 특수 요구사항 누락", method: "수주서 상세 확인", freq: "등록 시 전수", badge: "badge-primary" }
+            ]
+        },
+        'drawing_production': {
+            title: "도면 제작 검수 (Drawing Production QC)",
+            items: [
+                { point: "❌ 치수 오기입", criteria: "도면 치수와 수주서 규격 불일치", method: "도면/수주서 대조", freq: "도면 완성 시 전수", badge: "badge-primary" },
+                { point: "❌ 재질 표기 오류", criteria: "재질 코드 또는 두께 표기 오류", method: "도면 검토", freq: "도면 완성 시 전수", badge: "badge-success" },
+                { point: "❌ 가공 정보 누락", criteria: "절곡선, 용접 위치, 가공 방법 미표기", method: "도면 상세 검토", freq: "도면 완성 시 전수", badge: "badge-purple" },
+                { point: "❌ 도면 버전 관리 오류", criteria: "이전 버전 도면 사용 또는 버전 번호 누락", method: "도면 관리 시스템 확인", freq: "도면 발행 시 전수", badge: "badge-primary" }
+            ]
+        },
+        'laser': {
+            title: "레이저 커팅 검수 (Laser QC)",
+            items: [
+                { point: "❌ 치수 오차 초과", criteria: "도면 치수 대비 ±0.1mm 초과", method: "버니어 캘리퍼스 / 줄자", freq: "초물, 중물, 종물", badge: "badge-primary" },
+                { point: "❌ Burr 발생", criteria: "절단면 Burr 0.2mm 이상 발생", method: "육안 검사 / 촉수", freq: "전수 검사", badge: "badge-success" },
+                { point: "❌ 표면 손상", criteria: "스크래치, 보호 필름 손상", method: "육안 검사", freq: "전수 검사", badge: "badge-purple" },
+                { point: "❌ 피어싱 불량", criteria: "관통 불완전, 똥 튐 발생", method: "육안 검사", freq: "샘플링 (10%)", badge: "badge-primary" },
+                { point: "❌ 수량 불일치", criteria: "지시 수량과 실제 가공 수량 불일치", method: "카운팅", freq: "작업 종료 시", badge: "badge-success" }
             ]
         },
         'vcut': {
-            title: "V-커팅 품질관리 기준 (V-Cut QC)",
+            title: "V-커팅 검수 (V-Cut QC)",
             items: [
-                { point: "잔여 두께", criteria: "재질별 표준 잔여량 ±0.05mm", method: "깊이 게이지", freq: "초물, 중물, 종물", badge: "badge-primary" },
-                { point: "가공 깊이", criteria: "편차 없이 균일할 것", method: "육안 / 게이지", freq: "전수 검사", badge: "badge-success" },
-                { point: "휨/변형", criteria: "가공 후 휨 발생 최소화", method: "정반 측정", freq: "샘플링 (5%)", badge: "badge-purple" },
-                { point: "표면 상태", criteria: "가공면 거칠기 양호", method: "육안 검사", freq: "전수 검사", badge: "badge-success" }
+                { point: "❌ 잔여 두께 불량", criteria: "재질별 표준 잔여량 ±0.05mm 초과", method: "깊이 게이지", freq: "초물, 중물, 종물", badge: "badge-primary" },
+                { point: "❌ 가공 깊이 불균일", criteria: "가공 깊이 편차 발생", method: "육안 / 게이지", freq: "전수 검사", badge: "badge-success" },
+                { point: "❌ 휨/변형 발생", criteria: "가공 후 휨 또는 변형 발생", method: "정반 측정", freq: "샘플링 (5%)", badge: "badge-purple" },
+                { point: "❌ 표면 거칠기 불량", criteria: "가공면 거칠기 과다", method: "육안 검사", freq: "전수 검사", badge: "badge-success" }
             ]
         },
         'bending': {
-            title: "절곡 품질관리 기준 (Bending QC)",
+            title: "절곡 검수 (Bending QC)",
             items: [
-                { point: "절곡 각도", criteria: "도면 각도 ±1° 이내", method: "각도기 / 프로트랙터", freq: "초물, 중물, 종물", badge: "badge-primary" },
-                { point: "절곡 치수", criteria: "도면 치수 ±0.5mm 이내", method: "버니어 캘리퍼스 / 줄자", freq: "전수 검사", badge: "badge-success" },
-                { point: "대각 상태", criteria: "대각 치수 차이 ±1mm 이내", method: "줄자", freq: "샘플링 (10%)", badge: "badge-purple" },
-                { point: "외관 상태", criteria: "찍힘, 긁힘, 터짐 없을 것", method: "육안 검사", freq: "전수 검사", badge: "badge-success" }
+                { point: "❌ 절곡 각도 오차", criteria: "도면 각도 대비 ±1° 초과", method: "각도기 / 프로트랙터", freq: "초물, 중물, 종물", badge: "badge-primary" },
+                { point: "❌ 절곡 치수 오차", criteria: "도면 치수 대비 ±0.5mm 초과", method: "버니어 캘리퍼스 / 줄자", freq: "전수 검사", badge: "badge-success" },
+                { point: "❌ 대각 불량", criteria: "대각 치수 차이 ±1mm 초과", method: "줄자", freq: "샘플링 (10%)", badge: "badge-purple" },
+                { point: "❌ 외관 결함", criteria: "찍힘, 긁힘, 터짐 발생", method: "육안 검사", freq: "전수 검사", badge: "badge-success" }
             ]
         },
         'painting': {
-            title: "도장 및 마감 품질관리 (Painting QC)",
+            title: "도장 및 마감 검수 (Painting QC)",
             items: [
-                { point: "도막 두께", criteria: "지정 사양 준수 (보통 40~60μm)", method: "도막 측정기", freq: "로트별 샘플링", badge: "badge-primary" },
-                { point: "부착성 테스트", criteria: "박리 없을 것 (Cross-cut)", method: "테이프 테스트", freq: "로트별 1회", badge: "badge-purple" },
-                { point: "색상/광택", criteria: "표준 시편과 일치", method: "육안 / 광택계", freq: "전수 검사", badge: "badge-success" },
-                { point: "표면 상태", criteria: "오염, 핀홀, 흐름 없을 것", method: "육안 검사", freq: "전수 검사", badge: "badge-success" }
+                { point: "❌ 도막 두께 불량", criteria: "지정 사양 미준수 (40~60μm 범위 이탈)", method: "도막 측정기", freq: "로트별 샘플링", badge: "badge-primary" },
+                { point: "❌ 부착성 불량", criteria: "테이프 테스트 시 박리 발생", method: "테이프 테스트", freq: "로트별 1회", badge: "badge-purple" },
+                { point: "❌ 색상/광택 불일치", criteria: "표준 시편과 색상 또는 광택 차이", method: "육안 / 광택계", freq: "전수 검사", badge: "badge-success" },
+                { point: "❌ 표면 결함", criteria: "오염, 핀홀, 흐름 발생", method: "육안 검사", freq: "전수 검사", badge: "badge-success" }
             ]
         },
         'assembly': {
-            title: "조립 공정 품질관리 (Assembly QC)",
+            title: "조립 공정 검수 (Assembly QC)",
             items: [
-                { point: "조립 단차", criteria: "±0.5mm 이내 (유격 없을 것)", method: "틈새 게이지", freq: "전수 검사", badge: "badge-primary" },
-                { point: "체결 상태", criteria: "볼트/피스 누락 및 풀림 없을 것", method: "육안 / 토크렌치", freq: "전수 검사", badge: "badge-success" },
-                { point: "작동 확인", criteria: "간섭 없이 부드럽게 작동", method: "작동 테스트", freq: "전수 검사", badge: "badge-success" },
+                { point: "❌ 조립 단차 초과", criteria: "조립 단차 ±0.5mm 초과 또는 유격 발생", method: "틈새 게이지", freq: "전수 검사", badge: "badge-primary" },
+                { point: "❌ 체결 불량", criteria: "볼트/피스 누락, 풀림, 체결 불완전", method: "육안 / 토크렌치", freq: "전수 검사", badge: "badge-success" },
+                { point: "❌ 작동 불량", criteria: "간섭 발생 또는 작동 불량", method: "작동 테스트", freq: "전수 검사", badge: "badge-success" },
             ]
         },
         'shipment': {
-            title: "포장 및 출하 검사 (Shipment QC)",
+            title: "포장 및 출하 검수 (Shipment QC)",
             items: [
-                { point: "제품 보호", criteria: "보호 테이프/간지 부착 상태 양호", method: "육안 검사", freq: "전수 검사", badge: "badge-success" },
-                { point: "구성품 수량", criteria: "출하 명세서와 일치", method: "카운팅", freq: "전수 검사", badge: "badge-primary" },
-                { point: "라벨 부착", criteria: "식별표 부착 및 내용 일치", method: "육안 대조", freq: "전수 검사", badge: "badge-success" },
-                { point: "파레트 적재", criteria: "견고하게 밴딩 처리됨", method: "육안 검사", freq: "전수 검사", badge: "badge-purple" }
+                { point: "❌ 보호 부재 누락", criteria: "보호 테이프/간지 미부착 또는 손상", method: "육안 검사", freq: "전수 검사", badge: "badge-success" },
+                { point: "❌ 수량 불일치", criteria: "출하 명세서와 실제 구성품 수량 불일치", method: "카운팅", freq: "전수 검사", badge: "badge-primary" },
+                { point: "❌ 라벨 오류", criteria: "식별표 미부착 또는 내용 불일치", method: "육안 대조", freq: "전수 검사", badge: "badge-success" },
+                { point: "❌ 포장 불량", criteria: "파레트 적재 불안정, 밴딩 미처리", method: "육안 검사", freq: "전수 검사", badge: "badge-purple" }
             ]
         },
         'sill_prep': {

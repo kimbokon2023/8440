@@ -573,7 +573,7 @@ include getDocumentRoot() . '/load_header.php';
                             <th>부적합 현장명</th>
                             <th>자재정보</th>
                             <th>불량유형</th>
-                            <th>비고</th>
+                            <th>비매칭 사유</th>
                             <th>매칭일시</th>
                             <th>관리</th>
                         </tr>
@@ -598,9 +598,9 @@ include getDocumentRoot() . '/load_header.php';
                                 $displayErrorNum = $isExcluded ? '-' : $row['error_num'];
                                 $displayPlace = $isExcluded ? '-' : $row['place'];
                                 
-                                $remark = '';
-                                if ($isExcluded) $remark = '<span class="badge bg-danger">보고서 없음</span>';
-                                if ($isReportExcluded) $remark = '<span class="badge bg-warning text-dark">보고서</span>';
+                                $remark = '정상';
+                                if ($isExcluded) $remark = '<span class="badge bg-danger">보고서통과</span>';
+                                if ($isReportExcluded) $remark = '<span class="badge bg-warning text-dark">자재불필요</span>';                                
                                 
                                 // 말줄임 처리 (15자)
                                 $outworkplace_short = mb_strlen($row['outworkplace'] ?? '', 'utf-8') > 15 

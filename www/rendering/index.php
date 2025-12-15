@@ -85,296 +85,10 @@ if (file_exists($apiKeyPath)) {
                     <a href="<?= $root_dir ?>/index.php?home=1" class="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L8 2.207l6.646 6.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.707 1.5Z"/><path d="m8 3.293 4.712 4.712A4.5 4.5 0 0 0 8.758 15H3.5A1.5 1.5 0 0 1 2 13.5V9.293l6-6Z"/></svg>
                     </a>
-
-                    <?php if($_SESSION["level"] !== 20 && $_SESSION["level"] < 6) : ?>
-                    
-                    <!-- Estimate -->
-                    <div class="relative group">
-                        <button class="px-2 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg flex items-center gap-1 transition-colors">
-                            견적 <svg class="w-2.5 h-2.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </button>
-                        <div class="absolute top-full left-0 pt-2 w-56 hidden group-hover:block z-50">
-                            <div class="bg-slate-900 border border-slate-700 rounded-xl shadow-2xl shadow-black/50 overflow-hidden">
-                                <a href="<?=$root_dir?>/estimate/index.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800 border-b border-slate-800/50">견적서</a>
-                                <a href="<?=$root_dir?>/estimate/send_email_list/index.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800 border-b border-slate-800/50">이메일 전송리스트</a>
-                                <a href="<?=$root_dir?>/estimate_book/index.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">거래처 주소록 관리</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- JAMB -->
-                    <div class="relative group">
-                        <button class="px-2 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg flex items-center gap-1 transition-colors">
-                            JAMB <svg class="w-2.5 h-2.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </button>
-                        <div class="absolute top-full left-0 pt-2 w-56 hidden group-hover:block z-50">
-                            <div class="bg-slate-900 border border-slate-700 rounded-xl shadow-2xl shadow-black/50 overflow-hidden">
-                                <div class="py-1">
-                                    <a href="<?=$root_dir?>/work/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">수주 현황</a>
-                                    <a href="<?=$root_dir?>/work/month_schedule.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">월간 생산일정</a>
-                                </div>
-                                <div class="border-t border-slate-700/50 py-1">
-                                    <a href="<?=$root_dir?>/work_voc/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">시공소장 VOC</a>
-                                    <a href="<?=$root_dir?>/work/picgal.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">시공 사진</a>
-                                    <a href="<?=$root_dir?>/work/list_hpi.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">업체별 HPI정보</a>
-                                    <a href="<?=$root_dir?>/work/workfee.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">시공비 결산</a>
-                                </div>
-                                <div class="border-t border-slate-700/50 py-1">
-                                    <a href="<?=$root_dir?>/work/statistics.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">시공비 통계</a>
-                                    <a href="<?=$root_dir?>/work/work_statistics.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">제조 통계</a>
-                                    <a href="<?=$root_dir?>/graph/monthly_jamb.php?header=header" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">수주통계</a>
-                                    <a href="<?=$root_dir?>/work/output_statis.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">매출통계</a>
-                                </div>
-                                <div class="border-t border-slate-700/50 py-1">
-                                    <a href="<?=$root_dir?>/work/front_log.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">Front Log</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Ceiling -->
-                    <div class="relative group">
-                        <button class="px-2 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg flex items-center gap-1 transition-colors">
-                            수주 <svg class="w-2.5 h-2.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </button>
-                        <div class="absolute top-full left-0 pt-2 w-56 hidden group-hover:block z-50">
-                            <div class="bg-slate-900 border border-slate-700 rounded-xl shadow-2xl shadow-black/50 overflow-hidden">
-                                <a href="<?=$root_dir?>/ceiling/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">수주현황</a>
-                                <a href="<?=$root_dir?>/ceiling/month_schedule.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">월간 생산일정</a>
-                                <div class="border-t border-slate-700/50 my-1"></div>
-                                <a href="<?=$root_dir?>/sillcover/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800 border-t border-slate-700/50">[재료분리대 출고]</a>
-                                <div class="border-t border-slate-700/50 my-1"></div>
-                                <a href="<?=$root_dir?>/ceiling/work_statistics.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">제조 통계</a>
-                                <a href="<?=$root_dir?>/graph/monthly_ceiling.php?header=header" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">수주통계</a>
-                                <a href="<?=$root_dir?>/ceiling/output_statis.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">매출통계</a>
-                                <div class="border-t border-slate-700/50 my-1"></div>
-                                <a href="<?=$root_dir?>/ceiling/front_log.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">Front Log</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Purchase/Material -->
-                    <div class="relative group">
-                        <button class="px-2 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg flex items-center gap-1 transition-colors">
-                            구매/발주 <svg class="w-2.5 h-2.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </button>
-                        <div class="absolute top-full left-0 pt-2 w-64 hidden group-hover:block z-50">
-                            <div class="bg-slate-900 border border-slate-700 rounded-xl shadow-2xl shadow-black/50 overflow-hidden max-h-[80vh] overflow-y-auto custom-scrollbar">
-                                <a href="<?=$root_dir?>/integratedordering/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">통합 발주 현황</a>
-                                <a href="<?=$root_dir?>/orders/index.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">구매발주서 관리</a>
-                                <a href="<?=$root_dir?>/send_email_list/index.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">발주 이메일전송 리스트</a>
-                                <a href="<?=$root_dir?>/corp/index.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">발주 거래처 관리</a>
-                                <div class="border-t border-slate-700/50 my-1"></div>
-                                <a href="<?=$root_dir?>/managed_material/list.php" class="block px-4 py-2 text-sm font-semibold text-blue-400 hover:text-white hover:bg-slate-800">관리대상 자재 입출고</a>
-                                <div class="border-t border-slate-700/50 my-1"></div>
-                                <a href="<?=$root_dir?>/askitem/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">품의서</a>
-                                <div class="border-t border-slate-700/50 my-1"></div>
-                                <a href="<?=$root_dir?>/request/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">원자재 구매신청</a>
-                                <a href="<?=$root_dir?>/steel/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">원자재 출고</a>
-                                <a href="<?=$root_dir?>/steel/rawmaterial.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">원자재 재고현황</a>
-                                <div class="border-t border-slate-700/50 my-1"></div>
-                                <a href="<?=$root_dir?>/request_etc/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">부자재 구매신청</a>
-                                <a href="<?=$root_dir?>/ceiling/list_part_table.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">부자재 재고현황</a>
-                                <div class="border-t border-slate-700/50 my-1"></div>
-                                <a href="<?=$root_dir?>/outorder/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">외주(덴크리,서한,다온텍)</a>
-                                <a href="<?=$root_dir?>/make/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">도장발주</a>
-                                <a href="<?=$root_dir?>/delivery/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">화물/택배 배송</a>
-                                <div class="border-t border-slate-700/50 my-1"></div>
-                                <a href="<?=$root_dir?>/afterorder/index.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">중식석식 주문</a>
-                                <div class="border-t border-slate-700/50 my-1"></div>
-                                <a href="<?=$root_dir?>/oem/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">구 서한(NP)-이전메뉴</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Quality/Safety -->
-                    <div class="relative group">
-                        <button class="px-2 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg flex items-center gap-1 transition-colors">
-                            품질/안전 <svg class="w-2.5 h-2.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </button>
-                        <div class="absolute top-full left-0 pt-2 w-56 hidden group-hover:block z-50">
-                            <div class="bg-slate-900 border border-slate-700 rounded-xl shadow-2xl shadow-black/50 overflow-hidden max-h-[80vh] overflow-y-auto custom-scrollbar">
-                                <div class="px-4 py-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Quality (ISO/EQ)</div>
-                                <a href="<?=$root_dir?>/qc/goal.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">품질방침/목표</a>
-                                <a href="<?=$root_dir?>/iso/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">ISO 9001/14001 인증</a>
-                                <a href="<?=$root_dir?>/errors/qc_method.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">품질불량 관리기법</a>
-                                <a href="<?=$root_dir?>/idea/index.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">직원 제안제도</a>
-                                <div class="border-t border-slate-700/50 my-1"></div>
-                                <a href="<?=$root_dir?>/errors/match_check.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">부적합 매칭확인</a>
-                                <a href="<?=$root_dir?>/errors/index.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">부적합 보고</a>
-                                <a href="<?=$root_dir?>/errors/statistics.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">부적합(품질)통계</a>
-                                <a href="<?=$root_dir?>/errormeeting/index.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">부적합개선(분임조)</a>
-                                <div class="border-t border-slate-700/50 my-1"></div>
-                                <a href="<?=$root_dir?>/process_guide/index.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">작업 공정</a>
-                                <a href="<?=$root_dir?>/p_workstandard/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">작업표준서</a>
-                                <a href="<?=$root_dir?>/p_qccontrol/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">QC 공정표</a>
-                                <a href="<?=$root_dir?>/p_inspection/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">출하 검사서</a>
-                                <div class="border-t border-slate-700/50 my-1"></div>
-                                <a href="<?=$root_dir?>/qc/menu.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">장비 점검</a>
-                                <a href="<?=$root_dir?>/qcoffice/menu.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">사무실 정비</a>
-                                <a href="<?=$root_dir?>/p_evaluation/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">협력업체 평가표</a>
-                                <div class="border-t border-slate-700/50 my-1"></div>
-                                <div class="px-4 py-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Safety</div>
-                                <a href="<?=$root_dir?>/s_board/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">안전보건 통합관리</a>
-                                <a href="<?=$root_dir?>/safety/index.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">위험성 평가</a>
-                                <a href="<?=$root_dir?>/RiskAssessment/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">위험성 평가 자료실</a>
-                                <a href="<?=$root_dir?>/safetycard/menu.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">안전 카드뉴스</a>
-                                <a href="<?=$root_dir?>/safety/law.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">고용노동부고시(지침)</a>
-                                <a href="<?=$root_dir?>/safety/sif/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">핵심위험요인SIF</a>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- R&D -->
-                    <div class="relative group">
-                        <button class="px-2 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg flex items-center gap-1 transition-colors">
-                            연구소 <svg class="w-2.5 h-2.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </button>
-                        <div class="absolute top-full left-0 pt-2 w-56 hidden group-hover:block z-50">
-                            <div class="bg-slate-900 border border-slate-700 rounded-xl shadow-2xl shadow-black/50 overflow-hidden max-h-[80vh] overflow-y-auto custom-scrollbar">
-                                <a href="<?=$root_dir?>/ask_rndplan/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">연구개발계획서</a>
-                                <a href="<?=$root_dir?>/ask_rndnote/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">연구노트</a>
-                                <a href="<?=$root_dir?>/ask_rndreport/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">연구개발보고서</a>
-                                <div class="border-t border-slate-700/50 my-1"></div>
-                                <a href="<?=$root_dir?>/RnDfund/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">연구전담부서 운영비</a>
-                                <a href="https://www.rnd.or.kr/user/main.do" target="_blank" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">연구개발전담부서</a>
-                                <a href="https://cloud.koita.or.kr/#/login" target="_blank" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">산기협 연구노트</a>
-                                <div class="border-t border-slate-700/50 my-1"></div>
-                                <a href="<?=$root_dir?>/RnD/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">연구소 게시판</a>
-                                <a href="<?=$root_dir?>/it/index.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">IT 개발 프로세스</a>
-                                <div class="border-t border-slate-700/50 my-1"></div>
-                                <a href="<?=$root_dir?>/RnDnotice/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">개발 공지&자료</a>
-                                <a href="<?=$root_dir?>/RnDlist/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">개발 진행현황</a>
-                                <a href="<?=$root_dir?>/AIprompt/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">AI Prompt</a>
-                                <a href="<?=$root_dir?>/ranking/index.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">선물 순위 선정</a>
-                                <div class="border-t border-slate-700/50 my-1"></div>
-                                <a href="https://8440.co.kr/school" target="_blank" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">코딩강의</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Attendance -->
-                    <div class="relative group">
-                        <button class="px-2 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg flex items-center gap-1 transition-colors">
-                            근태 <svg class="w-2.5 h-2.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </button>
-                        <div class="absolute top-full left-0 pt-2 w-56 hidden group-hover:block z-50">
-                            <div class="bg-slate-900 border border-slate-700 rounded-xl shadow-2xl shadow-black/50 overflow-hidden">
-                                <a href="<?=$root_dir?>/annualleave/index.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">연차 관리</a>
-                                <a href="<?=$root_dir?>/request_overtime/index.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">연장근무 신청</a>
-                                <div class="border-t border-slate-700/50 my-1"></div>
-                                <a href="<?=$root_dir?>/absent_office/index.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">사무실 근태</a>
-                                <a href="<?=$root_dir?>/absent/index.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">공장 근태</a>
-                                <a href="<?=$root_dir?>/daylaborer/index.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">일용직 근태</a>
-                                <div class="border-t border-slate-700/50 my-1"></div>
-                                <a href="<?=$root_dir?>/holiday/list.php?header=header" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">달력 휴일설정</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Board & Share -->
-                    <div class="relative group">
-                        <button class="px-2 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg flex items-center gap-1 transition-colors">
-                            게시/공유 <svg class="w-2.5 h-2.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </button>
-                        <div class="absolute top-full left-0 pt-2 w-56 hidden group-hover:block z-50">
-                            <div class="bg-slate-900 border border-slate-700 rounded-xl shadow-2xl shadow-black/50 overflow-hidden max-h-[80vh] overflow-y-auto custom-scrollbar">
-                                <div class="px-4 py-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Board</div>
-                                <a href="<?=$root_dir?>/notice/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">공지사항</a>
-                                <a href="<?=$root_dir?>/qna/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">자료실</a>
-                                <a href="<?=$root_dir?>/popupwindow/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">팝업창</a>
-                                <a href="<?=$root_dir?>/HRboard/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">인사/교육/총무</a>
-                                <a href="<?=$root_dir?>/vote/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">투표</a>
-                                <div class="border-t border-slate-700/50 my-1"></div>
-                                <div class="px-4 py-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Share</div>
-                                <a href="<?=$root_dir?>/youtube.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">미래기업 유튜브</a>
-                                <a href="<?=$root_dir?>/fund/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">공동자금</a>
-                                <a href="<?=$root_dir?>/roadview.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">직원연락처</a>
-                                <a href="<?=$root_dir?>/shop/index.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">금속 작품쇼핑몰</a>
-                                <a href="<?=$root_dir?>/jamb/jamb.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">잠설계모델링</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- E-Approval -->
-                    <div class="relative group">
-                        <button class="px-2 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg flex items-center gap-1 transition-colors">
-                            전자결재 <svg class="w-2.5 h-2.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </button>
-                        <div class="absolute top-full left-0 pt-2 w-56 hidden group-hover:block z-50">
-                            <div class="bg-slate-900 border border-slate-700 rounded-xl shadow-2xl shadow-black/50 overflow-hidden">
-                                <a href="<?=$root_dir?>/ask_rndnote_mirae/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">프로젝트 개발노트</a>
-                                <a href="<?=$root_dir?>/ask_rndnote/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">연구노트</a>
-                                <div class="border-t border-slate-700/50 my-1"></div>
-                                <a href="<?=$root_dir?>/askitem/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">품의서</a>
-                                <a href="<?=$root_dir?>/annualleave/index.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">연차</a>
-                                <a href="<?=$root_dir?>/absent_office/index.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">사무실 근태</a>
-                                <a href="<?=$root_dir?>/idea/index.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">직원 제안제도</a>
-                                <a href="<?=$root_dir?>/errors/index.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">부적합 보고</a>
-                            </div>
-                        </div>
-                    </div>
-                    <?php endif; ?>
                 </nav>
-
-            <!-- Right Side -->
-            <div class="flex items-center gap-4">
-                
-                <!-- Phomistone (Conditional) -->
-                <?php if($_SESSION["level"] == 20 || $_SESSION["level"] < 6) : ?>
-                <div class="relative group hidden md:block">
-                    <button class="px-2 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg flex items-center gap-1 transition-colors">
-                           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0 1A5 5 0 1 0 8 3a5 5 0 0 0 0 10z"/></svg>
-                        포미스톤
-                    </button>
-                    <div class="absolute top-full right-0 pt-2 w-56 hidden group-hover:block z-50">
-                        <div class="bg-slate-900 border border-slate-700 rounded-xl shadow-2xl shadow-black/50 overflow-hidden">
-                            <a href="<?=$root_dir?>/phomi/list_estimate.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">견적서</a>
-                            <a href="<?=$root_dir?>/phomi/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">수주현황</a>
-                            <a href="<?=$root_dir?>/phomi/list_outorder.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">출고요청서</a>
-                            <?php if($_SESSION["level"] !== 20) : ?>
-                            <a href="<?=$root_dir?>/phomi/list_deposit.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">본사입금(예치금)</a>
-                            <?php endif; ?>
-                            <a href="<?=$root_dir?>/phomi/unit_price.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">단가표</a>
-                            <div class="border-t border-slate-700/50 my-1"></div>
-                            <a href="https://phomistonekorea.co.kr/index.php" target="_blank" class="block px-4 py-2 text-sm text-amber-500 hover:text-amber-300 hover:bg-slate-800">미래기업 포미스톤 웹</a>
-                            <a href="https://phomi.co.kr/default/index.php" target="_blank" class="block px-4 py-2 text-sm text-amber-500 hover:text-amber-300 hover:bg-slate-800">본사 포미스톤 웹사이트</a>
-                            <a href="<?=$root_dir?>/phomi/admin_alarm_setting.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">관리자 알람 설정</a>
-                        </div>
-                    </div>
-                </div>
-                <?php endif; ?>
-
-                <!-- User Profile -->
-                <div class="relative group">
-                    <button class="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-slate-800 transition-colors">
-                        <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-white border border-slate-600">
-                            <?= mb_substr($_SESSION["name"] ?? 'G', 0, 1) ?>
-                        </div>
-                        <span class="text-sm font-medium text-slate-300 hidden md:block"><?= $_SESSION["name"] ?? 'Guest' ?></span>
-                    </button>
-                     <div class="absolute top-full right-0 pt-2 w-48 hidden group-hover:block z-50">
-                        <div class="bg-slate-900 border border-slate-700 rounded-xl shadow-2xl shadow-black/50 overflow-hidden">
-                            <a href="<?=$root_dir?>/member/updateForm.php?id=<?=$_SESSION["userid"]?>" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">정보수정</a>
-                            <div class="border-t border-slate-700/50 my-1"></div>
-                            <?php if (($_SESSION["name"] ?? '') == '김보곤' || ($_SESSION["name"] ?? '') == '소현철') : ?>
-                                <a href="<?=$root_dir?>/member/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">회원관리</a>
-                                <div class="border-t border-slate-700/50 my-1"></div>
-                                <a href="<?=$root_dir?>/logdata_python.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">파이썬 자동설계 기록</a>
-                                <a href="<?=$root_dir?>/logdata.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">로그인기록</a>
-                                <a href="<?=$root_dir?>/automan/list.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">전산실장 정산</a>
-                            <?php endif; ?>
-                            <?php if (($_SESSION["name"] ?? '') == '김보곤') : ?>
-                                <a href="<?=$root_dir?>/logdata_menu.php" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">메뉴접속기록</a>
-                            <?php endif; ?>
-                            <div class="border-t border-slate-700/50 my-1"></div>
-                            <a href="<?=$root_dir?>/login/logout.php" class="block px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-slate-800">로그아웃</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+       
         </div>
-    </header>
+    </header>    
 
     <main class="max-w-7xl mx-auto px-4 py-8">
         <div class="flex flex-col lg:flex-row gap-8">
@@ -602,7 +316,26 @@ if (file_exists($apiKeyPath)) {
             timerId: null
         };
 
+        // Validate API Key on load
+        if (!state.apiKey || state.apiKey.trim() === '') {
+            console.error('API Key is missing or empty');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 bg-red-500/90 text-white px-6 py-4 rounded-lg shadow-2xl z-50';
+            errorDiv.innerHTML = '⚠️ API 키가 없습니다. gemini_api.txt 파일을 확인하세요.';
+            document.body.appendChild(errorDiv);
+            setTimeout(() => errorDiv.remove(), 5000);
+        } else {
+            console.log('API Key loaded:', state.apiKey.substring(0, 10) + '...');
+        }
+
         const $ = id => document.getElementById(id);
+        const showError = (html) => {
+            const el = $('errorMessage');
+            if (!el) return;
+            el.innerHTML = html;
+            el.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
 
         const formatTime = (secs) => {
             const m = Math.floor(secs / 60).toString().padStart(2, '0');
@@ -944,9 +677,8 @@ if (file_exists($apiKeyPath)) {
             }, 1000);
 
             try {
-                // IMPORTANT: Using the specific model from reference
-                // If it fails due to access, user will see error.
-                // NOTE: 'gemini-3-pro-image-preview' suggests it returns images in the parts.
+                // CRITICAL: gemini-3-pro-image-preview requires PAID tier
+                // This model is specifically for high-quality image generation
                 const genAI = new GoogleGenerativeAI(state.apiKey);
         // Helper to generate reflection description based on intensity (0-100)
         function getReflectionContext(intensity, type) {
@@ -962,6 +694,8 @@ if (file_exists($apiKeyPath)) {
             return `Finish: Standard Architectural Satin/Semi-Gloss. Balanced reflections. (Intensity: ${intensity}%)`;
         }
 
+                // REQUIRED: gemini-3-pro-image-preview for 3.0 version image generation
+                // NOTE: This model requires a PAID Google Cloud billing account
                 const model = genAI.getGenerativeModel({ model: "gemini-3-pro-image-preview" });
 
                 const parts = [];
@@ -1091,15 +825,56 @@ The structure must remain EXACTLY as shown in the reference layout image.
                 $('promptDebugContainer').classList.remove('hidden');
                 // -----------------------------
 
-                const result = await model.generateContent({
-                     contents: [{ role: "user", parts: parts }],
-                     generationConfig: {
-                         imageConfig: {
-                              aspectRatio: state.layout.aspectRatio,
-                              imageSize: "2K"
-                         }
-                     }
-                });
+                // Retry logic with exponential backoff for quota errors
+                let result;
+                let retryCount = 0;
+                const maxRetries = 3;
+                const baseDelay = 2000; // 2 seconds
+                
+                while (retryCount <= maxRetries) {
+                    try {
+                        result = await model.generateContent({
+                             contents: [{ role: "user", parts: parts }],
+                             generationConfig: {
+                                 imageConfig: {
+                                      aspectRatio: state.layout.aspectRatio,
+                                      imageSize: "2K"
+                                 }
+                             }
+                        });
+                        break; // Success, exit retry loop
+                    } catch (retryError) {
+                        // Check if it's a quota/rate limit error (429)
+                        // 429 can appear in message, status code, or response
+                        const is429Error = (
+                            (retryError.message && retryError.message.includes('429')) ||
+                            (retryError.status === 429) ||
+                            (retryError.response && retryError.response.status === 429) ||
+                            (retryError.message && retryError.message.includes('quota')) ||
+                            (retryError.message && retryError.message.includes('free_tier'))
+                        );
+                        
+                        if (is429Error && retryCount < maxRetries) {
+                            retryCount++;
+                            const delay = baseDelay * Math.pow(2, retryCount - 1); // Exponential backoff
+                            const retryDelay = Math.min(delay, 60000); // Max 60 seconds
+                            
+                            // Extract retry delay from error if available
+                            let extractedDelay = retryDelay;
+                            try {
+                                const errorMatch = retryError.message.match(/Please retry in ([\d.]+)s/);
+                                if (errorMatch) {
+                                    extractedDelay = parseFloat(errorMatch[1]) * 1000;
+                                }
+                            } catch (e) {}
+                            
+                            $('timerDisplay').textContent = `Retrying in ${Math.ceil(extractedDelay / 1000)}s...`;
+                            await new Promise(resolve => setTimeout(resolve, extractedDelay));
+                            continue;
+                        }
+                        throw retryError; // Re-throw if not a retryable error or max retries reached
+                    }
+                }
 
                 // Parse Result - Expecting inline image
                 // Parse Result - Expecting inline image
@@ -1163,14 +938,65 @@ The structure must remain EXACTLY as shown in the reference layout image.
                 }
 
             } catch (e) {
-                console.error(e);
-                let msg = "Failed: " + e.message;
-                // Check for raw API error details if available
-                if (e.response && e.response.status) {
-                    msg += ` (Status: ${e.response.status})`;
+                console.error('Generation Error:', e);
+                let msgHtml = `<div class="space-y-2 text-sm text-left">`;
+                
+                // Check for quota/free tier errors (429) - requires paid plan
+                // 429 can appear in multiple places: message, status, response.status
+                const isQuotaError = (
+                    (e.message && (
+                        e.message.includes('free_tier') || 
+                        e.message.includes('quota') || 
+                        e.message.includes('429') ||
+                        e.message.includes('exceeded your current quota') ||
+                        e.message.includes('Too Many Requests')
+                    )) ||
+                    (e.status === 429) ||
+                    (e.response && e.response.status === 429) ||
+                    (e.code === 429)
+                );
+                
+                if (isQuotaError) {
+                    msgHtml += `<div class="font-semibold text-red-300 mb-2">❌ 쿼터 초과 또는 무료 티어 제한 (HTTP 429)</div>`;
+                    msgHtml += `<div class="text-slate-200 mb-3">gemini-3-pro-image-preview 모델은 <strong class="text-yellow-300">유료 플랜</strong>이 필요합니다.</div>`;
+                    msgHtml += `<div class="bg-slate-800/50 p-3 rounded-lg border border-slate-700 mb-3">`;
+                    msgHtml += `<div class="font-medium text-slate-300 mb-2">해결 방법:</div>`;
+                    msgHtml += `<ul class="list-disc list-inside text-slate-300 space-y-1 text-xs">`;
+                    msgHtml += `<li>Google Cloud Console에서 결제(유료) 계정 활성화</li>`;
+                    msgHtml += `<li>API 키가 유료 프로젝트(번호: 597717139064)에 연결되어 있는지 확인</li>`;
+                    msgHtml += `<li>Gemini API에 유료 플랜이 적용되었는지 확인</li>`;
+                    msgHtml += `<li>결제 적용 후 아래 "다시 요청하기" 버튼으로 재시도</li>`;
+                    msgHtml += `</ul>`;
+                    msgHtml += `</div>`;
+                    msgHtml += `<a class="text-indigo-300 underline hover:text-indigo-200" target="_blank" rel="noreferrer" href="https://ai.google.dev/pricing">💰 가격 정보 보기</a>`;
+                } else {
+                    msgHtml += `<div class="font-semibold text-red-300">실패: ${e.message || '알 수 없는 오류'}</div>`;
                 }
-                $('errorMessage').innerText = msg;
-                $('errorMessage').classList.remove('hidden');
+                
+                // Show HTTP status code if available
+                const statusCode = e.status || (e.response && e.response.status) || (e.code);
+                if (statusCode) {
+                    msgHtml += `<div class="text-slate-400 text-xs mt-2">HTTP Status: ${statusCode}</div>`;
+                }
+
+                msgHtml += `<div class="pt-2">`;
+                msgHtml += `<button id="retryAfterError" class="mt-2 px-3 py-2 bg-indigo-600 text-white rounded-lg text-xs hover:bg-indigo-500">다시 요청하기</button>`;
+                msgHtml += `</div>`;
+                msgHtml += `</div>`;
+                
+                showError(msgHtml);
+
+                // Wire up retry button to simply hide error and let user click generate again
+                setTimeout(() => {
+                    const retryBtn = document.getElementById('retryAfterError');
+                    if (retryBtn) {
+                        retryBtn.onclick = () => {
+                            $('errorMessage').classList.add('hidden');
+                            $('errorMessage').innerHTML = '';
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        };
+                    }
+                }, 50);
             } finally {
                 clearInterval(state.timerId);
                 state.isGenerating = false;

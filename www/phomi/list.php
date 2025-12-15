@@ -556,22 +556,25 @@ th {
         <th class="text-center text-success" scope="col" style="width:50px;">구분</th>		
         <th class="text-center w200px" > 현장명 </th>
         <th class="text-center w100px" > 작성자</th>
-        <th class="text-center w120px" > 출고예정일</th>    
-		<th class="text-center w120px" > 실제출고일</th>    
-		<th class="text-end w120px" > 업체매출금액</th>    
-        <th class="text-end w120px" > 합계(VAT별도)</th>    
-		<th class="text-end w120px" >합계(VAT포함)</th>   		
-		<th class="text-end w120px" >세금계산서 금액</th>   		
-		<th class="text-center w120px" >입금 여부</th>   		
+		<th class="text-center w100px" > 실제출고일</th>    
+        <th class="text-end w100px" > 합계(VAT별도)</th>    
+		<th class="text-end w100px" >합계(VAT포함)</th>   		
+		<th class="text-end w100px" >계산서 발행일</th>   		
+		<th class="text-center w100px" >입금일</th>   		
+		<th class="text-center w100px" >본사 잔액</th>   		
+		<th class="text-center w100px" >대리점 수수료</th>   		
+		<th class="text-center w150px" >비고</th>   		
       </tr>
     </thead>	
     <tfoot>
       <tr class="table-info fw-bold">	
-        <td colspan="9" class="text-end fw-medium">소계</td>
-        <td class="text-end fw-bold" id="total-company-amount">0</td>
-        <td class="text-end fw-bold" id="total-ex-vat">0</td>
-        <td class="text-end fw-bold" id="total-inc-vat">0</td>
-        <td class="text-end fw-bold" id="total-tax-invoice-amount">0</td>
+        <td colspan="8" class="text-end fw-medium">소계</td>        
+        <td class="text-end " id="total-ex-vat">0</td>
+        <td class="text-end " id="total-inc-vat">0</td>        
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
         <td></td>
       </tr>
     </tfoot>
@@ -600,11 +603,14 @@ th {
 				$total_inc_vat = $row['total_inc_vat'] ?? 0;
 				$total_ex_vat = $row['total_ex_vat'] ?? 0;
 				$tax_invoice_amount = $row['tax_invoice_amount'] ?? 0;
-				$deposit_status = $row['deposit_status'] ?? '';
+				$tax_invoice_date = ($row['tax_invoice_date'] ?? '') === '0000-00-00' ? '' : ($row['tax_invoice_date'] ?? '');
+				$deposit_date = ($row['deposit_date'] ?? '') === '0000-00-00' ? '' : ($row['deposit_date'] ?? '');
 				$author = $row['author'];
 				$author_id = $row['author_id'];
 				$estimate_num = $row['estimate_num'];
-
+				$balance = $row['balance'] ?? 0;
+				$dealer_fee = $row['dealer_fee'] ?? 0;
+				$note = $row['note'] ?? '';
 				// 전체 합계에 추가
 				$total_company_amount += $company_amount;
 				$total_sum_ex_vat += $total_ex_vat;
@@ -618,7 +624,10 @@ th {
 				$total_inc_vat_formatted = $total_inc_vat ? number_format($total_inc_vat) : '-';
 				$total_ex_vat_formatted = $total_ex_vat ? number_format($total_ex_vat) : '-';
 				$tax_invoice_amount_formatted = $tax_invoice_amount ? number_format($tax_invoice_amount) : '-';
-				
+				$tax_invoice_date_formatted = $tax_invoice_date ? $tax_invoice_date : '-';
+				$deposit_date_formatted = $deposit_date ? $deposit_date : '-';
+				$balance_formatted = $balance ? number_format($balance) : '-';
+				$dealer_fee_formatted = $dealer_fee ? number_format($dealer_fee) : '-';
 				// 날짜 포맷팅
 				$delivery_due_date_formatted = $delivery_due_date ? $delivery_due_date : '-';
 				$delivery_date_formatted = $delivery_date ? $delivery_date : '-';
@@ -638,14 +647,15 @@ th {
 						<?= $division ?>
 					</td>  <!-- 구분 -->
 					<td class="text-start"> <?= $site_name ?> </td>          
-					<td class="text-center text-primary"><?= $author ?></td>
-					<td class="text-center"><?= $delivery_due_date_formatted == '0000-00-00' ? '' : $delivery_due_date_formatted ?></td>
-					<td class="text-center"><?= $delivery_date_formatted == '0000-00-00' ? '' : $delivery_date_formatted ?></td>
-					<td class="text-end"><?= $company_amount_formatted ?></td>
+					<td class="text-center text-primary"><?= $author ?></td>					
+					<td class="text-center"><?= $delivery_date_formatted == '0000-00-00' ? '' : $delivery_date_formatted ?></td>					
 					<td class="text-end"><?= $total_ex_vat_formatted ?></td>
 					<td class="text-end"><?= $total_inc_vat_formatted ?></td>
-					<td class="text-end"><?= $tax_invoice_amount_formatted ?></td>
-					<td class="text-center"><?= $deposit_status ?></td>
+					<td class="text-center"><?= $tax_invoice_date_formatted ?></td>
+					<td class="text-center"><?= $deposit_date_formatted ?></td>
+					<td class="text-center"><?= $balance_formatted ?></td>
+					<td class="text-center"><?= $dealer_fee_formatted ?></td>
+					<td class="text-start"><?= $note ?></td>
 					</tr>
 		<?php
 			$start_num--;  
