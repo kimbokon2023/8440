@@ -184,24 +184,61 @@ if (file_exists($apiKeyPath)) {
                         <!-- Door -->
                         <!-- Door -->
                         <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800">
-                            <label class="text-sm font-medium text-slate-300 mb-2 block">입구 출입문 (Entrance Door)</label>
+                            <div class="flex items-center justify-between mb-3">
+                                <label class="text-sm font-medium text-slate-300">입구 출입문 (Entrance Door)</label>
+                                <div class="flex bg-slate-800 rounded-lg p-1 border border-slate-700">
+                                  <button id="doorModeUpload" class="text-xs px-3 py-1 rounded-md transition-all bg-slate-600 text-white shadow">이미지</button>
+                                  <button id="doorModePreset" class="text-xs px-3 py-1 rounded-md transition-all text-slate-400 hover:text-white">선택</button>
+                                </div>
+                            </div>
                             
-                            <div class="border-2 border-dashed border-slate-700 rounded-xl p-4 transition-colors hover:border-blue-500/50 hover:bg-slate-800/50 group relative bg-slate-950/30 h-32 flex flex-col justify-center">
-                                <input type="file" id="doorInput" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-                                
-                                <div id="doorPlaceholder" class="flex flex-col items-center justify-center pointer-events-none">
-                                     <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center mb-2 group-hover:bg-slate-700 transition-colors">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                                     </div>
-                                     <p class="text-xs font-medium text-slate-300">출입문 텍스처를 여기에 놓으세요</p>
+                            <!-- Upload Area -->
+                            <div id="doorUploadArea" class="block">
+                                <div class="border-2 border-dashed border-slate-700 rounded-xl p-4 transition-colors hover:border-blue-500/50 hover:bg-slate-800/50 group relative bg-slate-950/30 h-32 flex flex-col justify-center">
+                                    <input type="file" id="doorInput" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                                    
+                                    <div id="doorPlaceholder" class="flex flex-col items-center justify-center pointer-events-none">
+                                         <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center mb-2 group-hover:bg-slate-700 transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                         </div>
+                                         <p class="text-xs font-medium text-slate-300">출입문 텍스처를 여기에 놓으세요</p>
+                                    </div>
+    
+                                    <div id="doorPreviewContainer" class="hidden absolute inset-0 rounded-xl overflow-hidden bg-slate-900 z-0">
+                                         <img id="doorPreviewImage" src="" class="w-full h-full object-contain p-2" />
+                                         <button id="clearDoorBtn" class="absolute top-1 right-1 p-0.5 bg-red-500 text-white rounded shadow hover:bg-red-600 z-20 pointer-events-auto">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                         </button>
+                                    </div>
                                 </div>
+                            </div>
 
-                                <div id="doorPreviewContainer" class="hidden absolute inset-0 rounded-xl overflow-hidden bg-slate-900 z-0">
-                                     <img id="doorPreviewImage" src="" class="w-full h-full object-contain p-2" />
-                                     <button id="clearDoorBtn" class="absolute top-1 right-1 p-0.5 bg-red-500 text-white rounded shadow hover:bg-red-600 z-20 pointer-events-auto">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                                     </button>
-                                </div>
+                            <!-- Preset Area -->
+                            <div id="doorPresetArea" class="hidden flex flex-col gap-3">
+                                 <!-- Color Circles -->
+                                 <div class="flex gap-3 justify-center bg-slate-900 p-3 rounded-lg border border-slate-700">
+                                    <?php 
+                                    $colors = ['silver', 'gold', 'bronze', 'black'];
+                                    $gradients = [
+                                        'silver' => 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+                                        'gold' => 'linear-gradient(135deg, #FFD700 0%, #FDB931 100%)',
+                                        'bronze' => 'linear-gradient(135deg, #d4a373 0%, #8a5a44 100%)',
+                                        'black' => 'linear-gradient(135deg, #434343 0%, #000000 100%)'
+                                    ];
+                                    foreach ($colors as $color) {
+                                        $gradient = $gradients[$color];
+                                        echo "<button type='button' class='door-color-btn w-8 h-8 rounded-full relative shadow hover:scale-110 transition-transform opacity-70 hover:opacity-100' data-color='$color' style='background: $gradient;' title='$color'></button>";
+                                    }
+                                    ?>
+                                 </div>
+                                 
+                                 <!-- Texture Select -->
+                                 <select id="doorPresetType" class="w-full bg-slate-900 text-slate-300 text-xs p-2.5 border border-slate-700 rounded-lg text-center appearance-none cursor-pointer hover:border-slate-500 focus:border-purple-500 focus:outline-none">
+                                    <option value="hairline">헤어라인 (결무늬)</option>
+                                    <option value="mirror">미러 (거울면)</option>
+                                    <option value="vibration">바이브레이션 (스월)</option>
+                                    <option value="bead">비드 블라스트 (무광)</option>
+                                </select>
                             </div>
                         </div>
 
@@ -390,7 +427,7 @@ if (file_exists($apiKeyPath)) {
         const state = {
             apiKey: "<?php echo htmlspecialchars($apiKey); ?>",
             layout: { file: null, preview: null, aspectRatio: "1:1", guideFile: null, guidePreview: null },
-            door: { file: null, preview: null },
+            door: { file: null, preview: null, mode: 'upload', presetColor: 'silver', presetType: 'hairline' },
             floor: { mode: 'upload', file: null, preview: null, preset: 'deco-tile' },
             panels: Array.from({ length: 11 }, (_, i) => ({
                 id: (i + 1).toString(), mode: 'upload', file: null, previewUrl: null, presetType: 'hairline', presetColor: 'silver'
@@ -459,16 +496,76 @@ if (file_exists($apiKeyPath)) {
         }
 
         function updateDoorUI() {
-            if (state.door.file) {
-                 $('doorPlaceholder').classList.add('hidden');
-                 $('doorPreviewContainer').classList.remove('hidden');
-                 $('doorPreviewImage').src = state.door.preview;
+            // Mode Toggles
+            if (state.door.mode === 'upload') {
+                $('doorModeUpload').classList.add('bg-slate-600', 'text-white', 'shadow');
+                $('doorModeUpload').classList.remove('text-slate-400', 'hover:text-white');
+                $('doorModePreset').classList.remove('bg-slate-600', 'text-white', 'shadow');
+                $('doorModePreset').classList.add('text-slate-400', 'hover:text-white');
+                
+                $('doorUploadArea').classList.remove('hidden');
+                $('doorPresetArea').classList.add('hidden');
+
+                if (state.door.file) {
+                     $('doorPlaceholder').classList.add('hidden');
+                     $('doorPreviewContainer').classList.remove('hidden');
+                     $('doorPreviewImage').src = state.door.preview;
+                } else {
+                     $('doorPlaceholder').classList.remove('hidden');
+                     $('doorPreviewContainer').classList.add('hidden');
+                     $('doorPreviewImage').src = "";
+                }
             } else {
-                 $('doorPlaceholder').classList.remove('hidden');
-                 $('doorPreviewContainer').classList.add('hidden');
-                 $('doorPreviewImage').src = "";
+                $('doorModePreset').classList.add('bg-slate-600', 'text-white', 'shadow');
+                $('doorModePreset').classList.remove('text-slate-400', 'hover:text-white');
+                $('doorModeUpload').classList.remove('bg-slate-600', 'text-white', 'shadow');
+                $('doorModeUpload').classList.add('text-slate-400', 'hover:text-white');
+                
+                $('doorUploadArea').classList.add('hidden');
+                $('doorPresetArea').classList.remove('hidden');
+
+                // Update Preset UI
+                $('doorPresetType').value = state.door.presetType;
+                document.querySelectorAll('.door-color-btn').forEach(btn => {
+                    const color = btn.dataset.color;
+                    if (color === state.door.presetColor) {
+                        btn.classList.add('ring-2', 'ring-white', 'ring-offset-2', 'ring-offset-slate-900', 'scale-110', 'opacity-100');
+                        btn.classList.remove('opacity-70');
+                        btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 drop-shadow-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+                    } else {
+                        btn.classList.remove('ring-2', 'ring-white', 'ring-offset-2', 'ring-offset-slate-900', 'scale-110', 'opacity-100');
+                         btn.classList.add('opacity-70');
+                        btn.innerHTML = '';
+                    }
+                });
             }
         }
+        
+        $('doorInput').addEventListener('change', (e) => {
+            if (e.target.files[0]) { 
+                state.door.file = e.target.files[0]; 
+                state.door.preview = URL.createObjectURL(state.door.file);
+                // Ensure we stay in upload mode if file is selected directly (though UI hides input in preset mode)
+                state.door.mode = 'upload';
+                updateDoorUI(); 
+            }
+        });
+        $('clearDoorBtn').addEventListener('click', () => { 
+            state.door = { ...state.door, file: null, preview: null }; 
+            $('doorInput').value = ''; 
+            updateDoorUI(); 
+        });
+
+        // Door Mode & Preset Events
+        $('doorModeUpload').addEventListener('click', () => { state.door.mode = 'upload'; updateDoorUI(); });
+        $('doorModePreset').addEventListener('click', () => { state.door.mode = 'preset'; updateDoorUI(); });
+        $('doorPresetType').addEventListener('change', (e) => { state.door.presetType = e.target.value; updateDoorUI(); });
+        document.querySelectorAll('.door-color-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                state.door.presetColor = e.target.dataset.color;
+                updateDoorUI();
+            });
+        });
 
         function updateGuideUI() {
             if (state.layout.guideFile) {
@@ -894,18 +991,24 @@ CRITICAL VISIBILITY RULE:
                 }
 
                 if (p.mode === 'upload' && p.file) {
-                    parts.push({text: `MATERIAL B${matIndex} (Panel ${p.id}):${posContext}`});
+                    parts.push({text: `MATERIAL B${p.id} (Panel ${p.id}):${posContext}`});
                     parts.push(await fileToPart(p.file));
-                    matIndex++;
+                    parts.push({text: "INSTRUCTION: Apply above material to Panel " + p.id});
                 } else if (p.mode === 'preset') {
-                    const reflectionDesc = getReflectionContext(currentState.reflectionIntensity, p.presetType);
-                    parts.push({text: `MATERIAL B${matIndex} (Panel ${p.id}):${posContext} Color ${p.presetColor}. Type ${p.presetType}. ${reflectionDesc}`});
-                    matIndex++;
+                    const color = p.presetColor;
+                    const type = p.presetType;
+                    let desc = `Color: ${color}, Finish: ${type}`;
+                    if (type === 'mirror') desc += " (Highly Reflective Mirror Finish)";
+                    if (type === 'vibration') desc += " (Non-directional Vibration/Swirl Pattern)";
+                    if (type === 'hairline') desc += " (Vertical Hairline Finish)";
+                    
+                    parts.push({text: `MATERIAL B${p.id} (Panel ${p.id}):${posContext} ${desc}`});
+                    parts.push({text: "INSTRUCTION: Apply this metal finish to Panel " + p.id});
                 }
-            }
+            });
 
-            const reflectionGlobal = getReflectionContext(currentState.reflectionIntensity, 'standard');
-            parts.push({text: `GENERATE. Lighting Temperature: ${currentState.lightingTemp}K. Global Reflection Style: ${reflectionGlobal}. Output High-Res 3D Render.`});
+            // Lighting & Reflection
+            parts.push({text: `LIGHTING: Temperature ${currentState.lightingTemp}K. ${getReflectionContext(currentState.reflectionIntensity, 'standard')}`});
             
             parts.push({text: `
 ⚠️⚠️⚠️ ABSOLUTE STRUCTURE REQUIREMENT - DO NOT MODIFY ⚠️⚠️⚠️
@@ -937,27 +1040,30 @@ The structure must remain EXACTLY as shown in the reference layout image.
             let summary = "";
             summary += "=== 🏗️ 기본 설정 ===\n";
             summary += `• 구조 레이아웃: ${currentState.layout.file ? currentState.layout.file.name : '없음'}\n`;
-            summary += `• 화면비율 (Aspect Ratio): ${currentState.layout.aspectRatio}\n`;
+            if (currentState.layout.guideFile) summary += `• 패널 번호 안내도: 포함됨 (${currentState.layout.guideFile.name})\n`;
             summary += `• 조명 온도: ${currentState.lightingTemp}K\n`;
             summary += `• 반사 강도: ${currentState.reflectionIntensity}%\n\n`;
 
-            summary += "=== 🚪 출입문 (Entrance) ===\n";
-            if (currentState.door.file) {
-                summary += `• [이미지] ${currentState.door.file.name}\n`;
+            summary += "=== 🚪 도어 (Door) ===\n";
+            if (currentState.door.mode === 'upload' && currentState.door.file) {
+                summary += `• 파일: ${currentState.door.file.name}\n`;
+            } else if (currentState.door.mode === 'preset') {
+                const typeMap = { 'hairline': '헤어라인', 'mirror': '미러', 'vibration': '바이브레이션', 'bead': '비드 블라스트' };
+                const colorMap = { 'silver': '실버', 'gold': '골드', 'bronze': '브론즈', 'black': '블랙' };
+                summary += `• 설정: ${colorMap[currentState.door.presetColor] || currentState.door.presetColor} + ${typeMap[currentState.door.presetType] || currentState.door.presetType}\n`;
             } else {
-                summary += `• 설정되지 않음 (기본 재질)\n`;
+                summary += "• 설정되지 않음\n";
             }
             summary += "\n";
 
-            summary += "=== 🦶 바닥 (Floor) ===\n";
+            summary += "=== � 바닥 (Floor) ===\n";
             if (currentState.floor.mode === 'upload' && currentState.floor.file) {
-                summary += `• [이미지] ${currentState.floor.file.name}\n`;
+                summary += `• 파일: ${currentState.floor.file.name}\n`;
             } else {
-                const presetName = currentState.floor.preset === 'marble' ? '대리석 (Marble)' : '데코타일 (Deco Tile)';
-                summary += `• [프리셋] ${presetName}\n`;
+                summary += `• 프리셋: ${currentState.floor.preset}\n`;
             }
             summary += "\n";
-
+            
             summary += "=== 🧱 벽면 패널 (Panels) ===\n";
             const panelGroups = [];
             // Group similar panels for cleaner output
@@ -1342,6 +1448,49 @@ The structure must remain EXACTLY as shown in the reference layout image.
             }
         }
 
+        // Initialize Default Floor
+        async function initDefaultFloor() {
+             try {
+                if (state.floor.file) return;
+
+                const response = await fetch('sourceimg/car_bottom.jpg');
+                if (!response.ok) throw new Error('Default floor image not found');
+                
+                const blob = await response.blob();
+                const file = new File([blob], "car_bottom.jpg", { type: blob.type });
+                
+                state.floor.file = file;
+                state.floor.preview = URL.createObjectURL(file);
+                // Ensure correct mode
+                state.floor.mode = 'upload';
+                updateFloorUI();
+                console.log("Default floor loaded: car_bottom.jpg");
+            } catch (e) {
+                console.warn("Could not load default floor:", e);
+            }
+        }
+
+        // Initialize Default Door (Entrance)
+        async function initDefaultDoor() {
+            try {
+                if (state.door.file) return;
+
+                const response = await fetch('sourceimg/car_door.jpg');
+                if (!response.ok) throw new Error('Default door image not found');
+                
+                const blob = await response.blob();
+                const file = new File([blob], "car_door.jpg", { type: blob.type });
+                
+                state.door.file = file;
+                state.door.preview = URL.createObjectURL(file);
+                state.door.mode = 'upload'; // Default to upload mode
+                updateDoorUI();
+                console.log("Default door loaded: car_door.jpg");
+            } catch (e) {
+                console.warn("Could not load default door:", e);
+            }
+        }
+
         renderPanels();
         updateLayoutUI();
         updateFloorUI();
@@ -1349,7 +1498,7 @@ The structure must remain EXACTLY as shown in the reference layout image.
         
         // Load Defaults
         (async () => {
-            await Promise.all([initDefaultGuide(), initDefaultLayout()]);
+            await Promise.all([initDefaultGuide(), initDefaultLayout(), initDefaultFloor(), initDefaultDoor()]);
         })();
     </script>
     <?php endif; ?>
