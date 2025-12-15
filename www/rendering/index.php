@@ -1124,6 +1124,7 @@ CRITICAL VISIBILITY RULE:
                  parts.push(await fileToPart(currentState.floor.file));
                  const ref = getReflectionContext(getRefInt('floor'), 'standard');
                  parts.push({text: `INSTRUCTION: Apply this material to the floor. ${ref}`});
+                 parts.push({text: "STRICT REQUIREMENT: NO VARIATION. You MUST apply this exact texture image to the floor. Do NOT change the pattern size, orientation, or style. The floor MUST look exactly like the provided 'MATERIAL FLOOR' image."});
             } else if (currentState.floor.mode === 'preset') {
                  const ref = getReflectionContext(getRefInt('floor'), 'standard');
                  parts.push({text: `MATERIAL FLOOR: ${currentState.floor.preset}. ${ref}`});
