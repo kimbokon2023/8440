@@ -1477,6 +1477,9 @@ The structure must remain EXACTLY as shown in the reference layout image.
 
 
 
+                // Add explicit reset context to parts
+                parts.unshift({text: "SYSTEM RESET: Ignore all previous context. Start fresh. Strictly follow the layout and material instructions provided below."});
+
                 // Retry logic with exponential backoff for quota errors
                 let result;
                 let retryCount = 0;
@@ -1488,6 +1491,9 @@ The structure must remain EXACTLY as shown in the reference layout image.
                         result = await model.generateContent({
                              contents: [{ role: "user", parts: parts }],
                              generationConfig: {
+                                 temperature: 0.1, // Low temperature for strict adherence
+                                 topP: 0.95,
+                                 topK: 40,
                                  imageConfig: {
                                       aspectRatio: state.layout.aspectRatio,
                                       imageSize: "2K"
@@ -1669,7 +1675,9 @@ The structure must remain EXACTLY as shown in the reference layout image.
                 // For switching views, we cleared state.layout.guideFile so it will load.
                 if (state.layout.guideFile && !path) return;
 
-                const response = await fetch(path);
+                // Cache busting
+                const fetchPath = path + '?t=' + new Date().getTime();
+                const response = await fetch(fetchPath);
                 if (!response.ok) throw new Error('Default guide image not found: ' + path);
                 
                 const blob = await response.blob();
@@ -1690,7 +1698,9 @@ The structure must remain EXACTLY as shown in the reference layout image.
              try {
                 if (state.layout.file && !path) return;
 
-                const response = await fetch(path);
+                // Cache busting
+                const fetchPath = path + '?t=' + new Date().getTime();
+                const response = await fetch(fetchPath);
                 if (!response.ok) throw new Error('Default layout wireframe not found: ' + path);
                 
                 const blob = await response.blob();
