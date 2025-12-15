@@ -2235,6 +2235,15 @@ $estimate_bond_quantity = $estimate_bond_quantity ?? 1; // 기본값 1개
         </div>
     </div>
 
+    <!-- 입금계좌정보 -->
+    <div class="mb-4">                                             
+        <?php if($mode == 'insert' || $mode == 'modify' || $mode == 'copy'): ?>
+            <p class="mb-0"><h6><p class="text-center badge bg-primary">입금계좌정보 : <input type="text" name="payment_account" value="<?= htmlspecialchars($payment_account) ?>" class="form-control form-control-sm d-inline-block" style="width: 300px;" placeholder="입금계좌정보"></p></h6></p>
+        <?php else: ?>
+            <p class="mb-0"><h6><p class="text-center badge bg-primary">입금계좌정보 : <?= htmlspecialchars($payment_account) ?></p></h6></p>
+        <?php endif; ?>
+    </div>
+
     <!-- 비고 -->
     <div class="mb-4">
         <label class="form-label">비고</label>
@@ -2242,15 +2251,6 @@ $estimate_bond_quantity = $estimate_bond_quantity ?? 1; // 기본값 1개
             <textarea name="note" class="form-control" rows="3" placeholder="비고사항을 입력하세요"><?= htmlspecialchars($note) ?></textarea>
         <?php else: ?>
             <div class="form-control-plaintext"><?= nl2br(htmlspecialchars($note)) ?: '-' ?></div>
-        <?php endif; ?>
-    </div>
-
-    <!-- 입금계좌정보 -->
-    <div class="mb-4">                                             
-        <?php if($mode == 'insert' || $mode == 'modify' || $mode == 'copy'): ?>
-            <p class="mb-0"><h6><p class="text-center badge bg-primary">입금계좌정보 : <input type="text" name="payment_account" value="<?= htmlspecialchars($payment_account) ?>" class="form-control form-control-sm d-inline-block" style="width: 300px;" placeholder="입금계좌정보"></p></h6></p>
-        <?php else: ?>
-            <p class="mb-0"><h6><p class="text-center badge bg-primary">입금계좌정보 : <?= htmlspecialchars($payment_account) ?></p></h6></p>
         <?php endif; ?>
     </div>
 
@@ -2345,6 +2345,7 @@ $estimate_bond_quantity = $estimate_bond_quantity ?? 1; // 기본값 1개
     </div>
 
             <!-- 회계 금액 정보 -->
+            <?php if(isset($_SESSION["level"]) && $_SESSION["level"] < 5): ?>
             <div class="row mb-4">
                 <div class="col-md-12">
                     <div class="card">
@@ -2458,6 +2459,7 @@ $estimate_bond_quantity = $estimate_bond_quantity ?? 1; // 기본값 1개
                     </div>
                 </div>
             </div>
+            <?php endif; ?>
             
     </div>
     

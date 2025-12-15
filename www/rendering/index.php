@@ -3,12 +3,6 @@
 require_once __DIR__ . '/../bootstrap.php';
 if (!isset($root_dir)) $root_dir = '..';
 
-// 1. Guest Redirect Check
-if (!isset($_SESSION["userid"]) || empty($_SESSION["userid"])) {
-    echo "<script>alert('로그인이 필요합니다.'); location.href='$root_dir/login/login_form.php';</script>";
-    exit;
-}
-
 $apiKeyPath = __DIR__ . '/gemini_api.txt';
 $apiKey = '';
 if (file_exists($apiKeyPath)) {
