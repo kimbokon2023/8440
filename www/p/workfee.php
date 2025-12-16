@@ -3,14 +3,26 @@
 require_once __DIR__ . '/../bootstrap.php';
 
 $level = $_SESSION["level"] ?? null;
-if(!isset($_SESSION["level"]) || $level > 8) {
-    sleep(2);
-    header("Location:" . getBaseUrl() . "/login/logout.php");
+// if(!isset($_SESSION["level"]) || $level > 8) {
+//     sleep(2);
+//     header("Location:" . getBaseUrl() . "/login/logout.php");
+//     exit;
+// } 
+
+$workername = '';
+if (!empty($_REQUEST["workername"])) {
+    $workername = $_REQUEST["workername"];
+} else if (!empty($_REQUEST["worker"])) {
+    $workername = $_REQUEST["worker"];
+}
+
+// 두 값이 모두 없는 경우 로그인 페이지로 이동
+if (empty($workername)) {
+    header("Location: " . getBaseUrl() . "/login/logout.php");
     exit;
-} 
-   
-$workername = $_REQUEST["workername"] ?? '';
-$worker = $_REQUEST["worker"] ?? '';
+}
+
+
 
  ?>
  

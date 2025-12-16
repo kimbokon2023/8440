@@ -6,11 +6,11 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 require_once __DIR__ . '/common/functions.php';
 
-// Ensure all date/time functions use Korea Standard Time
-date_default_timezone_set('Asia/Seoul');
-
 // Session and globals
 require_once includePath('session.php');
+
+// Ensure all date/time functions use Korea Standard Time
+date_default_timezone_set('Asia/Seoul');
 
 // Database (make $pdo available to included scripts)
 require_once includePath('lib/mydb.php');
