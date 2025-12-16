@@ -763,55 +763,28 @@ try{
 
 		// 2. 지출 처리
 		// 2. 지출 처리
-		// 규칙:
-		// 1) 강제 지출 금액이 숫자(금액)로 설정된 경우 -> 해당 금액으로 1개 행 통합 표시 (사용자가 금액을 지정했으므로 그 금액이 정확히 표시되어야 함)
-		// 2) '매장'으로 설정된 경우 -> 개별 수주 내역 표시하되 금액은 0원 (내역은 보고 싶으나 비용처리 안 함)
-		// 3) 강제 지출이 없는 경우 -> 개별 수주 내역 표시
-		
-		// 강제 지출이 있고, 그 값이 '매장'이 아닌 경우 (즉, 금액 수정)
-		if ($force_outcome_val !== null && $force_outcome_raw_value !== '매장') {
-			// 강제 지출 금액으로 1개 행 생성 (통합)
-			$expense = $force_outcome_val;
-			$running_balance -= $expense;
-			
-			$site_names_str = '';
-			$recipients_str = '';
-			$order_nums_str = '';
-			if (isset($daily_orders[$date])) {
-				foreach ($daily_orders[$date] as $order) {
-					$site_names_str .= $order['site_name'] . '; ';
-					$recipients_str .= $order['recipient'] . '; ';
-					$order_nums_str .= $order['order_num'] . ',';
-				}
-			}
-			$site_names_str = trim($site_names_str, '; ');
-			$recipients_str = trim($recipients_str, '; ');
-			$order_nums_str = trim($order_nums_str, ',');
-
-			$balance_data[] = [
-				'date' => $date,
-				'income' => 0,
-				'expense' => $expense,
-				'balance' => $running_balance,
-				'site_names' => $site_names_str,
-				'recipients' => $recipients_str,
-				'order_nums' => $order_nums_str,
-				'deposit_nums' => [], 
-				'force_outcome' => $force_outcome_val,
-				'force_outcome_raw' => $force_outcome_raw_value,
-				'first_deposit_num' => $first_deposit_num,
-				'type' => 'expense_forced'
-			];
-		}
-		// 그 외 (강제지출 없음 OR '매장') -> 수주 데이터가 있으면 개별 표시
-		elseif (isset($daily_orders[$date]) && count($daily_orders[$date]) > 0) {
+		// 수주 데이터가 있으면 수주 내역을 개별적으로 표시 (강제 지출이 있어도 수주 내역 우선 표시)
+		// 규칙: 
+		// 1) 강제 지출 금액(숫자)이 있으면 -> 첫 번째 수주 내역에만 그 금액을 적용하고, 나머지 수주 내역은 0으로 처리 (합계 금액 맞춤 + 개별 내역 표시)
+		// 2) '매장'이면 -> 모든 수주 내역 0으로 처리
+		// 3) 없으면 -> 원래 지출 금액 표시
+		if (isset($daily_orders[$date]) && count($daily_orders[$date]) > 0) {
 			// 수주 내역 loop
-			foreach ($daily_orders[$date] as $order) {
+			foreach ($daily_orders[$date] as $index => $order) {
 				$expense = $order['expense'];
 				
-				// '매장'으로 설정된 경우 지출액을 0으로 처리
 				if ($force_outcome_raw_value === '매장') {
+					// '매장'으로 설정된 경우 지출액을 0으로 처리
 					$expense = 0;
+				} elseif ($force_outcome_val !== null) {
+					// 강제 지출 금액(숫자)이 있는 경우
+					if ($index === 0) {
+						// 첫 번째 행에만 강제 지출 금액 적용
+						$expense = $force_outcome_val;
+					} else {
+						// 나머지 행은 0으로 처리 (중복 계산 방지)
+						$expense = 0;
+					}
 				}
 				
 				$running_balance -= $expense;
