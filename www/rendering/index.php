@@ -66,7 +66,7 @@ if (file_exists($apiKeyPath)) {
         <div class="max-w-[1600px] mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center gap-6">
                 <!-- Logo -->
-                <a href="<?= $root_dir ?>/index.php" class="flex items-center gap-2 group">                    
+                <a href="<?= $root_dir ?>/index2.php" class="flex items-center gap-2 group">                    
                     <div class="h-6 w-px bg-slate-700 mx-2"></div>
                     <h1 class="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">
                         ElevatorViz <span class="text-slate-500 font-normal text-sm ml-1">Pro</span>
@@ -76,7 +76,7 @@ if (file_exists($apiKeyPath)) {
                 <nav class="hidden xl:flex items-center gap-1">
                     
                     <!-- Home -->
-                    <a href="<?= $root_dir ?>/index.php?home=1" class="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors">
+                    <a href="<?= $root_dir ?>/index2.php?home=1" class="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L8 2.207l6.646 6.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.707 1.5Z"/><path d="m8 3.293 4.712 4.712A4.5 4.5 0 0 0 8.758 15H3.5A1.5 1.5 0 0 1 2 13.5V9.293l6-6Z"/></svg>
                     </a>
                 </nav>

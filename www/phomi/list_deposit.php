@@ -575,25 +575,26 @@ try{
 	
 	// 지출 데이터 조회 (phomi_order 테이블에서 출고일이 있는 것들)
 	// phomi_unitprice 테이블과 조인하여 공급가 단가를 가져옴
+	// 같은 날짜를 그룹핑하지 않고 수주 데이터 각각 보관
 	$expense_sql = "SELECT o.delivery_date, o.items, o.other_costs, 
-	                       GROUP_CONCAT(DISTINCT o.site_name SEPARATOR '; ') as site_names,
-	                       GROUP_CONCAT(DISTINCT o.recipient SEPARATOR '; ') as recipients,
-	                       GROUP_CONCAT(DISTINCT o.num SEPARATOR ',') as order_nums
+	                       o.site_name, o.recipient, o.num as order_num
 	                FROM {$DB}.phomi_order o
 	                WHERE o.delivery_date IS NOT NULL 
 	                AND o.delivery_date != '0000-00-00' 
 	                AND o.delivery_date BETWEEN '$fromdate' AND '$Transtodate'
 	                AND (o.is_deleted IS NULL OR o.is_deleted = 'N')
-	                GROUP BY o.delivery_date 
-	                ORDER BY o.delivery_date DESC";
+	                ORDER BY o.delivery_date DESC, o.num DESC";
 	
 	$expense_stmh = $pdo->query($expense_sql);
-	$expenses = [];
-	$site_names = [];
-	$recipients = [];
-	$order_nums = [];
+	$daily_orders = []; // 날짜별 수주 목록 [date] => [order1, order2...]
+
 	while ($expense_row = $expense_stmh->fetch(PDO::FETCH_ASSOC)) {
-	    $total_expense = 0;
+	    $date = $expense_row['delivery_date'];
+	    if (!isset($daily_orders[$date])) {
+	        $daily_orders[$date] = [];
+	    }
+	    
+	    $order_expense = 0;
 	    
 	    // items에서 공급가액과 세액 계산 (phomi_unitprice 테이블의 공급가 단가 사용)
 	    if (!empty($expense_row['items'])) {
@@ -615,27 +616,21 @@ try{
 	                        // 공급가 단가로 계산
 	                        $supply_amount = $area * $unit_price_row['price_per_m2'];
 	                        $tax_amount = $supply_amount * 0.1; // 10% 부가세
-	                        $total_expense += $supply_amount + $tax_amount;
-							// echo '<br> 품목코드 : ' . $product_code . ' 총판공급가 : ' . $unit_price_row['price_per_m2'] . ' 면적: ' . $area . ' 공급가: ' . $supply_amount . ' 세액: ' . $tax_amount . ' 총계: ' . $total_expense . '<br>';
+	                        $order_expense += $supply_amount + $tax_amount;
 	                    } else {
 	                        // 공급가 단가가 없으면 기존 단가 사용 (fallback)
 	                        if (isset($item['unit_price'])) {
 	                            $unit_price = floatval(str_replace(',', '', $item['unit_price']));
 	                            $supply_amount = $area * $unit_price;
 	                            $tax_amount = $supply_amount * 0.1; // 10% 부가세
-	                            $total_expense += $supply_amount + $tax_amount;								
+	                            $order_expense += $supply_amount + $tax_amount;								
 	                        }
 	                    }
 	                }
 	            }
 	        }
-			// echo '<br>';
-			// echo print_r($expense_row, true);
-			// echo '<br>';
 	    }
-
-
-	    
+		    
 	    // other_costs는 기존대로 계산 (공급가 단가가 별도로 저장되어 있지 않음)
 	    if (!empty($expense_row['other_costs'])) {
 	        $other_costs = json_decode($expense_row['other_costs'], true);
@@ -652,88 +647,173 @@ try{
 	                    
 	                    $supply_amount = $quantity * $unit_price;
 	                    $tax_amount = $supply_amount * 0.1; // 10% 부가세
-	                    $total_expense += $supply_amount + $tax_amount;
+	                    $order_expense += $supply_amount + $tax_amount;
 	                }
 	            }
 	        }
 	    }
 	    
-	    $expenses[$expense_row['delivery_date']] = $total_expense;
-	    $site_names[$expense_row['delivery_date']] = $expense_row['site_names'];
-	    $recipients[$expense_row['delivery_date']] = $expense_row['recipients'];
-	    $order_nums[$expense_row['delivery_date']] = $expense_row['order_nums'];
+	    // 개별 수주 정보 저장
+		$daily_orders[$date][] = [
+			'expense' => $order_expense,
+			'site_name' => $expense_row['site_name'],
+			'recipient' => $expense_row['recipient'],
+			'order_num' => $expense_row['order_num']
+		];
 	}
 	
 	// 입금 데이터 조회
-	$deposits = [];
-	$deposit_nums = []; // 입금 번호 저장용 배열
+	$daily_deposits = [];
+	$first_deposit_nums = []; // 날짜별 첫 번째 입금 번호 (강제 지출 저장용)
+	
 	while ($deposit_row = $stmh->fetch(PDO::FETCH_ASSOC)) {
 	    $date = $deposit_row['deposit_date'];
-	    if (!isset($deposits[$date])) {
-	        $deposits[$date] = 0;
-	        $deposit_nums[$date] = [];
+	    if (!isset($daily_deposits[$date])) {
+	        $daily_deposits[$date] = [];
+	        $first_deposit_nums[$date] = $deposit_row['num']; // 첫 번째 발견된 번호 저장 (쿼리가 num desc이므로 가장 큰 번호일 수 있음. 필요시 정렬 고려, 원본은 순서대로 였음)
 	    }
-	    $deposits[$date] += $deposit_row['deposit_amount'];
-	    $deposit_nums[$date][] = $deposit_row['num']; // 각 날짜별 입금 번호 저장
+	    // 원본 쿼리가 order by num desc이므로, 가장 최신 번호가 먼저 옴.
+	    // 저장용 num은 아무거나 상관없을 수 있으나 기존 로직 유지.
+	    
+	    $daily_deposits[$date][] = [
+	        'amount' => $deposit_row['deposit_amount'],
+	        'num' => $deposit_row['num'],
+	        'note' => $deposit_row['note'] ?? '' // note가 없을 수도 있으니 체크
+	    ];
 	}
 	
 	// 강제 지출 금액 조회 (force_outcome) - phomi_deposit 테이블에서 날짜별로 조회
-	$force_outcomes = [];
-	$force_outcome_nums = []; // 날짜별 첫 번째 입금 레코드의 num 저장
+	$force_outcomes = []; // 계산용 (숫자로 변환된 값)
+	$force_outcome_raw = []; // 원본 텍스트 저장용 (모달 표시용)
+	$force_outcome_nums = []; // 날짜별 첫 번째 입금 레코드의 num 저장 (DB에서 조회한 것)
 	$force_outcome_sql = "SELECT deposit_date, force_outcome, MIN(num) as first_num 
 	                      FROM {$DB}.phomi_deposit 
 	                      WHERE deposit_date BETWEEN '$fromdate' AND '$Transtodate'
 	                      AND (is_deleted IS NULL OR is_deleted = 'N')
-	                      GROUP BY deposit_date, force_outcome
-	                      HAVING force_outcome IS NOT NULL AND force_outcome > 0";
+	                      AND force_outcome IS NOT NULL 
+	                      AND force_outcome != ''
+	                      GROUP BY deposit_date, force_outcome";
 	$force_outcome_stmh = $pdo->query($force_outcome_sql);
 	while ($force_row = $force_outcome_stmh->fetch(PDO::FETCH_ASSOC)) {
-	    $force_outcomes[$force_row['deposit_date']] = floatval($force_row['force_outcome']);
-	    $force_outcome_nums[$force_row['deposit_date']] = $force_row['first_num'];
+	    $force_value = trim($force_row['force_outcome']);
+	    $date = $force_row['deposit_date'];
+	    
+	    // 원본 텍스트 저장 (모달 표시용)
+	    $force_outcome_raw[$date] = $force_value;
+	    
+	    // '매장' 텍스트는 0으로 처리, 숫자는 그대로 사용 (계산용)
+	    if ($force_value === '매장') {
+	        $force_outcomes[$date] = 0;
+	    } else {
+	        $force_outcomes[$date] = floatval($force_value);
+	    }
+	    $force_outcome_nums[$date] = $force_row['first_num'];
 	}
 	
 	// 모든 날짜를 합쳐서 정렬
-	$all_dates = array_unique(array_merge(array_keys($deposits), array_keys($expenses)));
+	$all_dates = array_unique(array_merge(array_keys($daily_deposits), array_keys($daily_orders)));
 	rsort($all_dates); // 최신 날짜부터 정렬
 	
 	// 누적 잔액 계산 - 시작 잔액을 0으로 설정
 	$running_balance = 0;
 	$balance_data = [];
 	
-	// 날짜순으로 정렬 (과거부터 현재까지)
+	// 날짜순으로 정렬 (과거부터 현재까지) - 잔액 계산을 위해
 	sort($all_dates);
 	
 	foreach ($all_dates as $date) {
-	    $income = $deposits[$date] ?? 0;
-	    $expense = $expenses[$date] ?? 0;
-	    
-	    // 강제 지출 금액이 있으면 그것을 사용, 없으면 계산된 지출액 사용
-	    $force_outcome = $force_outcomes[$date] ?? null;
-	    if ($force_outcome !== null && $force_outcome > 0) {
-	        $expense = $force_outcome;
-	    }
-	    
-	    // 입금액에서 지출액을 뺀 금액을 누적 잔액에 반영
-	    $running_balance += $income - $expense;
-	    
-	    // 해당 날짜의 첫 번째 입금 레코드의 num 찾기 (force_outcome 저장용)
-	    $first_deposit_num = !empty($deposit_nums[$date]) ? $deposit_nums[$date][0] : null;
-	    if ($first_deposit_num === null && isset($force_outcome_nums[$date])) {
+		// 해당 날짜의 입금 리스트
+		$deposits_for_day = $daily_deposits[$date] ?? [];
+		
+		// 해당 날짜의 첫 번째 입금 레코드의 num 찾기 (force_outcome 저장용)
+	    $first_deposit_num = $first_deposit_nums[$date] ?? null;
+		
+		// force_outcome 정보
+		$force_outcome_val = $force_outcomes[$date] ?? null;
+		$force_outcome_raw_value = $force_outcome_raw[$date] ?? null;
+		
+		// DB에서 조회한 first_num이 있으면 그것을 우선 사용 (기존 로직 유지)
+		if (isset($force_outcome_nums[$date])) {
 	        $first_deposit_num = $force_outcome_nums[$date];
 	    }
-	    
-	    $balance_data[] = [
-	        'date' => $date,
-	        'income' => $income,
-	        'expense' => $expense,
-	        'balance' => $running_balance,
-	        'site_names' => $site_names[$date] ?? '',
-	        'recipients' => $recipients[$date] ?? '',
-	        'order_nums' => $order_nums[$date] ?? '',
-	        'deposit_nums' => $deposit_nums[$date] ?? [],
-	        'force_outcome' => $force_outcome,
-	        'first_deposit_num' => $first_deposit_num
-	    ];
+
+		// 1. 입금 처리 - 개별 입금 내역 표시
+		foreach ($deposits_for_day as $deposit) {
+			$income = $deposit['amount'];
+			if ($income > 0) { // 금액이 0인 입금 내역도 표시해야 하나? 보통 0원은 없을 것.
+				$running_balance += $income;
+				
+				$balance_data[] = [
+					'date' => $date,
+					'income' => $income,
+					'expense' => 0,
+					'balance' => $running_balance,
+					'site_names' => '',
+					'recipients' => '',
+					'order_nums' => '',
+					'deposit_nums' => [$deposit['num']], // 개별 번호 배열로 전달
+					'force_outcome' => $force_outcome_val,
+					'force_outcome_raw' => $force_outcome_raw_value,
+					'first_deposit_num' => $first_deposit_num,
+					'type' => 'income',
+					'note' => $deposit['note'] // 입금 비고 표시 가능성 대비 -> 나중에 view에서 활용 가능
+				];
+			}
+		}
+
+		// 2. 지출 처리
+		// 2. 지출 처리
+		// 수주 데이터가 있으면 수주 내역을 개별적으로 표시 (강제 지출이 있어도 수주 내역 우선 표시 - 요청사항 반영)
+		// 수주 데이터가 없고 강제 지출만 있는 경우에만 강제 지출 표시
+		if (isset($daily_orders[$date]) && count($daily_orders[$date]) > 0) {
+			// 수주 내역 loop
+			foreach ($daily_orders[$date] as $order) {
+				$expense = $order['expense'];
+				
+				// '매장'으로 설정된 경우 지출액을 0으로 처리 (요청사항)
+				if ($force_outcome_raw_value === '매장') {
+					$expense = 0;
+				}
+				
+				$running_balance -= $expense;
+
+				$balance_data[] = [
+					'date' => $date,
+					'income' => 0,
+					'expense' => $expense,
+					'balance' => $running_balance,
+					'site_names' => $order['site_name'],
+					'recipients' => $order['recipient'],
+					'order_nums' => $order['order_num'],
+					'deposit_nums' => [],
+					'force_outcome' => null, // 개별 수주 표시 시 강제 지출 값은 연결하지 않음 (혼동 방지)
+					'force_outcome_raw' => $force_outcome_raw_value,
+					'first_deposit_num' => $first_deposit_num,
+					'type' => 'expense'
+				];
+			}
+		} 
+		// 수주 데이터는 없는데 강제 지출 설정이 있는 경우
+		elseif ($force_outcome_val !== null) {
+			// 강제 지출 금액으로 1개 행 생성
+			$expense = $force_outcome_val;
+			$running_balance -= $expense;
+
+			$balance_data[] = [
+				'date' => $date,
+				'income' => 0,
+				'expense' => $expense,
+				'balance' => $running_balance,
+				'site_names' => '',
+				'recipients' => '',
+				'order_nums' => '',
+				'deposit_nums' => [], 
+				'force_outcome' => $force_outcome_val,
+				'force_outcome_raw' => $force_outcome_raw_value,
+				'first_deposit_num' => $first_deposit_num,
+				'type' => 'expense_forced'
+			];
+		}
 	}
 	
 	// 최종 결과를 최신 날짜부터 표시하기 위해 역순으로 정렬
@@ -887,7 +967,7 @@ th {
 					<td class="text-start" data-label="입금/지출 구분"> <?= $note ?> </td>
 					<td class="text-center edit-expense-cell" data-label="지출 수정">
 						<button type="button" class="btn btn-sm btn-warning"
-						        onclick="return openExpenseModal('<?= $date ?>','<?= $expense ?>','<?= $data['force_outcome'] ?? '' ?>','<?= $data['first_deposit_num'] ?? '' ?>');">
+						        onclick="return openExpenseModal('<?= $date ?>','<?= $expense ?>','<?= htmlspecialchars($data['force_outcome_raw'] ?? ($data['force_outcome'] ?? ''), ENT_QUOTES) ?>','<?= $data['first_deposit_num'] ?? '' ?>');">
 							<i class="bi bi-pencil"></i> 수정
 						</button>
 					</td>          
@@ -911,31 +991,36 @@ th {
 
 <!-- 지출 수정 모달 -->
 <div class="modal fade" id="editExpenseModal" tabindex="-1" aria-labelledby="editExpenseModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="font-size: 1.3rem;">
             <div class="modal-header">
-                <h5 class="modal-title" id="editExpenseModalLabel">지출 금액 수정</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title" id="editExpenseModalLabel" style="font-size: 1.625rem; font-weight: 600;">지출 금액 수정</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="transform: scale(1.3);"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="font-size: 1.3rem;">
                 <form id="editExpenseForm">
                     <input type="hidden" id="expense_date" name="expense_date">
                     <input type="hidden" id="expense_num" name="expense_num">
-                    <div class="mb-3">
-                        <label for="force_outcome" class="form-label">강제 지출 금액 (VAT 포함)</label>
-                        <input type="number" class="form-control" id="force_outcome" name="force_outcome" 
-                               placeholder="지출 금액을 입력하세요" step="0.01" min="0" required>
-                        <small class="form-text text-muted">이 금액이 해당 날짜의 지출액으로 사용됩니다.</small>
+                    <div class="mb-4">
+                        <label for="force_outcome" class="form-label" style="font-size: 1.3rem; font-weight: 500; margin-bottom: 0.75rem;">강제 지출 금액 (VAT 포함)</label>
+                        <input type="text" class="form-control" id="force_outcome" name="force_outcome" 
+                               placeholder="지출 금액을 입력하세요 (예: 1000000 또는 '매장')" 
+                               style="font-size: 1.3rem; padding: 0.65rem 0.9rem; height: auto;" required>
+                        <small class="form-text text-muted" style="font-size: 1.1rem; display: block; margin-top: 0.5rem;">
+                            이 금액이 해당 날짜의 지출액으로 사용됩니다.<br>
+                            <span class="text-info"><strong>※ '매장'을 입력하면 0으로 처리되어 원래 계산된 지출액이 표시됩니다.</strong></span>
+                        </small>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">현재 계산된 지출액</label>
-                        <input type="text" class="form-control" id="current_expense" readonly>
+                    <div class="mb-4">
+                        <label class="form-label" style="font-size: 1.3rem; font-weight: 500; margin-bottom: 0.75rem;">현재 계산된 지출액</label>
+                        <input type="text" class="form-control" id="current_expense" readonly 
+                               style="font-size: 1.3rem; padding: 0.65rem 0.9rem; height: auto;">
                     </div>
                 </form>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
-                <button type="button" class="btn btn-primary" id="saveExpenseBtn">저장</button>
+            <div class="modal-footer" style="font-size: 1.3rem;">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="font-size: 1.3rem; padding: 0.65rem 1.3rem;">취소</button>
+                <button type="button" class="btn btn-primary" id="saveExpenseBtn" style="font-size: 1.3rem; padding: 0.65rem 1.3rem;">저장</button>
             </div>
         </div>
     </div>
@@ -958,18 +1043,19 @@ th {
                         - ‘지출 수정’ 버튼을 눌러 금액을 입력하면, 해당 날짜의 지출액을 강제로 덮어씁니다.<br>
                         - 입력한 금액이 화면의 지출액보다 우선하여 사용됩니다.
                     </p>
-                    <h6 class="fw-bold text-success mb-2"><i class="bi bi-arrow-counterclockwise"></i> 복원(0 입력)</h6>
+                    <h6 class="fw-bold text-success mb-2"><i class="bi bi-arrow-counterclockwise"></i> 복원(0 또는 '매장' 입력)</h6>
                     <p class="text-muted mb-3">
-                        - 강제 지출 금액에 <strong>0</strong>을 입력 후 저장하면 강제값이 제거되고, 원래 계산된 지출액으로 복원됩니다.
+                        - 강제 지출 금액에 <strong>0</strong> 또는 <strong>'매장'</strong>을 입력 후 저장하면 강제값이 제거되고, 원래 계산된 지출액으로 복원됩니다.<br>
+                        - <span class="text-info"><strong>'매장'을 입력하면 자동으로 0으로 처리됩니다.</strong></span>
                     </p>
                     <h6 class="fw-bold text-dark mb-2"><i class="bi bi-lightning-charge"></i> 저장 동작</h6>
                     <p class="text-muted mb-3">
                         - 금액 &gt; 0: 해당 날짜의 첫 입금 레코드에 강제 지출 금액을 저장합니다.<br>
-                        - 금액 = 0: 강제 지출 금액 컬럼을 NULL로 설정하여 강제값을 제거합니다.
+                        - 금액 = 0 또는 '매장': 강제 지출 금액 컬럼을 NULL로 설정하여 강제값을 제거합니다.
                     </p>
                     <h6 class="fw-bold text-secondary mb-2"><i class="bi bi-shield-check"></i> 주의사항</h6>
                     <p class="text-muted mb-1">
-                        - 숫자만 입력하세요. (음수 불가)<br>
+                        - 숫자 또는 '매장'을 입력할 수 있습니다. (음수 불가)<br>
                         - 저장 후 페이지가 새로고침되며 적용 결과가 반영됩니다.
                     </p>
                 </div>
@@ -1234,15 +1320,24 @@ $(document).ready(function(){
 	$('#saveExpenseBtn').click(function(){
 		const date = $('#expense_date').val();
 		let num = $('#expense_num').val();
-		const forceOutcome = $('#force_outcome').val();
+		let forceOutcome = $('#force_outcome').val().trim();
 		
 		if (!date) {
 			alert('날짜 정보가 없습니다.');
 			return;
 		}
 		
-		if (forceOutcome === '' || isNaN(parseFloat(forceOutcome)) || parseFloat(forceOutcome) < 0) {
-			alert('올바른 지출 금액을 입력하세요. (0 입력 시 강제 지출 금액이 제거되어 기존 계산값으로 복원됩니다.)');
+		// 빈 문자열이나 0은 허용 (기존 로직 유지 - 복원 기능)
+		// '매장' 텍스트도 허용 (서버에서 처리)
+		// 숫자가 아닌 경우 체크 (단, 빈 문자열, 0, '매장'은 제외)
+		if (forceOutcome !== '' && forceOutcome !== '0' && forceOutcome !== '매장' && isNaN(parseFloat(forceOutcome))) {
+			alert('올바른 지출 금액을 입력하세요.\n(숫자, 0, 빈 값, 또는 "매장"을 입력할 수 있습니다.)');
+			return;
+		}
+		
+		// 음수는 허용하지 않음 (단, '매장'은 제외)
+		if (forceOutcome !== '' && forceOutcome !== '0' && forceOutcome !== '매장' && parseFloat(forceOutcome) < 0) {
+			alert('음수는 입력할 수 없습니다.');
 			return;
 		}
 		

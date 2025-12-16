@@ -430,7 +430,7 @@ if (isset($_SESSION['level']) && $_SESSION['level'] == 20 && isset($_SESSION['us
 
 $common = " WHERE " . $SettingDate . " BETWEEN '$fromdate' AND '$Transtodate' " . $Andis_deleted . $author_limit . " ORDER BY ";
 
-$a = $common . " num DESC "; // 내림차순 전체
+$a = $common . " order_date DESC "; // 수주일자 내림차순
 
 $sql="select * from ".$DB.".phomi_order " . $a; 	
 

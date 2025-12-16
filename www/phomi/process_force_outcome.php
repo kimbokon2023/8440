@@ -15,7 +15,7 @@ try {
     $mode = $_POST['mode'] ?? '';
     $expense_date = $_POST['expense_date'] ?? '';
     $num = $_POST['num'] ?? '';
-    $force_outcome = $_POST['force_outcome'] ?? 0;
+    $force_outcome = trim($_POST['force_outcome'] ?? '');
     
     if (empty($expense_date)) {
         throw new Exception('날짜가 필요합니다.');
@@ -26,7 +26,12 @@ try {
         throw new Exception('올바른 날짜 형식이 아닙니다.');
     }
     
-    $force_outcome = floatval($force_outcome);
+    // 빈 문자열이나 0은 NULL로 처리 (복원 기능)
+    if ($force_outcome === '' || $force_outcome === '0') {
+        $force_outcome = null;
+    }
+    // '매장'은 그대로 저장 (텍스트로 저장)
+    // 숫자는 그대로 저장
     
     switch($mode) {
         case 'save':
@@ -58,8 +63,8 @@ try {
                 }
             }
             
-            // force_outcome이 0 이하이면 삭제(복원)로 처리
-            if ($force_outcome <= 0) {
+            // force_outcome이 NULL이면 삭제(복원)로 처리
+            if ($force_outcome === null) {
                 $sql = "UPDATE {$DB}.phomi_deposit 
                         SET force_outcome = NULL, updatedAt = NOW() 
                         WHERE num = :num 
@@ -75,7 +80,7 @@ try {
                     'num' => $num
                 ]);
             } else {
-                // 해당 레코드의 force_outcome 업데이트
+                // 해당 레코드의 force_outcome 업데이트 (숫자 또는 텍스트 모두 저장)
                 $sql = "UPDATE {$DB}.phomi_deposit 
                         SET force_outcome = :force_outcome, updatedAt = NOW() 
                         WHERE num = :num 
