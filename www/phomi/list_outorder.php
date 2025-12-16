@@ -140,7 +140,7 @@ $Whereis_deleted = " WHERE (is_deleted IS NULL or is_deleted='N') ";
 
 $common = " WHERE " . $SettingDate . " BETWEEN '$fromdate' AND '$Transtodate' " . $Andis_deleted . " ORDER BY ";
 
-$a = $common . " num DESC "; // 내림차순 전체
+$a = $common . " out_date DESC "; // 출고일자 내림차순
 
 $sql="select * from ".$DB.".phomi_outorder " . $a; 	
 
