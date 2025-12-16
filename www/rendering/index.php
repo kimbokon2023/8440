@@ -1147,14 +1147,16 @@ if (file_exists($apiKeyPath)) {
                 - **Panel #1**: (RIGHT DOOR RETURN). The vertical panel immediately to the RIGHT of the Door Frame.
                   - Visible next to the door. Apply 'Material B1' here.
                 - **Panel #2**: Meets Panel #1 at the corner. This is the **NARROWEST** panel.
-                - **Panel #3**: Next to Panel #2. This is the **WIDEST** panel on this side.
+                - **Panel #3**: Next to Panel #2. This is the **WIDEST** panel on this side. **SINGLE CONTINUOUS SHEET**.
+                  - **DO NOT SPLIT** Panel #3. It must remain one solid wide surface.
                 - **Panel #4**: Next to Panel #3. Width is approx 2x of Panel #2. Same width as Panel #8.
                 
                 [LEFT WALL SIDE] (Symmetric to Right):
                 - **Panel #11**: (LEFT DOOR RETURN). The vertical panel immediately to the LEFT of the Door Frame.
                   - Visible next to the door. Apply 'Material B11' here.
                 - **Panel #10**: Meets Panel #11 at the corner. **NARROWEST** panel. Same width as Panel #2.
-                - **Panel #9**: Next to Panel #10. **WIDEST** panel. Same width as Panel #3.
+                - **Panel #9**: Next to Panel #10. **WIDEST** panel. Same width as Panel #3. **SINGLE CONTINUOUS SHEET**.
+                  - **DO NOT SPLIT** Panel #9. It must remain one solid wide surface.
                 - **Panel #8**: Next to Panel #9. Same width as Panel #4.
                 ` : 
                 `[CENTER]: **Panel #6** (REAR WALL CENTER). This is the main central panel of the rear wall.
