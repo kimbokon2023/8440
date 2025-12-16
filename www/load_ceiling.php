@@ -162,11 +162,11 @@ else
 			$donelist = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   ';
 			
 		    // 도장 완료
-			  if ( (( $main_draw!='' and $mainpainting_date!='' and (int)$bon_su>0 )  or  $main_draw_arr== "X" ) and  ( ( $lc_draw!='' and $lcpainting_date!=''  and (int)$lc_su>0 )  or  $lc_draw_arr== "X" ) or  ( $etcpainting_date!='' and (int)$etc_su > 0 ) )
+			  if ( (( $main_draw!='' and $mainpainting_date!='' and (int)$bon_su>0 )  or  $main_draw_arr== "X" ) and  ( ( $lc_draw!='' and $lcpainting_date!=''  and (int)$lc_su>0 )  or  $lc_draw_arr== "X" ) and  ( ( $etcpainting_date!='' and (int)$etc_su > 0 ) or (int)$etc_su <= 0 ) )
 				    $paintcondition = 0; 
 											
 		    // 조립 완료
-			if ( (( $main_draw!='' and $mainassembly_date!='' and (int)$bon_su>0 )  or  $main_draw_arr== "X" ) and  ( ( $lc_draw!='' and $lcassembly_date!=''  and (int)$lc_su>0 )  or  $lc_draw_arr== "X" ) or  ( $etcassembly_date!='' and (int)$etc_su > 0 ) )
+			if ( (( $main_draw!='' and $mainassembly_date!='' and (int)$bon_su>0 )  or  $main_draw_arr== "X" ) and  ( ( $lc_draw!='' and $lcassembly_date!=''  and (int)$lc_su>0 )  or  $lc_draw_arr== "X" ) and  ( ( $etcassembly_date!='' and (int)$etc_su > 0 ) or (int)$etc_su <= 0 ) )
 				    $donecondition = 0; 
 				
 			// 도장완료
@@ -236,7 +236,7 @@ function dis_text2()
 setTimeout(function() {
 	 // console.log('Works!');
 	 dis_text2();
-}, 1000);
+}, 500);
 
 $(document).ready(function(){
 	
