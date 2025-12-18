@@ -215,531 +215,596 @@ include getDocumentRoot() . '/load_header.php';
 <title>미래기업 회원관리</title>
 
 <style>
-    .table-hover tbody tr:hover {
-        cursor: pointer;
+    :root {
+        --primary-color: #2563eb;
+        --secondary-color: #64748b;
+        --success-color: #22c55e;
+        --bg-color: #f8fafc;
+        --card-bg: #ffffff;
+        --table-header-bg: #f1f5f9;
+        --border-color: #e2e8f0;
+        --text-main: #1e293b;
+        --text-muted: #64748b;
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     }
-    .sortable-header {
-        cursor: pointer;
-        user-select: none;
+
+    body {
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        font-family: 'Noto Sans KR', 'Roboto', sans-serif;
+    }
+
+    .main-card {
+        background: var(--card-bg);
+        border-radius: 1rem;
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .page-header {
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: linear-gradient(to right, #ffffff, #f8fafc);
+    }
+
+    .page-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text-main);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .page-title i {
+        color: var(--primary-color);
+    }
+
+    /* Action Bar Styles */
+    .action-bar {
+        padding: 1.25rem 2rem;
+        background: #ffffff;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .stats-badge {
+        background: #eff6ff;
+        color: var(--primary-color);
+        padding: 0.5rem 1rem;
+        border-radius: 9999px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        border: 1px solid #dbeafe;
+    }
+
+    .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-left: auto;
+    }
+
+    /* Modern Search Input */
+    .search-container {
         position: relative;
+        min-width: 300px;
     }
-    .sortable-header:hover {
-        background-color: #dee2e6;
+
+    .search-input {
+        width: 100%;
+        padding: 0.625rem 2.5rem 0.625rem 1rem;
+        font-size: 0.875rem;
+        border: 1px solid var(--border-color);
+        border-radius: 0.75rem;
+        transition: all 0.2s;
+        background-color: #f1f5f9;
+        border: 1px solid transparent;
     }
+
+    .search-input:focus {
+        background-color: #ffffff;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        outline: none;
+    }
+
+    .search-icon {
+        position: absolute;
+        right: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        pointer-events: none;
+    }
+
+    .search-clear {
+        position: absolute;
+        right: 2.25rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 0.25rem;
+        display: none;
+    }
+
+    .search-clear:hover {
+        color: var(--text-main);
+    }
+
+    /* Premium Button Styles */
+    .btn-premium {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 0.75rem;
+        transition: all 0.2s;
+        cursor: pointer;
+        border: 1px solid transparent;
+    }
+
+    .btn-premium-primary {
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+    .btn-premium-primary:hover {
+        background-color: #1d4ed8;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-premium-secondary {
+        background-color: #ffffff;
+        color: var(--text-main);
+        border-color: var(--border-color);
+    }
+
+    .btn-premium-secondary:hover {
+        background-color: #f8fafc;
+        border-color: var(--secondary-color);
+    }
+
+    /* Table Styles */
+    .table-container {
+        padding: 0;
+        overflow-x: auto;
+    }
+
+    .custom-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .custom-table th {
+        background-color: var(--table-header-bg);
+        color: var(--text-muted);
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 1rem;
+        border-bottom: 2px solid var(--border-color);
+        white-space: nowrap;
+    }
+
+    .custom-table td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid var(--border-color);
+        color: var(--text-main);
+        font-size: 0.875rem;
+    }
+
+    .custom-table tbody tr {
+        transition: all 0.2s;
+    }
+
+    .custom-table tbody tr:hover {
+        background-color: #f8fafc;
+        cursor: pointer;
+    }
+
+    .custom-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Sort Icons */
+    .sort-link {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: inherit;
+        text-decoration: none;
+    }
+
     .sort-icon {
-        margin-left: 5px;
-        opacity: 0.5;
+        font-size: 0.7rem;
+        opacity: 0.3;
+        transition: opacity 0.2s;
     }
+
     .sort-icon.active {
         opacity: 1;
-        color: #0d6efd;
+        color: var(--primary-color);
     }
 
-/* PC/모바일 공통 검색창 스타일 */
-.inputWrap {
-	flex: 0 1 auto !important;
-	min-width: 200px !important;
-	max-width: 400px !important;
-	position: relative !important;
-	display: flex !important;
-	align-items: center !important;
-}
+    /* Level & Status Badges */
+    .badge-level {
+        padding: 0.25rem 0.625rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
 
-.inputWrap input {
-	width: 100% !important;
-	max-width: 100% !important;
-	padding: 0.5rem 68px 0.5rem 0.75rem !important;
-	font-size: 0.9rem !important;
-	border: 2px solid #28a745 !important;
-	border-radius: 0.5rem !important;
-	background-color: #fff !important;
-	margin: 0 !important;
-	box-sizing: border-box !important;
-}
+    .level-admin { background: #fee2e2; color: #ef4444; }
+    .level-manager { background: #fef3c7; color: #d97706; }
+    .level-user { background: #f1f5f9; color: #475569; }
 
-.btnClear {
-	position: absolute !important;
-	right: 44px !important;
-	top: 50% !important;
-	transform: translateY(-50%) !important;
-	width: 24px !important;
-	height: 24px !important;
-	background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/></svg>') no-repeat center !important;
-	background-size: 16px 16px !important;
-	border: none !important;
-	cursor: pointer !important;
-	z-index: 10 !important;
-	opacity: 0.6 !important;
-	transition: opacity 0.2s ease !important;
-}
+    /* Pagination Styles */
+    .pagination-container {
+        padding: 2rem;
+        display: flex;
+        justify-content: center;
+        background: #ffffff;
+    }
 
-.btnClear:hover {
-	opacity: 1 !important;
-}
+    .pagination-list {
+        display: flex;
+        gap: 0.5rem;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
 
-.btn-search-icon {
-	position: absolute !important;
-	right: 8px !important;
-	top: 50% !important;
-	transform: translateY(-50%) !important;
-	width: 36px !important;
-	height: 36px !important;
-	min-width: 36px !important;
-	padding: 0 !important;
-	border: none !important;
-	background: transparent !important;
-	display: none !important;
-	align-items: center !important;
-	justify-content: center !important;
-	z-index: 11 !important;
-	cursor: pointer !important;
-	border-radius: 0.25rem !important;
-	transition: background-color 0.2s ease !important;
-}
+    .page-btn {
+        width: 2.5rem;
+        height: 2.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.75rem;
+        border: 1px solid var(--border-color);
+        background: white;
+        color: var(--text-main);
+        font-weight: 600;
+        transition: all 0.2s;
+        cursor: pointer;
+        text-decoration: none;
+    }
 
-.btn-search-icon i {
-	font-size: 1.2rem !important;
-	color: #28a745 !important;
-}
+    .page-btn:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        background: #eff6ff;
+    }
 
-.btn-search-icon:hover {
-	background-color: rgba(40, 167, 69, 0.1) !important;
-}
+    .page-btn.active {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
 
-/* PC 화면 - 검색창 최대 너비 제한 */
-@media (min-width: 769px) {
-	.inputWrap {
-		max-width: 200px !important;
-	}
-	
-	.pc-only-btn {
-		display: inline-block !important;
-	}
-}
+    .page-btn-nav {
+        width: auto;
+        padding: 0 1rem;
+    }
 
-/* 모바일 최적화 */
-@media (max-width: 768px) {
-	/* body와 html의 width 제한 */
-	html, body {
-		max-width: 100vw !important;
-		overflow-x: hidden !important;
-		font-size: 16px !important;
-	}
+    /* Password Input in Table */
+    .table-input-pw {
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        font-family: monospace;
+        letter-spacing: 0.1em;
+        width: 80px;
+        text-align: center;
+    }
 
-	/* 컨테이너 모바일 최적화 */
-	.container,
-	.container-fluid {
-		max-width: 100vw !important;
-		padding: 10px !important;
-		overflow-x: hidden !important;
-		box-sizing: border-box !important;
-	}
-	
-	/* 행 레이아웃 모바일 최적화 */
-	.row {
-		margin: 0 !important;
-		padding: 0 !important;
-		max-width: 100vw !important;
-		overflow-x: hidden !important;
-	}
+    /* Mobile Responsive Optimizations */
+    @media (max-width: 1024px) {
+        .action-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .filter-group {
+            margin-left: 0;
+            flex-wrap: wrap;
+        }
+        .search-container {
+            width: 100%;
+        }
+    }
 
-	/* 카드 모바일 최적화 */
-	.card {
-		margin: 0.5rem auto !important;
-		width: 100% !important;
-		max-width: 100% !important;
-		overflow-x: hidden !important;
-		box-sizing: border-box !important;
-		border-radius: 12px !important;
-	}
+    @media (max-width: 768px) {
+        .container { padding: 0.5rem !important; }
+        .main-card { border-radius: 0; border-left: none; border-right: none; }
+        .page-header { padding: 1rem; }
+        
+        .custom-table thead { display: none; }
+        .custom-table tbody tr {
+            display: block;
+            padding: 1rem;
+            border-bottom: 8px solid var(--bg-color);
+            position: relative;
+        }
+        
+        .custom-table td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f1f5f9;
+            text-align: right;
+        }
 
-	.card-body {
-		padding: 0.75rem 0.5rem !important;
-		max-width: 100% !important;
-		box-sizing: border-box !important;
-		overflow-x: hidden !important;
-	}
+        .custom-table td::before {
+            content: attr(data-label);
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            text-align: left;
+        }
 
-	/* 제목 영역 */
-	.text-secondary.fs-5 {
-		font-size: 1.1rem !important;
-		white-space: nowrap !important;
-		word-wrap: break-word !important;
-		overflow-wrap: break-word !important;
-	}
-
-	/* 버튼 모바일 최적화 */
-	.btn-sm {
-		font-size: 0.85rem !important;
-		padding: 0.4rem 0.6rem !important;
-		white-space: nowrap !important;
-		max-width: 100% !important;
-		box-sizing: border-box !important;
-	}
-
-	/* PC 전용 버튼 숨기기 */
-	.pc-only-btn {
-		display: none !important;
-	}
-
-	/* 검색 영역 모바일 최적화 */
-	.input-group {
-		flex-direction: column !important;
-		align-items: stretch !important;
-		gap: 10px !important;
-		width: 100% !important;
-	}
-
-	/* 퇴사자 제외 체크박스 모바일 최적화 */
-	.form-check {
-		display: flex !important;
-		align-items: center !important;
-		gap: 0.5rem !important;
-		padding: 0.5rem !important;
-		white-space: nowrap !important;
-	}
-
-	.form-check-label {
-		font-size: 0.9rem !important;
-		margin: 0 !important;
-		cursor: pointer !important;
-	}
-
-	.form-check-input {
-		width: 1.2rem !important;
-		height: 1.2rem !important;
-		cursor: pointer !important;
-		flex-shrink: 0 !important;
-	}
-
-	.inputWrap {
-		flex: 1 1 auto !important;
-		min-width: 0 !important;
-		max-width: none !important;
-		width: 100% !important;
-	}
-	
-	.inputWrap input {
-		font-size: 1rem !important;
-	}
-
-	.btn-search-icon {
-		display: flex !important;
-	}
-
-	/* 검색 버튼 */
-	#searchBtn {
-		white-space: nowrap !important;
-	}
-
-	/* 테이블 모바일 최적화 - 카드 레이아웃 */
-	.table-responsive {
-		overflow-x: visible !important;
-	}
-
-	.table,
-	.table thead,
-	.table tbody,
-	.table tr,
-	.table td {
-		display: block !important;
-		width: 100% !important;
-	}
-
-	.table thead {
-		display: none !important;
-	}
-
-	.table tr {
-		margin: 0 auto 15px auto !important;
-		border: 1px solid #dee2e6 !important;
-		border-radius: 10px !important;
-		background: white !important;
-		box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
-		padding: 14px !important;
-		overflow: hidden !important;
-		box-sizing: border-box !important;
-		width: 100% !important;
-		max-width: 100% !important;
-	}
-
-	/* 카드 내 필드 스타일 */
-	.table td {
-		text-align: left !important;
-		padding: 12px !important;
-		border: none !important;
-		position: relative !important;
-		padding-left: 35% !important;
-		white-space: normal !important;
-		word-wrap: break-word !important;
-		overflow-wrap: break-word !important;
-		min-height: 40px !important;
-		font-size: 1rem !important;
-		line-height: 1.6 !important;
-		box-sizing: border-box !important;
-	}
-
-	/* 라벨 표시 */
-	.table td:before {
-		content: attr(data-label);
-		position: absolute !important;
-		left: 12px !important;
-		width: 30% !important;
-		padding-right: 8px !important;
-		white-space: nowrap !important;
-		overflow: hidden !important;
-		text-overflow: ellipsis !important;
-		font-weight: 600 !important;
-		color: #6b7280 !important;
-		font-size: 0.9rem !important;
-	}
-
-	.table td:after {
-		content: ':' !important;
-		position: absolute !important;
-		left: 32% !important;
-		font-weight: bold !important;
-		color: #9ca3af !important;
-	}
-
-	/* 모든 텍스트와 버튼이 카드 내부에 머물도록 */
-	.card *,
-	.container *,
-	.container-fluid *,
-	.row *,
-	.col-md-* {
-		box-sizing: border-box !important;
-		word-wrap: break-word !important;
-		overflow-wrap: break-word !important;
-	}
-
-	.card button,
-	.card .btn,
-	.card span,
-	.card input,
-	.card table,
-	.card p,
-	.card ul,
-	.card li,
-	.card strong,
-	.card label,
-	.card select {
-		max-width: 100% !important;
-		word-wrap: break-word !important;
-		overflow-wrap: break-word !important;
-		white-space: normal !important;
-	}
-
-	/* 페이지네이션 모바일 최적화 */
-	.row-cols-auto {
-		flex-wrap: wrap !important;
-		justify-content: center !important;
-		gap: 0.5rem !important;
-	}
-
-	.row-cols-auto button,
-	.row-cols-auto span {
-		font-size: 0.9rem !important;
-		padding: 0.4rem 0.6rem !important;
-	}
-}
+        .custom-table td:last-child { border-bottom: none; }
+    }
 </style>
 </head>
 <body>
 
 <?php include getDocumentRoot() . '/myheader.php'; ?>
 
-<form name="board_form" id="board_form" method="post" action="list.php?mode=search&search=<?= htmlspecialchars($search, ENT_QUOTES, 'UTF-8') ?>">
-    <input type="hidden" name="sort_field" id="sort_field" value="<?= htmlspecialchars($sort_field, ENT_QUOTES, 'UTF-8') ?>">
-    <input type="hidden" name="sort_order" id="sort_order" value="<?= htmlspecialchars($sort_order, ENT_QUOTES, 'UTF-8') ?>">
-    <input type="hidden" id="page" name="page" value="<?= htmlspecialchars($page, ENT_QUOTES, 'UTF-8') ?>">
-    <input type="hidden" id="exclude_resigned" name="exclude_resigned" value="<?= htmlspecialchars($exclude_resigned, ENT_QUOTES, 'UTF-8') ?>">
-    
-    <div class="container justify-content-center">
-        <div class="d-flex mt-2 mb-1 justify-content-center">
-            <span class="text-secondary fs-5">&nbsp;&nbsp; 회원 정보관리 &nbsp;&nbsp;</span>
-            <button type="button" class="btn btn-dark btn-sm mx-3" onclick='location.reload();' title="새로고침">
-                <i class="bi bi-arrow-clockwise"></i>
-            </button>
-        </div>
-        
-        <div class="d-flex mt-1 mb-1 justify-content-center">
-            <div class="input-group p-2 mb-2 justify-content-center align-items-center">
-                <span class="badge bg-secondary me-2">총 <?= $total_row ?>명</span>
-                <div class="form-check me-2">
-                    <input class="form-check-input" type="checkbox" id="excludeResignedCheckbox" <?= $exclude_resigned == '1' ? 'checked' : '' ?> onchange="toggleExcludeResigned()">
-                    <label class="form-check-label" for="excludeResignedCheckbox" style="white-space: nowrap;">
-                        퇴사자 제외
-                    </label>
+<main class="container-fluid py-4">
+    <div class="main-card">
+        <form name="board_form" id="board_form" method="post" action="list.php?mode=search&search=<?= htmlspecialchars($search, ENT_QUOTES, 'UTF-8') ?>">
+            <input type="hidden" name="sort_field" id="sort_field" value="<?= htmlspecialchars($sort_field, ENT_QUOTES, 'UTF-8') ?>">
+            <input type="hidden" name="sort_order" id="sort_order" value="<?= htmlspecialchars($sort_order, ENT_QUOTES, 'UTF-8') ?>">
+            <input type="hidden" id="page" name="page" value="<?= htmlspecialchars($page, ENT_QUOTES, 'UTF-8') ?>">
+            <input type="hidden" id="exclude_resigned" name="exclude_resigned" value="<?= htmlspecialchars($exclude_resigned, ENT_QUOTES, 'UTF-8') ?>">
+
+            <!-- 페이지 헤더 -->
+            <header class="page-header">
+                <h1 class="page-title">
+                    <i class="bi bi-people-fill"></i>
+                    회원 정보관리
+                </h1>
+                <button type="button" class="btn-premium btn-premium-secondary" onclick='location.reload();' title="새로고침">
+                    <i class="bi bi-arrow-clockwise"></i>
+                    <span class="d-none d-sm-inline">새로고침</span>
+                </button>
+            </header>
+
+            <!-- 액션 및 검색 바 -->
+            <section class="action-bar">
+                <div class="stats-badge">
+                    <i class="bi bi-person-check me-2"></i>
+                    총 <?= $total_row ?>명
                 </div>
-                <button type="button" class="btn btn-dark btn-sm me-2" onclick="popupCenter('write_form.php?id=null', '회원 등록', 800, 500);return false;">등록</button>
-                <button type="button" class="btn btn-dark btn-sm me-2" onclick="popupCenter('setline.php?id=null', '결재라인 등록', 600, 800);return false;">결재라인 등록</button>
-                <div class="inputWrap">
-					<input type="text" name="search" id="search" value="<?= htmlspecialchars($search, ENT_QUOTES, 'UTF-8') ?>" size="30" autocomplete="off" onkeydown="SearchEnter();" placeholder="ID, 이름, 닉네임 검색...">
-					<button class="btnClear" type="button"></button>
-					<button type="button" id="searchBtnMobile" class="btn-search-icon">
-						<i class="bi bi-search"></i>
-					</button>
-				</div>
-                <button type="button" id="searchBtn" class="btn btn-dark pc-only-btn"><i class="bi bi-search"></i></button>
-            </div>
-        </div>
-        
-        <div class="row d-flex">
-            <div class="table-responsive">
-            <table class="table table-hover">
-                <thead class="table-secondary">
-                    <tr>
-                        <th class="text-center">번호</th>
-                        <th class="text-center sortable-header" onclick="sortTable('division')">
-                            division
-                            <i class="bi bi-arrow-up sort-icon <?= ($sort_field == 'division' && $sort_order == 'asc') ? 'active' : '' ?>"></i>
-                            <i class="bi bi-arrow-down sort-icon <?= ($sort_field == 'division' && $sort_order == 'desc') ? 'active' : '' ?>"></i>
-                        </th>
-                        <th class="text-center sortable-header" onclick="sortTable('name')">
-                            이름
-                            <i class="bi bi-arrow-up sort-icon <?= ($sort_field == 'name' && $sort_order == 'asc') ? 'active' : '' ?>"></i>
-                            <i class="bi bi-arrow-down sort-icon <?= ($sort_field == 'name' && $sort_order == 'desc') ? 'active' : '' ?>"></i>
-                        </th>
-                        <th class="text-center sortable-header" onclick="sortTable('part')">
-                            파트
-                            <i class="bi bi-arrow-up sort-icon <?= ($sort_field == 'part' && $sort_order == 'asc') ? 'active' : '' ?>"></i>
-                            <i class="bi bi-arrow-down sort-icon <?= ($sort_field == 'part' && $sort_order == 'desc') ? 'active' : '' ?>"></i>
-                        </th>
-                        <th class="text-center sortable-header" onclick="sortTable('position')">
-                            position
-                            <i class="bi bi-arrow-up sort-icon <?= ($sort_field == 'position' && $sort_order == 'asc') ? 'active' : '' ?>"></i>
-                            <i class="bi bi-arrow-down sort-icon <?= ($sort_field == 'position' && $sort_order == 'desc') ? 'active' : '' ?>"></i>
-                        </th>
-                        <th class="text-center sortable-header" onclick="sortTable('id')">
-                            ID
-                            <i class="bi bi-arrow-up sort-icon <?= ($sort_field == 'id' && $sort_order == 'asc') ? 'active' : '' ?>"></i>
-                            <i class="bi bi-arrow-down sort-icon <?= ($sort_field == 'id' && $sort_order == 'desc') ? 'active' : '' ?>"></i>
-                        </th>
-                        <th class="text-center">P/W</th>
-                        <th class="text-center sortable-header" onclick="sortTable('hp')">
-                            전번
-                            <i class="bi bi-arrow-up sort-icon <?= ($sort_field == 'hp' && $sort_order == 'asc') ? 'active' : '' ?>"></i>
-                            <i class="bi bi-arrow-down sort-icon <?= ($sort_field == 'hp' && $sort_order == 'desc') ? 'active' : '' ?>"></i>
-                        </th>
-                        <th class="text-center sortable-header" onclick="sortTable('level')">
-                            레벨
-                            <i class="bi bi-arrow-up sort-icon <?= ($sort_field == 'level' && $sort_order == 'asc') ? 'active' : '' ?>"></i>
-                            <i class="bi bi-arrow-down sort-icon <?= ($sort_field == 'level' && $sort_order == 'desc') ? 'active' : '' ?>"></i>
-                        </th>
-                        <th class="text-center sortable-header" onclick="sortTable('numorder')">
-                            numorder
-                            <i class="bi bi-arrow-up sort-icon <?= ($sort_field == 'numorder' && $sort_order == 'asc') ? 'active' : '' ?>"></i>
-                            <i class="bi bi-arrow-down sort-icon <?= ($sort_field == 'numorder' && $sort_order == 'desc') ? 'active' : '' ?>"></i>
-                        </th>
-                        <th class="text-center sortable-header" onclick="sortTable('eworks_level')">
-                            eworks_level
-                            <i class="bi bi-arrow-up sort-icon <?= ($sort_field == 'eworks_level' && $sort_order == 'asc') ? 'active' : '' ?>"></i>
-                            <i class="bi bi-arrow-down sort-icon <?= ($sort_field == 'eworks_level' && $sort_order == 'desc') ? 'active' : '' ?>"></i>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    // 번호 계산: 1부터 시작하는 순차 번호
-                    // 첫 번째 페이지: 1부터 시작
-                    // 두 번째 페이지: (page - 1) * scale + 1부터 시작
-                    $start_num = ($page - 1) * $scale + 1;
-                    $row_count = 0;
+
+                <div class="form-check form-switch ms-2">
+                    <input class="form-check-input" type="checkbox" id="excludeResignedCheckbox" <?= $exclude_resigned == '1' ? 'checked' : '' ?> onchange="toggleExcludeResigned()">
+                    <label class="form-check-label text-muted small" for="excludeResignedCheckbox">퇴사자 제외</label>
+                </div>
+
+                <div class="filter-group">
+                    <div class="search-container">
+                        <input type="text" name="search" id="search" class="search-input" value="<?= htmlspecialchars($search, ENT_QUOTES, 'UTF-8') ?>" autocomplete="off" onkeydown="SearchEnter();" placeholder="ID, 이름, 닉네임 검색...">
+                        <i class="bi bi-x-circle-fill search-clear" id="searchClear"></i>
+                        <i class="bi bi-search search-icon"></i>
+                    </div>
                     
-                    // 배열로 받은 데이터를 foreach로 처리
-                    foreach ($member_list as $row) {
-                        $row_count++;
-                        
-                        // _row.php의 변수 할당을 직접 여기서 처리
-                        $id = $row["id"] ?? '';
-                        $pass = $row["pass"] ?? '';
-                        $name = $row["name"] ?? '';
-                        $level = $row["level"] ?? '';
-                        $part = $row["part"] ?? '';
-                        $hp = $row["hp"] ?? '';
-                        $numorder = $row["numorder"] ?? '';
-                        $position = $row["position"] ?? '';
-                        $eworks_level = $row["eworks_level"] ?? '';
-                        $division = $row["division"] ?? '';
-                        ?>
-                        <tr onclick="redirectToView('<?= htmlspecialchars($id, ENT_QUOTES, 'UTF-8') ?>')">
-                            <td class="text-center" data-label="번호"><?= $start_num ?></td>
-                            <td class="text-center" data-label="division"><?= htmlspecialchars($division, ENT_QUOTES, 'UTF-8') ?></td>
-                            <td class="text-center" data-label="이름"><?= htmlspecialchars($name, ENT_QUOTES, 'UTF-8') ?></td>
-                            <td class="text-center" data-label="파트"><?= htmlspecialchars($part, ENT_QUOTES, 'UTF-8') ?></td>
-                            <td class="text-center" data-label="position"><?= htmlspecialchars($position, ENT_QUOTES, 'UTF-8') ?></td>
-                            <td class="text-center" data-label="ID"><?= htmlspecialchars($id, ENT_QUOTES, 'UTF-8') ?></td>
-                            <td class="text-center" data-label="P/W">
-                                <input type="password" name="password" value="<?= htmlspecialchars($pass, ENT_QUOTES, 'UTF-8') ?>" disabled style="width: 100%; max-width: 100%; box-sizing: border-box;">
-                            </td>
-                            <td class="text-center" data-label="전번"><?= htmlspecialchars($hp, ENT_QUOTES, 'UTF-8') ?></td>
-                            <td class="text-center" data-label="레벨"><?= htmlspecialchars($level, ENT_QUOTES, 'UTF-8') ?></td>
-                            <td class="text-center" data-label="numorder"><?= htmlspecialchars($numorder, ENT_QUOTES, 'UTF-8') ?></td>
-                            <td class="text-center" data-label="eworks_level"><?= htmlspecialchars($eworks_level, ENT_QUOTES, 'UTF-8') ?></td>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn-premium btn-premium-primary" onclick="popupCenter('write_form.php?id=null', '회원 등록', 800, 500);return false;">
+                            <i class="bi bi-plus-lg"></i> 등록
+                        </button>
+                        <button type="button" class="btn-premium btn-premium-secondary" onclick="popupCenter('setline.php?id=null', '결재라인 등록', 600, 800);return false;">
+                            <i class="bi bi-diagram-3"></i> 결재라인
+                        </button>
+                    </div>
+                </div>
+            </section>
+        
+            <!-- 데이터 테이블 -->
+            <div class="table-container">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th class="text-center" style="width: 60px;">번호</th>
+                            <th>
+                                <a href="javascript:void(0)" class="sort-link" onclick="sortTable('division')">
+                                    구분
+                                    <i class="bi bi-caret-up-fill sort-icon <?= ($sort_field == 'division' && $sort_order == 'asc') ? 'active' : '' ?>"></i>
+                                    <i class="bi bi-caret-down-fill sort-icon <?= ($sort_field == 'division' && $sort_order == 'desc') ? 'active' : '' ?>"></i>
+                                </a>
+                            </th>
+                            <th>
+                                <a href="javascript:void(0)" class="sort-link" onclick="sortTable('name')">
+                                    이름
+                                    <i class="bi bi-caret-up-fill sort-icon <?= ($sort_field == 'name' && $sort_order == 'asc') ? 'active' : '' ?>"></i>
+                                    <i class="bi bi-caret-down-fill sort-icon <?= ($sort_field == 'name' && $sort_order == 'desc') ? 'active' : '' ?>"></i>
+                                </a>
+                            </th>
+                            <th>
+                                <a href="javascript:void(0)" class="sort-link" onclick="sortTable('part')">
+                                    파트
+                                    <i class="bi bi-caret-up-fill sort-icon <?= ($sort_field == 'part' && $sort_order == 'asc') ? 'active' : '' ?>"></i>
+                                    <i class="bi bi-caret-down-fill sort-icon <?= ($sort_field == 'part' && $sort_order == 'desc') ? 'active' : '' ?>"></i>
+                                </a>
+                            </th>
+                            <th>
+                                <a href="javascript:void(0)" class="sort-link" onclick="sortTable('position')">
+                                    직위
+                                    <i class="bi bi-caret-up-fill sort-icon <?= ($sort_field == 'position' && $sort_order == 'asc') ? 'active' : '' ?>"></i>
+                                    <i class="bi bi-caret-down-fill sort-icon <?= ($sort_field == 'position' && $sort_order == 'desc') ? 'active' : '' ?>"></i>
+                                </a>
+                            </th>
+                            <th>
+                                <a href="javascript:void(0)" class="sort-link" onclick="sortTable('id')">
+                                    ID
+                                    <i class="bi bi-caret-up-fill sort-icon <?= ($sort_field == 'id' && $sort_order == 'asc') ? 'active' : '' ?>"></i>
+                                    <i class="bi bi-caret-down-fill sort-icon <?= ($sort_field == 'id' && $sort_order == 'desc') ? 'active' : '' ?>"></i>
+                                </a>
+                            </th>
+                            <th class="text-center">P/W</th>
+                            <th>
+                                <a href="javascript:void(0)" class="sort-link" onclick="sortTable('hp')">
+                                    연락처
+                                    <i class="bi bi-caret-up-fill sort-icon <?= ($sort_field == 'hp' && $sort_order == 'asc') ? 'active' : '' ?>"></i>
+                                    <i class="bi bi-caret-down-fill sort-icon <?= ($sort_field == 'hp' && $sort_order == 'desc') ? 'active' : '' ?>"></i>
+                                </a>
+                            </th>
+                            <th class="text-center">
+                                <a href="javascript:void(0)" class="sort-link justify-content-center" onclick="sortTable('level')">
+                                    레벨
+                                    <i class="bi bi-caret-up-fill sort-icon <?= ($sort_field == 'level' && $sort_order == 'asc') ? 'active' : '' ?>"></i>
+                                    <i class="bi bi-caret-down-fill sort-icon <?= ($sort_field == 'level' && $sort_order == 'desc') ? 'active' : '' ?>"></i>
+                                </a>
+                            </th>
+                            <th class="text-center">
+                                <a href="javascript:void(0)" class="sort-link justify-content-center" onclick="sortTable('numorder')">
+                                    순서
+                                    <i class="bi bi-caret-up-fill sort-icon <?= ($sort_field == 'numorder' && $sort_order == 'asc') ? 'active' : '' ?>"></i>
+                                    <i class="bi bi-caret-down-fill sort-icon <?= ($sort_field == 'numorder' && $sort_order == 'desc') ? 'active' : '' ?>"></i>
+                                </a>
+                            </th>
+                            <th class="text-center">
+                                <a href="javascript:void(0)" class="sort-link justify-content-center" onclick="sortTable('eworks_level')">
+                                    결재레벨
+                                    <i class="bi bi-caret-up-fill sort-icon <?= ($sort_field == 'eworks_level' && $sort_order == 'asc') ? 'active' : '' ?>"></i>
+                                    <i class="bi bi-caret-down-fill sort-icon <?= ($sort_field == 'eworks_level' && $sort_order == 'desc') ? 'active' : '' ?>"></i>
+                                </a>
+                            </th>
                         </tr>
+                    </thead>
+                    <tbody>
                         <?php
-                        $start_num++;
+                        $start_num = ($page - 1) * $scale + 1;
+                        $row_count = 0;
+                        
+                        foreach ($member_list as $row) {
+                            $row_count++;
+                            $id = $row["id"] ?? '';
+                            $pass = $row["pass"] ?? '';
+                            $name = $row["name"] ?? '';
+                            $level_val = $row["level"] ?? '';
+                            $part = $row["part"] ?? '';
+                            $hp = $row["hp"] ?? '';
+                            $position = $row["position"] ?? '';
+                            $division = $row["division"] ?? '';
+                            $numorder = $row["numorder"] ?? '';
+                            $eworks_level = $row["eworks_level"] ?? '';
+
+                            // 레벨별 뱃지 클래스
+                            $level_class = 'level-user';
+                            if ($level_val <= 1) $level_class = 'level-admin';
+                            else if ($level_val <= 5) $level_class = 'level-manager';
+                            ?>
+                            <tr onclick="redirectToView('<?= htmlspecialchars($id, ENT_QUOTES, 'UTF-8') ?>')">
+                                <td class="text-center" data-label="번호"><?= $start_num ?></td>
+                                <td data-label="구분">
+                                    <span class="text-secondary small"><?= htmlspecialchars($division, ENT_QUOTES, 'UTF-8') ?></span>
+                                </td>
+                                <td data-label="이름">
+                                    <div class="fw-bold"><?= htmlspecialchars($name, ENT_QUOTES, 'UTF-8') ?></div>
+                                </td>
+                                <td data-label="파트"><?= htmlspecialchars($part, ENT_QUOTES, 'UTF-8') ?></td>
+                                <td data-label="직위"><?= htmlspecialchars($position, ENT_QUOTES, 'UTF-8') ?></td>
+                                <td data-label="ID"><?= htmlspecialchars($id, ENT_QUOTES, 'UTF-8') ?></td>
+                                <td class="text-center" data-label="P/W">
+                                    <input type="password" value="<?= htmlspecialchars($pass, ENT_QUOTES, 'UTF-8') ?>" class="table-input-pw" readonly>
+                                </td>
+                                <td data-label="연락처"><?= htmlspecialchars($hp, ENT_QUOTES, 'UTF-8') ?></td>
+                                <td class="text-center" data-label="레벨">
+                                    <span class="badge-level <?= $level_class ?>"><?= htmlspecialchars($level_val, ENT_QUOTES, 'UTF-8') ?></span>
+                                </td>
+                                <td class="text-center" data-label="순서">
+                                    <small class="text-muted"><?= htmlspecialchars($numorder, ENT_QUOTES, 'UTF-8') ?></small>
+                                </td>
+                                <td class="text-center" data-label="결재레벨">
+                                    <span class="badge rounded-pill bg-light text-dark border"><?= htmlspecialchars($eworks_level, ENT_QUOTES, 'UTF-8') ?></span>
+                                </td>
+                            </tr>
+                            <?php
+                            $start_num++;
+                        }
+                        
+                        if ($row_count == 0) {
+                            ?>
+                            <tr>
+                                <td colspan="9" class="text-center py-5">
+                                    <div class="text-muted">
+                                        <i class="bi bi-inbox-fill display-1 opacity-25"></i>
+                                        <p class="mt-4 fs-5">표시할 데이터가 없습니다.</p>
+                                        <?php if ($mode == "search" && !empty($search)) { ?>
+                                            <p class="small">검색어: <strong><?= htmlspecialchars($search) ?></strong></p>
+                                            <button type="button" class="btn-premium btn-premium-secondary btn-sm" onclick="location.href='list.php'">전체 목록 보기</button>
+                                        <?php } ?>
+                                    </div>
+                                </td>
+                            </tr>
+                            <?php
+                        }
+                        ?>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 페이지네이션 -->
+            <div class="pagination-container">
+                <div class="pagination-list">
+                    <?php
+                    $start_page = ($current_page - 1) * $page_scale + 1;
+                    $end_page = $start_page + $page_scale - 1;
+                    
+                    if ($page != 1 && $page > $page_scale) {
+                        $prev_page = $page - $page_scale;
+                        if ($prev_page <= 0) $prev_page = 1;
+                        echo '<button class="page-btn page-btn-nav" type="button" onclick="movetoPage(' . $prev_page . ')"><i class="bi bi-chevron-double-left"></i></button>';
                     }
                     
-                    // 데이터가 없을 때 메시지 표시
-                    if ($row_count == 0) {
-                        ?>
-                        <tr>
-                            <td colspan="11" class="text-center py-5">
-                                <div class="text-muted">
-                                    <i class="bi bi-inbox" style="font-size: 3rem;"></i>
-                                    <p class="mt-3">표시할 데이터가 없습니다.</p>
-                                    <?php if ($mode == "search" && !empty($search)) { ?>
-                                        <p class="small">검색어: <strong><?= htmlspecialchars($search) ?></strong></p>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="location.href='list.php'">전체 목록 보기</button>
-                                    <?php } else { ?>
-                                        <p class="small">등록 버튼을 눌러 회원을 추가하세요.</p>
-                                    <?php } ?>
-                                </div>
-                            </td>
-                        </tr>
-                        <?php
+                    for ($i = $start_page; $i <= $end_page && $i <= $total_page; $i++) {
+                        $active_class = ($page == $i) ? 'active' : '';
+                        if ($page == $i) {
+                            echo '<span class="page-btn ' . $active_class . '">' . $i . '</span>';
+                        } else {
+                            echo '<button class="page-btn" type="button" onclick="movetoPage(' . $i . ')">' . $i . '</button>';
+                        }
+                    }
+                    
+                    if ($page < $total_page) {
+                        $next_page = $page + $page_scale;
+                        if ($next_page > $total_page) $next_page = $total_page;
+                        echo '<button class="page-btn page-btn-nav" type="button" onclick="movetoPage(' . $next_page . ')"><i class="bi bi-chevron-double-right"></i></button>';
                     }
                     ?>
-                </tbody>
-            </table>
+                </div>
             </div>
-        </div>
-        
-        <div class="row row-cols-auto mt-5 justify-content-center align-items-center">
-            <?php
-            $start_page = ($current_page - 1) * $page_scale + 1;
-            $end_page = $start_page + $page_scale - 1;
-            
-            if ($page != 1 && $page > $page_scale) {
-                $prev_page = $page - $page_scale;
-                if ($prev_page <= 0) $prev_page = 1;
-                echo '<button class="btn btn-outline-secondary btn-sm" type="button" id="previousListBtn" onclick="movetoPage(' . $prev_page . ')">◀</button>&nbsp;';
-            }
-            
-            for ($i = $start_page; $i <= $end_page && $i <= $total_page; $i++) {
-                if ($page == $i) {
-                    echo '<span class="text-secondary">' . $i . '</span>&nbsp;';
-                } else {
-                    echo '<button class="btn btn-outline-secondary btn-sm" type="button" id="moveListBtn" onclick="movetoPage(' . $i . ')">' . $i . '</button>&nbsp;';
-                }
-            }
-            
-            if ($page < $total_page) {
-                $next_page = $page + $page_scale;
-                if ($next_page > $total_page) $next_page = $total_page;
-                echo '<button class="btn btn-outline-secondary btn-sm" type="button" id="nextListBtn" onclick="movetoPage(' . $next_page . ')">▶</button>&nbsp;';
-            }
-            ?>
-        </div>
+        </form>
     </div>
-</form>
+</main>
 
 <script type="text/javascript">
 (function() {
     'use strict';
     
+    // 회원 상세보기 (팝업 또는 이동)
     window.redirectToView = function(id) {
         if (typeof popupCenter !== 'undefined') {
             popupCenter('write_form.php?id=' + encodeURIComponent(id), '회원정보 수정', 800, 550);
@@ -748,31 +813,26 @@ include getDocumentRoot() . '/load_header.php';
         }
     };
     
+    // 테이블 정렬
     window.sortTable = function(field) {
         var currentSortField = $("#sort_field").val();
         var currentSortOrder = $("#sort_order").val();
         
-        var newOrder;
-        if (currentSortField === field) {
-            newOrder = (currentSortOrder === 'asc') ? 'desc' : 'asc';
-        } else {
-            newOrder = 'desc';
-        }
+        var newOrder = (currentSortField === field && currentSortOrder === 'asc') ? 'desc' : 'asc';
         
         $("#sort_field").val(field);
         $("#sort_order").val(newOrder);
         $("#page").val('1');
-        
         $("#board_form").submit();
     };
     
+    // 페이지 이동
     window.movetoPage = function(page) {
         $("#page").val(page);
-        $("#sort_field").val(<?= json_encode($sort_field, JSON_UNESCAPED_UNICODE) ?>);
-        $("#sort_order").val(<?= json_encode($sort_order, JSON_UNESCAPED_UNICODE) ?>);
         $("#board_form").submit();
     };
     
+    // 검색 엔터키 처리
     window.SearchEnter = function() {
         if (event.keyCode == 13) {
             $("#page").val('1');
@@ -780,7 +840,7 @@ include getDocumentRoot() . '/load_header.php';
         }
     };
     
-    // 퇴사자 제외 체크박스 변경 처리
+    // 퇴사자 제외 토글
     window.toggleExcludeResigned = function() {
         var isChecked = document.getElementById('excludeResignedCheckbox').checked;
         document.getElementById('exclude_resigned').value = isChecked ? '1' : '0';
@@ -788,15 +848,35 @@ include getDocumentRoot() . '/load_header.php';
         document.getElementById('board_form').submit();
     };
     
-    // 검색창 클리어
-    $(document).on('click', '.btnClear', function() {
-        $('#search').val('');
-    });
-
     $(document).ready(function() {
-        $("#searchBtn, #searchBtnMobile").click(function() {
-            $("#page").val('1');
-            document.getElementById('board_form').submit();
+        const $searchInput = $('#search');
+        const $searchClear = $('#searchClear');
+
+        // 검색어 입력 시 지우기 버튼 노출 제어
+        $searchInput.on('input', function() {
+            if ($(this).val().length > 0) {
+                $searchClear.fadeIn(200);
+            } else {
+                $searchClear.fadeOut(200);
+            }
+        });
+
+        // 초기 로드 시 검색어가 있으면 버튼 표시
+        if ($searchInput.val().length > 0) {
+            $searchClear.show();
+        }
+
+        // 검색어 지우기 클릭
+        $searchClear.on('click', function() {
+            $searchInput.val('').focus();
+            $(this).fadeOut(200);
+        });
+
+        // 행 마우스 오버 시 미세한 애니메이션 (옵션)
+        $('.custom-table tbody tr').on('mouseenter', function() {
+            $(this).find('.badge-level').css('transform', 'scale(1.05)');
+        }).on('mouseleave', function() {
+            $(this).find('.badge-level').css('transform', 'scale(1)');
         });
     });
     
